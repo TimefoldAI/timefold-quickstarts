@@ -16,6 +16,7 @@ import javax.jms.JMSException;
 import javax.jms.JMSProducer;
 import javax.jms.Session;
 
+import ai.timefold.solver.jackson.api.TimefoldJacksonModule;
 import org.acme.schooltimetabling.domain.Lesson;
 import org.acme.schooltimetabling.domain.Room;
 import org.acme.schooltimetabling.domain.TimeTable;
@@ -26,7 +27,6 @@ import org.acme.schooltimetabling.messaging.TimeTableMessagingHandler;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-import ai.timefold.solver.jackson.api.OptaPlannerJacksonModule;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -47,7 +47,7 @@ public class TimeTableMessagingHandlerTest {
     // Native test does not support @Inject.
     private ObjectMapper objectMapper = new ObjectMapper()
             .registerModule(new JavaTimeModule())
-            .registerModule(OptaPlannerJacksonModule.createModule());
+            .registerModule(TimefoldJacksonModule.createModule());
 
     @Test
     @Timeout(TEST_TIMEOUT_SECONDS)
