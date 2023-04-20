@@ -18,7 +18,6 @@ a|* link:use-cases/school-timetabling/README.adoc[Quarkus] (Java, Maven or Gradl
 * link:technology/java-spring-boot/README.adoc[Spring Boot] (Java, Maven or Gradle, Spring Boot, H2)
 * link:technology/java-activemq-quarkus/README.adoc[ActiveMQ] (Java, ActiveMQ, Maven, Quarkus)
 * link:technology/kotlin-quarkus/README.adoc[Kotlin] (Kotlin, Maven, Quarkus, H2)
-* link:technology/python/README.adoc[Python (experimental)] (Python, Pip)
 
 2+a|* <<timefold-solver-examples, Timefold examples (desktop)>>
 |===

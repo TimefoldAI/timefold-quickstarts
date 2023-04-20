@@ -1,5 +1,0 @@
-= School Timetabling (Python, Pip)
-
-In Python, use https://www.optapy.org[OptaPy] instead.
-
-Take a look at the Python quickstarts in `optapy-quickstarts` of https://www.optapy.org[OptaPy].
