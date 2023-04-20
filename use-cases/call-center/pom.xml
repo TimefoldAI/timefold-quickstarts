@@ -196,17 +196,4 @@
     </profile>
   </profiles>
 
-  <repositories>
-    <repository>
-      <id>jboss-public-repository-group</id>
-      <url>https://repository.jboss.org/nexus/content/groups/public/</url>
-      <releases>
-        <!-- Get releases only from Maven Central which is faster. -->
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
 </project>

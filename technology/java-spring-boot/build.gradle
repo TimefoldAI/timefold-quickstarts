@@ -15,12 +15,6 @@ sourceCompatibility = "11"
 repositories {
     mavenCentral()
     mavenLocal()
-    maven {
-        url "https://repository.jboss.org/nexus/content/groups/public/"
-        mavenContent {
-            snapshotsOnly()
-        }
-    }
 }
 
 dependencies {
