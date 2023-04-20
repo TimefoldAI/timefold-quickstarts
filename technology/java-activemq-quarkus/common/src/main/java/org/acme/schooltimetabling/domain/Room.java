@@ -1,6 +1,6 @@
 package org.acme.schooltimetabling.domain;
 
-import org.optaplanner.core.api.domain.lookup.PlanningId;
+import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 
 public class Room {
 

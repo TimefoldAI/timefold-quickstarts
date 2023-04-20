@@ -26,7 +26,7 @@ import org.acme.schooltimetabling.messaging.TimeTableMessagingHandler;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-import org.optaplanner.persistence.jackson.api.OptaPlannerJacksonModule;
+import ai.timefold.solver.jackson.api.OptaPlannerJacksonModule;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

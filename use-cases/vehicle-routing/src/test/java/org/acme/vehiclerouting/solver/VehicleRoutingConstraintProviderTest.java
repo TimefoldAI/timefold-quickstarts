@@ -13,7 +13,7 @@ import org.acme.vehiclerouting.domain.VehicleRoutingSolution;
 import org.acme.vehiclerouting.domain.geo.EuclideanDistanceCalculator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.optaplanner.test.api.score.stream.ConstraintVerifier;
+import ai.timefold.solver.test.api.score.stream.ConstraintVerifier;
 
 @QuarkusTest
 class VehicleRoutingConstraintProviderTest {

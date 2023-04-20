@@ -17,8 +17,8 @@ import org.acme.vaccinationscheduler.domain.solver.PersonAssignment;
 import org.acme.vaccinationscheduler.domain.solver.VaccinationSlot;
 import org.acme.vaccinationscheduler.domain.solver.VaccinationSolution;
 import org.acme.vaccinationscheduler.solver.PersonAssignmentDifficultyComparator;
-import org.optaplanner.core.api.score.director.ScoreDirector;
-import org.optaplanner.core.impl.phase.custom.CustomPhaseCommand;
+import ai.timefold.solver.core.api.score.director.ScoreDirector;
+import ai.timefold.solver.core.impl.phase.custom.CustomPhaseCommand;
 
 /**
  * Power specialized custom Construction Heuristic.

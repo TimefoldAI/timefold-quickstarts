@@ -1,11 +1,11 @@
 package org.acme.kotlin.schooltimetabling.solver
 
 import org.acme.kotlin.schooltimetabling.domain.Lesson
-import org.optaplanner.core.api.score.buildin.hardsoft.HardSoftScore
-import org.optaplanner.core.api.score.stream.Constraint
-import org.optaplanner.core.api.score.stream.ConstraintFactory
-import org.optaplanner.core.api.score.stream.ConstraintProvider
-import org.optaplanner.core.api.score.stream.Joiners
+import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore
+import ai.timefold.solver.core.api.score.stream.Constraint
+import ai.timefold.solver.core.api.score.stream.ConstraintFactory
+import ai.timefold.solver.core.api.score.stream.ConstraintProvider
+import ai.timefold.solver.core.api.score.stream.Joiners
 import java.time.Duration
 
 class TimeTableConstraintProvider : ConstraintProvider {

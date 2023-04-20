@@ -3,7 +3,7 @@ package org.acme.schooltimetabling.solver;
 import org.acme.schooltimetabling.rest.TimeTableController;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-import org.optaplanner.benchmark.api.PlannerBenchmarkFactory;
+import ai.timefold.solver.benchmark.api.PlannerBenchmarkFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 

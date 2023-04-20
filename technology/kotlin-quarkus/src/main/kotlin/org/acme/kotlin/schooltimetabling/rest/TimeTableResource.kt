@@ -6,10 +6,10 @@ import org.acme.kotlin.schooltimetabling.domain.TimeTable
 import org.acme.kotlin.schooltimetabling.persistence.LessonRepository
 import org.acme.kotlin.schooltimetabling.persistence.RoomRepository
 import org.acme.kotlin.schooltimetabling.persistence.TimeslotRepository
-import org.optaplanner.core.api.score.buildin.hardsoft.HardSoftScore
-import org.optaplanner.core.api.solver.SolutionManager
-import org.optaplanner.core.api.solver.SolverManager
-import org.optaplanner.core.api.solver.SolverStatus
+import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore
+import ai.timefold.solver.core.api.solver.SolutionManager
+import ai.timefold.solver.core.api.solver.SolverManager
+import ai.timefold.solver.core.api.solver.SolverStatus
 import javax.inject.Inject
 import javax.transaction.Transactional
 import javax.ws.rs.GET

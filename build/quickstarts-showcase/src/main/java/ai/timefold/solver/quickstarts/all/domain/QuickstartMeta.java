@@ -1,4 +1,4 @@
-package org.optaplanner.quickstarts.all.domain;
+package ai.timefold.solver.quickstarts.all.domain;
 
 import java.util.ArrayList;
 import java.util.List;

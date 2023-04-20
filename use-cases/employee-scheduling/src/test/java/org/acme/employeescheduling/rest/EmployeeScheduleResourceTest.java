@@ -10,7 +10,7 @@ import org.acme.employeescheduling.domain.EmployeeSchedule;
 import org.acme.employeescheduling.domain.Shift;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-import org.optaplanner.core.api.solver.SolverStatus;
+import ai.timefold.solver.core.api.solver.SolverStatus;
 
 import io.quarkus.test.junit.QuarkusTest;
 

@@ -1,7 +1,7 @@
 package org.acme.orderpicking.domain;
 
-import org.optaplanner.core.api.domain.entity.PlanningEntity;
-import org.optaplanner.core.api.domain.variable.InverseRelationShadowVariable;
+import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
+import ai.timefold.solver.core.api.domain.variable.InverseRelationShadowVariable;
 
 /**
  * Base class for implementing the CHAINED graph modelling strategy.

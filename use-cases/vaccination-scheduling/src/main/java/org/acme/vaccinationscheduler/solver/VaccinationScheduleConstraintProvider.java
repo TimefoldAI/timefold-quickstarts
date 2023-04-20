@@ -6,11 +6,11 @@ import static java.time.temporal.ChronoUnit.MINUTES;
 import java.time.LocalDateTime;
 
 import org.acme.vaccinationscheduler.domain.solver.PersonAssignment;
-import org.optaplanner.core.api.score.buildin.bendablelong.BendableLongScore;
-import org.optaplanner.core.api.score.stream.Constraint;
-import org.optaplanner.core.api.score.stream.ConstraintCollectors;
-import org.optaplanner.core.api.score.stream.ConstraintFactory;
-import org.optaplanner.core.api.score.stream.ConstraintProvider;
+import ai.timefold.solver.core.api.score.buildin.bendablelong.BendableLongScore;
+import ai.timefold.solver.core.api.score.stream.Constraint;
+import ai.timefold.solver.core.api.score.stream.ConstraintCollectors;
+import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
+import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
 
 public class VaccinationScheduleConstraintProvider implements ConstraintProvider {
 

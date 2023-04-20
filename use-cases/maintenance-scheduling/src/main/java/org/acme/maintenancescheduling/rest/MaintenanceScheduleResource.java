@@ -11,10 +11,10 @@ import org.acme.maintenancescheduling.domain.MaintenanceSchedule;
 import org.acme.maintenancescheduling.persistence.CrewRepository;
 import org.acme.maintenancescheduling.persistence.JobRepository;
 import org.acme.maintenancescheduling.persistence.WorkCalendarRepository;
-import org.optaplanner.core.api.score.buildin.hardsoft.HardSoftScore;
-import org.optaplanner.core.api.solver.SolutionManager;
-import org.optaplanner.core.api.solver.SolverManager;
-import org.optaplanner.core.api.solver.SolverStatus;
+import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
+import ai.timefold.solver.core.api.solver.SolutionManager;
+import ai.timefold.solver.core.api.solver.SolverManager;
+import ai.timefold.solver.core.api.solver.SolverStatus;
 
 import io.quarkus.panache.common.Sort;
 

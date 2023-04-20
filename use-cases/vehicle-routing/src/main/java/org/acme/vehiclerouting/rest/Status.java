@@ -1,7 +1,7 @@
 package org.acme.vehiclerouting.rest;
 
 import org.acme.vehiclerouting.domain.VehicleRoutingSolution;
-import org.optaplanner.core.api.solver.SolverStatus;
+import ai.timefold.solver.core.api.solver.SolverStatus;
 
 class Status {
 

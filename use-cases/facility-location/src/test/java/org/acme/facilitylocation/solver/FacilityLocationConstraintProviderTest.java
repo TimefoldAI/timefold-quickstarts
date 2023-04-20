@@ -7,7 +7,7 @@ import org.acme.facilitylocation.domain.Facility;
 import org.acme.facilitylocation.domain.FacilityLocationProblem;
 import org.acme.facilitylocation.domain.Location;
 import org.junit.jupiter.api.Test;
-import org.optaplanner.test.api.score.stream.ConstraintVerifier;
+import ai.timefold.solver.test.api.score.stream.ConstraintVerifier;
 
 import io.quarkus.test.junit.QuarkusTest;
 

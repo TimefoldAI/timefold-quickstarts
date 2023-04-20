@@ -1,10 +1,10 @@
 package org.acme.orderpicking.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.optaplanner.core.api.domain.entity.PlanningEntity;
-import org.optaplanner.core.api.domain.variable.AnchorShadowVariable;
-import org.optaplanner.core.api.domain.variable.PlanningVariable;
-import org.optaplanner.core.api.domain.variable.PlanningVariableGraphType;
+import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
+import ai.timefold.solver.core.api.domain.variable.AnchorShadowVariable;
+import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
+import ai.timefold.solver.core.api.domain.variable.PlanningVariableGraphType;
 
 /**
  * Represents a "stop" in a Trolley's path where an order item is to be picked.

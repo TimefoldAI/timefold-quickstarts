@@ -8,7 +8,7 @@ import org.acme.facilitylocation.bootstrap.DemoDataBuilder;
 import org.acme.facilitylocation.domain.FacilityLocationProblem;
 import org.acme.facilitylocation.domain.Location;
 import org.junit.jupiter.api.Test;
-import org.optaplanner.core.api.solver.SolverManager;
+import ai.timefold.solver.core.api.solver.SolverManager;
 
 import io.quarkus.test.junit.QuarkusTest;
 

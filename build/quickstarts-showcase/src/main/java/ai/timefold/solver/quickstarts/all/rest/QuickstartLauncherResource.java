@@ -1,4 +1,4 @@
-package org.optaplanner.quickstarts.all.rest;
+package ai.timefold.solver.quickstarts.all.rest;
 
 import java.awt.Desktop;
 import java.io.File;
@@ -19,8 +19,9 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PathParam;
 
+import ai.timefold.solver.quickstarts.all.domain.QuickstartMeta;
+
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.optaplanner.quickstarts.all.domain.QuickstartMeta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

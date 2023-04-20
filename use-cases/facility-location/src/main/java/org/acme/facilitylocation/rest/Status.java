@@ -1,7 +1,7 @@
 package org.acme.facilitylocation.rest;
 
 import org.acme.facilitylocation.domain.FacilityLocationProblem;
-import org.optaplanner.core.api.solver.SolverStatus;
+import ai.timefold.solver.core.api.solver.SolverStatus;
 
 class Status {
     public final FacilityLocationProblem solution;

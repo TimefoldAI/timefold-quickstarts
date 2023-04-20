@@ -16,9 +16,9 @@ import org.acme.callcenter.solver.change.AddCallProblemChange;
 import org.acme.callcenter.solver.change.PinCallProblemChange;
 import org.acme.callcenter.solver.change.ProlongCallByMinuteProblemChange;
 import org.acme.callcenter.solver.change.RemoveCallProblemChange;
-import org.optaplanner.core.api.solver.SolverManager;
-import org.optaplanner.core.api.solver.SolverStatus;
-import org.optaplanner.core.api.solver.change.ProblemChange;
+import ai.timefold.solver.core.api.solver.SolverManager;
+import ai.timefold.solver.core.api.solver.SolverStatus;
+import ai.timefold.solver.core.api.solver.change.ProblemChange;
 
 @ApplicationScoped
 public class SolverService {

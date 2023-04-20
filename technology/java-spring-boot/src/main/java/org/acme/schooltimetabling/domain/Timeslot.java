@@ -7,7 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
-import org.optaplanner.core.api.domain.lookup.PlanningId;
+import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 
 @Entity
 public class Timeslot {

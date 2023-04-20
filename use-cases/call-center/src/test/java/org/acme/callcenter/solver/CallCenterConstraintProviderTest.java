@@ -9,7 +9,7 @@ import org.acme.callcenter.domain.Call;
 import org.acme.callcenter.domain.CallCenter;
 import org.acme.callcenter.domain.Skill;
 import org.junit.jupiter.api.Test;
-import org.optaplanner.test.api.score.stream.ConstraintVerifier;
+import ai.timefold.solver.test.api.score.stream.ConstraintVerifier;
 
 import io.quarkus.test.junit.QuarkusTest;
 

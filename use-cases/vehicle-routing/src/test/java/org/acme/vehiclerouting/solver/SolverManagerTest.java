@@ -10,7 +10,7 @@ import org.acme.vehiclerouting.bootstrap.DemoDataBuilder;
 import org.acme.vehiclerouting.domain.Location;
 import org.acme.vehiclerouting.domain.VehicleRoutingSolution;
 import org.junit.jupiter.api.Test;
-import org.optaplanner.core.api.solver.SolverManager;
+import ai.timefold.solver.core.api.solver.SolverManager;
 
 @QuarkusTest
 class SolverManagerTest {

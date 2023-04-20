@@ -1,6 +1,6 @@
 package org.acme.employeescheduling.domain;
 
-import org.optaplanner.core.api.domain.entity.PinningFilter;
+import ai.timefold.solver.core.api.domain.entity.PinningFilter;
 
 public class ShiftPinningFilter implements PinningFilter<EmployeeSchedule, Shift> {
 

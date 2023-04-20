@@ -1,12 +1,13 @@
-package org.optaplanner.quickstarts.all.rest;
+package ai.timefold.solver.quickstarts.all.rest;
 
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.util.List;
 
+import ai.timefold.solver.quickstarts.all.domain.QuickstartMeta;
+
 import org.junit.jupiter.api.Test;
-import org.optaplanner.quickstarts.all.domain.QuickstartMeta;
 
 import io.quarkus.test.junit.QuarkusTest;
 

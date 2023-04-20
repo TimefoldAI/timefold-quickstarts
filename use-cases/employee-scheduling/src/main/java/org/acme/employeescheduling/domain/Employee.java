@@ -7,7 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 
-import org.optaplanner.core.api.domain.lookup.PlanningId;
+import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 
 @Entity
 public class Employee {

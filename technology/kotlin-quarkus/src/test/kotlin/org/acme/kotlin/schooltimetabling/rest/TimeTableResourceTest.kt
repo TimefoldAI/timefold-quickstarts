@@ -7,7 +7,7 @@ import io.restassured.http.ContentType
 import org.awaitility.Awaitility.await
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.Test
-import org.optaplanner.core.api.solver.SolverStatus
+import ai.timefold.solver.core.api.solver.SolverStatus
 import java.time.Duration
 
 @QuarkusTest

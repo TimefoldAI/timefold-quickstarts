@@ -14,9 +14,9 @@ import org.acme.schooltimetabling.domain.Room;
 import org.acme.schooltimetabling.domain.TimeTable;
 import org.acme.schooltimetabling.domain.Timeslot;
 import org.acme.schooltimetabling.solver.TimeTableConstraintProvider;
-import org.optaplanner.core.api.solver.Solver;
-import org.optaplanner.core.api.solver.SolverFactory;
-import org.optaplanner.core.config.solver.SolverConfig;
+import ai.timefold.solver.core.api.solver.Solver;
+import ai.timefold.solver.core.api.solver.SolverFactory;
+import ai.timefold.solver.core.config.solver.SolverConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,4 +1,4 @@
-package org.optaplanner.quickstarts.all.rest;
+package ai.timefold.solver.quickstarts.all.rest;
 
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;

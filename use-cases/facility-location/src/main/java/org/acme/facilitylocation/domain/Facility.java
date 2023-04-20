@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.acme.facilitylocation.solver.FacilityLocationConstraintProvider;
-import org.optaplanner.core.api.domain.entity.PlanningEntity;
-import org.optaplanner.core.api.domain.variable.InverseRelationShadowVariable;
+import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
+import ai.timefold.solver.core.api.domain.variable.InverseRelationShadowVariable;
 
 /**
  * Facility satisfies consumers' demand. Cumulative demand of all consumers assigned to this facility must not exceed

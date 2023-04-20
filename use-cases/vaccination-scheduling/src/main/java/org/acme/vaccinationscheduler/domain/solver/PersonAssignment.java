@@ -12,10 +12,10 @@ import org.acme.vaccinationscheduler.domain.VaccinationCenter;
 import org.acme.vaccinationscheduler.domain.VaccinationSchedule;
 import org.acme.vaccinationscheduler.domain.VaccineType;
 import org.acme.vaccinationscheduler.solver.PersonAssignmentDifficultyComparator;
-import org.optaplanner.core.api.domain.entity.PlanningEntity;
-import org.optaplanner.core.api.domain.entity.PlanningPin;
-import org.optaplanner.core.api.domain.lookup.PlanningId;
-import org.optaplanner.core.api.domain.variable.PlanningVariable;
+import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
+import ai.timefold.solver.core.api.domain.entity.PlanningPin;
+import ai.timefold.solver.core.api.domain.lookup.PlanningId;
+import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
 
 @PlanningEntity(difficultyComparatorClass = PersonAssignmentDifficultyComparator.class)
 public class PersonAssignment {

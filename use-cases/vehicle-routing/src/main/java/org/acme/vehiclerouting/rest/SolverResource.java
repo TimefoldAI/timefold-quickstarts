@@ -12,9 +12,9 @@ import javax.ws.rs.core.MediaType;
 
 import org.acme.vehiclerouting.domain.VehicleRoutingSolution;
 import org.acme.vehiclerouting.persistence.VehicleRoutingSolutionRepository;
-import org.optaplanner.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
-import org.optaplanner.core.api.solver.SolutionManager;
-import org.optaplanner.core.api.solver.SolverManager;
+import ai.timefold.solver.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
+import ai.timefold.solver.core.api.solver.SolutionManager;
+import ai.timefold.solver.core.api.solver.SolverManager;
 
 @Path("/vrp")
 @Produces(MediaType.APPLICATION_JSON)

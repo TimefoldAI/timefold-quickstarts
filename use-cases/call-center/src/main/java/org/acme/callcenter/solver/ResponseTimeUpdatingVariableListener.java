@@ -5,8 +5,8 @@ import java.time.Duration;
 import org.acme.callcenter.domain.Call;
 import org.acme.callcenter.domain.CallCenter;
 import org.acme.callcenter.domain.PreviousCallOrAgent;
-import org.optaplanner.core.api.domain.variable.VariableListener;
-import org.optaplanner.core.api.score.director.ScoreDirector;
+import ai.timefold.solver.core.api.domain.variable.VariableListener;
+import ai.timefold.solver.core.api.score.director.ScoreDirector;
 
 public class ResponseTimeUpdatingVariableListener implements VariableListener<CallCenter, Call> {
 

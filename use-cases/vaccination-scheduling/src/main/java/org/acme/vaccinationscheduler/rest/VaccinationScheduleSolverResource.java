@@ -22,8 +22,8 @@ import org.acme.vaccinationscheduler.domain.VaccinationSchedule;
 import org.acme.vaccinationscheduler.domain.VaccineType;
 import org.acme.vaccinationscheduler.domain.solver.VaccinationSolution;
 import org.acme.vaccinationscheduler.persistence.VaccinationScheduleRepository;
-import org.optaplanner.core.api.solver.SolverManager;
-import org.optaplanner.core.api.solver.SolverStatus;
+import ai.timefold.solver.core.api.solver.SolverManager;
+import ai.timefold.solver.core.api.solver.SolverStatus;
 
 @Path("vaccinationSchedule")
 public class VaccinationScheduleSolverResource {

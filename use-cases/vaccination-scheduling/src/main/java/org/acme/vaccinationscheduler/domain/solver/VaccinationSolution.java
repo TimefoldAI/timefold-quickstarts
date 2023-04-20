@@ -26,12 +26,12 @@ import org.acme.vaccinationscheduler.solver.VaccinationScheduleConstraintProvide
 import org.acme.vaccinationscheduler.solver.geo.DistanceCalculator;
 import org.acme.vaccinationscheduler.solver.geo.EuclideanDistanceCalculator;
 import org.apache.commons.lang3.tuple.Triple;
-import org.optaplanner.core.api.domain.solution.PlanningEntityCollectionProperty;
-import org.optaplanner.core.api.domain.solution.PlanningScore;
-import org.optaplanner.core.api.domain.solution.PlanningSolution;
-import org.optaplanner.core.api.domain.solution.ProblemFactCollectionProperty;
-import org.optaplanner.core.api.domain.valuerange.ValueRangeProvider;
-import org.optaplanner.core.api.score.buildin.bendablelong.BendableLongScore;
+import ai.timefold.solver.core.api.domain.solution.PlanningEntityCollectionProperty;
+import ai.timefold.solver.core.api.domain.solution.PlanningScore;
+import ai.timefold.solver.core.api.domain.solution.PlanningSolution;
+import ai.timefold.solver.core.api.domain.solution.ProblemFactCollectionProperty;
+import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
+import ai.timefold.solver.core.api.score.buildin.bendablelong.BendableLongScore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -19,7 +19,7 @@ import org.acme.orderpicking.domain.TrolleyStep;
 import org.acme.orderpicking.domain.Warehouse;
 import org.acme.orderpicking.domain.WarehouseLocation;
 import org.junit.jupiter.api.Test;
-import org.optaplanner.test.api.score.stream.ConstraintVerifier;
+import ai.timefold.solver.test.api.score.stream.ConstraintVerifier;
 
 import static org.acme.orderpicking.domain.Shelving.newShelvingId;
 import static org.acme.orderpicking.domain.Warehouse.Column.COL_A;

@@ -9,9 +9,9 @@ import javax.ws.rs.Path;
 
 import org.acme.facilitylocation.domain.FacilityLocationProblem;
 import org.acme.facilitylocation.persistence.FacilityLocationProblemRepository;
-import org.optaplanner.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
-import org.optaplanner.core.api.solver.SolutionManager;
-import org.optaplanner.core.api.solver.SolverManager;
+import ai.timefold.solver.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
+import ai.timefold.solver.core.api.solver.SolutionManager;
+import ai.timefold.solver.core.api.solver.SolverManager;
 
 @Path("/flp")
 public class SolverResource {

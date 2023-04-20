@@ -3,7 +3,7 @@ package org.acme.orderpicking.domain;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.optaplanner.core.api.solver.SolverStatus;
+import ai.timefold.solver.core.api.solver.SolverStatus;
 
 /**
  * Helper class for sending information to the UI.

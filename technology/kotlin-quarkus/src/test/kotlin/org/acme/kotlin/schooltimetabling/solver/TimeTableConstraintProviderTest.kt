@@ -6,7 +6,7 @@ import org.acme.kotlin.schooltimetabling.domain.Room
 import org.acme.kotlin.schooltimetabling.domain.TimeTable
 import org.acme.kotlin.schooltimetabling.domain.Timeslot
 import org.junit.jupiter.api.Test
-import org.optaplanner.test.api.score.stream.ConstraintVerifier
+import ai.timefold.solver.test.api.score.stream.ConstraintVerifier
 import java.time.DayOfWeek
 import java.time.LocalTime
 import javax.inject.Inject

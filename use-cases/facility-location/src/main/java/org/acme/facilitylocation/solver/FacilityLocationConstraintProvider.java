@@ -1,13 +1,13 @@
 package org.acme.facilitylocation.solver;
 
-import static org.optaplanner.core.api.score.stream.ConstraintCollectors.sumLong;
+import static ai.timefold.solver.core.api.score.stream.ConstraintCollectors.sumLong;
 
 import org.acme.facilitylocation.domain.Consumer;
 import org.acme.facilitylocation.domain.Facility;
 import org.acme.facilitylocation.domain.FacilityLocationConstraintConfiguration;
-import org.optaplanner.core.api.score.stream.Constraint;
-import org.optaplanner.core.api.score.stream.ConstraintFactory;
-import org.optaplanner.core.api.score.stream.ConstraintProvider;
+import ai.timefold.solver.core.api.score.stream.Constraint;
+import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
+import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
 
 public class FacilityLocationConstraintProvider implements ConstraintProvider {
 

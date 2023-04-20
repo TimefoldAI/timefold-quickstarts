@@ -2,8 +2,8 @@ package org.acme.callcenter.solver.change;
 
 import org.acme.callcenter.domain.Call;
 import org.acme.callcenter.domain.CallCenter;
-import org.optaplanner.core.api.solver.change.ProblemChange;
-import org.optaplanner.core.api.solver.change.ProblemChangeDirector;
+import ai.timefold.solver.core.api.solver.change.ProblemChange;
+import ai.timefold.solver.core.api.solver.change.ProblemChangeDirector;
 
 public class AddCallProblemChange implements ProblemChange<CallCenter> {
 

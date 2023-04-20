@@ -14,7 +14,7 @@ import org.acme.vaccinationscheduler.domain.solver.PersonAssignment;
 import org.acme.vaccinationscheduler.domain.solver.VaccinationSlot;
 import org.acme.vaccinationscheduler.domain.solver.VaccinationSolution;
 import org.junit.jupiter.api.Test;
-import org.optaplanner.test.api.score.stream.ConstraintVerifier;
+import ai.timefold.solver.test.api.score.stream.ConstraintVerifier;
 
 import io.quarkus.test.junit.QuarkusTest;
 

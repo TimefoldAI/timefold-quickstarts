@@ -5,15 +5,15 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static java.time.temporal.ChronoUnit.DAYS;
-import static org.optaplanner.core.api.score.stream.Joiners.equal;
-import static org.optaplanner.core.api.score.stream.Joiners.filtering;
-import static org.optaplanner.core.api.score.stream.Joiners.overlapping;
+import static ai.timefold.solver.core.api.score.stream.Joiners.equal;
+import static ai.timefold.solver.core.api.score.stream.Joiners.filtering;
+import static ai.timefold.solver.core.api.score.stream.Joiners.overlapping;
 
 import org.acme.maintenancescheduling.domain.Job;
-import org.optaplanner.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
-import org.optaplanner.core.api.score.stream.Constraint;
-import org.optaplanner.core.api.score.stream.ConstraintFactory;
-import org.optaplanner.core.api.score.stream.ConstraintProvider;
+import ai.timefold.solver.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
+import ai.timefold.solver.core.api.score.stream.Constraint;
+import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
+import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
 
 public class MaintenanceScheduleConstraintProvider implements ConstraintProvider {
 

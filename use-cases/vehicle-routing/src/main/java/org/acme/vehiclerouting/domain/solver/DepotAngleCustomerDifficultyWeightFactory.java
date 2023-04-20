@@ -8,7 +8,7 @@ import java.util.Comparator;
 import org.acme.vehiclerouting.domain.Customer;
 import org.acme.vehiclerouting.domain.Depot;
 import org.acme.vehiclerouting.domain.VehicleRoutingSolution;
-import org.optaplanner.core.impl.heuristic.selector.common.decorator.SelectionSorterWeightFactory;
+import ai.timefold.solver.core.impl.heuristic.selector.common.decorator.SelectionSorterWeightFactory;
 
 /**
  * On large datasets, the constructed solution looks like pizza slices.

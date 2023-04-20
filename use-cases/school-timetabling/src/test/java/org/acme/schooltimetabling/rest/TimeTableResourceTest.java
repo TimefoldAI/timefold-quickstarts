@@ -12,7 +12,7 @@ import static org.hamcrest.Matchers.nullValue;
 import java.time.Duration;
 
 import org.junit.jupiter.api.Test;
-import org.optaplanner.core.api.solver.SolverStatus;
+import ai.timefold.solver.core.api.solver.SolverStatus;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;

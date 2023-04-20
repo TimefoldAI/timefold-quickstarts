@@ -2,9 +2,9 @@ package org.acme.callcenter.domain;
 
 import java.time.Duration;
 
-import org.optaplanner.core.api.domain.entity.PlanningEntity;
-import org.optaplanner.core.api.domain.lookup.PlanningId;
-import org.optaplanner.core.api.domain.variable.InverseRelationShadowVariable;
+import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
+import ai.timefold.solver.core.api.domain.lookup.PlanningId;
+import ai.timefold.solver.core.api.domain.variable.InverseRelationShadowVariable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

@@ -8,12 +8,12 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.acme.callcenter.solver.ResponseTimeUpdatingVariableListener;
-import org.optaplanner.core.api.domain.entity.PlanningEntity;
-import org.optaplanner.core.api.domain.entity.PlanningPin;
-import org.optaplanner.core.api.domain.variable.AnchorShadowVariable;
-import org.optaplanner.core.api.domain.variable.PlanningVariable;
-import org.optaplanner.core.api.domain.variable.PlanningVariableGraphType;
-import org.optaplanner.core.api.domain.variable.ShadowVariable;
+import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
+import ai.timefold.solver.core.api.domain.entity.PlanningPin;
+import ai.timefold.solver.core.api.domain.variable.AnchorShadowVariable;
+import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
+import ai.timefold.solver.core.api.domain.variable.PlanningVariableGraphType;
+import ai.timefold.solver.core.api.domain.variable.ShadowVariable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

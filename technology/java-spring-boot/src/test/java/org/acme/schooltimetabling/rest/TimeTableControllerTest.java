@@ -12,7 +12,7 @@ import static org.hamcrest.Matchers.nullValue;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-import org.optaplanner.core.api.solver.SolverStatus;
+import ai.timefold.solver.core.api.solver.SolverStatus;
 import org.springframework.boot.test.context.SpringBootTest;
 import java.time.Duration;
 

@@ -3,8 +3,8 @@ package org.acme.vaccinationscheduler.domain;
 import java.util.List;
 
 import org.acme.vaccinationscheduler.domain.solver.VaccinationSolution;
-import org.optaplanner.core.api.score.buildin.bendablelong.BendableLongScore;
-import org.optaplanner.core.api.solver.SolverStatus;
+import ai.timefold.solver.core.api.score.buildin.bendablelong.BendableLongScore;
+import ai.timefold.solver.core.api.solver.SolverStatus;
 
 public class VaccinationSchedule {
 

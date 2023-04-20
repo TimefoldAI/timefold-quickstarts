@@ -4,8 +4,8 @@ import java.time.LocalDate;
 
 import org.acme.maintenancescheduling.domain.Job;
 import org.acme.maintenancescheduling.domain.MaintenanceSchedule;
-import org.optaplanner.core.api.domain.variable.VariableListener;
-import org.optaplanner.core.api.score.director.ScoreDirector;
+import ai.timefold.solver.core.api.domain.variable.VariableListener;
+import ai.timefold.solver.core.api.score.director.ScoreDirector;
 
 public class EndDateUpdatingVariableListener implements VariableListener<MaintenanceSchedule, Job> {
 

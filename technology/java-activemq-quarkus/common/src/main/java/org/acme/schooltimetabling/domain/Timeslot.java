@@ -3,7 +3,7 @@ package org.acme.schooltimetabling.domain;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 
-import org.optaplanner.core.api.domain.lookup.PlanningId;
+import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 
 public class Timeslot {
 

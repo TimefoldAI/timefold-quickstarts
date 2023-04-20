@@ -11,8 +11,8 @@ import javax.ws.rs.Path;
 import org.acme.orderpicking.domain.OrderPickingPlanning;
 import org.acme.orderpicking.domain.OrderPickingSolution;
 import org.acme.orderpicking.persistence.OrderPickingRepository;
-import org.optaplanner.core.api.solver.SolverManager;
-import org.optaplanner.core.api.solver.SolverStatus;
+import ai.timefold.solver.core.api.solver.SolverManager;
+import ai.timefold.solver.core.api.solver.SolverStatus;
 
 @Path("orderPicking")
 @ApplicationScoped

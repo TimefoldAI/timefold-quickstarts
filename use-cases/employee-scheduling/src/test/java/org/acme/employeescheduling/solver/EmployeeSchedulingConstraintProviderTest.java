@@ -14,7 +14,7 @@ import org.acme.employeescheduling.domain.Employee;
 import org.acme.employeescheduling.domain.EmployeeSchedule;
 import org.acme.employeescheduling.domain.Shift;
 import org.junit.jupiter.api.Test;
-import org.optaplanner.test.api.score.stream.ConstraintVerifier;
+import ai.timefold.solver.test.api.score.stream.ConstraintVerifier;
 
 import io.quarkus.test.junit.QuarkusTest;
 

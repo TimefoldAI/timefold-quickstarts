@@ -1,8 +1,8 @@
 package org.acme.facilitylocation.domain;
 
 import org.acme.facilitylocation.solver.FacilityLocationConstraintProvider;
-import org.optaplanner.core.api.domain.entity.PlanningEntity;
-import org.optaplanner.core.api.domain.variable.PlanningVariable;
+import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
+import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
 
 /**
  * Consumer has a demand that can be satisfied by <em>any</em> {@link Facility} with a sufficient capacity.

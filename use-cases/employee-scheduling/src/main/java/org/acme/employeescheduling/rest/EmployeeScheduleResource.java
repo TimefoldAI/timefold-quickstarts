@@ -16,10 +16,10 @@ import org.acme.employeescheduling.persistence.AvailabilityRepository;
 import org.acme.employeescheduling.persistence.EmployeeRepository;
 import org.acme.employeescheduling.persistence.ScheduleStateRepository;
 import org.acme.employeescheduling.persistence.ShiftRepository;
-import org.optaplanner.core.api.score.buildin.hardsoft.HardSoftScore;
-import org.optaplanner.core.api.solver.SolutionManager;
-import org.optaplanner.core.api.solver.SolverManager;
-import org.optaplanner.core.api.solver.SolverStatus;
+import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
+import ai.timefold.solver.core.api.solver.SolutionManager;
+import ai.timefold.solver.core.api.solver.SolverManager;
+import ai.timefold.solver.core.api.solver.SolverStatus;
 
 import io.quarkus.panache.common.Sort;
 

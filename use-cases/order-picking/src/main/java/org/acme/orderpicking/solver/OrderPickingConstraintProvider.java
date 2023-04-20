@@ -1,14 +1,14 @@
 package org.acme.orderpicking.solver;
 
 import org.acme.orderpicking.domain.TrolleyStep;
-import org.optaplanner.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
-import org.optaplanner.core.api.score.stream.Constraint;
-import org.optaplanner.core.api.score.stream.ConstraintFactory;
-import org.optaplanner.core.api.score.stream.ConstraintProvider;
+import ai.timefold.solver.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
+import ai.timefold.solver.core.api.score.stream.Constraint;
+import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
+import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
 
 import static org.acme.orderpicking.domain.Warehouse.calculateDistance;
-import static org.optaplanner.core.api.score.stream.ConstraintCollectors.countDistinctLong;
-import static org.optaplanner.core.api.score.stream.ConstraintCollectors.sum;
+import static ai.timefold.solver.core.api.score.stream.ConstraintCollectors.countDistinctLong;
+import static ai.timefold.solver.core.api.score.stream.ConstraintCollectors.sum;
 
 /**
  * Constraint definitions for solving the order picking problem.

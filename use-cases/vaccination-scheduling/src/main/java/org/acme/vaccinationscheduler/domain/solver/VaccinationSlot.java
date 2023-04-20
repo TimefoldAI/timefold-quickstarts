@@ -8,7 +8,7 @@ import java.util.List;
 import org.acme.vaccinationscheduler.domain.Appointment;
 import org.acme.vaccinationscheduler.domain.VaccinationCenter;
 import org.acme.vaccinationscheduler.domain.VaccineType;
-import org.optaplanner.core.api.domain.lookup.PlanningId;
+import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 
 /**
  * Only used by OptaPlanner, not part of the input or output model.
