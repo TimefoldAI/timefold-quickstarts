@@ -4,14 +4,14 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.acme</groupId>
-  <artifactId>optaplanner-spring-boot-school-timetabling-quickstart</artifactId>
+  <artifactId>timefold-solver-spring-boot-school-timetabling-quickstart</artifactId>
   <version>1.0-SNAPSHOT</version>
 
   <properties>
     <maven.compiler.release>11</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <version.org.optaplanner>8.38.0-SNAPSHOT</version.org.optaplanner>
+    <version.ai.timefold.solver>8.38.0-SNAPSHOT</version.ai.timefold.solver>
     <version.org.springframework.boot>2.7.7</version.org.springframework.boot>
 
     <version.compiler.plugin>3.8.1</version.compiler.plugin>
@@ -28,9 +28,9 @@
         <scope>import</scope>
       </dependency>
       <dependency>
-        <groupId>org.optaplanner</groupId>
-        <artifactId>optaplanner-bom</artifactId>
-        <version>${version.org.optaplanner}</version>
+        <groupId>ai.timefold.solver</groupId>
+        <artifactId>timefold-solver-bom</artifactId>
+        <version>${version.ai.timefold.solver}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -56,8 +56,8 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
-      <groupId>org.optaplanner</groupId>
-      <artifactId>optaplanner-spring-boot-starter</artifactId>
+      <groupId>ai.timefold.solver</groupId>
+      <artifactId>timefold-solver-spring-boot-starter</artifactId>
     </dependency>
 
     <!-- Testing -->
@@ -67,13 +67,13 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.optaplanner</groupId>
-      <artifactId>optaplanner-benchmark</artifactId>
+      <groupId>ai.timefold.solver</groupId>
+      <artifactId>timefold-solver-benchmark</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.optaplanner</groupId>
-      <artifactId>optaplanner-test</artifactId>
+      <groupId>ai.timefold.solver</groupId>
+      <artifactId>timefold-solver-test</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

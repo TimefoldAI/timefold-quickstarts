@@ -4,7 +4,7 @@ plugins {
 }
 
 def quarkusVersion = "2.16.6.Final"
-def optaplannerVersion = "8.38.0-SNAPSHOT"
+def timefoldVersion = "8.38.0-SNAPSHOT"
 def assertjVersion = "3.24.2"
 
 group = "org.acme"
@@ -28,11 +28,11 @@ dependencies {
     testImplementation "io.rest-assured:rest-assured"
     testImplementation "org.awaitility:awaitility"
 
-    implementation platform("org.optaplanner:optaplanner-bom:${optaplannerVersion}")
-    implementation "org.optaplanner:optaplanner-quarkus"
-    implementation "org.optaplanner:optaplanner-quarkus-jackson"
-    testImplementation "org.optaplanner:optaplanner-test"
-    testImplementation "org.optaplanner:optaplanner-quarkus-benchmark"
+    implementation platform("ai.timefold.solver:timefold-solver-bom:${timefoldVersion}")
+    implementation "ai.timefold.solver:timefold-solver-quarkus"
+    implementation "ai.timefold.solver:timefold-solver-quarkus-jackson"
+    testImplementation "ai.timefold.solver:timefold-solver-test"
+    testImplementation "ai.timefold.solver:timefold-solver-quarkus-benchmark"
     testImplementation "org.assertj:assertj-core:${assertjVersion}"
 
     runtimeOnly "org.webjars:bootstrap:4.3.1"

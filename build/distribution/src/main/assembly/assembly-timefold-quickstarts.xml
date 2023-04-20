@@ -2,7 +2,7 @@
 <assembly xmlns="http://maven.apache.org/ASSEMBLY/2.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
 
-  <id>assembly-optaplanner-quickstarts</id>
+  <id>assembly-timefold-quickstarts</id>
   <formats>
     <format>dir</format>
     <format>zip</format>
@@ -114,7 +114,7 @@
   <dependencySets>
     <dependencySet>
       <includes>
-        <include>org.optaplanner:optaplanner-distribution-internal:zip</include>
+        <include>ai.timefold.solver:timefold-solver-distribution-internal:zip</include>
       </includes>
       <useProjectArtifact>false</useProjectArtifact>
       <outputDirectory/>

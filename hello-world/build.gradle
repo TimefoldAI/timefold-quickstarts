@@ -3,7 +3,7 @@ plugins {
     id "application"
 }
 
-def optaplannerVersion = "8.38.0-SNAPSHOT"
+def timefoldVersion = "8.38.0-SNAPSHOT"
 def logbackVersion = "1.2.11"
 def junitJupiterVersion = "5.9.0"
 def assertjVersion = "3.24.2"
@@ -17,9 +17,9 @@ repositories {
 }
 
 dependencies {
-    implementation platform("org.optaplanner:optaplanner-bom:${optaplannerVersion}")
-    implementation "org.optaplanner:optaplanner-core"
-    testImplementation "org.optaplanner:optaplanner-test"
+    implementation platform("ai.timefold.solver:timefold-solver-bom:${timefoldVersion}")
+    implementation "ai.timefold.solver:timefold-solver-core"
+    testImplementation "ai.timefold.solver:timefold-solver-test"
     testImplementation "org.junit.jupiter:junit-jupiter:${junitJupiterVersion}"
     testImplementation "org.assertj:assertj-core:${assertjVersion}"
 

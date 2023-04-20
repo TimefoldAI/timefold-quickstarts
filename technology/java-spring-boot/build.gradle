@@ -4,11 +4,11 @@ plugins {
     id "java"
 }
 
-def optaplannerVersion = "8.38.0-SNAPSHOT"
+def timefoldVersion = "8.38.0-SNAPSHOT"
 def assertjVersion = "3.24.2"
 
 group = "org.acme"
-archivesBaseName = "optaplanner-spring-boot-school-timetabling-quickstart"
+archivesBaseName = "timefold-solver-spring-boot-school-timetabling-quickstart"
 version = "1.0-SNAPSHOT"
 sourceCompatibility = "11"
 
@@ -25,10 +25,10 @@ dependencies {
     testImplementation "io.rest-assured:rest-assured"
     testImplementation "org.awaitility:awaitility"
 
-    implementation platform("org.optaplanner:optaplanner-bom:${optaplannerVersion}")
-    implementation "org.optaplanner:optaplanner-spring-boot-starter"
-    testImplementation("org.optaplanner:optaplanner-test")
-    testImplementation("org.optaplanner:optaplanner-benchmark")
+    implementation platform("ai.timefold.solver:timefold-solver-bom:${timefoldVersion}")
+    implementation "ai.timefold.solver:timefold-solver-spring-boot-starter"
+    testImplementation("ai.timefold.solver:timefold-solver-test")
+    testImplementation("ai.timefold.solver:timefold-solver-benchmark")
     testImplementation "org.assertj:assertj-core:${assertjVersion}"
 
     runtimeOnly "com.h2database:h2"

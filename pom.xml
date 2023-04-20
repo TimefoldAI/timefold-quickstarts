@@ -4,16 +4,16 @@
 
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.optaplanner</groupId>
-    <artifactId>optaplanner-build-parent</artifactId>
+    <groupId>ai.timefold.solver</groupId>
+    <artifactId>timefold-solver-build-parent</artifactId>
     <version>8.38.0-SNAPSHOT</version>
     <relativePath/>
   </parent>
   <!-- IMPORTANT: the individual quickstarts have no parent pom. -->
 
-  <artifactId>optaplanner-quickstarts-parent</artifactId>
+  <artifactId>timefold-solver-quickstarts-parent</artifactId>
   <packaging>pom</packaging>
-  <name>OptaPlanner Quickstarts</name>
+  <name>Timefold Solver Quickstarts</name>
 
   <modules>
     <module>hello-world</module>
