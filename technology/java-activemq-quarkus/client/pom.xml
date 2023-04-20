@@ -18,7 +18,7 @@
       <groupId>org.acme</groupId>
       <artifactId>timefold-solver-activemq-quarkus-school-timetabling-common</artifactId>
       <exclusions>
-        <!-- Avoid bootstrapping the optaplanner-quarkus extension. -->
+        <!-- Avoid bootstrapping the timefold-solver-quarkus extension. -->
         <exclusion>
           <groupId>ai.timefold.solver</groupId>
           <artifactId>timefold-solver-quarkus</artifactId>
