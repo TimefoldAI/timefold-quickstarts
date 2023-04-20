@@ -18,8 +18,8 @@ import java.time.Duration;
 
 @SpringBootTest(properties = {
         // Effectively disable spent-time termination in favor of the best-score-limit
-        "optaplanner.solver.termination.spent-limit=1h",
-        "optaplanner.solver.termination.best-score-limit=0hard/*soft" },
+        "timefold.solver.termination.spent-limit=1h",
+        "timefold.solver.termination.best-score-limit=0hard/*soft" },
         webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class TimeTableControllerTest {
 
