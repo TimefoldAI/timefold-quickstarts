@@ -7,18 +7,18 @@
 #
 # Then, build the image with:
 #
-# docker build -f src/main/docker/Dockerfile.jvm -t optaplanner/facility-location-jvm .
+# docker build -f src/main/docker/Dockerfile.jvm -t timefold/facility-location-jvm .
 #
 # Then run the container using:
 #
-# docker run -i --rm -p 8080:8080 optaplanner/facility-location-jvm
+# docker run -i --rm -p 8080:8080 timefold/facility-location-jvm
 #
 # If you want to include the debug port into your docker image
 # you will have to expose the debug port (default 5005) like this :  EXPOSE 8080 5050
 #
 # Then run the container using :
 #
-# docker run -i --rm -p 8080:8080 -p 5005:5005 -e JAVA_ENABLE_DEBUG="true" optaplanner/facility-location-jvm
+# docker run -i --rm -p 8080:8080 -p 5005:5005 -e JAVA_ENABLE_DEBUG="true" timefold/facility-location-jvm
 #
 ###
 FROM registry.access.redhat.com/ubi8/ubi-minimal

@@ -7,11 +7,11 @@
 #
 # Then, build the image with:
 #
-# docker build -f src/main/docker/Dockerfile.native -t optaplanner/quarkus-call-center .
+# docker build -f src/main/docker/Dockerfile.native -t timefold/quarkus-call-center .
 #
 # Then run the container using:
 #
-# docker run -i --rm optaplanner/quarkus-call-center
+# docker run -i --rm timefold/quarkus-call-center
 #
 ###
 FROM registry.access.redhat.com/ubi8/ubi-minimal

@@ -19,7 +19,7 @@ public class Lesson {
     @PlanningVariable
     private Room room;
 
-    // No-arg constructor required for OptaPlanner
+    // No-arg constructor required for Timefold
     public Lesson() {
     }
 

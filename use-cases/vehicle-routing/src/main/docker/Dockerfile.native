@@ -7,11 +7,11 @@
 #
 # Then, build the image with:
 #
-# docker build -f src/main/docker/Dockerfile.native -t optaplanner/vehicle-routing .
+# docker build -f src/main/docker/Dockerfile.native -t timefold/vehicle-routing .
 #
 # Then run the container using:
 #
-# docker run -i --rm -p 8080:8080 optaplanner/vehicle-routing
+# docker run -i --rm -p 8080:8080 timefold/vehicle-routing
 #
 ###
 FROM registry.access.redhat.com/ubi8/ubi-minimal

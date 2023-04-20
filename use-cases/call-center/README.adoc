@@ -12,13 +12,13 @@ image::../../build/quickstarts-showcase/src/main/resources/META-INF/resources/sc
 [[run]]
 == Run the application
 
-. Git clone the optaplanner-quickstarts repo and navigate to this directory:
+. Git clone the timefold-quickstarts repo and navigate to this directory:
 +
 [source, shell]
 ----
-$ git clone https://github.com/kiegroup/optaplanner-quickstarts.git
+$ git clone https://github.com/TimefoldAI/timefold-quickstarts.git
 ...
-$ cd optaplanner-quickstarts/use-cases/call-center
+$ cd timefold-quickstarts/use-cases/call-center
 ----
 
 . Start the application with Maven:
@@ -79,7 +79,7 @@ host it in the cloud and share the url with them.
 === Host it on OpenShift (Kubernetes)
 
 https://www.redhat.com/en/technologies/cloud-computing/openshift[Red Hat OpenShift] is an open source Kubernetes cloud service
-which is ideal to host OptaPlanner applications.
+which is ideal to host Timefold applications.
 
 To deploy the application on OpenShift:
 
@@ -87,7 +87,7 @@ To deploy the application on OpenShift:
 . In the OpenShift web console, verify that the top left combobox is set to _Developer_ (not _Administrator_).
 . In the menu, select *Add* to create an application.
 . Under *Git Repository*, click *Import from Git* and fill in these parameters:
-.. Set *Git Repo URL* to `https://github.com/kiegroup/optaplanner-quickstarts`
+.. Set *Git Repo URL* to `https://github.com/TimefoldAI/timefold-quickstarts`
 .. Under _Show advanced Git options_, set *Context dir* to `/use-cases/call-center`
 .. Press the *Create* button.
 . In the _Topology_ view, there is a new deployment:
@@ -152,4 +152,4 @@ $ ./target/*-runner
 
 == More information
 
-Visit https://www.optaplanner.org/[www.optaplanner.org].
+Visit https://timefold.ai[timefold.ai].

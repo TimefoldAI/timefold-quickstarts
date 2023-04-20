@@ -7,11 +7,11 @@
 #
 # Then, build the image with:
 #
-# docker build -f src/main/docker/Dockerfile.native -t optaplanner/maintenance-scheduling .
+# docker build -f src/main/docker/Dockerfile.native -t timefold/maintenance-scheduling .
 #
 # Then run the container using:
 #
-# docker run -i --rm -p 8080:8080 optaplanner/maintenance-scheduling
+# docker run -i --rm -p 8080:8080 timefold/maintenance-scheduling
 #
 ###
 

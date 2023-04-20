@@ -7,11 +7,11 @@
 #
 # Then, build the image with:
 #
-# docker build -f src/main/docker/Dockerfile.native -t optaplanner/order-picking .
+# docker build -f src/main/docker/Dockerfile.native -t timefold/order-picking .
 #
 # Then run the container using:
 #
-# docker run -i --rm -p 8080:8080 optaplanner/order-picking
+# docker run -i --rm -p 8080:8080 timefold/order-picking
 #
 ###
 FROM registry.access.redhat.com/ubi8/ubi-minimal:8.4

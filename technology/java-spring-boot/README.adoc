@@ -9,13 +9,13 @@ image::../../build/quickstarts-showcase/src/main/resources/META-INF/resources/sc
 [[run]]
 == Run the application
 
-. Git clone the optaplanner-quickstarts repo and navigate to this directory:
+. Git clone the timefold-quickstarts repo and navigate to this directory:
 +
 [source, shell]
 ----
-$ git clone https://github.com/kiegroup/optaplanner-quickstarts.git
+$ git clone https://github.com/TimefoldAI/timefold-quickstarts.git
 ...
-$ cd optaplanner-quickstarts/technology/java-spring-boot
+$ cd timefold-quickstarts/technology/java-spring-boot
 ----
 
 . Start the application with Maven:
@@ -60,14 +60,14 @@ $ gradle clean build
 +
 [source, shell]
 ----
-$ java -jar target/optaplanner-spring-boot-school-timetabling-quickstart-1.0-SNAPSHOT.jar
+$ java -jar target/timefold-solver-spring-boot-school-timetabling-quickstart-1.0-SNAPSHOT.jar
 ----
 +
 or the Gradle output:
 +
 [source, shell]
 ----
-$ java -jar build/libs/optaplanner-spring-boot-school-timetabling-quickstart-1.0-SNAPSHOT.jar
+$ java -jar build/libs/timefold-solver-spring-boot-school-timetabling-quickstart-1.0-SNAPSHOT.jar
 ----
 +
 [NOTE]
@@ -81,4 +81,4 @@ To run it on port 8081 instead, add `-Dserver.port=8081`.
 
 == More information
 
-Visit https://www.optaplanner.org/[www.optaplanner.org].
+Visit https://timefold.ai[timefold.ai].

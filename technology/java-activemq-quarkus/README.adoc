@@ -7,13 +7,13 @@ The quickstart consists of two modules:
 
 == Run the application with live coding
 
-. Git clone the optaplanner-quickstarts repo:
+. Git clone the timefold-quickstarts repo:
 +
 [source, shell]
 ----
-$ git clone https://github.com/kiegroup/optaplanner-quickstarts.git
+$ git clone https://github.com/TimefoldAI/timefold-quickstarts.git
 ...
-$ cd optaplanner-quickstarts/technology/java-activemq-quarkus
+$ cd timefold-quickstarts/technology/java-activemq-quarkus
 ----
 
 . Build the project:
@@ -139,4 +139,4 @@ $ ./target/*-runner
 
 == More information
 
-Visit https://www.optaplanner.org/[www.optaplanner.org].
+Visit https://timefold.ai[timefold.ai].

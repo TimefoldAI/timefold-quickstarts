@@ -1,4 +1,4 @@
-= OptaPlanner Quickstarts
+= Timefold Quickstarts
 
 == Overview of all Quickstarts
 
@@ -20,12 +20,12 @@ a|* link:use-cases/school-timetabling/README.adoc[Quarkus] (Java, Maven or Gradl
 * link:technology/kotlin-quarkus/README.adoc[Kotlin] (Kotlin, Maven, Quarkus, H2)
 * link:technology/python/README.adoc[Python (experimental)] (Python, Pip)
 
-2+a|* <<optaplanner-examples, OptaPlanner examples (desktop)>>
+2+a|* <<timefold-solver-examples, Timefold examples (desktop)>>
 |===
 
 == Get started
 
-Run the https://www.optaplanner.org/[OptaPlanner] quickstarts now:
+Run the https://timefold.ai[Timefold] quickstarts now:
 
 . https://adoptopenjdk.net[Install JDK 11 or later] with `JAVA_HOME` configured appropriately.
 
@@ -33,8 +33,8 @@ Run the https://www.optaplanner.org/[OptaPlanner] quickstarts now:
 +
 [source, shell]
 ----
-$ git clone https://github.com/kiegroup/optaplanner-quickstarts.git
-$ cd optaplanner-quickstarts
+$ git clone https://github.com/TimefoldAI/timefold-quickstarts.git
+$ cd timefold-quickstarts
 $ ./runQuickstartsFromSource.sh
 ----
 
@@ -120,15 +120,15 @@ image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screensh
 
 * link:use-cases/vehicle-routing/README.adoc[Run quarkus-vehicle-routing] (Java, Maven, Quarkus)
 
-[[optaplanner-examples]]
-=== OptaPlanner examples (desktop)
+[[timefold-solver-examples]]
+=== Timefold examples (desktop)
 
 Many examples in desktop technology.
 
-image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screenshot/optaplanner-examples-screenshot.png[]
+image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screenshot/timefold-solver-examples-screenshot.png[]
 
-* https://www.optaplanner.org/download/download.html[Download]
+* https://timefold.ai[Download]
 
 == More information
 
-Learn more on https://www.optaplanner.org/[www.optaplanner.org].
+Learn more on https://timefold.ai[timefold.ai].

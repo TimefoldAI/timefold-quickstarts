@@ -24,7 +24,7 @@ public class TimeTable {
     @PlanningScore
     private HardSoftScore score;
 
-    // No-arg constructor required for OptaPlanner
+    // No-arg constructor required for Timefold
     public TimeTable() {
     }
 

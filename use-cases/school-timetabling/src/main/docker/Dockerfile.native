@@ -7,11 +7,11 @@
 #
 # Then, build the image with:
 #
-# docker build -f src/main/docker/Dockerfile.native -t optaplanner/school-timetabling .
+# docker build -f src/main/docker/Dockerfile.native -t timefold/school-timetabling .
 #
 # Then run the container using:
 #
-# docker run -i --rm -p 8080:8080 optaplanner/school-timetabling
+# docker run -i --rm -p 8080:8080 timefold/school-timetabling
 #
 ###
 FROM registry.access.redhat.com/ubi8/ubi-minimal

@@ -7,11 +7,11 @@
 #
 # Then, build the image with:
 #
-# docker build -f src/main/docker/Dockerfile.native -t optaplanner/activemq-school-timetabling .
+# docker build -f src/main/docker/Dockerfile.native -t timefold/activemq-school-timetabling .
 #
 # Then run the container using:
 #
-# docker run -i --rm --network host optaplanner/activemq-school-timetabling
+# docker run -i --rm --network host timefold/activemq-school-timetabling
 #
 ###
 FROM registry.access.redhat.com/ubi8/ubi-minimal
