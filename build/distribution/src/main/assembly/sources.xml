@@ -123,15 +123,6 @@
         <exclude>.gitignore</exclude>
       </excludes>
     </fileSet>
-    <fileSet>
-      <useDefaultExcludes>false</useDefaultExcludes>
-      <directory>../../technology/kubernetes</directory>
-      <outputDirectory>quickstarts/sources/technology/kubernetes</outputDirectory>
-      <excludes>
-        <exclude>**/target/**</exclude>
-        <exclude>**/.gitignore</exclude>
-      </excludes>
-    </fileSet>
   </fileSets>
 
 </component>

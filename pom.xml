@@ -33,18 +33,6 @@
 
   <profiles>
     <profile>
-      <id>default</id>
-      <activation>
-        <property>
-          <name>!productized</name>
-        </property>
-      </activation>
-      <modules>
-        <module>technology/kubernetes</module>
-      </modules>
-    </profile>
-
-    <profile>
       <id>fullProfile</id>
       <activation>
         <property>
