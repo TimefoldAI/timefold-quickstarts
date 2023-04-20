@@ -7,7 +7,7 @@
     </encoder>
   </appender>
 
-  <logger name="org.optaplanner" level="info"/>
+  <logger name="ai.timefold.solver" level="info"/>
 
   <root level="info">
     <appender-ref ref="consoleAppender" />
