@@ -52,7 +52,7 @@
         </property>
       </activation>
       <modules>
-        <module>build/optaplanner-distribution</module>
+        <module>build/distribution</module>
       </modules>
     </profile>
   </profiles>
