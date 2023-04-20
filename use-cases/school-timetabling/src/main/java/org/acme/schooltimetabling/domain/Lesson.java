@@ -29,7 +29,7 @@ public class Lesson {
     @ManyToOne
     private Room room;
 
-    // No-arg constructor required for Hibernate and OptaPlanner
+    // No-arg constructor required for Hibernate and Timefold
     public Lesson() {
     }
 

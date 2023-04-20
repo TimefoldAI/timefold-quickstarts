@@ -29,7 +29,7 @@ class Lesson {
     @ManyToOne
     var room: Room? = null
 
-    // No-arg constructor required for Hibernate and OptaPlanner
+    // No-arg constructor required for Hibernate and Timefold
     constructor()
 
     constructor(subject: String, teacher: String, studentGroup: String) {

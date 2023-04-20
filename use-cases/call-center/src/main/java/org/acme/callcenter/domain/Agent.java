@@ -15,7 +15,7 @@ public class Agent extends PreviousCallOrAgent {
     private Set<Skill> skills;
 
     public Agent() {
-        // Required by OptaPlanner.
+        // Required by Timefold.
     }
 
     public Agent(long id, String name) {

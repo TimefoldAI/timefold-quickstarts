@@ -41,7 +41,7 @@ public class Call extends PreviousCallOrAgent {
     private Duration estimatedWaiting;
 
     public Call() {
-        // Required by OptaPlanner.
+        // Required by Timefold.
     }
 
     public Call(long id, String phoneNumber) {

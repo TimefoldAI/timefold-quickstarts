@@ -23,10 +23,10 @@ class TimeTable {
     @PlanningScore
     var score: HardSoftScore? = null
 
-    // Ignored by OptaPlanner, used by the UI to display solve or stop solving button
+    // Ignored by Timefold, used by the UI to display solve or stop solving button
     var solverStatus: SolverStatus? = null
 
-    // No-arg constructor required for OptaPlanner
+    // No-arg constructor required for Timefold
     constructor() {}
 
     constructor(timeslotList: List<Timeslot>, roomList: List<Room>, lessonList: List<Lesson>) {

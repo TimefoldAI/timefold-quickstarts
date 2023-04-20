@@ -29,7 +29,7 @@ public class EmployeeSchedule {
 
     SolverStatus solverStatus;
 
-    // No-arg constructor required for OptaPlanner
+    // No-arg constructor required for Timefold
     public EmployeeSchedule() {}
 
     public EmployeeSchedule(ScheduleState scheduleState, List<Availability> availabilityList, List<Employee> employeeList, List<Shift> shiftList) {

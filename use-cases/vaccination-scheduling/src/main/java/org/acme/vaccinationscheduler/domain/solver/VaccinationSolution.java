@@ -66,7 +66,7 @@ public class VaccinationSolution {
             bendableSoftLevelsSize = VaccinationScheduleConstraintProvider.SOFT_LEVELS_SIZE)
     private BendableLongScore score;
 
-    // No-arg constructor required for OptaPlanner
+    // No-arg constructor required for Timefold
     public VaccinationSolution() {
     }
 

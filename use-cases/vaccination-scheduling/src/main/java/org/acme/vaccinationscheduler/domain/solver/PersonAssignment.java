@@ -33,7 +33,7 @@ public class PersonAssignment {
      */
     private VaccinationSlot vaccinationSlot = null;
 
-    // No-arg constructor required for OptaPlanner
+    // No-arg constructor required for Timefold
     public PersonAssignment() {
     }
 

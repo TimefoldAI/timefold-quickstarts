@@ -30,7 +30,7 @@ public class CallCenter {
     private boolean solving;
 
     public CallCenter() {
-        // Required by OptaPlanner.
+        // Required by Timefold.
     }
 
     public CallCenter(Set<Skill> skills, List<Agent> agents, List<Call> calls) {

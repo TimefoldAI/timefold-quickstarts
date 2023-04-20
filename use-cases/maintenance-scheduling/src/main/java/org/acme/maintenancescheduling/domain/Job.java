@@ -41,7 +41,7 @@ public class Job {
     @ShadowVariable(variableListenerClass = EndDateUpdatingVariableListener.class, sourceVariableName = "startDate")
     private LocalDate endDate; // Exclusive
 
-    // No-arg constructor required for Hibernate and OptaPlanner
+    // No-arg constructor required for Hibernate and Timefold
     public Job() {
     }
 

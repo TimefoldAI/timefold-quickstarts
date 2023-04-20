@@ -18,7 +18,7 @@ public abstract class PreviousCallOrAgent {
     protected Call nextCall;
 
     public PreviousCallOrAgent() {
-        // Required by OptaPlanner.
+        // Required by Timefold.
     }
 
     public PreviousCallOrAgent(long id) {

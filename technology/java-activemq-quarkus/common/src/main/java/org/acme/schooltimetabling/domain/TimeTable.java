@@ -25,12 +25,12 @@ public class TimeTable {
     @PlanningScore
     private HardSoftScore score;
 
-    // Ignored by OptaPlanner, used by the UI to display solve or stop solving button.
+    // Ignored by Timefold, used by the UI to display solve or stop solving button.
     private SolverStatus solverStatus;
 
 
     public TimeTable() {
-        // No-arg constructor required for OptaPlanner and for JSON deserialization.
+        // No-arg constructor required for Timefold and for JSON deserialization.
     }
 
     public TimeTable(List<Timeslot> timeslotList, List<Room> roomList, List<Lesson> lessonList) {

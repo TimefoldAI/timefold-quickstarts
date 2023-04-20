@@ -68,7 +68,7 @@ public class TimeTableMessagingHandlerTest {
     void solvingThrowsException() {
         long problemId = 10L;
 
-        // OptaPlanner doesn't tolerate a null planningId.
+        // Timefold doesn't tolerate a null planningId.
         TimeTable timeTableWithIncorrectLesson = new TimeTable(
                 Arrays.asList(new Timeslot(1L, DayOfWeek.MONDAY, LocalTime.NOON, LocalTime.NOON.plusMinutes(30))),
                 Arrays.asList(new Room(1L, "room-A")),

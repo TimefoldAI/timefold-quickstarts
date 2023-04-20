@@ -11,7 +11,7 @@ import org.acme.vaccinationscheduler.domain.VaccineType;
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 
 /**
- * Only used by OptaPlanner, not part of the input or output model.
+ * Only used by Timefold, not part of the input or output model.
  * Follows the bucket design pattern, this is a bucket of {@link Appointment} instances.
  */
 public class VaccinationSlot {
