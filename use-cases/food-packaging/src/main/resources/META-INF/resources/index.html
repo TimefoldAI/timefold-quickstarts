@@ -1,0 +1,78 @@
+<html lang="en">
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+  <meta content="width=device-width, initial-scale=1" name="viewport">
+  <title>Food packaging - Timefold Quarkus</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vis-timeline@7.4.9/styles/vis-timeline-graph2d.min.css"
+        integrity="sha256-VzPuX2N5f+QlIAqqWaRTrh8oY/Ecry74lBiCrweCzyA=" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="/webjars/font-awesome/css/all.css"/>
+  <style>
+    .vis-time-axis .vis-grid.vis-saturday,
+    .vis-time-axis .vis-grid.vis-sunday {
+      background: #D3D7CFFF;
+    }
+  </style>
+</head>
+
+<body>
+<div class="container-fluid">
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="https://timefold.ai">
+      <img src="timefold-logo-200px.png" alt="Timefold logo">
+    </a>
+  </nav>
+  <div class="sticky-top d-flex justify-content-center align-items-center" aria-live="polite" aria-atomic="true">
+    <div id="notificationPanel" style="position: absolute; top: .5rem;"></div>
+  </div>
+  <h1>Food packaging schedule solver</h1>
+  <p>Generate the optimal schedule for your food packaging manufacturing lines.</p>
+
+  <div class="mb-2">
+    <button id="refreshButton" type="button" class="btn btn-secondary">
+      <span class="fas fa-refresh"></span> Refresh
+    </button>
+    <button id="solveButton" type="button" class="btn btn-success">
+      <span class="fas fa-play"></span> Solve
+    </button>
+    <button id="stopSolvingButton" type="button" class="btn btn-danger">
+      <span class="fas fa-stop"></span> Stop solving
+    </button>
+    <span id="score" class="score ml-2 align-middle font-weight-bold">Score: ?</span>
+
+    <div class="float-right">
+      <ul class="nav nav-pills" id="myTab" role="tablist">
+        <li class="nav-item">
+          <a class="nav-link active" id="byLinePanelTab" data-toggle="tab" href="#byLinePanel" role="tab"
+             aria-controls="byLinePanel" aria-selected="true">By line</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="byJobPanelTab" data-toggle="tab" href="#byJobPanel" role="tab"
+             aria-controls="byJobPanel" aria-selected="false">By job</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="mb-4 tab-content" id="myTabContent">
+    <div class="tab-pane fade show active" id="byLinePanel" role="tabpanel" aria-labelledby="byLinePanelTab">
+      <div id="lineVisualization"></div>
+    </div>
+    <div class="tab-pane fade" id="byJobPanel" role="tabpanel" aria-labelledby="byJobPanelTab">
+      <div id="jobVisualization"></div>
+    </div>
+  </div>
+
+  <h2>Unassigned jobs</h2>
+  <div id="unassignedJobs" class="card-columns"></div>
+</div>
+
+<script src="/webjars/jquery/jquery.min.js"></script>
+<script src="/webjars/bootstrap/js/bootstrap.min.js"></script>
+<script src="/webjars/js-joda/dist/js-joda.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vis-timeline@7.4.9/dist/vis-timeline-graph2d.min.js"
+        integrity="sha256-agfOCSC6BGv4gGu8aHt1UycGlgL4FRWtH79N70HP5ng=" crossorigin="anonymous"></script>
+<script src="/app.js"></script>
+</body>
+</html>

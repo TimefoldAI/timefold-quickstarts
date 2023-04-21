@@ -109,6 +109,13 @@
         <include>quarkus-app/**</include>
       </includes>
     </fileSet>
+    <fileSet>
+      <directory>../../use-cases/food-packaging/target</directory>
+      <outputDirectory>quickstarts/binaries/use-cases/food-packaging</outputDirectory>
+      <includes>
+        <include>quarkus-app/**</include>
+      </includes>
+    </fileSet>
   </fileSets>
 
   <dependencySets>

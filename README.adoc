@@ -12,6 +12,7 @@ a|* <<school-timetabling, School timetabling>>
 * <<vaccination-scheduling, Vaccination scheduling>>
 * <<order-picking, Order Picking>>
 * <<employee-scheduling, Employee Scheduling>>
+* <<food-packaging, Food packaging>>
 * <<vehicle-routing, Vehicle Routing>>
 
 a|* link:use-cases/school-timetabling/README.adoc[Quarkus] (Java, Maven or Gradle, Quarkus, H2)
@@ -109,6 +110,15 @@ Schedule shifts to employees, accounting for employee availability and shift ski
 image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screenshot/quarkus-employee-scheduling-screenshot.png[]
 
 * link:use-cases/employee-scheduling/README.adoc[Run quarkus-employee-scheduling] (Java, Maven, Quarkus)
+
+[[food-packaging]]
+=== Food Packaging
+
+Schedule food packaging orders to manufacturing lines, to minimize downtime and fulfill all orders in time.
+
+image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screenshot/quarkus-food-packaging-screenshot.png[]
+
+* link:use-cases/food-packaging/README.adoc[Run quarkus-food-packaging] (Java, Maven, Quarkus)
 
 [[vehicle-routing]]
 === Vehicle Routing

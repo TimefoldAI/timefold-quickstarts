@@ -167,6 +167,9 @@ $(document).ready(function () {
   $("#employee-scheduling-launch").click(function () {
     launchQuickstart("employee-scheduling");
   });
+  $("#food-packaging-launch").click(function () {
+    launchQuickstart("food-packaging");
+  });
   $("#exit").click(function () {
     exit();
   });

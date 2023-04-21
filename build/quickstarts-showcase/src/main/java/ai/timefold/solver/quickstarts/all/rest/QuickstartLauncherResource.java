@@ -54,7 +54,8 @@ public class QuickstartLauncherResource {
                 new QuickstartMeta("call-center"),
                 new QuickstartMeta("vehicle-routing"),
                 new QuickstartMeta("order-picking"),
-                new QuickstartMeta("employee-scheduling"));
+                new QuickstartMeta("employee-scheduling"),
+                new QuickstartMeta("food-packaging"));
         Path workingDirectory = Paths.get("").toAbsolutePath();
         if (Files.exists(workingDirectory.resolve("target"))) {
             baseDirectory = workingDirectory.getParent().getParent();
