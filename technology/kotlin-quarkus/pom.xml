@@ -13,7 +13,7 @@
 
     <version.io.quarkus>2.16.6.Final</version.io.quarkus>
     <version.kotlin>1.6.21</version.kotlin>
-    <version.ai.timefold.solver>0.8.38-SNAPSHOT</version.ai.timefold.solver>
+    <version.ai.timefold.solver>0.8.39-SNAPSHOT</version.ai.timefold.solver>
 
     <version.compiler.plugin>3.8.1</version.compiler.plugin>
     <version.surefire.plugin>3.0.0-M8</version.surefire.plugin>
