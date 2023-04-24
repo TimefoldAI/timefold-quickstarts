@@ -99,7 +99,7 @@ public class MaintenanceScheduleConstraintProvider implements ConstraintProvider
         return constraintFactory
                 .forEachUniquePair(Job.class,
                         overlapping(Job::getStartDate, Job::getEndDate),
-                        // TODO Use intersecting() when available https://issues.redhat.com/browse/PLANNER-2558
+                        // TODO Use intersecting() when available https://github.com/TimefoldAI/timefold-solver/issues/8
                         filtering((job1, job2) -> !Collections.disjoint(
                                 job1.getTagSet(), job2.getTagSet())))
                 .penalizeLong(HardSoftLongScore.ofSoft(1_000),

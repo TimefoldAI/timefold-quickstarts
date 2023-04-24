@@ -35,7 +35,6 @@ import ai.timefold.solver.core.api.score.buildin.bendablelong.BendableLongScore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// TODO the default solution cloner doesn't scale to 100k+ appointments https://issues.redhat.com/browse/PLANNER-2398
 @PlanningSolution
 public class VaccinationSolution {
 

@@ -138,7 +138,7 @@ public class Job {
         this.nextJob = nextJob;
     }
 
-    // TODO Move this to field after fixing https://kie.zulipchat.com/#narrow/stream/232679-optaplanner/topic/Bug.3A.20.40ShadowVariable.20field.20in.20quarkus
+    // TODO Move this to field after fixing https://github.com/TimefoldAI/timefold-solver/issues/7
     @ShadowVariable(variableListenerClass = StartDateTimeUpdatingVariableListener.class, sourceVariableName = "line")
     @ShadowVariable(variableListenerClass = StartDateTimeUpdatingVariableListener.class, sourceVariableName = "previousJob")
     public LocalDateTime getStartCleaningDateTime() {
@@ -149,7 +149,7 @@ public class Job {
         this.startCleaningDateTime = startCleaningDateTime;
     }
 
-    // TODO Move this to field after fixing https://kie.zulipchat.com/#narrow/stream/232679-optaplanner/topic/Bug.3A.20.40ShadowVariable.20field.20in.20quarkus
+    // TODO Move this to field after fixing https://github.com/TimefoldAI/timefold-solver/issues/7
     @PiggybackShadowVariable(shadowVariableName = "startCleaningDateTime")
     public LocalDateTime getStartProductionDateTime() {
         return startProductionDateTime;
@@ -159,7 +159,7 @@ public class Job {
         this.startProductionDateTime = startProductionDateTime;
     }
 
-    // TODO Move this to field after fixing https://kie.zulipchat.com/#narrow/stream/232679-optaplanner/topic/Bug.3A.20.40ShadowVariable.20field.20in.20quarkus
+    // TODO Move this to field after fixing https://github.com/TimefoldAI/timefold-solver/issues/7
     @PiggybackShadowVariable(shadowVariableName = "startCleaningDateTime")
     public LocalDateTime getEndDateTime() {
         return endDateTime;
