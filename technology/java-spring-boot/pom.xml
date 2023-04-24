@@ -8,7 +8,7 @@
   <version>1.0-SNAPSHOT</version>
 
   <properties>
-    <maven.compiler.release>11</maven.compiler.release>
+    <maven.compiler.release>17</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <version.ai.timefold.solver>0.9.38-SNAPSHOT</version.ai.timefold.solver>

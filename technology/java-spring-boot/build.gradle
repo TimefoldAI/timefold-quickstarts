@@ -10,7 +10,7 @@ def assertjVersion = "3.24.2"
 group = "org.acme"
 archivesBaseName = "timefold-solver-spring-boot-school-timetabling-quickstart"
 version = "1.0-SNAPSHOT"
-sourceCompatibility = "11"
+sourceCompatibility = "17"
 
 repositories {
     mavenCentral()
