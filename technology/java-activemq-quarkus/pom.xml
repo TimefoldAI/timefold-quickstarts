@@ -12,7 +12,7 @@
   <properties>
     <version.org.apache.activemq>2.28.0</version.org.apache.activemq>
     <version.io.quarkus>3.0.0.Final</version.io.quarkus>
-    <version.ai.timefold.solver>0.9.38-SNAPSHOT</version.ai.timefold.solver>
+    <version.ai.timefold.solver>0.9.39-SNAPSHOT</version.ai.timefold.solver>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <compiler-plugin.version>3.8.1</compiler-plugin.version>
