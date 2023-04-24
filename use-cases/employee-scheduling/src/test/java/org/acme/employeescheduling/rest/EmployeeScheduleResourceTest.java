@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.acme.employeescheduling.domain.EmployeeSchedule;
 import org.acme.employeescheduling.domain.Shift;

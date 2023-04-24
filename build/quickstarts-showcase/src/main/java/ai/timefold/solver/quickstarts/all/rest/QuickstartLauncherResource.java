@@ -13,11 +13,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.enterprise.event.Observes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PathParam;
+import jakarta.enterprise.event.Observes;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PathParam;
 
 import ai.timefold.solver.quickstarts.all.domain.QuickstartMeta;
 
@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
 
-@javax.ws.rs.Path("quickstart")
+@jakarta.ws.rs.Path("quickstart")
 public class QuickstartLauncherResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(QuickstartLauncherResource.class);
@@ -86,7 +86,7 @@ public class QuickstartLauncherResource {
         return quickstartMetaList;
     }
 
-    @javax.ws.rs.Path("{quickstartId}/launch")
+    @jakarta.ws.rs.Path("{quickstartId}/launch")
     @POST
     public void launchQuickstart(@PathParam("quickstartId") String quickstartId) {
         QuickstartMeta quickstartMeta = quickstartMetaList.stream()
@@ -142,7 +142,7 @@ public class QuickstartLauncherResource {
         return quickstartRunnerJar;
     }
 
-    @javax.ws.rs.Path("{quickstartId}/stop/{port}")
+    @jakarta.ws.rs.Path("{quickstartId}/stop/{port}")
     @DELETE
     public void stopQuickstart(@PathParam("quickstartId") String quickstartId, @PathParam("port") int port) {
         QuickstartMeta quickstartMeta = quickstartMetaList.stream()

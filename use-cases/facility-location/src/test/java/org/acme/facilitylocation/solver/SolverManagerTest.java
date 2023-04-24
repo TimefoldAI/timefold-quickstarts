@@ -2,7 +2,7 @@ package org.acme.facilitylocation.solver;
 
 import java.util.concurrent.ExecutionException;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.acme.facilitylocation.bootstrap.DemoDataBuilder;
 import org.acme.facilitylocation.domain.FacilityLocationProblem;

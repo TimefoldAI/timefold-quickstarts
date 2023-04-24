@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Set;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.acme.employeescheduling.domain.Availability;
 import org.acme.employeescheduling.domain.AvailabilityType;

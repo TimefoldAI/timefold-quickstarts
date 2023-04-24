@@ -2,7 +2,7 @@ package org.acme.callcenter.solver;
 
 import java.time.Duration;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.acme.callcenter.domain.Agent;
 import org.acme.callcenter.domain.Call;

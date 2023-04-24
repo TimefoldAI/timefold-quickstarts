@@ -8,9 +8,9 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
 
 import io.quarkus.runtime.StartupEvent;
 import org.acme.orderpicking.domain.Order;

@@ -7,7 +7,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import org.acme.callcenter.domain.Agent;
 import org.acme.callcenter.domain.Call;

@@ -3,7 +3,7 @@ package org.acme.schooltimetabling.solver;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.acme.schooltimetabling.domain.Lesson;
 import org.acme.schooltimetabling.domain.Room;

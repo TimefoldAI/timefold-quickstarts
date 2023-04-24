@@ -10,8 +10,8 @@
   <packaging>pom</packaging>
 
   <properties>
-    <version.org.apache.activemq>2.24.0</version.org.apache.activemq>
-    <version.io.quarkus>2.16.6.Final</version.io.quarkus>
+    <version.org.apache.activemq>2.28.0</version.org.apache.activemq>
+    <version.io.quarkus>3.0.0.Final</version.io.quarkus>
     <version.ai.timefold.solver>0.9.38-SNAPSHOT</version.ai.timefold.solver>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -47,7 +47,8 @@
       <dependency>
         <groupId>io.quarkiverse.artemis</groupId>
         <artifactId>quarkus-artemis-jms</artifactId>
-        <version>1.0.6</version>
+        <!-- TODO: upgrade to Final when it's available. -->
+        <version>3.0.0.CR1</version>
       </dependency>
       <dependency>
         <groupId>org.acme</groupId>

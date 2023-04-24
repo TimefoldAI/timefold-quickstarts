@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Map;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import io.quarkus.test.junit.QuarkusTest;
 import org.acme.foodpackaging.domain.Job;

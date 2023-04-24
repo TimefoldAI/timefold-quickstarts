@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import io.quarkus.test.junit.QuarkusTest;
 import org.acme.orderpicking.domain.Order;

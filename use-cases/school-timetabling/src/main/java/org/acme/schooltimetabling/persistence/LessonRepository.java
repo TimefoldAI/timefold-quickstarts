@@ -1,6 +1,6 @@
 package org.acme.schooltimetabling.persistence;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import org.acme.schooltimetabling.domain.Lesson;
 

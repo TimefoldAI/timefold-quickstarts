@@ -1,6 +1,6 @@
 package org.acme.maintenancescheduling.persistence;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import org.acme.maintenancescheduling.domain.Crew;
 

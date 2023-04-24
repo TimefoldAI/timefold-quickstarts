@@ -2,7 +2,7 @@ package org.acme.schooltimetabling.persistence;
 
 import java.util.Objects;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import org.acme.schooltimetabling.domain.TimeTable;
 

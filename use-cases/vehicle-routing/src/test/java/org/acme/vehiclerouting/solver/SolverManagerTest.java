@@ -3,7 +3,7 @@ package org.acme.vehiclerouting.solver;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import io.quarkus.test.junit.QuarkusTest;
 import org.acme.vehiclerouting.bootstrap.DemoDataBuilder;

@@ -1,6 +1,6 @@
 package org.acme.orderpicking.persistence;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import org.acme.orderpicking.domain.OrderPickingSolution;
 

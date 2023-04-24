@@ -1,6 +1,6 @@
 package org.acme.schooltimetabling.solver;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.acme.schooltimetabling.rest.TimeTableResource;
 import org.junit.jupiter.api.Test;

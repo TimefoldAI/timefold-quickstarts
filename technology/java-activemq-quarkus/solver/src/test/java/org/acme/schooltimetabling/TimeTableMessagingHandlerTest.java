@@ -8,13 +8,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import javax.jms.ConnectionFactory;
-import javax.jms.Destination;
-import javax.jms.JMSConsumer;
-import javax.jms.JMSContext;
-import javax.jms.JMSException;
-import javax.jms.JMSProducer;
-import javax.jms.Session;
+import jakarta.jms.ConnectionFactory;
+import jakarta.jms.Destination;
+import jakarta.jms.JMSConsumer;
+import jakarta.jms.JMSContext;
+import jakarta.jms.JMSException;
+import jakarta.jms.JMSProducer;
+import jakarta.jms.Session;
 
 import ai.timefold.solver.jackson.api.TimefoldJacksonModule;
 import org.acme.schooltimetabling.domain.Lesson;
@@ -105,7 +105,7 @@ public class TimeTableMessagingHandlerTest {
     private String receiveMessage(String queueName, int timeoutSeconds) {
         try (JMSContext context = connectionFactory.createContext("quarkus", "quarkus", Session.AUTO_ACKNOWLEDGE)) {
             JMSConsumer consumer = context.createConsumer(context.createQueue(queueName));
-            javax.jms.Message message = consumer.receive(timeoutSeconds * 1_000);
+            jakarta.jms.Message message = consumer.receive(timeoutSeconds * 1_000);
             return message.getBody(String.class);
         } catch (JMSException e) {
             throw new RuntimeException(e);

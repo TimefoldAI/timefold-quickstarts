@@ -2,7 +2,7 @@ package org.acme.facilitylocation.persistence;
 
 import java.util.Optional;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import org.acme.facilitylocation.domain.FacilityLocationProblem;
 

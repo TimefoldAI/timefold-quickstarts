@@ -10,8 +10,9 @@ import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 
-import javax.enterprise.inject.Any;
-import javax.inject.Inject;
+import io.smallrye.reactive.messaging.memory.InMemoryConnector;
+import jakarta.enterprise.inject.Any;
+import jakarta.inject.Inject;
 
 import org.acme.schooltimetabling.domain.Lesson;
 import org.acme.schooltimetabling.domain.Room;
@@ -31,9 +32,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
-import io.smallrye.reactive.messaging.providers.connectors.InMemoryConnector;
-import io.smallrye.reactive.messaging.providers.connectors.InMemorySink;
-import io.smallrye.reactive.messaging.providers.connectors.InMemorySource;
+import io.smallrye.reactive.messaging.memory.InMemorySink;
+import io.smallrye.reactive.messaging.memory.InMemorySource;
 
 @QuarkusTest
 @QuarkusTestResource(ActiveMQTestResourceLifecycleManager.class)

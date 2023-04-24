@@ -10,10 +10,10 @@ import org.acme.kotlin.schooltimetabling.persistence.TimeslotRepository
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.time.DayOfWeek
 import java.time.LocalTime
-import javax.enterprise.context.ApplicationScoped
-import javax.enterprise.event.Observes
-import javax.inject.Inject
-import javax.transaction.Transactional
+import jakarta.enterprise.context.ApplicationScoped
+import jakarta.enterprise.event.Observes
+import jakarta.inject.Inject
+import jakarta.transaction.Transactional
 
 
 @ApplicationScoped

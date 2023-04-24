@@ -1,7 +1,7 @@
 package org.acme.facilitylocation.bootstrap;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
 
 import org.acme.facilitylocation.domain.FacilityLocationProblem;
 import org.acme.facilitylocation.domain.Location;

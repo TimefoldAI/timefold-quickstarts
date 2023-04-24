@@ -2,7 +2,7 @@ package org.acme.vehiclerouting.persistence;
 
 import java.util.Optional;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import org.acme.vehiclerouting.domain.VehicleRoutingSolution;
 

@@ -1,9 +1,9 @@
 package org.acme.foodpackaging.rest;
 
-import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
 
 import org.acme.foodpackaging.domain.PackagingSchedule;
 import org.acme.foodpackaging.persistence.PackagingScheduleRepository;

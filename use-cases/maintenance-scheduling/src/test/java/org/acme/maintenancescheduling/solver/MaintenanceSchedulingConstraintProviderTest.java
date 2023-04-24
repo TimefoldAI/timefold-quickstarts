@@ -2,7 +2,7 @@ package org.acme.maintenancescheduling.solver;
 
 import java.time.LocalDate;
 import java.util.Set;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.acme.maintenancescheduling.domain.Crew;
 import org.acme.maintenancescheduling.domain.Job;

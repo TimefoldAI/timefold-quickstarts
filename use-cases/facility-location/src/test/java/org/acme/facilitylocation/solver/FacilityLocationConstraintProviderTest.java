@@ -1,6 +1,6 @@
 package org.acme.facilitylocation.solver;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.acme.facilitylocation.domain.Consumer;
 import org.acme.facilitylocation.domain.Facility;

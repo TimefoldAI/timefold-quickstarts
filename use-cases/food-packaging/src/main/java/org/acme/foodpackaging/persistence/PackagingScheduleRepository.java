@@ -2,7 +2,7 @@ package org.acme.foodpackaging.persistence;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import org.acme.foodpackaging.domain.PackagingSchedule;
 

@@ -10,11 +10,11 @@ import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore
 import ai.timefold.solver.core.api.solver.SolutionManager
 import ai.timefold.solver.core.api.solver.SolverManager
 import ai.timefold.solver.core.api.solver.SolverStatus
-import javax.inject.Inject
-import javax.transaction.Transactional
-import javax.ws.rs.GET
-import javax.ws.rs.POST
-import javax.ws.rs.Path
+import jakarta.inject.Inject
+import jakarta.transaction.Transactional
+import jakarta.ws.rs.GET
+import jakarta.ws.rs.POST
+import jakarta.ws.rs.Path
 
 
 @Path("timeTable")

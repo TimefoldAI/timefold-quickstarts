@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 import ai.timefold.solver.test.api.score.stream.ConstraintVerifier
 import java.time.DayOfWeek
 import java.time.LocalTime
-import javax.inject.Inject
+import jakarta.inject.Inject
 
 @QuarkusTest
 class TimeTableConstraintProviderTest {

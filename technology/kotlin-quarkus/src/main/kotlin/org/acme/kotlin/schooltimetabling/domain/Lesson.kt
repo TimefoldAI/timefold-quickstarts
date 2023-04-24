@@ -3,10 +3,10 @@ package org.acme.kotlin.schooltimetabling.domain
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity
 import ai.timefold.solver.core.api.domain.lookup.PlanningId
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.Id
-import javax.persistence.ManyToOne
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.Id
+import jakarta.persistence.ManyToOne
 
 
 @PlanningEntity
