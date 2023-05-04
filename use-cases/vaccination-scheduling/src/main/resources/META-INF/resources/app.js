@@ -12,9 +12,9 @@ function refreshSolution() {
     const vaccineTypeMap = new Map();
     schedule.vaccineTypeList.forEach((vaccineType) => {
       const color = pickColor(vaccineType.name);
-      vaccineTypesDiv.append($(`<div class="card" style="background-color: ${color}"/>`)
+      vaccineTypesDiv.append($(`<div class="col"/>`).append($(`<div class="card" style="background-color: ${color}"/>`)
           .append($(`<div class="card-body p-2"/>`)
-            .append($(`<h5 class="card-title mb-0"/>`).text(vaccineType.name))));
+            .append($(`<h5 class="card-title mb-0"/>`).text(vaccineType.name)))));
       vaccineTypeMap.set(vaccineType.name, vaccineType);
     });
 
@@ -91,7 +91,7 @@ function refreshSolution() {
             row.append($(`<td class="p-1"/>`));
           } else {
             const color = pickColor(appointment.vaccineType);
-            var cardBody = $(`<div class="card-body pt-1 pb-1 pl-2 pr-2"/>`);
+            var cardBody = $(`<div class="card-body pt-1 pb-1 px-2"/>`);
             const person = appointmentToPersonMap.get(dateTime + "/" + vaccinationCenter.id + "/" + boothId);
             if (person == null) {
               cardBody.append($(`<h5 class="card-title mb-0"/>`).text("Unassigned"));
@@ -107,34 +107,34 @@ function refreshSolution() {
               }
               if (person.requiredVaccineType != null
                 && appointment.vaccineType !== person.requiredVaccineType) {
-                cardBody.append($(`<p class="badge badge-danger ml-2 mb-0"/>`).text("Required vaccine is " + person.requiredVaccineType));
+                cardBody.append($(`<p class="badge badge-danger ms-2 mb-0"/>`).text("Required vaccine is " + person.requiredVaccineType));
               }
               if (person.preferredVaccineType != null
                 && appointment.vaccineType !== person.preferredVaccineType) {
-                cardBody.append($(`<p class="badge badge-warning ml-2 mb-0"/>`).text("Preferred vaccine is " + person.preferredVaccineType));
+                cardBody.append($(`<p class="badge badge-warning ms-2 mb-0"/>`).text("Preferred vaccine is " + person.preferredVaccineType));
               }
               if (person.requiredVaccinationCenter != null
                 && appointment.vaccinationCenter !== person.requiredVaccinationCenter) {
                 const requiredVaccinationCenter = vaccinationCenterMap.get(person.requiredVaccinationCenter);
-                cardBody.append($(`<p class="badge badge-danger ml-2 mb-0"/>`).text("Required vaccination center is " + requiredVaccinationCenter.name));
+                cardBody.append($(`<p class="badge badge-danger ms-2 mb-0"/>`).text("Required vaccination center is " + requiredVaccinationCenter.name));
               }
               if (person.preferredVaccinationCenter != null
                 && appointment.vaccinationCenter !== person.preferredVaccinationCenter) {
                 const preferredVaccinationCenter = vaccinationCenterMap.get(person.preferredVaccinationCenter);
-                cardBody.append($(`<p class="badge badge-warning ml-2 mb-0"/>`).text("Preferred vaccination center is " + preferredVaccinationCenter.name));
+                cardBody.append($(`<p class="badge badge-warning ms-2 mb-0"/>`).text("Preferred vaccination center is " + preferredVaccinationCenter.name));
               }
               if (person.readyDate != null) {
                 var readyDate = moment(person.readyDate, "YYYY,M,D");
                 var readyDateDiff = appointmentDateTime.diff(readyDate, 'days');
                 if (readyDateDiff < 0) {
-                  cardBody.append($(`<p class="badge badge-danger ml-2 mb-0"/>`).text("Dose is " + (-readyDateDiff) + " days too early"));
+                  cardBody.append($(`<p class="badge badge-danger ms-2 mb-0"/>`).text("Dose is " + (-readyDateDiff) + " days too early"));
                 }
               }
               if (person.dueDate != null) {
                 var dueDate = moment(person.dueDate, "YYYY,M,D");
                 var dueDateDiff = appointmentDateTime.diff(dueDate, 'days');
                 if (dueDateDiff > 0) {
-                  cardBody.append($(`<p class="badge badge-danger ml-2 mb-0"/>`).text("Dose is " + (dueDateDiff) + " days too late"));
+                  cardBody.append($(`<p class="badge badge-danger ms-2 mb-0"/>`).text("Dose is " + (dueDateDiff) + " days too late"));
                 }
               }
               var dosePrefix = person.doseNumber.toString() + ((person.doseNumber === 1) ? "st" : "nd");
@@ -146,7 +146,7 @@ function refreshSolution() {
                     : (idealDateDiff < 0 ? (-idealDateDiff) + " days too early"
                     : idealDateDiff + " days too late")) + ")";
               }
-              cardBody.append($(`<p class="card-text ml-2 mb-0"/>`).text(dosePrefix + " dose" + doseSuffix));
+              cardBody.append($(`<p class="card-text ms-2 mb-0"/>`).text(dosePrefix + " dose" + doseSuffix));
             }
             row.append($(`<td class="p-1"/>`)
               .append($(`<div class="card" style="background-color: ${color}"/>`)
@@ -190,10 +190,10 @@ function refreshSolution() {
         if (person.idealDate != null) {
           doseSuffix += " (ideally " + moment(person.idealDate, "YYYY,M,D").format("ddd MMM D") + ")";
         }
-        unassignedPeronsDiv.append($(`<div class="card"/>`)
-            .append($(`<div class="card-body pt-1 pb-1 pl-2 pr-2"/>`)
+        unassignedPeronsDiv.append($(`<div class="col"/>`).append($(`<div class="card"/>`)
+            .append($(`<div class="card-body pt-1 pb-1 px-2"/>`)
               .append($(`<h5 class="card-title mb-1"/>`).text(person.name + " (" + age + ")"))
-              .append($(`<p class="card-text ml-2"/>`).text(dosePrefix + " dose" + doseSuffix))));
+              .append($(`<p class="card-text ms-2"/>`).text(dosePrefix + " dose" + doseSuffix)))));
       }
     });
     $("#assignedPersonCount").text(assignedPersonCount);
@@ -240,10 +240,8 @@ function showError(title, xhr) {
   console.error(title + "\n" + serverErrorMessage);
   const notification = $(`<div class="toast" role="alert" aria-live="assertive" aria-atomic="true" style="min-width: 30rem"/>`)
     .append($(`<div class="toast-header bg-danger">
-                 <strong class="mr-auto text-dark">Error</strong>
-                 <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-                   <span aria-hidden="true">&times;</span>
-                 </button>
+                 <strong class="me-auto text-dark">Error</strong>
+                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
                </div>`))
     .append($(`<div class="toast-body"/>`)
       .append($(`<p/>`).text(title))
@@ -298,7 +296,7 @@ $(document).ready(function () {
     maxZoom: 19,
     attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
   }).addTo(leafletMap);
-  $(`a[data-toggle="tab"]`).on("shown.bs.tab", function (e) {
+  $(`button[data-bs-toggle="tab"]`).on("shown.bs.tab", function (e) {
     leafletMap.invalidateSize();
   })
 

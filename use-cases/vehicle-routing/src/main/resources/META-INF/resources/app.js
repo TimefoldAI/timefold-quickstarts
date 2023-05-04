@@ -120,8 +120,8 @@ const showError = (message, stackTrace) => {
   const notification = $(`<div class="toast shadow rounded-lg" role="alert" style="min-width: 30rem"/>`)
     .append($(
       `<div class="toast-header bg-danger">
-<strong class="mr-auto text-dark">Error</strong>
-<button type="button" class="ml-2 mb-1 close" data-dismiss="toast">
+<strong class="me-auto text-dark">Error</strong>
+<button type="button" class="ms-2 mb-1 close" data-bs-dismiss="toast">
 <span>&times;</span>
 </button>
 </div>`))
@@ -193,7 +193,7 @@ const showProblem = ({ solution, scoreExplanation, isSolving }) => {
     map.fitBounds(solution.bounds);
   }
   // Vehicles
-  $('[data-toggle="tooltip-load"]').tooltip('dispose');
+  $('[data-bs-toggle="tooltip-load"]').tooltip('dispose');
   vehiclesTable.children().remove();
   solution.vehicleList.forEach((vehicle) => {
     const { id, capacity, totalDemand, totalDistanceMeters } = vehicle;
@@ -209,7 +209,7 @@ const showProblem = ({ solution, scoreExplanation, isSolving }) => {
         </td>
         <td>Vehicle ${id}</td>
         <td>
-          <div class="progress" data-toggle="tooltip-load" data-placement="left" data-html="true"
+          <div class="progress" data-bs-toggle="tooltip-load" data-bs-placement="left" data-html="true"
             title="Cargo: ${totalDemand}<br/>Capacity: ${capacity}">
             <div class="progress-bar" role="progressbar" style="width: ${percentage}%">${totalDemand}/${capacity}</div>
           </div>
@@ -217,7 +217,7 @@ const showProblem = ({ solution, scoreExplanation, isSolving }) => {
         <td>${formatDistance(totalDistanceMeters)}</td>
       </tr>`);
   });
-  $('[data-toggle="tooltip-load"]').tooltip();
+  $('[data-bs-toggle="tooltip-load"]').tooltip();
   // Depots
   depotsTable.children().remove();
   solution.depotList.forEach((depot) => {
@@ -266,4 +266,4 @@ solveButton.click(solve);
 stopSolvingButton.click(stopSolving);
 
 updateSolvingStatus();
-$('[data-toggle="tooltip"]').tooltip();
+$('[data-bs-toggle="tooltip"]').tooltip();

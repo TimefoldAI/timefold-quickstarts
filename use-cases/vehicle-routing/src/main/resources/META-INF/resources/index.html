@@ -35,7 +35,7 @@
         <div class="col">
           <h5>
             Solution summary
-            <a href="#" class="float-right" data-toggle="modal" data-target="#scoreDialog">
+            <a href="#" class="float-end" data-bs-toggle="modal" data-bs-target="#scoreDialog">
               <i class="fas fa-info-circle"></i>
             </a>
           </h5>
@@ -71,7 +71,7 @@
               <th class="col-3">Name</th>
               <th class="col-3">
                 Load
-                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="top" data-html="true"
+                <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="top" data-html="true"
                    title="Vehicle load is displayed as <em>total cargo / vehicle capacity</em>."></i>
               </th>
               <th class="col-3">Distance</th>
@@ -85,14 +85,12 @@
   </div>
 </div>
 
-<div class="modal fade" id="scoreDialog" tabindex="-1" role="dialog">
-  <div class="modal-dialog modal-lg" role="dialog">
+<div class="modal fade" id="scoreDialog" tabindex="-1" aria-labelledby="scoreDialogLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5>Score explanation</h5>
-        <button type="button" class="close" data-dismiss="modal">
-          <span>&times;</span>
-        </button>
+        <h1 class="modal-title fs-5" id="scoreDialogLabel">Score explanation</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <pre id="scoreInfo">

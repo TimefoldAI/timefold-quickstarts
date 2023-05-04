@@ -69,7 +69,7 @@ function refreshTimeTable() {
       headerRowByRoom
         .append($("<th/>")
           .append($("<span/>").text(room.name))
-          .append($(`<button type="button" class="ml-2 mb-1 btn btn-light btn-sm p-1"/>`)
+          .append($(`<button type="button" class="ms-2 mb-1 btn btn-light btn-sm p-1"/>`)
             .append($(`<small class="fas fa-trash"/>`)
             ).click(() => deleteRoom(room))));
     });
@@ -108,7 +108,7 @@ function refreshTimeTable() {
                     -
                     ${LocalTime.parse(timeslot.endTime).format(dateTimeFormatter)}
                 `)
-            .append($(`<button type="button" class="ml-2 mb-1 btn btn-light btn-sm p-1"/>`)
+            .append($(`<button type="button" class="ms-2 mb-1 btn btn-light btn-sm p-1"/>`)
               .append($(`<small class="fas fa-trash"/>`)
               ).click(() => deleteTimeslot(timeslot)))));
       $.each(timeTable.roomList, (index, room) => {
@@ -147,18 +147,18 @@ function refreshTimeTable() {
       const lessonElementWithoutDelete = $(`<div class="card" style="background-color: ${color}"/>`)
         .append($(`<div class="card-body p-2"/>`)
           .append($(`<h5 class="card-title mb-1"/>`).text(lesson.subject))
-          .append($(`<p class="card-text ml-2 mb-1"/>`)
+          .append($(`<p class="card-text ms-2 mb-1"/>`)
             .append($(`<em/>`).text(`by ${lesson.teacher}`)))
-          .append($(`<small class="ml-2 mt-1 card-text text-muted align-bottom float-right"/>`).text(lesson.id))
-          .append($(`<p class="card-text ml-2"/>`).text(lesson.studentGroup)));
+          .append($(`<small class="ms-2 mt-1 card-text text-muted align-bottom float-end"/>`).text(lesson.id))
+          .append($(`<p class="card-text ms-2"/>`).text(lesson.studentGroup)));
       const lessonElement = lessonElementWithoutDelete.clone();
       lessonElement.find(".card-body").prepend(
-        $(`<button type="button" class="ml-2 btn btn-light btn-sm p-1 float-right"/>`)
+        $(`<button type="button" class="ms-2 btn btn-light btn-sm p-1 float-end"/>`)
           .append($(`<small class="fas fa-trash"/>`)
           ).click(() => deleteLesson(lesson))
       );
       if (lesson.timeslot == null || lesson.room == null) {
-        unassignedLessons.append(lessonElement);
+        unassignedLessons.append($(`<div class="col"/>`).append(lessonElement));
       } else {
         $(`#timeslot${lesson.timeslot.id}room${lesson.room.id}`).append(lessonElement);
         $(`#timeslot${lesson.timeslot.id}teacher${convertToId(lesson.teacher)}`).append(lessonElementWithoutDelete.clone());
@@ -275,10 +275,8 @@ function showError(title, xhr) {
   console.error(title + "\n" + serverErrorMessage);
   const notification = $(`<div class="toast" role="alert" aria-live="assertive" aria-atomic="true" style="min-width: 30rem"/>`)
     .append($(`<div class="toast-header bg-danger">
-                 <strong class="mr-auto text-dark">Error</strong>
-                 <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-                   <span aria-hidden="true">&times;</span>
-                 </button>
+                 <strong class="me-auto text-dark">Error</strong>
+                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
                </div>`))
     .append($(`<div class="toast-body"/>`)
       .append($(`<p/>`).text(title))

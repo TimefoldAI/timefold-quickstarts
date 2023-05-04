@@ -30,25 +30,25 @@
         <button id="stopSolvingButton" type="button" class="btn btn-danger">
             <span class="fas fa-stop"></span> Stop solving
         </button>
-        <span id="score" class="score ml-2 align-middle font-weight-bold">Score: ?</span>
+        <span id="score" class="score ms-2 align-middle fw-bold">Score: ?</span>
 
-        <div class="float-right">
+        <div class="float-end">
             <ul class="nav nav-pills" role="tablist">
-                <li class="nav-item">
-                    <a class="nav-link active" id="scheduleTab" data-toggle="tab" href="#scheduleTabDiv" role="tab" aria-controls="schedulePanel" aria-selected="true">Schedule</a>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="scheduleTab" data-bs-toggle="tab" data-bs-target="#scheduleTabDiv" type="button" role="tab" aria-controls="schedulePanel" aria-selected="true">Schedule</button>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="mapTab" data-toggle="tab" href="#mapTabDiv" role="tab" aria-controls="mapPanel" aria-selected="false">Map</a>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="mapTab" data-bs-toggle="tab" data-bs-target="#mapTabDiv" type="button" role="tab" aria-controls="mapPanel" aria-selected="false">Map</button>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="unassignedTab" data-toggle="tab" href="#unassignedTabDiv" role="tab" aria-controls="unassignedPanel" aria-selected="false">Unassigned</a>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="unassignedTab" data-bs-toggle="tab" data-bs-target="#unassignedTabDiv" type="button" role="tab" aria-controls="unassignedPanel" aria-selected="false">Unassigned</button>
                 </li>
             </ul>
         </div>
     </div>
-    <div class="ml-5 mr-5">
+    <div class="ms-5 me-5">
         <span>Vaccine types:</span>
-        <div id="vaccineTypes" class="card-columns"></div>
+        <div id="vaccineTypes" class="row row-cols-3 g-3 mb-4"></div>
     </div>
     <div class="tab-content">
         <div class="tab-pane fade show active" id="scheduleTabDiv" role="tabpanel" aria-labelledby="scheduleTab">
@@ -63,7 +63,7 @@
             <p class="mb-4">There are <span id="assignedPersonCount">0</span> assigned persons
                 and <span id="unassignedPersonCount">0</span> unassigned persons.</p>
             <h2>Unassigned persons</h2>
-            <div id="unassignedPersons" class="card-columns"></div>
+            <div id="unassignedPersons" class="row row-cols-3 g-3 mb-4"></div>
         </div>
     </div>
 </div>

@@ -19,7 +19,7 @@ function refreshQuickstartsPanel() {
               .append($(`<span class="fas fa-play"/>`))
               .text(started ? "Show" : "Loading...")
               .click(() => window.open("//localhost:" + port, '_blank')))
-            .append($(`<button type="button" class="btn btn-danger mb-2 ml-2 mr-2"/>`)
+            .append($(`<button type="button" class="btn btn-danger mb-2 ms-2 me-2"/>`)
               .append($(`<span class="fas fa-stop"/>`))
               .text("Stop")
               .click(() => stopQuickstart(quickstart.id, port)))));
@@ -103,10 +103,8 @@ function showError(title, xhr) {
   console.error(title + "\n" + serverErrorMessage);
   const notification = $(`<div class="toast" role="alert" aria-live="assertive" aria-atomic="true" style="min-width: 30rem"/>`)
     .append($(`<div class="toast-header bg-danger">
-                 <strong class="mr-auto text-dark">Error</strong>
-                 <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-                   <span aria-hidden="true">&times;</span>
-                 </button>
+                 <strong class="me-auto text-dark">Error</strong>
+                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
                </div>`))
     .append($(`<div class="toast-body"/>`)
       .append($(`<p/>`).text(title))

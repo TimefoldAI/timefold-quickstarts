@@ -30,18 +30,18 @@
         <button id="stopSolvingButton" type="button" class="btn btn-danger" style="display: none">
             <span class="fas fa-stop"></span> Stop solving
         </button>
-        <span id="score" class="score ml-2 align-middle font-weight-bold">Score: ?</span>
+        <span id="score" class="score ms-2 align-middle fw-bold">Score: ?</span>
 
-        <div class="float-right">
+        <div class="float-end">
             <ul class="nav nav-pills" role="tablist">
-                <li class="nav-item">
-                    <a class="nav-link active" id="solutionTab" data-toggle="tab" href="#solutionTabDiv" role="tab" aria-controls="solutionPanel" aria-selected="true">Picking plan</a>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="solutionTab" data-bs-toggle="tab" data-bs-target="#solutionTabDiv" type="button" role="tab" aria-controls="solutionPanel" aria-selected="true">Picking plan</button>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="mapTab" data-toggle="tab" href="#mapTabDiv" role="tab" aria-controls="mapPanel" aria-selected="false" onclick="window.setTimeout(() => refreshSolution(), 500);">Map</a>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="mapTab" data-bs-toggle="tab" data-bs-target="#mapTabDiv" type="button" role="tab" aria-controls="mapPanel" aria-selected="false" onclick="window.setTimeout(() => refreshSolution(), 500);">Map</button>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="unassignedEntitiesTab" data-toggle="tab" href="#unassignedEntitiesTabDiv" role="tab" aria-controls="unassignedEntitiesPanel" aria-selected="false">Unassigned</a>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="unassignedEntitiesTab" data-bs-toggle="tab" data-bs-target="#unassignedEntitiesTabDiv" type="button" role="tab" aria-controls="unassignedEntitiesPanel" aria-selected="false">Unassigned</button>
                 </li>
             </ul>
         </div>

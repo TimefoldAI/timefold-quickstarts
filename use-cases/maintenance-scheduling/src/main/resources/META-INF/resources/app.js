@@ -88,7 +88,7 @@ function refreshSchedule() {
         $.each(schedule.jobList, (index, job) => {
             const jobGroupElement = $(`<div/>`)
               .append($(`<h5 class="card-title mb-1"/>`).text(job.name))
-              .append($(`<p class="card-text ml-2 mb-0"/>`).text(`${job.durationInDays} workdays`));
+              .append($(`<p class="card-text ms-2 mb-0"/>`).text(`${job.durationInDays} workdays`));
             byJobGroupDataSet.add({
                 id : job.id,
                 content: jobGroupElement.html()
@@ -110,17 +110,17 @@ function refreshSchedule() {
                 unassignedJobsCount++;
                 const unassignedJobElement = $(`<div class="card-body p-2"/>`)
                     .append($(`<h5 class="card-title mb-1"/>`).text(job.name))
-                    .append($(`<p class="card-text ml-2 mb-0"/>`).text(`${job.durationInDays} workdays`))
-                    .append($(`<p class="card-text ml-2 mb-0"/>`).text(`Ready: ${job.readyDate}`))
-                    .append($(`<p class="card-text ml-2 mb-0"/>`).text(`Due: ${job.dueDate}`));
+                    .append($(`<p class="card-text ms-2 mb-0"/>`).text(`${job.durationInDays} workdays`))
+                    .append($(`<p class="card-text ms-2 mb-0"/>`).text(`Ready: ${job.readyDate}`))
+                    .append($(`<p class="card-text ms-2 mb-0"/>`).text(`Due: ${job.dueDate}`));
                 const byJobJobElement = $(`<div/>`)
                   .append($(`<h5 class="card-title mb-1"/>`).text(`Unassigned`));
                 $.each(job.tagSet, (index, tag) => {
                     const color = pickColor(tag);
-                    unassignedJobElement.append($(`<span class="badge mr-1" style="background-color: ${color}"/>`).text(tag));
-                    byJobJobElement.append($(`<span class="badge mr-1" style="background-color: ${color}"/>`).text(tag));
+                    unassignedJobElement.append($(`<span class="badge me-1" style="background-color: ${color}"/>`).text(tag));
+                    byJobJobElement.append($(`<span class="badge me-1" style="background-color: ${color}"/>`).text(tag));
                 });
-                unassignedJobs.append($(`<div class="card"/>`).append(unassignedJobElement));
+                unassignedJobs.append($(`<div class="col"/>`).append($(`<div class="card"/>`).append(unassignedJobElement)));
                 byJobItemDataSet.add({
                     id : job.id, group: job.id,
                     content: byJobJobElement.html(),
@@ -132,7 +132,7 @@ function refreshSchedule() {
                 const afterDue = JSJoda.LocalDate.parse(job.endDate).isAfter(JSJoda.LocalDate.parse(job.dueDate));
                 const byCrewJobElement = $(`<div/>`)
                     .append($(`<h5 class="card-title mb-1"/>`).text(job.name))
-                    .append($(`<p class="card-text ml-2 mb-0"/>`).text(`${job.durationInDays} workdays`));
+                    .append($(`<p class="card-text ms-2 mb-0"/>`).text(`${job.durationInDays} workdays`));
                 const byJobJobElement = $(`<div/>`)
                     .append($(`<h5 class="card-title mb-1"/>`).text(job.crew.name));
                 if (beforeReady) {
@@ -145,8 +145,8 @@ function refreshSchedule() {
                 }
                 $.each(job.tagSet, (index, tag) => {
                     const color = pickColor(tag);
-                    byCrewJobElement.append($(`<span class="badge mr-1" style="background-color: ${color}"/>`).text(tag));
-                    byJobJobElement.append($(`<span class="badge mr-1" style="background-color: ${color}"/>`).text(tag));
+                    byCrewJobElement.append($(`<span class="badge me-1" style="background-color: ${color}"/>`).text(tag));
+                    byJobJobElement.append($(`<span class="badge me-1" style="background-color: ${color}"/>`).text(tag));
                 });
                 byCrewItemDataSet.add({
                     id : job.id, group: job.crew.id,
@@ -207,10 +207,8 @@ function showError(title, xhr) {
     console.error(title + "\n" + serverErrorMessage);
     const notification = $(`<div class="toast" role="alert" aria-live="assertive" aria-atomic="true" style="min-width: 30rem"/>`)
       .append($(`<div class="toast-header bg-danger">
-                 <strong class="mr-auto text-dark">Error</strong>
-                 <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-                   <span aria-hidden="true">&times;</span>
-                 </button>
+                 <strong class="me-auto text-dark">Error</strong>
+                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
                </div>`))
       .append($(`<div class="toast-body"/>`)
         .append($(`<p/>`).text(title))

@@ -40,10 +40,10 @@ function printCallTable(callCenterData) {
 }
 
 function printHeader(callTable, calls) {
-  const thead = $('<thead/>').appendTo(callTable);
-  const headerRow = $('<tr/>').appendTo(thead);
-  headerRow.append($('<th style="width:10%;"><h2>Agent</h2></th>'));
-  headerRow.append($('<th colspan="' + calls + '" style="text-align:center"><h2>Incoming calls</h2></th>'))
+  const thead = $(`<thead/>`).appendTo(callTable);
+  const headerRow = $(`<tr/>`).appendTo(thead);
+  headerRow.append($(`<th style="width:10%;"><h2>Agent</h2></th>`));
+  headerRow.append($(`<th colspan="' + calls + '" style="text-align:center"><h2>Incoming calls</h2></th>`))
 }
 
 function printAgent(tableBody, agent) {
@@ -51,36 +51,37 @@ function printAgent(tableBody, agent) {
   const td = $('<td/>').appendTo(tableRow);
   const agentCard = $('<div class="card" style="background-color:#f7ecd5">').appendTo(td);
   const agentCardBody = $('<div class="card-body p-2"/>')
-    .append($(`<h5 class="card-title mb-2"><i class="fas fa-user-alt mr-1"></i> ${agent.name}</h5>`));
+    .append($(`<h5 class="card-title mb-2"><i class="fas fa-user-alt me-1"></i> ${agent.name}</h5>`));
 
   printSkills(agentCardBody, agent.skills);
   agentCardBody.appendTo(agentCard);
 
-  const callsTd = $('<td style="flex-flow:row; display: flex;"/>').appendTo(tableRow);
+  const callsTd = $(`<td/>`).appendTo(tableRow);
+  const callsHstack = $(`<div class="hstack gap-1"/>`).appendTo(callsTd);
 
   agent.calls.forEach((call) => {
-    printCall(callsTd, call);
+    printCall(callsHstack, call);
   });
 }
 
-function printCall(callsTd, call) {
+function printCall(callsHstack, call) {
   const callColor = (call.pinned) ? pinnedCallColor : waitingCallColor;
 
-  const callCard = $(`<div class="card mr-1" style="float:left; width: 14rem; background-color: ${callColor}"/>`);
-  const callButtons = $(`<div class="float-right"/>`);
+  const callCard = $(`<div class="card" style="width: 14rem; background-color: ${callColor}"/>`);
+  const callButtons = $(`<div class="float-end"/>`);
   callButtons.append($(`<div><button class="btn btn-sm btn-outline-danger"><i class="fas fa-phone-slash"></i></button></div>`)
     .click(() => removeCall(call)));
-  const callCardBody = $('<div class="card-body p-2"/>')
+  const callCardBody = $(`<div class="card-body p-2"/>`)
     .append(callButtons)
     .append($(`<h5 class="card-title mb-2"/>)`)
-      .append((call.pinned) ? $(`<i class="fas fa-phone-volume mr-1"></i>`) : $(`<i class="fas fa-phone mr-1"></i>`))
+      .append((call.pinned) ? $(`<i class="fas fa-phone-volume me-1"></i>`) : $(`<i class="fas fa-phone me-1"></i>`))
       .append(call.phoneNumber))
     .append();
 
   printTimes(callCardBody, callButtons, call);
   printSkills(callCardBody, call.requiredSkills);
   callCard.append(callCardBody);
-  callCard.appendTo(callsTd);
+  callCard.appendTo(callsHstack);
 }
 
 function printTimes(callCard, callButtons, call) {
@@ -118,11 +119,11 @@ function formatDuration(duration) {
 }
 
 function printSkills(container, skills) {
-  const skillRow = $('<div/>');
+  const skillRow = $(`<div/>`);
   container.append(skillRow);
   skills.forEach((skill) => {
     let color = skillToColorMap.get(skill);
-    skillRow.append($(`<span class="badge mr-1 mt-1" style="background-color:${color}">${skill}</span>`));
+    skillRow.append($(`<span class="badge me-1 mt-1" style="background-color:${color}">${skill}</span>`));
   });
 }
 
@@ -194,18 +195,6 @@ function prolongCall(call) {
     .catch((error) => handleClientError('Failed to process response.', error));
 }
 
-function removeAgent(agent) {
-  fetch('/agent/' + agent.id, { ...fetchHeaders, method: 'DELETE' })
-    .then((response) => {
-      if (!response.ok) {
-        return handleErrorResponse('Deleting an agent (' + agent.name + ') failed.', response);
-      } else {
-        refresh();
-      }
-    })
-    .catch((error) => handleClientError('Failed to process response.', error));
-}
-
 function restartSimulation(frequency, duration) {
   fetch('/simulation', { 
     ...fetchHeaders, 
@@ -250,10 +239,8 @@ const handleClientError = (title, error) => {
 function showError(message, stackTrace) {
   const notification = $(`<div class="toast" role="alert" aria-live="assertive" aria-atomic="true" style="min-width: 30rem"/>`)
     .append($(`<div class="toast-header bg-danger">
-                 <strong class="mr-auto text-dark">Error</strong>
-                 <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-                   <span aria-hidden="true">&times;</span>
-                 </button>
+                 <strong class="me-auto text-dark">Error</strong>
+                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
                </div>`))
     .append($(`<div class="toast-body"/>`)
       .append($(`<p/>`).text(message))

@@ -86,7 +86,7 @@ function refreshSchedule() {
     $.each(schedule.lineList, (index, line) => {
       const lineGroupElement = $(`<div/>`)
         .append($(`<h5 class="card-title mb-1"/>`).text(line.name))
-        .append($(`<p class="card-text ml-2 mb-0"/>`).text(line.operator));
+        .append($(`<p class="card-text ms-2 mb-0"/>`).text(line.operator));
       byLineGroupDataSet.add({id : line.id, content: lineGroupElement.html()});
     });
 
@@ -112,13 +112,13 @@ function refreshSchedule() {
         const durationMinutes = JSJoda.Duration.ofSeconds(job.duration).toMinutes();
         const unassignedJobElement = $(`<div class="card-body p-2"/>`)
           .append($(`<h5 class="card-title mb-1"/>`).text(job.name))
-          .append($(`<p class="card-text ml-2 mb-0"/>`).text(`${Math.floor(durationMinutes / 60)} hours ${durationMinutes % 60} mins`))
-          .append($(`<p class="card-text ml-2 mb-0"/>`).text(`Ready: ${JSJoda.LocalDateTime.parse(job.readyDateTime).format(dateTimeFormat)}`))
-          .append($(`<p class="card-text ml-2 mb-0"/>`).text(`Ideal end: ${JSJoda.LocalDateTime.parse(job.idealEndDateTime).format(dateTimeFormat)}`))
-          .append($(`<p class="card-text ml-2 mb-0"/>`).text(`Due: ${JSJoda.LocalDateTime.parse(job.dueDateTime).format(dateTimeFormat)}`));
+          .append($(`<p class="card-text ms-2 mb-0"/>`).text(`${Math.floor(durationMinutes / 60)} hours ${durationMinutes % 60} mins`))
+          .append($(`<p class="card-text ms-2 mb-0"/>`).text(`Ready: ${JSJoda.LocalDateTime.parse(job.readyDateTime).format(dateTimeFormat)}`))
+          .append($(`<p class="card-text ms-2 mb-0"/>`).text(`Ideal end: ${JSJoda.LocalDateTime.parse(job.idealEndDateTime).format(dateTimeFormat)}`))
+          .append($(`<p class="card-text ms-2 mb-0"/>`).text(`Due: ${JSJoda.LocalDateTime.parse(job.dueDateTime).format(dateTimeFormat)}`));
         const byJobJobElement = $(`<div/>`)
           .append($(`<h5 class="card-title mb-1"/>`).text(`Unassigned`));
-        unassignedJobs.append($(`<div class="card"/>`).append(unassignedJobElement));
+        unassignedJobs.append($(`<div class="col"/>`).append($(`<div class="card"/>`).append(unassignedJobElement)));
         byJobItemDataSet.add({
           id : job.id, group: job.id,
           content: byJobJobElement.html(),
@@ -212,10 +212,8 @@ function showError(title, xhr) {
   console.error(title + "\n" + serverErrorMessage);
   const notification = $(`<div class="toast" role="alert" aria-live="assertive" aria-atomic="true" style="min-width: 30rem"/>`)
     .append($(`<div class="toast-header bg-danger">
-                 <strong class="mr-auto text-dark">Error</strong>
-                 <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-                   <span aria-hidden="true">&times;</span>
-                 </button>
+                 <strong class="me-auto text-dark">Error</strong>
+                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
                </div>`))
     .append($(`<div class="toast-body"/>`)
       .append($(`<p/>`).text(title))

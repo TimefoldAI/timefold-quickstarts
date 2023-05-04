@@ -29,24 +29,23 @@
         <button id="stopSolvingButton" type="button" class="btn btn-danger">
             <span class="fas fa-stop"></span> Stop solving
         </button>
-        <!--    <button type="button" class="float-right btn btn-warning"><span class="fas fa-stop"></span> Terminate</button>-->
-        <span id="score" class="score ml-2 align-middle font-weight-bold">Score: ?</span>
+        <span id="score" class="score ms-2 align-middle fw-bold">Score: ?</span>
 
-        <div class="float-right">
-            <ul class="nav nav-pills" id="myTab" role="tablist">
-                <li class="nav-item">
-                    <a class="nav-link active" id="byRoomTab" data-toggle="tab" href="#byRoomPanel" role="tab" aria-controls="byRoomPanel" aria-selected="true">By room</a>
+        <div class="float-end">
+            <ul class="nav nav-pills" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="byRoomTab" data-bs-toggle="tab" data-bs-target="#byRoomPanel" type="button" role="tab" aria-controls="byRoomPanel" aria-selected="true">By room</button>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="byTeacherTab" data-toggle="tab" href="#byTeacher" role="tab" aria-controls="byTeacher" aria-selected="false">By teacher</a>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="byTeacherTab" data-bs-toggle="tab" data-bs-target="#byTeacher" type="button" role="tab" aria-controls="byTeacher" aria-selected="false">By teacher</button>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="byStudentGroupTab" data-toggle="tab" href="#byStudentGroup" role="tab" aria-controls="byStudentGroup" aria-selected="false">By student group</a>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="byStudentGroupTab" data-bs-toggle="tab" data-bs-target="#byStudentGroup" type="button" role="tab" aria-controls="byStudentGroup" aria-selected="false">By student group</button>
                 </li>
             </ul>
         </div>
     </div>
-    <div class="tab-content" id="myTabContent">
+    <div class="tab-content">
         <div class="tab-pane fade show active" id="byRoomPanel" role="tabpanel" aria-labelledby="byRoomTab">
             <table class="table table-borderless table-striped" id="timeTableByRoom">
                 <!-- Filled in by app.js -->
@@ -64,19 +63,19 @@
         </div>
     </div>
     <div class="mb-4">
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#lessonDialog">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#lessonDialog">
             <span class="fas fa-plus"></span> Add lesson
         </button>
-        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#timeslotDialog">
+        <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#timeslotDialog">
             <span class="fas fa-plus"></span> Add timeslot
         </button>
-        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#roomDialog">
+        <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#roomDialog">
             <span class="fas fa-plus"></span> Add room
         </button>
     </div>
 
     <h2>Unassigned lessons</h2>
-    <div id="unassignedLessons" class="card-columns"></div>
+    <div id="unassignedLessons" class="row row-cols-3 g-3 mb-4"></div>
 </div>
 
 
@@ -85,7 +84,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h4>Add a lesson</h4>
-                <button type="button" class="close" data-dismiss="modal">
+                <button type="button" class="close" data-bs-dismiss="modal">
                     <span>&times;</span>
                 </button>
             </div>
@@ -103,7 +102,7 @@
                     <input type="text" class="form-control" id="lesson_studentGroup" required value="11th grade">
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-default" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-primary" id="addLessonSubmitButton">Submit new lesson</button>
                 </div>
             </div>
@@ -115,7 +114,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h4>Add a timeslot</h4>
-                <button type="button" class="close" data-dismiss="modal">
+                <button type="button" class="close" data-bs-dismiss="modal">
                     <span>&times;</span>
                 </button>
             </div>
@@ -141,7 +140,7 @@
                     <input type="time" class="form-control" id="timeslot_endTime" required value="09:30">
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-default" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-primary" id="addTimeslotSubmitButton">Submit new timeslot</button>
                 </div>
             </div>
@@ -153,7 +152,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h4>Add a room</h4>
-                <button type="button" class="close" data-dismiss="modal">
+                <button type="button" class="close" data-bs-dismiss="modal">
                     <span>&times;</span>
                 </button>
             </div>
@@ -163,7 +162,7 @@
                     <input type="text" class="form-control" id="room_name" required value="Room D">
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-default" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-primary" id="addRoomSubmitButton">Submit new room</button>
                 </div>
             </div>

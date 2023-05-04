@@ -43,27 +43,25 @@
         <button id="publish" type="button" class="btn btn-secondary">
             <span class="fas fa-refresh"></span> Publish
         </button>
-        <span id="unassignedShifts" class="ml-2 align-middle font-weight-bold"></span>
-        <span id="score" class="score ml-2 align-middle font-weight-bold">Score: ?</span>
+        <span id="unassignedShifts" class="ms-2 align-middle fw-bold"></span>
+        <span id="score" class="score ms-2 align-middle fw-bold">Score: ?</span>
 
-        <div class="float-right">
-            <ul class="nav nav-pills" id="myTab" role="tablist">
-                <li class="nav-item">
-                    <a class="nav-link active" id="byLocationPanelTab" data-toggle="tab" href="#byLocationPanel" role="tab"
-                       aria-controls="byLocationPanel" aria-selected="true">By location</a>
+        <div class="float-end">
+            <ul class="nav nav-pills" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="byLocationTab" data-bs-toggle="tab" data-bs-target="#byLocationPanel" type="button" role="tab" aria-controls="byLocationPanel" aria-selected="true">By location</button>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="byEmployeePanelTab" data-toggle="tab" href="#byEmployeePanel" role="tab"
-                        aria-controls="byEmployeePanel" aria-selected="false">By employee</a>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="byEmployeeTab" data-bs-toggle="tab" data-bs-target="#byEmployeePanel" type="button" role="tab" aria-controls="byEmployeePanel" aria-selected="false">By employee</button>
                 </li>
             </ul>
         </div>
     </div>
-    <div class="mb-4 tab-content" id="myTabContent">
-        <div class="tab-pane fade show active" id="byLocationPanel" role="tabpanel" aria-labelledby="byLocationPanelTab">
+    <div class="mb-4 tab-content">
+        <div class="tab-pane fade show active" id="byLocationPanel" role="tabpanel" aria-labelledby="byLocationTab">
             <div id="locationVisualization"></div>
         </div>
-        <div class="tab-pane fade" id="byEmployeePanel" role="tabpanel" aria-labelledby="byEmployeePanelTab">
+        <div class="tab-pane fade" id="byEmployeePanel" role="tabpanel" aria-labelledby="byEmployeeTab">
             <div id="employeeVisualization"></div>
         </div>
     </div>

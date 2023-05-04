@@ -177,7 +177,7 @@ function refreshSchedule() {
                     .append($(`<h5 class="card-title mb-2"/>)`)
                             .append(employee.name))
                     .append($('<div/>')
-                            .append($(employee.skillSet.map(skill => `<span class="badge mr-1 mt-1" style="background-color:#d3d7cf">${skill}</span>`).join(''))));
+                            .append($(employee.skillSet.map(skill => `<span class="badge me-1 mt-1" style="background-color:#d3d7cf">${skill}</span>`).join(''))));
             byEmployeeGroupDataSet.add({id : employee.name, content: employeeGroupElement.html()});
         });
 
@@ -197,7 +197,7 @@ function refreshSchedule() {
                         .append($(`<h5 class="card-title mb-2"/>)`)
                                 .append("Unassigned"))
                         .append($('<div/>')
-                                .append($(`<span class="badge mr-1 mt-1" style="background-color:#d3d7cf">${shift.requiredSkill}</span>`)));
+                                .append($(`<span class="badge me-1 mt-1" style="background-color:#d3d7cf">${shift.requiredSkill}</span>`)));
 
                 byLocationItemDataSet.add({
                     id : 'shift-' + index, group: shift.location,
@@ -211,12 +211,12 @@ function refreshSchedule() {
                         .append($(`<h5 class="card-title mb-2"/>)`)
                                 .append(shift.location))
                         .append($('<div/>')
-                                .append($(`<span class="badge mr-1 mt-1" style="background-color:${skillColor}">${shift.requiredSkill}</span>`)));
+                                .append($(`<span class="badge me-1 mt-1" style="background-color:${skillColor}">${shift.requiredSkill}</span>`)));
                 const byLocationShiftElement = $('<div class="card-body p-2"/>')
                         .append($(`<h5 class="card-title mb-2"/>)`)
                                 .append(shift.employee.name))
                         .append($('<div/>')
-                                .append($(`<span class="badge mr-1 mt-1" style="background-color:${skillColor}">${shift.requiredSkill}</span>`)));
+                                .append($(`<span class="badge me-1 mt-1" style="background-color:${skillColor}">${shift.requiredSkill}</span>`)));
 
                 const shiftColor =  getShiftColor(shift, availabilityMap);
                 byEmployeeItemDataSet.add({
@@ -292,10 +292,8 @@ function showError(title, xhr) {
     console.error(title + "\n" + serverErrorMessage);
     const notification = $(`<div class="toast" role="alert" aria-live="assertive" aria-atomic="true" style="min-width: 30rem"/>`)
       .append($(`<div class="toast-header bg-danger">
-                 <strong class="mr-auto text-dark">Error</strong>
-                 <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-                   <span aria-hidden="true">&times;</span>
-                 </button>
+                 <strong class="me-auto text-dark">Error</strong>
+                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
                </div>`))
       .append($(`<div class="toast-body"/>`)
         .append($(`<p/>`).text(title))

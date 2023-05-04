@@ -40,32 +40,30 @@
         <button id="stopSolvingButton" type="button" class="btn btn-danger">
             <span class="fas fa-stop"></span> Stop solving
         </button>
-        <span id="score" class="score ml-2 align-middle font-weight-bold">Score: ?</span>
+        <span id="score" class="score ms-2 align-middle fw-bold">Score: ?</span>
 
-        <div class="float-right">
-            <ul class="nav nav-pills" id="myTab" role="tablist">
-                <li class="nav-item">
-                    <a class="nav-link active" id="byCrewPanelTab" data-toggle="tab" href="#byCrewPanel" role="tab"
-                        aria-controls="byCrewPanel" aria-selected="true">By crew</a>
+        <div class="float-end">
+            <ul class="nav nav-pills" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="byCrewTab" data-bs-toggle="tab" data-bs-target="#byCrewPanel" type="button" role="tab" aria-controls="byCrewPanel" aria-selected="true">By crew</button>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="byJobPanelTab" data-toggle="tab" href="#byJobPanel" role="tab"
-                        aria-controls="byJobPanel" aria-selected="false">By job</a>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="byJobTab" data-bs-toggle="tab" data-bs-target="#byJobPanel" type="button" role="tab" aria-controls="byJobPanel" aria-selected="false">By job</button>
                 </li>
             </ul>
         </div>
     </div>
-    <div class="mb-4 tab-content" id="myTabContent">
-        <div class="tab-pane fade show active" id="byCrewPanel" role="tabpanel" aria-labelledby="byCrewPanelTab">
+    <div class="mb-4 tab-content">
+        <div class="tab-pane fade show active" id="byCrewPanel" role="tabpanel" aria-labelledby="byCrewTab">
             <div id="employeeVisualization"></div>
         </div>
-        <div class="tab-pane fade" id="byJobPanel" role="tabpanel" aria-labelledby="byJobPanelTab">
+        <div class="tab-pane fade" id="byJobPanel" role="tabpanel" aria-labelledby="byJobTab">
             <div id="managerVisualization"></div>
         </div>
     </div>
 
     <h2>Unassigned jobs</h2>
-    <div id="unassignedJobs" class="card-columns"></div>
+    <div id="unassignedJobs" class="row row-cols-3 g-3 mb-4"></div>
 </div>
 
 <script src="/webjars/jquery/jquery.min.js"></script>

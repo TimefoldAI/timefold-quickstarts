@@ -28,8 +28,8 @@
         <button id="stopSolvingButton" type="button" class="btn btn-danger">
             <span class="fas fa-stop"></span> Stop solving
         </button>
-        <span id="score" class="score ml-2 align-middle font-weight-bold">Score: ?</span>
-        <div class="float-right">
+        <span id="score" class="score ms-2 align-middle fw-bold">Score: ?</span>
+        <div class="float-end">
             <div class="row">
                 <div class="col-md-6">
                     <p><span id="callFrequencyValue"></span> new calls per minute</p>
@@ -44,11 +44,9 @@
         </div>
     </div>
 
-    <div class="tab-content" id="myTabContent">
-        <table class="table table-borderless table-striped" id="callTable">
-            <!-- Filled in by app.js -->
-        </table>
-    </div>
+    <table class="table table-borderless table-striped" id="callTable">
+        <!-- Filled in by app.js -->
+    </table>
 </div>
 
 <script src="/webjars/jquery/jquery.min.js"></script>

@@ -73,7 +73,7 @@ function printUnassignedEntities(unassignedTrolleys, unAssignedItemsByOrder) {
 
 function printTabNavLink(navTabs, active, tabId, tabPaneId, name) {
     const activeValue = active ? 'active' : '';
-    return $(`<a class="nav-link ${activeValue}" id="${tabId}" data-toggle="tab" href="#${tabPaneId}" role="tab" aria-controls="${tabId}" aria-selected="true">${name}</a>`).appendTo(navTabs);
+    return $(`<a class="nav-link ${activeValue}" id="${tabId}" data-bs-toggle="tab" href="#${tabPaneId}" role="tab" aria-controls="${tabId}" aria-selected="true">${name}</a>`).appendTo(navTabs);
 }
 
 function printTabPane(navTabsContainer, active, show, tabPaneId, tabId) {
@@ -95,7 +95,7 @@ function printUnassignedTrolleys(trolleys, unassignedEntitiesTabList, unassigned
 }
 
 function printUnassignedTrolleysTableHeader(unassignedTrolleysTable) {
-    const header = $('<thead class="thead-dark">').appendTo(unassignedTrolleysTable);
+    const header = $('<thead class="table-dark">').appendTo(unassignedTrolleysTable);
     const headerTr = $('<tr>').appendTo(header);
     $('<th scope="col">#Trolley</th>').appendTo(headerTr);
     $('<th scope="col">Start location</th>').appendTo(headerTr);
@@ -139,7 +139,7 @@ function printUnassignedOrder(orderId, unassignedItems, unassignedEntitiesTabLis
 }
 
 function printUnassignedOrderTableHeader(unassignedOrderTable) {
-    const header = $('<thead class="thead-dark">').appendTo(unassignedOrderTable);
+    const header = $('<thead class="table-dark">').appendTo(unassignedOrderTable);
     const headerTr = $('<tr>').appendTo(header);
     $('<th scope="col">#Order item</th>').appendTo(headerTr);
     $('<th scope="col">Warehouse location</th>').appendTo(headerTr);
@@ -311,7 +311,7 @@ function printTrolleyOrdersDetail(ordersDetailContainer, trolley, ordersDetail) 
 }
 
 function printOrdersDetailTableHeader(ordersDetailTable) {
-    const header = $('<thead class="thead-dark">').appendTo(ordersDetailTable);
+    const header = $('<thead class="table-dark">').appendTo(ordersDetailTable);
     const headerTr = $('<tr>').appendTo(header);
     $('<th scope="col">#Order</th>').appendTo(headerTr);
     $('<th scope="col">Volume</th>').appendTo(headerTr);
@@ -361,7 +361,7 @@ function printTrolleySteps(stepsContainer, trolleySteps) {
 }
 
 function printTrolleyStepsTableHeader(stepsTable) {
-    const header = $('<thead class="thead-dark">').appendTo(stepsTable);
+    const header = $('<thead class="table-dark">').appendTo(stepsTable);
     const headerTr = $('<tr>').appendTo(header);
     $('<th scope="col">#Stop</th>').appendTo(headerTr);
     $('<th scope="col">Warehouse location</th>').appendTo(headerTr);
@@ -539,10 +539,8 @@ function showError(title, xhr) {
     console.error(title + "\n" + serverErrorMessage);
     const notification = $(`<div class="toast" role="alert" aria-live="assertive" aria-atomic="true" style="min-width: 30rem"/>`)
             .append($(`<div class="toast-header bg-danger">
-                 <strong class="mr-auto text-dark">Error</strong>
-                 <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-                   <span aria-hidden="true">&times;</span>
-                 </button>
+                 <strong class="me-auto text-dark">Error</strong>
+                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
                </div>`))
             .append($(`<div class="toast-body"/>`)
                     .append($(`<p/>`).text(title))
