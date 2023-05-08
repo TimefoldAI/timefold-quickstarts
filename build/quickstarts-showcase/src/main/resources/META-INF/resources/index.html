@@ -5,30 +5,22 @@
     <title>All quickstarts - Timefold Quarkus</title>
     <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css" />
     <link rel="stylesheet" href="/webjars/font-awesome/css/all.css" />
+    <link rel="stylesheet" href="/webjars/timefold/css/timefold-webui.css" />
+    <link rel="icon" href="/webjars/timefold/img/timefold-favicon.svg" type="image/svg+xml">
 </head>
 <body>
+<header id="timefold-auto-header"></header>
 <div class="container-fluid">
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="https://timefold.ai">
-            <img src="timefold-logo-200px.png" alt="Timefold logo">
-        </a>
-        <ul class="navbar-nav me-auto">
-            <li class="nav-item">
-                <a class="nav-link" href="https://github.com/TimefoldAI/timefold-quickstarts" target="_blank">Source code</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="https://timefold.ai/docs/" target="_blank">Documentation</a>
-            </li>
-        </ul>
-        <button id="exit" type="button" class="btn btn-secondary">
-            <span class="fas fa-power-off"></span> Exit
-        </button>
-    </nav>
     <div class="sticky-top d-flex justify-content-center align-items-center" aria-live="polite" aria-atomic="true">
         <div id="notificationPanel" style="position: absolute; top: .5rem;"></div>
     </div>
     <div id="content">
-        <p class="m-3">Launch a quickstart and give it a few seconds to start up (especially if built from source).</p>
+        <div>
+        <button id="exit" type="button" class="btn btn-secondary btn-sm float-end">
+            <span class="fas fa-power-off"></span> Exit
+        </button>
+        <p class="m-3">Launch a quickstart and give it a few seconds to start up (especially if you build it from source).</p>
+        </div>
         <div class="row row-cols-1 row-cols-md-3 g-4">
             <div class="col mb-4">
                 <div class="card">
@@ -233,9 +225,11 @@
         This application has been shut down.
     </div>
 </div>
+<footer id="timefold-auto-footer"></footer>
 
 <script src="/webjars/jquery/jquery.min.js"></script>
 <script src="/webjars/bootstrap/js/bootstrap.min.js"></script>
+<script src="/webjars/timefold/js/timefold-webui.js"></script>
 <script src="/app.js"></script>
 </body>
 </html>

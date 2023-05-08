@@ -91,6 +91,11 @@
       <artifactId>quarkus-webjars-locator</artifactId>
     </dependency>
     <dependency>
+      <groupId>ai.timefold.solver</groupId>
+      <artifactId>timefold-solver-webui</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
       <groupId>org.webjars</groupId>
       <artifactId>bootstrap</artifactId>
       <version>5.2.3</version>

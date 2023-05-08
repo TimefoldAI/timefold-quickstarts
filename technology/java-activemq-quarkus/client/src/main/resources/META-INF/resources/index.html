@@ -5,14 +5,12 @@
     <title>School timetabling - Timefold Quarkus</title>
     <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css" />
     <link rel="stylesheet" href="/webjars/font-awesome/css/all.css" />
+    <link rel="stylesheet" href="/webjars/timefold/css/timefold-webui.css" />
+    <link rel="icon" href="/webjars/timefold/img/timefold-favicon.svg" type="image/svg+xml">
 </head>
 <body>
+<header id="timefold-auto-header"></header>
 <div class="container">
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="https://timefold.ai">
-            <img src="timefold-logo-200px.png" alt="Timefold logo">
-        </a>
-    </nav>
     <div class="sticky-top d-flex justify-content-center align-items-center" aria-live="polite" aria-atomic="true">
         <div id="notificationPanel" style="position: absolute; top: .5rem;"></div>
     </div>
@@ -66,10 +64,12 @@
     <h2>Unassigned lessons</h2>
     <div id="unassignedLessons" class="row row-cols-3 g-3 mb-4"></div>
 </div>
+<footer id="timefold-auto-footer"></footer>
 
 <script src="/webjars/jquery/jquery.min.js"></script>
 <script src="/webjars/bootstrap/js/bootstrap.min.js"></script>
 <script src="/webjars/js-joda/dist/js-joda.min.js"></script>
+<script src="/webjars/timefold/js/timefold-webui.js"></script>
 <script src="/app.js"></script>
 </body>
 </html>

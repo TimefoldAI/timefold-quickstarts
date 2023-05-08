@@ -236,24 +236,8 @@ const handleClientError = (title, error) => {
       : `${error.name}: ${error.message}\n    ${error.stack.replace(/\n/g, '\n    ')}`);
 };
 
-function showError(message, stackTrace) {
-  const notification = $(`<div class="toast" role="alert" aria-live="assertive" aria-atomic="true" style="min-width: 30rem"/>`)
-    .append($(`<div class="toast-header bg-danger">
-                 <strong class="me-auto text-dark">Error</strong>
-                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-               </div>`))
-    .append($(`<div class="toast-body"/>`)
-      .append($(`<p/>`).text(message))
-      .append($(`<pre/>`)
-        .append($(`<code/>`).text(stackTrace))
-      )
-    );
-  $('#notificationPanel').append(notification);
-  notification.toast({ delay: 30000 });
-  notification.toast('show');
-}
-
 $(document).ready(function () {
+  replaceTimefoldAutoHeaderFooter();
   $('#solveButton').click(solve);
 
   $('#stopSolvingButton').click(function () {

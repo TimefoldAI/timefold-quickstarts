@@ -121,25 +121,6 @@ const handleClientError = (title, error) => {
       : `${error.name}: ${error.message}\n    ${error.stack.replace(/\n/g, '\n    ')}`);
 };
 
-const showError = (message, stackTrace) => {
-  const notification = $(`<div class="toast shadow rounded-lg" role="alert" style="min-width: 30rem"/>`)
-    .append($(`<div class="toast-header bg-danger">
-<strong class="me-auto text-dark">Error</strong>
-<button type="button" class="ms-2 mb-1 close" data-bs-dismiss="toast">
-<span>&times;</span>
-</button>
-</div>`))
-    .append($(`<div class="toast-body"/>`)
-      .append($(`<p/>`).text(message))
-      .append($(`<pre/>`)
-        .append($(`<code/>`).text(stackTrace)),
-      ),
-    );
-  $('#notificationPanel').append(notification);
-  notification.toast({autohide: false});
-  notification.toast('show');
-};
-
 const updateSolvingStatus = (solving) => {
   if (solving) {
     solveButton.hide();

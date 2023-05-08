@@ -534,26 +534,8 @@ function stopSolving() {
     });
 }
 
-function showError(title, xhr) {
-    const serverErrorMessage = !xhr.responseJSON ? `${xhr.status}: ${xhr.statusText}` : xhr.responseJSON.message;
-    console.error(title + "\n" + serverErrorMessage);
-    const notification = $(`<div class="toast" role="alert" aria-live="assertive" aria-atomic="true" style="min-width: 30rem"/>`)
-            .append($(`<div class="toast-header bg-danger">
-                 <strong class="me-auto text-dark">Error</strong>
-                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-               </div>`))
-            .append($(`<div class="toast-body"/>`)
-                    .append($(`<p/>`).text(title))
-                    .append($(`<pre/>`)
-                            .append($(`<code/>`).text(serverErrorMessage))
-                    )
-            );
-    $("#notificationPanel").append(notification);
-    notification.toast({delay: 30000});
-    notification.toast("show");
-}
-
 $(document).ready(function () {
+    replaceTimefoldAutoHeaderFooter();
 
     //Initialize button listeners
     $('#refreshButton').click(function () {
