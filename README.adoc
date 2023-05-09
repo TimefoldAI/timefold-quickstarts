@@ -150,7 +150,7 @@ image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screensh
 
 == Legal notice
 
-Timefold Quickstarts was forked on 20 April 2023 from OptaPlanner Quickstarts,
+Timefold Quickstarts was https://timefold.ai/blog/2023/optaplanner-fork/[forked] on 20 April 2023 from OptaPlanner Quickstarts,
 which was entirely Apache-2.0 licensed (a permissive license).
 
 Timefold Quickstarts is a derivative work of OptaPlanner Quickstarts,
