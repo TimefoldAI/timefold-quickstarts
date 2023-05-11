@@ -1,9 +1,9 @@
 plugins {
     id "java"
-    id "io.quarkus" version "2.16.6.Final"
+    id "io.quarkus" version "3.0.3.Final"
 }
 
-def quarkusVersion = "2.16.6.Final"
+def quarkusVersion = "3.0.3.Final"
 def timefoldVersion = "0.9.39-SNAPSHOT"
 def assertjVersion = "3.24.2"
 
@@ -35,8 +35,8 @@ dependencies {
     testImplementation "ai.timefold.solver:timefold-solver-quarkus-benchmark"
     testImplementation "org.assertj:assertj-core:${assertjVersion}"
 
-    runtimeOnly "org.webjars:bootstrap:4.3.1"
-    runtimeOnly "org.webjars:jquery:3.4.1"
+    runtimeOnly "org.webjars:bootstrap:5.2.3"
+    runtimeOnly "org.webjars:jquery:3.6.4"
     runtimeOnly "org.webjars:font-awesome:5.11.2"
     runtimeOnly "org.webjars.npm:js-joda:1.11.0"
 

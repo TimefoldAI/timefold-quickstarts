@@ -33,7 +33,8 @@ dependencies {
 
     runtimeOnly "com.h2database:h2"
     runtimeOnly "org.webjars:webjars-locator:0.37"
-    runtimeOnly "org.webjars:bootstrap:4.3.1"
+    runtimeOnly "org.webjars:bootstrap:5.2.3"
+    runtimeOnly "org.webjars:jquery:3.6.4"
     runtimeOnly "org.webjars:font-awesome:5.11.2"
     runtimeOnly "org.webjars.npm:js-joda:1.11.0"
 }
