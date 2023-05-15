@@ -17,9 +17,9 @@
     <version.org.junit.jupiter>5.9.0</version.org.junit.jupiter>
     <version.org.logback>1.4.7</version.org.logback>
 
-    <version.compiler.plugin>3.10.1</version.compiler.plugin>
-    <version.surefire.plugin>3.0.0-M8</version.surefire.plugin>
-    <version.assembly.plugin>3.4.2</version.assembly.plugin>
+    <version.compiler.plugin>3.11.0</version.compiler.plugin>
+    <version.surefire.plugin>3.1.0</version.surefire.plugin>
+    <version.assembly.plugin>3.5.0</version.assembly.plugin>
   </properties>
 
   <dependencyManagement>
