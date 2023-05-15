@@ -15,28 +15,28 @@ jobs:
 #      matrix:
 #        os: [ubuntu-latest, windows-latest, macOS-latest]
     steps:
-      - uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: 'maven'
-
       - name: Checkout timefold-solver
         uses: actions/checkout@v3
         with:
           path: 'timefold-solver'
           repository: 'TimefoldAI/timefold-solver'
 
+      - name: Checkout timefold-quickstarts
+        uses: actions/checkout@v3
+        with:
+          path: 'timefold-quickstarts'
+
+      - uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
       - name: Build timefold-solver
         run: |
           cd timefold-solver
           mvn -B -Dfull verify
           cd ..
-
-      - name: Checkout timefold-quickstarts
-        uses: actions/checkout@v3
-        with:
-          path: 'timefold-quickstarts'
 
       - name: Build timefold-quickstarts
         run: |
