@@ -10,14 +10,15 @@
   <packaging>pom</packaging>
 
   <properties>
-    <version.org.apache.activemq>2.28.0</version.org.apache.activemq>
-    <version.io.quarkus>3.0.3.Final</version.io.quarkus>
-    <version.ai.timefold.solver>0.9.39-SNAPSHOT</version.ai.timefold.solver>
-
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <compiler-plugin.version>3.8.1</compiler-plugin.version>
     <maven.compiler.release>17</maven.compiler.release>
-    <surefire-plugin.version>3.0.0-M8</surefire-plugin.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <version.ai.timefold.solver>0.9.39-SNAPSHOT</version.ai.timefold.solver>
+    <version.io.quarkus>3.0.3.Final</version.io.quarkus>
+    <version.org.apache.activemq>2.28.0</version.org.apache.activemq>
+
+    <version.compiler.plugin>3.8.1</version.compiler.plugin>
+    <version.surefire.plugin>3.0.0-M8</version.surefire.plugin>
   </properties>
 
   <modules>
@@ -103,7 +104,7 @@
       <plugins>
         <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>${compiler-plugin.version}</version>
+          <version>${version.compiler.plugin}</version>
         </plugin>
         <plugin>
           <groupId>io.quarkus</groupId>
@@ -124,7 +125,7 @@
         </plugin>
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>${surefire-plugin.version}</version>
+          <version>${version.surefire.plugin}</version>
           <configuration>
             <systemPropertyVariables>
               <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
@@ -147,7 +148,7 @@
         <plugins>
           <plugin>
             <artifactId>maven-failsafe-plugin</artifactId>
-            <version>${surefire-plugin.version}</version>
+            <version>${version.surefire.plugin}</version>
             <executions>
               <execution>
                 <goals>
