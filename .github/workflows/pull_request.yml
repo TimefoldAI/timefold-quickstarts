@@ -33,13 +33,9 @@ jobs:
           cache: 'maven'
 
       - name: Build timefold-solver
-        run: |
-          cd timefold-solver
-          mvn -B -Dfull install -DskipTests
-          cd ..
+        working-directory: ./timefold-solver
+        run: mvn -B -Dfull install -DskipTests
 
-      - name: Build timefold-quickstarts
-        run: |
-          cd timefold-quickstarts
-          mvn -B -Dfull verify
-          cd ..
+      - name: Build and test timefold-quickstarts
+        working-directory: ./timefold-quickstarts
+        run: mvn -B -Dfull verify
