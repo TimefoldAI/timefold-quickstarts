@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.acme.schooltimetabling.domain.Lesson;
@@ -108,12 +109,8 @@ public class TimeTableApp {
                             return Collections.<Lesson>emptyList();
                         }
                         List<Lesson> cellLessonList = byRoomMap.get(room);
-                        if (cellLessonList == null) {
-                            return Collections.<Lesson>emptyList();
-                        }
-                        return cellLessonList;
-                    })
-                    .collect(Collectors.toList());
+                        return Objects.requireNonNullElse(cellLessonList, Collections.<Lesson>emptyList());
+                    }).toList();
 
             LOGGER.info("| " + String.format("%-10s",
                     timeslot.getDayOfWeek().toString().substring(0, 3) + " " + timeslot.getStartTime()) + " | "
@@ -135,7 +132,7 @@ public class TimeTableApp {
         }
         List<Lesson> unassignedLessons = lessonList.stream()
                 .filter(lesson -> lesson.getTimeslot() == null || lesson.getRoom() == null)
-                .collect(Collectors.toList());
+                .toList();
         if (!unassignedLessons.isEmpty()) {
             LOGGER.info("");
             LOGGER.info("Unassigned lessons");
