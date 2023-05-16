@@ -44,10 +44,10 @@ $(document).ready(function () {
     stopSolving();
   });
   // HACK to allow vis-timeline to work within Bootstrap tabs
-  $("#byLinePanelTab").on('shown.bs.tab', function (event) {
+  $("#byLineTab").on('shown.bs.tab', function (event) {
     byLineTimeline.redraw();
   })
-  $("#byJobPanelTab").on('shown.bs.tab', function (event) {
+  $("#byJobTab").on('shown.bs.tab', function (event) {
     byJobTimeline.redraw();
   })
 
