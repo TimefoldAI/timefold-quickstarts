@@ -22,13 +22,19 @@
 *.mp3 binary
 *.ogg binary
 
+# Video files
+*.mp4 binary
+*.mov binary
+*.wmv binary
+*.avi binary
+*.flv binary
+*.mkv binary
+*.webm binary
+
 # Other binary files
 *.pdf binary
 *.xls binary
 *.xlsx binary
-
-# GitHub syntax highlighting
-############################
-
-# To prevent GitHub to presume those timefold-solver-examples/data files are Objective-C++ code.
-*.mm linguist-language=Text
+*.odp binary
+*.zip binary
+*.jar binary
