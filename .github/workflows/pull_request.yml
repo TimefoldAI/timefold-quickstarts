@@ -1,4 +1,4 @@
-name: Java 17
+name: Java 17 Linux
 
 on:
   push:
@@ -35,7 +35,7 @@ jobs:
       - name: Build timefold-solver
         run: |
           cd timefold-solver
-          mvn -B -Dfull verify
+          mvn -B -Dfull install -DskipTests
           cd ..
 
       - name: Build timefold-quickstarts
