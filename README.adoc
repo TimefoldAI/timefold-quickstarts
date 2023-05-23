@@ -27,7 +27,7 @@ a|* link:use-cases/school-timetabling/README.adoc[Quarkus] (Java, Maven or Gradl
 
 Run the https://timefold.ai[Timefold] quickstarts now:
 
-. https://adoptopenjdk.net[Install JDK 11 or later] with `JAVA_HOME` configured appropriately.
+. https://adoptopenjdk.net[Install JDK 17 or later] with `JAVA_HOME` configured appropriately.
 
 . Clone this repository to build and run the quickstarts showcase:
 +
