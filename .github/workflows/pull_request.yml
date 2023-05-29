@@ -1,4 +1,4 @@
-name: Java 17 Linux
+name: JVM and OS matrix
 
 on:
   push:
