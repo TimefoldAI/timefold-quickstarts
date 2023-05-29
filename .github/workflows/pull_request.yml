@@ -8,12 +8,15 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    # TODO Run multiple OS.
-#    runs-on: ${{matrix.os}}
-#    strategy:
-#      matrix:
-#        os: [ubuntu-latest, windows-latest, macOS-latest]
+    concurrency:
+      group: pull_request-${{ github.event_name }}-${{ github.head_ref }}-${{ matrix.os }}-${{ matrix.java-version }}
+      cancel-in-progress: true
+    runs-on: ${{matrix.os}}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+        java-version: [ 17, 20 ] #Latest two LTS + latest non-LTS.
+    timeout-minutes: 120
     steps:
       - name: Checkout timefold-solver
         uses: actions/checkout@v3
@@ -21,8 +24,37 @@ jobs:
           path: 'timefold-solver'
           repository: 'TimefoldAI/timefold-solver'
 
-      - name: Checkout timefold-quickstarts
+      - uses: actions/checkout@v3
+        with:
+          path: 'timefold-quickstarts'
+
+      - uses: actions/setup-java@v3
+        with:
+          java-version: ${{matrix.java-version}}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Build timefold-solver
+        working-directory: ./timefold-solver
+        run: mvn -B -Dfull install -DskipTests
+
+      - name: Build and test timefold-quickstarts
+        working-directory: ./timefold-quickstarts
+        run: mvn -B -Dfull verify
+  native:
+    concurrency:
+      group: pull_request-${{ github.event_name }}-${{ github.head_ref }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout timefold-solver
         uses: actions/checkout@v3
+        with:
+          path: 'timefold-solver'
+          repository: 'TimefoldAI/timefold-solver'
+
+      - uses: actions/checkout@v3
         with:
           path: 'timefold-quickstarts'
 
@@ -36,6 +68,6 @@ jobs:
         working-directory: ./timefold-solver
         run: mvn -B -Dfull install -DskipTests
 
-      - name: Build and test timefold-quickstarts
+      - name: Build and test timefold-quickstarts in Native mode
         working-directory: ./timefold-quickstarts
-        run: mvn -B -Dfull verify
+        run: mvn -B -Pnative verify
