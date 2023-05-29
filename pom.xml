@@ -15,6 +15,10 @@
   <packaging>pom</packaging>
   <name>Timefold Solver Quickstarts</name>
 
+  <properties>
+    <enforcer.failOnDuplicatedClasses>false</enforcer.failOnDuplicatedClasses> <!-- Quarkus. -->
+  </properties>
+
   <modules>
     <module>hello-world</module>
     <module>technology/java-spring-boot</module>
