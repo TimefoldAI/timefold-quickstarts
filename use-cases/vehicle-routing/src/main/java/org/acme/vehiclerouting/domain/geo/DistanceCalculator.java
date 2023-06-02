@@ -20,7 +20,7 @@ public interface DistanceCalculator {
 
     /**
      * Bulk calculation of distance.
-     * Typically much more scalable than {@link #calculateDistance(Location, Location)} iteratively.
+     * Typically, much more scalable than {@link #calculateDistance(Location, Location)} iteratively.
      *
      * @param fromLocations never null
      * @param toLocations   never null
