@@ -60,114 +60,11 @@
             </table>
         </div>
     </div>
-    <div class="mb-4">
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#lessonDialog">
-            <span class="fas fa-plus"></span> Add lesson
-        </button>
-        <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#timeslotDialog">
-            <span class="fas fa-plus"></span> Add timeslot
-        </button>
-        <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#roomDialog">
-            <span class="fas fa-plus"></span> Add room
-        </button>
-    </div>
 
     <h2>Unassigned lessons</h2>
     <div id="unassignedLessons" class="row row-cols-3 g-3 mb-4"></div>
 </div>
 <footer id="timefold-auto-footer"></footer>
-
-
-<div class="modal fade" id="lessonDialog" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4>Add a lesson</h4>
-                <button type="button" class="close" data-bs-dismiss="modal">
-                    <span>&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="lesson_subject">Subject</label>
-                    <input type="text" class="form-control" id="lesson_subject" required value="Music">
-                </div>
-                <div class="form-group">
-                    <label for="lesson_teacher">Teacher</label>
-                    <input type="text" class="form-control" id="lesson_teacher" required value="B. May">
-                </div>
-                <div class="form-group">
-                    <label for="lesson_studentGroup">Student group</label>
-                    <input type="text" class="form-control" id="lesson_studentGroup" required value="11th grade">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="addLessonSubmitButton">Submit new lesson</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="modal fade" id="timeslotDialog" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4>Add a timeslot</h4>
-                <button type="button" class="close" data-bs-dismiss="modal">
-                    <span>&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="timeslot_dayOfWeek">Day of week</label>
-                    <select class="form-control" id="timeslot_dayOfWeek" required>
-                        <option>Monday</option>
-                        <option>Tuesday</option>
-                        <option selected="selected">Wednesday</option>
-                        <option>Thursday</option>
-                        <option>Friday</option>
-                        <option>Saturday</option>
-                        <option>Sunday</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="timeslot_startTime">Start time</label>
-                    <input type="time" class="form-control" id="timeslot_startTime" required value="08:30"/>
-                </div>
-                <div class="form-group">
-                    <label for="timeslot_endTime">End time</label>
-                    <input type="time" class="form-control" id="timeslot_endTime" required value="09:30">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="addTimeslotSubmitButton">Submit new timeslot</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="modal fade" id="roomDialog" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4>Add a room</h4>
-                <button type="button" class="close" data-bs-dismiss="modal">
-                    <span>&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="room_name">Name</label>
-                    <input type="text" class="form-control" id="room_name" required value="Room D">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="addRoomSubmitButton">Submit new room</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <script src="/webjars/jquery/jquery.min.js"></script>
 <script src="/webjars/bootstrap/js/bootstrap.min.js"></script>
