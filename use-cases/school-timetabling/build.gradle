@@ -19,12 +19,8 @@ dependencies {
     implementation enforcedPlatform("io.quarkus:quarkus-bom:${quarkusVersion}")
     implementation "io.quarkus:quarkus-resteasy"
     implementation "io.quarkus:quarkus-resteasy-jackson"
-    implementation "io.quarkus:quarkus-hibernate-orm-panache"
-    implementation "io.quarkus:quarkus-jdbc-h2"
-    implementation "io.quarkus:quarkus-hibernate-orm-rest-data-panache"
     implementation "io.quarkus:quarkus-webjars-locator"
     testImplementation "io.quarkus:quarkus-junit5"
-    testImplementation "io.quarkus:quarkus-test-h2"
     testImplementation "io.rest-assured:rest-assured"
     testImplementation "org.awaitility:awaitility"
 

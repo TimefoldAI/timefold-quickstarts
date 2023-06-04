@@ -18,7 +18,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
 
 @QuarkusTest
-public class TimeTableResourceTest {
+public class TimeTableSchedulesResourceTest {
 
     @Test
     public void solveDemoDataUntilFeasible() {

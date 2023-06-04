@@ -13,6 +13,8 @@ import ai.timefold.solver.core.api.solver.SolverStatus;
 @PlanningSolution
 public class TimeTable {
 
+    private String name;
+
     @ProblemFactCollectionProperty
     @ValueRangeProvider
     private List<Timeslot> timeslotList;
@@ -32,7 +34,8 @@ public class TimeTable {
     public TimeTable() {
     }
 
-    public TimeTable(List<Timeslot> timeslotList, List<Room> roomList, List<Lesson> lessonList) {
+    public TimeTable(String name, List<Timeslot> timeslotList, List<Room> roomList, List<Lesson> lessonList) {
+        this.name = name;
         this.timeslotList = timeslotList;
         this.roomList = roomList;
         this.lessonList = lessonList;
@@ -41,6 +44,10 @@ public class TimeTable {
     // ************************************************************************
     // Getters and setters
     // ************************************************************************
+
+    public String getName() {
+        return name;
+    }
 
     public List<Timeslot> getTimeslotList() {
         return timeslotList;
