@@ -9,7 +9,7 @@ import org.acme.schooltimetabling.timefoldcommon.AbstractSchedulesResource;
 @Path("schedules")
 public class TimeTableSchedulesResource extends AbstractSchedulesResource<TimeTable> {
 
-    // To make Quarkus CDI happy. Do not use.
+    // Workaround to make Quarkus CDI happy. Do not use.
     public TimeTableSchedulesResource() {
         super(null);
     }

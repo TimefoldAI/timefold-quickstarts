@@ -45,12 +45,14 @@ public abstract class AbstractSchedulesResource<Solution_> {
     @GET
     @Path("{jobId}")
     public Solution_ getSchedule(@PathParam("jobId") String jobId) {
+        // TODO check exception map
         return bestSolutionMap.get(jobId);
     }
 
     @DELETE
     @Path("{jobId}")
     public Solution_ terminateSolving(@PathParam("jobId") String jobId) {
+        // TODO check exception map
         solverManager.terminateEarly(jobId);
         return getSchedule(jobId);
     }
