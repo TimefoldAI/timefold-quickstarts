@@ -15,13 +15,14 @@
         <div id="notificationPanel" style="position: absolute; top: .5rem;"></div>
     </div>
     <div>
-        <p>TODO:</p>
+        <p>TODO in navbar:</p>
         <ol>
             <li>curl -X GET -H 'Accept:application/json' http://localhost:8080/demo/data?type=SMALL -o sample.json</li>
             <li>curl -X POST -H 'Content-Type:application/json' http://localhost:8080/schedules -d@sample.json</li>
             <li>curl -X GET -H 'Accept:application/json' http://localhost:8080/schedules/{id}</li>
             <li>curl -X DELETE -H 'Accept:application/json' http://localhost:8080/schedules/{id}</li>
         </ol>
+        <p><a href="/q/swagger-ui">REST API specification</a></p>
     </div>
     <h1>High school time table solver</h1>
     <p>Generate the optimal schedule for your teachers and students.</p>

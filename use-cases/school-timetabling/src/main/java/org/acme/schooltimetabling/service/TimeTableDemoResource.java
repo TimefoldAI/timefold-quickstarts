@@ -22,12 +22,14 @@ public class TimeTableDemoResource {
         LARGE
     }
 
+    // TODO openapi
     @GET
     @Path("data-types")
     public DemoDataType[] list() {
         return DemoDataType.values();
     }
 
+    // TODO openapi
     @GET
     @Path("data")
     public TimeTable generate(@QueryParam("type") DemoDataType demoDataType) {
