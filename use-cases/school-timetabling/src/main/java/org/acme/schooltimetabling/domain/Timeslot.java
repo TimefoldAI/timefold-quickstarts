@@ -4,7 +4,10 @@ import java.time.DayOfWeek;
 import java.time.LocalTime;
 
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
+@JsonIdentityInfo(scope = Timeslot.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Timeslot {
 
     @PlanningId
@@ -53,5 +56,4 @@ public class Timeslot {
     public LocalTime getEndTime() {
         return endTime;
     }
-
 }

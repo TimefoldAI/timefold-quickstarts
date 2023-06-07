@@ -4,11 +4,10 @@ import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.PathParam;
 import org.acme.schooltimetabling.domain.Lesson;
 import org.acme.schooltimetabling.domain.Room;
 import org.acme.schooltimetabling.domain.TimeTable;
@@ -31,8 +30,8 @@ public class TimeTableDemoResource {
 
     // TODO openapi
     @GET
-    @Path("data")
-    public TimeTable generate(@QueryParam("type") DemoDataType demoDataType) {
+    @Path("data/{demoDataType}")
+    public TimeTable generate(@PathParam("demoDataType") DemoDataType demoDataType) {
         String name = demoDataType.name();
 
         List<Timeslot> timeslotList = new ArrayList<>(10);
