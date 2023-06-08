@@ -8,31 +8,58 @@ import java.util.List;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.acme.schooltimetabling.domain.Lesson;
 import org.acme.schooltimetabling.domain.Room;
 import org.acme.schooltimetabling.domain.TimeTable;
 import org.acme.schooltimetabling.domain.Timeslot;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
-@Path("demo")
+@Tag(name = "Demo data sets", description = "Timefold-provided demo school time table data sets")
+@Path("demo/datasets")
 public class TimeTableDemoResource {
 
-    public enum DemoDataType {
+    public enum DemoDataSet {
         SMALL,
         LARGE
     }
 
-    // TODO openapi
+    @APIResponses(value = {
+            @APIResponse(responseCode = "200", description = "List of demo data sets represented as IDs",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = DemoDataSet.class, type = SchemaType.ARRAY))) })
+    @Operation(summary = "List demo data sets")
     @GET
-    @Path("data-types")
-    public DemoDataType[] list() {
-        return DemoDataType.values();
+    @Path("ids")
+    public DemoDataSet[] list() {
+        return DemoDataSet.values();
     }
 
-    // TODO openapi
+    @APIResponses(value = {
+            @APIResponse(responseCode = "200", description = "Unsolved demo time table",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = TimeTable.class))),
+            @APIResponse(responseCode = "404", description = "Demo data set does not exist",
+                    content = @Content(mediaType = MediaType.TEXT_PLAIN))})
+    @Operation(summary = "Find an unsolved demo time table by ID")
     @GET
-    @Path("data/{demoDataType}")
-    public TimeTable generate(@PathParam("demoDataType") DemoDataType demoDataType) {
-        String name = demoDataType.name();
+    @Path("{dataSetId}")
+    public Response generate(@Parameter(description = "Unique identifier of the demo data set",
+            required = true) @PathParam("dataSetId") String dataSetId) {
+        DemoDataSet demoDataSet;
+        try {
+            demoDataSet = DemoDataSet.valueOf(dataSetId);
+        } catch (IllegalArgumentException illegalArgumentException) {
+            return Response.status(Response.Status.NOT_FOUND).entity("Demo data set " + dataSetId + " not found.").build();
+        }
 
         List<Timeslot> timeslotList = new ArrayList<>(10);
         long nextTimeslotId = 0L;
@@ -47,7 +74,7 @@ public class TimeTableDemoResource {
         timeslotList.add(new Timeslot(nextTimeslotId++, DayOfWeek.TUESDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)));
         timeslotList.add(new Timeslot(nextTimeslotId++, DayOfWeek.TUESDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)));
         timeslotList.add(new Timeslot(nextTimeslotId++, DayOfWeek.TUESDAY, LocalTime.of(14, 30), LocalTime.of(15, 30)));
-        if (demoDataType == DemoDataType.LARGE) {
+        if (demoDataSet == DemoDataSet.LARGE) {
             timeslotList.add(new Timeslot(nextTimeslotId++, DayOfWeek.WEDNESDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)));
             timeslotList.add(new Timeslot(nextTimeslotId++, DayOfWeek.WEDNESDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)));
             timeslotList.add(new Timeslot(nextTimeslotId++, DayOfWeek.WEDNESDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)));
@@ -70,7 +97,7 @@ public class TimeTableDemoResource {
         roomList.add(new Room(nextRoomId++, "Room A"));
         roomList.add(new Room(nextRoomId++, "Room B"));
         roomList.add(new Room(nextRoomId++, "Room C"));
-        if (demoDataType == DemoDataType.LARGE) {
+        if (demoDataSet == DemoDataSet.LARGE) {
             roomList.add(new Room(nextRoomId++, "Room D"));
             roomList.add(new Room(nextRoomId++, "Room E"));
             roomList.add(new Room(nextRoomId++, "Room F"));
@@ -88,7 +115,7 @@ public class TimeTableDemoResource {
         lessonList.add(new Lesson(nextLessonId++, "English", "I. Jones", "9th grade"));
         lessonList.add(new Lesson(nextLessonId++, "Spanish", "P. Cruz", "9th grade"));
         lessonList.add(new Lesson(nextLessonId++, "Spanish", "P. Cruz", "9th grade"));
-        if (demoDataType == DemoDataType.LARGE) {
+        if (demoDataSet == DemoDataSet.LARGE) {
             lessonList.add(new Lesson(nextLessonId++, "Math", "A. Turing", "9th grade"));
             lessonList.add(new Lesson(nextLessonId++, "Math", "A. Turing", "9th grade"));
             lessonList.add(new Lesson(nextLessonId++, "Math", "A. Turing", "9th grade"));
@@ -116,7 +143,7 @@ public class TimeTableDemoResource {
         lessonList.add(new Lesson(nextLessonId++, "History", "I. Jones", "10th grade"));
         lessonList.add(new Lesson(nextLessonId++, "English", "P. Cruz", "10th grade"));
         lessonList.add(new Lesson(nextLessonId++, "Spanish", "P. Cruz", "10th grade"));
-        if (demoDataType == DemoDataType.LARGE) {
+        if (demoDataSet == DemoDataSet.LARGE) {
             lessonList.add(new Lesson(nextLessonId++, "Math", "A. Turing", "10th grade"));
             lessonList.add(new Lesson(nextLessonId++, "Math", "A. Turing", "10th grade"));
             lessonList.add(new Lesson(nextLessonId++, "ICT", "A. Turing", "10th grade"));
@@ -185,7 +212,7 @@ public class TimeTableDemoResource {
             lessonList.add(new Lesson(nextLessonId++, "Physical education", "C. Lewis", "12th grade"));
             lessonList.add(new Lesson(nextLessonId++, "Physical education", "C. Lewis", "12th grade"));
         }
-        return new TimeTable(name, timeslotList, roomList, lessonList);
+        return Response.ok(new TimeTable(demoDataSet.name(), timeslotList, roomList, lessonList)).build();
     }
 
 }

@@ -6,7 +6,8 @@ let scheduleId = null;
 let loadedSchedule = null;
 
 $(document).ready(function () {
-    replaceTimefoldAutoHeaderFooterWithData();
+    replaceQuickstartTimefoldAutoHeaderFooter();
+
     $.ajaxSetup({
     headers: {
       'Content-Type': 'application/json',
@@ -32,13 +33,51 @@ $(document).ready(function () {
       };
     });
 
+    initMenu();
     createDataSets();
 });
 
-function createDataSets() {
-    $.get("/demo/data-types", function (data) {
-        //$("#body").removeClass('d-none');
+function initMenu() {
+     $("#navUI").click(function () {
+        $("#demo").removeClass('d-none');
+        $("#rest").addClass('d-none');
+        $("#openapi").addClass('d-none');
 
+        $("#navUIItem").addClass('active');
+        $("#navRestItem").removeClass('active');
+        $("#navOpenApiItem").removeClass('active');
+      });
+      $("#navRest").click(function () {
+        $("#demo").addClass('d-none');
+        $("#rest").removeClass('d-none');
+        $("#openapi").addClass('d-none');
+
+        $("#navUIItem").removeClass('active');
+        $("#navRestItem").addClass('active');
+        $("#navOpenApiItem").removeClass('active');
+      });
+      $("#navOpenApi").click(function () {
+        $("#demo").addClass('d-none');
+        $("#rest").addClass('d-none');
+        $("#openapi").removeClass('d-none');
+
+        $("#navUIItem").removeClass('active');
+        $("#navRestItem").removeClass('active');
+        $("#navOpenApiItem").addClass('active');
+      });
+      $("#navConfiguration").click(function () {
+        $("#demo").addClass('d-none');
+        $("#rest").addClass('d-none');
+        $("#openapi").addClass('d-none');
+
+        $("#navUIItem").removeClass('active');
+        $("#navRestItem").removeClass('active');
+        $("#navOpenApiItem").removeClass('active')
+      });
+}
+
+function createDataSets() {
+    $.get("/demo/datasets/ids", function (data) {
         if (data && data.length > 0) {
           data.forEach(item => {
             $("#testDataButton").append($('<a id="' + item + 'TestData" class="dropdown-item" href="#">' + item + '</a>'));
@@ -67,15 +106,15 @@ function createDataSets() {
 
           refreshSolvingButtons(false);
         } else {
-          $("#body").removeClass('d-none');
-          $("#body").empty();
-          $("#body").html("<h1><p align=\"center\">No test data available</p></h1>")
+          $("#demo").removeClass('d-none');
+          $("#demo").empty();
+          $("#demo").html("<h1><p align=\"center\">No test data available</p></h1>")
         }
       }).fail(function (xhr, ajaxOptions, thrownError) {
         // disable this page as there is no data
-        $("#body").removeClass('d-none');
-        $("#body").empty();
-        $("#body").html("<h1><p align=\"center\">No test data available</p></h1>")
+        $("#demo").removeClass('d-none');
+        $("#demo").empty();
+        $("#demo").html("<h1><p align=\"center\">No test data available</p></h1>")
       });
 }
 
@@ -93,7 +132,7 @@ function refreshSchedule() {
       return;
     }
 
-    path = "/demo/data/" + testData;
+    path = "/demo/datasets/" + testData;
   }
 
   $.getJSON(path, function (schedule) {
@@ -257,8 +296,19 @@ function convertToId(str) {
   return btoa(str).replace(/=/g, "");
 }
 
+function textToClipboard(id) {
+  var text = $("#" + id).text().trim();
+
+  var dummy = document.createElement("textarea");
+  document.body.appendChild(dummy);
+  dummy.value = text;
+  dummy.select();
+  document.execCommand("copy");
+  document.body.removeChild(dummy);
+}
+
 // TODO: move to the webjar
-function replaceTimefoldAutoHeaderFooterWithData() {
+function replaceQuickstartTimefoldAutoHeaderFooter() {
   const timefoldHeader = $("header#timefold-auto-header");
   if (timefoldHeader != null) {
     timefoldHeader.addClass("bg-black")
@@ -268,6 +318,22 @@ function replaceTimefoldAutoHeaderFooterWithData() {
           <a class="navbar-brand" href="https://timefold.ai">
             <img src="/webjars/timefold/img/timefold-logo-horizontal-negative.svg" alt="Timefold logo" width="200">
           </a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+              <li class="nav-item active" id="navUIItem">
+                <a class="nav-link" href="#" id="navUI">Demo UI</a>
+              </li>
+              <li class="nav-item" id="navRestItem">
+                <a class="nav-link" href="#" id="navRest">Guide</a>
+              </li>
+              <li class="nav-item" id="navOpenApiItem">
+                <a class="nav-link" href="#" id="navOpenApi">REST API</a>
+              </li>
+            </ul>
+          </div>
           <div class="ms-auto">
               <div class="dropdown">
                   <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -279,6 +345,7 @@ function replaceTimefoldAutoHeaderFooterWithData() {
         </nav>
       </div>`));
   }
+
   const timefoldFooter = $("footer#timefold-auto-footer");
       if (timefoldFooter != null) {
         timefoldFooter.append(
