@@ -34,6 +34,11 @@ public class TimeTable {
     public TimeTable() {
     }
 
+    public TimeTable(HardSoftScore score, SolverStatus solverStatus) {
+        this.score = score;
+        this.solverStatus = solverStatus;
+    }
+
     public TimeTable(String name, List<Timeslot> timeslotList, List<Room> roomList, List<Lesson> lessonList) {
         this.name = name;
         this.timeslotList = timeslotList;

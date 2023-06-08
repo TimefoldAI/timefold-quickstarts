@@ -125,7 +125,7 @@ function switchDataDropDownItemActive(newItem) {
 }
 
 function refreshSchedule() {
-  let path = "/schedules/" + scheduleId;
+  let path = "/timetables/" + scheduleId;
   if (scheduleId === null) {
     if (testData === null) {
       alert("Please select a test data set.");
@@ -255,7 +255,7 @@ function renderSchedule(timeTable) {
 }
 
 function solve() {
-  $.post("/schedules", JSON.stringify(loadedSchedule), function (data) {
+  $.post("/timetables", JSON.stringify(loadedSchedule), function (data) {
     scheduleId = data;
     refreshSolvingButtons(true);
   }).fail(function (xhr, ajaxOptions, thrownError) {
@@ -283,7 +283,7 @@ function refreshSolvingButtons(solving) {
 }
 
 function stopSolving() {
-  $.delete("/schedules/" + scheduleId, function () {
+  $.delete("/timetables/" + scheduleId, function () {
     refreshSolvingButtons(false);
     refreshSchedule();
   }).fail(function (xhr, ajaxOptions, thrownError) {
