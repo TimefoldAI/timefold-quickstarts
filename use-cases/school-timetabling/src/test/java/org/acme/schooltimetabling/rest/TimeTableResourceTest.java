@@ -44,13 +44,11 @@ public class TimeTableResourceTest {
 
         await()
                 .atMost(Duration.ofMinutes(1))
-                .pollDelay(Duration.ofSeconds(5))
-                .pollInterval(Duration.ofSeconds(5))
-                .until(() -> SolverStatus.NOT_SOLVING.name().equals(get("/timetables/"+ jobId + "?retrieve=STATUS")
-                        .body()
-                        .as(TimeTable.class).getSolverStatus()));
+                .pollInterval(Duration.ofMillis(500L))
+                .until(() -> SolverStatus.NOT_SOLVING.name().equals(
+                        get("/timetables/"+ jobId + "?retrieve=STATUS").jsonPath().get("solverStatus")));
 
-        get("/timetables").then().assertThat()
+        get("/timetables/"+ jobId).then().assertThat()
                 .body("solverStatus", equalTo(SolverStatus.NOT_SOLVING.name()))
                 .body("timeslotList", is(not(empty())))
                 .body("roomList", is(not(empty())))
