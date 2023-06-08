@@ -76,11 +76,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>ai.timefold.solver</groupId>
-      <artifactId>timefold-solver-quarkus-benchmark</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.awaitility</groupId>
       <artifactId>awaitility</artifactId>
       <scope>test</scope>
