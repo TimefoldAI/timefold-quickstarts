@@ -23,8 +23,8 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
-@Tag(name = "Demo data sets", description = "Timefold-provided demo school time table data sets")
-@Path("demo")
+@Tag(name = "Demo data sets", description = "Timefold-provided demo school time table data sets.")
+@Path("demo/datasets")
 public class TimeTableDemoResource {
 
     public enum DemoDataSet {
@@ -33,26 +33,25 @@ public class TimeTableDemoResource {
     }
 
     @APIResponses(value = {
-            @APIResponse(responseCode = "200", description = "List of demo data sets represented as IDs",
+            @APIResponse(responseCode = "200", description = "List of demo data sets represented as IDs.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
                             schema = @Schema(implementation = DemoDataSet.class, type = SchemaType.ARRAY))) })
-    @Operation(summary = "List demo data sets")
+    @Operation(summary = "List demo data sets.")
     @GET
-    @Path("datasets")
     public DemoDataSet[] list() {
         return DemoDataSet.values();
     }
 
     @APIResponses(value = {
-            @APIResponse(responseCode = "200", description = "Unsolved demo time table",
+            @APIResponse(responseCode = "200", description = "Unsolved demo time table.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
                             schema = @Schema(implementation = TimeTable.class))),
-            @APIResponse(responseCode = "404", description = "Demo data set does not exist",
+            @APIResponse(responseCode = "404", description = "Demo data set does not exist.",
                     content = @Content(mediaType = MediaType.TEXT_PLAIN))})
-    @Operation(summary = "Find an unsolved demo time table by ID")
+    @Operation(summary = "Find an unsolved demo time table by ID.")
     @GET
-    @Path("datasets/{id}")
-    public Response generate(@Parameter(description = "Unique identifier of the demo data set",
+    @Path("/{id}")
+    public Response generate(@Parameter(description = "Unique identifier of the demo data set.",
             required = true) @PathParam("id") String dataSetId) {
         DemoDataSet demoDataSet;
         try {

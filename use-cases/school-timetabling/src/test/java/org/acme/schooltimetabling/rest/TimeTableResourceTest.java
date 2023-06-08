@@ -19,6 +19,7 @@ import org.acme.schooltimetabling.domain.Lesson;
 import org.acme.schooltimetabling.domain.Room;
 import org.acme.schooltimetabling.domain.TimeTable;
 import org.acme.schooltimetabling.domain.Timeslot;
+import org.acme.schooltimetabling.service.TimeTableResource;
 import org.junit.jupiter.api.Test;
 import ai.timefold.solver.core.api.solver.SolverStatus;
 
@@ -46,9 +47,10 @@ public class TimeTableResourceTest {
                 .atMost(Duration.ofMinutes(1))
                 .pollInterval(Duration.ofMillis(500L))
                 .until(() -> SolverStatus.NOT_SOLVING.name().equals(
-                        get("/timetables/"+ jobId + "?retrieve=STATUS").jsonPath().get("solverStatus")));
+                        get("/timetables/" + jobId + "?retrieve=" + TimeTableResource.Retrieve.STATUS)
+                                .jsonPath().get("solverStatus")));
 
-        get("/timetables/"+ jobId).then().assertThat()
+        get("/timetables/" + jobId).then().assertThat()
                 .body("solverStatus", equalTo(SolverStatus.NOT_SOLVING.name()))
                 .body("timeslotList", is(not(empty())))
                 .body("roomList", is(not(empty())))

@@ -26,9 +26,11 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Tag(name = "School Timetables", description = "School timetable service assigning lessons to rooms and timeslots.")
 @Path("timetables")
 public class TimeTableResource {
 
@@ -48,24 +50,25 @@ public class TimeTableResource {
         this.solverManager = solverManager;
     }
 
-    @Operation(summary = "List the job IDs of all submitted problems.")
+    @Operation(summary = "List the job IDs of all submitted timetables.")
     @APIResponses(value = {
             @APIResponse(responseCode = "200", description = "List of all job IDs.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
                             schema = @Schema(type = SchemaType.ARRAY, implementation = String.class))) })
     @GET
+    @Produces(MediaType.APPLICATION_JSON)
     public List<String> list() {
         return jobs.keySet().stream().toList();
     }
 
-    @Operation(summary = "Submits a problem to start solving as soon as CPU resources are available.")
+    @Operation(summary = "Submit a timetable to start solving as soon as CPU resources are available.")
     @APIResponses(value = {
             @APIResponse(responseCode = "200",
                     description = "The job ID. Use that ID to get the solution with the other methods.",
                     content = @Content(mediaType = MediaType.TEXT_PLAIN, schema = @Schema(implementation = String.class))) })
-    @Produces(MediaType.TEXT_PLAIN)
-    @Consumes({ MediaType.APPLICATION_JSON })
     @POST
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces(MediaType.TEXT_PLAIN)
     public String solve(TimeTable problem) {
         String jobId = UUID.randomUUID().toString();
         jobs.put(jobId, Job.newTimeTable(problem));
@@ -79,8 +82,16 @@ public class TimeTableResource {
     @Operation(
             summary = "Get the solution and score for a given job ID. This is the best solution so far, as it might still be running or not even started.")
     @APIResponses(value = {
-            @APIResponse(responseCode = "200", description = "The best solution so far.",
-                    content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = TimeTable.class))) })
+            @APIResponse(responseCode = "200", description = "The best solution of the timetable so far.",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = TimeTable.class))),
+            @APIResponse(responseCode = "404", description = "No timetable found.",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = ErrorInfo.class))),
+            @APIResponse(responseCode = "500", description = "Exception during solving a timetable.",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = ErrorInfo.class)))
+    })
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{jobId}")
@@ -95,7 +106,7 @@ public class TimeTableResource {
                     .build();
         }
         if (job.error != null) {
-            LOGGER.error("Runtime exception during solving jobId ({}), message ({})", jobId, job.error.getMessage(), job.error);
+            LOGGER.error("Exception during solving jobId ({}), message ({}).", jobId, job.error.getMessage(), job.error);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(new ErrorInfo(jobId, job.error.getMessage()))
                     .build();
@@ -110,16 +121,23 @@ public class TimeTableResource {
     }
 
     @Operation(
-            summary = "Terminate solving for a given job ID. Returns the best solution so far, as it might still be running or not even started.")
+            summary = "Terminate solving for a given job ID. Returns the best solution of the timetable so far, as it might still be running or not even started.")
     @APIResponses(value = {
-            @APIResponse(responseCode = "200", description = "The best solution so far.",
-                    content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = TimeTable.class))) })
-    @Produces(MediaType.APPLICATION_JSON)
+            @APIResponse(responseCode = "200", description = "The best solution of the timetable so far.",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = TimeTable.class))),
+            @APIResponse(responseCode = "404", description = "No timetable found.",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = ErrorInfo.class))),
+            @APIResponse(responseCode = "500", description = "Exception during solving a timetable.",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = ErrorInfo.class)))
+    })
     @DELETE
+    @Produces(MediaType.APPLICATION_JSON)
     @Path("{jobId}")
     public Response terminateSolving(
-            @Parameter(description = "The job ID returned by the POST method.",
-                    required = false) @PathParam("jobId") String jobId,
+            @Parameter(description = "The job ID returned by the POST method.") @PathParam("jobId") String jobId,
             @QueryParam("retrieve") Retrieve retrieve) {
         solverManager.terminateEarly(jobId);
         return getTimeTable(jobId, retrieve);
