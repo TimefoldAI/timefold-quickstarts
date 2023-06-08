@@ -77,7 +77,7 @@ function initMenu() {
 }
 
 function createDataSets() {
-    $.get("/demo/datasets/ids", function (data) {
+    $.get("/demo/datasets", function (data) {
         if (data && data.length > 0) {
           data.forEach(item => {
             $("#testDataButton").append($('<a id="' + item + 'TestData" class="dropdown-item" href="#">' + item + '</a>'));

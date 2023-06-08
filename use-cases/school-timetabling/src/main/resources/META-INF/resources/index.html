@@ -73,36 +73,36 @@
         <pre>
             <button class="btn btn-outline-dark btn-sm float-end"
                     onclick="textToClipboard('curl1')">Copy</button>
-            <code id="curl1">curl -X GET -H 'Accept:application/json' http://localhost:8080/demo/data/SMALL -o sample.json</code>
+            <code id="curl1">curl -X GET -H 'Accept:application/json' http://localhost:8080/demo/datasets/SMALL -o sample.json</code>
         </pre>
 
-        <h3>2. Post the sample data set to be solved</h3>
+        <h3>2. Post the sample data for solving</h3>
         <p>POST operation returns a <code>jobId</code> that should be used in subsequent commands.</p>
         <pre>
             <button class="btn btn-outline-dark btn-sm float-end"
                     onclick="textToClipboard('curl2')">Copy</button>
-            <code id="curl2">curl -X POST -H 'Content-Type:application/json' http://localhost:8080/schedules -d@sample.json</code>
+            <code id="curl2">curl -X POST -H 'Content-Type:application/json' http://localhost:8080/timetables -d@sample.json</code>
         </pre>
 
-        <h3>3. Fetch current status and score</h3>
+        <h3>3. Get the current status and score</h3>
         <pre>
             <button class="btn btn-outline-dark btn-sm float-end"
                     onclick="textToClipboard('curl3')">Copy</button>
-            <code id="curl3">TODO</code>
+            <code id="curl3">curl -X GET -H 'Accept:application/json' http://localhost:8080/timetables/{jobId}?retrieve=STATUS</code>
         </pre>
 
-        <h3>4. Fetch complete solution</h3>
+        <h3>4. Get the complete solution</h3>
         <pre>
             <button class="btn btn-outline-dark btn-sm float-end"
                     onclick="textToClipboard('curl4')">Copy</button>
-            <code id="curl4">curl -X GET -H 'Accept:application/json' http://localhost:8080/schedules/{jobId}</code>
+            <code id="curl4">curl -X GET -H 'Accept:application/json' http://localhost:8080/timetables/{jobId}</code>
         </pre>
 
-        <h3>5. Terminate early</h3>
+        <h3>5. Terminate solving early</h3>
         <pre>
             <button class="btn btn-outline-dark btn-sm float-end"
                     onclick="textToClipboard('curl5')">Copy</button>
-            <code id="curl5">curl -X DELETE -H 'Accept:application/json' http://localhost:8080/schedules/{id}</code>
+            <code id="curl5">curl -X DELETE -H 'Accept:application/json' http://localhost:8080/timetables/{id}</code>
         </pre>
     </div>
 

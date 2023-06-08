@@ -24,7 +24,7 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 @Tag(name = "Demo data sets", description = "Timefold-provided demo school time table data sets")
-@Path("demo/datasets")
+@Path("demo")
 public class TimeTableDemoResource {
 
     public enum DemoDataSet {
@@ -38,7 +38,7 @@ public class TimeTableDemoResource {
                             schema = @Schema(implementation = DemoDataSet.class, type = SchemaType.ARRAY))) })
     @Operation(summary = "List demo data sets")
     @GET
-    @Path("ids")
+    @Path("datasets")
     public DemoDataSet[] list() {
         return DemoDataSet.values();
     }
@@ -51,9 +51,9 @@ public class TimeTableDemoResource {
                     content = @Content(mediaType = MediaType.TEXT_PLAIN))})
     @Operation(summary = "Find an unsolved demo time table by ID")
     @GET
-    @Path("{dataSetId}")
+    @Path("datasets/{id}")
     public Response generate(@Parameter(description = "Unique identifier of the demo data set",
-            required = true) @PathParam("dataSetId") String dataSetId) {
+            required = true) @PathParam("id") String dataSetId) {
         DemoDataSet demoDataSet;
         try {
             demoDataSet = DemoDataSet.valueOf(dataSetId);
