@@ -140,7 +140,7 @@ function refreshSchedule() {
 	renderSchedule(schedule);
   })
   .fail(function (xhr, ajaxOptions, thrownError) {
-      showError("Getting time table has failed.", xhr);
+      showError("Getting timetable has failed.", xhr);
       refreshSolvingButtons(false);
   });
 }

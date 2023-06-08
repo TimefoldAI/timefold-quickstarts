@@ -23,7 +23,7 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
-@Tag(name = "Demo data sets", description = "Timefold-provided demo school time table data sets.")
+@Tag(name = "Demo data sets", description = "Timefold-provided demo school timetable data sets.")
 @Path("demo/datasets")
 public class TimeTableDemoResource {
 
@@ -43,12 +43,12 @@ public class TimeTableDemoResource {
     }
 
     @APIResponses(value = {
-            @APIResponse(responseCode = "200", description = "Unsolved demo time table.",
+            @APIResponse(responseCode = "200", description = "Unsolved demo timetable.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
                             schema = @Schema(implementation = TimeTable.class))),
             @APIResponse(responseCode = "404", description = "Demo data set does not exist.",
                     content = @Content(mediaType = MediaType.TEXT_PLAIN))})
-    @Operation(summary = "Find an unsolved demo time table by ID.")
+    @Operation(summary = "Find an unsolved demo timetable by ID.")
     @GET
     @Path("/{id}")
     public Response generate(@Parameter(description = "Unique identifier of the demo data set.",
