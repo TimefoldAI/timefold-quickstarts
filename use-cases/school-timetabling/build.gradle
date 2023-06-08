@@ -19,6 +19,7 @@ dependencies {
     implementation enforcedPlatform("io.quarkus:quarkus-bom:${quarkusVersion}")
     implementation "io.quarkus:quarkus-resteasy"
     implementation "io.quarkus:quarkus-resteasy-jackson"
+    implementation "io.quarkus:quarkus-smallrye-openapi"
     implementation "io.quarkus:quarkus-webjars-locator"
     testImplementation "io.quarkus:quarkus-junit5"
     testImplementation "io.rest-assured:rest-assured"
@@ -28,9 +29,9 @@ dependencies {
     implementation "ai.timefold.solver:timefold-solver-quarkus"
     implementation "ai.timefold.solver:timefold-solver-quarkus-jackson"
     testImplementation "ai.timefold.solver:timefold-solver-test"
-    testImplementation "ai.timefold.solver:timefold-solver-quarkus-benchmark"
     testImplementation "org.assertj:assertj-core:${assertjVersion}"
 
+    runtimeOnly "ai.timefold.solver:timefold-solver-webui"
     runtimeOnly "org.webjars:bootstrap:5.2.3"
     runtimeOnly "org.webjars:jquery:3.6.4"
     runtimeOnly "org.webjars:font-awesome:5.11.2"
