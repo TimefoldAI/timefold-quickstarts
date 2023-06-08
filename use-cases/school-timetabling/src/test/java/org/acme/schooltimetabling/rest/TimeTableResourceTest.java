@@ -3,11 +3,9 @@ package org.acme.schooltimetabling.rest;
 import static io.restassured.RestAssured.get;
 import static io.restassured.RestAssured.given;
 import static org.awaitility.Awaitility.await;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -50,13 +48,14 @@ public class TimeTableResourceTest {
                         get("/timetables/" + jobId + "?retrieve=" + TimeTableResource.Retrieve.STATUS)
                                 .jsonPath().get("solverStatus")));
 
-        get("/timetables/" + jobId).then().assertThat()
-                .body("solverStatus", equalTo(SolverStatus.NOT_SOLVING.name()))
-                .body("timeslotList", is(not(empty())))
-                .body("roomList", is(not(empty())))
-                .body("lessonList", is(not(empty())))
-                .body("lessonList.timeslot", not(nullValue()))
-                .body("lessonList.room", not(nullValue()));
+        TimeTable solution = get("/timetables/" + jobId).then().extract().as(TimeTable.class);
+        assertEquals(solution.getSolverStatus(), SolverStatus.NOT_SOLVING);
+        assertNotNull(solution.getLessons());
+        assertNotNull(solution.getTimeslots());
+        assertNotNull(solution.getRooms());
+        assertNotNull(solution.getLessons().get(0).getRoom());
+        assertNotNull(solution.getLessons().get(0).getTimeslot());
+        assertTrue(solution.getScore().isFeasible());
     }
 
     private static TimeTable createTestTimeTable() {

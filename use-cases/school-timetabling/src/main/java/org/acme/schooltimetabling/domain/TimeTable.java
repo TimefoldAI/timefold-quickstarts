@@ -17,12 +17,12 @@ public class TimeTable {
 
     @ProblemFactCollectionProperty
     @ValueRangeProvider
-    private List<Timeslot> timeslotList;
+    private List<Timeslot> timeslots;
     @ProblemFactCollectionProperty
     @ValueRangeProvider
-    private List<Room> roomList;
+    private List<Room> rooms;
     @PlanningEntityCollectionProperty
-    private List<Lesson> lessonList;
+    private List<Lesson> lessons;
 
     @PlanningScore
     private HardSoftScore score;
@@ -39,11 +39,11 @@ public class TimeTable {
         this.solverStatus = solverStatus;
     }
 
-    public TimeTable(String name, List<Timeslot> timeslotList, List<Room> roomList, List<Lesson> lessonList) {
+    public TimeTable(String name, List<Timeslot> timeslots, List<Room> rooms, List<Lesson> lessons) {
         this.name = name;
-        this.timeslotList = timeslotList;
-        this.roomList = roomList;
-        this.lessonList = lessonList;
+        this.timeslots = timeslots;
+        this.rooms = rooms;
+        this.lessons = lessons;
     }
 
     // ************************************************************************
@@ -54,16 +54,16 @@ public class TimeTable {
         return name;
     }
 
-    public List<Timeslot> getTimeslotList() {
-        return timeslotList;
+    public List<Timeslot> getTimeslots() {
+        return timeslots;
     }
 
-    public List<Room> getRoomList() {
-        return roomList;
+    public List<Room> getRooms() {
+        return rooms;
     }
 
-    public List<Lesson> getLessonList() {
-        return lessonList;
+    public List<Lesson> getLessons() {
+        return lessons;
     }
 
     public HardSoftScore getScore() {
