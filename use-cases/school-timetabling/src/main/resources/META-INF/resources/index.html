@@ -9,76 +9,117 @@
     <link rel="icon" href="/webjars/timefold/img/timefold-favicon.svg" type="image/svg+xml">
 </head>
 <body>
-<header id="timefold-auto-header">
-    <!-- Filled in by app.js -->
-</header>
-<div class="container">
-    <div class="sticky-top d-flex justify-content-center align-items-center" aria-live="polite" aria-atomic="true">
-        <div id="notificationPanel" style="position: absolute; top: .5rem;"></div>
-    </div>
-    <div>
-        <p>TODO in navbar:</p>
-        <ol>
-            <li>curl -X GET -H 'Accept:application/json' http://localhost:8080/demo/data?type=SMALL -o sample.json</li>
-            <li>curl -X POST -H 'Content-Type:application/json' http://localhost:8080/schedules -d@sample.json</li>
-            <li>curl -X GET -H 'Accept:application/json' http://localhost:8080/schedules/{id}</li>
-            <li>curl -X DELETE -H 'Accept:application/json' http://localhost:8080/schedules/{id}</li>
-        </ol>
-        <p><a href="/q/swagger-ui">REST API specification</a></p>
-    </div>
-    <h1>High school time table solver</h1>
-    <p>Generate the optimal schedule for your teachers and students.</p>
+    <header id="timefold-auto-header">
+        <!-- Filled in by app.js -->
+    </header>
+    <div id="demo" class="container">
+        <div class="sticky-top d-flex justify-content-center align-items-center" aria-live="polite" aria-atomic="true">
+            <div id="notificationPanel" style="position: absolute; top: .5rem;"></div>
+        </div>
+        <h1>High school timetable solver</h1>
+        <p>Generate the optimal schedule for your teachers and students.</p>
 
-    <div class="mb-2">
-        <button id="solveButton" type="button" class="btn btn-success">
-            <span class="fas fa-play"></span> Solve
-        </button>
-        <button id="stopSolvingButton" type="button" class="btn btn-danger">
-            <span class="fas fa-stop"></span> Stop solving
-        </button>
-        <span id="score" class="score ms-2 align-middle fw-bold">Score: ?</span>
+        <div class="mb-2">
+            <button id="solveButton" type="button" class="btn btn-success">
+                <span class="fas fa-play"></span> Solve
+            </button>
+            <button id="stopSolvingButton" type="button" class="btn btn-danger">
+                <span class="fas fa-stop"></span> Stop solving
+            </button>
+            <span id="score" class="score ms-2 align-middle fw-bold">Score: ?</span>
 
-        <div class="float-end">
-            <ul class="nav nav-pills" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="byRoomTab" data-bs-toggle="tab" data-bs-target="#byRoomPanel" type="button" role="tab" aria-controls="byRoomPanel" aria-selected="true">By room</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="byTeacherTab" data-bs-toggle="tab" data-bs-target="#byTeacher" type="button" role="tab" aria-controls="byTeacher" aria-selected="false">By teacher</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="byStudentGroupTab" data-bs-toggle="tab" data-bs-target="#byStudentGroup" type="button" role="tab" aria-controls="byStudentGroup" aria-selected="false">By student group</button>
-                </li>
-            </ul>
+            <div class="float-end">
+                <ul class="nav nav-pills" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="byRoomTab" data-bs-toggle="tab" data-bs-target="#byRoomPanel" type="button" role="tab" aria-controls="byRoomPanel" aria-selected="true">By room</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="byTeacherTab" data-bs-toggle="tab" data-bs-target="#byTeacher" type="button" role="tab" aria-controls="byTeacher" aria-selected="false">By teacher</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="byStudentGroupTab" data-bs-toggle="tab" data-bs-target="#byStudentGroup" type="button" role="tab" aria-controls="byStudentGroup" aria-selected="false">By student group</button>
+                    </li>
+                </ul>
+            </div>
         </div>
-    </div>
-    <div class="tab-content">
-        <div class="tab-pane fade show active" id="byRoomPanel" role="tabpanel" aria-labelledby="byRoomTab">
-            <table class="table table-borderless table-striped" id="timeTableByRoom">
-                <!-- Filled in by app.js -->
-            </table>
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="byRoomPanel" role="tabpanel" aria-labelledby="byRoomTab">
+                <table class="table table-borderless table-striped" id="timeTableByRoom">
+                    <!-- Filled in by app.js -->
+                </table>
+            </div>
+            <div class="tab-pane fade" id="byTeacher" role="tabpanel" aria-labelledby="byTeacherTab">
+                <table class="table table-borderless table-striped" id="timeTableByTeacher">
+                    <!-- Filled in by app.js -->
+                </table>
+            </div>
+            <div class="tab-pane fade" id="byStudentGroup" role="tabpanel" aria-labelledby="byStudentGroupTab">
+                <table class="table table-borderless table-striped" id="timeTableByStudentGroup">
+                    <!-- Filled in by app.js -->
+                </table>
+            </div>
         </div>
-        <div class="tab-pane fade" id="byTeacher" role="tabpanel" aria-labelledby="byTeacherTab">
-            <table class="table table-borderless table-striped" id="timeTableByTeacher">
-                <!-- Filled in by app.js -->
-            </table>
-        </div>
-        <div class="tab-pane fade" id="byStudentGroup" role="tabpanel" aria-labelledby="byStudentGroupTab">
-            <table class="table table-borderless table-striped" id="timeTableByStudentGroup">
-                <!-- Filled in by app.js -->
-            </table>
-        </div>
+
+        <h2>Unassigned lessons</h2>
+        <div id="unassignedLessons" class="row row-cols-3 g-3 mb-4"></div>
     </div>
 
-    <h2>Unassigned lessons</h2>
-    <div id="unassignedLessons" class="row row-cols-3 g-3 mb-4"></div>
-</div>
-<footer id="timefold-auto-footer"></footer>
+    <div id="rest" class="container-fluid d-none">
+        <h1>REST API Guide</h1>
 
-<script src="/webjars/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="/webjars/jquery/jquery.min.js"></script>
-<script src="/webjars/js-joda/dist/js-joda.min.js"></script>
-<script src="/webjars/timefold/js/timefold-webui.js"></script>
-<script src="/app.js"></script>
+        <h2>High school timetable solver integration via cURL</h2>
+
+        <h3>1. Download sample data set</h3>
+        <pre>
+            <button class="btn btn-outline-dark btn-sm float-end"
+                    onclick="textToClipboard('curl1')">Copy</button>
+            <code id="curl1">curl -X GET -H 'Accept:application/json' http://localhost:8080/demo/data/SMALL -o sample.json</code>
+        </pre>
+
+        <h3>2. Post the sample data set to be solved</h3>
+        <p>POST operation returns a <code>jobId</code> that should be used in subsequent commands.</p>
+        <pre>
+            <button class="btn btn-outline-dark btn-sm float-end"
+                    onclick="textToClipboard('curl2')">Copy</button>
+            <code id="curl2">curl -X POST -H 'Content-Type:application/json' http://localhost:8080/schedules -d@sample.json</code>
+        </pre>
+
+        <h3>3. Fetch current status and score</h3>
+        <pre>
+            <button class="btn btn-outline-dark btn-sm float-end"
+                    onclick="textToClipboard('curl3')">Copy</button>
+            <code id="curl3">TODO</code>
+        </pre>
+
+        <h3>4. Fetch complete solution</h3>
+        <pre>
+            <button class="btn btn-outline-dark btn-sm float-end"
+                    onclick="textToClipboard('curl4')">Copy</button>
+            <code id="curl4">curl -X GET -H 'Accept:application/json' http://localhost:8080/schedules/{jobId}</code>
+        </pre>
+
+        <h3>5. Terminate early</h3>
+        <pre>
+            <button class="btn btn-outline-dark btn-sm float-end"
+                    onclick="textToClipboard('curl5')">Copy</button>
+            <code id="curl5">curl -X DELETE -H 'Accept:application/json' http://localhost:8080/schedules/{id}</code>
+        </pre>
+    </div>
+
+    <div id="openapi" class="container-fluid d-none">
+        <h1>REST API Reference</h1>
+        <div class="ratio ratio-1x1">
+            <!-- "scrolling" attribute is obsolete, but e.g. Chrome does not support "overflow:hidden" -->
+            <iframe src="/q/swagger-ui" style="overflow:hidden;" scrolling="no"></iframe>
+        </div>
+    </div>
+
+    <footer id="timefold-auto-footer"></footer>
+
+    <script src="/webjars/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/webjars/jquery/jquery.min.js"></script>
+    <script src="/webjars/js-joda/dist/js-joda.min.js"></script>
+    <script src="/webjars/timefold/js/timefold-webui.js"></script>
+    <script src="/app.js"></script>
 </body>
 </html>
