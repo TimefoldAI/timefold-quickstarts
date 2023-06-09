@@ -45,21 +45,12 @@ public class TimeTableDemoResource {
     @APIResponses(value = {
             @APIResponse(responseCode = "200", description = "Unsolved demo timetable.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
-                            schema = @Schema(implementation = TimeTable.class))),
-            @APIResponse(responseCode = "404", description = "Demo data set does not exist.",
-                    content = @Content(mediaType = MediaType.TEXT_PLAIN))})
+                            schema = @Schema(implementation = TimeTable.class)))})
     @Operation(summary = "Find an unsolved demo timetable by ID.")
     @GET
     @Path("/{dataSetId}")
     public Response generate(@Parameter(description = "Unique identifier of the demo data set.",
-            required = true) @PathParam("dataSetId") String dataSetId) {
-        DemoDataSet demoDataSet;
-        try {
-            demoDataSet = DemoDataSet.valueOf(dataSetId);
-        } catch (IllegalArgumentException illegalArgumentException) {
-            return Response.status(Response.Status.NOT_FOUND).entity("Demo data set " + dataSetId + " not found.").build();
-        }
-
+            required = true) @PathParam("dataSetId") DemoDataSet demoDataSet) {
         List<Timeslot> timeslotList = new ArrayList<>(10);
         long nextTimeslotId = 0L;
         timeslotList.add(new Timeslot(nextTimeslotId++, DayOfWeek.MONDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)));

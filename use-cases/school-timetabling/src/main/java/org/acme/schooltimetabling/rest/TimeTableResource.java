@@ -96,29 +96,25 @@ public class TimeTableResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{jobId}")
-    public Response getTimeTable(
+    public TimeTable getTimeTable(
             @Parameter(description = "The job ID returned by the POST method.") @PathParam("jobId") String jobId,
             @QueryParam("retrieve") Retrieve retrieve) {
         retrieve = retrieve == null ? Retrieve.FULL : retrieve;
         Job job = jobIdToJob.get(jobId);
         if (job == null) {
-            return Response.status(Response.Status.NOT_FOUND)
-                    .entity(new ErrorInfo(jobId, "No timetable found."))
-                    .build();
+            throw new TimeTableSolverException(jobId, Response.Status.NOT_FOUND, "No timetable found.");
         }
         if (job.error != null) {
             LOGGER.error("Exception during solving jobId ({}), message ({}).", jobId, job.error.getMessage(), job.error);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(new ErrorInfo(jobId, job.error.getMessage()))
-                    .build();
+            throw new TimeTableSolverException(jobId, job.error);
         }
         TimeTable timeTable = job.timeTable;
         SolverStatus solverStatus = solverManager.getSolverStatus(jobId);
         if (retrieve == Retrieve.STATUS) {
-            return Response.ok(new TimeTable(timeTable.getName(), timeTable.getScore(), solverStatus)).build();
+            return new TimeTable(timeTable.getName(), timeTable.getScore(), solverStatus);
         }
         timeTable.setSolverStatus(solverStatus);
-        return Response.ok(timeTable).build();
+        return timeTable;
     }
 
     @Operation(
@@ -137,15 +133,12 @@ public class TimeTableResource {
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{jobId}")
-    public Response terminateSolving(
+    public TimeTable terminateSolving(
             @Parameter(description = "The job ID returned by the POST method.") @PathParam("jobId") String jobId,
             @QueryParam("retrieve") Retrieve retrieve) {
         // TODO: Replace with .terminateEarlyAndWait(... [, timeout]); see https://github.com/TimefoldAI/timefold-solver/issues/77
         solverManager.terminateEarly(jobId);
         return getTimeTable(jobId, retrieve);
-    }
-
-    public record ErrorInfo(String jobId, String message) {
     }
 
     public enum Retrieve {
