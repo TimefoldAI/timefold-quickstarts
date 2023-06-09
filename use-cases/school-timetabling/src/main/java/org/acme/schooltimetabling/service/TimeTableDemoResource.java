@@ -50,9 +50,9 @@ public class TimeTableDemoResource {
                     content = @Content(mediaType = MediaType.TEXT_PLAIN))})
     @Operation(summary = "Find an unsolved demo timetable by ID.")
     @GET
-    @Path("/{id}")
+    @Path("/{dataSetId}")
     public Response generate(@Parameter(description = "Unique identifier of the demo data set.",
-            required = true) @PathParam("id") String dataSetId) {
+            required = true) @PathParam("dataSetId") String dataSetId) {
         DemoDataSet demoDataSet;
         try {
             demoDataSet = DemoDataSet.valueOf(dataSetId);
