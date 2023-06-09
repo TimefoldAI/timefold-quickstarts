@@ -1,4 +1,4 @@
-package org.acme.schooltimetabling.service;
+package org.acme.schooltimetabling.rest;
 
 import java.util.List;
 import java.util.UUID;
@@ -38,7 +38,8 @@ public class TimeTableResource {
 
     private final SolverManager<TimeTable, String> solverManager;
 
-    private ConcurrentMap<String, Job> jobs = new ConcurrentHashMap<>();
+    // TODO: Without any "time to live", the map may eventually grow out of memory.
+    private final ConcurrentMap<String, Job> jobIdToJob = new ConcurrentHashMap<>();
 
     // Workaround to make Quarkus CDI happy. Do not use.
     public TimeTableResource() {
@@ -58,12 +59,12 @@ public class TimeTableResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<String> list() {
-        return jobs.keySet().stream().toList();
+        return jobIdToJob.keySet().stream().toList();
     }
 
     @Operation(summary = "Submit a timetable to start solving as soon as CPU resources are available.")
     @APIResponses(value = {
-            @APIResponse(responseCode = "200",
+            @APIResponse(responseCode = "202",
                     description = "The job ID. Use that ID to get the solution with the other methods.",
                     content = @Content(mediaType = MediaType.TEXT_PLAIN, schema = @Schema(implementation = String.class))) })
     @POST
@@ -71,11 +72,11 @@ public class TimeTableResource {
     @Produces(MediaType.TEXT_PLAIN)
     public String solve(TimeTable problem) {
         String jobId = UUID.randomUUID().toString();
-        jobs.put(jobId, Job.newTimeTable(problem));
+        jobIdToJob.put(jobId, Job.newTimeTable(problem));
         solverManager.solveAndListen(jobId,
-                jobId_ -> jobs.get(jobId).timeTable,
-                solution -> jobs.put(jobId, Job.newTimeTable(solution)),
-                (jobId_, exception) -> jobs.put(jobId, Job.error(jobId_, exception)));
+                jobId_ -> jobIdToJob.get(jobId).timeTable,
+                solution -> jobIdToJob.put(jobId, Job.newTimeTable(solution)),
+                (jobId_, exception) -> jobIdToJob.put(jobId, Job.error(jobId_, exception)));
         return jobId;
     }
 
@@ -99,7 +100,7 @@ public class TimeTableResource {
             @Parameter(description = "The job ID returned by the POST method.") @PathParam("jobId") String jobId,
             @QueryParam("retrieve") Retrieve retrieve) {
         retrieve = retrieve == null ? Retrieve.FULL : retrieve;
-        Job job = jobs.get(jobId);
+        Job job = jobIdToJob.get(jobId);
         if (job == null) {
             return Response.status(Response.Status.NOT_FOUND)
                     .entity(new ErrorInfo(jobId, "No timetable found."))
@@ -114,7 +115,7 @@ public class TimeTableResource {
         TimeTable timeTable = job.timeTable;
         SolverStatus solverStatus = solverManager.getSolverStatus(jobId);
         if (retrieve == Retrieve.STATUS) {
-            return Response.ok(new TimeTable(timeTable.getScore(), solverStatus)).build();
+            return Response.ok(new TimeTable(timeTable.getName(), timeTable.getScore(), solverStatus)).build();
         }
         timeTable.setSolverStatus(solverStatus);
         return Response.ok(timeTable).build();
@@ -139,6 +140,7 @@ public class TimeTableResource {
     public Response terminateSolving(
             @Parameter(description = "The job ID returned by the POST method.") @PathParam("jobId") String jobId,
             @QueryParam("retrieve") Retrieve retrieve) {
+        // TODO: Replace with .terminateEarlyAndWait(... [, timeout]); see https://github.com/TimefoldAI/timefold-solver/issues/77
         solverManager.terminateEarly(jobId);
         return getTimeTable(jobId, retrieve);
     }

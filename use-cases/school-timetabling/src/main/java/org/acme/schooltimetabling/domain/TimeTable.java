@@ -34,7 +34,7 @@ public class TimeTable {
     public TimeTable() {
     }
 
-    public TimeTable(HardSoftScore score, SolverStatus solverStatus) {
+    public TimeTable(String name, HardSoftScore score, SolverStatus solverStatus) {
         this.score = score;
         this.solverStatus = solverStatus;
     }

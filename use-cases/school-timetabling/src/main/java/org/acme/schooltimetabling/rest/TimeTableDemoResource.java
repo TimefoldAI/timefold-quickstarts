@@ -1,4 +1,4 @@
-package org.acme.schooltimetabling.service;
+package org.acme.schooltimetabling.rest;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
