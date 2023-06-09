@@ -13,14 +13,16 @@ import ai.timefold.solver.core.api.solver.SolverStatus;
 @PlanningSolution
 public class TimeTable {
 
+    private String name;
+
     @ProblemFactCollectionProperty
     @ValueRangeProvider
-    private List<Timeslot> timeslotList;
+    private List<Timeslot> timeslots;
     @ProblemFactCollectionProperty
     @ValueRangeProvider
-    private List<Room> roomList;
+    private List<Room> rooms;
     @PlanningEntityCollectionProperty
-    private List<Lesson> lessonList;
+    private List<Lesson> lessons;
 
     @PlanningScore
     private HardSoftScore score;
@@ -32,26 +34,36 @@ public class TimeTable {
     public TimeTable() {
     }
 
-    public TimeTable(List<Timeslot> timeslotList, List<Room> roomList, List<Lesson> lessonList) {
-        this.timeslotList = timeslotList;
-        this.roomList = roomList;
-        this.lessonList = lessonList;
+    public TimeTable(String name, HardSoftScore score, SolverStatus solverStatus) {
+        this.score = score;
+        this.solverStatus = solverStatus;
+    }
+
+    public TimeTable(String name, List<Timeslot> timeslots, List<Room> rooms, List<Lesson> lessons) {
+        this.name = name;
+        this.timeslots = timeslots;
+        this.rooms = rooms;
+        this.lessons = lessons;
     }
 
     // ************************************************************************
     // Getters and setters
     // ************************************************************************
 
-    public List<Timeslot> getTimeslotList() {
-        return timeslotList;
+    public String getName() {
+        return name;
     }
 
-    public List<Room> getRoomList() {
-        return roomList;
+    public List<Timeslot> getTimeslots() {
+        return timeslots;
     }
 
-    public List<Lesson> getLessonList() {
-        return lessonList;
+    public List<Room> getRooms() {
+        return rooms;
+    }
+
+    public List<Lesson> getLessons() {
+        return lessons;
     }
 
     public HardSoftScore getScore() {

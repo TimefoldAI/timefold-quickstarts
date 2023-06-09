@@ -3,16 +3,16 @@ package org.acme.schooltimetabling.rest;
 import static io.restassured.RestAssured.get;
 import static io.restassured.RestAssured.given;
 import static org.awaitility.Awaitility.await;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
 
-import org.junit.jupiter.api.Test;
 import ai.timefold.solver.core.api.solver.SolverStatus;
+
+import org.acme.schooltimetabling.domain.TimeTable;
+import org.junit.jupiter.api.Test;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
@@ -22,24 +22,37 @@ public class TimeTableResourceTest {
 
     @Test
     public void solveDemoDataUntilFeasible() {
-        given()
-                .contentType(ContentType.JSON)
-                .when().post("/timeTable/solve")
+        TimeTable testTimeTable = given()
+                .when().get("/demo/datasets/SMALL")
                 .then()
-                .statusCode(204);
+                .statusCode(200)
+                .extract()
+                .as(TimeTable.class);
+
+        String jobId = given()
+                .contentType(ContentType.JSON)
+                .body(testTimeTable)
+                .expect().contentType(ContentType.TEXT)
+                .when().post("/timetables")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString();
 
         await()
                 .atMost(Duration.ofMinutes(1))
-                .pollDelay(Duration.ofSeconds(5))
-                .pollInterval(Duration.ofSeconds(5))
-                .until(() -> SolverStatus.NOT_SOLVING.name().equals(get("/timeTable").body().path("solverStatus")));
+                .pollInterval(Duration.ofMillis(500L))
+                .until(() -> SolverStatus.NOT_SOLVING.name().equals(
+                        get("/timetables/" + jobId + "?retrieve=" + TimeTableResource.Retrieve.STATUS)
+                                .jsonPath().get("solverStatus")));
 
-        get("/timeTable").then().assertThat()
-                .body("solverStatus", equalTo(SolverStatus.NOT_SOLVING.name()))
-                .body("timeslotList", is(not(empty())))
-                .body("roomList", is(not(empty())))
-                .body("lessonList", is(not(empty())))
-                .body("lessonList.timeslot", not(nullValue()))
-                .body("lessonList.room", not(nullValue()));
+        TimeTable solution = get("/timetables/" + jobId).then().extract().as(TimeTable.class);
+        assertEquals(solution.getSolverStatus(), SolverStatus.NOT_SOLVING);
+        assertNotNull(solution.getLessons());
+        assertNotNull(solution.getTimeslots());
+        assertNotNull(solution.getRooms());
+        assertNotNull(solution.getLessons().get(0).getRoom());
+        assertNotNull(solution.getLessons().get(0).getTimeslot());
+        assertTrue(solution.getScore().isFeasible());
     }
 }
