@@ -49,48 +49,129 @@ const fetchHeaders = {
   },
 };
 
+let testData = null;
+let scheduleId = null;
+let loadedSchedule = null;
+const map = L.map('map', { doubleClickZoom: false }).setView([51.505, -0.09], 13);
+const customerGroup = L.layerGroup().addTo(map);
+const depotGroup = L.layerGroup().addTo(map);
+const routeGroup = L.layerGroup().addTo(map);
+
+$(document).ready(function () {
+    replaceQuickstartTimefoldAutoHeaderFooter();
+    map.whenReady(getStatus);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+    }).addTo(map);
+
+
+
+    solveButton.click(solve);
+    stopSolvingButton.click(stopSolving);
+
+    updateSolvingStatus();
+    $('[data-bs-toggle="tooltip"]').tooltip();
+
+    $.ajaxSetup({
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json,text/plain', // plain text is required by solve() returning UUID of the solver job
+    }
+    });
+
+    // Extend jQuery to support $.put() and $.delete()
+    jQuery.each(["put", "delete"], function (i, method) {
+      jQuery[method] = function (url, data, callback, type) {
+        if (jQuery.isFunction(data)) {
+          type = type || callback;
+          callback = data;
+          data = undefined;
+        }
+        return jQuery.ajax({
+          url: url,
+          type: method,
+          dataType: type,
+          data: data,
+          success: callback
+        });
+      };
+    });
+
+    initMenu();
+    createDataSets();
+});
+
 const formatDistance = (distanceInMeters) => `${Math.floor(distanceInMeters / 1000)}km ${distanceInMeters % 1000}m`;
 
 const getStatus = () => {
-  fetch('/vrp/status', fetchHeaders)
+  fetch('/route-plans/' + scheduleId + '?retrieve=STATUS', fetchHeaders)
     .then((response) => {
       if (!response.ok) {
         return handleErrorResponse('Get status failed', response);
       } else {
-        return response.json().then((data) => showProblem(data));
+        return response.json().then((data) => renderRoutes(data));
       }
     })
     .catch((error) => handleClientError('Failed to process response', error));
 };
 
-const solve = () => {
-  fetch('/vrp/solve', { ...fetchHeaders, method: 'POST' })
-    .then((response) => {
-      if (!response.ok) {
-        return handleErrorResponse('Start solving failed', response);
-      } else {
-        updateSolvingStatus(true);
-        autoRefreshCount = 300;
-        if (autoRefreshIntervalId == null) {
-          autoRefreshIntervalId = setInterval(autoRefresh, 500);
-        }
-      }
-    })
-    .catch((error) => handleClientError('Failed to process response', error));
-};
+//const solve = () => {
+//  fetch('/route-plans', { ...fetchHeaders, method: 'POST' })
+//    .then((response) => {
+//      if (!response.ok) {
+//        return handleErrorResponse('Start solving failed', response);
+//      } else {
+//        updateSolvingStatus(true);
+//        autoRefreshCount = 300;
+//        if (autoRefreshIntervalId == null) {
+//          autoRefreshIntervalId = setInterval(autoRefresh, 500);
+//        }
+//      }
+//    })
+//    .catch((error) => handleClientError('Failed to process response', error));
+//};
 
-const stopSolving = () => {
-  fetch('/vrp/stopSolving', { ...fetchHeaders, method: 'POST' })
-    .then((response) => {
-      if (!response.ok) {
-        return handleErrorResponse('Stop solving failed', response);
-      } else {
-        updateSolvingStatus(false);
-        getStatus();
-      }
-    })
-    .catch((error) => handleClientError('Failed to process response', error));
-};
+function solve() {
+  $.post("/route-plans", JSON.stringify(loadedSchedule), function (data) {
+    scheduleId = data;
+    updateSolvingStatus(true);
+
+    autoRefreshCount = 300;
+    if (autoRefreshIntervalId == null) {
+      autoRefreshIntervalId = setInterval(autoRefresh, 500);
+    }
+    //refreshSolvingButtons(true);
+  }).fail(function (xhr, ajaxOptions, thrownError) {
+    showError("Start solving failed.", xhr);
+   // refreshSolvingButtons(false);
+  },
+  "text");
+}
+
+//function stopSolving() {
+//
+//  fetch('/route-plans/stopSolving', { ...fetchHeaders, method: 'POST' })
+//    .then((response) => {
+//      if (!response.ok) {
+//        return handleErrorResponse('Stop solving failed', response);
+//      } else {
+//        updateSolvingStatus(false);
+//        getStatus();
+//      }
+//    })
+//    .catch((error) => handleClientError('Failed to process response', error));
+//};
+
+function stopSolving() {
+  $.delete("/route-plans/" + scheduleId, function () {
+    refreshSolvingButtons(false);
+    refreshSchedule();
+  }).fail(function (xhr, ajaxOptions, thrownError) {
+    showError("Stop solving failed.", xhr);
+  });
+}
 
 const formatErrorResponseBody = (body) => {
   // JSON must not contain \t (Quarkus bug)
@@ -167,7 +248,115 @@ const getCustomerMarker = ({ id, location }) => {
   return marker;
 };
 
-const showProblem = ({ solution, scoreExplanation, isSolving }) => {
+function initMenu() {
+     $("#navUI").click(function () {
+        $("#demo").removeClass('d-none');
+        $("#rest").addClass('d-none');
+        $("#openapi").addClass('d-none');
+
+        $("#navUIItem").addClass('active');
+        $("#navRestItem").removeClass('active');
+        $("#navOpenApiItem").removeClass('active');
+      });
+      $("#navRest").click(function () {
+        $("#demo").addClass('d-none');
+        $("#rest").removeClass('d-none');
+        $("#openapi").addClass('d-none');
+
+        $("#navUIItem").removeClass('active');
+        $("#navRestItem").addClass('active');
+        $("#navOpenApiItem").removeClass('active');
+      });
+      $("#navOpenApi").click(function () {
+        $("#demo").addClass('d-none');
+        $("#rest").addClass('d-none');
+        $("#openapi").removeClass('d-none');
+
+        $("#navUIItem").removeClass('active');
+        $("#navRestItem").removeClass('active');
+        $("#navOpenApiItem").addClass('active');
+      });
+      $("#navConfiguration").click(function () {
+        $("#demo").addClass('d-none');
+        $("#rest").addClass('d-none');
+        $("#openapi").addClass('d-none');
+
+        $("#navUIItem").removeClass('active');
+        $("#navRestItem").removeClass('active');
+        $("#navOpenApiItem").removeClass('active')
+      });
+}
+
+function createDataSets() {
+    $.get("/demo/datasets", function (data) {
+        if (data && data.length > 0) {
+          data.forEach(item => {
+            $("#testDataButton").append($('<a id="' + item + 'TestData" class="dropdown-item" href="#">' + item + '</a>'));
+
+            $("#" + item + "TestData").click(function () {
+              switchDataDropDownItemActive(item);
+              scheduleId = null;
+              testData = item;
+
+              refreshSchedule();
+            });
+          });
+
+          // load first data set
+          testData = data[0];
+          switchDataDropDownItemActive(testData);
+
+          refreshSchedule();
+
+          $("#solveButton").click(function () {
+            solve();
+          });
+          $("#stopSolvingButton").click(function () {
+            stopSolving();
+          });
+
+    //      refreshSolvingButtons(false);
+        } else {
+          $("#demo").removeClass('d-none');
+          $("#demo").empty();
+          $("#demo").html("<h1><p align=\"center\">No test data available</p></h1>")
+        }
+      }).fail(function (xhr, ajaxOptions, thrownError) {
+        // disable this page as there is no data
+        $("#demo").removeClass('d-none');
+        $("#demo").empty();
+        $("#demo").html("<h1><p align=\"center\">No test data available</p></h1>")
+      });
+}
+
+function switchDataDropDownItemActive(newItem) {
+    activeCssClass = "active";
+    $("#testDataButton > a." + activeCssClass).removeClass(activeCssClass);
+    $("#" + newItem + "TestData").addClass(activeCssClass);
+}
+
+function refreshSchedule() {
+  let path = "/timetables/" + scheduleId;
+  if (scheduleId === null) {
+    if (testData === null) {
+      alert("Please select a test data set.");
+      return;
+    }
+
+    path = "/demo/datasets/" + testData;
+  }
+
+  $.getJSON(path, function (schedule) {
+    loadedSchedule = schedule;
+	renderRoutes(schedule);
+  })
+  .fail(function (xhr, ajaxOptions, thrownError) {
+      showError("Getting timetable has failed.", xhr);
+      refreshSolvingButtons(false);
+  });
+}
+
+function renderRoutes(solution, scoreExplanation, isSolving) {
   if (!initialized) {
     initialized = true;
     map.fitBounds(solution.bounds);
@@ -228,23 +417,62 @@ const showProblem = ({ solution, scoreExplanation, isSolving }) => {
   $('#scoreInfo').text(scoreExplanation);
   $('#distance').text(formatDistance(solution.distanceMeters));
   updateSolvingStatus(isSolving);
-};
+}
 
-replaceTimefoldAutoHeaderFooter();
-const map = L.map('map', { doubleClickZoom: false }).setView([51.505, -0.09], 13);
-map.whenReady(getStatus);
+// TODO: move to the webjar
+function replaceQuickstartTimefoldAutoHeaderFooter() {
+  const timefoldHeader = $("header#timefold-auto-header");
+  if (timefoldHeader != null) {
+    timefoldHeader.addClass("bg-black")
+    timefoldHeader.append(
+      $(`<div class="container-fluid">
+        <nav class="navbar sticky-top navbar-expand-lg navbar-dark shadow mb-3">
+          <a class="navbar-brand" href="https://timefold.ai">
+            <img src="/webjars/timefold/img/timefold-logo-horizontal-negative.svg" alt="Timefold logo" width="200">
+          </a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+              <li class="nav-item active" id="navUIItem">
+                <a class="nav-link" href="#" id="navUI">Demo UI</a>
+              </li>
+              <li class="nav-item" id="navRestItem">
+                <a class="nav-link" href="#" id="navRest">Guide</a>
+              </li>
+              <li class="nav-item" id="navOpenApiItem">
+                <a class="nav-link" href="#" id="navOpenApi">REST API</a>
+              </li>
+            </ul>
+          </div>
+          <div class="ms-auto">
+              <div class="dropdown">
+                  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      Data
+                  </button>
+                  <div id="testDataButton" class="dropdown-menu" aria-labelledby="dropdownMenuButton"></div>
+              </div>
+          </div>
+        </nav>
+      </div>`));
+  }
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  maxZoom: 19,
-  attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
-}).addTo(map);
-
-const customerGroup = L.layerGroup().addTo(map);
-const depotGroup = L.layerGroup().addTo(map);
-const routeGroup = L.layerGroup().addTo(map);
-
-solveButton.click(solve);
-stopSolvingButton.click(stopSolving);
-
-updateSolvingStatus();
-$('[data-bs-toggle="tooltip"]').tooltip();
+  const timefoldFooter = $("footer#timefold-auto-footer");
+      if (timefoldFooter != null) {
+        timefoldFooter.append(
+          $(`<footer class="bg-black text-white-50">
+               <div class="container">
+                 <div class="hstack gap-3 p-4">
+                   <div class="ms-auto"><a class="text-white" href="https://timefold.ai">Timefold</a></div>
+                   <div class="vr"></div>
+                   <div><a class="text-white" href="https://timefold.ai/docs">Documentation</a></div>
+                   <div class="vr"></div>
+                   <div><a class="text-white" href="https://github.com/TimefoldAI/timefold-quickstarts">Code</a></div>
+                   <div class="vr"></div>
+                   <div class="me-auto"><a class="text-white" href="https://timefold.ai/product/support/">Support</a></div>
+                 </div>
+               </div>
+             </footer>`));
+      }
+}

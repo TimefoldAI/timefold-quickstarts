@@ -13,100 +13,155 @@
 </head>
 <body>
 
-<header id="timefold-auto-header"></header>
-<div class="sticky-top d-flex justify-content-center align-items-center">
-  <div id="notificationPanel" style="position: absolute; top: .5rem;"></div>
-</div>
+  <header id="timefold-auto-header">
+    <!-- Filled in by app.js -->
+  </header>
 
-<div class="container-fluid">
-  <div class="row">
-    <div class="col-7 col-lg-8 col-xl-9">
-      <div id="map" style="width: 100%; height: 100vh;"></div>
+  <div id="demo" class="container-fluid">
+    <div class="sticky-top d-flex justify-content-center align-items-center">
+      <div id="notificationPanel" style="position: absolute; top: .5rem;"></div>
     </div>
-    <div class="col-5 col-lg-4 col-xl-3" style="height: 100vh; overflow-y: scroll;">
-      <div class="row pt-2 row-cols-1">
-        <div class="col mb-3">
-          <button id="solveButton" type="button" class="btn btn-success">
-            <i class="fas fa-play"></i> Solve
-          </button>
-          <button id="stopSolvingButton" type="button" class="btn btn-danger">
-            <i class="fas fa-stop"></i> Stop solving
-          </button>
-        </div>
-        <div class="col">
-          <h5>
-            Solution summary
-            <a href="#" class="float-end" data-bs-toggle="modal" data-bs-target="#scoreDialog">
-              <i class="fas fa-info-circle"></i>
-            </a>
-          </h5>
-          <table class="table">
-            <tr>
-              <td>Score:</td>
-              <td><span id="score">unknown</span></td>
-            </tr>
-            <tr>
-              <td>Total distance:</td>
-              <td><span id="distance">unknown</span></td>
-            </tr>
-          </table>
-        </div>
-        <div class="col">
-          <h5>Depot list</h5>
-          <table class="table-sm w-100">
-            <thead>
-            <tr>
-              <th class="col-1"></th>
-              <th class="col-11">Name</th>
-            </tr>
-            </thead>
-            <tbody id="depots"></tbody>
-          </table>
-        </div>
-        <div class="col">
-          <h5>Vehicles list</h5>
-          <table class="table-sm w-100">
-            <thead>
-            <tr>
-              <th class="col-1"></th>
-              <th class="col-3">Name</th>
-              <th class="col-3">
-                Load
-                <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="top" data-html="true"
-                   title="Vehicle load is displayed as <em>total cargo / vehicle capacity</em>."></i>
-              </th>
-              <th class="col-3">Distance</th>
-            </tr>
-            </thead>
-            <tbody id="vehicles"></tbody>
-          </table>
+    <h1>Vehicle routing solver</h1>
+    <p>Generate optimal route plan of a vehicle fleet.</p>
+
+    <div class="row">
+      <div class="col-7 col-lg-8 col-xl-9">
+        <div id="map" style="width: 100%; height: 100vh;"></div>
+      </div>
+      <div class="col-5 col-lg-4 col-xl-3" style="height: 100vh; overflow-y: scroll;">
+        <div class="row pt-2 row-cols-1">
+          <div class="col mb-3">
+            <button id="solveButton" type="button" class="btn btn-success">
+              <i class="fas fa-play"></i> Solve
+            </button>
+            <button id="stopSolvingButton" type="button" class="btn btn-danger">
+              <i class="fas fa-stop"></i> Stop solving
+            </button>
+          </div>
+          <div class="col">
+            <h5>
+              Solution summary
+              <a href="#" class="float-end" data-bs-toggle="modal" data-bs-target="#scoreDialog">
+                <i class="fas fa-info-circle"></i>
+              </a>
+            </h5>
+            <table class="table">
+              <tr>
+                <td>Score:</td>
+                <td><span id="score">unknown</span></td>
+              </tr>
+              <tr>
+                <td>Total distance:</td>
+                <td><span id="distance">unknown</span></td>
+              </tr>
+            </table>
+          </div>
+          <div class="col">
+            <h5>Depot list</h5>
+            <table class="table-sm w-100">
+              <thead>
+              <tr>
+                <th class="col-1"></th>
+                <th class="col-11">Name</th>
+              </tr>
+              </thead>
+              <tbody id="depots"></tbody>
+            </table>
+          </div>
+          <div class="col">
+            <h5>Vehicles list</h5>
+            <table class="table-sm w-100">
+              <thead>
+              <tr>
+                <th class="col-1"></th>
+                <th class="col-3">Name</th>
+                <th class="col-3">
+                  Load
+                  <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="top" data-html="true"
+                     title="Vehicle load is displayed as <em>total cargo / vehicle capacity</em>."></i>
+                </th>
+                <th class="col-3">Distance</th>
+              </tr>
+              </thead>
+              <tbody id="vehicles"></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 
-<div class="modal fade" id="scoreDialog" tabindex="-1" aria-labelledby="scoreDialogLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h1 class="modal-title fs-5" id="scoreDialogLabel">Score explanation</h1>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <pre id="scoreInfo">
+  <div id="rest" class="container-fluid d-none">
+    <h1>REST API Guide</h1>
+
+    <h2>High school timetable solver integration via cURL</h2>
+
+    <h3>1. Download sample data set</h3>
+    <pre>
+            <button class="btn btn-outline-dark btn-sm float-end"
+                    onclick="textToClipboard('curl1')">Copy</button>
+            <code id="curl1">curl -X GET -H 'Accept:application/json' http://localhost:8080/demo/datasets/SMALL -o sample.json</code>
         </pre>
+
+    <h3>2. Post the sample data for solving</h3>
+    <p>The POST operation returns a <code>jobId</code> that should be used in subsequent commands.</p>
+    <pre>
+            <button class="btn btn-outline-dark btn-sm float-end"
+                    onclick="textToClipboard('curl2')">Copy</button>
+            <code id="curl2">curl -X POST -H 'Content-Type:application/json' http://localhost:8080/timetables -d@sample.json</code>
+        </pre>
+
+    <h3>3. Get the current status and score</h3>
+    <pre>
+            <button class="btn btn-outline-dark btn-sm float-end"
+                    onclick="textToClipboard('curl3')">Copy</button>
+            <code id="curl3">curl -X GET -H 'Accept:application/json' http://localhost:8080/timetables/{jobId}?retrieve=STATUS</code>
+        </pre>
+
+    <h3>4. Get the complete solution</h3>
+    <pre>
+            <button class="btn btn-outline-dark btn-sm float-end"
+                    onclick="textToClipboard('curl4')">Copy</button>
+            <code id="curl4">curl -X GET -H 'Accept:application/json' http://localhost:8080/timetables/{jobId}</code>
+        </pre>
+
+    <h3>5. Terminate solving early</h3>
+    <pre>
+            <button class="btn btn-outline-dark btn-sm float-end"
+                    onclick="textToClipboard('curl5')">Copy</button>
+            <code id="curl5">curl -X DELETE -H 'Accept:application/json' http://localhost:8080/timetables/{id}</code>
+        </pre>
+  </div>
+
+  <div id="openapi" class="container-fluid d-none">
+    <h1>REST API Reference</h1>
+    <div class="ratio ratio-1x1">
+      <!-- "scrolling" attribute is obsolete, but e.g. Chrome does not support "overflow:hidden" -->
+      <iframe src="/q/swagger-ui" style="overflow:hidden;" scrolling="no"></iframe>
+    </div>
+  </div>
+
+  <div class="modal fade" id="scoreDialog" tabindex="-1" aria-labelledby="scoreDialogLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="scoreDialogLabel">Score explanation</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <pre id="scoreInfo">
+          </pre>
+        </div>
       </div>
     </div>
   </div>
-</div>
-<footer id="timefold-auto-footer"></footer>
+  <footer id="timefold-auto-footer"></footer>
 
-<script src="/webjars/leaflet/leaflet.js"></script>
-<script src="/webjars/jquery/jquery.min.js"></script>
-<script src="/webjars/popper.js/umd/popper.min.js"></script>
-<script src="/webjars/bootstrap/js/bootstrap.min.js"></script>
-<script src="/webjars/timefold/js/timefold-webui.js"></script>
-<script src="/app.js"></script>
+  <script src="/webjars/leaflet/leaflet.js"></script>
+  <script src="/webjars/jquery/jquery.min.js"></script>
+<!--  <script src="/webjars/popper.js/umd/popper.min.js"></script>-->
+  <script src="/webjars/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="/webjars/timefold/js/timefold-webui.js"></script>
+  <script src="/app.js"></script>
 </body>
 </html>

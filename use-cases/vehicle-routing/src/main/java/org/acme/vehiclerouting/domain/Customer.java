@@ -1,8 +1,15 @@
 package org.acme.vehiclerouting.domain;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
+@JsonIdentityInfo(scope = Customer.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Customer {
 
     private long id;
+
+    @JsonIdentityReference
     private Location location;
     private int demand;
 

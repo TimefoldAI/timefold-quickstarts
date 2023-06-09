@@ -3,10 +3,12 @@ package org.acme.vehiclerouting.domain;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 @JsonFormat(shape = JsonFormat.Shape.ARRAY)
-@JsonIgnoreProperties({ "id" })
+@JsonIdentityInfo(scope = Location.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Location {
 
     private final long id;

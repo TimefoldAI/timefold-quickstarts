@@ -16,9 +16,9 @@ import ai.timefold.solver.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
 import ai.timefold.solver.core.api.solver.SolutionManager;
 import ai.timefold.solver.core.api.solver.SolverManager;
 
-@Path("/vrp")
-@Produces(MediaType.APPLICATION_JSON)
-@Consumes(MediaType.APPLICATION_JSON)
+//@Path("/vrp")
+//@Produces(MediaType.APPLICATION_JSON)
+//@Consumes(MediaType.APPLICATION_JSON)
 public class SolverResource {
 
     private static final long PROBLEM_ID = 0L;
@@ -52,7 +52,7 @@ public class SolverResource {
 
         Optional<VehicleRoutingSolution> s1 = repository.solution();
 
-        VehicleRoutingSolution s = s1.orElse(VehicleRoutingSolution.empty());
+        VehicleRoutingSolution s = s1.get();
         return statusFromSolution(s);
     }
 
