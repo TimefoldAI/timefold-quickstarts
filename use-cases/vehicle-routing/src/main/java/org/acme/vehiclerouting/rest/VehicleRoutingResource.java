@@ -1,7 +1,9 @@
 package org.acme.vehiclerouting.rest;
 
-import ai.timefold.solver.core.api.solver.SolverManager;
-import ai.timefold.solver.core.api.solver.SolverStatus;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -13,14 +15,16 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
+import ai.timefold.solver.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
+import ai.timefold.solver.core.api.solver.SolutionManager;
+import ai.timefold.solver.core.api.solver.SolverManager;
+import ai.timefold.solver.core.api.solver.SolverStatus;
+
 import org.acme.vehiclerouting.domain.VehicleRoutingSolution;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 @Path("route-plans")
 public class VehicleRoutingResource {
@@ -29,17 +33,22 @@ public class VehicleRoutingResource {
 
     private final SolverManager<VehicleRoutingSolution, String> solverManager;
 
+    private final SolutionManager<VehicleRoutingSolution, HardSoftLongScore> solutionManager;
+
     // TODO: Without any "time to live", the map may eventually grow out of memory.
     private final ConcurrentMap<String, Job> jobIdToJob = new ConcurrentHashMap<>();
 
     // Workaround to make Quarkus CDI happy. Do not use.
     public VehicleRoutingResource() {
         this.solverManager = null;
+        this.solutionManager = null;
     }
 
     @Inject
-    public VehicleRoutingResource(SolverManager<VehicleRoutingSolution, String> solverManager) {
+    public VehicleRoutingResource(SolverManager<VehicleRoutingSolution, String> solverManager,
+                                  SolutionManager<VehicleRoutingSolution, HardSoftLongScore> solutionManager) {
         this.solverManager = solverManager;
+        this.solutionManager = solutionManager;
     }
 
     @POST
@@ -75,7 +84,9 @@ public class VehicleRoutingResource {
         if (retrieve == Retrieve.STATUS) {
             return new VehicleRoutingSolution(routePlan.getName(), routePlan.getScore(), solverStatus);
         }
+        String scoreExplanation = solutionManager.explain(routePlan).getSummary();
         routePlan.setSolverStatus(solverStatus);
+        routePlan.setScoreExplanation(scoreExplanation);
         return routePlan;
     }
 
@@ -89,6 +100,8 @@ public class VehicleRoutingResource {
         solverManager.terminateEarly(jobId);
         return getRoutePlan(jobId, retrieve);
     }
+
+
 
     public enum Retrieve {
         STATUS,

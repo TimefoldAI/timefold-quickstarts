@@ -13,8 +13,8 @@ class EuclideanDistanceCalculatorTest {
 
     @Test
     void calculateDistance() {
-        Location a = new Location(0, 0.0, 0.0);
-        Location b = new Location(1, 0.0, 4.0);
+        Location a = new Location(0.0, 0.0);
+        Location b = new Location(0.0, 4.0);
         EuclideanDistanceCalculator distanceCalculator = new EuclideanDistanceCalculator();
         assertThat(distanceCalculator.calculateDistance(a, a)).isZero();
         assertThat(distanceCalculator.calculateDistance(b, b)).isZero();
@@ -25,9 +25,8 @@ class EuclideanDistanceCalculatorTest {
 
     @Test
     void distanceMap() {
-        long id = 0;
-        Location a = new Location(id++, 0.0, 0.0);
-        Location b = new Location(id++, 0.0, 4.0);
+        Location a = new Location(0.0, 0.0);
+        Location b = new Location(0.0, 4.0);
         List<Location> locations = Arrays.asList(a, b);
         EuclideanDistanceCalculator distanceCalculator = new EuclideanDistanceCalculator();
         Map<Location, Map<Location, Long>> distanceMatrix = distanceCalculator.calculateBulkDistance(locations, locations);

@@ -7,8 +7,10 @@ import java.util.List;
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 import ai.timefold.solver.core.api.domain.variable.PlanningListVariable;
+
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 @JsonIdentityInfo(scope = Vehicle.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
@@ -21,9 +23,9 @@ public class Vehicle {
     @JsonIdentityReference
     private Depot depot;
 
-    @JsonIdentityReference
+    @JsonIdentityReference(alwaysAsId = true)
     @PlanningListVariable
-    private List<Customer> customerList;
+    private List<Customer> customers;
 
     public Vehicle() {
     }
@@ -32,7 +34,7 @@ public class Vehicle {
         this.id = id;
         this.capacity = capacity;
         this.depot = depot;
-        this.customerList = new ArrayList<>();
+        this.customers = new ArrayList<>();
     }
 
     public long getId() {
@@ -59,30 +61,31 @@ public class Vehicle {
         this.depot = depot;
     }
 
-    public List<Customer> getCustomerList() {
-        return customerList;
+    public List<Customer> getCustomers() {
+        return customers;
     }
 
-    public void setCustomerList(List<Customer> customerList) {
-        this.customerList = customerList;
+    public void setCustomers(List<Customer> customers) {
+        this.customers = customers;
     }
 
     // ************************************************************************
     // Complex methods
     // ************************************************************************
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     /**
      * @return route of the vehicle
      */
     public List<Location> getRoute() {
-        if (customerList.isEmpty()) {
+        if (customers.isEmpty()) {
             return Collections.emptyList();
         }
 
-        List<Location> route = new ArrayList<Location>();
+        List<Location> route = new ArrayList<>();
 
         route.add(depot.getLocation());
-        for (Customer customer : customerList) {
+        for (Customer customer : customers) {
             route.add(customer.getLocation());
         }
         route.add(depot.getLocation());
@@ -90,23 +93,25 @@ public class Vehicle {
         return route;
     }
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public int getTotalDemand() {
         int totalDemand = 0;
-        for (Customer customer : customerList) {
+        for (Customer customer : customers) {
             totalDemand += customer.getDemand();
         }
         return totalDemand;
     }
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public long getTotalDistanceMeters() {
-        if (customerList.isEmpty()) {
+        if (customers.isEmpty()) {
             return 0;
         }
 
         long totalDistance = 0;
         Location previousLocation = depot.getLocation();
 
-        for (Customer customer : customerList) {
+        for (Customer customer : customers) {
             totalDistance += previousLocation.getDistanceTo(customer.getLocation());
             previousLocation = customer.getLocation();
         }

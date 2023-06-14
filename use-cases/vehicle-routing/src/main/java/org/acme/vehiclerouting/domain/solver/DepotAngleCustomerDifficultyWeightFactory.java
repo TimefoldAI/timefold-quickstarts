@@ -5,10 +5,11 @@ import static java.util.Comparator.comparingLong;
 
 import java.util.Comparator;
 
+import ai.timefold.solver.core.impl.heuristic.selector.common.decorator.SelectionSorterWeightFactory;
+
 import org.acme.vehiclerouting.domain.Customer;
 import org.acme.vehiclerouting.domain.Depot;
 import org.acme.vehiclerouting.domain.VehicleRoutingSolution;
-import ai.timefold.solver.core.impl.heuristic.selector.common.decorator.SelectionSorterWeightFactory;
 
 /**
  * On large datasets, the constructed solution looks like pizza slices.
@@ -19,7 +20,7 @@ public class DepotAngleCustomerDifficultyWeightFactory
     @Override
     public DepotAngleCustomerDifficultyWeight createSorterWeight(VehicleRoutingSolution vehicleRoutingSolution,
             Customer customer) {
-        Depot depot = vehicleRoutingSolution.getDepotList().get(0);
+        Depot depot = vehicleRoutingSolution.getDepots().get(0);
         return new DepotAngleCustomerDifficultyWeight(customer,
                 customer.getLocation().getAngle(depot.getLocation()),
                 customer.getLocation().getDistanceTo(depot.getLocation())

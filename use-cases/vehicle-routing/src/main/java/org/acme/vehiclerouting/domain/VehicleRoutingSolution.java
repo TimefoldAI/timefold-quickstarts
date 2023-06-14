@@ -1,7 +1,7 @@
 package org.acme.vehiclerouting.domain;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 import ai.timefold.solver.core.api.domain.solution.PlanningEntityCollectionProperty;
 import ai.timefold.solver.core.api.domain.solution.PlanningScore;
@@ -10,25 +10,31 @@ import ai.timefold.solver.core.api.domain.solution.ProblemFactCollectionProperty
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
 import ai.timefold.solver.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
 import ai.timefold.solver.core.api.solver.SolverStatus;
-import org.acme.vehiclerouting.rest.VehicleRoutingDemoResource;
+
+import org.acme.vehiclerouting.domain.geo.DistanceCalculator;
+import org.acme.vehiclerouting.domain.geo.EuclideanDistanceCalculator;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @PlanningSolution
 public class VehicleRoutingSolution {
 
     private String name;
 
-    @ProblemFactCollectionProperty
-    private List<Location> locationList;
+    @JsonIgnore
+    private List<Location> locations;
 
     @ProblemFactCollectionProperty
-    private List<Depot> depotList;
+    private List<Depot> depots;
 
     @PlanningEntityCollectionProperty
-    private List<Vehicle> vehicleList;
+    private List<Vehicle> vehicles;
 
     @ProblemFactCollectionProperty
     @ValueRangeProvider
-    private List<Customer> customerList;
+    private List<Customer> customers;
 
     @PlanningScore
     private HardSoftLongScore score;
@@ -37,6 +43,8 @@ public class VehicleRoutingSolution {
     private Location northEastCorner;
 
     private SolverStatus solverStatus;
+
+    private String scoreExplanation;
 
     public VehicleRoutingSolution() {
     }
@@ -47,16 +55,25 @@ public class VehicleRoutingSolution {
         this.solverStatus = solverStatus;
     }
 
-    public VehicleRoutingSolution(String name,
-                                  List<Location> locationList, List<Depot> depotList, List<Vehicle> vehicleList, List<Customer> customerList,
-                                  Location southWestCorner, Location northEastCorner) {
+    @JsonCreator
+    public VehicleRoutingSolution(@JsonProperty("name") String name,
+                                  @JsonProperty("depots") List<Depot> depots,
+                                  @JsonProperty("vehicles") List<Vehicle> vehicles,
+                                  @JsonProperty("customers") List<Customer> customers,
+                                  @JsonProperty("southWestCorner") Location southWestCorner,
+                                  @JsonProperty("northEastCorner") Location northEastCorner) {
         this.name = name;
-        this.locationList = locationList;
-        this.depotList = depotList;
-        this.vehicleList = vehicleList;
-        this.customerList = customerList;
+        this.depots = depots;
+        this.vehicles = vehicles;
+        this.customers = customers;
         this.southWestCorner = southWestCorner;
         this.northEastCorner = northEastCorner;
+        this.locations = Stream.concat(
+                depots.stream().map(Depot::getLocation),
+                customers.stream().map(Customer::getLocation)).toList();
+
+        DistanceCalculator distanceCalculator = new EuclideanDistanceCalculator();
+        distanceCalculator.initDistanceMaps(locations);
     }
 
     public String getName() {
@@ -67,36 +84,36 @@ public class VehicleRoutingSolution {
         this.name = name;
     }
 
-    public List<Location> getLocationList() {
-        return locationList;
+    public List<Location> getLocations() {
+        return locations;
     }
 
-    public void setLocationList(List<Location> locationList) {
-        this.locationList = locationList;
+    public void setLocations(List<Location> locations) {
+        this.locations = locations;
     }
 
-    public List<Depot> getDepotList() {
-        return depotList;
+    public List<Depot> getDepots() {
+        return depots;
     }
 
-    public void setDepotList(List<Depot> depotList) {
-        this.depotList = depotList;
+    public void setDepots(List<Depot> depots) {
+        this.depots = depots;
     }
 
-    public List<Vehicle> getVehicleList() {
-        return vehicleList;
+    public List<Vehicle> getVehicles() {
+        return vehicles;
     }
 
-    public void setVehicleList(List<Vehicle> vehicleList) {
-        this.vehicleList = vehicleList;
+    public void setVehicles(List<Vehicle> vehicles) {
+        this.vehicles = vehicles;
     }
 
-    public List<Customer> getCustomerList() {
-        return customerList;
+    public List<Customer> getCustomers() {
+        return customers;
     }
 
-    public void setCustomerList(List<Customer> customerList) {
-        this.customerList = customerList;
+    public void setCustomers(List<Customer> customers) {
+        this.customers = customers;
     }
 
     public HardSoftLongScore getScore() {
@@ -107,20 +124,42 @@ public class VehicleRoutingSolution {
         this.score = score;
     }
 
+    public void setSouthWestCorner(Location southWestCorner) {
+        this.southWestCorner = southWestCorner;
+    }
+
+    public void setNorthEastCorner(Location northEastCorner) {
+        this.northEastCorner = northEastCorner;
+    }
+
+    public Location getSouthWestCorner() {
+        return southWestCorner;
+    }
+
+    public Location getNorthEastCorner() {
+        return northEastCorner;
+    }
+
+    public void setScoreExplanation(String scoreExplanation) {
+        this.scoreExplanation = scoreExplanation;
+    }
+
     // ************************************************************************
     // Complex methods
     // ************************************************************************
 
-    public List<Location> getBounds() {
-        return Arrays.asList(southWestCorner, northEastCorner);
-    }
-
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public long getDistanceMeters() {
         return score == null ? 0 : -score.softScore();
     }
 
     public SolverStatus getSolverStatus() {
         return solverStatus;
+    }
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    public String getScoreExplanation() {
+        return scoreExplanation;
     }
 
     public void setSolverStatus(SolverStatus solverStatus) {

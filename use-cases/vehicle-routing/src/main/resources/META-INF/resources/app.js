@@ -59,19 +59,16 @@ const routeGroup = L.layerGroup().addTo(map);
 
 $(document).ready(function () {
     replaceQuickstartTimefoldAutoHeaderFooter();
-    map.whenReady(getStatus);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
     }).addTo(map);
 
-
-
     solveButton.click(solve);
     stopSolvingButton.click(stopSolving);
+    refreshSolvingButtons(false);
 
-    updateSolvingStatus();
     $('[data-bs-toggle="tooltip"]').tooltip();
 
     $.ajaxSetup({
@@ -105,17 +102,17 @@ $(document).ready(function () {
 
 const formatDistance = (distanceInMeters) => `${Math.floor(distanceInMeters / 1000)}km ${distanceInMeters % 1000}m`;
 
-const getStatus = () => {
-  fetch('/route-plans/' + scheduleId + '?retrieve=STATUS', fetchHeaders)
-    .then((response) => {
-      if (!response.ok) {
-        return handleErrorResponse('Get status failed', response);
-      } else {
-        return response.json().then((data) => renderRoutes(data));
-      }
-    })
-    .catch((error) => handleClientError('Failed to process response', error));
-};
+//const getStatus = () => {
+//  fetch('/route-plans/' + scheduleId + '?retrieve=STATUS', fetchHeaders)
+//    .then((response) => {
+//      if (!response.ok) {
+//        return handleErrorResponse('Get status failed', response);
+//      } else {
+//        return response.json().then((data) => renderRoutes(data));
+//      }
+//    })
+//    .catch((error) => handleClientError('Failed to process response', error));
+//};
 
 //const solve = () => {
 //  fetch('/route-plans', { ...fetchHeaders, method: 'POST' })
@@ -136,38 +133,60 @@ const getStatus = () => {
 function solve() {
   $.post("/route-plans", JSON.stringify(loadedSchedule), function (data) {
     scheduleId = data;
-    updateSolvingStatus(true);
+    refreshSolvingButtons(true);
 
-    autoRefreshCount = 300;
-    if (autoRefreshIntervalId == null) {
-      autoRefreshIntervalId = setInterval(autoRefresh, 500);
-    }
-    //refreshSolvingButtons(true);
+    //map.whenReady(getStatus);
+
   }).fail(function (xhr, ajaxOptions, thrownError) {
     showError("Start solving failed.", xhr);
-   // refreshSolvingButtons(false);
+    refreshSolvingButtons(false);
   },
   "text");
 }
 
-//function stopSolving() {
-//
-//  fetch('/route-plans/stopSolving', { ...fetchHeaders, method: 'POST' })
-//    .then((response) => {
-//      if (!response.ok) {
-//        return handleErrorResponse('Stop solving failed', response);
-//      } else {
-//        updateSolvingStatus(false);
-//        getStatus();
-//      }
-//    })
-//    .catch((error) => handleClientError('Failed to process response', error));
-//};
+function refreshSolvingButtons(solving) {
+  if (solving) {
+    $("#solveButton").hide();
+    $("#stopSolvingButton").show();
+    if (autoRefreshIntervalId == null) {
+      autoRefreshIntervalId = setInterval(refreshRoutePlan, 2000);
+    }
+  } else {
+    $("#solveButton").show();
+    $("#stopSolvingButton").hide();
+    if (autoRefreshIntervalId != null) {
+      clearInterval(autoRefreshIntervalId);
+      autoRefreshIntervalId = null;
+    }
+  }
+}
+
+function refreshRoutePlan() {
+  let path = "/route-plans/" + scheduleId;
+  if (scheduleId === null) {
+    if (testData === null) {
+      alert("Please select a test data set.");
+      return;
+    }
+
+    path = "/demo/datasets/" + testData;
+  }
+
+  $.getJSON(path, function (schedule) {
+    loadedSchedule = schedule;
+    refreshSolvingButtons(schedule.solverStatus != null && schedule.solverStatus !== "NOT_SOLVING");
+	renderRoutes(schedule);
+  })
+  .fail(function (xhr, ajaxOptions, thrownError) {
+      showError("Getting timetable has failed.", xhr);
+      refreshSolvingButtons(false);
+  });
+}
 
 function stopSolving() {
   $.delete("/route-plans/" + scheduleId, function () {
     refreshSolvingButtons(false);
-    refreshSchedule();
+    refreshRoutePlan();
   }).fail(function (xhr, ajaxOptions, thrownError) {
     showError("Stop solving failed.", xhr);
   });
@@ -195,26 +214,6 @@ const handleClientError = (title, error) => {
     error.stack.startsWith(error.name)
       ? error.stack
       : `${error.name}: ${error.message}\n    ${error.stack.replace(/\n/g, '\n    ')}`);
-};
-
-const updateSolvingStatus = (solving) => {
-  if (solving) {
-    solveButton.hide();
-    stopSolvingButton.show();
-  } else {
-    autoRefreshCount = 0;
-    solveButton.show();
-    stopSolvingButton.hide();
-  }
-};
-
-const autoRefresh = () => {
-  getStatus();
-  autoRefreshCount--;
-  if (autoRefreshCount <= 0) {
-    clearInterval(autoRefreshIntervalId);
-    autoRefreshIntervalId = null;
-  }
 };
 
 const depotPopupContent = (depot, color) => `<h5>Depot ${depot.id}</h5>
@@ -298,7 +297,7 @@ function createDataSets() {
               scheduleId = null;
               testData = item;
 
-              refreshSchedule();
+              refreshRoutePlan();
             });
           });
 
@@ -306,7 +305,7 @@ function createDataSets() {
           testData = data[0];
           switchDataDropDownItemActive(testData);
 
-          refreshSchedule();
+          refreshRoutePlan();
 
           $("#solveButton").click(function () {
             solve();
@@ -315,7 +314,6 @@ function createDataSets() {
             stopSolving();
           });
 
-    //      refreshSolvingButtons(false);
         } else {
           $("#demo").removeClass('d-none');
           $("#demo").empty();
@@ -335,36 +333,16 @@ function switchDataDropDownItemActive(newItem) {
     $("#" + newItem + "TestData").addClass(activeCssClass);
 }
 
-function refreshSchedule() {
-  let path = "/timetables/" + scheduleId;
-  if (scheduleId === null) {
-    if (testData === null) {
-      alert("Please select a test data set.");
-      return;
-    }
-
-    path = "/demo/datasets/" + testData;
-  }
-
-  $.getJSON(path, function (schedule) {
-    loadedSchedule = schedule;
-	renderRoutes(schedule);
-  })
-  .fail(function (xhr, ajaxOptions, thrownError) {
-      showError("Getting timetable has failed.", xhr);
-      refreshSolvingButtons(false);
-  });
-}
-
-function renderRoutes(solution, scoreExplanation, isSolving) {
+function renderRoutes(solution) {
   if (!initialized) {
     initialized = true;
-    map.fitBounds(solution.bounds);
+    const bounds = [solution.southWestCorner, solution.northEastCorner];
+    map.fitBounds(bounds);
   }
   // Vehicles
   $('[data-bs-toggle="tooltip-load"]').tooltip('dispose');
   vehiclesTable.children().remove();
-  solution.vehicleList.forEach((vehicle) => {
+  solution.vehicles.forEach((vehicle) => {
     const { id, capacity, totalDemand, totalDistanceMeters } = vehicle;
     const percentage = totalDemand / capacity * 100;
     const color = colorByVehicle(vehicle);
@@ -389,7 +367,7 @@ function renderRoutes(solution, scoreExplanation, isSolving) {
   $('[data-bs-toggle="tooltip-load"]').tooltip();
   // Depots
   depotsTable.children().remove();
-  solution.depotList.forEach((depot) => {
+  solution.depots.forEach((depot) => {
     const { id } = depot;
     const color = colorByDepot(depot);
     const icon = defaultIcon;
@@ -403,20 +381,19 @@ function renderRoutes(solution, scoreExplanation, isSolving) {
       </tr>`);
   });
   // Customers
-  solution.customerList.forEach((customer) => {
+  solution.customers.forEach((customer) => {
     getCustomerMarker(customer).setPopupContent(customerPopupContent(customer));
   });
   // Route
   routeGroup.clearLayers();
-  solution.vehicleList.forEach((vehicle) => {
+  solution.vehicles.forEach((vehicle) => {
     L.polyline(vehicle.route, { color: colorByVehicle(vehicle) }).addTo(routeGroup);
   });
 
   // Summary
   $('#score').text(solution.score);
-  $('#scoreInfo').text(scoreExplanation);
+  $('#scoreInfo').text(solution.scoreExplanation);
   $('#distance').text(formatDistance(solution.distanceMeters));
-  updateSolvingStatus(isSolving);
 }
 
 // TODO: move to the webjar

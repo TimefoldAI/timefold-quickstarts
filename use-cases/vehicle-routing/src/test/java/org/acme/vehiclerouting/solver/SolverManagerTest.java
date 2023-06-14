@@ -1,16 +1,15 @@
 package org.acme.vehiclerouting.solver;
 
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 import jakarta.inject.Inject;
 
-import io.quarkus.test.junit.QuarkusTest;
-import org.acme.vehiclerouting.domain.Location;
-import org.acme.vehiclerouting.domain.VehicleRoutingSolution;
-import org.acme.vehiclerouting.rest.VehicleRoutingDemoResource;
-import org.junit.jupiter.api.Test;
 import ai.timefold.solver.core.api.solver.SolverManager;
+
+import org.acme.vehiclerouting.domain.VehicleRoutingSolution;
+import org.junit.jupiter.api.Test;
+
+import io.quarkus.test.junit.QuarkusTest;
 
 @QuarkusTest
 class SolverManagerTest {
@@ -27,8 +26,8 @@ class SolverManagerTest {
 //        solverManager.solve(0L, id -> problem, SolverManagerTest::printSolution).getFinalBestSolution();
     }
 
-    static void printSolution(VehicleRoutingSolution solution) {
-        solution.getVehicleList().forEach(vehicle -> System.out.printf("%s: %s%n", vehicle,
-                vehicle.getRoute().stream().map(Location::getId).collect(Collectors.toList())));
-    }
+//    static void printSolution(VehicleRoutingSolution solution) {
+//        solution.getVehicleList().forEach(vehicle -> System.out.printf("%s: %s%n", vehicle,
+//                vehicle.getRoute().stream().map(Location::getId).collect(Collectors.toList())));
+//    }
 }

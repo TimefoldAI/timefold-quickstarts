@@ -62,8 +62,8 @@ public class VehicleRoutingDemoResource {
                 .setCustomerCount(77)
                 .setVehicleCount(6)
                 .setDepotCount(2)
-                .setSouthWestCorner(new Location(0L, 43.751466, 11.177210))
-                .setNorthEastCorner(new Location(0L, 43.809291, 11.290195))
+                .setSouthWestCorner(new Location(43.751466, 11.177210))
+                .setNorthEastCorner(new Location(43.809291, 11.290195))
                 .build();
     }
 
@@ -181,7 +181,7 @@ public class VehicleRoutingDemoResource {
 
             Supplier<Depot> depotSupplier = () -> new Depot(
                     sequence.incrementAndGet(),
-                    new Location(sequence.incrementAndGet(), latitudes.nextDouble(), longitudes.nextDouble()));
+                    new Location(latitudes.nextDouble(), longitudes.nextDouble()));
 
             List<Depot> depotList = Stream.generate(depotSupplier)
                     .limit(depotCount)
@@ -198,22 +198,15 @@ public class VehicleRoutingDemoResource {
 
             Supplier<Customer> customerSupplier = () -> new Customer(
                     sequence.incrementAndGet(),
-                    new Location(sequence.incrementAndGet(), latitudes.nextDouble(), longitudes.nextDouble()),
+                    new Location(latitudes.nextDouble(), longitudes.nextDouble()),
                     demand.nextInt());
 
             List<Customer> customerList = Stream.generate(customerSupplier)
                     .limit(customerCount)
                     .collect(Collectors.toList());
 
-            List<Location> locationList = Stream.concat(
-                            customerList.stream().map(Customer::getLocation),
-                            depotList.stream().map(Depot::getLocation))
-                    .collect(Collectors.toList());
-
-            distanceCalculator.initDistanceMaps(locationList);
-
-            return new VehicleRoutingSolution(name, locationList,
-                    depotList, vehicleList, customerList, southWestCorner, northEastCorner);
+            return new VehicleRoutingSolution(name, depotList, vehicleList, customerList, southWestCorner,
+                    northEastCorner);
         }
     }
 }

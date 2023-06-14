@@ -3,18 +3,15 @@ package org.acme.vehiclerouting.rest;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
-import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
 
-import org.acme.vehiclerouting.domain.VehicleRoutingSolution;
-import org.acme.vehiclerouting.persistence.VehicleRoutingSolutionRepository;
 import ai.timefold.solver.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
 import ai.timefold.solver.core.api.solver.SolutionManager;
 import ai.timefold.solver.core.api.solver.SolverManager;
+
+import org.acme.vehiclerouting.domain.VehicleRoutingSolution;
 
 //@Path("/vrp")
 //@Produces(MediaType.APPLICATION_JSON)
@@ -25,14 +22,14 @@ public class SolverResource {
 
     private final AtomicReference<Throwable> solverError = new AtomicReference<>();
 
-    private final VehicleRoutingSolutionRepository repository;
+   // private final VehicleRoutingSolutionRepository repository;
     private final SolverManager<VehicleRoutingSolution, Long> solverManager;
     private final SolutionManager<VehicleRoutingSolution, HardSoftLongScore> solutionManager;
 
-    public SolverResource(VehicleRoutingSolutionRepository repository,
+    public SolverResource(//VehicleRoutingSolutionRepository repository,
             SolverManager<VehicleRoutingSolution, Long> solverManager,
             SolutionManager<VehicleRoutingSolution, HardSoftLongScore> solutionManager) {
-        this.repository = repository;
+    //    this.repository = repository;
         this.solverManager = solverManager;
         this.solutionManager = solutionManager;
     }
@@ -50,7 +47,7 @@ public class SolverResource {
             throw new RuntimeException("Solver failed", throwable);
         });
 
-        Optional<VehicleRoutingSolution> s1 = repository.solution();
+        Optional<VehicleRoutingSolution> s1 = null;//repository.solution();
 
         VehicleRoutingSolution s = s1.get();
         return statusFromSolution(s);
@@ -59,10 +56,10 @@ public class SolverResource {
     @POST
     @Path("solve")
     public void solve() {
-        Optional<VehicleRoutingSolution> maybeSolution = repository.solution();
+        Optional<VehicleRoutingSolution> maybeSolution = Optional.empty();//repository.solution();
         maybeSolution.ifPresent(
                 vehicleRoutingSolution -> solverManager.solveAndListen(PROBLEM_ID, id -> vehicleRoutingSolution,
-                        repository::update, (problemId, throwable) -> solverError.set(throwable)));
+                        vehicleRoutingSolution1 -> {}, (problemId, throwable) -> solverError.set(throwable)));
     }
 
     @POST

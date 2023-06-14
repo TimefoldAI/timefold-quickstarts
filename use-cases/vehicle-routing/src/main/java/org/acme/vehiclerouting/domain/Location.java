@@ -2,28 +2,24 @@ package org.acme.vehiclerouting.domain;
 
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonFormat(shape = JsonFormat.Shape.ARRAY)
-@JsonIdentityInfo(scope = Location.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Location {
 
-    private final long id;
-    private final double latitude;
-    private final double longitude;
+    private double latitude;
+    private double longitude;
+
+    @JsonIgnore
     private Map<Location, Long> distanceMap;
 
-    public Location(long id, double latitude, double longitude) {
-        this.id = id;
+    @JsonCreator
+    public Location(@JsonProperty("latitude") double latitude, @JsonProperty("longitude") double longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
-    }
-
-    public long getId() {
-        return id;
     }
 
     public double getLatitude() {
@@ -32,6 +28,10 @@ public class Location {
 
     public double getLongitude() {
         return longitude;
+    }
+
+    public Map<Location, Long> getDistanceMap() {
+        return distanceMap;
     }
 
     /**
