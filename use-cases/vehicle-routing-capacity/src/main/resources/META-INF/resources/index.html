@@ -94,7 +94,7 @@
   <div id="rest" class="container-fluid d-none">
     <h1>REST API Guide</h1>
 
-    <h2>High school timetable solver integration via cURL</h2>
+    <h2>Vehicle routing problem solver integration via cURL</h2>
 
     <h3>1. Download sample data set</h3>
     <pre>
@@ -108,28 +108,28 @@
     <pre>
             <button class="btn btn-outline-dark btn-sm float-end"
                     onclick="textToClipboard('curl2')">Copy</button>
-            <code id="curl2">curl -X POST -H 'Content-Type:application/json' http://localhost:8080/timetables -d@sample.json</code>
+            <code id="curl2">curl -X POST -H 'Content-Type:application/json' http://localhost:8080/route-plans -d@sample.json</code>
         </pre>
 
     <h3>3. Get the current status and score</h3>
     <pre>
             <button class="btn btn-outline-dark btn-sm float-end"
                     onclick="textToClipboard('curl3')">Copy</button>
-            <code id="curl3">curl -X GET -H 'Accept:application/json' http://localhost:8080/timetables/{jobId}?retrieve=STATUS</code>
+            <code id="curl3">curl -X GET -H 'Accept:application/json' http://localhost:8080/route-plans/{jobId}?retrieve=STATUS</code>
         </pre>
 
-    <h3>4. Get the complete solution</h3>
+    <h3>4. Get the complete route plan</h3>
     <pre>
             <button class="btn btn-outline-dark btn-sm float-end"
                     onclick="textToClipboard('curl4')">Copy</button>
-            <code id="curl4">curl -X GET -H 'Accept:application/json' http://localhost:8080/timetables/{jobId}</code>
+            <code id="curl4">curl -X GET -H 'Accept:application/json' http://localhost:8080/route-plans/{jobId}</code>
         </pre>
 
     <h3>5. Terminate solving early</h3>
     <pre>
             <button class="btn btn-outline-dark btn-sm float-end"
                     onclick="textToClipboard('curl5')">Copy</button>
-            <code id="curl5">curl -X DELETE -H 'Accept:application/json' http://localhost:8080/timetables/{id}</code>
+            <code id="curl5">curl -X DELETE -H 'Accept:application/json' http://localhost:8080/route-plans/{jobId}</code>
         </pre>
   </div>
 

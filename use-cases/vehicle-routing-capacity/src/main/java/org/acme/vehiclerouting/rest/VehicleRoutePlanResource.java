@@ -101,8 +101,6 @@ public class VehicleRoutePlanResource {
         return getRoutePlan(jobId, retrieve);
     }
 
-
-
     public enum Retrieve {
         STATUS,
         FULL
