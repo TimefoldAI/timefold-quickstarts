@@ -10,7 +10,7 @@ import org.acme.vehiclerouting.domain.Customer;
 import org.acme.vehiclerouting.domain.Depot;
 import org.acme.vehiclerouting.domain.Location;
 import org.acme.vehiclerouting.domain.Vehicle;
-import org.acme.vehiclerouting.domain.VehicleRoutingSolution;
+import org.acme.vehiclerouting.domain.VehicleRoutePlan;
 import org.acme.vehiclerouting.domain.geo.EuclideanDistanceCalculator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -21,7 +21,7 @@ import io.quarkus.test.junit.QuarkusTest;
 class VehicleRoutingConstraintProviderTest {
 
     @Inject
-    ConstraintVerifier<VehicleRoutingConstraintProvider, VehicleRoutingSolution> constraintVerifier;
+    ConstraintVerifier<VehicleRoutingConstraintProvider, VehicleRoutePlan> constraintVerifier;
     private static final Location location1 = new Location( 0.0, 0.0);
     private static final Location location2 = new Location(0.0, 4.0);
     private static final Location location3 = new Location( 3.0, 0.0);

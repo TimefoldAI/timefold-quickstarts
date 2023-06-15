@@ -21,32 +21,32 @@ import ai.timefold.solver.core.api.solver.SolutionManager;
 import ai.timefold.solver.core.api.solver.SolverManager;
 import ai.timefold.solver.core.api.solver.SolverStatus;
 
-import org.acme.vehiclerouting.domain.VehicleRoutingSolution;
+import org.acme.vehiclerouting.domain.VehicleRoutePlan;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Path("route-plans")
-public class VehicleRoutingResource {
+public class VehicleRoutePlanResource {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(VehicleRoutingResource.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(VehicleRoutePlanResource.class);
 
-    private final SolverManager<VehicleRoutingSolution, String> solverManager;
+    private final SolverManager<VehicleRoutePlan, String> solverManager;
 
-    private final SolutionManager<VehicleRoutingSolution, HardSoftLongScore> solutionManager;
+    private final SolutionManager<VehicleRoutePlan, HardSoftLongScore> solutionManager;
 
     // TODO: Without any "time to live", the map may eventually grow out of memory.
     private final ConcurrentMap<String, Job> jobIdToJob = new ConcurrentHashMap<>();
 
     // Workaround to make Quarkus CDI happy. Do not use.
-    public VehicleRoutingResource() {
+    public VehicleRoutePlanResource() {
         this.solverManager = null;
         this.solutionManager = null;
     }
 
     @Inject
-    public VehicleRoutingResource(SolverManager<VehicleRoutingSolution, String> solverManager,
-                                  SolutionManager<VehicleRoutingSolution, HardSoftLongScore> solutionManager) {
+    public VehicleRoutePlanResource(SolverManager<VehicleRoutePlan, String> solverManager,
+                                    SolutionManager<VehicleRoutePlan, HardSoftLongScore> solutionManager) {
         this.solverManager = solverManager;
         this.solutionManager = solutionManager;
     }
@@ -54,7 +54,7 @@ public class VehicleRoutingResource {
     @POST
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces(MediaType.TEXT_PLAIN)
-    public String solve(VehicleRoutingSolution problem) {
+    public String solve(VehicleRoutePlan problem) {
         String jobId = UUID.randomUUID().toString();
         jobIdToJob.put(jobId, Job.newRoutePlan(problem));
         solverManager.solveAndListen(jobId,
@@ -67,7 +67,7 @@ public class VehicleRoutingResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{jobId}")
-    public VehicleRoutingSolution getRoutePlan(
+    public VehicleRoutePlan getRoutePlan(
             @Parameter(description = "The job ID returned by the POST method.") @PathParam("jobId") String jobId,
             @QueryParam("retrieve") Retrieve retrieve) {
         retrieve = retrieve == null ? Retrieve.FULL : retrieve;
@@ -79,10 +79,10 @@ public class VehicleRoutingResource {
             LOGGER.error("Exception during solving jobId ({}), message ({}).", jobId, job.error.getMessage(), job.error);
             throw new VehicleRoutingSolverException(jobId, job.error);
         }
-        VehicleRoutingSolution routePlan = job.routePlan;
+        VehicleRoutePlan routePlan = job.routePlan;
         SolverStatus solverStatus = solverManager.getSolverStatus(jobId);
         if (retrieve == Retrieve.STATUS) {
-            return new VehicleRoutingSolution(routePlan.getName(), routePlan.getScore(), solverStatus);
+            return new VehicleRoutePlan(routePlan.getName(), routePlan.getScore(), solverStatus);
         }
         String scoreExplanation = solutionManager.explain(routePlan).getSummary();
         routePlan.setSolverStatus(solverStatus);
@@ -93,7 +93,7 @@ public class VehicleRoutingResource {
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{jobId}")
-    public VehicleRoutingSolution terminateSolving(
+    public VehicleRoutePlan terminateSolving(
             @Parameter(description = "The job ID returned by the POST method.") @PathParam("jobId") String jobId,
             @QueryParam("retrieve") Retrieve retrieve) {
         // TODO: Replace with .terminateEarlyAndWait(... [, timeout]); see https://github.com/TimefoldAI/timefold-solver/issues/77
@@ -108,9 +108,9 @@ public class VehicleRoutingResource {
         FULL
     }
 
-    private record Job(String jobId, VehicleRoutingSolution routePlan, Throwable error) {
+    private record Job(String jobId, VehicleRoutePlan routePlan, Throwable error) {
 
-        static Job newRoutePlan(VehicleRoutingSolution routePlan) {
+        static Job newRoutePlan(VehicleRoutePlan routePlan) {
             return new Job(null, routePlan, null);
         }
 

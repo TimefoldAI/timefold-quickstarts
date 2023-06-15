@@ -9,18 +9,18 @@ import ai.timefold.solver.core.impl.heuristic.selector.common.decorator.Selectio
 
 import org.acme.vehiclerouting.domain.Customer;
 import org.acme.vehiclerouting.domain.Depot;
-import org.acme.vehiclerouting.domain.VehicleRoutingSolution;
+import org.acme.vehiclerouting.domain.VehicleRoutePlan;
 
 /**
  * On large datasets, the constructed solution looks like pizza slices.
  */
 public class DepotAngleCustomerDifficultyWeightFactory
-        implements SelectionSorterWeightFactory<VehicleRoutingSolution, Customer> {
+        implements SelectionSorterWeightFactory<VehicleRoutePlan, Customer> {
 
     @Override
-    public DepotAngleCustomerDifficultyWeight createSorterWeight(VehicleRoutingSolution vehicleRoutingSolution,
-            Customer customer) {
-        Depot depot = vehicleRoutingSolution.getDepots().get(0);
+    public DepotAngleCustomerDifficultyWeight createSorterWeight(VehicleRoutePlan vehicleRoutePlan,
+                                                                 Customer customer) {
+        Depot depot = vehicleRoutePlan.getDepots().get(0);
         return new DepotAngleCustomerDifficultyWeight(customer,
                 customer.getLocation().getAngle(depot.getLocation()),
                 customer.getLocation().getDistanceTo(depot.getLocation())

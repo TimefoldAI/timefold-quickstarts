@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.acme.vehiclerouting.domain.Location;
-import org.acme.vehiclerouting.domain.VehicleRoutingSolution;
+import org.acme.vehiclerouting.domain.VehicleRoutePlan;
 import org.junit.jupiter.api.Test;
 
 class DemoDataBuilderTest {
@@ -19,7 +19,7 @@ class DemoDataBuilderTest {
         Integer minDemand = 1;
         Integer maxDemand = 2;
 
-        VehicleRoutingSolution problem = VehicleRoutingDemoResource.DemoDataBuilder.builder().setMinDemand(minDemand).setMaxDemand(maxDemand)
+        VehicleRoutePlan problem = VehicleRouteDemoResource.DemoDataBuilder.builder().setMinDemand(minDemand).setMaxDemand(maxDemand)
                 .setVehicleCapacity(15).setCustomerCount(customerCount).setVehicleCount(vehicleCount)
                 .setDepotCount(depotCount).setSouthWestCorner(new Location(43.751466, 11.177210))
                 .setNorthEastCorner(new Location(43.809291, 11.290195)).build();
@@ -77,8 +77,8 @@ class DemoDataBuilderTest {
                 .withMessageMatching(".*northEast.*Longitude.*must be greater than southWest.*Longitude.*");
     }
 
-    static VehicleRoutingDemoResource.DemoDataBuilder correctBuilder() {
-        return VehicleRoutingDemoResource.DemoDataBuilder.builder().setMinDemand(1).setMaxDemand(2).setVehicleCapacity(15).setCustomerCount(77)
+    static VehicleRouteDemoResource.DemoDataBuilder correctBuilder() {
+        return VehicleRouteDemoResource.DemoDataBuilder.builder().setMinDemand(1).setMaxDemand(2).setVehicleCapacity(15).setCustomerCount(77)
                 .setVehicleCount(6).setDepotCount(2).setSouthWestCorner(new Location(43.751466, 11.177210))
                 .setNorthEastCorner(new Location(43.809291, 11.290195));
     }

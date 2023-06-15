@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @PlanningSolution
-public class VehicleRoutingSolution {
+public class VehicleRoutePlan {
 
     private String name;
 
@@ -46,22 +46,22 @@ public class VehicleRoutingSolution {
 
     private String scoreExplanation;
 
-    public VehicleRoutingSolution() {
+    public VehicleRoutePlan() {
     }
 
-    public VehicleRoutingSolution(String name, HardSoftLongScore score, SolverStatus solverStatus) {
+    public VehicleRoutePlan(String name, HardSoftLongScore score, SolverStatus solverStatus) {
         this.name = name;
         this.score = score;
         this.solverStatus = solverStatus;
     }
 
     @JsonCreator
-    public VehicleRoutingSolution(@JsonProperty("name") String name,
-                                  @JsonProperty("depots") List<Depot> depots,
-                                  @JsonProperty("vehicles") List<Vehicle> vehicles,
-                                  @JsonProperty("customers") List<Customer> customers,
-                                  @JsonProperty("southWestCorner") Location southWestCorner,
-                                  @JsonProperty("northEastCorner") Location northEastCorner) {
+    public VehicleRoutePlan(@JsonProperty("name") String name,
+                            @JsonProperty("depots") List<Depot> depots,
+                            @JsonProperty("vehicles") List<Vehicle> vehicles,
+                            @JsonProperty("customers") List<Customer> customers,
+                            @JsonProperty("southWestCorner") Location southWestCorner,
+                            @JsonProperty("northEastCorner") Location northEastCorner) {
         this.name = name;
         this.depots = depots;
         this.vehicles = vehicles;

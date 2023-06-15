@@ -8,7 +8,7 @@ import org.acme.vehiclerouting.domain.Customer;
 import org.acme.vehiclerouting.domain.Depot;
 import org.acme.vehiclerouting.domain.Location;
 import org.acme.vehiclerouting.domain.Vehicle;
-import org.acme.vehiclerouting.domain.VehicleRoutingSolution;
+import org.acme.vehiclerouting.domain.VehicleRoutePlan;
 import org.acme.vehiclerouting.domain.geo.DistanceCalculator;
 import org.acme.vehiclerouting.domain.geo.EuclideanDistanceCalculator;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -30,7 +30,7 @@ import java.util.stream.Stream;
 
 @Tag(name = "Demo data sets", description = "Timefold-provided demo vehicle routing data sets.")
 @Path("demo/datasets")
-public class VehicleRoutingDemoResource {
+public class VehicleRouteDemoResource {
 
     public enum DemoDataSet {
         FIRENZE
@@ -49,13 +49,13 @@ public class VehicleRoutingDemoResource {
     @APIResponses(value = {
             @APIResponse(responseCode = "200", description = "Unsolved demo route plan.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
-                            schema = @Schema(implementation = VehicleRoutingSolution.class)))})
+                            schema = @Schema(implementation = VehicleRoutePlan.class)))})
     @Operation(summary = "Find an unsolved demo route plan by ID.")
     @GET
     @Path("/{dataSetId}")
-    public VehicleRoutingSolution generate(@Parameter(description = "Unique identifier of the demo data set.",
+    public VehicleRoutePlan generate(@Parameter(description = "Unique identifier of the demo data set.",
             required = true) @PathParam("dataSetId") DemoDataSet demoDataSet) {
-        return VehicleRoutingDemoResource.DemoDataBuilder.builder()
+        return VehicleRouteDemoResource.DemoDataBuilder.builder()
                 .setMinDemand(1)
                 .setMaxDemand(2)
                 .setVehicleCapacity(25)
@@ -129,7 +129,7 @@ public class VehicleRoutingDemoResource {
             return this;
         }
 
-        public VehicleRoutingSolution build() {
+        public VehicleRoutePlan build() {
             if (minDemand < 1) {
                 throw new IllegalStateException("minDemand (" + minDemand + ") must be greater than zero.");
             }
@@ -205,7 +205,7 @@ public class VehicleRoutingDemoResource {
                     .limit(customerCount)
                     .collect(Collectors.toList());
 
-            return new VehicleRoutingSolution(name, depotList, vehicleList, customerList, southWestCorner,
+            return new VehicleRoutePlan(name, depotList, vehicleList, customerList, southWestCorner,
                     northEastCorner);
         }
     }

@@ -6,7 +6,7 @@ import jakarta.inject.Inject;
 
 import ai.timefold.solver.core.api.solver.SolverManager;
 
-import org.acme.vehiclerouting.domain.VehicleRoutingSolution;
+import org.acme.vehiclerouting.domain.VehicleRoutePlan;
 import org.junit.jupiter.api.Test;
 
 import io.quarkus.test.junit.QuarkusTest;
@@ -15,7 +15,7 @@ import io.quarkus.test.junit.QuarkusTest;
 class SolverManagerTest {
 
     @Inject
-    SolverManager<VehicleRoutingSolution, Long> solverManager;
+    SolverManager<VehicleRoutePlan, Long> solverManager;
 
     @Test
     void solve() throws ExecutionException, InterruptedException {
