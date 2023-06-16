@@ -23,7 +23,7 @@ public class VehicleRoutePlanResourceTest {
     @Test
     public void solveDemoDataUntilFeasible() {
         VehicleRoutePlan vehicleRoutePlan = given()
-                .when().get("/demo/datasets/FIRENZE")
+                .when().get("/demo-data/FIRENZE")
                 .then()
                 .statusCode(200)
                 .extract()

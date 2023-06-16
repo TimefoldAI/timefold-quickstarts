@@ -22,6 +22,7 @@ import ai.timefold.solver.core.api.solver.SolverManager;
 import ai.timefold.solver.core.api.solver.SolverStatus;
 
 import org.acme.vehiclerouting.domain.VehicleRoutePlan;
+import org.acme.vehiclerouting.rest.exception.VehicleRoutingSolverException;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +61,10 @@ public class VehicleRoutePlanResource {
         solverManager.solveAndListen(jobId,
                 jobId_ -> jobIdToJob.get(jobId).routePlan,
                 solution -> jobIdToJob.put(jobId, Job.newRoutePlan(solution)),
-                (jobId_, exception) -> jobIdToJob.put(jobId, Job.error(jobId_, exception)));
+                (jobId_, exception) -> {
+            jobIdToJob.put(jobId, Job.error(jobId_, exception));
+            LOGGER.error("Failed solving jobId ({}).", jobId,  exception);}
+        );
         return jobId;
     }
 
@@ -76,7 +80,6 @@ public class VehicleRoutePlanResource {
             throw new VehicleRoutingSolverException(jobId, Response.Status.NOT_FOUND, "No route plan found.");
         }
         if (job.error != null) {
-            LOGGER.error("Exception during solving jobId ({}), message ({}).", jobId, job.error.getMessage(), job.error);
             throw new VehicleRoutingSolverException(jobId, job.error);
         }
         VehicleRoutePlan routePlan = job.routePlan;

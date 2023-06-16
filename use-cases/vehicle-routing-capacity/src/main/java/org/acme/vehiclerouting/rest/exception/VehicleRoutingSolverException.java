@@ -1,4 +1,4 @@
-package org.acme.vehiclerouting.rest;
+package org.acme.vehiclerouting.rest.exception;
 
 import jakarta.ws.rs.core.Response;
 
