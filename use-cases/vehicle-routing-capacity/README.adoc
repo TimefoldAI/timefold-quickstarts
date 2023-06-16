@@ -1,4 +1,4 @@
-= Vehicle Routing Problem (Java, Quarkus, Maven)
+= Vehicle Routing with capacity (Java, Quarkus, Maven)
 
 Find the most efficient routes for a fleet of vehicles.
 
