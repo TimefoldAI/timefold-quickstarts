@@ -27,11 +27,11 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
-@Tag(name = "Demo data sets", description = "Timefold-provided demo vehicle routing data sets.")
-@Path("demo/datasets")
+@Tag(name = "Demo data", description = "Timefold-provided demo vehicle routing data.")
+@Path("demo-data")
 public class VehicleRouteDemoResource {
 
-    public enum DemoDataSet {
+    public enum DemoData {
         FIRENZE(77, 6, 2, 1, 2, 25,
                 new Location(43.751466, 11.177210), new Location(43.809291, 11.290195));
 
@@ -44,8 +44,8 @@ public class VehicleRouteDemoResource {
         private Location southWestCorner;
         private Location northEastCorner;
 
-        DemoDataSet(int customerCount, int vehicleCount, int depotCount, int minDemand, int maxDemand,
-                    int vehicleCapacity, Location southWestCorner, Location northEastCorner) {
+        DemoData(int customerCount, int vehicleCount, int depotCount, int minDemand, int maxDemand,
+                 int vehicleCapacity, Location southWestCorner, Location northEastCorner) {
             if (minDemand < 1) {
                 throw new IllegalStateException("minDemand (" + minDemand + ") must be greater than zero.");
             }
@@ -95,13 +95,13 @@ public class VehicleRouteDemoResource {
     }
 
     @APIResponses(value = {
-            @APIResponse(responseCode = "200", description = "List of demo data sets represented as IDs.",
+            @APIResponse(responseCode = "200", description = "List of demo data represented as IDs.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
-                            schema = @Schema(implementation = DemoDataSet.class, type = SchemaType.ARRAY))) })
-    @Operation(summary = "List demo data sets.")
+                            schema = @Schema(implementation = DemoData.class, type = SchemaType.ARRAY))) })
+    @Operation(summary = "List demo data.")
     @GET
-    public DemoDataSet[] list() {
-        return DemoDataSet.values();
+    public DemoData[] list() {
+        return DemoData.values();
     }
 
     @APIResponses(value = {
@@ -110,26 +110,26 @@ public class VehicleRouteDemoResource {
                             schema = @Schema(implementation = VehicleRoutePlan.class)))})
     @Operation(summary = "Find an unsolved demo route plan by ID.")
     @GET
-    @Path("/{dataSetId}")
-    public VehicleRoutePlan generate(@Parameter(description = "Unique identifier of the demo data set.",
-            required = true) @PathParam("dataSetId") DemoDataSet demoDataSet) {
-        return build(demoDataSet);
+    @Path("/{demoDataId}")
+    public VehicleRoutePlan generate(@Parameter(description = "Unique identifier of the demo data.",
+            required = true) @PathParam("demoDataId") DemoData demoData) {
+        return build(demoData);
     }
 
-    public VehicleRoutePlan build(DemoDataSet demoDataSet) {
+    public VehicleRoutePlan build(DemoData demoData) {
 
         String name = "demo";
 
         Random random = new Random(0);
         PrimitiveIterator.OfDouble latitudes = random
-                .doubles(demoDataSet.southWestCorner.getLatitude(), demoDataSet.northEastCorner.getLatitude()).iterator();
+                .doubles(demoData.southWestCorner.getLatitude(), demoData.northEastCorner.getLatitude()).iterator();
         PrimitiveIterator.OfDouble longitudes = random
-                .doubles(demoDataSet.southWestCorner.getLongitude(), demoDataSet.northEastCorner.getLongitude()).iterator();
+                .doubles(demoData.southWestCorner.getLongitude(), demoData.northEastCorner.getLongitude()).iterator();
 
-        PrimitiveIterator.OfInt demand = random.ints(demoDataSet.minDemand, demoDataSet.maxDemand + 1)
+        PrimitiveIterator.OfInt demand = random.ints(demoData.minDemand, demoData.maxDemand + 1)
                 .iterator();
 
-        PrimitiveIterator.OfInt depotRandom = random.ints(0, demoDataSet.depotCount).iterator();
+        PrimitiveIterator.OfInt depotRandom = random.ints(0, demoData.depotCount).iterator();
 
         AtomicLong depotSequence = new AtomicLong();
         Supplier<Depot> depotSupplier = () -> new Depot(
@@ -137,17 +137,17 @@ public class VehicleRouteDemoResource {
                 new Location(latitudes.nextDouble(), longitudes.nextDouble()));
 
         List<Depot> depots = Stream.generate(depotSupplier)
-                .limit(demoDataSet.depotCount)
+                .limit(demoData.depotCount)
                 .collect(Collectors.toList());
 
         AtomicLong vehicleSequence = new AtomicLong();
         Supplier<Vehicle> vehicleSupplier = () -> new Vehicle(
                 vehicleSequence.incrementAndGet(),
-                demoDataSet.vehicleCapacity,
+                demoData.vehicleCapacity,
                 depots.get(depotRandom.nextInt()));
 
         List<Vehicle> vehicles = Stream.generate(vehicleSupplier)
-                .limit(demoDataSet.vehicleCount)
+                .limit(demoData.vehicleCount)
                 .collect(Collectors.toList());
 
         AtomicLong customerSequence = new AtomicLong();
@@ -157,10 +157,10 @@ public class VehicleRouteDemoResource {
                 demand.nextInt());
 
         List<Customer> customers = Stream.generate(customerSupplier)
-                .limit(demoDataSet.customerCount)
+                .limit(demoData.customerCount)
                 .collect(Collectors.toList());
 
-        return new VehicleRoutePlan(name, depots, vehicles, customers, demoDataSet.southWestCorner,
-                demoDataSet.northEastCorner);
+        return new VehicleRoutePlan(name, depots, vehicles, customers, demoData.southWestCorner,
+                demoData.northEastCorner);
     }
 }

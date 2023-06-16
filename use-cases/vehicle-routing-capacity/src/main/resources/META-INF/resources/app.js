@@ -15,7 +15,7 @@ const routeGroup = L.layerGroup().addTo(map);
 
 let autoRefreshIntervalId = null;
 let initialized = false;
-let testData = null;
+let demoDataId = null;
 let scheduleId = null;
 let loadedSchedule = null;
 
@@ -197,12 +197,12 @@ function refreshSolvingButtons(solving) {
 function refreshRoutePlan() {
   let path = "/route-plans/" + scheduleId;
   if (scheduleId === null) {
-    if (testData === null) {
+    if (demoDataId === null) {
       alert("Please select a test data set.");
       return;
     }
 
-    path = "/demo/datasets/" + testData;
+    path = "/demo-data/" + demoDataId;
   }
 
   $.getJSON(path, function (schedule) {
@@ -226,7 +226,7 @@ function stopSolving() {
 }
 
 function createDataSets() {
-  $.get("/demo/datasets", function (data) {
+  $.get("/demo-data", function (data) {
     if (data && data.length > 0) {
       data.forEach(item => {
         $("#testDataButton").append($('<a id="' + item + 'TestData" class="dropdown-item" href="#">' + item + '</a>'));
@@ -234,15 +234,15 @@ function createDataSets() {
         $("#" + item + "TestData").click(function () {
           switchDataDropDownItemActive(item);
           scheduleId = null;
-          testData = item;
+          demoDataId = item;
 
           refreshRoutePlan();
         });
       });
 
       // load first data set
-      testData = data[0];
-      switchDataDropDownItemActive(testData);
+      demoDataId = data[0];
+      switchDataDropDownItemActive(demoDataId);
 
       refreshRoutePlan();
 
