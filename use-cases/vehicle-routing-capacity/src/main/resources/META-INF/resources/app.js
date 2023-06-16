@@ -16,6 +16,7 @@ const colors = [
   'slateblue',
   'tomato',
 ];
+
 let autoRefreshCount = 0;
 let autoRefreshIntervalId = null;
 
@@ -41,13 +42,6 @@ const greyIcon = new L.Icon({
   popupAnchor: [1, -34],
   shadowSize: [41, 41],
 });
-
-const fetchHeaders = {
-  headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-  },
-};
 
 let testData = null;
 let scheduleId = null;
@@ -96,39 +90,11 @@ $(document).ready(function () {
       };
     });
 
-    initMenu();
+    //initMenu();
     createDataSets();
 });
 
 const formatDistance = (distanceInMeters) => `${Math.floor(distanceInMeters / 1000)}km ${distanceInMeters % 1000}m`;
-
-//const getStatus = () => {
-//  fetch('/route-plans/' + scheduleId + '?retrieve=STATUS', fetchHeaders)
-//    .then((response) => {
-//      if (!response.ok) {
-//        return handleErrorResponse('Get status failed', response);
-//      } else {
-//        return response.json().then((data) => renderRoutes(data));
-//      }
-//    })
-//    .catch((error) => handleClientError('Failed to process response', error));
-//};
-
-//const solve = () => {
-//  fetch('/route-plans', { ...fetchHeaders, method: 'POST' })
-//    .then((response) => {
-//      if (!response.ok) {
-//        return handleErrorResponse('Start solving failed', response);
-//      } else {
-//        updateSolvingStatus(true);
-//        autoRefreshCount = 300;
-//        if (autoRefreshIntervalId == null) {
-//          autoRefreshIntervalId = setInterval(autoRefresh, 500);
-//        }
-//      }
-//    })
-//    .catch((error) => handleClientError('Failed to process response', error));
-//};
 
 function solve() {
   $.post("/route-plans", JSON.stringify(loadedSchedule), function (data) {
@@ -275,15 +241,6 @@ function initMenu() {
         $("#navRestItem").removeClass('active');
         $("#navOpenApiItem").addClass('active');
       });
-      $("#navConfiguration").click(function () {
-        $("#demo").addClass('d-none');
-        $("#rest").addClass('d-none');
-        $("#openapi").addClass('d-none');
-
-        $("#navUIItem").removeClass('active');
-        $("#navRestItem").removeClass('active');
-        $("#navOpenApiItem").removeClass('active')
-      });
 }
 
 function createDataSets() {
@@ -396,6 +353,17 @@ function renderRoutes(solution) {
   $('#distance').text(formatDistance(solution.distanceMeters));
 }
 
+function textToClipboard(id) {
+  var text = $("#" + id).text().trim();
+
+  var dummy = document.createElement("textarea");
+  document.body.appendChild(dummy);
+  dummy.value = text;
+  dummy.select();
+  document.execCommand("copy");
+  document.body.removeChild(dummy);
+}
+
 // TODO: move to the webjar
 function replaceQuickstartTimefoldAutoHeaderFooter() {
   const timefoldHeader = $("header#timefold-auto-header");
@@ -411,15 +379,15 @@ function replaceQuickstartTimefoldAutoHeaderFooter() {
             <span class="navbar-toggler-icon"></span>
           </button>
           <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
+            <ul class="nav nav-pills">
               <li class="nav-item active" id="navUIItem">
-                <a class="nav-link" href="#" id="navUI">Demo UI</a>
+                <button class="nav-link active" id="navUI" data-bs-toggle="pill" data-bs-target="#demo" type="button">Demo UI</button>
               </li>
               <li class="nav-item" id="navRestItem">
-                <a class="nav-link" href="#" id="navRest">Guide</a>
+                <button class="nav-link" id="navRest" data-bs-toggle="pill" data-bs-target="#rest" type="button">Guide</button>
               </li>
               <li class="nav-item" id="navOpenApiItem">
-                <a class="nav-link" href="#" id="navOpenApi">REST API</a>
+                <button class="nav-link" id="navOpenApi" data-bs-toggle="pill" data-bs-target="#openapi" type="button">REST API</button>
               </li>
             </ul>
           </div>
