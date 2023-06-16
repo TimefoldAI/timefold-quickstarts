@@ -170,9 +170,6 @@ function solve() {
   $.post("/route-plans", JSON.stringify(loadedSchedule), function (data) {
     scheduleId = data;
     refreshSolvingButtons(true);
-
-    //map.whenReady(getStatus);
-
   }).fail(function (xhr, ajaxOptions, thrownError) {
         showError("Start solving failed.", xhr);
         refreshSolvingButtons(false);
@@ -227,7 +224,6 @@ function stopSolving() {
     showError("Stop solving failed.", xhr);
   });
 }
-
 
 function createDataSets() {
   $.get("/demo/datasets", function (data) {
