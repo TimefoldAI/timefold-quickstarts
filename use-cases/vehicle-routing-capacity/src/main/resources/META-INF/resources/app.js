@@ -1,26 +1,3 @@
-const colors = [
-  'aqua',
-  'aquamarine',
-  'blue',
-  'blueviolet',
-  'chocolate',
-  'cornflowerblue',
-  'crimson',
-  'forestgreen',
-  'gold',
-  'lawngreen',
-  'limegreen',
-  'maroon',
-  'mediumvioletred',
-  'orange',
-  'slateblue',
-  'tomato',
-];
-
-let autoRefreshCount = 0;
-let autoRefreshIntervalId = null;
-
-let initialized = false;
 const depotByIdMap = new Map();
 const customerByIdMap = new Map();
 
@@ -29,27 +6,18 @@ const stopSolvingButton = $('#stopSolvingButton');
 const vehiclesTable = $('#vehicles');
 const depotsTable = $('#depots');
 
-const colorById = (i) => colors[i % colors.length];
-const colorByVehicle = (vehicle) => vehicle === null ? null : colorById(vehicle.id);
-const colorByDepot = (depot) => depot === null ? null : colorById(depot.id);
-
 const defaultIcon = new L.Icon.Default();
-const greyIcon = new L.Icon({
-  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-grey.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.6.0/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
 
-let testData = null;
-let scheduleId = null;
-let loadedSchedule = null;
 const map = L.map('map', { doubleClickZoom: false }).setView([51.505, -0.09], 13);
 const customerGroup = L.layerGroup().addTo(map);
 const depotGroup = L.layerGroup().addTo(map);
 const routeGroup = L.layerGroup().addTo(map);
+
+let autoRefreshIntervalId = null;
+let initialized = false;
+let testData = null;
+let scheduleId = null;
+let loadedSchedule = null;
 
 $(document).ready(function () {
     replaceQuickstartTimefoldAutoHeaderFooter();
@@ -65,122 +33,15 @@ $(document).ready(function () {
 
     $('[data-bs-toggle="tooltip"]').tooltip();
 
-    $.ajaxSetup({
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json,text/plain', // plain text is required by solve() returning UUID of the solver job
-    }
-    });
+    setupAjax();
 
-    // Extend jQuery to support $.put() and $.delete()
-    jQuery.each(["put", "delete"], function (i, method) {
-      jQuery[method] = function (url, data, callback, type) {
-        if (jQuery.isFunction(data)) {
-          type = type || callback;
-          callback = data;
-          data = undefined;
-        }
-        return jQuery.ajax({
-          url: url,
-          type: method,
-          dataType: type,
-          data: data,
-          success: callback
-        });
-      };
-    });
-
-    //initMenu();
     createDataSets();
 });
 
+const colorByVehicle = (vehicle) => vehicle === null ? null : pickColor('vehicle' + vehicle.id);
+const colorByDepot = (depot) => depot === null ? null : pickColor('depot' + depot.id);
+
 const formatDistance = (distanceInMeters) => `${Math.floor(distanceInMeters / 1000)}km ${distanceInMeters % 1000}m`;
-
-function solve() {
-  $.post("/route-plans", JSON.stringify(loadedSchedule), function (data) {
-    scheduleId = data;
-    refreshSolvingButtons(true);
-
-    //map.whenReady(getStatus);
-
-  }).fail(function (xhr, ajaxOptions, thrownError) {
-    showError("Start solving failed.", xhr);
-    refreshSolvingButtons(false);
-  },
-  "text");
-}
-
-function refreshSolvingButtons(solving) {
-  if (solving) {
-    $("#solveButton").hide();
-    $("#stopSolvingButton").show();
-    if (autoRefreshIntervalId == null) {
-      autoRefreshIntervalId = setInterval(refreshRoutePlan, 2000);
-    }
-  } else {
-    $("#solveButton").show();
-    $("#stopSolvingButton").hide();
-    if (autoRefreshIntervalId != null) {
-      clearInterval(autoRefreshIntervalId);
-      autoRefreshIntervalId = null;
-    }
-  }
-}
-
-function refreshRoutePlan() {
-  let path = "/route-plans/" + scheduleId;
-  if (scheduleId === null) {
-    if (testData === null) {
-      alert("Please select a test data set.");
-      return;
-    }
-
-    path = "/demo/datasets/" + testData;
-  }
-
-  $.getJSON(path, function (schedule) {
-    loadedSchedule = schedule;
-    refreshSolvingButtons(schedule.solverStatus != null && schedule.solverStatus !== "NOT_SOLVING");
-	renderRoutes(schedule);
-  })
-  .fail(function (xhr, ajaxOptions, thrownError) {
-      showError("Getting timetable has failed.", xhr);
-      refreshSolvingButtons(false);
-  });
-}
-
-function stopSolving() {
-  $.delete("/route-plans/" + scheduleId, function () {
-    refreshSolvingButtons(false);
-    refreshRoutePlan();
-  }).fail(function (xhr, ajaxOptions, thrownError) {
-    showError("Stop solving failed.", xhr);
-  });
-}
-
-const formatErrorResponseBody = (body) => {
-  // JSON must not contain \t (Quarkus bug)
-  const json = JSON.parse(body.replace(/\t/g, '  '));
-  return `${json.details}\n${json.stack}`;
-};
-
-const handleErrorResponse = (title, response) => {
-  return response.text()
-    .then((body) => {
-      const message = `${title} (${response.status}: ${response.statusText}).`;
-      const stackTrace = body ? formatErrorResponseBody(body) : '';
-      showError(message, stackTrace);
-    });
-};
-
-const handleClientError = (title, error) => {
-  console.error(error);
-  showError(`${title}.`,
-    // Stack looks differently in Chrome and Firefox.
-    error.stack.startsWith(error.name)
-      ? error.stack
-      : `${error.name}: ${error.message}\n    ${error.stack.replace(/\n/g, '\n    ')}`);
-};
 
 const depotPopupContent = (depot, color) => `<h5>Depot ${depot.id}</h5>
 <ul class="list-unstyled">
@@ -212,83 +73,6 @@ const getCustomerMarker = ({ id, location }) => {
   customerByIdMap.set(id, marker);
   return marker;
 };
-
-function initMenu() {
-     $("#navUI").click(function () {
-        $("#demo").removeClass('d-none');
-        $("#rest").addClass('d-none');
-        $("#openapi").addClass('d-none');
-
-        $("#navUIItem").addClass('active');
-        $("#navRestItem").removeClass('active');
-        $("#navOpenApiItem").removeClass('active');
-      });
-      $("#navRest").click(function () {
-        $("#demo").addClass('d-none');
-        $("#rest").removeClass('d-none');
-        $("#openapi").addClass('d-none');
-
-        $("#navUIItem").removeClass('active');
-        $("#navRestItem").addClass('active');
-        $("#navOpenApiItem").removeClass('active');
-      });
-      $("#navOpenApi").click(function () {
-        $("#demo").addClass('d-none');
-        $("#rest").addClass('d-none');
-        $("#openapi").removeClass('d-none');
-
-        $("#navUIItem").removeClass('active');
-        $("#navRestItem").removeClass('active');
-        $("#navOpenApiItem").addClass('active');
-      });
-}
-
-function createDataSets() {
-    $.get("/demo/datasets", function (data) {
-        if (data && data.length > 0) {
-          data.forEach(item => {
-            $("#testDataButton").append($('<a id="' + item + 'TestData" class="dropdown-item" href="#">' + item + '</a>'));
-
-            $("#" + item + "TestData").click(function () {
-              switchDataDropDownItemActive(item);
-              scheduleId = null;
-              testData = item;
-
-              refreshRoutePlan();
-            });
-          });
-
-          // load first data set
-          testData = data[0];
-          switchDataDropDownItemActive(testData);
-
-          refreshRoutePlan();
-
-          $("#solveButton").click(function () {
-            solve();
-          });
-          $("#stopSolvingButton").click(function () {
-            stopSolving();
-          });
-
-        } else {
-          $("#demo").removeClass('d-none');
-          $("#demo").empty();
-          $("#demo").html("<h1><p align=\"center\">No test data available</p></h1>")
-        }
-      }).fail(function (xhr, ajaxOptions, thrownError) {
-        // disable this page as there is no data
-        $("#demo").removeClass('d-none');
-        $("#demo").empty();
-        $("#demo").html("<h1><p align=\"center\">No test data available</p></h1>")
-      });
-}
-
-function switchDataDropDownItemActive(newItem) {
-    activeCssClass = "active";
-    $("#testDataButton > a." + activeCssClass).removeClass(activeCssClass);
-    $("#" + newItem + "TestData").addClass(activeCssClass);
-}
 
 function renderRoutes(solution) {
   if (!initialized) {
@@ -353,6 +137,145 @@ function renderRoutes(solution) {
   $('#distance').text(formatDistance(solution.distanceMeters));
 }
 
+// TODO: move the general functionality to the webjar.
+
+function setupAjax() {
+  $.ajaxSetup({
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json,text/plain', // plain text is required by solve() returning UUID of the solver job
+    }
+  });
+
+  // Extend jQuery to support $.put() and $.delete()
+  jQuery.each(["put", "delete"], function (i, method) {
+    jQuery[method] = function (url, data, callback, type) {
+      if (jQuery.isFunction(data)) {
+        type = type || callback;
+        callback = data;
+        data = undefined;
+      }
+      return jQuery.ajax({
+        url: url,
+        type: method,
+        dataType: type,
+        data: data,
+        success: callback
+      });
+    };
+  });
+}
+
+function solve() {
+  $.post("/route-plans", JSON.stringify(loadedSchedule), function (data) {
+    scheduleId = data;
+    refreshSolvingButtons(true);
+
+    //map.whenReady(getStatus);
+
+  }).fail(function (xhr, ajaxOptions, thrownError) {
+        showError("Start solving failed.", xhr);
+        refreshSolvingButtons(false);
+      },
+      "text");
+}
+
+function refreshSolvingButtons(solving) {
+  if (solving) {
+    $("#solveButton").hide();
+    $("#stopSolvingButton").show();
+    if (autoRefreshIntervalId == null) {
+      autoRefreshIntervalId = setInterval(refreshRoutePlan, 2000);
+    }
+  } else {
+    $("#solveButton").show();
+    $("#stopSolvingButton").hide();
+    if (autoRefreshIntervalId != null) {
+      clearInterval(autoRefreshIntervalId);
+      autoRefreshIntervalId = null;
+    }
+  }
+}
+
+function refreshRoutePlan() {
+  let path = "/route-plans/" + scheduleId;
+  if (scheduleId === null) {
+    if (testData === null) {
+      alert("Please select a test data set.");
+      return;
+    }
+
+    path = "/demo/datasets/" + testData;
+  }
+
+  $.getJSON(path, function (schedule) {
+    loadedSchedule = schedule;
+    refreshSolvingButtons(schedule.solverStatus != null && schedule.solverStatus !== "NOT_SOLVING");
+    renderRoutes(schedule);
+  })
+      .fail(function (xhr, ajaxOptions, thrownError) {
+        showError("Getting timetable has failed.", xhr);
+        refreshSolvingButtons(false);
+      });
+}
+
+function stopSolving() {
+  $.delete("/route-plans/" + scheduleId, function () {
+    refreshSolvingButtons(false);
+    refreshRoutePlan();
+  }).fail(function (xhr, ajaxOptions, thrownError) {
+    showError("Stop solving failed.", xhr);
+  });
+}
+
+
+function createDataSets() {
+  $.get("/demo/datasets", function (data) {
+    if (data && data.length > 0) {
+      data.forEach(item => {
+        $("#testDataButton").append($('<a id="' + item + 'TestData" class="dropdown-item" href="#">' + item + '</a>'));
+
+        $("#" + item + "TestData").click(function () {
+          switchDataDropDownItemActive(item);
+          scheduleId = null;
+          testData = item;
+
+          refreshRoutePlan();
+        });
+      });
+
+      // load first data set
+      testData = data[0];
+      switchDataDropDownItemActive(testData);
+
+      refreshRoutePlan();
+
+      $("#solveButton").click(function () {
+        solve();
+      });
+      $("#stopSolvingButton").click(function () {
+        stopSolving();
+      });
+
+    } else {
+      $("#demo").removeClass('d-none');
+      $("#demo").empty();
+      $("#demo").html("<h1><p align=\"center\">No test data available</p></h1>")
+    }
+  }).fail(function (xhr, ajaxOptions, thrownError) {
+    // disable this page as there is no data
+    $("#demo").removeClass('d-none');
+    $("#demo").empty();
+    $("#demo").html("<h1><p align=\"center\">No test data available</p></h1>")
+  });
+}
+
+function switchDataDropDownItemActive(newItem) {
+  activeCssClass = "active";
+  $("#testDataButton > a." + activeCssClass).removeClass(activeCssClass);
+  $("#" + newItem + "TestData").addClass(activeCssClass);
+}
+
 function textToClipboard(id) {
   var text = $("#" + id).text().trim();
 
@@ -364,7 +287,6 @@ function textToClipboard(id) {
   document.body.removeChild(dummy);
 }
 
-// TODO: move to the webjar
 function replaceQuickstartTimefoldAutoHeaderFooter() {
   const timefoldHeader = $("header#timefold-auto-header");
   if (timefoldHeader != null) {
