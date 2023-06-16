@@ -41,10 +41,10 @@ public interface DistanceCalculator {
     /**
      * Calculate distance matrix for the given list of locations and assign distance maps accordingly.
      *
-     * @param locationList
+     * @param locations
      */
-    default void initDistanceMaps(Collection<Location> locationList) {
-        Map<Location, Map<Location, Long>> distanceMatrix = calculateBulkDistance(locationList, locationList);
-        locationList.forEach(location -> location.setDistanceMap(distanceMatrix.get(location)));
+    default void initDistanceMaps(Collection<Location> locations) {
+        Map<Location, Map<Location, Long>> distanceMatrix = calculateBulkDistance(locations, locations);
+        locations.forEach(location -> location.setDistanceMap(distanceMatrix.get(location)));
     }
 }

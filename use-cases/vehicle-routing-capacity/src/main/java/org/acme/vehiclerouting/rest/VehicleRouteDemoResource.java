@@ -136,7 +136,7 @@ public class VehicleRouteDemoResource {
                 depotSequence.incrementAndGet(),
                 new Location(latitudes.nextDouble(), longitudes.nextDouble()));
 
-        List<Depot> depotList = Stream.generate(depotSupplier)
+        List<Depot> depots = Stream.generate(depotSupplier)
                 .limit(demoDataSet.depotCount)
                 .collect(Collectors.toList());
 
@@ -144,9 +144,9 @@ public class VehicleRouteDemoResource {
         Supplier<Vehicle> vehicleSupplier = () -> new Vehicle(
                 vehicleSequence.incrementAndGet(),
                 demoDataSet.vehicleCapacity,
-                depotList.get(depotRandom.nextInt()));
+                depots.get(depotRandom.nextInt()));
 
-        List<Vehicle> vehicleList = Stream.generate(vehicleSupplier)
+        List<Vehicle> vehicles = Stream.generate(vehicleSupplier)
                 .limit(demoDataSet.vehicleCount)
                 .collect(Collectors.toList());
 
@@ -156,11 +156,11 @@ public class VehicleRouteDemoResource {
                 new Location(latitudes.nextDouble(), longitudes.nextDouble()),
                 demand.nextInt());
 
-        List<Customer> customerList = Stream.generate(customerSupplier)
+        List<Customer> customers = Stream.generate(customerSupplier)
                 .limit(demoDataSet.customerCount)
                 .collect(Collectors.toList());
 
-        return new VehicleRoutePlan(name, depotList, vehicleList, customerList, demoDataSet.southWestCorner,
+        return new VehicleRoutePlan(name, depots, vehicles, customers, demoDataSet.southWestCorner,
                 demoDataSet.northEastCorner);
     }
 }
