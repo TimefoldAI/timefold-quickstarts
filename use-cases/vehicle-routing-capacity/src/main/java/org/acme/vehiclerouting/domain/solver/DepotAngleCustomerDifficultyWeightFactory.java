@@ -19,7 +19,7 @@ public class DepotAngleCustomerDifficultyWeightFactory
 
     @Override
     public DepotAngleCustomerDifficultyWeight createSorterWeight(VehicleRoutePlan vehicleRoutePlan,
-                                                                 Customer customer) {
+            Customer customer) {
         Depot depot = vehicleRoutePlan.getDepots().get(0);
         return new DepotAngleCustomerDifficultyWeight(customer,
                 customer.getLocation().getAngle(depot.getLocation()),
