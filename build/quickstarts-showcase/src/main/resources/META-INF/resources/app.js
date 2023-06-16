@@ -138,8 +138,8 @@ $(document).ready(function () {
   $("#vaccination-scheduling-launch").click(function () {
     launchQuickstart("vaccination-scheduling");
   });
-  $("#vehicle-routing-launch").click(function () {
-    launchQuickstart("vehicle-routing");
+  $("#vehicle-routing-capacity-launch").click(function () {
+    launchQuickstart("vehicle-routing-capacity");
   });
   $("#order-picking-launch").click(function () {
     launchQuickstart("order-picking");
