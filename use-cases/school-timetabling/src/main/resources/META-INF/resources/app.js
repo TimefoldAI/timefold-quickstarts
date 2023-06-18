@@ -296,7 +296,7 @@ function convertToId(str) {
   return btoa(str).replace(/=/g, "");
 }
 
-function textToClipboard(id) {
+function copyTextToClipboard(id) {
   var text = $("#" + id).text().trim();
 
   var dummy = document.createElement("textarea");

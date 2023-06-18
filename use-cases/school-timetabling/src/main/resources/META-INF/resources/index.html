@@ -72,7 +72,7 @@
         <h3>1. Download sample data set</h3>
         <pre>
             <button class="btn btn-outline-dark btn-sm float-end"
-                    onclick="textToClipboard('curl1')">Copy</button>
+                    onclick="copyTextToClipboard('curl1')">Copy</button>
             <code id="curl1">curl -X GET -H 'Accept:application/json' http://localhost:8080/demo/datasets/SMALL -o sample.json</code>
         </pre>
 
@@ -80,28 +80,28 @@
         <p>The POST operation returns a <code>jobId</code> that should be used in subsequent commands.</p>
         <pre>
             <button class="btn btn-outline-dark btn-sm float-end"
-                    onclick="textToClipboard('curl2')">Copy</button>
+                    onclick="copyTextToClipboard('curl2')">Copy</button>
             <code id="curl2">curl -X POST -H 'Content-Type:application/json' http://localhost:8080/timetables -d@sample.json</code>
         </pre>
 
         <h3>3. Get the current status and score</h3>
         <pre>
             <button class="btn btn-outline-dark btn-sm float-end"
-                    onclick="textToClipboard('curl3')">Copy</button>
+                    onclick="copyTextToClipboard('curl3')">Copy</button>
             <code id="curl3">curl -X GET -H 'Accept:application/json' http://localhost:8080/timetables/{jobId}?retrieve=STATUS</code>
         </pre>
 
         <h3>4. Get the complete solution</h3>
         <pre>
             <button class="btn btn-outline-dark btn-sm float-end"
-                    onclick="textToClipboard('curl4')">Copy</button>
+                    onclick="copyTextToClipboard('curl4')">Copy</button>
             <code id="curl4">curl -X GET -H 'Accept:application/json' http://localhost:8080/timetables/{jobId}</code>
         </pre>
 
         <h3>5. Terminate solving early</h3>
         <pre>
             <button class="btn btn-outline-dark btn-sm float-end"
-                    onclick="textToClipboard('curl5')">Copy</button>
+                    onclick="copyTextToClipboard('curl5')">Copy</button>
             <code id="curl5">curl -X DELETE -H 'Accept:application/json' http://localhost:8080/timetables/{id}</code>
         </pre>
     </div>
