@@ -11,27 +11,27 @@ import java.time.Duration;
 
 import ai.timefold.solver.core.api.solver.SolverStatus;
 
-import org.acme.schooltimetabling.domain.TimeTable;
+import org.acme.schooltimetabling.domain.Timetable;
 import org.junit.jupiter.api.Test;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
 
 @QuarkusTest
-public class TimeTableResourceTest {
+public class TimetableResourceTest {
 
     @Test
     public void solveDemoDataUntilFeasible() {
-        TimeTable testTimeTable = given()
+        Timetable testTimetable = given()
                 .when().get("/demo/datasets/SMALL")
                 .then()
                 .statusCode(200)
                 .extract()
-                .as(TimeTable.class);
+                .as(Timetable.class);
 
         String jobId = given()
                 .contentType(ContentType.JSON)
-                .body(testTimeTable)
+                .body(testTimetable)
                 .expect().contentType(ContentType.TEXT)
                 .when().post("/timetables")
                 .then()
@@ -43,10 +43,10 @@ public class TimeTableResourceTest {
                 .atMost(Duration.ofMinutes(1))
                 .pollInterval(Duration.ofMillis(500L))
                 .until(() -> SolverStatus.NOT_SOLVING.name().equals(
-                        get("/timetables/" + jobId + "?retrieve=" + TimeTableResource.Retrieve.STATUS)
+                        get("/timetables/" + jobId + "?retrieve=" + TimetableResource.Retrieve.STATUS)
                                 .jsonPath().get("solverStatus")));
 
-        TimeTable solution = get("/timetables/" + jobId).then().extract().as(TimeTable.class);
+        Timetable solution = get("/timetables/" + jobId).then().extract().as(Timetable.class);
         assertEquals(solution.getSolverStatus(), SolverStatus.NOT_SOLVING);
         assertNotNull(solution.getLessons());
         assertNotNull(solution.getTimeslots());

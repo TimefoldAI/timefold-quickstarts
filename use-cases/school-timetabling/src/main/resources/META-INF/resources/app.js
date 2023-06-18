@@ -145,55 +145,55 @@ function refreshSchedule() {
   });
 }
 
-function renderSchedule(timeTable) {
-    refreshSolvingButtons(timeTable.solverStatus != null && timeTable.solverStatus !== "NOT_SOLVING");
-    $("#score").text("Score: " + (timeTable.score == null ? "?" : timeTable.score));
+function renderSchedule(timetable) {
+    refreshSolvingButtons(timetable.solverStatus != null && timetable.solverStatus !== "NOT_SOLVING");
+    $("#score").text("Score: " + (timetable.score == null ? "?" : timetable.score));
 
-    const timeTableByRoom = $("#timeTableByRoom");
-    timeTableByRoom.children().remove();
-    const timeTableByTeacher = $("#timeTableByTeacher");
-    timeTableByTeacher.children().remove();
-    const timeTableByStudentGroup = $("#timeTableByStudentGroup");
-    timeTableByStudentGroup.children().remove();
+    const timetableByRoom = $("#timetableByRoom");
+    timetableByRoom.children().remove();
+    const timetableByTeacher = $("#timetableByTeacher");
+    timetableByTeacher.children().remove();
+    const timetableByStudentGroup = $("#timetableByStudentGroup");
+    timetableByStudentGroup.children().remove();
     const unassignedLessons = $("#unassignedLessons");
     unassignedLessons.children().remove();
 
-    const theadByRoom = $("<thead>").appendTo(timeTableByRoom);
+    const theadByRoom = $("<thead>").appendTo(timetableByRoom);
     const headerRowByRoom = $("<tr>").appendTo(theadByRoom);
     headerRowByRoom.append($("<th>Timeslot</th>"));
 
-    $.each(timeTable.rooms, (index, room) => {
+    $.each(timetable.rooms, (index, room) => {
       headerRowByRoom
         .append($("<th/>")
           .append($("<span/>").text(room.name))
           .append($(`<button type="button" class="ms-2 mb-1 btn btn-light btn-sm p-1"/>`)));
     });
-    const theadByTeacher = $("<thead>").appendTo(timeTableByTeacher);
+    const theadByTeacher = $("<thead>").appendTo(timetableByTeacher);
     const headerRowByTeacher = $("<tr>").appendTo(theadByTeacher);
     headerRowByTeacher.append($("<th>Timeslot</th>"));
-    const teacherList = [...new Set(timeTable.lessons.map(lesson => lesson.teacher))];
+    const teacherList = [...new Set(timetable.lessons.map(lesson => lesson.teacher))];
     $.each(teacherList, (index, teacher) => {
       headerRowByTeacher
         .append($("<th/>")
           .append($("<span/>").text(teacher)));
     });
-    const theadByStudentGroup = $("<thead>").appendTo(timeTableByStudentGroup);
+    const theadByStudentGroup = $("<thead>").appendTo(timetableByStudentGroup);
     const headerRowByStudentGroup = $("<tr>").appendTo(theadByStudentGroup);
     headerRowByStudentGroup.append($("<th>Timeslot</th>"));
-    const studentGroupList = [...new Set(timeTable.lessons.map(lesson => lesson.studentGroup))];
+    const studentGroupList = [...new Set(timetable.lessons.map(lesson => lesson.studentGroup))];
     $.each(studentGroupList, (index, studentGroup) => {
       headerRowByStudentGroup
         .append($("<th/>")
           .append($("<span/>").text(studentGroup)));
     });
 
-    const tbodyByRoom = $("<tbody>").appendTo(timeTableByRoom);
-    const tbodyByTeacher = $("<tbody>").appendTo(timeTableByTeacher);
-    const tbodyByStudentGroup = $("<tbody>").appendTo(timeTableByStudentGroup);
+    const tbodyByRoom = $("<tbody>").appendTo(timetableByRoom);
+    const tbodyByTeacher = $("<tbody>").appendTo(timetableByTeacher);
+    const tbodyByStudentGroup = $("<tbody>").appendTo(timetableByStudentGroup);
 
     const LocalTime = JSJoda.LocalTime;
 
-    $.each(timeTable.timeslots, (index, timeslot) => {
+    $.each(timetable.timeslots, (index, timeslot) => {
       const rowByRoom = $("<tr>").appendTo(tbodyByRoom);
       rowByRoom
         .append($(`<th class="align-middle"/>`)
@@ -203,7 +203,7 @@ function renderSchedule(timeTable) {
                     -
                     ${LocalTime.parse(timeslot.endTime).format(dateTimeFormatter)}
                 `)));
-      $.each(timeTable.rooms, (index, room) => {
+      $.each(timetable.rooms, (index, room) => {
         rowByRoom.append($("<td/>").prop("id", `timeslot${timeslot.id}room${room.id}`));
       });
 
@@ -234,7 +234,7 @@ function renderSchedule(timeTable) {
       });
     });
 
-    $.each(timeTable.lessons, (index, lesson) => {
+    $.each(timetable.lessons, (index, lesson) => {
       const color = pickColor(lesson.subject);
       const lessonElement = $(`<div class="card" style="background-color: ${color}"/>`)
         .append($(`<div class="card-body p-2"/>`)

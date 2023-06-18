@@ -11,7 +11,7 @@ import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
 import ai.timefold.solver.core.api.solver.SolverStatus;
 
 @PlanningSolution
-public class TimeTable {
+public class Timetable {
 
     private String name;
 
@@ -31,15 +31,16 @@ public class TimeTable {
     private SolverStatus solverStatus;
 
     // No-arg constructor required for Timefold
-    public TimeTable() {
+    public Timetable() {
     }
 
-    public TimeTable(String name, HardSoftScore score, SolverStatus solverStatus) {
+    public Timetable(String name, HardSoftScore score, SolverStatus solverStatus) {
+        this.name = name;
         this.score = score;
         this.solverStatus = solverStatus;
     }
 
-    public TimeTable(String name, List<Timeslot> timeslots, List<Room> rooms, List<Lesson> lessons) {
+    public Timetable(String name, List<Timeslot> timeslots, List<Room> rooms, List<Lesson> lessons) {
         this.name = name;
         this.timeslots = timeslots;
         this.rooms = rooms;

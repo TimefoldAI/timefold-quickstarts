@@ -10,10 +10,11 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
 import org.acme.schooltimetabling.domain.Lesson;
 import org.acme.schooltimetabling.domain.Room;
-import org.acme.schooltimetabling.domain.TimeTable;
 import org.acme.schooltimetabling.domain.Timeslot;
+import org.acme.schooltimetabling.domain.Timetable;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -25,7 +26,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 @Tag(name = "Demo data sets", description = "Timefold-provided demo school timetable data sets.")
 @Path("demo/datasets")
-public class TimeTableDemoResource {
+public class TimetableDemoResource {
 
     public enum DemoDataSet {
         SMALL,
@@ -45,7 +46,7 @@ public class TimeTableDemoResource {
     @APIResponses(value = {
             @APIResponse(responseCode = "200", description = "Unsolved demo timetable.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
-                            schema = @Schema(implementation = TimeTable.class)))})
+                            schema = @Schema(implementation = Timetable.class)))})
     @Operation(summary = "Find an unsolved demo timetable by ID.")
     @GET
     @Path("/{dataSetId}")
@@ -202,7 +203,7 @@ public class TimeTableDemoResource {
             lessonList.add(new Lesson(nextLessonId++, "Physical education", "C. Lewis", "12th grade"));
             lessonList.add(new Lesson(nextLessonId++, "Physical education", "C. Lewis", "12th grade"));
         }
-        return Response.ok(new TimeTable(demoDataSet.name(), timeslotList, roomList, lessonList)).build();
+        return Response.ok(new Timetable(demoDataSet.name(), timeslotList, roomList, lessonList)).build();
     }
 
 }
