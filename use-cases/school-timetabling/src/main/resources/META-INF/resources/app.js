@@ -78,44 +78,38 @@ function initMenu() {
 
 function createDataSets() {
     $.get("/demo/datasets", function (data) {
-        if (data && data.length > 0) {
-          data.forEach(item => {
+        data.forEach(item => {
             $("#testDataButton").append($('<a id="' + item + 'TestData" class="dropdown-item" href="#">' + item + '</a>'));
 
             $("#" + item + "TestData").click(function () {
-              switchDataDropDownItemActive(item);
-              scheduleId = null;
-              testData = item;
+                switchDataDropDownItemActive(item);
+                scheduleId = null;
+                testData = item;
 
-              refreshSchedule();
+                refreshSchedule();
             });
-          });
+        });
 
-          // load first data set
-          testData = data[0];
-          switchDataDropDownItemActive(testData);
+        // load first data set
+        testData = data[0];
+        switchDataDropDownItemActive(testData);
 
-          refreshSchedule();
+        refreshSchedule();
 
-          $("#solveButton").click(function () {
+        $("#solveButton").click(function () {
             solve();
-          });
-          $("#stopSolvingButton").click(function () {
+        });
+        $("#stopSolvingButton").click(function () {
             stopSolving();
-          });
+        });
 
-          refreshSolvingButtons(false);
-        } else {
-          $("#demo").removeClass('d-none');
-          $("#demo").empty();
-          $("#demo").html("<h1><p align=\"center\">No test data available</p></h1>")
-        }
-      }).fail(function (xhr, ajaxOptions, thrownError) {
+        refreshSolvingButtons(false);
+
+    }).fail(function (xhr, ajaxOptions, thrownError) {
         // disable this page as there is no data
-        $("#demo").removeClass('d-none');
         $("#demo").empty();
         $("#demo").html("<h1><p align=\"center\">No test data available</p></h1>")
-      });
+    });
 }
 
 function switchDataDropDownItemActive(newItem) {
