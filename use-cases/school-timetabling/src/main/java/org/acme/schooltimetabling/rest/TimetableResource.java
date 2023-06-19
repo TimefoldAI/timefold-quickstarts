@@ -5,8 +5,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import ai.timefold.solver.core.api.solver.SolverManager;
-import ai.timefold.solver.core.api.solver.SolverStatus;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -18,7 +16,11 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.acme.schooltimetabling.domain.TimeTable;
+
+import ai.timefold.solver.core.api.solver.SolverManager;
+import ai.timefold.solver.core.api.solver.SolverStatus;
+
+import org.acme.schooltimetabling.domain.Timetable;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -32,22 +34,22 @@ import org.slf4j.LoggerFactory;
 
 @Tag(name = "School Timetables", description = "School timetable service assigning lessons to rooms and timeslots.")
 @Path("timetables")
-public class TimeTableResource {
+public class TimetableResource {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TimeTableResource.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TimetableResource.class);
 
-    private final SolverManager<TimeTable, String> solverManager;
+    private final SolverManager<Timetable, String> solverManager;
 
     // TODO: Without any "time to live", the map may eventually grow out of memory.
     private final ConcurrentMap<String, Job> jobIdToJob = new ConcurrentHashMap<>();
 
     // Workaround to make Quarkus CDI happy. Do not use.
-    public TimeTableResource() {
+    public TimetableResource() {
         this.solverManager = null;
     }
 
     @Inject
-    public TimeTableResource(SolverManager<TimeTable, String> solverManager) {
+    public TimetableResource(SolverManager<Timetable, String> solverManager) {
         this.solverManager = solverManager;
     }
 
@@ -70,13 +72,16 @@ public class TimeTableResource {
     @POST
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces(MediaType.TEXT_PLAIN)
-    public String solve(TimeTable problem) {
+    public String solve(Timetable problem) {
         String jobId = UUID.randomUUID().toString();
         jobIdToJob.put(jobId, Job.newTimeTable(problem));
         solverManager.solveAndListen(jobId,
-                jobId_ -> jobIdToJob.get(jobId).timeTable,
+                jobId_ -> jobIdToJob.get(jobId).timetable,
                 solution -> jobIdToJob.put(jobId, Job.newTimeTable(solution)),
-                (jobId_, exception) -> jobIdToJob.put(jobId, Job.error(jobId_, exception)));
+                (jobId_, exception) -> {
+                    jobIdToJob.put(jobId, Job.error(jobId_, exception));
+                    LOGGER.error("Failed solving jobId ({}).", jobId, exception);
+                });
         return jobId;
     }
 
@@ -85,7 +90,7 @@ public class TimeTableResource {
     @APIResponses(value = {
             @APIResponse(responseCode = "200", description = "The best solution of the timetable so far.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
-                            schema = @Schema(implementation = TimeTable.class))),
+                            schema = @Schema(implementation = Timetable.class))),
             @APIResponse(responseCode = "404", description = "No timetable found.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
                             schema = @Schema(implementation = ErrorInfo.class))),
@@ -96,25 +101,24 @@ public class TimeTableResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{jobId}")
-    public TimeTable getTimeTable(
+    public Timetable getTimeTable(
             @Parameter(description = "The job ID returned by the POST method.") @PathParam("jobId") String jobId,
             @QueryParam("retrieve") Retrieve retrieve) {
         retrieve = retrieve == null ? Retrieve.FULL : retrieve;
         Job job = jobIdToJob.get(jobId);
         if (job == null) {
-            throw new TimeTableSolverException(jobId, Response.Status.NOT_FOUND, "No timetable found.");
+            throw new TimetableSolverException(jobId, Response.Status.NOT_FOUND, "No timetable found.");
         }
         if (job.error != null) {
-            LOGGER.error("Exception during solving jobId ({}), message ({}).", jobId, job.error.getMessage(), job.error);
-            throw new TimeTableSolverException(jobId, job.error);
+            throw new TimetableSolverException(jobId, job.error);
         }
-        TimeTable timeTable = job.timeTable;
+        Timetable timetable = job.timetable;
         SolverStatus solverStatus = solverManager.getSolverStatus(jobId);
         if (retrieve == Retrieve.STATUS) {
-            return new TimeTable(timeTable.getName(), timeTable.getScore(), solverStatus);
+            return new Timetable(timetable.getName(), timetable.getScore(), solverStatus);
         }
-        timeTable.setSolverStatus(solverStatus);
-        return timeTable;
+        timetable.setSolverStatus(solverStatus);
+        return timetable;
     }
 
     @Operation(
@@ -122,7 +126,7 @@ public class TimeTableResource {
     @APIResponses(value = {
             @APIResponse(responseCode = "200", description = "The best solution of the timetable so far.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
-                            schema = @Schema(implementation = TimeTable.class))),
+                            schema = @Schema(implementation = Timetable.class))),
             @APIResponse(responseCode = "404", description = "No timetable found.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
                             schema = @Schema(implementation = ErrorInfo.class))),
@@ -133,7 +137,7 @@ public class TimeTableResource {
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{jobId}")
-    public TimeTable terminateSolving(
+    public Timetable terminateSolving(
             @Parameter(description = "The job ID returned by the POST method.") @PathParam("jobId") String jobId,
             @QueryParam("retrieve") Retrieve retrieve) {
         // TODO: Replace with .terminateEarlyAndWait(... [, timeout]); see https://github.com/TimefoldAI/timefold-solver/issues/77
@@ -146,10 +150,10 @@ public class TimeTableResource {
         FULL
     }
 
-    private record Job(String jobId, TimeTable timeTable, Throwable error) {
+    private record Job(String jobId, Timetable timetable, Throwable error) {
 
-        static Job newTimeTable(TimeTable timeTable) {
-            return new Job(null, timeTable, null);
+        static Job newTimeTable(Timetable timetable) {
+            return new Job(null, timetable, null);
         }
 
         static Job error(String jobId, Throwable error) {

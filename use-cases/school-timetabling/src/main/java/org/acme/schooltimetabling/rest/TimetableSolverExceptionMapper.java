@@ -6,10 +6,10 @@ import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 
 @Provider
-public class TimeTableSolverExceptionMapper implements ExceptionMapper<TimeTableSolverException> {
+public class TimetableSolverExceptionMapper implements ExceptionMapper<TimetableSolverException> {
 
     @Override
-    public Response toResponse(TimeTableSolverException exception) {
+    public Response toResponse(TimetableSolverException exception) {
         return Response
                 .status(exception.getStatus())
                 .type(MediaType.APPLICATION_JSON)

@@ -1,121 +1,74 @@
 var autoRefreshIntervalId = null;
 const dateTimeFormatter = JSJoda.DateTimeFormatter.ofPattern('HH:mm')
 
-let testData = null;
+let demoDataId = null;
 let scheduleId = null;
 let loadedSchedule = null;
 
 $(document).ready(function () {
     replaceQuickstartTimefoldAutoHeaderFooter();
 
+    $("#solveButton").click(function () {
+        solve();
+    });
+    $("#stopSolvingButton").click(function () {
+        stopSolving();
+    });
+
+    setupAjax();
+    fetchDemoData();
+});
+
+function setupAjax() {
     $.ajaxSetup({
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json,text/plain', // plain text is required by solve() returning UUID of the solver job
-    }
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json,text/plain', // plain text is required by solve() returning UUID of the solver job
+        }
     });
 
     // Extend jQuery to support $.put() and $.delete()
     jQuery.each(["put", "delete"], function (i, method) {
-      jQuery[method] = function (url, data, callback, type) {
-        if (jQuery.isFunction(data)) {
-          type = type || callback;
-          callback = data;
-          data = undefined;
-        }
-        return jQuery.ajax({
-          url: url,
-          type: method,
-          dataType: type,
-          data: data,
-          success: callback
-        });
-      };
+        jQuery[method] = function (url, data, callback, type) {
+            if (jQuery.isFunction(data)) {
+                type = type || callback;
+                callback = data;
+                data = undefined;
+            }
+            return jQuery.ajax({
+                url: url,
+                type: method,
+                dataType: type,
+                data: data,
+                success: callback
+            });
+        };
     });
-
-    initMenu();
-    createDataSets();
-});
-
-function initMenu() {
-     $("#navUI").click(function () {
-        $("#demo").removeClass('d-none');
-        $("#rest").addClass('d-none');
-        $("#openapi").addClass('d-none');
-
-        $("#navUIItem").addClass('active');
-        $("#navRestItem").removeClass('active');
-        $("#navOpenApiItem").removeClass('active');
-      });
-      $("#navRest").click(function () {
-        $("#demo").addClass('d-none');
-        $("#rest").removeClass('d-none');
-        $("#openapi").addClass('d-none');
-
-        $("#navUIItem").removeClass('active');
-        $("#navRestItem").addClass('active');
-        $("#navOpenApiItem").removeClass('active');
-      });
-      $("#navOpenApi").click(function () {
-        $("#demo").addClass('d-none');
-        $("#rest").addClass('d-none');
-        $("#openapi").removeClass('d-none');
-
-        $("#navUIItem").removeClass('active');
-        $("#navRestItem").removeClass('active');
-        $("#navOpenApiItem").addClass('active');
-      });
-      $("#navConfiguration").click(function () {
-        $("#demo").addClass('d-none');
-        $("#rest").addClass('d-none');
-        $("#openapi").addClass('d-none');
-
-        $("#navUIItem").removeClass('active');
-        $("#navRestItem").removeClass('active');
-        $("#navOpenApiItem").removeClass('active')
-      });
 }
 
-function createDataSets() {
-    $.get("/demo/datasets", function (data) {
-        if (data && data.length > 0) {
-          data.forEach(item => {
+function fetchDemoData() {
+    $.get("/demo-data", function (data) {
+        data.forEach(item => {
             $("#testDataButton").append($('<a id="' + item + 'TestData" class="dropdown-item" href="#">' + item + '</a>'));
 
             $("#" + item + "TestData").click(function () {
-              switchDataDropDownItemActive(item);
-              scheduleId = null;
-              testData = item;
+                switchDataDropDownItemActive(item);
+                scheduleId = null;
+                demoDataId = item;
 
-              refreshSchedule();
+                refreshSchedule();
             });
-          });
+        });
 
-          // load first data set
-          testData = data[0];
-          switchDataDropDownItemActive(testData);
-
-          refreshSchedule();
-
-          $("#solveButton").click(function () {
-            solve();
-          });
-          $("#stopSolvingButton").click(function () {
-            stopSolving();
-          });
-
-          refreshSolvingButtons(false);
-        } else {
-          $("#demo").removeClass('d-none');
-          $("#demo").empty();
-          $("#demo").html("<h1><p align=\"center\">No test data available</p></h1>")
-        }
-      }).fail(function (xhr, ajaxOptions, thrownError) {
+        // load first data set
+        demoDataId = data[0];
+        switchDataDropDownItemActive(demoDataId);
+        refreshSchedule();
+    }).fail(function (xhr, ajaxOptions, thrownError) {
         // disable this page as there is no data
-        $("#demo").removeClass('d-none');
         $("#demo").empty();
         $("#demo").html("<h1><p align=\"center\">No test data available</p></h1>")
-      });
+    });
 }
 
 function switchDataDropDownItemActive(newItem) {
@@ -127,12 +80,12 @@ function switchDataDropDownItemActive(newItem) {
 function refreshSchedule() {
   let path = "/timetables/" + scheduleId;
   if (scheduleId === null) {
-    if (testData === null) {
+    if (demoDataId === null) {
       alert("Please select a test data set.");
       return;
     }
 
-    path = "/demo/datasets/" + testData;
+    path = "/demo-data/" + demoDataId;
   }
 
   $.getJSON(path, function (schedule) {
@@ -140,60 +93,60 @@ function refreshSchedule() {
 	renderSchedule(schedule);
   })
   .fail(function (xhr, ajaxOptions, thrownError) {
-      showError("Getting timetable has failed.", xhr);
+      showError("Getting the timetable has failed.", xhr);
       refreshSolvingButtons(false);
   });
 }
 
-function renderSchedule(timeTable) {
-    refreshSolvingButtons(timeTable.solverStatus != null && timeTable.solverStatus !== "NOT_SOLVING");
-    $("#score").text("Score: " + (timeTable.score == null ? "?" : timeTable.score));
+function renderSchedule(timetable) {
+    refreshSolvingButtons(timetable.solverStatus != null && timetable.solverStatus !== "NOT_SOLVING");
+    $("#score").text("Score: " + (timetable.score == null ? "?" : timetable.score));
 
-    const timeTableByRoom = $("#timeTableByRoom");
-    timeTableByRoom.children().remove();
-    const timeTableByTeacher = $("#timeTableByTeacher");
-    timeTableByTeacher.children().remove();
-    const timeTableByStudentGroup = $("#timeTableByStudentGroup");
-    timeTableByStudentGroup.children().remove();
+    const timetableByRoom = $("#timetableByRoom");
+    timetableByRoom.children().remove();
+    const timetableByTeacher = $("#timetableByTeacher");
+    timetableByTeacher.children().remove();
+    const timetableByStudentGroup = $("#timetableByStudentGroup");
+    timetableByStudentGroup.children().remove();
     const unassignedLessons = $("#unassignedLessons");
     unassignedLessons.children().remove();
 
-    const theadByRoom = $("<thead>").appendTo(timeTableByRoom);
+    const theadByRoom = $("<thead>").appendTo(timetableByRoom);
     const headerRowByRoom = $("<tr>").appendTo(theadByRoom);
     headerRowByRoom.append($("<th>Timeslot</th>"));
 
-    $.each(timeTable.rooms, (index, room) => {
+    $.each(timetable.rooms, (index, room) => {
       headerRowByRoom
         .append($("<th/>")
           .append($("<span/>").text(room.name))
           .append($(`<button type="button" class="ms-2 mb-1 btn btn-light btn-sm p-1"/>`)));
     });
-    const theadByTeacher = $("<thead>").appendTo(timeTableByTeacher);
+    const theadByTeacher = $("<thead>").appendTo(timetableByTeacher);
     const headerRowByTeacher = $("<tr>").appendTo(theadByTeacher);
     headerRowByTeacher.append($("<th>Timeslot</th>"));
-    const teacherList = [...new Set(timeTable.lessons.map(lesson => lesson.teacher))];
+    const teacherList = [...new Set(timetable.lessons.map(lesson => lesson.teacher))];
     $.each(teacherList, (index, teacher) => {
       headerRowByTeacher
         .append($("<th/>")
           .append($("<span/>").text(teacher)));
     });
-    const theadByStudentGroup = $("<thead>").appendTo(timeTableByStudentGroup);
+    const theadByStudentGroup = $("<thead>").appendTo(timetableByStudentGroup);
     const headerRowByStudentGroup = $("<tr>").appendTo(theadByStudentGroup);
     headerRowByStudentGroup.append($("<th>Timeslot</th>"));
-    const studentGroupList = [...new Set(timeTable.lessons.map(lesson => lesson.studentGroup))];
+    const studentGroupList = [...new Set(timetable.lessons.map(lesson => lesson.studentGroup))];
     $.each(studentGroupList, (index, studentGroup) => {
       headerRowByStudentGroup
         .append($("<th/>")
           .append($("<span/>").text(studentGroup)));
     });
 
-    const tbodyByRoom = $("<tbody>").appendTo(timeTableByRoom);
-    const tbodyByTeacher = $("<tbody>").appendTo(timeTableByTeacher);
-    const tbodyByStudentGroup = $("<tbody>").appendTo(timeTableByStudentGroup);
+    const tbodyByRoom = $("<tbody>").appendTo(timetableByRoom);
+    const tbodyByTeacher = $("<tbody>").appendTo(timetableByTeacher);
+    const tbodyByStudentGroup = $("<tbody>").appendTo(timetableByStudentGroup);
 
     const LocalTime = JSJoda.LocalTime;
 
-    $.each(timeTable.timeslots, (index, timeslot) => {
+    $.each(timetable.timeslots, (index, timeslot) => {
       const rowByRoom = $("<tr>").appendTo(tbodyByRoom);
       rowByRoom
         .append($(`<th class="align-middle"/>`)
@@ -203,7 +156,7 @@ function renderSchedule(timeTable) {
                     -
                     ${LocalTime.parse(timeslot.endTime).format(dateTimeFormatter)}
                 `)));
-      $.each(timeTable.rooms, (index, room) => {
+      $.each(timetable.rooms, (index, room) => {
         rowByRoom.append($("<td/>").prop("id", `timeslot${timeslot.id}room${room.id}`));
       });
 
@@ -234,7 +187,7 @@ function renderSchedule(timeTable) {
       });
     });
 
-    $.each(timeTable.lessons, (index, lesson) => {
+    $.each(timetable.lessons, (index, lesson) => {
       const color = pickColor(lesson.subject);
       const lessonElement = $(`<div class="card" style="background-color: ${color}"/>`)
         .append($(`<div class="card-body p-2"/>`)
@@ -296,7 +249,7 @@ function convertToId(str) {
   return btoa(str).replace(/=/g, "");
 }
 
-function textToClipboard(id) {
+function copyTextToClipboard(id) {
   var text = $("#" + id).text().trim();
 
   var dummy = document.createElement("textarea");
@@ -322,15 +275,15 @@ function replaceQuickstartTimefoldAutoHeaderFooter() {
             <span class="navbar-toggler-icon"></span>
           </button>
           <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
+            <ul class="nav nav-pills">
               <li class="nav-item active" id="navUIItem">
-                <a class="nav-link" href="#" id="navUI">Demo UI</a>
+                <button class="nav-link active" id="navUI" data-bs-toggle="pill" data-bs-target="#demo" type="button">Demo UI</button>
               </li>
               <li class="nav-item" id="navRestItem">
-                <a class="nav-link" href="#" id="navRest">Guide</a>
+                <button class="nav-link" id="navRest" data-bs-toggle="pill" data-bs-target="#rest" type="button">Guide</button>
               </li>
               <li class="nav-item" id="navOpenApiItem">
-                <a class="nav-link" href="#" id="navOpenApi">REST API</a>
+                <button class="nav-link" id="navOpenApi" data-bs-toggle="pill" data-bs-target="#openapi" type="button">REST API</button>
               </li>
             </ul>
           </div>
