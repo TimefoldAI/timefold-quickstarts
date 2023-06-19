@@ -62,9 +62,9 @@ public class VehicleRoutePlanResource {
                 jobId_ -> jobIdToJob.get(jobId).routePlan,
                 solution -> jobIdToJob.put(jobId, Job.newRoutePlan(solution)),
                 (jobId_, exception) -> {
-            jobIdToJob.put(jobId, Job.error(jobId_, exception));
-            LOGGER.error("Failed solving jobId ({}).", jobId,  exception);}
-        );
+                    jobIdToJob.put(jobId, Job.error(jobId_, exception));
+                    LOGGER.error("Failed solving jobId ({}).", jobId, exception);
+                });
         return jobId;
     }
 

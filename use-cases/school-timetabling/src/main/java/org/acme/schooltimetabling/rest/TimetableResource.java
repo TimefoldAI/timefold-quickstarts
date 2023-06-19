@@ -5,8 +5,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import ai.timefold.solver.core.api.solver.SolverManager;
-import ai.timefold.solver.core.api.solver.SolverStatus;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -18,6 +16,10 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
+import ai.timefold.solver.core.api.solver.SolverManager;
+import ai.timefold.solver.core.api.solver.SolverStatus;
+
 import org.acme.schooltimetabling.domain.Timetable;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
@@ -76,7 +78,10 @@ public class TimetableResource {
         solverManager.solveAndListen(jobId,
                 jobId_ -> jobIdToJob.get(jobId).timetable,
                 solution -> jobIdToJob.put(jobId, Job.newTimeTable(solution)),
-                (jobId_, exception) -> jobIdToJob.put(jobId, Job.error(jobId_, exception)));
+                (jobId_, exception) -> {
+                    jobIdToJob.put(jobId, Job.error(jobId_, exception));
+                    LOGGER.error("Failed solving jobId ({}).", jobId, exception);
+                });
         return jobId;
     }
 
@@ -105,7 +110,6 @@ public class TimetableResource {
             throw new TimetableSolverException(jobId, Response.Status.NOT_FOUND, "No timetable found.");
         }
         if (job.error != null) {
-            LOGGER.error("Exception during solving jobId ({}), message ({}).", jobId, job.error.getMessage(), job.error);
             throw new TimetableSolverException(jobId, job.error);
         }
         Timetable timetable = job.timetable;
