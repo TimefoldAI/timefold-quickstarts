@@ -24,23 +24,23 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
-@Tag(name = "Demo data sets", description = "Timefold-provided demo school timetable data sets.")
-@Path("demo/datasets")
+@Tag(name = "Demo data", description = "Timefold-provided demo school timetable data.")
+@Path("demo-data")
 public class TimetableDemoResource {
 
-    public enum DemoDataSet {
+    public enum DemoData {
         SMALL,
         LARGE
     }
 
     @APIResponses(value = {
-            @APIResponse(responseCode = "200", description = "List of demo data sets represented as IDs.",
+            @APIResponse(responseCode = "200", description = "List of demo data represented as IDs.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
-                            schema = @Schema(implementation = DemoDataSet.class, type = SchemaType.ARRAY))) })
-    @Operation(summary = "List demo data sets.")
+                            schema = @Schema(implementation = DemoData.class, type = SchemaType.ARRAY))) })
+    @Operation(summary = "List demo data.")
     @GET
-    public DemoDataSet[] list() {
-        return DemoDataSet.values();
+    public DemoData[] list() {
+        return DemoData.values();
     }
 
     @APIResponses(value = {
@@ -49,9 +49,9 @@ public class TimetableDemoResource {
                             schema = @Schema(implementation = Timetable.class)))})
     @Operation(summary = "Find an unsolved demo timetable by ID.")
     @GET
-    @Path("/{dataSetId}")
-    public Response generate(@Parameter(description = "Unique identifier of the demo data set.",
-            required = true) @PathParam("dataSetId") DemoDataSet demoDataSet) {
+    @Path("/{demoDataId}")
+    public Response generate(@Parameter(description = "Unique identifier of the demo data.",
+            required = true) @PathParam("demoDataId") DemoData demoData) {
         List<Timeslot> timeslotList = new ArrayList<>(10);
         long nextTimeslotId = 0L;
         timeslotList.add(new Timeslot(nextTimeslotId++, DayOfWeek.MONDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)));
@@ -65,7 +65,7 @@ public class TimetableDemoResource {
         timeslotList.add(new Timeslot(nextTimeslotId++, DayOfWeek.TUESDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)));
         timeslotList.add(new Timeslot(nextTimeslotId++, DayOfWeek.TUESDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)));
         timeslotList.add(new Timeslot(nextTimeslotId++, DayOfWeek.TUESDAY, LocalTime.of(14, 30), LocalTime.of(15, 30)));
-        if (demoDataSet == DemoDataSet.LARGE) {
+        if (demoData == DemoData.LARGE) {
             timeslotList.add(new Timeslot(nextTimeslotId++, DayOfWeek.WEDNESDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)));
             timeslotList.add(new Timeslot(nextTimeslotId++, DayOfWeek.WEDNESDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)));
             timeslotList.add(new Timeslot(nextTimeslotId++, DayOfWeek.WEDNESDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)));
@@ -88,7 +88,7 @@ public class TimetableDemoResource {
         roomList.add(new Room(nextRoomId++, "Room A"));
         roomList.add(new Room(nextRoomId++, "Room B"));
         roomList.add(new Room(nextRoomId++, "Room C"));
-        if (demoDataSet == DemoDataSet.LARGE) {
+        if (demoData == DemoData.LARGE) {
             roomList.add(new Room(nextRoomId++, "Room D"));
             roomList.add(new Room(nextRoomId++, "Room E"));
             roomList.add(new Room(nextRoomId++, "Room F"));
@@ -106,7 +106,7 @@ public class TimetableDemoResource {
         lessonList.add(new Lesson(nextLessonId++, "English", "I. Jones", "9th grade"));
         lessonList.add(new Lesson(nextLessonId++, "Spanish", "P. Cruz", "9th grade"));
         lessonList.add(new Lesson(nextLessonId++, "Spanish", "P. Cruz", "9th grade"));
-        if (demoDataSet == DemoDataSet.LARGE) {
+        if (demoData == DemoData.LARGE) {
             lessonList.add(new Lesson(nextLessonId++, "Math", "A. Turing", "9th grade"));
             lessonList.add(new Lesson(nextLessonId++, "Math", "A. Turing", "9th grade"));
             lessonList.add(new Lesson(nextLessonId++, "Math", "A. Turing", "9th grade"));
@@ -134,7 +134,7 @@ public class TimetableDemoResource {
         lessonList.add(new Lesson(nextLessonId++, "History", "I. Jones", "10th grade"));
         lessonList.add(new Lesson(nextLessonId++, "English", "P. Cruz", "10th grade"));
         lessonList.add(new Lesson(nextLessonId++, "Spanish", "P. Cruz", "10th grade"));
-        if (demoDataSet == DemoDataSet.LARGE) {
+        if (demoData == DemoData.LARGE) {
             lessonList.add(new Lesson(nextLessonId++, "Math", "A. Turing", "10th grade"));
             lessonList.add(new Lesson(nextLessonId++, "Math", "A. Turing", "10th grade"));
             lessonList.add(new Lesson(nextLessonId++, "ICT", "A. Turing", "10th grade"));
@@ -203,7 +203,7 @@ public class TimetableDemoResource {
             lessonList.add(new Lesson(nextLessonId++, "Physical education", "C. Lewis", "12th grade"));
             lessonList.add(new Lesson(nextLessonId++, "Physical education", "C. Lewis", "12th grade"));
         }
-        return Response.ok(new Timetable(demoDataSet.name(), timeslotList, roomList, lessonList)).build();
+        return Response.ok(new Timetable(demoData.name(), timeslotList, roomList, lessonList)).build();
     }
 
 }

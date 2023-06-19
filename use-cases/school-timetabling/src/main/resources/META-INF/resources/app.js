@@ -1,110 +1,69 @@
 var autoRefreshIntervalId = null;
 const dateTimeFormatter = JSJoda.DateTimeFormatter.ofPattern('HH:mm')
 
-let testData = null;
+let demoDataId = null;
 let scheduleId = null;
 let loadedSchedule = null;
 
 $(document).ready(function () {
     replaceQuickstartTimefoldAutoHeaderFooter();
 
+    $("#solveButton").click(function () {
+        solve();
+    });
+    $("#stopSolvingButton").click(function () {
+        stopSolving();
+    });
+
+    setupAjax();
+    fetchDemoData();
+});
+
+function setupAjax() {
     $.ajaxSetup({
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json,text/plain', // plain text is required by solve() returning UUID of the solver job
-    }
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json,text/plain', // plain text is required by solve() returning UUID of the solver job
+        }
     });
 
     // Extend jQuery to support $.put() and $.delete()
     jQuery.each(["put", "delete"], function (i, method) {
-      jQuery[method] = function (url, data, callback, type) {
-        if (jQuery.isFunction(data)) {
-          type = type || callback;
-          callback = data;
-          data = undefined;
-        }
-        return jQuery.ajax({
-          url: url,
-          type: method,
-          dataType: type,
-          data: data,
-          success: callback
-        });
-      };
+        jQuery[method] = function (url, data, callback, type) {
+            if (jQuery.isFunction(data)) {
+                type = type || callback;
+                callback = data;
+                data = undefined;
+            }
+            return jQuery.ajax({
+                url: url,
+                type: method,
+                dataType: type,
+                data: data,
+                success: callback
+            });
+        };
     });
-
-    initMenu();
-    createDataSets();
-});
-
-function initMenu() {
-     $("#navUI").click(function () {
-        $("#demo").removeClass('d-none');
-        $("#rest").addClass('d-none');
-        $("#openapi").addClass('d-none');
-
-        $("#navUIItem").addClass('active');
-        $("#navRestItem").removeClass('active');
-        $("#navOpenApiItem").removeClass('active');
-      });
-      $("#navRest").click(function () {
-        $("#demo").addClass('d-none');
-        $("#rest").removeClass('d-none');
-        $("#openapi").addClass('d-none');
-
-        $("#navUIItem").removeClass('active');
-        $("#navRestItem").addClass('active');
-        $("#navOpenApiItem").removeClass('active');
-      });
-      $("#navOpenApi").click(function () {
-        $("#demo").addClass('d-none');
-        $("#rest").addClass('d-none');
-        $("#openapi").removeClass('d-none');
-
-        $("#navUIItem").removeClass('active');
-        $("#navRestItem").removeClass('active');
-        $("#navOpenApiItem").addClass('active');
-      });
-      $("#navConfiguration").click(function () {
-        $("#demo").addClass('d-none');
-        $("#rest").addClass('d-none');
-        $("#openapi").addClass('d-none');
-
-        $("#navUIItem").removeClass('active');
-        $("#navRestItem").removeClass('active');
-        $("#navOpenApiItem").removeClass('active')
-      });
 }
 
-function createDataSets() {
-    $.get("/demo/datasets", function (data) {
+function fetchDemoData() {
+    $.get("/demo-data", function (data) {
         data.forEach(item => {
             $("#testDataButton").append($('<a id="' + item + 'TestData" class="dropdown-item" href="#">' + item + '</a>'));
 
             $("#" + item + "TestData").click(function () {
                 switchDataDropDownItemActive(item);
                 scheduleId = null;
-                testData = item;
+                demoDataId = item;
 
                 refreshSchedule();
             });
         });
 
         // load first data set
-        testData = data[0];
-        switchDataDropDownItemActive(testData);
-
+        demoDataId = data[0];
+        switchDataDropDownItemActive(demoDataId);
         refreshSchedule();
-
-        $("#solveButton").click(function () {
-            solve();
-        });
-        $("#stopSolvingButton").click(function () {
-            stopSolving();
-        });
-
-        refreshSolvingButtons(false);
-
     }).fail(function (xhr, ajaxOptions, thrownError) {
         // disable this page as there is no data
         $("#demo").empty();
@@ -121,12 +80,12 @@ function switchDataDropDownItemActive(newItem) {
 function refreshSchedule() {
   let path = "/timetables/" + scheduleId;
   if (scheduleId === null) {
-    if (testData === null) {
+    if (demoDataId === null) {
       alert("Please select a test data set.");
       return;
     }
 
-    path = "/demo/datasets/" + testData;
+    path = "/demo-data/" + demoDataId;
   }
 
   $.getJSON(path, function (schedule) {
@@ -134,7 +93,7 @@ function refreshSchedule() {
 	renderSchedule(schedule);
   })
   .fail(function (xhr, ajaxOptions, thrownError) {
-      showError("Getting timetable has failed.", xhr);
+      showError("Getting the timetable has failed.", xhr);
       refreshSolvingButtons(false);
   });
 }
@@ -316,15 +275,15 @@ function replaceQuickstartTimefoldAutoHeaderFooter() {
             <span class="navbar-toggler-icon"></span>
           </button>
           <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
+            <ul class="nav nav-pills">
               <li class="nav-item active" id="navUIItem">
-                <a class="nav-link" href="#" id="navUI">Demo UI</a>
+                <button class="nav-link active" id="navUI" data-bs-toggle="pill" data-bs-target="#demo" type="button">Demo UI</button>
               </li>
               <li class="nav-item" id="navRestItem">
-                <a class="nav-link" href="#" id="navRest">Guide</a>
+                <button class="nav-link" id="navRest" data-bs-toggle="pill" data-bs-target="#rest" type="button">Guide</button>
               </li>
               <li class="nav-item" id="navOpenApiItem">
-                <a class="nav-link" href="#" id="navOpenApi">REST API</a>
+                <button class="nav-link" id="navOpenApi" data-bs-toggle="pill" data-bs-target="#openapi" type="button">REST API</button>
               </li>
             </ul>
           </div>

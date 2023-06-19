@@ -23,7 +23,7 @@ public class TimetableResourceTest {
     @Test
     public void solveDemoDataUntilFeasible() {
         Timetable testTimetable = given()
-                .when().get("/demo/datasets/SMALL")
+                .when().get("/demo-data/SMALL")
                 .then()
                 .statusCode(200)
                 .extract()

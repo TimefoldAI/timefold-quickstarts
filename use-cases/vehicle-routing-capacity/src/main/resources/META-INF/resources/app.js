@@ -35,7 +35,7 @@ $(document).ready(function () {
 
     setupAjax();
 
-    createDataSets();
+    fetchDemoData();
 });
 
 const colorByVehicle = (vehicle) => vehicle === null ? null : pickColor('vehicle' + vehicle.id);
@@ -225,7 +225,7 @@ function stopSolving() {
     });
 }
 
-function createDataSets() {
+function fetchDemoData() {
     $.get("/demo-data", function (data) {
         data.forEach(item => {
             $("#testDataButton").append($('<a id="' + item + 'TestData" class="dropdown-item" href="#">' + item + '</a>'));
