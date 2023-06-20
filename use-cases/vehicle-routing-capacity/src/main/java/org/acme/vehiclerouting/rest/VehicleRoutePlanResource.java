@@ -57,12 +57,12 @@ public class VehicleRoutePlanResource {
     @Produces(MediaType.TEXT_PLAIN)
     public String solve(VehicleRoutePlan problem) {
         String jobId = UUID.randomUUID().toString();
-        jobIdToJob.put(jobId, Job.newRoutePlan(problem));
+        jobIdToJob.put(jobId, Job.ofRoutePlan(problem));
         solverManager.solveAndListen(jobId,
                 jobId_ -> jobIdToJob.get(jobId).routePlan,
-                solution -> jobIdToJob.put(jobId, Job.newRoutePlan(solution)),
+                solution -> jobIdToJob.put(jobId, Job.ofRoutePlan(solution)),
                 (jobId_, exception) -> {
-                    jobIdToJob.put(jobId, Job.error(jobId_, exception));
+                    jobIdToJob.put(jobId, Job.ofException(exception));
                     LOGGER.error("Failed solving jobId ({}).", jobId, exception);
                 });
         return jobId;
@@ -79,8 +79,8 @@ public class VehicleRoutePlanResource {
         if (job == null) {
             throw new VehicleRoutingSolverException(jobId, Response.Status.NOT_FOUND, "No route plan found.");
         }
-        if (job.error != null) {
-            throw new VehicleRoutingSolverException(jobId, job.error);
+        if (job.exception != null) {
+            throw new VehicleRoutingSolverException(jobId, job.exception);
         }
         VehicleRoutePlan routePlan = job.routePlan;
         SolverStatus solverStatus = solverManager.getSolverStatus(jobId);
@@ -109,14 +109,14 @@ public class VehicleRoutePlanResource {
         FULL
     }
 
-    private record Job(String jobId, VehicleRoutePlan routePlan, Throwable error) {
+    private record Job(VehicleRoutePlan routePlan, Throwable exception) {
 
-        static Job newRoutePlan(VehicleRoutePlan routePlan) {
-            return new Job(null, routePlan, null);
+        static Job ofRoutePlan(VehicleRoutePlan routePlan) {
+            return new Job(routePlan, null);
         }
 
-        static Job error(String jobId, Throwable error) {
-            return new Job(jobId, null, error);
+        static Job ofException(Throwable exception) {
+            return new Job(null, exception);
         }
 
     }
