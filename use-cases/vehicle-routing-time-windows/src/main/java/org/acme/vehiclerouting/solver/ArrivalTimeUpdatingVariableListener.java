@@ -1,6 +1,6 @@
 package org.acme.vehiclerouting.solver;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 import ai.timefold.solver.core.api.domain.variable.VariableListener;
@@ -30,11 +30,11 @@ public class ArrivalTimeUpdatingVariableListener implements VariableListener<Veh
         }
 
         Customer previousCustomer = customer.getPreviousCustomer();
-        LocalTime departureTime =
+        LocalDateTime departureTime =
                 previousCustomer == null ? customer.getVehicle().getDepartureTime() : previousCustomer.getDepartureTime();
 
         Customer nextCustomer = customer;
-        LocalTime arrivalTime = calculateArrivalTime(nextCustomer, departureTime);
+        LocalDateTime arrivalTime = calculateArrivalTime(nextCustomer, departureTime);
         while (nextCustomer != null && !Objects.equals(nextCustomer.getArrivalTime(), arrivalTime)) {
             scoreDirector.beforeVariableChanged(nextCustomer, ARRIVAL_TIME_FIELD);
             nextCustomer.setArrivalTime(arrivalTime);
@@ -65,11 +65,12 @@ public class ArrivalTimeUpdatingVariableListener implements VariableListener<Veh
 
     }
 
-    private LocalTime calculateArrivalTime(Customer customer, LocalTime previousDepartureTime) {
+    private LocalDateTime calculateArrivalTime(Customer customer, LocalDateTime previousDepartureTime) {
         if (customer == null || previousDepartureTime == null) {
             return null;
         }
         // TODO: figure out a better metric; we are mixing time and distance.
-        return previousDepartureTime.plusSeconds(customer.getDistanceFromPreviousStandstill());
+        // assumes the distance is in meters and the speed is 60 kmph
+        return previousDepartureTime.plusSeconds(customer.getDistanceFromPreviousStandstill() / 16);
     }
 }

@@ -1,6 +1,6 @@
 package org.acme.vehiclerouting.domain;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -27,12 +27,12 @@ public class Vehicle {
     @PlanningListVariable
     private List<Customer> customers;
 
-    private LocalTime departureTime;
+    private LocalDateTime departureTime;
 
     public Vehicle() {
     }
 
-    public Vehicle(long id, Depot depot, LocalTime departureTime) {
+    public Vehicle(long id, Depot depot, LocalDateTime departureTime) {
         this.id = id;
         this.depot = depot;
         this.customers = new ArrayList<>();
@@ -63,7 +63,7 @@ public class Vehicle {
         this.customers = customers;
     }
 
-    public LocalTime getDepartureTime() {
+    public LocalDateTime getDepartureTime() {
         return departureTime;
     }
 // ************************************************************************

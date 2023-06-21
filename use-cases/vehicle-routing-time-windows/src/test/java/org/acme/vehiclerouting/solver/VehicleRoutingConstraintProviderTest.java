@@ -1,6 +1,8 @@
 package org.acme.vehiclerouting.solver;
 
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Arrays;
 
@@ -21,12 +23,13 @@ import io.quarkus.test.junit.QuarkusTest;
 
 @QuarkusTest
 class VehicleRoutingConstraintProviderTest {
-
-    @Inject
-    ConstraintVerifier<VehicleRoutingConstraintProvider, VehicleRoutePlan> constraintVerifier;
     private static final Location location1 = new Location( 0.0, 0.0);
     private static final Location location2 = new Location(0.0, 4.0);
     private static final Location location3 = new Location( 3.0, 0.0);
+
+    private static final LocalDate TOMORROW = LocalDate.now().plusDays(1);
+    @Inject
+    ConstraintVerifier<VehicleRoutingConstraintProvider, VehicleRoutePlan> constraintVerifier;
 
     @BeforeAll
     static void initDistanceMaps() {
@@ -35,10 +38,13 @@ class VehicleRoutingConstraintProviderTest {
 
     @Test
     void totalDistance() {
-        Vehicle vehicleA = new Vehicle(1L, new Depot(1L, location1), LocalTime.of(7, 0));
-        Customer customer1 = new Customer(2L, location2, LocalTime.of(8, 0), LocalTime.of(10, 0), Duration.ofMinutes(30L));
+        LocalDateTime tomorrow_07_00 = LocalDateTime.of(TOMORROW, LocalTime.of(7, 0));
+        LocalDateTime tomorrow_08_00 = LocalDateTime.of(TOMORROW, LocalTime.of(8, 0));
+        LocalDateTime tomorrow_10_00 = LocalDateTime.of(TOMORROW, LocalTime.of(10, 0));
+        Vehicle vehicleA = new Vehicle(1L, new Depot(1L, location1), tomorrow_07_00);
+        Customer customer1 = new Customer(2L, location2, tomorrow_08_00, tomorrow_10_00, Duration.ofMinutes(30L));
         vehicleA.getCustomers().add(customer1);
-        Customer customer2 = new Customer(3L, location3, LocalTime.of(8, 0), LocalTime.of(10, 0), Duration.ofMinutes(30L));
+        Customer customer2 = new Customer(3L, location3, tomorrow_08_00, tomorrow_10_00, Duration.ofMinutes(30L));
         vehicleA.getCustomers().add(customer2);
 
         constraintVerifier.verifyThat(VehicleRoutingConstraintProvider::totalDistance)
@@ -48,11 +54,18 @@ class VehicleRoutingConstraintProviderTest {
 
     @Test
     void serviceFinishedAfterDueTime() {
-        Customer customer1 = new Customer(2L, location2, LocalTime.of(8, 0), LocalTime.of(18, 0), Duration.ofHours(1L));
-        customer1.setArrivalTime(LocalTime.of(8, 40));
-        Customer customer2 = new Customer(3L, location3, LocalTime.of(8, 0), LocalTime.of(9, 0), Duration.ofHours(1L));
-        customer2.setArrivalTime(LocalTime.of(8 + 1 + 1, 30));
-        Vehicle vehicleA = new Vehicle(1L, new Depot(1L, location1), LocalTime.of(7, 0));
+        LocalDateTime tomorrow_07_00 = LocalDateTime.of(TOMORROW, LocalTime.of(7, 0));
+        LocalDateTime tomorrow_08_00 = LocalDateTime.of(TOMORROW, LocalTime.of(8, 0));
+        LocalDateTime tomorrow_08_40 = LocalDateTime.of(TOMORROW, LocalTime.of(8, 40));
+        LocalDateTime tomorrow_09_00 = LocalDateTime.of(TOMORROW, LocalTime.of(9, 0));
+        LocalDateTime tomorrow_10_30 = LocalDateTime.of(TOMORROW, LocalTime.of(10, 30));
+        LocalDateTime tomorrow_18_00 = LocalDateTime.of(TOMORROW, LocalTime.of(18, 0));
+
+        Customer customer1 = new Customer(2L, location2, tomorrow_08_00, tomorrow_18_00, Duration.ofHours(1L));
+        customer1.setArrivalTime(tomorrow_08_40);
+        Customer customer2 = new Customer(3L, location3, tomorrow_08_00, tomorrow_09_00, Duration.ofHours(1L));
+        customer2.setArrivalTime(tomorrow_10_30);
+        Vehicle vehicleA = new Vehicle(1L, new Depot(1L, location1), tomorrow_07_00);
 
         connect(vehicleA, customer1, customer2);
 

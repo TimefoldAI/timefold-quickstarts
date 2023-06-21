@@ -1,33 +1,35 @@
- package org.acme.vehiclerouting.rest;
+package org.acme.vehiclerouting.rest;
 
- import java.time.Duration;
- import java.time.LocalTime;
- import java.util.List;
- import java.util.PrimitiveIterator;
- import java.util.Random;
- import java.util.concurrent.atomic.AtomicLong;
- import java.util.function.Supplier;
- import java.util.stream.Collectors;
- import java.util.stream.Stream;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.PrimitiveIterator;
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
- import jakarta.ws.rs.GET;
- import jakarta.ws.rs.Path;
- import jakarta.ws.rs.PathParam;
- import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.core.MediaType;
 
- import org.acme.vehiclerouting.domain.Customer;
- import org.acme.vehiclerouting.domain.Depot;
- import org.acme.vehiclerouting.domain.Location;
- import org.acme.vehiclerouting.domain.Vehicle;
- import org.acme.vehiclerouting.domain.VehicleRoutePlan;
- import org.eclipse.microprofile.openapi.annotations.Operation;
- import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
- import org.eclipse.microprofile.openapi.annotations.media.Content;
- import org.eclipse.microprofile.openapi.annotations.media.Schema;
- import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
- import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
- import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
- import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.acme.vehiclerouting.domain.Customer;
+import org.acme.vehiclerouting.domain.Depot;
+import org.acme.vehiclerouting.domain.Location;
+import org.acme.vehiclerouting.domain.Vehicle;
+import org.acme.vehiclerouting.domain.VehicleRoutePlan;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 @Tag(name = "Demo data", description = "Timefold-provided demo vehicle routing data.")
 @Path("demo-data")
@@ -35,19 +37,19 @@ public class VehicleRouteDemoResource {
 
     public enum DemoData {
         FIRENZE(77, 6, 2, Duration.ofMinutes(20L), 4,
-                new Location(43.751466, 11.177210), new Location(43.809291, 11.290195));
+                LocalTime.of(7, 30), new Location(43.751466, 11.177210), new Location(43.809291, 11.290195));
 
         private int customerCount;
         private int vehicleCount;
         private int depotCount;
         private Duration serviceDuration;
-
         private int windowSizeToDurationRatio;
+        private LocalTime vehicleStartTime;
         private Location southWestCorner;
         private Location northEastCorner;
 
         DemoData(int customerCount, int vehicleCount, int depotCount, Duration serviceDuration,
-                 int windowSizeToDurationRatio, Location southWestCorner, Location northEastCorner) {
+                int windowSizeToDurationRatio, LocalTime vehicleStartTime, Location southWestCorner, Location northEastCorner) {
             if (customerCount < 1) {
                 throw new IllegalStateException(
                         "Number of customerCount (" + customerCount + ") must be greater than zero.");
@@ -78,6 +80,7 @@ public class VehicleRouteDemoResource {
             this.depotCount = depotCount;
             this.serviceDuration = serviceDuration;
             this.windowSizeToDurationRatio = windowSizeToDurationRatio;
+            this.vehicleStartTime = vehicleStartTime;
             this.southWestCorner = southWestCorner;
             this.northEastCorner = northEastCorner;
         }
@@ -96,7 +99,7 @@ public class VehicleRouteDemoResource {
     @APIResponses(value = {
             @APIResponse(responseCode = "200", description = "Unsolved demo route plan.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
-                            schema = @Schema(implementation = VehicleRoutePlan.class)))})
+                            schema = @Schema(implementation = VehicleRoutePlan.class))) })
     @Operation(summary = "Find an unsolved demo route plan by ID.")
     @GET
     @Path("/{demoDataId}")
@@ -126,11 +129,13 @@ public class VehicleRouteDemoResource {
                 .limit(demoData.depotCount)
                 .collect(Collectors.toList());
 
+        final LocalDate tomorrow = LocalDate.now().plusDays(1L);
+
         AtomicLong vehicleSequence = new AtomicLong();
         Supplier<Vehicle> vehicleSupplier = () -> new Vehicle(
                 vehicleSequence.incrementAndGet(),
                 depots.get(depotRandom.nextInt()),
-                LocalTime.of(7, 30));
+                LocalDateTime.of(tomorrow, LocalTime.of(7, 30)));
 
         List<Vehicle> vehicles = Stream.generate(vehicleSupplier)
                 .limit(demoData.vehicleCount)
@@ -138,9 +143,10 @@ public class VehicleRouteDemoResource {
 
         AtomicLong customerSequence = new AtomicLong();
         Duration windowSize = demoData.serviceDuration.multipliedBy(demoData.windowSizeToDurationRatio);
-        PrimitiveIterator.OfInt readyHourRandom = random.ints(8,  24 - (int) windowSize.toHours()).iterator();
+        PrimitiveIterator.OfInt readyHourRandom = random.ints(demoData.vehicleStartTime.getHour() + 1,
+                24 - (int) windowSize.toHours()).iterator();
         Supplier<Customer> customerSupplier = () -> {
-            LocalTime readyTime = LocalTime.of(readyHourRandom.nextInt(), 0);
+            LocalDateTime readyTime = LocalDateTime.of(tomorrow, LocalTime.of(readyHourRandom.nextInt(), 0));
             return new Customer(
                     customerSequence.incrementAndGet(),
                     new Location(latitudes.nextDouble(), longitudes.nextDouble()),

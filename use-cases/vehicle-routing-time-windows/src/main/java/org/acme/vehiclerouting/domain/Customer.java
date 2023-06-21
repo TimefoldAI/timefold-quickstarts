@@ -1,7 +1,7 @@
 package org.acme.vehiclerouting.domain;
 
 import java.time.Duration;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.variable.InverseRelationShadowVariable;
@@ -23,8 +23,8 @@ public class Customer {
     private long id;
     @JsonIdentityReference
     private Location location;
-    private LocalTime readyTime;
-    private LocalTime dueTime;
+    private LocalDateTime readyTime;
+    private LocalDateTime dueTime;
     private Duration serviceDuration;
 
     private Vehicle vehicle;
@@ -33,12 +33,12 @@ public class Customer {
 
     private Customer nextCustomer;
 
-    private LocalTime arrivalTime;
+    private LocalDateTime arrivalTime;
 
     public Customer() {
     }
 
-    public Customer(long id, Location location, LocalTime readyTime, LocalTime dueTime, Duration serviceDuration) {
+    public Customer(long id, Location location, LocalDateTime readyTime, LocalDateTime dueTime, Duration serviceDuration) {
         this.id = id;
         this.readyTime = readyTime;
         this.dueTime = dueTime;
@@ -58,11 +58,11 @@ public class Customer {
         this.location = location;
     }
 
-    public LocalTime getReadyTime() {
+    public LocalDateTime getReadyTime() {
         return readyTime;
     }
 
-    public LocalTime getDueTime() {
+    public LocalDateTime getDueTime() {
         return dueTime;
     }
 
@@ -102,11 +102,11 @@ public class Customer {
 
     @ShadowVariable(variableListenerClass = ArrivalTimeUpdatingVariableListener.class, sourceVariableName = "vehicle")
     @ShadowVariable(variableListenerClass = ArrivalTimeUpdatingVariableListener.class, sourceVariableName = "previousCustomer")
-    public LocalTime getArrivalTime() {
+    public LocalDateTime getArrivalTime() {
         return arrivalTime;
     }
 
-    public void setArrivalTime(LocalTime arrivalTime) {
+    public void setArrivalTime(LocalDateTime arrivalTime) {
         this.arrivalTime = arrivalTime;
     }
 
@@ -115,11 +115,11 @@ public class Customer {
     // ************************************************************************
 
     @JsonIgnore
-    public LocalTime getDepartureTime() {
+    public LocalDateTime getDepartureTime() {
         if (arrivalTime == null) {
             return null;
         }
-        LocalTime startServiceTime = arrivalTime.isBefore(readyTime) ? readyTime : arrivalTime;
+        LocalDateTime startServiceTime = arrivalTime.isBefore(readyTime) ? readyTime : arrivalTime;
         return startServiceTime.plus(serviceDuration);
     }
 
