@@ -64,8 +64,7 @@ jobs:
           cache: 'maven'
       - name: Quickly build timefold-solver
         working-directory: ./timefold-solver
-        # TODO replace "-Dfull -DskipTests" by "-Dquickly" once we don't need distribution ZIP.
-        run: mvn -B -Dfull -DskipTests clean install
+        run: mvn -B -Dquickly -DskipTests clean install
       - name: Build and test timefold-quickstarts
         working-directory: ./timefold-quickstarts
-        run: mvn -B -Dfull verify
+        run: mvn -B verify

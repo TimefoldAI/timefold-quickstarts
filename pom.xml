@@ -36,18 +36,4 @@
     <module>build/quickstarts-showcase</module>
   </modules>
 
-  <profiles>
-    <profile>
-      <id>fullProfile</id>
-      <activation>
-        <property>
-          <name>full</name>
-        </property>
-      </activation>
-      <modules>
-        <module>build/distribution</module>
-      </modules>
-    </profile>
-  </profiles>
-
 </project>
