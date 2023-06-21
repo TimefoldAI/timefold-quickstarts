@@ -67,4 +67,4 @@ jobs:
         run: mvn -B -Dquickly -DskipTests clean install
       - name: Build and test timefold-quickstarts
         working-directory: ./timefold-quickstarts
-        run: mvn -B -Dfull verify
+        run: mvn -B verify
