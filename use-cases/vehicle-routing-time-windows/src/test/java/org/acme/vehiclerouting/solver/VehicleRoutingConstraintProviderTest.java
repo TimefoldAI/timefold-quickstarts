@@ -15,7 +15,7 @@ import org.acme.vehiclerouting.domain.Depot;
 import org.acme.vehiclerouting.domain.Location;
 import org.acme.vehiclerouting.domain.Vehicle;
 import org.acme.vehiclerouting.domain.VehicleRoutePlan;
-import org.acme.vehiclerouting.domain.geo.EuclideanDistanceCalculator;
+import org.acme.vehiclerouting.domain.geo.HaversineDistanceCalculator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -23,9 +23,15 @@ import io.quarkus.test.junit.QuarkusTest;
 
 @QuarkusTest
 class VehicleRoutingConstraintProviderTest {
-    private static final Location location1 = new Location( 0.0, 0.0);
-    private static final Location location2 = new Location(0.0, 4.0);
-    private static final Location location3 = new Location( 3.0, 0.0);
+
+    /*
+     * LOCATION_1 to LOCATION_2 is approx. 12 km
+     * LOCATION_2 to LOCATION_3 is approx. 9 km
+     * LOCATION_1 to LOCATION_3 is approx. 13 km
+     */
+    private static final Location LOCATION_1 = new Location(49.288087, 16.562172);
+    private static final Location LOCATION_2 = new Location(49.190922, 16.624466);
+    private static final Location LOCATION_3 = new Location(49.1767533245638, 16.50422914190477);
 
     private static final LocalDate TOMORROW = LocalDate.now().plusDays(1);
     @Inject
@@ -33,7 +39,7 @@ class VehicleRoutingConstraintProviderTest {
 
     @BeforeAll
     static void initDistanceMaps() {
-        new EuclideanDistanceCalculator().initDistanceMaps(Arrays.asList(location1, location2, location3));
+        new HaversineDistanceCalculator().initDistanceMaps(Arrays.asList(LOCATION_1, LOCATION_2, LOCATION_3));
     }
 
     @Test
@@ -41,15 +47,15 @@ class VehicleRoutingConstraintProviderTest {
         LocalDateTime tomorrow_07_00 = LocalDateTime.of(TOMORROW, LocalTime.of(7, 0));
         LocalDateTime tomorrow_08_00 = LocalDateTime.of(TOMORROW, LocalTime.of(8, 0));
         LocalDateTime tomorrow_10_00 = LocalDateTime.of(TOMORROW, LocalTime.of(10, 0));
-        Vehicle vehicleA = new Vehicle(1L, new Depot(1L, location1), tomorrow_07_00);
-        Customer customer1 = new Customer(2L, location2, tomorrow_08_00, tomorrow_10_00, Duration.ofMinutes(30L));
+        Vehicle vehicleA = new Vehicle(1L, new Depot(1L, LOCATION_1), tomorrow_07_00);
+        Customer customer1 = new Customer(2L, LOCATION_2, tomorrow_08_00, tomorrow_10_00, Duration.ofMinutes(30L));
         vehicleA.getCustomers().add(customer1);
-        Customer customer2 = new Customer(3L, location3, tomorrow_08_00, tomorrow_10_00, Duration.ofMinutes(30L));
+        Customer customer2 = new Customer(3L, LOCATION_3, tomorrow_08_00, tomorrow_10_00, Duration.ofMinutes(30L));
         vehicleA.getCustomers().add(customer2);
 
         constraintVerifier.verifyThat(VehicleRoutingConstraintProvider::totalDistance)
                 .given(vehicleA, customer1, customer2)
-                .penalizesBy((4 + 5 + 3) * EuclideanDistanceCalculator.METERS_PER_DEGREE);
+                .penalizesBy(33668L); // The sum of the approximate distances between all three locations.
     }
 
     @Test
@@ -61,11 +67,11 @@ class VehicleRoutingConstraintProviderTest {
         LocalDateTime tomorrow_10_30 = LocalDateTime.of(TOMORROW, LocalTime.of(10, 30));
         LocalDateTime tomorrow_18_00 = LocalDateTime.of(TOMORROW, LocalTime.of(18, 0));
 
-        Customer customer1 = new Customer(2L, location2, tomorrow_08_00, tomorrow_18_00, Duration.ofHours(1L));
+        Customer customer1 = new Customer(2L, LOCATION_2, tomorrow_08_00, tomorrow_18_00, Duration.ofHours(1L));
         customer1.setArrivalTime(tomorrow_08_40);
-        Customer customer2 = new Customer(3L, location3, tomorrow_08_00, tomorrow_09_00, Duration.ofHours(1L));
+        Customer customer2 = new Customer(3L, LOCATION_3, tomorrow_08_00, tomorrow_09_00, Duration.ofHours(1L));
         customer2.setArrivalTime(tomorrow_10_30);
-        Vehicle vehicleA = new Vehicle(1L, new Depot(1L, location1), tomorrow_07_00);
+        Vehicle vehicleA = new Vehicle(1L, new Depot(1L, LOCATION_1), tomorrow_07_00);
 
         connect(vehicleA, customer1, customer2);
 

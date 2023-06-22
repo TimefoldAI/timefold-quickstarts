@@ -12,7 +12,7 @@ import ai.timefold.solver.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
 import ai.timefold.solver.core.api.solver.SolverStatus;
 
 import org.acme.vehiclerouting.domain.geo.DistanceCalculator;
-import org.acme.vehiclerouting.domain.geo.EuclideanDistanceCalculator;
+import org.acme.vehiclerouting.domain.geo.HaversineDistanceCalculator;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -74,7 +74,7 @@ public class VehicleRoutePlan {
                 depots.stream().map(Depot::getLocation),
                 customers.stream().map(Customer::getLocation)).toList();
 
-        DistanceCalculator distanceCalculator = new EuclideanDistanceCalculator();
+        DistanceCalculator distanceCalculator = new HaversineDistanceCalculator();
         distanceCalculator.initDistanceMaps(locations);
     }
 
