@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 public class Customer {
 
     private long id;
-    @JsonIdentityReference
     private Location location;
     private LocalDateTime readyTime;
     private LocalDateTime dueTime;
@@ -70,7 +69,7 @@ public class Customer {
         return serviceDuration;
     }
 
-    @JsonIgnore
+    @JsonIdentityReference(alwaysAsId = true)
     @InverseRelationShadowVariable(sourceVariableName = "customers")
     public Vehicle getVehicle() {
         return vehicle;
@@ -80,7 +79,7 @@ public class Customer {
         this.vehicle = vehicle;
     }
 
-    @JsonIgnore
+    @JsonIdentityReference(alwaysAsId = true)
     @PreviousElementShadowVariable(sourceVariableName = "customers")
     public Customer getPreviousCustomer() {
         return previousCustomer;
@@ -90,7 +89,7 @@ public class Customer {
         this.previousCustomer = previousCustomer;
     }
 
-    @JsonIgnore
+    @JsonIdentityReference(alwaysAsId = true)
     @NextElementShadowVariable(sourceVariableName = "customers")
     public Customer getNextCustomer() {
         return nextCustomer;
@@ -121,18 +120,6 @@ public class Customer {
         }
         LocalDateTime startServiceTime = arrivalTime.isBefore(readyTime) ? readyTime : arrivalTime;
         return startServiceTime.plus(serviceDuration);
-    }
-
-    @JsonIgnore
-    public boolean isArrivalBeforeReadyTime() {
-        return arrivalTime != null
-                && arrivalTime.isBefore(readyTime);
-    }
-
-    @JsonIgnore
-    public boolean isArrivalAfterDueTime() {
-        return arrivalTime != null
-                && arrivalTime.isAfter(dueTime);
     }
 
     @JsonIgnore
