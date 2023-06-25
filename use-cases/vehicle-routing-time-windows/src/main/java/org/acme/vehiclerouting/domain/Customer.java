@@ -14,6 +14,7 @@ import org.acme.vehiclerouting.solver.ArrivalTimeUpdatingVariableListener;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 @JsonIdentityInfo(scope = Customer.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
@@ -21,6 +22,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 public class Customer {
 
     private long id;
+    private String name;
     private Location location;
     private LocalDateTime readyTime;
     private LocalDateTime dueTime;
@@ -37,8 +39,10 @@ public class Customer {
     public Customer() {
     }
 
-    public Customer(long id, Location location, LocalDateTime readyTime, LocalDateTime dueTime, Duration serviceDuration) {
+    public Customer(long id, String name, Location location, LocalDateTime readyTime, LocalDateTime dueTime,
+            Duration serviceDuration) {
         this.id = id;
+        this.name = name;
         this.readyTime = readyTime;
         this.dueTime = dueTime;
         this.serviceDuration = serviceDuration;
@@ -109,17 +113,32 @@ public class Customer {
         this.arrivalTime = arrivalTime;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     // ************************************************************************
     // Complex methods
     // ************************************************************************
 
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public LocalDateTime getDepartureTime() {
         if (arrivalTime == null) {
             return null;
         }
-        LocalDateTime startServiceTime = arrivalTime.isBefore(readyTime) ? readyTime : arrivalTime;
-        return startServiceTime.plus(serviceDuration);
+        return getStartServiceTime().plus(serviceDuration);
+    }
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    public LocalDateTime getStartServiceTime() {
+        if (arrivalTime == null) {
+            return null;
+        }
+        return arrivalTime.isBefore(readyTime) ? readyTime : arrivalTime;
     }
 
     @JsonIgnore
@@ -136,11 +155,12 @@ public class Customer {
         return Duration.between(dueTime, arrivalTime.plus(serviceDuration)).toMinutes();
     }
 
-    @JsonIgnore
-    public long getDistanceFromPreviousStandstill() {
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    public long getDrivingTimeSecondsFromPreviousStandstill() {
         if (vehicle == null) {
-            throw new IllegalStateException(
-                    "This method must not be called when the shadow variables are not initialized yet.");
+            return 0L;
+//            throw new IllegalStateException(
+//                    "This method must not be called when the shadow variables are not initialized yet.");
         }
         if (previousCustomer == null) {
             return vehicle.getDepot().getLocation().getDistanceTo(location);

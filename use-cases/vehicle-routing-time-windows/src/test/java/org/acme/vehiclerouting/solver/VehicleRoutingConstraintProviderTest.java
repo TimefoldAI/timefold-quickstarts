@@ -25,9 +25,9 @@ import io.quarkus.test.junit.QuarkusTest;
 class VehicleRoutingConstraintProviderTest {
 
     /*
-     * LOCATION_1 to LOCATION_2 is approx. 12 km
-     * LOCATION_2 to LOCATION_3 is approx. 9 km
-     * LOCATION_1 to LOCATION_3 is approx. 13 km
+     * LOCATION_1 to LOCATION_2 is approx. 12 km ~720 seconds of driving time
+     * LOCATION_2 to LOCATION_3 is approx. 9 km ~540 seconds of driving time
+     * LOCATION_1 to LOCATION_3 is approx. 13 km ~780 seconds of driving time
      */
     private static final Location LOCATION_1 = new Location(49.288087, 16.562172);
     private static final Location LOCATION_2 = new Location(49.190922, 16.624466);
@@ -48,14 +48,14 @@ class VehicleRoutingConstraintProviderTest {
         LocalDateTime tomorrow_08_00 = LocalDateTime.of(TOMORROW, LocalTime.of(8, 0));
         LocalDateTime tomorrow_10_00 = LocalDateTime.of(TOMORROW, LocalTime.of(10, 0));
         Vehicle vehicleA = new Vehicle(1L, new Depot(1L, LOCATION_1), tomorrow_07_00);
-        Customer customer1 = new Customer(2L, LOCATION_2, tomorrow_08_00, tomorrow_10_00, Duration.ofMinutes(30L));
+        Customer customer1 = new Customer(2L, "John", LOCATION_2, tomorrow_08_00, tomorrow_10_00, Duration.ofMinutes(30L));
         vehicleA.getCustomers().add(customer1);
-        Customer customer2 = new Customer(3L, LOCATION_3, tomorrow_08_00, tomorrow_10_00, Duration.ofMinutes(30L));
+        Customer customer2 = new Customer(3L, "Paul", LOCATION_3, tomorrow_08_00, tomorrow_10_00, Duration.ofMinutes(30L));
         vehicleA.getCustomers().add(customer2);
 
         constraintVerifier.verifyThat(VehicleRoutingConstraintProvider::totalDistance)
                 .given(vehicleA, customer1, customer2)
-                .penalizesBy(33668L); // The sum of the approximate distances between all three locations.
+                .penalizesBy(2021L); // The sum of the approximate driving time between all three locations.
     }
 
     @Test
@@ -67,9 +67,9 @@ class VehicleRoutingConstraintProviderTest {
         LocalDateTime tomorrow_10_30 = LocalDateTime.of(TOMORROW, LocalTime.of(10, 30));
         LocalDateTime tomorrow_18_00 = LocalDateTime.of(TOMORROW, LocalTime.of(18, 0));
 
-        Customer customer1 = new Customer(2L, LOCATION_2, tomorrow_08_00, tomorrow_18_00, Duration.ofHours(1L));
+        Customer customer1 = new Customer(2L, "John", LOCATION_2, tomorrow_08_00, tomorrow_18_00, Duration.ofHours(1L));
         customer1.setArrivalTime(tomorrow_08_40);
-        Customer customer2 = new Customer(3L, LOCATION_3, tomorrow_08_00, tomorrow_09_00, Duration.ofHours(1L));
+        Customer customer2 = new Customer(3L, "Paul", LOCATION_3, tomorrow_08_00, tomorrow_09_00, Duration.ofHours(1L));
         customer2.setArrivalTime(tomorrow_10_30);
         Vehicle vehicleA = new Vehicle(1L, new Depot(1L, LOCATION_1), tomorrow_07_00);
 

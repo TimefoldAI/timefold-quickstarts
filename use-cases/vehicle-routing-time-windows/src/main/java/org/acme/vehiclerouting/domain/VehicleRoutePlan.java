@@ -1,5 +1,6 @@
 package org.acme.vehiclerouting.domain;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -15,7 +16,6 @@ import org.acme.vehiclerouting.domain.geo.DistanceCalculator;
 import org.acme.vehiclerouting.domain.geo.HaversineDistanceCalculator;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -24,9 +24,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class VehicleRoutePlan {
 
     private String name;
-
-    @JsonIgnore
-    private List<Location> locations;
 
     @ProblemFactCollectionProperty
     private List<Depot> depots;
@@ -48,6 +45,10 @@ public class VehicleRoutePlan {
 
     private String scoreExplanation;
 
+    private LocalDateTime startDateTime;
+
+    private LocalDateTime endDateTime;
+
     public VehicleRoutePlan() {
     }
 
@@ -63,14 +64,18 @@ public class VehicleRoutePlan {
                             @JsonProperty("vehicles") List<Vehicle> vehicles,
                             @JsonProperty("customers") List<Customer> customers,
                             @JsonProperty("southWestCorner") Location southWestCorner,
-                            @JsonProperty("northEastCorner") Location northEastCorner) {
+                            @JsonProperty("northEastCorner") Location northEastCorner,
+                            @JsonProperty("startDateTime") LocalDateTime startDateTime,
+                            @JsonProperty("endDateTime") LocalDateTime endDateTime) {
         this.name = name;
         this.depots = depots;
         this.vehicles = vehicles;
         this.customers = customers;
         this.southWestCorner = southWestCorner;
         this.northEastCorner = northEastCorner;
-        this.locations = Stream.concat(
+        this.startDateTime = startDateTime;
+        this.endDateTime = endDateTime;
+        List<Location> locations = Stream.concat(
                 depots.stream().map(Depot::getLocation),
                 customers.stream().map(Customer::getLocation)).toList();
 
@@ -84,14 +89,6 @@ public class VehicleRoutePlan {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public List<Location> getLocations() {
-        return locations;
-    }
-
-    public void setLocations(List<Location> locations) {
-        this.locations = locations;
     }
 
     public List<Depot> getDepots() {
@@ -146,7 +143,14 @@ public class VehicleRoutePlan {
         this.scoreExplanation = scoreExplanation;
     }
 
-    // ************************************************************************
+    public LocalDateTime getStartDateTime() {
+        return startDateTime;
+    }
+
+    public LocalDateTime getEndDateTime() {
+        return endDateTime;
+    }
+// ************************************************************************
     // Complex methods
     // ************************************************************************
 

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.PrimitiveIterator;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -35,21 +36,27 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 @Path("demo-data")
 public class VehicleRouteDemoResource {
 
+    private static final String[] FIRST_NAMES = { "Amy", "Beth", "Chad", "Dan", "Elsa", "Flo", "Gus", "Hugo", "Ivy", "Jay" };
+    private static final String[] LAST_NAMES = { "Cole", "Fox", "Green", "Jones", "King", "Li", "Poe", "Rye", "Smith", "Watt" };
+    private static final int[] SERVICE_DURATION_MINUTES = { 10, 20, 30, 40 };
+    private static final LocalTime MORNING_WINDOW_START = LocalTime.of(8, 0);
+    private static final LocalTime MORNING_WINDOW_END = LocalTime.of(12, 0);
+    private static final LocalTime AFTERNOON_WINDOW_START = LocalTime.of(13, 0);
+    private static final LocalTime AFTERNOON_WINDOW_END = LocalTime.of(18, 0);
+
     public enum DemoData {
-        FIRENZE(77, 6, 2, Duration.ofMinutes(20L), 4,
-                LocalTime.of(7, 30), new Location(43.751466, 11.177210), new Location(43.809291, 11.290195));
+        FIRENZE(77, 6, 2, LocalTime.of(7, 30),
+                new Location(43.751466, 11.177210), new Location(43.809291, 11.290195));
 
         private int customerCount;
         private int vehicleCount;
         private int depotCount;
-        private Duration serviceDuration;
-        private int windowSizeToDurationRatio;
         private LocalTime vehicleStartTime;
         private Location southWestCorner;
         private Location northEastCorner;
 
-        DemoData(int customerCount, int vehicleCount, int depotCount, Duration serviceDuration,
-                int windowSizeToDurationRatio, LocalTime vehicleStartTime, Location southWestCorner, Location northEastCorner) {
+        DemoData(int customerCount, int vehicleCount, int depotCount, LocalTime vehicleStartTime,
+                Location southWestCorner, Location northEastCorner) {
             if (customerCount < 1) {
                 throw new IllegalStateException(
                         "Number of customerCount (" + customerCount + ") must be greater than zero.");
@@ -61,10 +68,6 @@ public class VehicleRouteDemoResource {
             if (depotCount < 1) {
                 throw new IllegalStateException(
                         "Number of depotCount (" + depotCount + ") must be greater than zero.");
-            }
-            if (windowSizeToDurationRatio < 1) {
-                throw new IllegalStateException(
-                        "Time windows size to duration ratio (" + depotCount + ") must be greater than zero.");
             }
             if (northEastCorner.getLatitude() <= southWestCorner.getLatitude()) {
                 throw new IllegalStateException("northEastCorner.getLatitude (" + northEastCorner.getLatitude()
@@ -78,8 +81,6 @@ public class VehicleRouteDemoResource {
             this.customerCount = customerCount;
             this.vehicleCount = vehicleCount;
             this.depotCount = depotCount;
-            this.serviceDuration = serviceDuration;
-            this.windowSizeToDurationRatio = windowSizeToDurationRatio;
             this.vehicleStartTime = vehicleStartTime;
             this.southWestCorner = southWestCorner;
             this.northEastCorner = northEastCorner;
@@ -109,7 +110,6 @@ public class VehicleRouteDemoResource {
     }
 
     public VehicleRoutePlan build(DemoData demoData) {
-
         String name = "demo";
 
         Random random = new Random(0);
@@ -129,30 +129,37 @@ public class VehicleRouteDemoResource {
                 .limit(demoData.depotCount)
                 .collect(Collectors.toList());
 
-        final LocalDate tomorrow = LocalDate.now().plusDays(1L);
-
         AtomicLong vehicleSequence = new AtomicLong();
         Supplier<Vehicle> vehicleSupplier = () -> new Vehicle(
                 vehicleSequence.incrementAndGet(),
                 depots.get(depotRandom.nextInt()),
-                LocalDateTime.of(tomorrow, LocalTime.of(7, 30)));
+                tomorrowAt(demoData.vehicleStartTime));
 
         List<Vehicle> vehicles = Stream.generate(vehicleSupplier)
                 .limit(demoData.vehicleCount)
                 .collect(Collectors.toList());
 
+        Supplier<String> nameSupplier = () -> {
+            Function<String[], String> randomStringSelector = strings -> strings[random.nextInt(strings.length)];
+            String firstName = randomStringSelector.apply(FIRST_NAMES);
+            String lastName = randomStringSelector.apply(LAST_NAMES);
+            return firstName + " " + lastName;
+        };
+
         AtomicLong customerSequence = new AtomicLong();
-        Duration windowSize = demoData.serviceDuration.multipliedBy(demoData.windowSizeToDurationRatio);
-        PrimitiveIterator.OfInt readyHourRandom = random.ints(demoData.vehicleStartTime.getHour() + 1,
-                24 - (int) windowSize.toHours()).iterator();
         Supplier<Customer> customerSupplier = () -> {
-            LocalDateTime readyTime = LocalDateTime.of(tomorrow, LocalTime.of(readyHourRandom.nextInt(), 0));
+            boolean morningTimeWindow = random.nextBoolean();
+
+            LocalDateTime readyTime = morningTimeWindow ? tomorrowAt(MORNING_WINDOW_START) : tomorrowAt(AFTERNOON_WINDOW_START);
+            LocalDateTime dueTime = morningTimeWindow ? tomorrowAt(MORNING_WINDOW_END) : tomorrowAt(AFTERNOON_WINDOW_END);
+            int serviceDurationMinutes = SERVICE_DURATION_MINUTES[random.nextInt(SERVICE_DURATION_MINUTES.length)];
             return new Customer(
                     customerSequence.incrementAndGet(),
+                    nameSupplier.get(),
                     new Location(latitudes.nextDouble(), longitudes.nextDouble()),
                     readyTime,
-                    readyTime.plus(windowSize),
-                    demoData.serviceDuration);
+                    dueTime,
+                    Duration.ofMinutes(serviceDurationMinutes));
         };
 
         List<Customer> customers = Stream.generate(customerSupplier)
@@ -160,6 +167,10 @@ public class VehicleRouteDemoResource {
                 .collect(Collectors.toList());
 
         return new VehicleRoutePlan(name, depots, vehicles, customers, demoData.southWestCorner,
-                demoData.northEastCorner);
+                demoData.northEastCorner, tomorrowAt(demoData.vehicleStartTime), tomorrowAt(LocalTime.MIDNIGHT).plusDays(1L));
+    }
+
+    private static LocalDateTime tomorrowAt(LocalTime time) {
+        return LocalDateTime.of(LocalDate.now().plusDays(1L), time);
     }
 }

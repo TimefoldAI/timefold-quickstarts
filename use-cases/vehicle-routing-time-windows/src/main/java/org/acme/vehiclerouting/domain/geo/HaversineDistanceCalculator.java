@@ -6,6 +6,11 @@ public class HaversineDistanceCalculator implements DistanceCalculator {
 
     private static final int EARTH_RADIUS_IN_KM = 6371;
     private static final int TWICE_EARTH_RADIUS_IN_KM = 2 * EARTH_RADIUS_IN_KM;
+    public static final int  AVERAGE_SPEED_KMPH = 60;
+
+    public static long kilometersToDrivingSeconds(double kilometers) {
+        return Math.round(kilometers / AVERAGE_SPEED_KMPH * 3_600);
+    }
 
     @Override
     public long calculateDistance(Location from, Location to) {
@@ -27,7 +32,7 @@ public class HaversineDistanceCalculator implements DistanceCalculator {
         double dY = from.y - to.y;
         double dZ = from.z - to.z;
         double r = Math.sqrt((dX * dX) + (dY * dY) + (dZ * dZ));
-        return Math.round(TWICE_EARTH_RADIUS_IN_KM * Math.asin(r) * 1_000);
+        return kilometersToDrivingSeconds(TWICE_EARTH_RADIUS_IN_KM * Math.asin(r));
     }
     private CartesianCoordinate locationToCartesian(Location location) {
         double latitudeInRads = Math.toRadians(location.getLatitude());

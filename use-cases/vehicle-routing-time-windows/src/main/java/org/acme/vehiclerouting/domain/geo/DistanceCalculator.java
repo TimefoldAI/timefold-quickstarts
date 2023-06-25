@@ -10,11 +10,11 @@ import org.acme.vehiclerouting.domain.Location;
 public interface DistanceCalculator {
 
     /**
-     * Calculate the distance between {@code from} and {@code to} in meters.
+     * Calculate the distance between {@code from} and {@code to} in seconds of driving time.
      *
      * @param from starting location
      * @param to   target location
-     * @return distance in meters
+     * @return driving time in seconds
      */
     long calculateDistance(Location from, Location to);
 

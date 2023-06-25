@@ -91,7 +91,7 @@ public class Vehicle {
     }
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    public long getTotalDistanceMeters() {
+    public long getTotalDrivingTimeSeconds() {
         if (customers.isEmpty()) {
             return 0;
         }

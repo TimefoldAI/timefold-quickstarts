@@ -1,10 +1,18 @@
-const depotByIdMap = new Map();
-const customerByIdMap = new Map();
+let autoRefreshIntervalId = null;
+let initialized = false;
+let demoDataId = null;
+let scheduleId = null;
+let loadedRoutePlan = null;
 
 const solveButton = $('#solveButton');
 const stopSolvingButton = $('#stopSolvingButton');
 const vehiclesTable = $('#vehicles');
 const depotsTable = $('#depots');
+
+/*************************************** Map constants and variable definitions  **************************************/
+
+const depotByIdMap = new Map();
+const customerByIdMap = new Map();
 
 const defaultIcon = new L.Icon.Default();
 
@@ -13,11 +21,38 @@ const customerGroup = L.layerGroup().addTo(map);
 const depotGroup = L.layerGroup().addTo(map);
 const routeGroup = L.layerGroup().addTo(map);
 
-let autoRefreshIntervalId = null;
-let initialized = false;
-let demoDataId = null;
-let scheduleId = null;
-let loadedSchedule = null;
+/************************************ Time line constants and variable definitions ************************************/
+
+const byVehiclePanel = document.getElementById("byVehiclePanel");
+const byVehicleTimelineOptions = {
+    timeAxis: {scale: "hour"},
+    orientation: {axis: "top"},
+    xss: {disabled: true}, // Items are XSS safe through JQuery
+    stack: false,
+    stackSubgroups: false,
+    zoomMin: 1000 * 60 * 60, // A single hour in milliseconds
+    zoomMax: 1000 * 60 * 60 * 24 // A single day in milliseconds
+};
+const byVehicleGroupDataSet = new vis.DataSet();
+const byVehicleItemDataSet = new vis.DataSet();
+const byVehicleTimeline = new vis.Timeline(byVehiclePanel, byVehicleItemDataSet, byVehicleGroupDataSet, byVehicleTimelineOptions);
+
+const byCustomerPanel = document.getElementById("byCustomerPanel");
+const byCustomerTimelineOptions = {
+    timeAxis: {scale: "hour"},
+    orientation: {axis: "top"},
+    verticalScroll: true,
+    xss: {disabled: true}, // Items are XSS safe through JQuery
+    stack: false,
+    stackSubgroups: false,
+    zoomMin: 1000 * 60 * 60, // A single hour in milliseconds
+    zoomMax: 1000 * 60 * 60 * 24 // A single day in milliseconds
+};
+const byCustomerGroupDataSet = new vis.DataSet();
+const byCustomerItemDataSet = new vis.DataSet();
+const byCustomerTimeline = new vis.Timeline(byCustomerPanel, byCustomerItemDataSet, byCustomerGroupDataSet, byCustomerTimelineOptions);
+
+/************************************ Initialize ************************************/
 
 $(document).ready(function () {
     replaceQuickstartTimefoldAutoHeaderFooter();
@@ -33,15 +68,22 @@ $(document).ready(function () {
 
     $('[data-bs-toggle="tooltip"]').tooltip();
 
-    setupAjax();
+    // HACK to allow vis-timeline to work within Bootstrap tabs
+    $("#byVehicleTab").on('shown.bs.tab', function (event) {
+        byVehicleTimeline.redraw();
+    })
+    $("#byCustomerTab").on('shown.bs.tab', function (event) {
+        byCustomerTimeline.redraw();
+    })
 
+    setupAjax();
     fetchDemoData();
 });
 
 const colorByVehicle = (vehicle) => vehicle === null ? null : pickColor('vehicle' + vehicle.id);
 const colorByDepot = (depot) => depot === null ? null : pickColor('depot' + depot.id);
 
-const formatDistance = (distanceInMeters) => `${Math.floor(distanceInMeters / 1000)}km ${distanceInMeters % 1000}m`;
+const formatDrivingTime = (drivingTimeInSeconds) => `${Math.floor(drivingTimeInSeconds / 3600)}h ${Math.round((drivingTimeInSeconds % 3600) / 60)}m`;
 
 const depotPopupContent = (depot, color) => `<h5>Depot ${depot.id}</h5>
 <ul class="list-unstyled">
@@ -49,8 +91,8 @@ const depotPopupContent = (depot, color) => `<h5>Depot ${depot.id}</h5>
 </span> ${color}</li>
 </ul>`;
 
-const customerPopupContent = (customer) => `<h5>Customer ${customer.id}</h5>
-Demand: ${customer.demand}`;
+// TODO: display time window for a customer
+const customerPopupContent = (customer) => `<h5>Customer ${customer.id}</h5>`;
 
 const getDepotMarker = ({id, location}) => {
     let marker = depotByIdMap.get(id);
@@ -83,7 +125,7 @@ function renderRoutes(solution) {
     // Vehicles
     vehiclesTable.children().remove();
     solution.vehicles.forEach((vehicle) => {
-        const {id, totalDistanceMeters} = vehicle;
+        const {id, totalDrivingTimeSeconds} = vehicle;
         const color = colorByVehicle(vehicle);
         const colorIfUsed = color;
         vehiclesTable.append(`
@@ -94,7 +136,7 @@ function renderRoutes(solution) {
           </i>
         </td>
         <td>Vehicle ${id}</td>
-        <td>${formatDistance(totalDistanceMeters)}</td>
+        <td>${formatDrivingTime(totalDrivingTimeSeconds)}</td>
       </tr>`);
     });
     // Depots
@@ -125,7 +167,123 @@ function renderRoutes(solution) {
     // Summary
     $('#score').text(solution.score);
     $('#scoreInfo').text(solution.scoreExplanation);
-    $('#distance').text(formatDistance(solution.distanceMeters));
+    $('#distance').text(formatDrivingTime(solution.distanceMeters));
+}
+
+function renderTimelines(routePlan) {
+    byVehicleGroupDataSet.clear();
+    byCustomerGroupDataSet.clear();
+    byVehicleItemDataSet.clear();
+    byCustomerItemDataSet.clear();
+
+    $.each(routePlan.vehicles, (index, vehicle) => {
+        byVehicleGroupDataSet.add({id : vehicle.id, content: 'vehicle-' + vehicle.id});
+    });
+
+    $.each(routePlan.customers, (index, customer) => {
+        const readyTime = JSJoda.LocalDateTime.parse(customer.readyTime);
+        const dueTime = JSJoda.LocalDateTime.parse(customer.dueTime);
+        const serviceDuration = JSJoda.Duration.ofSeconds(customer.serviceDuration);
+
+        const customerGroupElement = $(`<div/>`)
+            .append($(`<h5 class="card-title mb-1"/>`).text(`${customer.name}`));
+        byCustomerGroupDataSet.add({
+            id : customer.id,
+            content: customerGroupElement.html()
+        });
+
+        const readyToDue = {
+            id: customer.id + "_readyToDue",
+            start: customer.readyTime,
+            end: customer.dueTime,
+            type: "background",
+            style: "background-color: #8AE23433"
+        };
+        byCustomerItemDataSet.add({...readyToDue, group: customer.id});
+
+        if (customer.vehicle == null) {
+            const byJobJobElement = $(`<div/>`)
+                .append($(`<h5 class="card-title mb-1"/>`).text(`Unassigned`));
+
+            byCustomerItemDataSet.add({
+                id : customer.id + '_serviceDuration',
+                group: customer.id,
+                content: byJobJobElement.html(),
+                start: readyTime.toString(),
+                end: readyTime.plus(serviceDuration).toString(),
+                style: "background-color: #EF292999"
+            });
+        } else {
+            const arrivalTime = JSJoda.LocalDateTime.parse(customer.arrivalTime);
+            const beforeReady = arrivalTime.isBefore(readyTime);
+            // TODO: display arrivalTIme + serviceDuration
+            const afterDue = arrivalTime.isAfter(dueTime);
+
+            const byVehicleElement = $(`<div/>`)
+                .append('<div/>')
+                .append($(`<h5 class="card-title mb-1"/>`).text(customer.name));
+
+            const byCustomerElement = $(`<div/>`)
+                // customer.vehicle is the vehicle.id due to Jackson serialization
+                .append($(`<h5 class="card-title mb-1"/>`).text('vehicle-' + customer.vehicle));
+
+            const byVehicleTravelElement = $(`<div/>`)
+                .append($(`<h5 class="card-title mb-1"/>`).text('Travel'));
+
+            const previousDeparture = arrivalTime.minusSeconds(customer.drivingTimeSecondsFromPreviousStandstill);
+            byVehicleItemDataSet.add({
+                id : customer.id + '_travel',
+                group: customer.vehicle, // customer.vehicle is the vehicle.id due to Jackson serialization
+                subgroup: customer.id,
+                content: byVehicleTravelElement.html(),
+                start: previousDeparture.toString(),
+                end: customer.arrivalTime,
+                style: "background-color: #f7dd8f90"
+            });
+            if (beforeReady) {
+                const byVehicleWaitElement = $(`<div/>`)
+                    .append($(`<h5 class="card-title mb-1"/>`).text('Wait'));
+
+                byVehicleItemDataSet.add({
+                    id : customer.id + '_wait',
+                    group: customer.vehicle, // customer.vehicle is the vehicle.id due to Jackson serialization
+                    subgroup: customer.id,
+                    content: byVehicleWaitElement.html(),
+                    start: customer.arrivalTime,
+                    end: customer.readyTime
+                });
+            }
+            if (afterDue) {
+                byVehicleElement.append($(`<p class="badge badge-danger mb-0"/>`).text(`After due (too late)`));
+                byCustomerElement.append($(`<p class="badge badge-danger mb-0"/>`).text(`After due (too late)`));
+            }
+            byVehicleItemDataSet.add({
+                id : customer.id + '_service',
+                group: customer.vehicle, // customer.vehicle is the vehicle.id due to Jackson serialization
+                subgroup: customer.id,
+                content: byVehicleElement.html(),
+                start: customer.startServiceTime,
+                end: customer.departureTime,
+                style: "background-color: #83C15955"
+            });
+            byCustomerItemDataSet.add({
+                id : customer.id,
+                group: customer.id,
+                content: byCustomerElement.html(),
+                start: customer.startServiceTime,
+                end: customer.departureTime
+            });
+
+        }
+
+    });
+    byVehicleTimeline.setWindow(routePlan.startDateTime, routePlan.endDateTime);
+    byCustomerTimeline.setWindow(routePlan.startDateTime, routePlan.endDateTime);
+}
+
+function formatDurationHoursMinutes(duration) {
+    const leadingZeros = (number) => number < 10 ? `0${number}` : '' + number;
+    return `${leadingZeros(duration.toHours())}:${leadingZeros(duration.toMinutes())}`
 }
 
 // TODO: move the general functionality to the webjar.
@@ -158,7 +316,7 @@ function setupAjax() {
 }
 
 function solve() {
-    $.post("/route-plans", JSON.stringify(loadedSchedule), function (data) {
+    $.post("/route-plans", JSON.stringify(loadedRoutePlan), function (data) {
         scheduleId = data;
         refreshSolvingButtons(true);
     }).fail(function (xhr, ajaxOptions, thrownError) {
@@ -196,10 +354,11 @@ function refreshRoutePlan() {
         path = "/demo-data/" + demoDataId;
     }
 
-    $.getJSON(path, function (schedule) {
-        loadedSchedule = schedule;
-        refreshSolvingButtons(schedule.solverStatus != null && schedule.solverStatus !== "NOT_SOLVING");
-        renderRoutes(schedule);
+    $.getJSON(path, function (routePlan) {
+        loadedRoutePlan = routePlan;
+        refreshSolvingButtons(routePlan.solverStatus != null && routePlan.solverStatus !== "NOT_SOLVING");
+        renderRoutes(routePlan);
+        renderTimelines(routePlan);
     })
         .fail(function (xhr, ajaxOptions, thrownError) {
             showError("Getting timetable has failed.", xhr);

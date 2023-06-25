@@ -52,21 +52,4 @@ public class Location {
     public long getDistanceTo(Location location) {
         return distanceMap.get(location);
     }
-
-    // ************************************************************************
-    // Complex methods
-    // ************************************************************************
-
-    /**
-     * The angle relative to the direction EAST.
-     *
-     * @param location never null
-     * @return in Cartesian coordinates
-     */
-    public double getAngle(Location location) {
-        // Euclidean distance (Pythagorean theorem) - not correct when the surface is a sphere
-        double latitudeDifference = location.latitude - latitude;
-        double longitudeDifference = location.longitude - longitude;
-        return Math.atan2(latitudeDifference, longitudeDifference);
-    }
 }

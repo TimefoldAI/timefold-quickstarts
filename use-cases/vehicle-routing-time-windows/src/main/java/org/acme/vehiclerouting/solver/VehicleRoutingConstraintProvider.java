@@ -36,7 +36,7 @@ public class VehicleRoutingConstraintProvider implements ConstraintProvider {
     protected Constraint totalDistance(ConstraintFactory factory) {
         return factory.forEach(Vehicle.class)
                 .penalizeLong(HardSoftLongScore.ONE_SOFT,
-                        Vehicle::getTotalDistanceMeters)
+                        Vehicle::getTotalDrivingTimeSeconds)
                 .asConstraint("distanceFromPreviousStandstill");
     }
 }
