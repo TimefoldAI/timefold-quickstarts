@@ -1,0 +1,9 @@
+FROM registry.access.redhat.com/ubi8/openjdk-17:latest
+
+COPY --chown=185 container-content/ /deployments/
+RUN ls /deployments/
+EXPOSE 8080
+USER 185
+
+ENV JAVA_OPTS="-Xms128m -Xmx512m -Dquarkus.http.host=localhost -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
+ENV JAVA_APP_JAR="/deployments/quickstarts/binaries/quarkus-app/quarkus-run.jar"
