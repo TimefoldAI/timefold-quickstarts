@@ -1,0 +1,98 @@
+name: Release
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Community Edition version (e.g. 1.0.0)'
+        required: true
+      developmentBranch:
+        description: 'Development branch to cut the release from'
+        default: development
+        required: true
+      stableBranch:
+        description: 'Stable branch to merge the development branch into'
+        default: stable
+        required: true
+      releaseBranch:
+        description: 'Release branch to create (e.g. 1.0.x for version 1.0.0; once created, branch protection rules apply)'
+        default: dry_run
+        required: true
+      nextVersion:
+        description: 'Next version after release (e.g. 1.1.0, -SNAPSHOT will be added automatically)'
+        required: true
+      nextMicroVersion:
+        description: 'Next version after release for release branch (e.g. 1.0.1, -SNAPSHOT will be added automatically)'
+        required: true
+jobs:
+  build:
+    env:
+      MAVEN_ARGS: "--no-transfer-progress --batch-mode"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the relevant timefold-solver tag
+        uses: actions/checkout@v3
+        with:
+          repository: "TimefoldAI/timefold-solver"
+          path: "./timefold-solver"
+          fetch-depth: 0
+          ref: v${{ github.event.inputs.version }}
+
+      - uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      # No need to wait for the upstream release to show up in Maven Central.
+      - name: Build the upstream release tag
+        working-directory: "./timefold-solver"
+        run: |
+          mvn -Dquickly install
+          cd ..
+          rm -rf timefold-solver
+
+      - name: Checkout timefold-quickstarts
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Create release branch and build release
+        run: |
+          git config user.name "Timefold Release Bot"
+          git config user.email "release@timefold.ai"
+          git checkout -B ${{ github.event.inputs.releaseBranch }}
+          export NEW_VERSION="${{ github.event.inputs.version }}"
+          .github/scripts/change_versions.sh
+          git tag "v${{ github.event.inputs.version }}" -a "Release version ${{ github.event.inputs.version }}"
+
+      # Merge the release branch into the stable branch.
+      # While merging, resolve conflicts by using everything from the release branch.
+      # (Stable branch becomes the same as the release branch.)
+      - name: Merge release branch into stable and prepare PR
+        run: |
+          git checkout ${{ github.event.inputs.stableBranch }}
+          git checkout -B ${{ github.event.inputs.releaseBranch }}-bump
+          git merge -X theirs --squash ${{ github.event.inputs.releaseBranch }}
+          git commit -m "chore: release version ${{ github.event.inputs.version }}"
+          git push origin ${{ github.event.inputs.releaseBranch }}-bump
+          gh pr create --reviewer triceo,ge0ffrey --base ${{ github.event.inputs.stableBranch }} --head ${{ github.event.inputs.releaseBranch }}-bump --title "chore: release version ${{ github.event.inputs.version }}" --body-file .github/workflows/release-pr-body-stable.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set micro snapshot version on the release branch
+        run: |
+          git checkout ${{ github.event.inputs.releaseBranch }}
+          export NEW_VERSION="${{ github.event.inputs.nextMicroVersion }}-SNAPSHOT"
+          .github/scripts/change_versions.sh
+          git push origin ${{ github.event.inputs.releaseBranch }}
+
+      - name: Switch development branch to next version and prepare PR
+        run: |
+          git checkout ${{ github.event.inputs.developmentBranch }}
+          git checkout -B ${{ github.event.inputs.releaseBranch }}-bump2
+          export NEW_VERSION="${{ github.event.inputs.nextVersion }}-SNAPSHOT"
+          .github/scripts/change_versions.sh
+          git push origin ${{ github.event.inputs.releaseBranch }}-bump2
+          gh pr create --reviewer triceo,ge0ffrey --base ${{ github.event.inputs.developmentBranch }} --head ${{ github.event.inputs.releaseBranch }}-bump2 --title "chore: move to ${{ github.event.inputs.nextVersion }}-SNAPSHOT" --body-file .github/workflows/release-pr-body-development.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
