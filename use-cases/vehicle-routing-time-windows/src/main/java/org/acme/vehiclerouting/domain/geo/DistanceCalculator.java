@@ -13,7 +13,7 @@ public interface DistanceCalculator {
      * Calculate the distance between {@code from} and {@code to} in seconds of driving time.
      *
      * @param from starting location
-     * @param to   target location
+     * @param to target location
      * @return driving time in seconds
      */
     long calculateDistance(Location from, Location to);
@@ -23,7 +23,7 @@ public interface DistanceCalculator {
      * Typically, much more scalable than {@link #calculateDistance(Location, Location)} iteratively.
      *
      * @param fromLocations never null
-     * @param toLocations   never null
+     * @param toLocations never null
      * @return never null
      */
     default Map<Location, Map<Location, Long>> calculateBulkDistance(
@@ -33,9 +33,7 @@ public interface DistanceCalculator {
                 Function.identity(),
                 from -> toLocations.stream().collect(Collectors.toMap(
                         Function.identity(),
-                        to -> calculateDistance(from, to)
-                ))
-        ));
+                        to -> calculateDistance(from, to)))));
     }
 
     /**

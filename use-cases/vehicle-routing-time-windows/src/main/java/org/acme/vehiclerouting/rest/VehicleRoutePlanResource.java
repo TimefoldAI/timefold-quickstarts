@@ -47,7 +47,7 @@ public class VehicleRoutePlanResource {
 
     @Inject
     public VehicleRoutePlanResource(SolverManager<VehicleRoutePlan, String> solverManager,
-                                    SolutionManager<VehicleRoutePlan, HardSoftLongScore> solutionManager) {
+            SolutionManager<VehicleRoutePlan, HardSoftLongScore> solutionManager) {
         this.solverManager = solverManager;
         this.solutionManager = solutionManager;
     }

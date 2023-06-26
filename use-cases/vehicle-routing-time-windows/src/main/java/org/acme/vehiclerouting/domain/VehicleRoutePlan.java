@@ -60,13 +60,13 @@ public class VehicleRoutePlan {
 
     @JsonCreator
     public VehicleRoutePlan(@JsonProperty("name") String name,
-                            @JsonProperty("depots") List<Depot> depots,
-                            @JsonProperty("vehicles") List<Vehicle> vehicles,
-                            @JsonProperty("customers") List<Customer> customers,
-                            @JsonProperty("southWestCorner") Location southWestCorner,
-                            @JsonProperty("northEastCorner") Location northEastCorner,
-                            @JsonProperty("startDateTime") LocalDateTime startDateTime,
-                            @JsonProperty("endDateTime") LocalDateTime endDateTime) {
+            @JsonProperty("depots") List<Depot> depots,
+            @JsonProperty("vehicles") List<Vehicle> vehicles,
+            @JsonProperty("customers") List<Customer> customers,
+            @JsonProperty("southWestCorner") Location southWestCorner,
+            @JsonProperty("northEastCorner") Location northEastCorner,
+            @JsonProperty("startDateTime") LocalDateTime startDateTime,
+            @JsonProperty("endDateTime") LocalDateTime endDateTime) {
         this.name = name;
         this.depots = depots;
         this.vehicles = vehicles;
@@ -150,7 +150,8 @@ public class VehicleRoutePlan {
     public LocalDateTime getEndDateTime() {
         return endDateTime;
     }
-// ************************************************************************
+
+    // ************************************************************************
     // Complex methods
     // ************************************************************************
 

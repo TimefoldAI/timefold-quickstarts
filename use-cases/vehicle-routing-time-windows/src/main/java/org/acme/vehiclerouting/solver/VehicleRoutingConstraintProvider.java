@@ -1,11 +1,12 @@
 package org.acme.vehiclerouting.solver;
 
-import org.acme.vehiclerouting.domain.Customer;
-import org.acme.vehiclerouting.domain.Vehicle;
 import ai.timefold.solver.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
 import ai.timefold.solver.core.api.score.stream.Constraint;
 import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
 import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
+
+import org.acme.vehiclerouting.domain.Customer;
+import org.acme.vehiclerouting.domain.Vehicle;
 
 public class VehicleRoutingConstraintProvider implements ConstraintProvider {
 

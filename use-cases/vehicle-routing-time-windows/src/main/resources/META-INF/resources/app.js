@@ -81,12 +81,13 @@ $(document).ready(function () {
 function colorByVehicle(vehicle) {
     return vehicle === null ? null : pickColor('vehicle' + vehicle.id);
 }
+
 function colorByDepot(depot) {
     return depot === null ? null : pickColor('depot' + depot.id);
 }
 
 function formatDrivingTime(drivingTimeInSeconds) {
-    return`${Math.floor(drivingTimeInSeconds / 3600)}h ${Math.round((drivingTimeInSeconds % 3600) / 60)}m`;
+    return `${Math.floor(drivingTimeInSeconds / 3600)}h ${Math.round((drivingTimeInSeconds % 3600) / 60)}m`;
 }
 
 function depotPopupContent(depot, color) {
@@ -189,7 +190,7 @@ function renderTimelines(routePlan) {
     byCustomerItemDataSet.clear();
 
     $.each(routePlan.vehicles, (index, vehicle) => {
-        byVehicleGroupDataSet.add({id : vehicle.id, content: 'vehicle-' + vehicle.id});
+        byVehicleGroupDataSet.add({id: vehicle.id, content: 'vehicle-' + vehicle.id});
     });
 
     $.each(routePlan.customers, (index, customer) => {
@@ -200,7 +201,7 @@ function renderTimelines(routePlan) {
         const customerGroupElement = $(`<div/>`)
             .append($(`<h5 class="card-title mb-1"/>`).text(`${customer.name}`));
         byCustomerGroupDataSet.add({
-            id : customer.id,
+            id: customer.id,
             content: customerGroupElement.html()
         });
 
@@ -220,7 +221,7 @@ function renderTimelines(routePlan) {
 
             // Unassigned are shown at the beginning of the customer's time window; the length is the service duration.
             byCustomerItemDataSet.add({
-                id : customer.id + '_unassigned',
+                id: customer.id + '_unassigned',
                 group: customer.id,
                 content: byJobJobElement.html(),
                 start: readyTime.toString(),
@@ -246,7 +247,7 @@ function renderTimelines(routePlan) {
 
             const previousDeparture = arrivalTime.minusSeconds(customer.drivingTimeSecondsFromPreviousStandstill);
             byVehicleItemDataSet.add({
-                id : customer.id + '_travel',
+                id: customer.id + '_travel',
                 group: customer.vehicle, // customer.vehicle is the vehicle.id due to Jackson serialization
                 subgroup: customer.vehicle,
                 content: byVehicleTravelElement.html(),
@@ -259,7 +260,7 @@ function renderTimelines(routePlan) {
                     .append($(`<h5 class="card-title mb-1"/>`).text('Wait'));
 
                 byVehicleItemDataSet.add({
-                    id : customer.id + '_wait',
+                    id: customer.id + '_wait',
                     group: customer.vehicle, // customer.vehicle is the vehicle.id due to Jackson serialization
                     subgroup: customer.vehicle,
                     content: byVehicleWaitElement.html(),
@@ -270,7 +271,7 @@ function renderTimelines(routePlan) {
             let serviceElementBackground = afterDue ? '#EF292999' : '#83C15955'
 
             byVehicleItemDataSet.add({
-                id : customer.id + '_service',
+                id: customer.id + '_service',
                 group: customer.vehicle, // customer.vehicle is the vehicle.id due to Jackson serialization
                 subgroup: customer.vehicle,
                 content: byVehicleElement.html(),
@@ -279,7 +280,7 @@ function renderTimelines(routePlan) {
                 style: "background-color: " + serviceElementBackground
             });
             byCustomerItemDataSet.add({
-                id : customer.id,
+                id: customer.id,
                 group: customer.id,
                 content: byCustomerElement.html(),
                 start: customer.startServiceTime,

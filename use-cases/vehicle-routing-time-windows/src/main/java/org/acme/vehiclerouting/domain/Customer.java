@@ -155,17 +155,25 @@ public class Customer {
         return Duration.between(dueTime, arrivalTime.plus(serviceDuration)).toMinutes();
     }
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonIgnore
     public long getDrivingTimeSecondsFromPreviousStandstill() {
         if (vehicle == null) {
-            return 0L;
-//            throw new IllegalStateException(
-//                    "This method must not be called when the shadow variables are not initialized yet.");
+            throw new IllegalStateException(
+                    "This method must not be called when the shadow variables are not initialized yet.");
         }
         if (previousCustomer == null) {
             return vehicle.getDepot().getLocation().getDrivingTimeTo(location);
         }
         return previousCustomer.getLocation().getDrivingTimeTo(location);
+    }
+
+    // Required by the web UI even before the solution has been initialized.
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    public Long getDrivingTimeSecondsFromPreviousStandstillOrNull() {
+        if (vehicle == null) {
+            return null;
+        }
+        return getDrivingTimeSecondsFromPreviousStandstill();
     }
 
     @Override
