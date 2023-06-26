@@ -66,8 +66,6 @@ $(document).ready(function () {
     stopSolvingButton.click(stopSolving);
     refreshSolvingButtons(false);
 
-    $('[data-bs-toggle="tooltip"]').tooltip();
-
     // HACK to allow vis-timeline to work within Bootstrap tabs
     $("#byVehicleTab").on('shown.bs.tab', function (event) {
         byVehicleTimeline.redraw();
@@ -80,45 +78,60 @@ $(document).ready(function () {
     fetchDemoData();
 });
 
-const colorByVehicle = (vehicle) => vehicle === null ? null : pickColor('vehicle' + vehicle.id);
-const colorByDepot = (depot) => depot === null ? null : pickColor('depot' + depot.id);
+function colorByVehicle(vehicle) {
+    return vehicle === null ? null : pickColor('vehicle' + vehicle.id);
+}
+function colorByDepot(depot) {
+    return depot === null ? null : pickColor('depot' + depot.id);
+}
 
-const formatDrivingTime = (drivingTimeInSeconds) => `${Math.floor(drivingTimeInSeconds / 3600)}h ${Math.round((drivingTimeInSeconds % 3600) / 60)}m`;
+function formatDrivingTime(drivingTimeInSeconds) {
+    return`${Math.floor(drivingTimeInSeconds / 3600)}h ${Math.round((drivingTimeInSeconds % 3600) / 60)}m`;
+}
 
-const depotPopupContent = (depot, color) => `<h5>Depot ${depot.id}</h5>
+function depotPopupContent(depot, color) {
+    return `<h5>Depot ${depot.id}</h5>
 <ul class="list-unstyled">
 <li><span style="background-color: ${color}; display: inline-block; width: 12px; height: 12px; text-align: center">
 </span> ${color}</li>
 </ul>`;
+}
 
-// TODO: display time window for a customer
-const customerPopupContent = (customer) => `<h5>Customer ${customer.id}</h5>`;
+function customerPopupContent(customer) {
+    const arrival = customer.arrivalTime ? `<h6>Arrival at ${showTimeOnly(customer.arrivalTime)}.</h6>` : '';
+    return `<h5>${customer.name}</h5>
+    <h6>Available from ${showTimeOnly(customer.readyTime)} to ${showTimeOnly(customer.dueTime)}.</h6>
+    ${arrival}`;
+}
 
-const getDepotMarker = ({id, location}) => {
-    let marker = depotByIdMap.get(id);
+function showTimeOnly(localDateTimeString) {
+    return JSJoda.LocalDateTime.parse(localDateTimeString).toLocalTime();
+}
+
+function getDepotMarker(depot) {
+    let marker = depotByIdMap.get(depot.id);
     if (marker) {
         return marker;
     }
-    marker = L.marker(location);
+    marker = L.marker(depot.location);
     marker.addTo(depotGroup).bindPopup();
-    depotByIdMap.set(id, marker);
+    depotByIdMap.set(depot.id, marker);
     return marker;
-};
+}
 
-const getCustomerMarker = ({id, location}) => {
-    let marker = customerByIdMap.get(id);
+function getCustomerMarker(customer) {
+    let marker = customerByIdMap.get(customer.id);
     if (marker) {
         return marker;
     }
-    marker = L.circleMarker(location);
+    marker = L.circleMarker(customer.location);
     marker.addTo(customerGroup).bindPopup();
-    customerByIdMap.set(id, marker);
+    customerByIdMap.set(customer.id, marker);
     return marker;
-};
+}
 
 function renderRoutes(solution) {
     if (!initialized) {
-        initialized = true;
         const bounds = [solution.southWestCorner, solution.northEastCorner];
         map.fitBounds(bounds);
     }
@@ -127,12 +140,11 @@ function renderRoutes(solution) {
     solution.vehicles.forEach((vehicle) => {
         const {id, totalDrivingTimeSeconds} = vehicle;
         const color = colorByVehicle(vehicle);
-        const colorIfUsed = color;
         vehiclesTable.append(`
       <tr>
         <td>
           <i class="fas fa-crosshairs" id="crosshairs-${id}"
-            style="background-color: ${colorIfUsed}; display: inline-block; width: 1rem; height: 1rem; text-align: center">
+            style="background-color: ${color}; display: inline-block; width: 1rem; height: 1rem; text-align: center">
           </i>
         </td>
         <td>Vehicle ${id}</td>
@@ -167,7 +179,7 @@ function renderRoutes(solution) {
     // Summary
     $('#score').text(solution.score);
     $('#scoreInfo').text(solution.scoreExplanation);
-    $('#distance').text(formatDrivingTime(solution.distanceMeters));
+    $('#drivingTime').text(formatDrivingTime(solution.totalDrivingTimeSeconds));
 }
 
 function renderTimelines(routePlan) {
@@ -278,8 +290,10 @@ function renderTimelines(routePlan) {
         }
 
     });
-    byVehicleTimeline.setWindow(routePlan.startDateTime, routePlan.endDateTime);
-    byCustomerTimeline.setWindow(routePlan.startDateTime, routePlan.endDateTime);
+    if (!initialized) {
+        byVehicleTimeline.setWindow(routePlan.startDateTime, routePlan.endDateTime);
+        byCustomerTimeline.setWindow(routePlan.startDateTime, routePlan.endDateTime);
+    }
 }
 
 // TODO: move the general functionality to the webjar.
@@ -355,11 +369,11 @@ function refreshRoutePlan() {
         refreshSolvingButtons(routePlan.solverStatus != null && routePlan.solverStatus !== "NOT_SOLVING");
         renderRoutes(routePlan);
         renderTimelines(routePlan);
-    })
-        .fail(function (xhr, ajaxOptions, thrownError) {
-            showError("Getting timetable has failed.", xhr);
-            refreshSolvingButtons(false);
-        });
+        initialized = true;
+    }).fail(function (xhr, ajaxOptions, thrownError) {
+        showError("Getting timetable has failed.", xhr);
+        refreshSolvingButtons(false);
+    });
 }
 
 function stopSolving() {
@@ -380,7 +394,7 @@ function fetchDemoData() {
                 switchDataDropDownItemActive(item);
                 scheduleId = null;
                 demoDataId = item;
-
+                initialized = false;
                 refreshRoutePlan();
             });
         });

@@ -163,9 +163,9 @@ public class Customer {
 //                    "This method must not be called when the shadow variables are not initialized yet.");
         }
         if (previousCustomer == null) {
-            return vehicle.getDepot().getLocation().getDistanceTo(location);
+            return vehicle.getDepot().getLocation().getDrivingTimeTo(location);
         }
-        return previousCustomer.getLocation().getDistanceTo(location);
+        return previousCustomer.getLocation().getDrivingTimeTo(location);
     }
 
     @Override

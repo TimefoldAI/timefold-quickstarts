@@ -101,10 +101,10 @@ public class Vehicle {
         Location previousLocation = depot.getLocation();
 
         for (Customer customer : customers) {
-            totalDistance += previousLocation.getDistanceTo(customer.getLocation());
+            totalDistance += previousLocation.getDrivingTimeTo(customer.getLocation());
             previousLocation = customer.getLocation();
         }
-        totalDistance += previousLocation.getDistanceTo(depot.getLocation());
+        totalDistance += previousLocation.getDrivingTimeTo(depot.getLocation());
 
         return totalDistance;
     }

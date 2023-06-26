@@ -14,7 +14,7 @@ public class Location {
     private double longitude;
 
     @JsonIgnore
-    private Map<Location, Long> distanceMap;
+    private Map<Location, Long> drivingTimeMap;
 
     @JsonCreator
     public Location(@JsonProperty("latitude") double latitude, @JsonProperty("longitude") double longitude) {
@@ -30,26 +30,26 @@ public class Location {
         return longitude;
     }
 
-    public Map<Location, Long> getDistanceMap() {
-        return distanceMap;
+    public Map<Location, Long> getDrivingTimeMap() {
+        return drivingTimeMap;
     }
 
     /**
-     * Set the distance map. Distances are in meters.
+     * Set the driving time map (in seconds).
      *
-     * @param distanceMap a map containing distances from here to other locations
+     * @param drivingTimeMap a map containing driving time from here to other locations
      */
-    public void setDistanceMap(Map<Location, Long> distanceMap) {
-        this.distanceMap = distanceMap;
+    public void setDrivingTimeMap(Map<Location, Long> drivingTimeMap) {
+        this.drivingTimeMap = drivingTimeMap;
     }
 
     /**
-     * Distance to the given location in meters.
+     * Driving time to the given location in seconds.
      *
      * @param location other location
-     * @return distance in meters
+     * @return driving time in seconds
      */
-    public long getDistanceTo(Location location) {
-        return distanceMap.get(location);
+    public long getDrivingTimeTo(Location location) {
+        return drivingTimeMap.get(location);
     }
 }

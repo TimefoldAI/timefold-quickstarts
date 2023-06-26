@@ -155,7 +155,7 @@ public class VehicleRoutePlan {
     // ************************************************************************
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    public long getDistanceMeters() {
+    public long getTotalDrivingTimeSeconds() {
         return score == null ? 0 : -score.softScore();
     }
 
