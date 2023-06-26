@@ -53,7 +53,7 @@ class VehicleRoutingConstraintProviderTest {
         Customer customer2 = new Customer(3L, "Paul", LOCATION_3, tomorrow_08_00, tomorrow_10_00, Duration.ofMinutes(30L));
         vehicleA.getCustomers().add(customer2);
 
-        constraintVerifier.verifyThat(VehicleRoutingConstraintProvider::totalDistance)
+        constraintVerifier.verifyThat(VehicleRoutingConstraintProvider::minimizeTravelTime)
                 .given(vehicleA, customer1, customer2)
                 .penalizesBy(2021L); // The sum of the approximate driving time between all three locations.
     }

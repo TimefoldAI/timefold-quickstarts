@@ -1,7 +1,6 @@
 package org.acme.vehiclerouting.domain;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
@@ -10,7 +9,6 @@ public class Depot {
 
     private final long id;
 
-    @JsonIdentityReference
     private final Location location;
 
     public Depot(@JsonProperty("id") long id, @JsonProperty("location") Location location) {

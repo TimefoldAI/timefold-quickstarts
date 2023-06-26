@@ -12,8 +12,8 @@ public class VehicleRoutingConstraintProvider implements ConstraintProvider {
     @Override
     public Constraint[] defineConstraints(ConstraintFactory factory) {
         return new Constraint[] {
-                totalDistance(factory),
-                serviceFinishedAfterDueTime(factory)
+                serviceFinishedAfterDueTime(factory),
+                minimizeTravelTime(factory)
         };
     }
 
@@ -33,10 +33,10 @@ public class VehicleRoutingConstraintProvider implements ConstraintProvider {
     // Soft constraints
     // ************************************************************************
 
-    protected Constraint totalDistance(ConstraintFactory factory) {
+    protected Constraint minimizeTravelTime(ConstraintFactory factory) {
         return factory.forEach(Vehicle.class)
                 .penalizeLong(HardSoftLongScore.ONE_SOFT,
                         Vehicle::getTotalDrivingTimeSeconds)
-                .asConstraint("distanceFromPreviousStandstill");
+                .asConstraint("minimizeTravelTime");
     }
 }
