@@ -39,7 +39,7 @@ public interface DistanceCalculator {
     /**
      * Calculate distance matrix for the given list of locations and assign distance maps accordingly.
      *
-     * @param locations
+     * @param locations locations list
      */
     default void initDistanceMaps(Collection<Location> locations) {
         Map<Location, Map<Location, Long>> distanceMatrix = calculateBulkDistance(locations, locations);
