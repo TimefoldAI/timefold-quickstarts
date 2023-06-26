@@ -69,8 +69,6 @@ public class ArrivalTimeUpdatingVariableListener implements VariableListener<Veh
         if (customer == null || previousDepartureTime == null) {
             return null;
         }
-        // TODO: figure out a better metric; we are mixing time and distance.
-        // assumes the distance is in meters and the speed is 60 kmph
-        return previousDepartureTime.plusSeconds(customer.getDrivingTimeSecondsFromPreviousStandstill() / 16);
+        return previousDepartureTime.plusSeconds(customer.getDrivingTimeSecondsFromPreviousStandstill());
     }
 }

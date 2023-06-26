@@ -192,21 +192,23 @@ function renderTimelines(routePlan) {
             content: customerGroupElement.html()
         });
 
-        const readyToDue = {
+        // Time window per customer.
+        byCustomerItemDataSet.add({
             id: customer.id + "_readyToDue",
+            group: customer.id,
             start: customer.readyTime,
             end: customer.dueTime,
             type: "background",
             style: "background-color: #8AE23433"
-        };
-        byCustomerItemDataSet.add({...readyToDue, group: customer.id});
+        });
 
         if (customer.vehicle == null) {
             const byJobJobElement = $(`<div/>`)
                 .append($(`<h5 class="card-title mb-1"/>`).text(`Unassigned`));
 
+            // Unassigned are shown at the beginning of the customer's time window; the length is the service duration.
             byCustomerItemDataSet.add({
-                id : customer.id + '_serviceDuration',
+                id : customer.id + '_unassigned',
                 group: customer.id,
                 content: byJobJobElement.html(),
                 start: readyTime.toString(),
@@ -216,8 +218,8 @@ function renderTimelines(routePlan) {
         } else {
             const arrivalTime = JSJoda.LocalDateTime.parse(customer.arrivalTime);
             const beforeReady = arrivalTime.isBefore(readyTime);
-            // TODO: display arrivalTIme + serviceDuration
-            const afterDue = arrivalTime.isAfter(dueTime);
+            const arrivalPlusService = arrivalTime.plus(serviceDuration);
+            const afterDue = arrivalPlusService.isAfter(dueTime);
 
             const byVehicleElement = $(`<div/>`)
                 .append('<div/>')
@@ -234,7 +236,7 @@ function renderTimelines(routePlan) {
             byVehicleItemDataSet.add({
                 id : customer.id + '_travel',
                 group: customer.vehicle, // customer.vehicle is the vehicle.id due to Jackson serialization
-                subgroup: customer.id,
+                subgroup: customer.vehicle,
                 content: byVehicleTravelElement.html(),
                 start: previousDeparture.toString(),
                 end: customer.arrivalTime,
@@ -247,31 +249,30 @@ function renderTimelines(routePlan) {
                 byVehicleItemDataSet.add({
                     id : customer.id + '_wait',
                     group: customer.vehicle, // customer.vehicle is the vehicle.id due to Jackson serialization
-                    subgroup: customer.id,
+                    subgroup: customer.vehicle,
                     content: byVehicleWaitElement.html(),
                     start: customer.arrivalTime,
                     end: customer.readyTime
                 });
             }
-            if (afterDue) {
-                byVehicleElement.append($(`<p class="badge badge-danger mb-0"/>`).text(`After due (too late)`));
-                byCustomerElement.append($(`<p class="badge badge-danger mb-0"/>`).text(`After due (too late)`));
-            }
+            let serviceElementBackground = afterDue ? '#EF292999' : '#83C15955'
+
             byVehicleItemDataSet.add({
                 id : customer.id + '_service',
                 group: customer.vehicle, // customer.vehicle is the vehicle.id due to Jackson serialization
-                subgroup: customer.id,
+                subgroup: customer.vehicle,
                 content: byVehicleElement.html(),
                 start: customer.startServiceTime,
                 end: customer.departureTime,
-                style: "background-color: #83C15955"
+                style: "background-color: " + serviceElementBackground
             });
             byCustomerItemDataSet.add({
                 id : customer.id,
                 group: customer.id,
                 content: byCustomerElement.html(),
                 start: customer.startServiceTime,
-                end: customer.departureTime
+                end: customer.departureTime,
+                style: "background-color: " + serviceElementBackground
             });
 
         }
@@ -279,11 +280,6 @@ function renderTimelines(routePlan) {
     });
     byVehicleTimeline.setWindow(routePlan.startDateTime, routePlan.endDateTime);
     byCustomerTimeline.setWindow(routePlan.startDateTime, routePlan.endDateTime);
-}
-
-function formatDurationHoursMinutes(duration) {
-    const leadingZeros = (number) => number < 10 ? `0${number}` : '' + number;
-    return `${leadingZeros(duration.toHours())}:${leadingZeros(duration.toMinutes())}`
 }
 
 // TODO: move the general functionality to the webjar.
