@@ -4,7 +4,7 @@ plugins {
 }
 
 def quarkusVersion = "3.0.3.Final"
-def timefoldVersion = "0.9.39"
+def timefoldVersion = "0.10.0"
 def assertjVersion = "3.24.2"
 
 group = "org.acme"
@@ -19,12 +19,9 @@ dependencies {
     implementation enforcedPlatform("io.quarkus:quarkus-bom:${quarkusVersion}")
     implementation "io.quarkus:quarkus-resteasy"
     implementation "io.quarkus:quarkus-resteasy-jackson"
-    implementation "io.quarkus:quarkus-hibernate-orm-panache"
-    implementation "io.quarkus:quarkus-jdbc-h2"
-    implementation "io.quarkus:quarkus-hibernate-orm-rest-data-panache"
+    implementation "io.quarkus:quarkus-smallrye-openapi"
     implementation "io.quarkus:quarkus-webjars-locator"
     testImplementation "io.quarkus:quarkus-junit5"
-    testImplementation "io.quarkus:quarkus-test-h2"
     testImplementation "io.rest-assured:rest-assured"
     testImplementation "org.awaitility:awaitility"
 
@@ -32,9 +29,9 @@ dependencies {
     implementation "ai.timefold.solver:timefold-solver-quarkus"
     implementation "ai.timefold.solver:timefold-solver-quarkus-jackson"
     testImplementation "ai.timefold.solver:timefold-solver-test"
-    testImplementation "ai.timefold.solver:timefold-solver-quarkus-benchmark"
     testImplementation "org.assertj:assertj-core:${assertjVersion}"
 
+    runtimeOnly "ai.timefold.solver:timefold-solver-webui"
     runtimeOnly "org.webjars:bootstrap:5.2.3"
     runtimeOnly "org.webjars:jquery:3.6.4"
     runtimeOnly "org.webjars:font-awesome:5.11.2"
