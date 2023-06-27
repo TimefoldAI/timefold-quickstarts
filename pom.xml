@@ -6,7 +6,7 @@
   <parent>
     <groupId>ai.timefold.solver</groupId>
     <artifactId>timefold-solver-build-parent</artifactId>
-    <version>0.9.39</version>
+    <version>0.10.0</version>
     <relativePath/>
   </parent>
   <!-- IMPORTANT: the individual quickstarts have no parent pom. -->
@@ -14,6 +14,10 @@
   <artifactId>timefold-solver-quickstarts-parent</artifactId>
   <packaging>pom</packaging>
   <name>Timefold Solver Quickstarts</name>
+
+  <properties>
+    <enforcer.failOnDuplicatedClasses>false</enforcer.failOnDuplicatedClasses> <!-- Quarkus. -->
+  </properties>
 
   <modules>
     <module>hello-world</module>
@@ -25,25 +29,11 @@
     <module>use-cases/maintenance-scheduling</module>
     <module>use-cases/call-center</module>
     <module>use-cases/vaccination-scheduling</module>
-    <module>use-cases/vehicle-routing</module>
+    <module>use-cases/vehicle-routing-capacity</module>
     <module>use-cases/order-picking</module>
     <module>use-cases/employee-scheduling</module>
     <module>use-cases/food-packaging</module>
     <module>build/quickstarts-showcase</module>
   </modules>
-
-  <profiles>
-    <profile>
-      <id>fullProfile</id>
-      <activation>
-        <property>
-          <name>full</name>
-        </property>
-      </activation>
-      <modules>
-        <module>build/distribution</module>
-      </modules>
-    </profile>
-  </profiles>
 
 </project>
