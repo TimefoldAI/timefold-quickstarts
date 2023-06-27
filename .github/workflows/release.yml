@@ -48,6 +48,11 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
+      - name: Set up Maven
+        uses: stCarolas/setup-maven@v4.5
+        with:
+          maven-version: 3.9.3
+
       # No need to wait for the upstream release to show up in Maven Central.
       - name: Build the upstream release tag
         working-directory: "./timefold-solver"
