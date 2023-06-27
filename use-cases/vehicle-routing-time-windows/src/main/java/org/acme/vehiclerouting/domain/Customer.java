@@ -168,7 +168,7 @@ public class Customer {
     }
 
     // Required by the web UI even before the solution has been initialized.
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonProperty(value = "drivingTimeSecondsFromPreviousStandstill", access = JsonProperty.Access.READ_ONLY)
     public Long getDrivingTimeSecondsFromPreviousStandstillOrNull() {
         if (vehicle == null) {
             return null;
