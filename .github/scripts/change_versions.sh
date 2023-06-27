@@ -6,7 +6,6 @@
 #
 # The current version is necessary, because at this point, the script has no way of knowing what the current version is.
 # It cannot be read from the POM, as the POM would have to be resolved and the upstream SNAPSHOT is not available.
-
 find . -name pom.xml | xargs sed -i "s/$CURRENT_VERSION/$NEW_VERSION/g"
 find . -name build.gradle | xargs sed -i "s/$CURRENT_VERSION/$NEW_VERSION/g"
 find . -name pom.xml | xargs git add
