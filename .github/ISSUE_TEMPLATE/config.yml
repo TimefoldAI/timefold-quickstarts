@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Feature request or enhancement
+    url: https://github.com/TimefoldAI/timefold-solver/discussions/new?category=ideas
+    about: Propose a new Timefold Quickstart or an enhancement to an existing one.
+  - name: Question
+    url: https://stackoverflow.com/questions/ask?tags=timefold
+    about: Ask a question about how to use Timefold Quickstarts or Timefold Solver.
+  - name: Discussions
+    url: https://github.com/TimefoldAI/timefold-solver/discussions/new?category=general
+    about: Open Community discussions related to Timefold Quickstarts or Timefold Solver.
