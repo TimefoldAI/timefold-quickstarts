@@ -193,11 +193,6 @@ class DemoDataGenerator {
                     Lesson("Physical education", "C. Lewis", "12th grade"),
                     Lesson("Physical education", "C. Lewis", "12th grade")))
         }
-
-        val lesson: Lesson = lessonList[0]
-        lesson.timeslot = timeslotList[0]
-        lesson.room = roomList[0]
-
         lessonRepository.persist(lessonList)
     }
 

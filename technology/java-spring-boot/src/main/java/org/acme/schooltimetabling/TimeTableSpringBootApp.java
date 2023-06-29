@@ -180,12 +180,6 @@ public class TimeTableSpringBootApp {
                 lessonRepository.save(new Lesson("Physical education", "C. Lewis", "12th grade"));
                 lessonRepository.save(new Lesson("Physical education", "C. Lewis", "12th grade"));
             }
-
-            Lesson lesson = lessonRepository.findAll(Sort.by("id")).iterator().next();
-            lesson.setTimeslot(timeslotRepository.findAll(Sort.by("id")).iterator().next());
-            lesson.setRoom(roomRepository.findAll(Sort.by("id")).iterator().next());
-
-            lessonRepository.save(lesson);
         };
     }
 

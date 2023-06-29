@@ -15,6 +15,7 @@
     <version.ai.timefold.solver>0.9.39</version.ai.timefold.solver>
 
     <version.compiler.plugin>3.11.0</version.compiler.plugin>
+    <version.resources.plugin>3.3.1</version.resources.plugin>
     <version.surefire.plugin>3.1.0</version.surefire.plugin>
   </properties>
 
@@ -22,8 +23,6 @@
     <dependencies>
       <dependency>
         <groupId>io.quarkus</groupId>
-        <!-- Alternatively, use <artifactId>quarkus-universe-bom</artifactId>
-         which includes both quarkus-bom and timefold-solver-bom. -->
         <artifactId>quarkus-bom</artifactId>
         <version>${version.io.quarkus}</version>
         <type>pom</type>
@@ -50,15 +49,7 @@
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-hibernate-orm-panache</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-jdbc-h2</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-hibernate-orm-rest-data-panache</artifactId>
+      <artifactId>quarkus-smallrye-openapi</artifactId>
     </dependency>
     <dependency>
       <groupId>ai.timefold.solver</groupId>
@@ -76,11 +67,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-test-h2</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>io.rest-assured</groupId>
       <artifactId>rest-assured</artifactId>
       <scope>test</scope>
@@ -88,11 +74,6 @@
     <dependency>
       <groupId>ai.timefold.solver</groupId>
       <artifactId>timefold-solver-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>ai.timefold.solver</groupId>
-      <artifactId>timefold-solver-quarkus-benchmark</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -139,6 +120,10 @@
 
   <build>
     <plugins>
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>${version.resources.plugin}</version>
+      </plugin>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>${version.compiler.plugin}</version>
@@ -201,28 +186,6 @@
         <!-- To allow application.properties to avoid using the in-memory database for native builds. -->
         <quarkus.profile>native</quarkus.profile>
       </properties>
-    </profile>
-    <profile>
-      <id>openshift-native</id> <!-- Optional for use in OpenShift. -->
-      <activation>
-        <property>
-          <name>openshift-native</name>
-        </property>
-      </activation>
-      <properties>
-        <quarkus.package.type>native</quarkus.package.type>
-        <quarkus.profile>openshift-native</quarkus.profile>
-      </properties>
-      <dependencies>
-        <dependency>
-          <groupId>io.quarkus</groupId>
-          <artifactId>quarkus-openshift</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>io.quarkus</groupId>
-          <artifactId>quarkus-jdbc-postgresql</artifactId>
-        </dependency>
-      </dependencies>
     </profile>
   </profiles>
 
