@@ -7,16 +7,16 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 @JsonIdentityInfo(scope = Depot.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Depot {
 
-    private final long id;
+    private final String id;
 
     private final Location location;
 
-    public Depot(@JsonProperty("id") long id, @JsonProperty("location") Location location) {
+    public Depot(@JsonProperty("id") String id, @JsonProperty("location") Location location) {
         this.id = id;
         this.location = location;
     }
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 

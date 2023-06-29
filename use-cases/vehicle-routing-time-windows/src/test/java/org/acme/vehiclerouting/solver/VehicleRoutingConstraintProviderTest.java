@@ -47,10 +47,10 @@ class VehicleRoutingConstraintProviderTest {
         LocalDateTime tomorrow_07_00 = LocalDateTime.of(TOMORROW, LocalTime.of(7, 0));
         LocalDateTime tomorrow_08_00 = LocalDateTime.of(TOMORROW, LocalTime.of(8, 0));
         LocalDateTime tomorrow_10_00 = LocalDateTime.of(TOMORROW, LocalTime.of(10, 0));
-        Vehicle vehicleA = new Vehicle(1L, new Depot(1L, LOCATION_1), tomorrow_07_00);
-        Customer customer1 = new Customer(2L, "John", LOCATION_2, tomorrow_08_00, tomorrow_10_00, Duration.ofMinutes(30L));
+        Vehicle vehicleA = new Vehicle("1", new Depot("1", LOCATION_1), tomorrow_07_00);
+        Customer customer1 = new Customer("2", "John", LOCATION_2, tomorrow_08_00, tomorrow_10_00, Duration.ofMinutes(30L));
         vehicleA.getCustomers().add(customer1);
-        Customer customer2 = new Customer(3L, "Paul", LOCATION_3, tomorrow_08_00, tomorrow_10_00, Duration.ofMinutes(30L));
+        Customer customer2 = new Customer("3", "Paul", LOCATION_3, tomorrow_08_00, tomorrow_10_00, Duration.ofMinutes(30L));
         vehicleA.getCustomers().add(customer2);
 
         constraintVerifier.verifyThat(VehicleRoutingConstraintProvider::minimizeTravelTime)
@@ -67,11 +67,11 @@ class VehicleRoutingConstraintProviderTest {
         LocalDateTime tomorrow_10_30 = LocalDateTime.of(TOMORROW, LocalTime.of(10, 30));
         LocalDateTime tomorrow_18_00 = LocalDateTime.of(TOMORROW, LocalTime.of(18, 0));
 
-        Customer customer1 = new Customer(2L, "John", LOCATION_2, tomorrow_08_00, tomorrow_18_00, Duration.ofHours(1L));
+        Customer customer1 = new Customer("2", "John", LOCATION_2, tomorrow_08_00, tomorrow_18_00, Duration.ofHours(1L));
         customer1.setArrivalTime(tomorrow_08_40);
-        Customer customer2 = new Customer(3L, "Paul", LOCATION_3, tomorrow_08_00, tomorrow_09_00, Duration.ofHours(1L));
+        Customer customer2 = new Customer("3", "Paul", LOCATION_3, tomorrow_08_00, tomorrow_09_00, Duration.ofHours(1L));
         customer2.setArrivalTime(tomorrow_10_30);
-        Vehicle vehicleA = new Vehicle(1L, new Depot(1L, LOCATION_1), tomorrow_07_00);
+        Vehicle vehicleA = new Vehicle("1", new Depot("1", LOCATION_1), tomorrow_07_00);
 
         connect(vehicleA, customer1, customer2);
 

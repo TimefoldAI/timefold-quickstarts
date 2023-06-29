@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 @PlanningEntity
 public class Customer {
 
-    private long id;
+    private String id;
     private String name;
     private Location location;
     private LocalDateTime readyTime;
@@ -39,8 +39,8 @@ public class Customer {
     public Customer() {
     }
 
-    public Customer(long id, String name, Location location, LocalDateTime readyTime, LocalDateTime dueTime,
-            Duration serviceDuration) {
+    public Customer(String id, String name, Location location, LocalDateTime readyTime, LocalDateTime dueTime,
+                    Duration serviceDuration) {
         this.id = id;
         this.name = name;
         this.readyTime = readyTime;
@@ -49,7 +49,7 @@ public class Customer {
         this.location = location;
     }
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 

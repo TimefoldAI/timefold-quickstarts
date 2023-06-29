@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 public class Vehicle {
 
     @PlanningId
-    private long id;
+    private String id;
     @JsonIdentityReference
     private Depot depot;
 
@@ -32,18 +32,18 @@ public class Vehicle {
     public Vehicle() {
     }
 
-    public Vehicle(long id, Depot depot, LocalDateTime departureTime) {
+    public Vehicle(String id, Depot depot, LocalDateTime departureTime) {
         this.id = id;
         this.depot = depot;
         this.customers = new ArrayList<>();
         this.departureTime = departureTime;
     }
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

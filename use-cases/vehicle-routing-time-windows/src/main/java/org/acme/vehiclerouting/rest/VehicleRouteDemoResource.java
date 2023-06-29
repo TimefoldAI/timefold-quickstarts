@@ -128,7 +128,7 @@ public class VehicleRouteDemoResource {
 
         AtomicLong depotSequence = new AtomicLong();
         Supplier<Depot> depotSupplier = () -> new Depot(
-                depotSequence.incrementAndGet(),
+                String.valueOf(depotSequence.incrementAndGet()),
                 new Location(latitudes.nextDouble(), longitudes.nextDouble()));
 
         List<Depot> depots = Stream.generate(depotSupplier)
@@ -137,7 +137,7 @@ public class VehicleRouteDemoResource {
 
         AtomicLong vehicleSequence = new AtomicLong();
         Supplier<Vehicle> vehicleSupplier = () -> new Vehicle(
-                vehicleSequence.incrementAndGet(),
+                String.valueOf(vehicleSequence.incrementAndGet()),
                 depots.get(depotRandom.nextInt()),
                 tomorrowAt(demoData.vehicleStartTime));
 
@@ -160,7 +160,7 @@ public class VehicleRouteDemoResource {
             LocalDateTime dueTime = morningTimeWindow ? tomorrowAt(MORNING_WINDOW_END) : tomorrowAt(AFTERNOON_WINDOW_END);
             int serviceDurationMinutes = SERVICE_DURATION_MINUTES[random.nextInt(SERVICE_DURATION_MINUTES.length)];
             return new Customer(
-                    customerSequence.incrementAndGet(),
+                    String.valueOf(customerSequence.incrementAndGet()),
                     nameSupplier.get(),
                     new Location(latitudes.nextDouble(), longitudes.nextDouble()),
                     readyTime,
