@@ -43,7 +43,7 @@ public class TimetableResourceTest {
                 .atMost(Duration.ofMinutes(1))
                 .pollInterval(Duration.ofMillis(500L))
                 .until(() -> SolverStatus.NOT_SOLVING.name().equals(
-                        get("/timetables/" + jobId + "?retrieve=" + TimetableResource.Retrieve.STATUS)
+                        get("/timetables/" + jobId + "/status")
                                 .jsonPath().get("solverStatus")));
 
         Timetable solution = get("/timetables/" + jobId).then().extract().as(Timetable.class);

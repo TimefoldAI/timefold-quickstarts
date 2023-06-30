@@ -43,7 +43,7 @@ public class VehicleRoutePlanResourceTest {
                 .atMost(Duration.ofMinutes(1))
                 .pollInterval(Duration.ofMillis(500L))
                 .until(() -> SolverStatus.NOT_SOLVING.name().equals(
-                        get("/route-plans/" + jobId + "?retrieve=" + VehicleRoutePlanResource.Retrieve.STATUS)
+                        get("/route-plans/" + jobId + "/status")
                                 .jsonPath().get("solverStatus")));
 
         VehicleRoutePlan solution = get("/route-plans/" + jobId).then().extract().as(VehicleRoutePlan.class);

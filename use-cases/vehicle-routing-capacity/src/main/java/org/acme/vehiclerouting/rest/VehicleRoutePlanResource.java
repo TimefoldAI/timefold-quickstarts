@@ -12,7 +12,6 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
@@ -72,9 +71,27 @@ public class VehicleRoutePlanResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{jobId}")
     public VehicleRoutePlan getRoutePlan(
-            @Parameter(description = "The job ID returned by the POST method.") @PathParam("jobId") String jobId,
-            @QueryParam("retrieve") Retrieve retrieve) {
-        retrieve = retrieve == null ? Retrieve.FULL : retrieve;
+            @Parameter(description = "The job ID returned by the POST method.") @PathParam("jobId") String jobId) {
+        VehicleRoutePlan routePlan = getRoutePlanAndCheckForExceptions(jobId);
+        SolverStatus solverStatus = solverManager.getSolverStatus(jobId);
+        String scoreExplanation = solutionManager.explain(routePlan).getSummary();
+        routePlan.setSolverStatus(solverStatus);
+        routePlan.setScoreExplanation(scoreExplanation);
+        return routePlan;
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("{jobId}/status")
+    public VehicleRoutePlan getStatus(
+            @Parameter(description = "The job ID returned by the POST method.") @PathParam("jobId") String jobId) {
+        VehicleRoutePlan routePlan = getRoutePlanAndCheckForExceptions(jobId);
+        SolverStatus solverStatus = solverManager.getSolverStatus(jobId);
+        return new VehicleRoutePlan(routePlan.getName(), routePlan.getScore(), solverStatus);
+    }
+
+
+    private VehicleRoutePlan getRoutePlanAndCheckForExceptions(String jobId) {
         Job job = jobIdToJob.get(jobId);
         if (job == null) {
             throw new VehicleRoutingSolverException(jobId, Response.Status.NOT_FOUND, "No route plan found.");
@@ -82,31 +99,17 @@ public class VehicleRoutePlanResource {
         if (job.exception != null) {
             throw new VehicleRoutingSolverException(jobId, job.exception);
         }
-        VehicleRoutePlan routePlan = job.routePlan;
-        SolverStatus solverStatus = solverManager.getSolverStatus(jobId);
-        if (retrieve == Retrieve.STATUS) {
-            return new VehicleRoutePlan(routePlan.getName(), routePlan.getScore(), solverStatus);
-        }
-        String scoreExplanation = solutionManager.explain(routePlan).getSummary();
-        routePlan.setSolverStatus(solverStatus);
-        routePlan.setScoreExplanation(scoreExplanation);
-        return routePlan;
+        return job.routePlan;
     }
 
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{jobId}")
     public VehicleRoutePlan terminateSolving(
-            @Parameter(description = "The job ID returned by the POST method.") @PathParam("jobId") String jobId,
-            @QueryParam("retrieve") Retrieve retrieve) {
+            @Parameter(description = "The job ID returned by the POST method.") @PathParam("jobId") String jobId) {
         // TODO: Replace with .terminateEarlyAndWait(... [, timeout]); see https://github.com/TimefoldAI/timefold-solver/issues/77
         solverManager.terminateEarly(jobId);
-        return getRoutePlan(jobId, retrieve);
-    }
-
-    public enum Retrieve {
-        STATUS,
-        FULL
+        return getRoutePlan(jobId);
     }
 
     private record Job(VehicleRoutePlan routePlan, Throwable exception) {

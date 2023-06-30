@@ -13,7 +13,6 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
@@ -21,6 +20,8 @@ import ai.timefold.solver.core.api.solver.SolverManager;
 import ai.timefold.solver.core.api.solver.SolverStatus;
 
 import org.acme.schooltimetabling.domain.Timetable;
+import org.acme.schooltimetabling.rest.exception.ErrorInfo;
+import org.acme.schooltimetabling.rest.exception.TimetableSolverException;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -74,12 +75,12 @@ public class TimetableResource {
     @Produces(MediaType.TEXT_PLAIN)
     public String solve(Timetable problem) {
         String jobId = UUID.randomUUID().toString();
-        jobIdToJob.put(jobId, Job.newTimeTable(problem));
+        jobIdToJob.put(jobId, Job.ofTimetable(problem));
         solverManager.solveAndListen(jobId,
                 jobId_ -> jobIdToJob.get(jobId).timetable,
-                solution -> jobIdToJob.put(jobId, Job.newTimeTable(solution)),
+                solution -> jobIdToJob.put(jobId, Job.ofTimetable(solution)),
                 (jobId_, exception) -> {
-                    jobIdToJob.put(jobId, Job.error(jobId_, exception));
+                    jobIdToJob.put(jobId, Job.ofException(exception));
                     LOGGER.error("Failed solving jobId ({}).", jobId, exception);
                 });
         return jobId;
@@ -102,23 +103,45 @@ public class TimetableResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{jobId}")
     public Timetable getTimeTable(
-            @Parameter(description = "The job ID returned by the POST method.") @PathParam("jobId") String jobId,
-            @QueryParam("retrieve") Retrieve retrieve) {
-        retrieve = retrieve == null ? Retrieve.FULL : retrieve;
+            @Parameter(description = "The job ID returned by the POST method.") @PathParam("jobId") String jobId) {
+        Timetable timetable = getTimetableAndCheckForExceptions(jobId);
+        SolverStatus solverStatus = solverManager.getSolverStatus(jobId);
+        timetable.setSolverStatus(solverStatus);
+        return timetable;
+    }
+
+    @Operation(
+            summary = "Get the timetable status and score for a given job ID.")
+    @APIResponses(value = {
+            @APIResponse(responseCode = "200", description = "The timetable status and the best score so far.",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = Timetable.class))),
+            @APIResponse(responseCode = "404", description = "No timetable found.",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = ErrorInfo.class))),
+            @APIResponse(responseCode = "500", description = "Exception during solving a timetable.",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = ErrorInfo.class)))
+    })
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("{jobId}/status")
+    public Timetable getStatus(
+            @Parameter(description = "The job ID returned by the POST method.") @PathParam("jobId") String jobId) {
+        Timetable timetable = getTimetableAndCheckForExceptions(jobId);
+        SolverStatus solverStatus = solverManager.getSolverStatus(jobId);
+        return new Timetable(timetable.getName(), timetable.getScore(), solverStatus);
+    }
+
+    private Timetable getTimetableAndCheckForExceptions(String jobId) {
         Job job = jobIdToJob.get(jobId);
         if (job == null) {
             throw new TimetableSolverException(jobId, Response.Status.NOT_FOUND, "No timetable found.");
         }
-        if (job.error != null) {
-            throw new TimetableSolverException(jobId, job.error);
+        if (job.exception != null) {
+            throw new TimetableSolverException(jobId, job.exception);
         }
-        Timetable timetable = job.timetable;
-        SolverStatus solverStatus = solverManager.getSolverStatus(jobId);
-        if (retrieve == Retrieve.STATUS) {
-            return new Timetable(timetable.getName(), timetable.getScore(), solverStatus);
-        }
-        timetable.setSolverStatus(solverStatus);
-        return timetable;
+        return job.timetable;
     }
 
     @Operation(
@@ -138,27 +161,20 @@ public class TimetableResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{jobId}")
     public Timetable terminateSolving(
-            @Parameter(description = "The job ID returned by the POST method.") @PathParam("jobId") String jobId,
-            @QueryParam("retrieve") Retrieve retrieve) {
+            @Parameter(description = "The job ID returned by the POST method.") @PathParam("jobId") String jobId) {
         // TODO: Replace with .terminateEarlyAndWait(... [, timeout]); see https://github.com/TimefoldAI/timefold-solver/issues/77
         solverManager.terminateEarly(jobId);
-        return getTimeTable(jobId, retrieve);
+        return getTimeTable(jobId);
     }
 
-    public enum Retrieve {
-        STATUS,
-        FULL
-    }
+    private record Job(Timetable timetable, Throwable exception) {
 
-    private record Job(String jobId, Timetable timetable, Throwable error) {
-
-        static Job newTimeTable(Timetable timetable) {
-            return new Job(null, timetable, null);
+        static Job ofTimetable(Timetable timetable) {
+            return new Job(timetable, null);
         }
 
-        static Job error(String jobId, Throwable error) {
-            return new Job(jobId, null, error);
+        static Job ofException(Throwable error) {
+            return new Job(null, error);
         }
-
     }
 }

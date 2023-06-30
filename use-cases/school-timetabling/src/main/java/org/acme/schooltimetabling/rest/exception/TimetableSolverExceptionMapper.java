@@ -1,4 +1,4 @@
-package org.acme.schooltimetabling.rest;
+package org.acme.schooltimetabling.rest.exception;
 
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
