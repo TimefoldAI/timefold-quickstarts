@@ -5,9 +5,6 @@ on:
       version:
         description: 'Community Edition version (e.g. 1.0.0)'
         required: true
-      versionToReplace:
-        description: 'Version to replace (e.g. 0.9.40-SNAPSHOT)'
-        required: true
       developmentBranch:
         description: 'Development branch to cut the release from'
         default: development
@@ -71,9 +68,11 @@ jobs:
           git config user.name "Timefold Release Bot"
           git config user.email "release@timefold.ai"
           git checkout -B ${{ github.event.inputs.releaseBranch }}
-          export CURRENT_VERSION="${{ github.event.inputs.versionToReplace }}"
+          export OLD_VERSION="$(find . -name pom.xml -exec grep '<version.ai.timefold.solver>' {} \;|tail -n 1|cut -d\> -f1 --complement|cut -d\< -f1)"
           export NEW_VERSION="${{ github.event.inputs.version }}"
           .github/scripts/change_versions.sh
+          mvn verify
+          git commit -am "chore: switch to version $NEW_VERSION"
           git tag -a "v${{ github.event.inputs.version }}" -m "Release version ${{ github.event.inputs.version }}"
           git push --tags
 
@@ -94,18 +93,20 @@ jobs:
       - name: Set micro snapshot version on the release branch
         run: |
           git checkout ${{ github.event.inputs.releaseBranch }}
-          export CURRENT_VERSION="${{ github.event.inputs.version }}"
+          export OLD_VERSION="$(find . -name pom.xml -exec grep '<version.ai.timefold.solver>' {} \;|tail -n 1|cut -d\> -f1 --complement|cut -d\< -f1)"
           export NEW_VERSION="${{ github.event.inputs.nextMicroVersion }}-SNAPSHOT"
           .github/scripts/change_versions.sh
+          git commit -am "chore: switch to version $NEW_VERSION"
           git push origin ${{ github.event.inputs.releaseBranch }}
 
       - name: Switch development branch to next version and prepare PR
         run: |
           git checkout ${{ github.event.inputs.developmentBranch }}
           git checkout -B ${{ github.event.inputs.releaseBranch }}-bump2
-          export CURRENT_VERSION="${{ github.event.inputs.versionToReplace }}"
+          export OLD_VERSION="$(find . -name pom.xml -exec grep '<version.ai.timefold.solver>' {} \;|tail -n 1|cut -d\> -f1 --complement|cut -d\< -f1)"
           export NEW_VERSION="${{ github.event.inputs.nextVersion }}-SNAPSHOT"
           .github/scripts/change_versions.sh
+          git commit -am "chore: switch to version $NEW_VERSION"
           git push origin ${{ github.event.inputs.releaseBranch }}-bump2
           gh pr create --reviewer triceo,ge0ffrey --base ${{ github.event.inputs.developmentBranch }} --head ${{ github.event.inputs.releaseBranch }}-bump2 --title "chore: move to ${{ github.event.inputs.nextVersion }}-SNAPSHOT" --body-file .github/workflows/release-pr-body-development.md
         env:
