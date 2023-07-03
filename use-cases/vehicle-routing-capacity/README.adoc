@@ -6,6 +6,7 @@ image::../../build/quickstarts-showcase/src/main/resources/META-INF/resources/sc
 
 * <<run,Run the application>>
 * <<package,Run the packaged application>>
+* <<container,Run the application in a container>>
 * <<native,Run it native>>
 
 [[run]]
@@ -67,6 +68,23 @@ To run it on port 8081 instead, add `-Dquarkus.http.port=8081`.
 . Visit http://localhost:8080 in your browser.
 
 . Click on the *Solve* button.
+
+[[container]]
+== Run the application in a container
+
+. Build a container image:
++
+[source, shell]
+----
+$ mvn package -Dcontainer
+----
+The container image name
+. Run a container:
++
+[source, shell]
+----
+$ docker run -p 8080:8080 timefold-solver-quarkus-vehicle-routing-capacity-quickstart:1.0-SNAPSHOT
+----
 
 [[native]]
 == Run it native

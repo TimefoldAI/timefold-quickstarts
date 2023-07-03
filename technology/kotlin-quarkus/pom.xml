@@ -257,6 +257,23 @@
         <quarkus.profile>native</quarkus.profile>
       </properties>
     </profile>
+    <profile>
+      <id>container</id>
+      <activation>
+        <property>
+          <name>container</name>
+        </property>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>io.quarkus</groupId>
+          <artifactId>quarkus-container-image-jib</artifactId>
+        </dependency>
+      </dependencies>
+      <properties>
+        <quarkus.container-image.build>true</quarkus.container-image.build>
+      </properties>
+    </profile>
   </profiles>
 
 </project>
