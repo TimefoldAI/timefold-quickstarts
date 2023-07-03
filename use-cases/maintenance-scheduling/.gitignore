@@ -5,7 +5,6 @@
 # Eclipse, Netbeans and IntelliJ files
 /.*
 !.gitignore
-!.dockerignore
 !.mvn
 /nbproject
 /*.ipr
