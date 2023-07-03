@@ -4,7 +4,6 @@
 # Eclipse, Netbeans and IntelliJ files
 /.*
 !/.github
-!/.ci
 !.gitignore
 !.gitattributes
 !/.mvn
@@ -12,7 +11,6 @@
 /*.ipr
 /*.iws
 /*.iml
-.project
 
 # Repository wide ignore mac DS_Store files
 .DS_Store

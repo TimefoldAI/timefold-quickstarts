@@ -12,7 +12,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <version.io.quarkus>3.0.3.Final</version.io.quarkus>
-    <version.ai.timefold.solver>0.9.39</version.ai.timefold.solver>
+    <version.ai.timefold.solver>1.0.0</version.ai.timefold.solver>
 
     <version.compiler.plugin>3.11.0</version.compiler.plugin>
     <version.surefire.plugin>3.1.0</version.surefire.plugin>
@@ -172,22 +172,21 @@
       </properties>
     </profile>
     <profile>
-      <id>openshift-native</id> <!-- Optional for use in OpenShift. -->
+      <id>container</id>
       <activation>
         <property>
-          <name>openshift-native</name>
+          <name>container</name>
         </property>
       </activation>
-      <properties>
-        <quarkus.package.type>native</quarkus.package.type>
-        <quarkus.profile>openshift-native</quarkus.profile>
-      </properties>
       <dependencies>
         <dependency>
           <groupId>io.quarkus</groupId>
-          <artifactId>quarkus-openshift</artifactId>
+          <artifactId>quarkus-container-image-jib</artifactId>
         </dependency>
       </dependencies>
+      <properties>
+        <quarkus.container-image.build>true</quarkus.container-image.build>
+      </properties>
     </profile>
   </profiles>
 

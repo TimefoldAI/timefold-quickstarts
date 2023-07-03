@@ -1,47 +1,41 @@
 package org.acme.schooltimetabling.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
 
 @PlanningEntity
-@Entity
 public class Lesson {
 
     @PlanningId
-    @Id
-    @GeneratedValue
     private Long id;
 
     private String subject;
     private String teacher;
     private String studentGroup;
 
+    @JsonIdentityReference
     @PlanningVariable
-    @ManyToOne
     private Timeslot timeslot;
+
+    @JsonIdentityReference
     @PlanningVariable
-    @ManyToOne
     private Room room;
 
     // No-arg constructor required for Hibernate and Timefold
     public Lesson() {
     }
 
-    public Lesson(String subject, String teacher, String studentGroup) {
+    public Lesson(long id, String subject, String teacher, String studentGroup) {
+        this.id = id;
         this.subject = subject;
         this.teacher = teacher;
         this.studentGroup = studentGroup;
     }
 
     public Lesson(long id, String subject, String teacher, String studentGroup, Timeslot timeslot, Room room) {
-        this(subject, teacher, studentGroup);
-        this.id = id;
+        this(id, subject, teacher, studentGroup);
         this.timeslot = timeslot;
         this.room = room;
     }
@@ -86,5 +80,4 @@ public class Lesson {
     public void setRoom(Room room) {
         this.room = room;
     }
-
 }
