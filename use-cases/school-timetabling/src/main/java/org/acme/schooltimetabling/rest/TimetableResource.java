@@ -1,6 +1,6 @@
 package org.acme.schooltimetabling.rest;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -61,8 +61,8 @@ public class TimetableResource {
                             schema = @Schema(type = SchemaType.ARRAY, implementation = String.class))) })
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<String> list() {
-        return jobIdToJob.keySet().stream().toList();
+    public Collection<String> list() {
+        return jobIdToJob.keySet();
     }
 
     @Operation(summary = "Submit a timetable to start solving as soon as CPU resources are available.")

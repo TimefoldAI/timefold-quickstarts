@@ -1,6 +1,6 @@
 package org.acme.vehiclerouting.rest;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -64,13 +64,13 @@ public class VehicleRoutePlanResource {
 
     @Operation(summary = "List the job IDs of all submitted route plans.")
     @APIResponses(value = {
-            @APIResponse(responseCode = "200", description = "List of all job IDs.",
+            @APIResponse(responseCode = "200", description = "Collection of all job IDs.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
                             schema = @Schema(type = SchemaType.ARRAY, implementation = String.class))) })
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<String> list() {
-        return jobIdToJob.keySet().stream().toList();
+    public Collection<String> list() {
+        return jobIdToJob.keySet();
     }
 
     @Operation(summary = "Submit a route plan to start solving as soon as CPU resources are available.")
