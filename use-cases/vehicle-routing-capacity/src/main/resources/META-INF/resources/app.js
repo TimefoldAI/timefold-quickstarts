@@ -1,5 +1,5 @@
-const depotByIdMap = new Map();
-const customerByIdMap = new Map();
+const depotMarkerByIdMap = new Map();
+const customerMarkerByIdMap = new Map();
 
 const solveButton = $('#solveButton');
 const stopSolvingButton = $('#stopSolvingButton');
@@ -53,24 +53,24 @@ const customerPopupContent = (customer) => `<h5>Customer ${customer.id}</h5>
 Demand: ${customer.demand}`;
 
 const getDepotMarker = ({id, location}) => {
-    let marker = depotByIdMap.get(id);
+    let marker = depotMarkerByIdMap.get(id);
     if (marker) {
         return marker;
     }
     marker = L.marker(location);
     marker.addTo(depotGroup).bindPopup();
-    depotByIdMap.set(id, marker);
+    depotMarkerByIdMap.set(id, marker);
     return marker;
 };
 
 const getCustomerMarker = ({id, location}) => {
-    let marker = customerByIdMap.get(id);
+    let marker = customerMarkerByIdMap.get(id);
     if (marker) {
         return marker;
     }
     marker = L.circleMarker(location);
     marker.addTo(customerGroup).bindPopup();
-    customerByIdMap.set(id, marker);
+    customerMarkerByIdMap.set(id, marker);
     return marker;
 };
 
@@ -127,9 +127,11 @@ function renderRoutes(solution) {
     });
     // Route
     routeGroup.clearLayers();
-    solution.vehicles.forEach((vehicle) => {
-        L.polyline(vehicle.route, {color: colorByVehicle(vehicle)}).addTo(routeGroup);
-    });
+    const customerByIdMap = new Map(solution.customers.map(customer => [customer.id, customer]));
+    for (let vehicle of solution.vehicles) {
+        const locations = vehicle.customers.map(customerId => customerByIdMap.get(customerId).location);
+        L.polyline(locations, {color: colorByVehicle(vehicle)}).addTo(routeGroup);
+    }
 
     // Summary
     $('#score').text(solution.score);
