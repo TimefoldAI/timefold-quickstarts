@@ -26,7 +26,7 @@
     <h1>Vehicle routing with time windows</h1>
     <p>Generate optimal route plan of a vehicle fleet.</p>
 
-    <div class="container-fluid">
+    <div class="container-fluid mb-2">
       <div class="row justify-content-start">
         <div class="col-9">
           <ul class="nav nav-pills col" role="tablist">
@@ -148,7 +148,7 @@
     <pre>
               <button class="btn btn-outline-dark btn-sm float-end"
                       onclick="copyTextToClipboard('curl3')">Copy</button>
-              <code id="curl3">curl -X GET -H 'Accept:application/json' http://localhost:8080/route-plans/{jobId}?retrieve=STATUS</code>
+              <code id="curl3">curl -X GET -H 'Accept:application/json' http://localhost:8080/route-plans/{jobId}/status</code>
     </pre>
 
     <h3>4. Get the complete route plan</h3>

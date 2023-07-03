@@ -2,7 +2,6 @@ package org.acme.vehiclerouting.domain;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
@@ -70,26 +69,6 @@ public class Vehicle {
     // ************************************************************************
     // Complex methods
     // ************************************************************************
-
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    /**
-     * @return route of the vehicle
-     */
-    public List<Location> getRoute() {
-        if (customers.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        List<Location> route = new ArrayList<>();
-
-        route.add(depot.getLocation());
-        for (Customer customer : customers) {
-            route.add(customer.getLocation());
-        }
-        route.add(depot.getLocation());
-
-        return route;
-    }
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public long getTotalDrivingTimeSeconds() {

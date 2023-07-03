@@ -11,8 +11,8 @@ const depotsTable = $('#depots');
 
 /*************************************** Map constants and variable definitions  **************************************/
 
-const depotByIdMap = new Map();
-const customerByIdMap = new Map();
+const depotMarkerByIdMap = new Map();
+const customerMarkerByIdMap = new Map();
 
 const defaultIcon = new L.Icon.Default();
 
@@ -110,24 +110,24 @@ function showTimeOnly(localDateTimeString) {
 }
 
 function getDepotMarker(depot) {
-    let marker = depotByIdMap.get(depot.id);
+    let marker = depotMarkerByIdMap.get(depot.id);
     if (marker) {
         return marker;
     }
     marker = L.marker(depot.location);
     marker.addTo(depotGroup).bindPopup();
-    depotByIdMap.set(depot.id, marker);
+    depotMarkerByIdMap.set(depot.id, marker);
     return marker;
 }
 
 function getCustomerMarker(customer) {
-    let marker = customerByIdMap.get(customer.id);
+    let marker = customerMarkerByIdMap.get(customer.id);
     if (marker) {
         return marker;
     }
     marker = L.circleMarker(customer.location);
     marker.addTo(customerGroup).bindPopup();
-    customerByIdMap.set(customer.id, marker);
+    customerMarkerByIdMap.set(customer.id, marker);
     return marker;
 }
 
@@ -173,9 +173,11 @@ function renderRoutes(solution) {
     });
     // Route
     routeGroup.clearLayers();
-    solution.vehicles.forEach((vehicle) => {
-        L.polyline(vehicle.route, {color: colorByVehicle(vehicle)}).addTo(routeGroup);
-    });
+    const customerByIdMap = new Map(solution.customers.map(customer => [customer.id, customer]));
+    for (let vehicle of solution.vehicles) {
+        const locations = vehicle.customers.map(customerId => customerByIdMap.get(customerId).location);
+        L.polyline(locations, {color: colorByVehicle(vehicle)}).addTo(routeGroup);
+    }
 
     // Summary
     $('#score').text(solution.score);
