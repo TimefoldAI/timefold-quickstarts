@@ -16,7 +16,7 @@ a|* <<school-timetabling, School timetabling>>
 * <<order-picking, Order Picking>>
 * <<employee-scheduling, Employee Scheduling>>
 * <<food-packaging, Food packaging>>
-* <<vehicle-routing, Vehicle Routing>>
+* <<vehicle-routing-capacity, Vehicle Routing with capacity>>
 
 a|* link:use-cases/school-timetabling/README.adoc[Quarkus] (Java, Maven or Gradle, Quarkus, H2)
 * link:technology/java-spring-boot/README.adoc[Spring Boot] (Java, Maven or Gradle, Spring Boot, H2)
@@ -61,7 +61,7 @@ image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screensh
 * link:technology/java-spring-boot/README.adoc[Run spring-boot-school-timetabling] (Java, Maven or Gradle, Spring Boot, H2)
 * link:technology/java-activemq-quarkus/README.adoc[Run activemq-quarkus-school-timetabling] (Java, ActiveMQ, Maven, Quarkus)
 * link:technology/kotlin-quarkus/README.adoc[Run kotlin-quarkus-school-timetabling] (Kotlin, Maven, Quarkus, H2)
-* link:use-cases/vehicle-routing/README.adoc[Run quarkus-vehicle-routing] (Java, Maven or Gradle, Quarkus)
+* link:use-cases/vehicle-routing-capacity/README.adoc[Run quarkus-vehicle-routing-capacity] (Java, Maven or Gradle, Quarkus)
 
 Without a UI:
 
@@ -130,14 +130,14 @@ image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screensh
 
 * link:use-cases/food-packaging/README.adoc[Run quarkus-food-packaging] (Java, Maven, Quarkus)
 
-[[vehicle-routing]]
-=== Vehicle Routing
+[[vehicle-routing-capacity]]
+=== Vehicle Routing with capacity
 
 Find the most efficient routes for a fleet of vehicles.
 
 image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screenshot/quarkus-vehicle-routing-screenshot.png[]
 
-* link:use-cases/vehicle-routing/README.adoc[Run quarkus-vehicle-routing] (Java, Maven, Quarkus)
+* link:use-cases/vehicle-routing-capacity/README.adoc[Run quarkus-vehicle-routing] (Java, Maven, Quarkus)
 
 [[timefold-solver-examples]]
 === Timefold examples (desktop)
