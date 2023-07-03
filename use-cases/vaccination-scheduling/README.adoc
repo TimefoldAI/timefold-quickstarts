@@ -6,7 +6,6 @@ image::../../build/quickstarts-showcase/src/main/resources/META-INF/resources/sc
 
 * <<run,Run the application>>
 * <<package,Run the packaged application>>
-* <<cloud,Host it in the cloud>>
 * <<native,Run it native>>
 
 [[run]]
@@ -68,60 +67,6 @@ To run it on port 8081 instead, add `-Dquarkus.http.port=8081`.
 . Visit http://localhost:8080 in your browser.
 
 . Click on the *Solve* button.
-
-
-[[cloud]]
-== Host it in the cloud
-
-To allow others to try this application in their browser,
-host it in the cloud and share the url with them.
-
-=== Host it on OpenShift (Kubernetes)
-
-https://www.redhat.com/en/technologies/cloud-computing/openshift[Red Hat OpenShift] is an open source Kubernetes cloud service
-which is ideal to host Timefold applications.
-
-To deploy the application on OpenShift:
-
-. https://developers.redhat.com/developer-sandbox[Get a free Developer Sandbox account for OpenShift] and _launch_ the Developer Sandbox.
-. In the OpenShift web console, verify that the top left combobox is set to _Developer_ (not _Administrator_).
-. In the menu, select *Add* to create an application.
-. Under *Git Repository*, click *Import from Git* and fill in these parameters:
-.. Set *Git Repo URL* to `https://github.com/TimefoldAI/timefold-quickstarts`
-.. Under _Show advanced Git options_, set *Context dir* to `/use-cases/vaccination-scheduling`
-.. Press the *Create* button.
-. In the _Topology_ view, there is a new deployment:
-.. Wait a minute until the build completes (watch the bottom left icon until it turns green).
-.. Open the URL (click on the top right icon).
-. Click on the *Solve* button.
-
-=== Host it on OpenShift using native build
-
-Requirements:
-
-- Install https://podman.io/[Podman] or https://www.docker.com/[Docker]
-- Install https://docs.openshift.com/container-platform/latest/cli_reference/openshift_cli/getting-started-cli.html[OpenShift Client (oc) tools]
-
-To deploy the application on OpenShift using the native build:
-
-. https://developers.redhat.com/developer-sandbox[Get a free Developer Sandbox account for OpenShift] and _launch_ the Developer Sandbox.
-. In the OpenShift web console, verify that the top left combobox is set to _Developer_ (not _Administrator_).
-. In the OpenShift web console, click your username (in the upper right corner) and select the "Copy login command" option.
-. In a bash terminal on your local machine, paste the login command.
-. In a local clone of the repo, navigate to the `use-cases/vaccination-scheduling` directory.
-. Run the command below:
-+
-[source, shell]
-----
-$ mvn clean package -DskipTests -Dopenshift-native -Dquarkus.kubernetes.deploy=true -Dquarkus.native.container-build=true
-----
-+
-. When the command is finished, you should see one pod in the Topology view: the _native_ Quarkus application. If you click the Quarkus' application link (small bubble with link icon at the top right of the Quarkus' application bubble), you will be navigated to the application. Alternatively, you can get the route from bash with the following command:
-+
-[source, shell]
-----
-$ oc get routes
-----
 
 
 [[native]]

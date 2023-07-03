@@ -7,7 +7,6 @@
 !.gitignore
 !.dockerignore
 !.mvn
-!.s2i
 /nbproject
 /*.ipr
 /*.iws
