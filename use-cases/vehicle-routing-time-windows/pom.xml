@@ -121,7 +121,7 @@
     <dependency>
       <groupId>org.webjars</groupId>
       <artifactId>leaflet</artifactId>
-      <version>1.6.0</version>
+      <version>1.8.0</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
