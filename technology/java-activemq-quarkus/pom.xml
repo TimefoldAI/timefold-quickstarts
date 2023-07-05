@@ -18,7 +18,7 @@
     <version.org.apache.activemq>2.28.0</version.org.apache.activemq>
 
     <version.compiler.plugin>3.11.0</version.compiler.plugin>
-    <version.surefire.plugin>3.0.0-M8</version.surefire.plugin>
+    <version.surefire.plugin>3.1.2</version.surefire.plugin>
   </properties>
 
   <modules>
