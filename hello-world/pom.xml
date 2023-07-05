@@ -18,7 +18,7 @@
     <version.org.logback>1.4.8</version.org.logback>
 
     <version.compiler.plugin>3.11.0</version.compiler.plugin>
-    <version.surefire.plugin>3.1.0</version.surefire.plugin>
+    <version.surefire.plugin>3.1.2</version.surefire.plugin>
     <version.assembly.plugin>3.6.0</version.assembly.plugin>
   </properties>
 
