@@ -201,8 +201,8 @@ function renderSchedule(timetable) {
       } else {
         // In the JSON, the lesson.timeslot and lesson.room are only IDs of these objects.
         $(`#timeslot${lesson.timeslot}room${lesson.room}`).append(lessonElement.clone());
-        $(`#timeslot${lesson.timeslot.id}teacher${convertToId(lesson.teacher)}`).append(lessonElement.clone());
-        $(`#timeslot${lesson.timeslot.id}studentGroup${convertToId(lesson.studentGroup)}`).append(lessonElement.clone());
+        $(`#timeslot${lesson.timeslot}teacher${convertToId(lesson.teacher)}`).append(lessonElement.clone());
+        $(`#timeslot${lesson.timeslot}studentGroup${convertToId(lesson.studentGroup)}`).append(lessonElement.clone());
       }
     });
 }
