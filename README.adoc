@@ -20,7 +20,6 @@ a|* <<school-timetabling, School timetabling>>
 
 a|* link:use-cases/school-timetabling/README.adoc[Quarkus] (Java, Maven or Gradle, Quarkus, H2)
 * link:technology/java-spring-boot/README.adoc[Spring Boot] (Java, Maven or Gradle, Spring Boot, H2)
-* link:technology/java-activemq-quarkus/README.adoc[ActiveMQ] (Java, ActiveMQ, Maven, Quarkus)
 * link:technology/kotlin-quarkus/README.adoc[Kotlin] (Kotlin, Maven, Quarkus, H2)
 
 2+a|* <<timefold-solver-examples, Timefold examples (desktop)>>
@@ -59,7 +58,6 @@ image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screensh
 
 * link:use-cases/school-timetabling/README.adoc[Run quarkus-school-timetabling] (Java, Maven or Gradle, Quarkus, H2)
 * link:technology/java-spring-boot/README.adoc[Run spring-boot-school-timetabling] (Java, Maven or Gradle, Spring Boot, H2)
-* link:technology/java-activemq-quarkus/README.adoc[Run activemq-quarkus-school-timetabling] (Java, ActiveMQ, Maven, Quarkus)
 * link:technology/kotlin-quarkus/README.adoc[Run kotlin-quarkus-school-timetabling] (Kotlin, Maven, Quarkus, H2)
 * link:use-cases/vehicle-routing-capacity/README.adoc[Run quarkus-vehicle-routing-capacity] (Java, Maven or Gradle, Quarkus)
 
