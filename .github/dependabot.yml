@@ -8,7 +8,7 @@ updates:
     open-pull-requests-limit: 10
     target-branch: "development"
     commit-message:
-      prefix: "build: "
+      prefix: "deps: "
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:

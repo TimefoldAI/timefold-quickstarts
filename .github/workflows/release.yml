@@ -83,7 +83,10 @@ jobs:
         run: |
           git checkout ${{ github.event.inputs.stableBranch }}
           git checkout -B ${{ github.event.inputs.releaseBranch }}-bump
-          git merge -X theirs --squash ${{ github.event.inputs.releaseBranch }}
+          git checkout ${{ github.event.inputs.releaseBranch }}
+          git merge -s ours --no-edit ${{ github.event.inputs.stableBranch }}
+          git checkout ${{ github.event.inputs.releaseBranch }}-bump
+          git merge --squash ${{ github.event.inputs.releaseBranch }}
           git commit -m "chore: release version ${{ github.event.inputs.version }}"
           git push origin ${{ github.event.inputs.releaseBranch }}-bump
           gh pr create --reviewer triceo,ge0ffrey --base ${{ github.event.inputs.stableBranch }} --head ${{ github.event.inputs.releaseBranch }}-bump --title "chore: release version ${{ github.event.inputs.version }}" --body-file .github/workflows/release-pr-body-stable.md
