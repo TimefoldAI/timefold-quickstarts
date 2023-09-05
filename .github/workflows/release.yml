@@ -32,7 +32,7 @@ jobs:
       - name: Print inputs to the release workflow
         run: echo "${{ toJSON(github.event.inputs) }}"
       - name: Checkout the relevant timefold-solver tag
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: "TimefoldAI/timefold-solver"
           path: "./timefold-solver"
@@ -59,7 +59,7 @@ jobs:
           rm -rf timefold-solver
 
       - name: Checkout timefold-quickstarts
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
