@@ -70,7 +70,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.JRELEASER_GITHUB_TOKEN }}
 
-      - name: Set micro snapshot version on the release branch
+      - name: Put back the 999-SNAPSHOT version on the release branch
         run: |
           git checkout ${{ github.event.inputs.releaseBranch }}
           export OLD_VERSION="$(find . -name pom.xml -exec grep '<version.ai.timefold.solver>' {} \;|tail -n 1|cut -d\> -f1 --complement|cut -d\< -f1)"
