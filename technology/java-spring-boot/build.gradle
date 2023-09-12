@@ -4,7 +4,7 @@ plugins {
     id "java"
 }
 
-def timefoldVersion = "1.1.0"
+def timefoldVersion = "1.2.0"
 def assertjVersion = "3.24.2"
 
 group = "org.acme"

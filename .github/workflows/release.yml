@@ -17,27 +17,16 @@ on:
         description: 'Release branch to create (e.g. 1.0.x for version 1.0.0; once created, branch protection rules apply)'
         default: dry_run
         required: true
-      nextVersion:
-        description: 'Next version after release (e.g. 1.1.0, -SNAPSHOT will be added automatically)'
-        required: true
-      nextMicroVersion:
-        description: 'Next version after release for release branch (e.g. 1.0.1, -SNAPSHOT will be added automatically)'
-        required: true
 jobs:
   build:
     env:
       MAVEN_ARGS: "--no-transfer-progress --batch-mode"
     runs-on: ubuntu-latest
     steps:
-      - name: Print inputs to the release workflow
-        run: echo "${{ toJSON(github.event.inputs) }}"
-      - name: Checkout the relevant timefold-solver tag
+      - name: Checkout timefold-quickstarts
         uses: actions/checkout@v4
         with:
-          repository: "TimefoldAI/timefold-solver"
-          path: "./timefold-solver"
           fetch-depth: 0
-          ref: v${{ github.event.inputs.version }}
 
       - uses: actions/setup-java@v3
         with:
@@ -50,19 +39,7 @@ jobs:
         with:
           maven-version: 3.9.3
 
-      # No need to wait for the upstream release to show up in Maven Central.
-      - name: Build the upstream release tag
-        working-directory: "./timefold-solver"
-        run: |
-          mvn -Dquickly install
-          cd ..
-          rm -rf timefold-solver
-
-      - name: Checkout timefold-quickstarts
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
+      # This step will fail if the Solver binaries aren't already on Maven Central.
       - name: Create release branch and build release
         run: |
           git config user.name "Timefold Release Bot"
@@ -72,7 +49,7 @@ jobs:
           export NEW_VERSION="${{ github.event.inputs.version }}"
           .github/scripts/change_versions.sh
           mvn verify
-          git commit -am "chore: switch to version $NEW_VERSION"
+          git commit -am "build: switch to version $NEW_VERSION"
           git tag -a "v${{ github.event.inputs.version }}" -m "Release version ${{ github.event.inputs.version }}"
           git push --tags
 
@@ -87,30 +64,17 @@ jobs:
           git merge -s ours --no-edit ${{ github.event.inputs.stableBranch }}
           git checkout ${{ github.event.inputs.releaseBranch }}-bump
           git merge --squash ${{ github.event.inputs.releaseBranch }}
-          git commit -m "chore: release version ${{ github.event.inputs.version }}"
+          git commit -m "build: release version ${{ github.event.inputs.version }}"
           git push origin ${{ github.event.inputs.releaseBranch }}-bump
-          gh pr create --reviewer triceo,ge0ffrey --base ${{ github.event.inputs.stableBranch }} --head ${{ github.event.inputs.releaseBranch }}-bump --title "chore: release version ${{ github.event.inputs.version }}" --body-file .github/workflows/release-pr-body-stable.md
+          gh pr create --reviewer triceo --base ${{ github.event.inputs.stableBranch }} --head ${{ github.event.inputs.releaseBranch }}-bump --title "build: release version ${{ github.event.inputs.version }}" --body-file .github/workflows/release-pr-body.md
         env:
           GITHUB_TOKEN: ${{ secrets.JRELEASER_GITHUB_TOKEN }}
 
-      - name: Set micro snapshot version on the release branch
+      - name: Put back the 999-SNAPSHOT version on the release branch
         run: |
           git checkout ${{ github.event.inputs.releaseBranch }}
           export OLD_VERSION="$(find . -name pom.xml -exec grep '<version.ai.timefold.solver>' {} \;|tail -n 1|cut -d\> -f1 --complement|cut -d\< -f1)"
-          export NEW_VERSION="${{ github.event.inputs.nextMicroVersion }}-SNAPSHOT"
+          export NEW_VERSION="999-SNAPSHOT"
           .github/scripts/change_versions.sh
-          git commit -am "chore: switch to version $NEW_VERSION"
+          git commit -am "build: move back to version $NEW_VERSION"
           git push origin ${{ github.event.inputs.releaseBranch }}
-
-      - name: Switch development branch to next version and prepare PR
-        run: |
-          git checkout ${{ github.event.inputs.developmentBranch }}
-          git checkout -B ${{ github.event.inputs.releaseBranch }}-bump2
-          export OLD_VERSION="$(find . -name pom.xml -exec grep '<version.ai.timefold.solver>' {} \;|tail -n 1|cut -d\> -f1 --complement|cut -d\< -f1)"
-          export NEW_VERSION="${{ github.event.inputs.nextVersion }}-SNAPSHOT"
-          .github/scripts/change_versions.sh
-          git commit -am "chore: switch to version $NEW_VERSION"
-          git push origin ${{ github.event.inputs.releaseBranch }}-bump2
-          gh pr create --reviewer triceo,ge0ffrey --base ${{ github.event.inputs.developmentBranch }} --head ${{ github.event.inputs.releaseBranch }}-bump2 --title "chore: move to ${{ github.event.inputs.nextVersion }}-SNAPSHOT" --body-file .github/workflows/release-pr-body-development.md
-        env:
-          GITHUB_TOKEN: ${{ secrets.JRELEASER_GITHUB_TOKEN }}
