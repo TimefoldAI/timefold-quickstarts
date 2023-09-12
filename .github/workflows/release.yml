@@ -23,6 +23,11 @@ jobs:
       MAVEN_ARGS: "--no-transfer-progress --batch-mode"
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout timefold-quickstarts
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - uses: actions/setup-java@v3
         with:
           java-version: '17'
@@ -33,11 +38,6 @@ jobs:
         uses: stCarolas/setup-maven@v4.5
         with:
           maven-version: 3.9.3
-
-      - name: Checkout timefold-quickstarts
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
 
       # This step will fail if the Solver binaries aren't already on Maven Central.
       - name: Create release branch and build release
