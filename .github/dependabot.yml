@@ -9,7 +9,19 @@ updates:
     target-branch: "development"
     commit-message:
       prefix: "deps: "
+  - package-ecosystem: gradle
+    directory: "/"
+    schedule:
+      interval: daily
+      time: '06:00'
+    open-pull-requests-limit: 10
+    target-branch: "development"
+    commit-message:
+      prefix: "deps: "
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "daily"
+      time: '07:00'
+    commit-message:
+      prefix: "deps: "
