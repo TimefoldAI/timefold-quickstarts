@@ -18,7 +18,6 @@
   <modules>
     <module>hello-world</module>
     <module>technology/java-spring-boot</module>
-    <module>technology/java-activemq-quarkus</module>
     <module>technology/kotlin-quarkus</module>
     <module>use-cases/school-timetabling</module>
     <module>use-cases/facility-location</module>
