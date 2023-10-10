@@ -12,10 +12,10 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <jar.with.dependencies.name>hello-world-run</jar.with.dependencies.name>
 
-    <version.ai.timefold.solver>0.8.41-SNAPSHOT</version.ai.timefold.solver>
+    <version.ai.timefold.solver>0.8.42-SNAPSHOT</version.ai.timefold.solver>
     <version.org.assertj>3.24.2</version.org.assertj>
     <version.org.junit.jupiter>5.9.0</version.org.junit.jupiter>
-    <version.org.logback>1.2.11</version.org.logback>
+    <version.org.logback>1.2.12</version.org.logback>
 
     <version.compiler.plugin>3.10.1</version.compiler.plugin>
     <version.surefire.plugin>3.0.0-M8</version.surefire.plugin>
