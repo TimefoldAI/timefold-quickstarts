@@ -16,7 +16,7 @@ a|* <<school-timetabling, School timetabling>>
 * <<order-picking, Order Picking>>
 * <<employee-scheduling, Employee Scheduling>>
 * <<food-packaging, Food packaging>>
-* <<vehicle-routing-with-capacity, Vehicle Routing with capacity>>
+* <<vehicle-routing-capacity, Vehicle Routing with capacity>>
 
 a|* link:use-cases/school-timetabling/README.adoc[Quarkus] (Java, Maven or Gradle, Quarkus, H2)
 * link:technology/java-spring-boot/README.adoc[Spring Boot] (Java, Maven or Gradle, Spring Boot, H2)
@@ -49,6 +49,7 @@ $ ./runQuickstartsFromSource.sh
 
 == Use cases
 
+[[school-timetabling]]
 === School timetabling
 
 Assign lessons to timeslots and rooms to produce a better schedule for teachers and students.
@@ -64,6 +65,7 @@ Without a UI:
 
 * link:hello-world/README.adoc[Run hello-world-school-timetabling] (Java, Maven or Gradle)
 
+[[facility-location]]
 === Facility location problem
 
 Pick the best geographical locations for new stores, distribution centers, covid test centers or telco masts.
@@ -72,6 +74,7 @@ image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screensh
 
 * link:use-cases/facility-location/README.adoc[Run quarkus-facility-location] (Java, Maven, Quarkus)
 
+[[maintenance-scheduling]]
 === Maintenance scheduling
 
 Schedule maintenance jobs to crews over time to reduce both premature and overdue maintenance.
@@ -80,6 +83,7 @@ image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screensh
 
 * link:use-cases/maintenance-scheduling/README.adoc[Run quarkus-maintenance-scheduling] (Java, Maven, Quarkus)
 
+[[call-center]]
 === Call center
 
 Schedule incoming calls to employees matching skills and availability.
@@ -88,6 +92,7 @@ image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screensh
 
 * link:use-cases/call-center/README.adoc[Run quarkus-call-center] (Java, Maven, Quarkus)
 
+[[vaccination-scheduling]]
 === Vaccination scheduling
 
 Assign people to vaccination injection appointments over time at vaccination centers to end a pandemic sooner.
@@ -96,6 +101,7 @@ image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screensh
 
 * link:use-cases/vaccination-scheduling/README.adoc[Run quarkus-vaccination-scheduling] (Java, Maven, Quarkus)
 
+[[order-picking]]
 === Order Picking
 
 Generate an optimal picking plan for completing a set of orders.
@@ -104,6 +110,7 @@ image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screensh
 
 * link:use-cases/order-picking/README.adoc[Run quarkus-order-picking] (Java, Maven, Quarkus)
 
+[[employee-scheduling]]
 === Employee Scheduling
 
 Schedule shifts to employees, accounting for employee availability and shift skill requirements.
@@ -112,6 +119,7 @@ image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screensh
 
 * link:use-cases/employee-scheduling/README.adoc[Run quarkus-employee-scheduling] (Java, Maven, Quarkus)
 
+[[food-packaging]]
 === Food Packaging
 
 Schedule food packaging orders to manufacturing lines, to minimize downtime and fulfill all orders in time.
@@ -120,6 +128,7 @@ image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screensh
 
 * link:use-cases/food-packaging/README.adoc[Run quarkus-food-packaging] (Java, Maven, Quarkus)
 
+[[vehicle-routing-capacity]]
 === Vehicle Routing with capacity
 
 Find the most efficient routes for a fleet of vehicles.
@@ -128,6 +137,7 @@ image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screensh
 
 * link:use-cases/vehicle-routing-capacity/README.adoc[Run quarkus-vehicle-routing] (Java, Maven, Quarkus)
 
+[[timefold-solver-examples]]
 === Timefold examples (desktop)
 
 Many examples in desktop technology.
