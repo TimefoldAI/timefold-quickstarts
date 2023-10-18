@@ -1,4 +1,7 @@
+# Maven and Gradle files
 target
+.gradle
+build
 
 # Eclipse, Netbeans and IntelliJ files
 /.*
