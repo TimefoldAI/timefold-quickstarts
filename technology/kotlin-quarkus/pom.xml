@@ -11,7 +11,7 @@
     <maven.compiler.release>11</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <version.io.quarkus>2.16.11.Final</version.io.quarkus>
+    <version.io.quarkus>2.16.12.Final</version.io.quarkus>
     <version.kotlin>1.6.21</version.kotlin>
     <version.ai.timefold.solver>0.8.42-SNAPSHOT</version.ai.timefold.solver>
 
