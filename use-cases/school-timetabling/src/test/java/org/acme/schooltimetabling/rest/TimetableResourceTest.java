@@ -86,7 +86,6 @@ public class TimetableResourceTest {
 
         String analysis = given()
                 .contentType(ContentType.JSON)
-                .queryParam("fetchPolicy")
                 .body(testTimetable)
                 .expect().contentType(ContentType.JSON)
                 .when()
