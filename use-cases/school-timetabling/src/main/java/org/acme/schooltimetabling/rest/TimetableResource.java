@@ -101,6 +101,7 @@ public class TimetableResource {
     @POST
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces(MediaType.APPLICATION_JSON)
+    @Path("analyze")
     public ScoreAnalysis<HardSoftScore> analyze(Timetable problem, ScoreAnalysisFetchPolicy fetchPolicy) {
         return solutionManager.analyze(problem, fetchPolicy);
     }
