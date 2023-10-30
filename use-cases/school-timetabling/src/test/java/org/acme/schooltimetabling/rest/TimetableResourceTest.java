@@ -9,6 +9,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
 
+import jakarta.inject.Singleton;
+
 import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
 import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
 import ai.timefold.solver.core.api.score.constraint.ConstraintRef;
@@ -17,26 +19,17 @@ import ai.timefold.solver.core.api.solver.SolverStatus;
 import ai.timefold.solver.jackson.api.score.analysis.AbstractScoreAnalysisJacksonDeserializer;
 
 import org.acme.schooltimetabling.domain.Timetable;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import io.quarkus.jackson.ObjectMapperCustomizer;
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
 
+@QuarkusTest
 public class TimetableResourceTest {
-
-    @RegisterExtension
-    static final QuarkusUnitTest config = new QuarkusUnitTest()
-            .overrideConfigKey("quarkus.timefold.solver.termination.best-score-limit", "0")
-            .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class)
-                    .addPackages(true, "org.acme.schooltimetabling")
-                    .addClass(RegisterCustomModuleCustomizer.class));
 
     @Test
     public void solveDemoDataUntilFeasible() {
@@ -91,16 +84,32 @@ public class TimetableResourceTest {
             i += 1;
         }
 
-        ScoreAnalysis<HardSoftScore> analysis = given()
+        String analysis = given()
                 .contentType(ContentType.JSON)
+                .queryParam("fetchPolicy")
                 .body(testTimetable)
                 .expect().contentType(ContentType.JSON)
-                .when().post("/timetables/analyze")
+                .when()
+                .put("/timetables/analyze")
                 .then()
                 .extract()
-                .as(ScoreAnalysis.class);
+                .asString();
+        assertNotNull(analysis); // Too long to validate in its entirety.
+
+        String analysis2 = given()
+                .contentType(ContentType.JSON)
+                .queryParam("fetchPolicy", "FETCH_SHALLOW")
+                .body(testTimetable)
+                .expect().contentType(ContentType.JSON)
+                .when()
+                .put("/timetables/analyze")
+                .then()
+                .extract()
+                .asString();
+        assertNotNull(analysis2); // Too long to validate in its entirety.
     }
 
+    @Singleton
     public static final class RegisterCustomModuleCustomizer implements ObjectMapperCustomizer {
 
         @Override

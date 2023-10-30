@@ -10,9 +10,11 @@ import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
@@ -96,13 +98,26 @@ public class TimetableResource {
     @Operation(summary = "Submit a timetable to analyze its score.")
     @APIResponses(value = {
             @APIResponse(responseCode = "202",
-                    description = "Resulting score analysis.",
+                    description = "Resulting score analysis, including all constraint matches.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ScoreAnalysis.class))) })
-    @POST
+    @PUT
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces(MediaType.APPLICATION_JSON)
     @Path("analyze")
-    public ScoreAnalysis<HardSoftScore> analyze(Timetable problem, ScoreAnalysisFetchPolicy fetchPolicy) {
+    public ScoreAnalysis<HardSoftScore> analyze(Timetable problem) {
+        return solutionManager.analyze(problem);
+    }
+
+    @Operation(summary = "Submit a timetable to analyze its score.")
+    @APIResponses(value = {
+            @APIResponse(responseCode = "202",
+                    description = "Resulting score analysis, optionally without constraint matches.",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ScoreAnalysis.class))) })
+    @PUT
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("analyze")
+    public ScoreAnalysis<HardSoftScore> analyze(Timetable problem, @QueryParam("fetchPolicy") ScoreAnalysisFetchPolicy fetchPolicy) {
         return solutionManager.analyze(problem, fetchPolicy);
     }
 

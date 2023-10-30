@@ -2,8 +2,7 @@ package org.acme.schooltimetabling.solver.justifications;
 
 import ai.timefold.solver.core.api.score.stream.ConstraintJustification;
 
-import org.acme.schooltimetabling.domain.Lesson;
-
-public record TeacherTimeEfficiencyJustification(String teacher, Lesson lesson1, Lesson lesson2) implements ConstraintJustification {
+public record TeacherTimeEfficiencyJustification(String teacher, long lessonId1, long lessonId2)
+        implements ConstraintJustification {
 
 }
