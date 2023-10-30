@@ -18,6 +18,7 @@ import jakarta.ws.rs.core.Response;
 
 import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
 import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
+import ai.timefold.solver.core.api.solver.ScoreAnalysisFetchPolicy;
 import ai.timefold.solver.core.api.solver.SolutionManager;
 import ai.timefold.solver.core.api.solver.SolverManager;
 import ai.timefold.solver.core.api.solver.SolverStatus;
@@ -100,8 +101,8 @@ public class TimetableResource {
     @POST
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces(MediaType.APPLICATION_JSON)
-    public ScoreAnalysis<HardSoftScore> analyze(Timetable problem, boolean analyzeConstraintMatches) {
-        return solutionManager.analyze(problem, analyzeConstraintMatches);
+    public ScoreAnalysis<HardSoftScore> analyze(Timetable problem, ScoreAnalysisFetchPolicy fetchPolicy) {
+        return solutionManager.analyze(problem, fetchPolicy);
     }
 
     @Operation(
