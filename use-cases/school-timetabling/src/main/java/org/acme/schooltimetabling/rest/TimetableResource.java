@@ -10,12 +10,18 @@ import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
+import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
+import ai.timefold.solver.core.api.solver.ScoreAnalysisFetchPolicy;
+import ai.timefold.solver.core.api.solver.SolutionManager;
 import ai.timefold.solver.core.api.solver.SolverManager;
 import ai.timefold.solver.core.api.solver.SolverStatus;
 
@@ -40,6 +46,7 @@ public class TimetableResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(TimetableResource.class);
 
     private final SolverManager<Timetable, String> solverManager;
+    private final SolutionManager<Timetable, HardSoftScore> solutionManager;
 
     // TODO: Without any "time to live", the map may eventually grow out of memory.
     private final ConcurrentMap<String, Job> jobIdToJob = new ConcurrentHashMap<>();
@@ -47,11 +54,13 @@ public class TimetableResource {
     // Workaround to make Quarkus CDI happy. Do not use.
     public TimetableResource() {
         this.solverManager = null;
+        this.solutionManager = null;
     }
 
     @Inject
-    public TimetableResource(SolverManager<Timetable, String> solverManager) {
+    public TimetableResource(SolverManager<Timetable, String> solverManager, SolutionManager<Timetable, HardSoftScore> solutionManager) {
         this.solverManager = solverManager;
+        this.solutionManager = solutionManager;
     }
 
     @Operation(summary = "List the job IDs of all submitted timetables.")
@@ -84,6 +93,32 @@ public class TimetableResource {
                     LOGGER.error("Failed solving jobId ({}).", jobId, exception);
                 });
         return jobId;
+    }
+
+    @Operation(summary = "Submit a timetable to analyze its score.")
+    @APIResponses(value = {
+            @APIResponse(responseCode = "202",
+                    description = "Resulting score analysis, including all constraint matches.",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ScoreAnalysis.class))) })
+    @PUT
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("analyze")
+    public ScoreAnalysis<HardSoftScore> analyze(Timetable problem) {
+        return solutionManager.analyze(problem);
+    }
+
+    @Operation(summary = "Submit a timetable to analyze its score.")
+    @APIResponses(value = {
+            @APIResponse(responseCode = "202",
+                    description = "Resulting score analysis, optionally without constraint matches.",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ScoreAnalysis.class))) })
+    @PUT
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("analyze")
+    public ScoreAnalysis<HardSoftScore> analyze(Timetable problem, @QueryParam("fetchPolicy") ScoreAnalysisFetchPolicy fetchPolicy) {
+        return solutionManager.analyze(problem, fetchPolicy);
     }
 
     @Operation(
