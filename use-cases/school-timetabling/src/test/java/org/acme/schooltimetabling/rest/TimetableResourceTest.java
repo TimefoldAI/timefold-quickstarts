@@ -108,37 +108,5 @@ public class TimetableResourceTest {
         assertNotNull(analysis2); // Too long to validate in its entirety.
     }
 
-    @Singleton
-    public static final class RegisterCustomModuleCustomizer implements ObjectMapperCustomizer {
-
-        @Override
-        public void customize(ObjectMapper objectMapper) {
-            objectMapper.registerModule(new CustomScoreAnalysisJacksonModule());
-        }
-
-    }
-
-    public static final class CustomScoreAnalysisJacksonModule extends SimpleModule {
-
-        public CustomScoreAnalysisJacksonModule() {
-            this.addDeserializer(ScoreAnalysis.class, new CustomScoreAnalysisJacksonDeserializer());
-        }
-
-    }
-
-    public static final class CustomScoreAnalysisJacksonDeserializer extends AbstractScoreAnalysisJacksonDeserializer<HardSoftScore> {
-
-        @Override
-        protected HardSoftScore parseScore(String scoreString) {
-            return HardSoftScore.parseScore(scoreString);
-        }
-
-        @Override
-        protected <ConstraintJustification_ extends ConstraintJustification> ConstraintJustification_
-                parseConstraintJustification(ConstraintRef constraintRef, String constraintJustificationString,
-                        HardSoftScore score) {
-            return null;
-        }
-    }
 
 }
