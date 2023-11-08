@@ -128,9 +128,11 @@ function renderRoutes(solution) {
     // Route
     routeGroup.clearLayers();
     const customerByIdMap = new Map(solution.customers.map(customer => [customer.id, customer]));
+    const depotByIdMap = new Map(solution.depots.map(depot => [depot.id, depot]));
     for (let vehicle of solution.vehicles) {
+        const depotLocation = depotByIdMap.get(vehicle.depot).location;
         const locations = vehicle.customers.map(customerId => customerByIdMap.get(customerId).location);
-        L.polyline(locations, {color: colorByVehicle(vehicle)}).addTo(routeGroup);
+        L.polyline([depotLocation, ...locations, depotLocation], {color: colorByVehicle(vehicle)}).addTo(routeGroup);
     }
 
     // Summary
