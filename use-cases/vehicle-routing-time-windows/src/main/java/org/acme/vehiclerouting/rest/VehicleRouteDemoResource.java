@@ -172,8 +172,8 @@ public class VehicleRouteDemoResource {
                 .limit(demoData.customerCount)
                 .collect(Collectors.toList());
 
-        return new VehicleRoutePlan(name, depots, vehicles, customers, demoData.southWestCorner,
-                demoData.northEastCorner, tomorrowAt(demoData.vehicleStartTime), tomorrowAt(LocalTime.MIDNIGHT).plusDays(1L));
+        return new VehicleRoutePlan(name, demoData.southWestCorner, demoData.northEastCorner, tomorrowAt(demoData.vehicleStartTime), tomorrowAt(LocalTime.MIDNIGHT).plusDays(1L), depots, vehicles, customers
+        );
     }
 
     private static LocalDateTime tomorrowAt(LocalTime time) {
