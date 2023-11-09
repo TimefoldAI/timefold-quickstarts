@@ -39,9 +39,16 @@ public class Job {
     @JsonIgnore
     @NextElementShadowVariable(sourceVariableName = "jobList")
     private Job nextJob;
+
     /** Start is after cleanup. */
+    @ShadowVariable(variableListenerClass = StartDateTimeUpdatingVariableListener.class, sourceVariableName = "line")
+    @ShadowVariable(variableListenerClass = StartDateTimeUpdatingVariableListener.class, sourceVariableName = "previousJob")
     private LocalDateTime startCleaningDateTime;
+
+    @PiggybackShadowVariable(shadowVariableName = "startCleaningDateTime")
     private LocalDateTime startProductionDateTime;
+
+    @PiggybackShadowVariable(shadowVariableName = "startCleaningDateTime")
     private LocalDateTime endDateTime;
 
     // No-arg constructor required for OptaPlanner and Jackson
@@ -138,9 +145,6 @@ public class Job {
         this.nextJob = nextJob;
     }
 
-    // TODO Move this to field after fixing https://github.com/TimefoldAI/timefold-solver/issues/7
-    @ShadowVariable(variableListenerClass = StartDateTimeUpdatingVariableListener.class, sourceVariableName = "line")
-    @ShadowVariable(variableListenerClass = StartDateTimeUpdatingVariableListener.class, sourceVariableName = "previousJob")
     public LocalDateTime getStartCleaningDateTime() {
         return startCleaningDateTime;
     }
@@ -149,8 +153,6 @@ public class Job {
         this.startCleaningDateTime = startCleaningDateTime;
     }
 
-    // TODO Move this to field after fixing https://github.com/TimefoldAI/timefold-solver/issues/7
-    @PiggybackShadowVariable(shadowVariableName = "startCleaningDateTime")
     public LocalDateTime getStartProductionDateTime() {
         return startProductionDateTime;
     }
@@ -159,8 +161,6 @@ public class Job {
         this.startProductionDateTime = startProductionDateTime;
     }
 
-    // TODO Move this to field after fixing https://github.com/TimefoldAI/timefold-solver/issues/7
-    @PiggybackShadowVariable(shadowVariableName = "startCleaningDateTime")
     public LocalDateTime getEndDateTime() {
         return endDateTime;
     }
