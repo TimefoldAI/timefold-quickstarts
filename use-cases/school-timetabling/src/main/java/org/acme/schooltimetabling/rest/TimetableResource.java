@@ -98,19 +98,6 @@ public class TimetableResource {
     @Operation(summary = "Submit a timetable to analyze its score.")
     @APIResponses(value = {
             @APIResponse(responseCode = "202",
-                    description = "Resulting score analysis, including all constraint matches.",
-                    content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ScoreAnalysis.class))) })
-    @PUT
-    @Consumes({ MediaType.APPLICATION_JSON })
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("analyze")
-    public ScoreAnalysis<HardSoftScore> analyze(Timetable problem) {
-        return solutionManager.analyze(problem);
-    }
-
-    @Operation(summary = "Submit a timetable to analyze its score.")
-    @APIResponses(value = {
-            @APIResponse(responseCode = "202",
                     description = "Resulting score analysis, optionally without constraint matches.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ScoreAnalysis.class))) })
     @PUT
@@ -118,7 +105,7 @@ public class TimetableResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("analyze")
     public ScoreAnalysis<HardSoftScore> analyze(Timetable problem, @QueryParam("fetchPolicy") ScoreAnalysisFetchPolicy fetchPolicy) {
-        return solutionManager.analyze(problem, fetchPolicy);
+        return fetchPolicy == null ? solutionManager.analyze(problem) : solutionManager.analyze(problem, fetchPolicy);
     }
 
     @Operation(
