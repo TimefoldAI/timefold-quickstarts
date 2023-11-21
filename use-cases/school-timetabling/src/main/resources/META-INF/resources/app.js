@@ -226,29 +226,31 @@ function analyze() {
   new bootstrap.Modal("#scoreAnalysisModal").show()
   const scoreAnalysisModalContent = $("#scoreAnalysisModalContent");
   scoreAnalysisModalContent.children().remove();
-  scoreAnalysisModalContent.text("Analyzing score...");
-  $.put("/timetables/analyze", JSON.stringify(loadedSchedule), function (scoreAnalysis) {
-    scoreAnalysisModalContent.children().remove();
-    scoreAnalysisModalContent.text("");
+  if (loadedSchedule.score == null) {
+    scoreAnalysisModalContent.text("Analyzing score...");
+  } else {
+    $.put("/timetables/analyze", JSON.stringify(loadedSchedule), function (scoreAnalysis) {
+      scoreAnalysisModalContent.children().remove();
+      scoreAnalysisModalContent.text("");
 
-    const analysisTable = $(`<table class="table table-striped"/>`);
-    const analysisTHead = $(`<thead/>`)
-      .append($(`<tr/>`)
+      const analysisTable = $(`<table class="table table-striped"/>`);
+      const analysisTHead = $(`<thead/>`).append($(`<tr/>`)
         .append($(`<th>Constraint</th>`))
         .append($(`<th>Score</th>`)));
-    analysisTable.append(analysisTHead);
-    const analysisTBody = $(`<tbody/>`)
-    $.each(scoreAnalysis.constraints, (index, constraintAnalysis) => {
-      analysisTBody.append($(`<tr/>`)
-        .append($(`<td/>`).text(constraintAnalysis.name))
-        .append($(`<td/>`).text(constraintAnalysis.score)));
-    });
-    analysisTable.append(analysisTBody);
-    scoreAnalysisModalContent.append(analysisTable);
-  }).fail(function (xhr, ajaxOptions, thrownError) {
-    showError("Analyze failed.", xhr);
-  },
-  "text");
+      analysisTable.append(analysisTHead);
+      const analysisTBody = $(`<tbody/>`)
+      $.each(scoreAnalysis.constraints, (index, constraintAnalysis) => {
+        analysisTBody.append($(`<tr/>`)
+          .append($(`<td/>`).text(constraintAnalysis.name))
+          .append($(`<td/>`).text(constraintAnalysis.score)));
+      });
+      analysisTable.append(analysisTBody);
+      scoreAnalysisModalContent.append(analysisTable);
+    }).fail(function (xhr, ajaxOptions, thrownError) {
+      showError("Analyze failed.", xhr);
+    },
+    "text");
+  }
 }
 
 
