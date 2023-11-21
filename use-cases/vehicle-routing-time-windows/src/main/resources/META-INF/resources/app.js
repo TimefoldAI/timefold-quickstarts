@@ -400,6 +400,10 @@ function fetchDemoData() {
                 scheduleId = null;
                 demoDataId = item;
                 initialized = false;
+                depotGroup.clearLayers();
+                depotMarkerByIdMap.clear();
+                customerGroup.clearLayers();
+                customerMarkerByIdMap.clear();
                 refreshRoutePlan();
             });
         });

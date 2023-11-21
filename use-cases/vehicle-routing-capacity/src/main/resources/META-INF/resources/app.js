@@ -238,7 +238,10 @@ function fetchDemoData() {
                 switchDataDropDownItemActive(item);
                 scheduleId = null;
                 demoDataId = item;
-
+                depotGroup.clearLayers();
+                depotMarkerByIdMap.clear();
+                customerGroup.clearLayers();
+                customerMarkerByIdMap.clear();
                 refreshRoutePlan();
             });
         });
