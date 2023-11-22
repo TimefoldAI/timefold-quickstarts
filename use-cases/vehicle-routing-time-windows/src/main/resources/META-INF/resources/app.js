@@ -101,7 +101,7 @@ function depotPopupContent(depot, color) {
 function customerPopupContent(customer) {
     const arrival = customer.arrivalTime ? `<h6>Arrival at ${showTimeOnly(customer.arrivalTime)}.</h6>` : '';
     return `<h5>${customer.name}</h5>
-    <h6>Available from ${showTimeOnly(customer.readyTime)} to ${showTimeOnly(customer.dueTime)}.</h6>
+    <h6>Available from ${showTimeOnly(customer.minStartTime)} to ${showTimeOnly(customer.minStartTime)}.</h6>
     ${arrival}`;
 }
 
@@ -198,8 +198,8 @@ function renderTimelines(routePlan) {
     });
 
     $.each(routePlan.customers, (index, customer) => {
-        const readyTime = JSJoda.LocalDateTime.parse(customer.readyTime);
-        const dueTime = JSJoda.LocalDateTime.parse(customer.dueTime);
+        const minStartTime = JSJoda.LocalDateTime.parse(customer.minStartTime);
+        const maxEndTime = JSJoda.LocalDateTime.parse(customer.maxEndTime);
         const serviceDuration = JSJoda.Duration.ofSeconds(customer.serviceDuration);
 
         const customerGroupElement = $(`<div/>`)
@@ -213,8 +213,8 @@ function renderTimelines(routePlan) {
         byCustomerItemDataSet.add({
             id: customer.id + "_readyToDue",
             group: customer.id,
-            start: customer.readyTime,
-            end: customer.dueTime,
+            start: customer.minStartTime,
+            end: customer.maxEndTime,
             type: "background",
             style: "background-color: #8AE23433"
         });
@@ -228,15 +228,15 @@ function renderTimelines(routePlan) {
                 id: customer.id + '_unassigned',
                 group: customer.id,
                 content: byJobJobElement.html(),
-                start: readyTime.toString(),
-                end: readyTime.plus(serviceDuration).toString(),
+                start: minStartTime.toString(),
+                end: minStartTime.plus(serviceDuration).toString(),
                 style: "background-color: #EF292999"
             });
         } else {
             const arrivalTime = JSJoda.LocalDateTime.parse(customer.arrivalTime);
-            const beforeReady = arrivalTime.isBefore(readyTime);
+            const beforeReady = arrivalTime.isBefore(minStartTime);
             const arrivalPlusService = arrivalTime.plus(serviceDuration);
-            const afterDue = arrivalPlusService.isAfter(dueTime);
+            const afterDue = arrivalPlusService.isAfter(maxEndTime);
 
             const byVehicleElement = $(`<div/>`)
                 .append('<div/>')
@@ -269,7 +269,7 @@ function renderTimelines(routePlan) {
                     subgroup: customer.vehicle,
                     content: byVehicleWaitElement.html(),
                     start: customer.arrivalTime,
-                    end: customer.readyTime
+                    end: customer.minStartTime
                 });
             }
             let serviceElementBackground = afterDue ? '#EF292999' : '#83C15955'
