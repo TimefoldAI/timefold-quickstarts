@@ -23,7 +23,7 @@ public class PackagingSchedule {
     @PlanningEntityCollectionProperty
     private List<Line> lineList;
 
-    @ProblemFactCollectionProperty
+    @PlanningEntityCollectionProperty
     @ValueRangeProvider
     private List<Job> jobList;
 

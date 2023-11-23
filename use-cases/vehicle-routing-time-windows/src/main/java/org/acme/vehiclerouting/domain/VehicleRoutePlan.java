@@ -31,7 +31,7 @@ public class VehicleRoutePlan {
     @PlanningEntityCollectionProperty
     private List<Vehicle> vehicles;
 
-    @ProblemFactCollectionProperty
+    @PlanningEntityCollectionProperty
     @ValueRangeProvider
     private List<Customer> customers;
 
