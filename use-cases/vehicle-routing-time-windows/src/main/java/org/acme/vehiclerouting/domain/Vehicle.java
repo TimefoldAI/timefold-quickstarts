@@ -88,6 +88,16 @@ public class Vehicle {
         return totalDistance;
     }
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    public LocalDateTime arrivalTime() {
+        if (customers.isEmpty()) {
+            return departureTime;
+        }
+
+        Customer lastCustomer = customers.get(customers.size()-1);
+        return lastCustomer.getDepartureTime().plusSeconds(lastCustomer.getLocation().getDrivingTimeTo(depot.getLocation()));
+    }
+
     @Override
     public String toString() {
         return id;
