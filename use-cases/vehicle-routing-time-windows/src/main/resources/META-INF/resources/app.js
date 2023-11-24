@@ -101,7 +101,7 @@ function depotPopupContent(depot, color) {
 function customerPopupContent(customer) {
     const arrival = customer.arrivalTime ? `<h6>Arrival at ${showTimeOnly(customer.arrivalTime)}.</h6>` : '';
     return `<h5>${customer.name}</h5>
-    <h6>Available from ${showTimeOnly(customer.minStartTime)} to ${showTimeOnly(customer.minStartTime)}.</h6>
+    <h6>Available from ${showTimeOnly(customer.minStartTime)} to ${showTimeOnly(customer.maxEndTime)}.</h6>
     ${arrival}`;
 }
 
