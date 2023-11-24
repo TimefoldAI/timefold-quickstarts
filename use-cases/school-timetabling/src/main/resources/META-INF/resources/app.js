@@ -226,23 +226,64 @@ function analyze() {
   new bootstrap.Modal("#scoreAnalysisModal").show()
   const scoreAnalysisModalContent = $("#scoreAnalysisModalContent");
   scoreAnalysisModalContent.children().remove();
-  if (loadedSchedule.score == null) {
+  if (loadedSchedule.score == null || loadedSchedule.score.indexOf('init') != -1) {
     scoreAnalysisModalContent.text("Analyzing score...");
   } else {
     $.put("/timetables/analyze", JSON.stringify(loadedSchedule), function (scoreAnalysis) {
-      scoreAnalysisModalContent.children().remove();
+        let constraints = scoreAnalysis.constraints;
+        constraints.sort((a,b) => {
+            let aComponents = getScoreComponents(a.score), bComponents = getScoreComponents(b.score);
+            if (aComponents.hard < 0 && bComponents.hard > 0) return -1;
+            if (aComponents.hard > 0 && bComponents.soft < 0) return 1;
+            if (Math.abs(aComponents.hard) > Math.abs(bComponents.hard)) {
+                return -1;
+            } else {
+                if (aComponents.medium < 0 && bComponents.medium > 0) return -1;
+                if (aComponents.medium > 0 && bComponents.medium < 0) return 1;
+                if (Math.abs(aComponents.medium) > Math.abs(bComponents.medium)) {
+                    return -1;
+                } else {
+                    if (aComponents.soft < 0 && bComponents.soft > 0) return -1;
+                    if (aComponents.soft > 0 && bComponents.soft < 0) return 1;
+
+                    return Math.abs(bComponents.soft) - Math.abs(aComponents.soft);
+                }
+            }
+        });
+        constraints.map((e) => {
+            let components = getScoreComponents(e.weight);
+            e.type = components.hard != 0 ? 'hard' : (components.medium != 0 ? 'medium' : 'soft');
+            e.weight = components[e.type];
+            let scores = getScoreComponents(e.score);
+            e.implicitScore = scores.hard != 0 ? scores.hard : (scores.medium != 0 ? scores.medium : scores.soft);
+        });
+        scoreAnalysis.constraints = constraints;
+
+        scoreAnalysisModalContent.children().remove();
       scoreAnalysisModalContent.text("");
 
-      const analysisTable = $(`<table class="table table-striped"/>`);
+
+      const analysisTable = $(`<table class="table table-striped"/>`).css({textAlign: 'center'});
       const analysisTHead = $(`<thead/>`).append($(`<tr/>`)
-        .append($(`<th>Constraint</th>`))
+        .append($(`<th></th>`))
+        .append($(`<th>Constraint</th>`).css({textAlign: 'left'}))
+        .append($(`<th>Type</th>`))
+        .append($(`<th># Matches</th>`))
+          .append($(`<th>Weight</th>`))
         .append($(`<th>Score</th>`)));
       analysisTable.append(analysisTHead);
       const analysisTBody = $(`<tbody/>`)
       $.each(scoreAnalysis.constraints, (index, constraintAnalysis) => {
+          let icon = constraintAnalysis.type == "hard" && constraintAnalysis.implicitScore < 0 ? '<span class="fas fa-exclamation-triangle" style="color: red"></span>' : '';
+          if (!icon) icon = constraintAnalysis.weight < 0 && constraintAnalysis.matches.length == 0 ? '<span class="fas fa-check-circle" style="color: green"></span>' : '';
+
         analysisTBody.append($(`<tr/>`)
-          .append($(`<td/>`).text(constraintAnalysis.name))
-          .append($(`<td/>`).text(constraintAnalysis.score)));
+          .append($(`<td/>`).html(icon))
+          .append($(`<td/>`).text(constraintAnalysis.name).css({textAlign: 'left'}))
+            .append($(`<td/>`).text(constraintAnalysis.type))
+            .append($(`<td/>`).html(`<b>${constraintAnalysis.matches.length}</b>`))
+            .append($(`<td/>`).text(constraintAnalysis.weight))
+          .append($(`<td/>`).text(constraintAnalysis.implicitScore)));
       });
       analysisTable.append(analysisTBody);
       scoreAnalysisModalContent.append(analysisTable);
@@ -251,6 +292,16 @@ function analyze() {
     },
     "text");
   }
+}
+
+function getScoreComponents(score) {
+    let components = {hard: 0, medium:0, soft: 0};
+
+    $.each([...score.matchAll(/(-?[0-9]+)(hard|medium|soft)/g)], (i, parts) => {
+        components[parts[2]] = parseInt(parts[1], 10);
+    });
+
+    return components;
 }
 
 
