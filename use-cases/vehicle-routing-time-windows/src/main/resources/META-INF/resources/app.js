@@ -295,6 +295,24 @@ function renderTimelines(routePlan) {
         }
 
     });
+
+    $.each(routePlan.vehicles, (index, vehicle) => {
+        if (vehicle.customers.length > 0) {
+            let lastCustomer = routePlan.customers.filter((customer) => customer.id == vehicle.customers[vehicle.customers.length -1]).pop();
+            if (lastCustomer) {
+                byVehicleItemDataSet.add({
+                    id: vehicle.id + '_travelBackToDepot',
+                    group: vehicle.id, // customer.vehicle is the vehicle.id due to Jackson serialization
+                    subgroup: vehicle.id,
+                    content: $(`<div/>`).append($(`<h5 class="card-title mb-1"/>`).text('Travel')).html(),
+                    start: lastCustomer.departureTime,
+                    end: vehicle.arrivalTime,
+                    style: "background-color: #f7dd8f90"
+                });
+            }
+        }
+    });
+
     if (!initialized) {
         byVehicleTimeline.setWindow(routePlan.startDateTime, routePlan.endDateTime);
         byCustomerTimeline.setWindow(routePlan.startDateTime, routePlan.endDateTime);
