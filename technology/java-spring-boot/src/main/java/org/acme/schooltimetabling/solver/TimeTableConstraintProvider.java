@@ -12,9 +12,12 @@ import org.acme.schooltimetabling.domain.Lesson;
 
 public class TimeTableConstraintProvider implements ConstraintProvider {
 
+    private static final int MAX_GAP_MINUTES = 30;
+
+    //TODO --> tool detected this as long statement, it is technically not : FP
     @Override
     public Constraint[] defineConstraints(ConstraintFactory constraintFactory) {
-        return new Constraint[] {
+        return new Constraint[]{
                 // Hard constraints
                 roomConflict(constraintFactory),
                 teacherConflict(constraintFactory),
@@ -70,8 +73,9 @@ public class TimeTableConstraintProvider implements ConstraintProvider {
                 .asConstraint("Teacher room stability");
     }
 
-    Constraint teacherTimeEfficiency(ConstraintFactory constraintFactory) {
-        // A teacher prefers to teach sequential lessons and dislikes gaps between lessons.
+
+    //TODO ---> removed magic number and introduced global variable : TP
+    public Constraint teacherTimeEfficiency(ConstraintFactory constraintFactory) {
         return constraintFactory
                 .forEach(Lesson.class)
                 .join(Lesson.class, Joiners.equal(Lesson::getTeacher),
@@ -79,12 +83,13 @@ public class TimeTableConstraintProvider implements ConstraintProvider {
                 .filter((lesson1, lesson2) -> {
                     Duration between = Duration.between(lesson1.getTimeslot().getEndTime(),
                             lesson2.getTimeslot().getStartTime());
-                    return !between.isNegative() && between.compareTo(Duration.ofMinutes(30)) <= 0;
+                    return !between.isNegative() && between.compareTo(Duration.ofMinutes(MAX_GAP_MINUTES)) <= 0;
                 })
                 .reward(HardSoftScore.ONE_SOFT)
                 .asConstraint("Teacher time efficiency");
     }
 
+    //TODO ---> removed magic number and introduced global variable : TP
     Constraint studentGroupSubjectVariety(ConstraintFactory constraintFactory) {
         // A student group dislikes sequential lessons on the same subject.
         return constraintFactory
@@ -96,7 +101,7 @@ public class TimeTableConstraintProvider implements ConstraintProvider {
                 .filter((lesson1, lesson2) -> {
                     Duration between = Duration.between(lesson1.getTimeslot().getEndTime(),
                             lesson2.getTimeslot().getStartTime());
-                    return !between.isNegative() && between.compareTo(Duration.ofMinutes(30)) <= 0;
+                    return !between.isNegative() && between.compareTo(Duration.ofMinutes(MAX_GAP_MINUTES)) <= 0;
                 })
                 .penalize(HardSoftScore.ONE_SOFT)
                 .asConstraint("Student group subject variety");
