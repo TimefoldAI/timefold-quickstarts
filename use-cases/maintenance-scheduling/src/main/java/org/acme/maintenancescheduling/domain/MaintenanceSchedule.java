@@ -31,6 +31,7 @@ public class MaintenanceSchedule {
     // Ignored by Timefold, used by the UI to display solve or stop solving button
     private SolverStatus solverStatus;
 
+    //TODO --> Never used Constructor.
     // No-arg constructor required for Timefold
     public MaintenanceSchedule() {
     }
@@ -42,16 +43,17 @@ public class MaintenanceSchedule {
         this.jobList = jobList;
     }
 
-    @ValueRangeProvider
-    public List<LocalDate> createStartDateList() {
-        return workCalendar.getFromDate().datesUntil(workCalendar.getToDate())
-                // Skip weekends. Does not work for holidays.
-                // Keep in sync with EndDateUpdatingVariableListener.updateEndDate().
-                // To skip holidays too, cache all working days in WorkCalendar.
-                .filter(date -> date.getDayOfWeek() != DayOfWeek.SATURDAY
-                        && date.getDayOfWeek() != DayOfWeek.SUNDAY)
-                .collect(Collectors.toList());
-    }
+    // Moved to WorkCalendar
+//    @ValueRangeProvider
+//    public List<LocalDate> createStartDateList() {
+//        return workCalendar.getFromDate().datesUntil(workCalendar.getToDate())
+//                // Skip weekends. Does not work for holidays.
+//                // Keep in sync with EndDateUpdatingVariableListener.updateEndDate().
+//                // To skip holidays too, cache all working days in WorkCalendar.
+//                .filter(date -> date.getDayOfWeek() != DayOfWeek.SATURDAY
+//                        && date.getDayOfWeek() != DayOfWeek.SUNDAY)
+//                .collect(Collectors.toList());
+//    }
 
     // ************************************************************************
     // Getters and setters
