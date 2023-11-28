@@ -35,14 +35,14 @@ public class VehicleRouteDemoResource {
         FIRENZE(77, 6, 2, 1, 2, 25,
                 new Location(43.751466, 11.177210), new Location(43.809291, 11.290195));
 
-        private int customerCount;
-        private int vehicleCount;
-        private int depotCount;
-        private int minDemand;
-        private int maxDemand;
-        private int vehicleCapacity;
-        private Location southWestCorner;
-        private Location northEastCorner;
+        final private int customerCount;
+        final private int vehicleCount;
+        final private int depotCount;
+        final private int minDemand;
+        final private int maxDemand;
+        final private int vehicleCapacity;
+        final private Location southWestCorner;
+        final private Location northEastCorner;
 
         DemoData(int customerCount, int vehicleCount, int depotCount, int minDemand, int maxDemand,
                  int vehicleCapacity, Location southWestCorner, Location northEastCorner) {
