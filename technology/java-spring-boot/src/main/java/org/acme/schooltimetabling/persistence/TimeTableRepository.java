@@ -11,6 +11,7 @@ import org.acme.schooltimetabling.domain.TimeTable;
 @Transactional
 public class TimeTableRepository {
 
+    // TODO --> SINGLETON_TIME_TABLE_ID is public : deficient encapsulation --> TP
     // There is only one time table, so there is only timeTableId (= problemId).
     public static final Long SINGLETON_TIME_TABLE_ID = 1L;
 
