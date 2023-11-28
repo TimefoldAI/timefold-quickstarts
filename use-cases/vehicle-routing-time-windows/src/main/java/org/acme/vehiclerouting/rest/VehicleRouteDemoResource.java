@@ -48,41 +48,24 @@ public class VehicleRouteDemoResource {
         PHILADELPHIA(60, 6, 2, LocalTime.of(7, 30),
                 new Location(39.7656099067391, -76.83782328143754),
                 new Location(40.77636644354855, -74.9300739430771)),
-        HARTFORT(50, 6, 2, LocalTime.of(7, 30),
+        HARTFORD(50, 6, 2, LocalTime.of(7, 30),
                 new Location(41.48366520850297, -73.15901689943055),
                 new Location(41.99512052869307, -72.25114548877427)),
         FIRENZE(77, 6, 2, LocalTime.of(7, 30),
                 new Location(43.751466, 11.177210), new Location(43.809291, 11.290195));
 
-        private int customerCount;
-        private int vehicleCount;
-        private int depotCount;
-        private LocalTime vehicleStartTime;
-        private Location southWestCorner;
-        private Location northEastCorner;
+        // TODO --> these variables will be final : FN
+        private final int customerCount;
+        private final int vehicleCount;
+        private final int depotCount;
+        private final LocalTime vehicleStartTime;
+        private final Location southWestCorner;
+        private final Location northEastCorner;
 
         DemoData(int customerCount, int vehicleCount, int depotCount, LocalTime vehicleStartTime,
-                Location southWestCorner, Location northEastCorner) {
-            if (customerCount < 1) {
-                throw new IllegalStateException(
-                        "Number of customerCount (" + customerCount + ") must be greater than zero.");
-            }
-            if (vehicleCount < 1) {
-                throw new IllegalStateException(
-                        "Number of vehicleCount (" + vehicleCount + ") must be greater than zero.");
-            }
-            if (depotCount < 1) {
-                throw new IllegalStateException(
-                        "Number of depotCount (" + depotCount + ") must be greater than zero.");
-            }
-            if (northEastCorner.getLatitude() <= southWestCorner.getLatitude()) {
-                throw new IllegalStateException("northEastCorner.getLatitude (" + northEastCorner.getLatitude()
-                        + ") must be greater than southWestCorner.getLatitude(" + southWestCorner.getLatitude() + ").");
-            }
-            if (northEastCorner.getLongitude() <= southWestCorner.getLongitude()) {
-                throw new IllegalStateException("northEastCorner.getLongitude (" + northEastCorner.getLongitude()
-                        + ") must be greater than southWestCorner.getLongitude(" + southWestCorner.getLongitude() + ").");
-            }
+                 Location southWestCorner, Location northEastCorner) {
+            validateCounts(customerCount, vehicleCount, depotCount);
+            validateCoordinates(southWestCorner, northEastCorner);
 
             this.customerCount = customerCount;
             this.vehicleCount = vehicleCount;
@@ -91,7 +74,21 @@ public class VehicleRouteDemoResource {
             this.southWestCorner = southWestCorner;
             this.northEastCorner = northEastCorner;
         }
+
+        private void validateCounts(int customerCount, int vehicleCount, int depotCount) {
+            if (customerCount < 1 || vehicleCount < 1 || depotCount < 1) {
+                throw new IllegalStateException("Counts must be greater than zero.");
+            }
+        }
+
+        private void validateCoordinates(Location southWestCorner, Location northEastCorner) {
+            if (northEastCorner.getLatitude() <= southWestCorner.getLatitude() ||
+                    northEastCorner.getLongitude() <= southWestCorner.getLongitude()) {
+                throw new IllegalStateException("Invalid coordinates: northEastCorner must be greater than southWestCorner.");
+            }
+        }
     }
+
 
     @APIResponses(value = {
             @APIResponse(responseCode = "200", description = "List of demo data represented as IDs.",
