@@ -4,6 +4,5 @@
 cd "$(dirname $0)" || exit
 
 cd build
-./mvnw -f .. verify -DskipTests &&
-  ./mvnw -f quickstarts-showcase quarkus:dev -Dstartup-open-browser=true
+./mvnw -f quickstarts-showcase quarkus:dev -Dstartup-open-browser=true
 cd ..
