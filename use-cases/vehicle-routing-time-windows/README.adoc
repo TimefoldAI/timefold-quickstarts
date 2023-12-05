@@ -2,7 +2,7 @@
 
 Find the most efficient routes for a fleet of vehicles.
 
-image::../../build/quickstarts-showcase/src/main/resources/META-INF/resources/screenshot/quarkus-vehicle-routing-capacity-screenshot.png[]
+image::../../build/quickstarts-showcase/src/main/resources/META-INF/resources/screenshot/quarkus-vehicle-routing-time-windows-screenshot.png[]
 
 * <<run,Run the application>>
 * <<package,Run the packaged application>>
