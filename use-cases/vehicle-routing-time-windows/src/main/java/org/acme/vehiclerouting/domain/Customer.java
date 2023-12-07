@@ -24,8 +24,8 @@ public class Customer {
     private String id;
     private String name;
     private Location location;
-    private LocalDateTime readyTime;
-    private LocalDateTime dueTime;
+    private LocalDateTime minStartTime;
+    private LocalDateTime maxEndTime;
     private Duration serviceDuration;
 
     private Vehicle vehicle;
@@ -39,18 +39,26 @@ public class Customer {
     public Customer() {
     }
 
-    public Customer(String id, String name, Location location, LocalDateTime readyTime, LocalDateTime dueTime,
-                    Duration serviceDuration) {
+    public Customer(String id, String name, Location location,
+            LocalDateTime minStartTime, LocalDateTime maxEndTime, Duration serviceDuration) {
         this.id = id;
         this.name = name;
-        this.readyTime = readyTime;
-        this.dueTime = dueTime;
-        this.serviceDuration = serviceDuration;
         this.location = location;
+        this.minStartTime = minStartTime;
+        this.maxEndTime = maxEndTime;
+        this.serviceDuration = serviceDuration;
     }
 
     public String getId() {
         return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Location getLocation() {
@@ -61,12 +69,12 @@ public class Customer {
         this.location = location;
     }
 
-    public LocalDateTime getReadyTime() {
-        return readyTime;
+    public LocalDateTime getMinStartTime() {
+        return minStartTime;
     }
 
-    public LocalDateTime getDueTime() {
-        return dueTime;
+    public LocalDateTime getMaxEndTime() {
+        return maxEndTime;
     }
 
     public Duration getServiceDuration() {
@@ -113,14 +121,6 @@ public class Customer {
         this.arrivalTime = arrivalTime;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     // ************************************************************************
     // Complex methods
     // ************************************************************************
@@ -138,13 +138,13 @@ public class Customer {
         if (arrivalTime == null) {
             return null;
         }
-        return arrivalTime.isBefore(readyTime) ? readyTime : arrivalTime;
+        return arrivalTime.isBefore(minStartTime) ? minStartTime : arrivalTime;
     }
 
     @JsonIgnore
-    public boolean isServiceFinishedAfterDueTime() {
+    public boolean isServiceFinishedAfterMaxEndTime() {
         return arrivalTime != null
-                && arrivalTime.plus(serviceDuration).isAfter(dueTime);
+                && arrivalTime.plus(serviceDuration).isAfter(maxEndTime);
     }
 
     @JsonIgnore
@@ -152,7 +152,7 @@ public class Customer {
         if (arrivalTime == null) {
             return 0;
         }
-        return Duration.between(dueTime, arrivalTime.plus(serviceDuration)).toMinutes();
+        return Duration.between(maxEndTime, arrivalTime.plus(serviceDuration)).toMinutes();
     }
 
     @JsonIgnore
@@ -178,8 +178,7 @@ public class Customer {
 
     @Override
     public String toString() {
-        return "Customer{" +
-                "id=" + id +
-                '}';
+        return id;
     }
+
 }

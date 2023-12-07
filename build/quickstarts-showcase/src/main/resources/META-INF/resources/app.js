@@ -141,6 +141,9 @@ $(document).ready(function () {
   $("#vehicle-routing-capacity-launch").click(function () {
     launchQuickstart("vehicle-routing-capacity");
   });
+  $("#vehicle-routing-time-windows-launch").click(function () {
+    launchQuickstart("vehicle-routing-time-windows");
+  });
   $("#order-picking-launch").click(function () {
     launchQuickstart("order-picking");
   });

@@ -45,15 +45,16 @@ public class VehicleRouteDemoResource {
     private static final LocalTime AFTERNOON_WINDOW_END = LocalTime.of(18, 0);
 
     public enum DemoData {
-        PHILADELPHIA(60, 6, 2, LocalTime.of(7, 30),
+        PHILADELPHIA(0, 60, 6, 2, LocalTime.of(7, 30),
                 new Location(39.7656099067391, -76.83782328143754),
                 new Location(40.77636644354855, -74.9300739430771)),
-        HARTFORT(50, 6, 2, LocalTime.of(7, 30),
+        HARTFORT(1,50, 6, 2, LocalTime.of(7, 30),
                 new Location(41.48366520850297, -73.15901689943055),
                 new Location(41.99512052869307, -72.25114548877427)),
-        FIRENZE(77, 6, 2, LocalTime.of(7, 30),
+        FIRENZE(2,77, 6, 2, LocalTime.of(7, 30),
                 new Location(43.751466, 11.177210), new Location(43.809291, 11.290195));
 
+        private long seed;
         private int customerCount;
         private int vehicleCount;
         private int depotCount;
@@ -61,7 +62,7 @@ public class VehicleRouteDemoResource {
         private Location southWestCorner;
         private Location northEastCorner;
 
-        DemoData(int customerCount, int vehicleCount, int depotCount, LocalTime vehicleStartTime,
+        DemoData(long seed, int customerCount, int vehicleCount, int depotCount, LocalTime vehicleStartTime,
                 Location southWestCorner, Location northEastCorner) {
             if (customerCount < 1) {
                 throw new IllegalStateException(
@@ -84,6 +85,7 @@ public class VehicleRouteDemoResource {
                         + ") must be greater than southWestCorner.getLongitude(" + southWestCorner.getLongitude() + ").");
             }
 
+            this.seed = seed;
             this.customerCount = customerCount;
             this.vehicleCount = vehicleCount;
             this.depotCount = depotCount;
@@ -118,7 +120,7 @@ public class VehicleRouteDemoResource {
     public VehicleRoutePlan build(DemoData demoData) {
         String name = "demo";
 
-        Random random = new Random(0);
+        Random random = new Random(demoData.seed);
         PrimitiveIterator.OfDouble latitudes = random
                 .doubles(demoData.southWestCorner.getLatitude(), demoData.northEastCorner.getLatitude()).iterator();
         PrimitiveIterator.OfDouble longitudes = random
@@ -156,15 +158,15 @@ public class VehicleRouteDemoResource {
         Supplier<Customer> customerSupplier = () -> {
             boolean morningTimeWindow = random.nextBoolean();
 
-            LocalDateTime readyTime = morningTimeWindow ? tomorrowAt(MORNING_WINDOW_START) : tomorrowAt(AFTERNOON_WINDOW_START);
-            LocalDateTime dueTime = morningTimeWindow ? tomorrowAt(MORNING_WINDOW_END) : tomorrowAt(AFTERNOON_WINDOW_END);
+            LocalDateTime minStartTime = morningTimeWindow ? tomorrowAt(MORNING_WINDOW_START) : tomorrowAt(AFTERNOON_WINDOW_START);
+            LocalDateTime maxEndTime = morningTimeWindow ? tomorrowAt(MORNING_WINDOW_END) : tomorrowAt(AFTERNOON_WINDOW_END);
             int serviceDurationMinutes = SERVICE_DURATION_MINUTES[random.nextInt(SERVICE_DURATION_MINUTES.length)];
             return new Customer(
                     String.valueOf(customerSequence.incrementAndGet()),
                     nameSupplier.get(),
                     new Location(latitudes.nextDouble(), longitudes.nextDouble()),
-                    readyTime,
-                    dueTime,
+                    minStartTime,
+                    maxEndTime,
                     Duration.ofMinutes(serviceDurationMinutes));
         };
 
@@ -172,8 +174,8 @@ public class VehicleRouteDemoResource {
                 .limit(demoData.customerCount)
                 .collect(Collectors.toList());
 
-        return new VehicleRoutePlan(name, depots, vehicles, customers, demoData.southWestCorner,
-                demoData.northEastCorner, tomorrowAt(demoData.vehicleStartTime), tomorrowAt(LocalTime.MIDNIGHT).plusDays(1L));
+        return new VehicleRoutePlan(name, demoData.southWestCorner, demoData.northEastCorner, tomorrowAt(demoData.vehicleStartTime), tomorrowAt(LocalTime.MIDNIGHT).plusDays(1L), depots, vehicles, customers
+        );
     }
 
     private static LocalDateTime tomorrowAt(LocalTime time) {

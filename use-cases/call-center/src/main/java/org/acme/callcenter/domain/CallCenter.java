@@ -16,7 +16,7 @@ public class CallCenter {
     @ProblemFactCollectionProperty
     private Set<Skill> skills;
 
-    @ProblemFactCollectionProperty
+    @PlanningEntityCollectionProperty
     @ValueRangeProvider
     private List<Agent> agents;
 

@@ -22,11 +22,11 @@ public class Vehicle {
     @JsonIdentityReference
     private Depot depot;
 
+    private LocalDateTime departureTime;
+
     @JsonIdentityReference(alwaysAsId = true)
     @PlanningListVariable
     private List<Customer> customers;
-
-    private LocalDateTime departureTime;
 
     public Vehicle() {
     }
@@ -34,8 +34,8 @@ public class Vehicle {
     public Vehicle(String id, Depot depot, LocalDateTime departureTime) {
         this.id = id;
         this.depot = depot;
-        this.customers = new ArrayList<>();
         this.departureTime = departureTime;
+        this.customers = new ArrayList<>();
     }
 
     public String getId() {
@@ -54,16 +54,16 @@ public class Vehicle {
         this.depot = depot;
     }
 
+    public LocalDateTime getDepartureTime() {
+        return departureTime;
+    }
+
     public List<Customer> getCustomers() {
         return customers;
     }
 
     public void setCustomers(List<Customer> customers) {
         this.customers = customers;
-    }
-
-    public LocalDateTime getDepartureTime() {
-        return departureTime;
     }
 
     // ************************************************************************
@@ -88,10 +88,19 @@ public class Vehicle {
         return totalDistance;
     }
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    public LocalDateTime arrivalTime() {
+        if (customers.isEmpty()) {
+            return departureTime;
+        }
+
+        Customer lastCustomer = customers.get(customers.size()-1);
+        return lastCustomer.getDepartureTime().plusSeconds(lastCustomer.getLocation().getDrivingTimeTo(depot.getLocation()));
+    }
+
     @Override
     public String toString() {
-        return "Vehicle{" +
-                "id=" + id +
-                '}';
+        return id;
     }
+
 }

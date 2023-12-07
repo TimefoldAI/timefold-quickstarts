@@ -13,7 +13,7 @@ public class VehicleRoutingConstraintProvider implements ConstraintProvider {
     @Override
     public Constraint[] defineConstraints(ConstraintFactory factory) {
         return new Constraint[] {
-                serviceFinishedAfterDueTime(factory),
+                serviceFinishedAfterMaxEndTime(factory),
                 minimizeTravelTime(factory)
         };
     }
@@ -22,12 +22,12 @@ public class VehicleRoutingConstraintProvider implements ConstraintProvider {
     // Hard constraints
     // ************************************************************************
 
-    protected Constraint serviceFinishedAfterDueTime(ConstraintFactory factory) {
+    protected Constraint serviceFinishedAfterMaxEndTime(ConstraintFactory factory) {
         return factory.forEach(Customer.class)
-                .filter(Customer::isServiceFinishedAfterDueTime)
+                .filter(Customer::isServiceFinishedAfterMaxEndTime)
                 .penalizeLong(HardSoftLongScore.ONE_HARD,
                         Customer::getServiceFinishedDelayInMinutes)
-                .asConstraint("serviceFinishedAfterDueTime");
+                .asConstraint("serviceFinishedAfterMaxEndTime");
     }
 
     // ************************************************************************
