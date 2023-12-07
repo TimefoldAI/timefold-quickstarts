@@ -52,4 +52,10 @@ public class Location {
     public long getDrivingTimeTo(Location location) {
         return drivingTimeSecondsMap.get(location);
     }
+
+    @Override
+    public String toString() {
+        return latitude + "," + longitude;
+    }
+
 }

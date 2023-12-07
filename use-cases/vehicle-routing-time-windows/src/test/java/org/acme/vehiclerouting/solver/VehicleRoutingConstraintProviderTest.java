@@ -59,7 +59,7 @@ class VehicleRoutingConstraintProviderTest {
     }
 
     @Test
-    void serviceFinishedAfterDueTime() {
+    void serviceFinishedAfterMaxEndTime() {
         LocalDateTime tomorrow_07_00 = LocalDateTime.of(TOMORROW, LocalTime.of(7, 0));
         LocalDateTime tomorrow_08_00 = LocalDateTime.of(TOMORROW, LocalTime.of(8, 0));
         LocalDateTime tomorrow_08_40 = LocalDateTime.of(TOMORROW, LocalTime.of(8, 40));
@@ -75,7 +75,7 @@ class VehicleRoutingConstraintProviderTest {
 
         connect(vehicleA, customer1, customer2);
 
-        constraintVerifier.verifyThat(VehicleRoutingConstraintProvider::serviceFinishedAfterDueTime)
+        constraintVerifier.verifyThat(VehicleRoutingConstraintProvider::serviceFinishedAfterMaxEndTime)
                 .given(vehicleA, customer1, customer2)
                 .penalizesBy(90 + customer2.getServiceDuration().toMinutes());
     }
