@@ -1,17 +1,20 @@
 package org.acme.kotlin.schooltimetabling.domain
 
+import ai.timefold.solver.core.api.domain.lookup.PlanningId
+import com.fasterxml.jackson.annotation.JsonIdentityInfo
+import com.fasterxml.jackson.annotation.ObjectIdGenerators
 import java.time.DayOfWeek
 import java.time.LocalTime
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.Id
 
 
-@Entity
+@JsonIdentityInfo(
+    scope = Timeslot::class,
+    generator = ObjectIdGenerators.PropertyGenerator::class,
+    property = "id"
+)
 class Timeslot {
 
-    @Id
-    @GeneratedValue
+    @PlanningId
     var id: Long? = null
 
     lateinit var dayOfWeek: DayOfWeek
@@ -21,16 +24,15 @@ class Timeslot {
     // No-arg constructor required for Hibernate
     constructor()
 
-    constructor(dayOfWeek: DayOfWeek, startTime: LocalTime, endTime: LocalTime) {
+    constructor(id: Long?, dayOfWeek: DayOfWeek, startTime: LocalTime, endTime: LocalTime) {
+        this.id = id
         this.dayOfWeek = dayOfWeek
         this.startTime = startTime
         this.endTime = endTime
     }
 
-    constructor(id: Long?, dayOfWeek: DayOfWeek, startTime: LocalTime, endTime: LocalTime)
-            : this(dayOfWeek, startTime, endTime) {
-        this.id = id
-    }
+    constructor(id: Long?, dayOfWeek: DayOfWeek, startTime: LocalTime) :
+            this(id, dayOfWeek, startTime, startTime.plusMinutes(50))
 
     override fun toString(): String = "$dayOfWeek $startTime"
 

@@ -9,16 +9,18 @@ import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore
 import ai.timefold.solver.core.api.solver.SolverStatus
 
 @PlanningSolution
-class TimeTable {
+class Timetable {
+
+    lateinit var name: String
 
     @ProblemFactCollectionProperty
     @ValueRangeProvider
-    lateinit var timeslotList: List<Timeslot>
+    lateinit var timeslots: List<Timeslot>
     @ProblemFactCollectionProperty
     @ValueRangeProvider
-    lateinit var roomList: List<Room>
+    lateinit var rooms: List<Room>
     @PlanningEntityCollectionProperty
-    lateinit var lessonList: List<Lesson>
+    lateinit var lessons: List<Lesson>
 
     @PlanningScore
     var score: HardSoftScore? = null
@@ -29,10 +31,19 @@ class TimeTable {
     // No-arg constructor required for Timefold
     constructor() {}
 
-    constructor(timeslotList: List<Timeslot>, roomList: List<Room>, lessonList: List<Lesson>) {
-        this.timeslotList = timeslotList
-        this.roomList = roomList
-        this.lessonList = lessonList
+    constructor(name: String, score: HardSoftScore?, solverStatus: SolverStatus) {
+        this.name = name
+        this.score = score
+        this.solverStatus = solverStatus
+        this.timeslots = emptyList()
+        this.rooms = emptyList()
+        this.lessons = emptyList()
     }
 
+    constructor(name: String, timeslots: List<Timeslot>, rooms: List<Room>, lessons: List<Lesson>) {
+        this.name = name
+        this.timeslots = timeslots
+        this.rooms = rooms
+        this.lessons = lessons
+    }
 }
