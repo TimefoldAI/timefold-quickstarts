@@ -19,8 +19,8 @@ a|* <<school-timetabling, School timetabling>>
 * <<vehicle-routing-with-capacity, Vehicle Routing with capacity>>
 * <<vehicle-routing-with-time-windows, Vehicle Routing with time windows>>
 
-a|* link:use-cases/school-timetabling/README.adoc[Quarkus] (Java, Maven or Gradle, Quarkus, H2)
-* link:technology/java-spring-boot/README.adoc[Spring Boot] (Java, Maven or Gradle, Spring Boot, H2)
+a|* link:use-cases/school-timetabling/README.adoc[Quarkus] (Java, Maven or Gradle, Quarkus)
+* link:technology/java-spring-boot/README.adoc[Spring Boot] (Java, Maven or Gradle, Spring Boot)
 * link:technology/kotlin-quarkus/README.adoc[Kotlin] (Kotlin, Maven, Quarkus, H2)
 
 2+a|* <<timefold-solver-examples, Timefold examples (desktop)>>
@@ -56,8 +56,8 @@ Assign lessons to timeslots and rooms to produce a better schedule for teachers 
 
 image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screenshot/quarkus-school-timetabling-screenshot.png[]
 
-* link:use-cases/school-timetabling/README.adoc[Run quarkus-school-timetabling] (Java, Maven or Gradle, Quarkus, H2)
-* link:technology/java-spring-boot/README.adoc[Run spring-boot-school-timetabling] (Java, Maven or Gradle, Spring Boot, H2)
+* link:use-cases/school-timetabling/README.adoc[Run quarkus-school-timetabling] (Java, Maven or Gradle, Quarkus)
+* link:technology/java-spring-boot/README.adoc[Run spring-boot-school-timetabling] (Java, Maven or Gradle, Spring Boot)
 * link:technology/kotlin-quarkus/README.adoc[Run kotlin-quarkus-school-timetabling] (Kotlin, Maven, Quarkus, H2)
 * link:use-cases/vehicle-routing-capacity/README.adoc[Run quarkus-vehicle-routing-capacity] (Java, Maven or Gradle, Quarkus)
 
