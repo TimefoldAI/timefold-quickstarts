@@ -9,7 +9,12 @@ import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
 import ai.timefold.solver.core.api.score.stream.Joiners;
 
 import org.acme.schooltimetabling.domain.Lesson;
-import org.acme.schooltimetabling.solver.justifications.*;
+import org.acme.schooltimetabling.solver.justifications.RoomConflictJustification;
+import org.acme.schooltimetabling.solver.justifications.StudentGroupConflictJustification;
+import org.acme.schooltimetabling.solver.justifications.StudentGroupSubjectVarietyJustification;
+import org.acme.schooltimetabling.solver.justifications.TeacherConflictJustification;
+import org.acme.schooltimetabling.solver.justifications.TeacherRoomStabilityJustification;
+import org.acme.schooltimetabling.solver.justifications.TeacherTimeEfficiencyJustification;
 
 public class TimetableConstraintProvider implements ConstraintProvider {
 
