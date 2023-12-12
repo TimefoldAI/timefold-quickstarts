@@ -158,15 +158,15 @@ public class VehicleRouteDemoResource {
         Supplier<Customer> customerSupplier = () -> {
             boolean morningTimeWindow = random.nextBoolean();
 
-            LocalDateTime readyTime = morningTimeWindow ? tomorrowAt(MORNING_WINDOW_START) : tomorrowAt(AFTERNOON_WINDOW_START);
-            LocalDateTime dueTime = morningTimeWindow ? tomorrowAt(MORNING_WINDOW_END) : tomorrowAt(AFTERNOON_WINDOW_END);
+            LocalDateTime minStartTime = morningTimeWindow ? tomorrowAt(MORNING_WINDOW_START) : tomorrowAt(AFTERNOON_WINDOW_START);
+            LocalDateTime maxEndTime = morningTimeWindow ? tomorrowAt(MORNING_WINDOW_END) : tomorrowAt(AFTERNOON_WINDOW_END);
             int serviceDurationMinutes = SERVICE_DURATION_MINUTES[random.nextInt(SERVICE_DURATION_MINUTES.length)];
             return new Customer(
                     String.valueOf(customerSequence.incrementAndGet()),
                     nameSupplier.get(),
                     new Location(latitudes.nextDouble(), longitudes.nextDouble()),
-                    readyTime,
-                    dueTime,
+                    minStartTime,
+                    maxEndTime,
                     Duration.ofMinutes(serviceDurationMinutes));
         };
 

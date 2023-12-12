@@ -53,6 +53,13 @@
       </includes>
     </fileSet>
     <fileSet>
+      <directory>../../use-cases/vehicle-routing-time-windows/target</directory>
+      <outputDirectory>quickstarts/binaries/use-cases/vehicle-routing-time-windows</outputDirectory>
+      <includes>
+        <include>quarkus-app/**</include>
+      </includes>
+    </fileSet>
+    <fileSet>
       <directory>../../use-cases/call-center/target</directory>
       <outputDirectory>quickstarts/binaries/use-cases/call-center</outputDirectory>
       <includes>
