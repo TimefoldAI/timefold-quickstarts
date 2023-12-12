@@ -19,18 +19,21 @@ repositories {
 dependencies {
     implementation platform("ai.timefold.solver:timefold-solver-bom:${timefoldVersion}")
 
+    // Spring-boot
     implementation "org.springframework.boot:spring-boot-starter-web"
     implementation "ai.timefold.solver:timefold-solver-spring-boot-starter"
 
+    // Swagger
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0"
 
+    // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("ai.timefold.solver:timefold-solver-benchmark")
     testImplementation("ai.timefold.solver:timefold-solver-test")
     testImplementation "io.rest-assured:rest-assured"
     testImplementation "org.awaitility:awaitility"
 
-
+    // UI
     runtimeOnly "org.webjars:webjars-locator:0.50"
     runtimeOnly "ai.timefold.solver:timefold-solver-webui"
     runtimeOnly "org.webjars:bootstrap:5.2.3"
