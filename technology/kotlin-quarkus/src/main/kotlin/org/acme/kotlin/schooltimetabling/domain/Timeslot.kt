@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators
 import java.time.DayOfWeek
 import java.time.LocalTime
 
-
 @JsonIdentityInfo(
     scope = Timeslot::class,
     generator = ObjectIdGenerators.PropertyGenerator::class,

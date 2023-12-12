@@ -9,7 +9,9 @@ import org.acme.kotlin.schooltimetabling.domain.Room
 import org.acme.kotlin.schooltimetabling.domain.Timeslot
 import org.acme.kotlin.schooltimetabling.domain.Timetable
 import org.awaitility.Awaitility.await
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.time.Duration
 

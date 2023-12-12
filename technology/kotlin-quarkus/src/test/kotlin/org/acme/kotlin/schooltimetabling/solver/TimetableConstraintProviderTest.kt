@@ -30,8 +30,8 @@ class TimetableConstraintProviderTest {
         val conflictingLesson = Lesson(2, "Subject2", "Teacher2", "Group2", TIMESLOT1, ROOM1)
         val nonConflictingLesson = Lesson(3, "Subject3", "Teacher3", "Group3", TIMESLOT2, ROOM1)
         constraintVerifier.verifyThat(TimeTableConstraintProvider::roomConflict)
-                .given(firstLesson, conflictingLesson, nonConflictingLesson)
-                .penalizesBy(1)
+            .given(firstLesson, conflictingLesson, nonConflictingLesson)
+            .penalizesBy(1)
     }
 
     @Test
@@ -89,8 +89,10 @@ class TimetableConstraintProviderTest {
         val thirdTuesdayLessonWithDifferentSubject = Lesson(4, "Subject2", "Teacher4", studentGroup, TIMESLOT4, ROOM1)
         val lessonInAnotherGroup = Lesson(5, repeatedSubject, "Teacher5", "Group2", TIMESLOT1, ROOM1)
         constraintVerifier.verifyThat(TimeTableConstraintProvider::studentGroupSubjectVariety)
-            .given(mondayLesson, firstTuesdayLesson, secondTuesdayLesson, thirdTuesdayLessonWithDifferentSubject,
-            lessonInAnotherGroup)
+            .given(
+                mondayLesson, firstTuesdayLesson, secondTuesdayLesson, thirdTuesdayLessonWithDifferentSubject,
+                lessonInAnotherGroup
+            )
             .penalizesBy(1) // Second tuesday lesson immediately follows the first.
     }
 

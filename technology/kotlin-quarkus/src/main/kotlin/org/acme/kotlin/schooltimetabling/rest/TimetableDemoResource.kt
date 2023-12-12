@@ -17,7 +17,11 @@ import org.eclipse.microprofile.openapi.annotations.parameters.Parameter
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses
 import org.eclipse.microprofile.openapi.annotations.tags.Tag
-import java.time.DayOfWeek
+import java.time.DayOfWeek.FRIDAY
+import java.time.DayOfWeek.MONDAY
+import java.time.DayOfWeek.THURSDAY
+import java.time.DayOfWeek.TUESDAY
+import java.time.DayOfWeek.WEDNESDAY
 import java.time.LocalTime
 
 @Tag(name = "Demo data", description = "Timefold-provided demo school timetable data.")
@@ -59,130 +63,32 @@ class TimetableDemoResource {
     ): Response {
         val timeslotList: MutableList<Timeslot> = ArrayList(10)
         var nextTimeslotId = 0L
-        timeslotList.add(
-            Timeslot(nextTimeslotId++, DayOfWeek.MONDAY, LocalTime.of(8, 30), LocalTime.of(9, 30))
-        )
-        timeslotList.add(
-            Timeslot(
-                nextTimeslotId++, DayOfWeek.MONDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)
-            )
-        )
-        timeslotList.add(
-            Timeslot(
-                nextTimeslotId++, DayOfWeek.MONDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)
-            )
-        )
-        timeslotList.add(
-            Timeslot(
-                nextTimeslotId++, DayOfWeek.MONDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)
-            )
-        )
-        timeslotList.add(
-            Timeslot(
-                nextTimeslotId++, DayOfWeek.MONDAY, LocalTime.of(14, 30), LocalTime.of(15, 30)
-            )
-        )
-        timeslotList.add(
-            Timeslot(
-                nextTimeslotId++, DayOfWeek.TUESDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)
-            )
-        )
-        timeslotList.add(
-            Timeslot(
-                nextTimeslotId++, DayOfWeek.TUESDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)
-            )
-        )
-        timeslotList.add(
-            Timeslot(
-                nextTimeslotId++, DayOfWeek.TUESDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)
-            )
-        )
-        timeslotList.add(
-            Timeslot(
-                nextTimeslotId++, DayOfWeek.TUESDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)
-            )
-        )
-        timeslotList.add(
-            Timeslot(
-                nextTimeslotId++, DayOfWeek.TUESDAY, LocalTime.of(14, 30), LocalTime.of(15, 30)
-            )
-        )
+        timeslotList.add(Timeslot(nextTimeslotId++, MONDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)))
+        timeslotList.add(Timeslot(nextTimeslotId++, MONDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)))
+        timeslotList.add(Timeslot(nextTimeslotId++, MONDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)))
+        timeslotList.add(Timeslot(nextTimeslotId++, MONDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)))
+        timeslotList.add(Timeslot(nextTimeslotId++, MONDAY, LocalTime.of(14, 30), LocalTime.of(15, 30)))
+        timeslotList.add(Timeslot(nextTimeslotId++, TUESDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)))
+        timeslotList.add(Timeslot(nextTimeslotId++, TUESDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)))
+        timeslotList.add(Timeslot(nextTimeslotId++, TUESDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)))
+        timeslotList.add(Timeslot(nextTimeslotId++, TUESDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)))
+        timeslotList.add(Timeslot(nextTimeslotId++, TUESDAY, LocalTime.of(14, 30), LocalTime.of(15, 30)))
         if (demoData == DemoData.LARGE) {
-            timeslotList.add(
-                Timeslot(
-                    nextTimeslotId++, DayOfWeek.WEDNESDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)
-                )
-            )
-            timeslotList.add(
-                Timeslot(
-                    nextTimeslotId++, DayOfWeek.WEDNESDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)
-                )
-            )
-            timeslotList.add(
-                Timeslot(
-                    nextTimeslotId++, DayOfWeek.WEDNESDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)
-                )
-            )
-            timeslotList.add(
-                Timeslot(
-                    nextTimeslotId++, DayOfWeek.WEDNESDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)
-                )
-            )
-            timeslotList.add(
-                Timeslot(
-                    nextTimeslotId++, DayOfWeek.WEDNESDAY, LocalTime.of(14, 30), LocalTime.of(15, 30)
-                )
-            )
-            timeslotList.add(
-                Timeslot(
-                    nextTimeslotId++, DayOfWeek.THURSDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)
-                )
-            )
-            timeslotList.add(
-                Timeslot(
-                    nextTimeslotId++, DayOfWeek.THURSDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)
-                )
-            )
-            timeslotList.add(
-                Timeslot(
-                    nextTimeslotId++, DayOfWeek.THURSDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)
-                )
-            )
-            timeslotList.add(
-                Timeslot(
-                    nextTimeslotId++, DayOfWeek.THURSDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)
-                )
-            )
-            timeslotList.add(
-                Timeslot(
-                    nextTimeslotId++, DayOfWeek.THURSDAY, LocalTime.of(14, 30), LocalTime.of(15, 30)
-                )
-            )
-            timeslotList.add(
-                Timeslot(
-                    nextTimeslotId++, DayOfWeek.FRIDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)
-                )
-            )
-            timeslotList.add(
-                Timeslot(
-                    nextTimeslotId++, DayOfWeek.FRIDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)
-                )
-            )
-            timeslotList.add(
-                Timeslot(
-                    nextTimeslotId++, DayOfWeek.FRIDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)
-                )
-            )
-            timeslotList.add(
-                Timeslot(
-                    nextTimeslotId++, DayOfWeek.FRIDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)
-                )
-            )
-            timeslotList.add(
-                Timeslot(
-                    nextTimeslotId, DayOfWeek.FRIDAY, LocalTime.of(14, 30), LocalTime.of(15, 30)
-                )
-            )
+            timeslotList.add(Timeslot(nextTimeslotId++, WEDNESDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)))
+            timeslotList.add(Timeslot(nextTimeslotId++, WEDNESDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)))
+            timeslotList.add(Timeslot(nextTimeslotId++, WEDNESDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)))
+            timeslotList.add(Timeslot(nextTimeslotId++, WEDNESDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)))
+            timeslotList.add(Timeslot(nextTimeslotId++, WEDNESDAY, LocalTime.of(14, 30), LocalTime.of(15, 30)))
+            timeslotList.add(Timeslot(nextTimeslotId++, THURSDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)))
+            timeslotList.add(Timeslot(nextTimeslotId++, THURSDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)))
+            timeslotList.add(Timeslot(nextTimeslotId++, THURSDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)))
+            timeslotList.add(Timeslot(nextTimeslotId++, THURSDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)))
+            timeslotList.add(Timeslot(nextTimeslotId++, THURSDAY, LocalTime.of(14, 30), LocalTime.of(15, 30)))
+            timeslotList.add(Timeslot(nextTimeslotId++, FRIDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)))
+            timeslotList.add(Timeslot(nextTimeslotId++, FRIDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)))
+            timeslotList.add(Timeslot(nextTimeslotId++, FRIDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)))
+            timeslotList.add(Timeslot(nextTimeslotId++, FRIDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)))
+            timeslotList.add(Timeslot(nextTimeslotId, FRIDAY, LocalTime.of(14, 30), LocalTime.of(15, 30)))
         }
         val roomList: MutableList<Room> = ArrayList<Room>(3)
         var nextRoomId = 0L
@@ -212,36 +118,16 @@ class TimetableDemoResource {
             lessonList.add(Lesson(nextLessonId++, "Math", "A. Turing", "9th grade"))
             lessonList.add(Lesson(nextLessonId++, "ICT", "A. Turing", "9th grade"))
             lessonList.add(Lesson(nextLessonId++, "Physics", "M. Curie", "9th grade"))
-            lessonList.add(
-                Lesson(
-                    nextLessonId++, "Geography", "C. Darwin", "9th grade"
-                )
-            )
-            lessonList.add(
-                Lesson(
-                    nextLessonId++, "Geology", "C. Darwin", "9th grade"
-                )
-            )
+            lessonList.add(Lesson(nextLessonId++, "Geography", "C. Darwin", "9th grade"))
+            lessonList.add(Lesson(nextLessonId++, "Geology", "C. Darwin", "9th grade"))
             lessonList.add(Lesson(nextLessonId++, "History", "I. Jones", "9th grade"))
             lessonList.add(Lesson(nextLessonId++, "English", "I. Jones", "9th grade"))
             lessonList.add(Lesson(nextLessonId++, "Drama", "I. Jones", "9th grade"))
             lessonList.add(Lesson(nextLessonId++, "Art", "S. Dali", "9th grade"))
             lessonList.add(Lesson(nextLessonId++, "Art", "S. Dali", "9th grade"))
-            lessonList.add(
-                Lesson(
-                    nextLessonId++, "Physical education", "C. Lewis", "9th grade"
-                )
-            )
-            lessonList.add(
-                Lesson(
-                    nextLessonId++, "Physical education", "C. Lewis", "9th grade"
-                )
-            )
-            lessonList.add(
-                Lesson(
-                    nextLessonId++, "Physical education", "C. Lewis", "9th grade"
-                )
-            )
+            lessonList.add(Lesson(nextLessonId++, "Physical education", "C. Lewis", "9th grade"))
+            lessonList.add(Lesson(nextLessonId++, "Physical education", "C. Lewis", "9th grade"))
+            lessonList.add(Lesson(nextLessonId++, "Physical education", "C. Lewis", "9th grade"))
         }
         lessonList.add(Lesson(nextLessonId++, "Math", "A. Turing", "10th grade"))
         lessonList.add(Lesson(nextLessonId++, "Math", "A. Turing", "10th grade"))
@@ -257,93 +143,33 @@ class TimetableDemoResource {
             lessonList.add(Lesson(nextLessonId++, "Math", "A. Turing", "10th grade"))
             lessonList.add(Lesson(nextLessonId++, "Math", "A. Turing", "10th grade"))
             lessonList.add(Lesson(nextLessonId++, "ICT", "A. Turing", "10th grade"))
-            lessonList.add(
-                Lesson(
-                    nextLessonId++, "Physics", "M. Curie", "10th grade"
-                )
-            )
-            lessonList.add(
-                Lesson(
-                    nextLessonId++, "Biology", "C. Darwin", "10th grade"
-                )
-            )
-            lessonList.add(
-                Lesson(
-                    nextLessonId++, "Geology", "C. Darwin", "10th grade"
-                )
-            )
-            lessonList.add(
-                Lesson(
-                    nextLessonId++, "History", "I. Jones", "10th grade"
-                )
-            )
+            lessonList.add(Lesson(nextLessonId++, "Physics", "M. Curie", "10th grade"))
+            lessonList.add(Lesson(nextLessonId++, "Biology", "C. Darwin", "10th grade"))
+            lessonList.add(Lesson(nextLessonId++, "Geology", "C. Darwin", "10th grade"))
+            lessonList.add(Lesson(nextLessonId++, "History", "I. Jones", "10th grade"))
             lessonList.add(Lesson(nextLessonId++, "English", "P. Cruz", "10th grade"))
             lessonList.add(Lesson(nextLessonId++, "English", "P. Cruz", "10th grade"))
             lessonList.add(Lesson(nextLessonId++, "Drama", "I. Jones", "10th grade"))
             lessonList.add(Lesson(nextLessonId++, "Art", "S. Dali", "10th grade"))
             lessonList.add(Lesson(nextLessonId++, "Art", "S. Dali", "10th grade"))
-            lessonList.add(
-                Lesson(
-                    nextLessonId++, "Physical education", "C. Lewis", "10th grade"
-                )
-            )
-            lessonList.add(
-                Lesson(
-                    nextLessonId++, "Physical education", "C. Lewis", "10th grade"
-                )
-            )
-            lessonList.add(
-                Lesson(
-                    nextLessonId++, "Physical education", "C. Lewis", "10th grade"
-                )
-            )
+            lessonList.add(Lesson(nextLessonId++, "Physical education", "C. Lewis", "10th grade"))
+            lessonList.add(Lesson(nextLessonId++, "Physical education", "C. Lewis", "10th grade"))
+            lessonList.add(Lesson(nextLessonId++, "Physical education", "C. Lewis", "10th grade"))
             lessonList.add(Lesson(nextLessonId++, "Math", "A. Turing", "11th grade"))
             lessonList.add(Lesson(nextLessonId++, "Math", "A. Turing", "11th grade"))
             lessonList.add(Lesson(nextLessonId++, "Math", "A. Turing", "11th grade"))
             lessonList.add(Lesson(nextLessonId++, "Math", "A. Turing", "11th grade"))
             lessonList.add(Lesson(nextLessonId++, "Math", "A. Turing", "11th grade"))
             lessonList.add(Lesson(nextLessonId++, "ICT", "A. Turing", "11th grade"))
-            lessonList.add(
-                Lesson(
-                    nextLessonId++, "Physics", "M. Curie", "11th grade"
-                )
-            )
-            lessonList.add(
-                Lesson(
-                    nextLessonId++, "Chemistry", "M. Curie", "11th grade"
-                )
-            )
+            lessonList.add(Lesson(nextLessonId++, "Physics", "M. Curie", "11th grade"))
+            lessonList.add(Lesson(nextLessonId++, "Chemistry", "M. Curie", "11th grade"))
             lessonList.add(Lesson(nextLessonId++, "French", "M. Curie", "11th grade"))
-            lessonList.add(
-                Lesson(
-                    nextLessonId++, "Physics", "M. Curie", "11th grade"
-                )
-            )
-            lessonList.add(
-                Lesson(
-                    nextLessonId++, "Geography", "C. Darwin", "11th grade"
-                )
-            )
-            lessonList.add(
-                Lesson(
-                    nextLessonId++, "Biology", "C. Darwin", "11th grade"
-                )
-            )
-            lessonList.add(
-                Lesson(
-                    nextLessonId++, "Geology", "C. Darwin", "11th grade"
-                )
-            )
-            lessonList.add(
-                Lesson(
-                    nextLessonId++, "History", "I. Jones", "11th grade"
-                )
-            )
-            lessonList.add(
-                Lesson(
-                    nextLessonId++, "History", "I. Jones", "11th grade"
-                )
-            )
+            lessonList.add(Lesson(nextLessonId++, "Physics", "M. Curie", "11th grade"))
+            lessonList.add(Lesson(nextLessonId++, "Geography", "C. Darwin", "11th grade"))
+            lessonList.add(Lesson(nextLessonId++, "Biology", "C. Darwin", "11th grade"))
+            lessonList.add(Lesson(nextLessonId++, "Geology", "C. Darwin", "11th grade"))
+            lessonList.add(Lesson(nextLessonId++, "History", "I. Jones", "11th grade"))
+            lessonList.add(Lesson(nextLessonId++, "History", "I. Jones", "11th grade"))
             lessonList.add(Lesson(nextLessonId++, "English", "P. Cruz", "11th grade"))
             lessonList.add(Lesson(nextLessonId++, "English", "P. Cruz", "11th grade"))
             lessonList.add(Lesson(nextLessonId++, "English", "P. Cruz", "11th grade"))
@@ -351,68 +177,24 @@ class TimetableDemoResource {
             lessonList.add(Lesson(nextLessonId++, "Drama", "P. Cruz", "11th grade"))
             lessonList.add(Lesson(nextLessonId++, "Art", "S. Dali", "11th grade"))
             lessonList.add(Lesson(nextLessonId++, "Art", "S. Dali", "11th grade"))
-            lessonList.add(
-                Lesson(
-                    nextLessonId++, "Physical education", "C. Lewis", "11th grade"
-                )
-            )
-            lessonList.add(
-                Lesson(
-                    nextLessonId++, "Physical education", "C. Lewis", "11th grade"
-                )
-            )
-            lessonList.add(
-                Lesson(
-                    nextLessonId++, "Physical education", "C. Lewis", "11th grade"
-                )
-            )
+            lessonList.add(Lesson(nextLessonId++, "Physical education", "C. Lewis", "11th grade"))
+            lessonList.add(Lesson(nextLessonId++, "Physical education", "C. Lewis", "11th grade"))
+            lessonList.add(Lesson(nextLessonId++, "Physical education", "C. Lewis", "11th grade"))
             lessonList.add(Lesson(nextLessonId++, "Math", "A. Turing", "12th grade"))
             lessonList.add(Lesson(nextLessonId++, "Math", "A. Turing", "12th grade"))
             lessonList.add(Lesson(nextLessonId++, "Math", "A. Turing", "12th grade"))
             lessonList.add(Lesson(nextLessonId++, "Math", "A. Turing", "12th grade"))
             lessonList.add(Lesson(nextLessonId++, "Math", "A. Turing", "12th grade"))
             lessonList.add(Lesson(nextLessonId++, "ICT", "A. Turing", "12th grade"))
-            lessonList.add(
-                Lesson(
-                    nextLessonId++, "Physics", "M. Curie", "12th grade"
-                )
-            )
-            lessonList.add(
-                Lesson(
-                    nextLessonId++, "Chemistry", "M. Curie", "12th grade"
-                )
-            )
+            lessonList.add(Lesson(nextLessonId++, "Physics", "M. Curie", "12th grade"))
+            lessonList.add(Lesson(nextLessonId++, "Chemistry", "M. Curie", "12th grade"))
             lessonList.add(Lesson(nextLessonId++, "French", "M. Curie", "12th grade"))
-            lessonList.add(
-                Lesson(
-                    nextLessonId++, "Physics", "M. Curie", "12th grade"
-                )
-            )
-            lessonList.add(
-                Lesson(
-                    nextLessonId++, "Geography", "C. Darwin", "12th grade"
-                )
-            )
-            lessonList.add(
-                Lesson(
-                    nextLessonId++, "Biology", "C. Darwin", "12th grade"
-                )
-            )
-            lessonList.add(
-                Lesson(
-                    nextLessonId++, "Geology", "C. Darwin", "12th grade"
-                )
-            )
-            lessonList.add(
-                Lesson(
-                    nextLessonId++, "History", "I. Jones", "12th grade"
-                )
-            )
-            lessonList.add(
-                Lesson(
-                    nextLessonId++, "History", "I. Jones", "12th grade"
-                )
-            )
+            lessonList.add(Lesson(nextLessonId++, "Physics", "M. Curie", "12th grade"))
+            lessonList.add(Lesson(nextLessonId++, "Geography", "C. Darwin", "12th grade"))
+            lessonList.add(Lesson(nextLessonId++, "Biology", "C. Darwin", "12th grade"))
+            lessonList.add(Lesson(nextLessonId++, "Geology", "C. Darwin", "12th grade"))
+            lessonList.add(Lesson(nextLessonId++, "History", "I. Jones", "12th grade"))
+            lessonList.add(Lesson(nextLessonId++, "History", "I. Jones", "12th grade"))
             lessonList.add(Lesson(nextLessonId++, "English", "P. Cruz", "12th grade"))
             lessonList.add(Lesson(nextLessonId++, "English", "P. Cruz", "12th grade"))
             lessonList.add(Lesson(nextLessonId++, "English", "P. Cruz", "12th grade"))
@@ -420,28 +202,11 @@ class TimetableDemoResource {
             lessonList.add(Lesson(nextLessonId++, "Drama", "P. Cruz", "12th grade"))
             lessonList.add(Lesson(nextLessonId++, "Art", "S. Dali", "12th grade"))
             lessonList.add(Lesson(nextLessonId++, "Art", "S. Dali", "12th grade"))
-            lessonList.add(
-                Lesson(
-                    nextLessonId++, "Physical education", "C. Lewis", "12th grade"
-                )
-            )
-            lessonList.add(
-                Lesson(
-                    nextLessonId++, "Physical education", "C. Lewis", "12th grade"
-                )
-            )
-            lessonList.add(
-                Lesson(
-                    nextLessonId, "Physical education", "C. Lewis", "12th grade"
-                )
-            )
+            lessonList.add(Lesson(nextLessonId++, "Physical education", "C. Lewis", "12th grade"))
+            lessonList.add(Lesson(nextLessonId++, "Physical education", "C. Lewis", "12th grade"))
+            lessonList.add(Lesson(nextLessonId, "Physical education", "C. Lewis", "12th grade"))
         }
-        return Response.ok(
-            Timetable(
-                demoData.name, timeslotList, roomList, lessonList
-            )
-        ).build()
+        return Response.ok(Timetable(demoData.name, timeslotList, roomList, lessonList))
+            .build()
     }
-
-
 }

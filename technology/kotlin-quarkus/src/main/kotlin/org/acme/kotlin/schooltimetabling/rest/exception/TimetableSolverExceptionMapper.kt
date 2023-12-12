@@ -12,7 +12,7 @@ class TimetableSolverExceptionMapper :
         return Response
             .status(exception.status)
             .type(MediaType.APPLICATION_JSON)
-            .entity(ErrorInfo(exception.jobId, exception.message?:""))
+            .entity(ErrorInfo(exception.jobId, exception.message ?: ""))
             .build()
     }
 }

@@ -16,9 +16,11 @@ class Timetable {
     @ProblemFactCollectionProperty
     @ValueRangeProvider
     lateinit var timeslots: List<Timeslot>
+
     @ProblemFactCollectionProperty
     @ValueRangeProvider
     lateinit var rooms: List<Room>
+
     @PlanningEntityCollectionProperty
     lateinit var lessons: List<Lesson>
 
