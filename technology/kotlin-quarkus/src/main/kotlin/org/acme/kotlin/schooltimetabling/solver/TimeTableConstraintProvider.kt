@@ -6,7 +6,12 @@ import ai.timefold.solver.core.api.score.stream.ConstraintFactory
 import ai.timefold.solver.core.api.score.stream.ConstraintProvider
 import ai.timefold.solver.core.api.score.stream.Joiners
 import org.acme.kotlin.schooltimetabling.domain.Lesson
-import org.acme.kotlin.schooltimetabling.solver.justifications.*
+import org.acme.kotlin.schooltimetabling.solver.justifications.RoomConflictJustification
+import org.acme.kotlin.schooltimetabling.solver.justifications.StudentGroupConflictJustification
+import org.acme.kotlin.schooltimetabling.solver.justifications.StudentGroupSubjectVarietyJustification
+import org.acme.kotlin.schooltimetabling.solver.justifications.TeacherConflictJustification
+import org.acme.kotlin.schooltimetabling.solver.justifications.TeacherRoomStabilityJustification
+import org.acme.kotlin.schooltimetabling.solver.justifications.TeacherTimeEfficiencyJustification
 import java.time.Duration
 
 class TimeTableConstraintProvider : ConstraintProvider {
