@@ -3,7 +3,7 @@ package org.acme.kotlin.schooltimetabling.solver.justifications
 import ai.timefold.solver.core.api.score.stream.ConstraintJustification
 import org.acme.kotlin.schooltimetabling.domain.Lesson
 
-class StudentGroupSubjectVarietyJustification (
+data class StudentGroupSubjectVarietyJustification (
     val studentGroup: String,
     val lesson1: Lesson,
     val lesson2: Lesson,
