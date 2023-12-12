@@ -1,7 +1,5 @@
 package org.acme.schooltimetabling.domain;
 
-import java.util.List;
-
 import ai.timefold.solver.core.api.domain.solution.PlanningEntityCollectionProperty;
 import ai.timefold.solver.core.api.domain.solution.PlanningScore;
 import ai.timefold.solver.core.api.domain.solution.PlanningSolution;
@@ -10,19 +8,21 @@ import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
 import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
 import ai.timefold.solver.core.api.solver.SolverStatus;
 
+import java.util.List;
+
 @PlanningSolution
-public class TimeTable {
+public class Timetable {
 
-    @ValueRangeProvider
+    private String name;
+
     @ProblemFactCollectionProperty
-    private List<Timeslot> timeslotList;
-
     @ValueRangeProvider
+    private List<Timeslot> timeslots;
     @ProblemFactCollectionProperty
-    private List<Room> roomList;
-
+    @ValueRangeProvider
+    private List<Room> rooms;
     @PlanningEntityCollectionProperty
-    private List<Lesson> lessonList;
+    private List<Lesson> lessons;
 
     @PlanningScore
     private HardSoftScore score;
@@ -31,30 +31,40 @@ public class TimeTable {
     private SolverStatus solverStatus;
 
     // No-arg constructor required for Timefold
-    public TimeTable() {
+    public Timetable() {
     }
 
-    public TimeTable(List<Timeslot> timeslotList, List<Room> roomList,
-            List<Lesson> lessonList) {
-        this.timeslotList = timeslotList;
-        this.roomList = roomList;
-        this.lessonList = lessonList;
+    public Timetable(String name, HardSoftScore score, SolverStatus solverStatus) {
+        this.name = name;
+        this.score = score;
+        this.solverStatus = solverStatus;
+    }
+
+    public Timetable(String name, List<Timeslot> timeslots, List<Room> rooms, List<Lesson> lessons) {
+        this.name = name;
+        this.timeslots = timeslots;
+        this.rooms = rooms;
+        this.lessons = lessons;
     }
 
     // ************************************************************************
     // Getters and setters
     // ************************************************************************
 
-    public List<Timeslot> getTimeslotList() {
-        return timeslotList;
+    public String getName() {
+        return name;
     }
 
-    public List<Room> getRoomList() {
-        return roomList;
+    public List<Timeslot> getTimeslots() {
+        return timeslots;
     }
 
-    public List<Lesson> getLessonList() {
-        return lessonList;
+    public List<Room> getRooms() {
+        return rooms;
+    }
+
+    public List<Lesson> getLessons() {
+        return lessons;
     }
 
     public HardSoftScore getScore() {

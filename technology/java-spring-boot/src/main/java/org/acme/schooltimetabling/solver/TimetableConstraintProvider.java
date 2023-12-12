@@ -1,16 +1,16 @@
 package org.acme.schooltimetabling.solver;
 
-import java.time.Duration;
-
 import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
 import ai.timefold.solver.core.api.score.stream.Constraint;
 import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
 import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
 import ai.timefold.solver.core.api.score.stream.Joiners;
-
 import org.acme.schooltimetabling.domain.Lesson;
+import org.acme.schooltimetabling.solver.justifications.*;
 
-public class TimeTableConstraintProvider implements ConstraintProvider {
+import java.time.Duration;
+
+public class TimetableConstraintProvider implements ConstraintProvider {
 
     @Override
     public Constraint[] defineConstraints(ConstraintFactory constraintFactory) {
@@ -37,6 +37,7 @@ public class TimeTableConstraintProvider implements ConstraintProvider {
                         Joiners.equal(Lesson::getRoom))
                 // ... and penalize each pair with a hard weight.
                 .penalize(HardSoftScore.ONE_HARD)
+                .justifyWith((lesson1, lesson2, score) -> new RoomConflictJustification(lesson1.getRoom(), lesson1.getId(), lesson2.getId()))
                 .asConstraint("Room conflict");
     }
 
@@ -47,6 +48,8 @@ public class TimeTableConstraintProvider implements ConstraintProvider {
                         Joiners.equal(Lesson::getTimeslot),
                         Joiners.equal(Lesson::getTeacher))
                 .penalize(HardSoftScore.ONE_HARD)
+                .justifyWith(
+                        (lesson1, lesson2, score) -> new TeacherConflictJustification(lesson1.getTeacher(), lesson1.getId(), lesson2.getId()))
                 .asConstraint("Teacher conflict");
     }
 
@@ -57,6 +60,7 @@ public class TimeTableConstraintProvider implements ConstraintProvider {
                         Joiners.equal(Lesson::getTimeslot),
                         Joiners.equal(Lesson::getStudentGroup))
                 .penalize(HardSoftScore.ONE_HARD)
+                .justifyWith((lesson1, lesson2, score) -> new StudentGroupConflictJustification(lesson1.getStudentGroup(), lesson1.getId(), lesson2.getId()))
                 .asConstraint("Student group conflict");
     }
 
@@ -67,6 +71,7 @@ public class TimeTableConstraintProvider implements ConstraintProvider {
                         Joiners.equal(Lesson::getTeacher))
                 .filter((lesson1, lesson2) -> lesson1.getRoom() != lesson2.getRoom())
                 .penalize(HardSoftScore.ONE_SOFT)
+                .justifyWith((lesson1, lesson2, score) -> new TeacherRoomStabilityJustification(lesson1.getTeacher(), lesson1.getId(), lesson2.getId()))
                 .asConstraint("Teacher room stability");
     }
 
@@ -82,6 +87,7 @@ public class TimeTableConstraintProvider implements ConstraintProvider {
                     return !between.isNegative() && between.compareTo(Duration.ofMinutes(30)) <= 0;
                 })
                 .reward(HardSoftScore.ONE_SOFT)
+                .justifyWith((lesson1, lesson2, score) -> new TeacherRoomStabilityJustification(lesson1.getTeacher(), lesson1.getId(), lesson2.getId()))
                 .asConstraint("Teacher time efficiency");
     }
 
@@ -99,6 +105,7 @@ public class TimeTableConstraintProvider implements ConstraintProvider {
                     return !between.isNegative() && between.compareTo(Duration.ofMinutes(30)) <= 0;
                 })
                 .penalize(HardSoftScore.ONE_SOFT)
+                .justifyWith((lesson1, lesson2, score) -> new StudentGroupSubjectVarietyJustification(lesson1.getStudentGroup(), lesson1.getId(), lesson2.getId()))
                 .asConstraint("Student group subject variety");
     }
 
