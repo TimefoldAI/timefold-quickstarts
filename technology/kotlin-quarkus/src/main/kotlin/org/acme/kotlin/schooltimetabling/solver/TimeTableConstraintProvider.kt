@@ -43,12 +43,7 @@ class TimeTableConstraintProvider : ConstraintProvider {
             // ... and penalize each pair with a hard weight.
             .penalize(HardSoftScore.ONE_HARD)
             .justifyWith({ lesson1: Lesson, lesson2: Lesson?, score: HardSoftScore? ->
-                RoomConflictJustification(
-                    lesson1.room,
-                    lesson1,
-                    lesson2!!
-                )
-            })
+                RoomConflictJustification(lesson1.room, lesson1,lesson2!!)})
             .asConstraint("Room conflict");
     }
 
@@ -62,12 +57,7 @@ class TimeTableConstraintProvider : ConstraintProvider {
             )
             .penalize(HardSoftScore.ONE_HARD)
             .justifyWith({ lesson1: Lesson, lesson2: Lesson?, score: HardSoftScore? ->
-                TeacherConflictJustification(
-                    lesson1.teacher,
-                    lesson1,
-                    lesson2!!
-                )
-            })
+                TeacherConflictJustification(lesson1.teacher, lesson1, lesson2!!)})
             .asConstraint("Teacher conflict");
     }
 
@@ -81,12 +71,7 @@ class TimeTableConstraintProvider : ConstraintProvider {
             )
             .penalize(HardSoftScore.ONE_HARD)
             .justifyWith({ lesson1: Lesson, lesson2: Lesson?, score: HardSoftScore? ->
-                StudentGroupConflictJustification(
-                    lesson1.studentGroup,
-                    lesson1,
-                    lesson2!!
-                )
-            })
+                StudentGroupConflictJustification(lesson1.studentGroup, lesson1, lesson2!!)})
             .asConstraint("Student group conflict");
     }
 
@@ -100,12 +85,7 @@ class TimeTableConstraintProvider : ConstraintProvider {
             .filter { lesson1: Lesson, lesson2: Lesson -> lesson1.room !== lesson2.room }
             .penalize(HardSoftScore.ONE_SOFT)
             .justifyWith({ lesson1: Lesson, lesson2: Lesson?, score: HardSoftScore? ->
-                TeacherRoomStabilityJustification(
-                    lesson1.teacher,
-                    lesson1,
-                    lesson2!!
-                )
-            })
+                TeacherRoomStabilityJustification(lesson1.teacher, lesson1, lesson2!!)})
             .asConstraint("Teacher room stability");
     }
 
@@ -125,12 +105,7 @@ class TimeTableConstraintProvider : ConstraintProvider {
             }
             .reward(HardSoftScore.ONE_SOFT)
             .justifyWith({ lesson1: Lesson, lesson2: Lesson?, score: HardSoftScore? ->
-                TeacherTimeEfficiencyJustification(
-                    lesson1.teacher,
-                    lesson1,
-                    lesson2!!
-                )
-            })
+                TeacherTimeEfficiencyJustification(lesson1.teacher, lesson1, lesson2!!)})
             .asConstraint("Teacher time efficiency");
     }
 
@@ -151,12 +126,7 @@ class TimeTableConstraintProvider : ConstraintProvider {
             }
             .penalize(HardSoftScore.ONE_SOFT)
             .justifyWith({ lesson1: Lesson, lesson2: Lesson?, score: HardSoftScore? ->
-                StudentGroupSubjectVarietyJustification(
-                    lesson1.studentGroup,
-                    lesson1,
-                    lesson2!!
-                )
-            })
+                StudentGroupSubjectVarietyJustification(lesson1.studentGroup, lesson1, lesson2!!)})
             .asConstraint("Student group subject variety");
     }
 
