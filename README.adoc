@@ -143,7 +143,7 @@ Many examples in desktop technology.
 image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screenshot/timefold-solver-examples-screenshot.png[]
 
 [[run]]
-== Run the application
+==== Run the application
 
 . Git clone the timefold-solver repo and navigate to this directory:
 +
