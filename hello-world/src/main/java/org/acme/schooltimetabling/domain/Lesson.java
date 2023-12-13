@@ -16,6 +16,7 @@ public class Lesson {
 
     @PlanningVariable
     private Timeslot timeslot;
+
     @PlanningVariable
     private Room room;
 

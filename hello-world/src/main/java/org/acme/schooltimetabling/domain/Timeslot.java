@@ -1,22 +1,32 @@
 package org.acme.schooltimetabling.domain;
 
+import ai.timefold.solver.core.api.domain.lookup.PlanningId;
+
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 
 public class Timeslot {
 
+    @PlanningId
+    private Long id;
+
     private DayOfWeek dayOfWeek;
     private LocalTime startTime;
     private LocalTime endTime;
 
-    public Timeslot(DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
+    // No-arg constructor required for Hibernate
+    public Timeslot() {
+    }
+
+    public Timeslot(long id, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
+        this.id = id;
         this.dayOfWeek = dayOfWeek;
         this.startTime = startTime;
         this.endTime = endTime;
     }
 
-    public Timeslot(DayOfWeek dayOfWeek, LocalTime startTime) {
-        this(dayOfWeek, startTime, startTime.plusMinutes(50));
+    public Timeslot(long id, DayOfWeek dayOfWeek, LocalTime startTime) {
+        this(id, dayOfWeek, startTime, startTime.plusMinutes(50));
     }
 
     @Override
@@ -27,6 +37,10 @@ public class Timeslot {
     // ************************************************************************
     // Getters and setters
     // ************************************************************************
+
+    public Long getId() {
+        return id;
+    }
 
     public DayOfWeek getDayOfWeek() {
         return dayOfWeek;
