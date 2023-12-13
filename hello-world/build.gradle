@@ -21,7 +21,6 @@ dependencies {
     implementation platform("ai.timefold.solver:timefold-solver-bom:${timefoldVersion}")
 
     implementation "ai.timefold.solver:timefold-solver-core"
-    implementation "com.fasterxml.jackson.core:jackson-annotations:${jacksonAnnotationVersion}"
     runtimeOnly "ch.qos.logback:logback-classic:${logbackVersion}"
 
     // Testing

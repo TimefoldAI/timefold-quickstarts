@@ -3,7 +3,6 @@ package org.acme.schooltimetabling.domain;
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
-import com.fasterxml.jackson.annotation.JsonIdentityReference;
 
 @PlanningEntity
 public class Lesson {
@@ -15,11 +14,9 @@ public class Lesson {
     private String teacher;
     private String studentGroup;
 
-    @JsonIdentityReference
     @PlanningVariable
     private Timeslot timeslot;
 
-    @JsonIdentityReference
     @PlanningVariable
     private Room room;
 
