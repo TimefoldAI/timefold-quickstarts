@@ -83,7 +83,7 @@ The container image name
 +
 [source, shell]
 ----
-$ docker run -p 8080:8080 timefold-solver-quarkus-vaccination-scheduling-quickstart:1.0-SNAPSHOT
+$ docker run -p 8080:8080 --rm $USER/timefold-solver-quarkus-vaccination-scheduling-quickstart:1.0-SNAPSHOT
 ----
 
 [[native]]

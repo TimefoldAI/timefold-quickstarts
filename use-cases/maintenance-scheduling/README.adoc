@@ -1,4 +1,4 @@
-= Maintenance Scheduling (Java, Quarkus, Maven)
+= Maintenance Scheduling (Java, Quarkus, Maven, H2)
 
 Schedule maintenance jobs to crews over time to reduce both premature and overdue maintenance.
 
@@ -83,7 +83,7 @@ The container image name
 +
 [source, shell]
 ----
-$ docker run -p 8080:8080 timefold-solver-quarkus-maintenance-scheduling-quickstart:1.0-SNAPSHOT
+$ docker run -p 8080:8080 $USER/timefold-solver-quarkus-maintenance-scheduling-quickstart:1.0-SNAPSHOT
 ----
 
 [[native]]
