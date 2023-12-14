@@ -109,14 +109,14 @@
     </dependency>
     <dependency>
       <groupId>org.webjars</groupId>
-      <artifactId>momentjs</artifactId>
-      <version>2.24.0</version>
+      <artifactId>leaflet</artifactId>
+      <version>1.6.0</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
-      <groupId>org.webjars</groupId>
-      <artifactId>leaflet</artifactId>
-      <version>1.6.0</version>
+      <groupId>org.webjars.npm</groupId>
+      <artifactId>js-joda</artifactId>
+      <version>1.11.0</version>
       <scope>runtime</scope>
     </dependency>
   </dependencies>
