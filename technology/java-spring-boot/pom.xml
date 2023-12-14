@@ -15,7 +15,7 @@
     <version.org.springframework.boot>3.2.0</version.org.springframework.boot>
 
     <version.compiler.plugin>3.11.0</version.compiler.plugin>
-    <version.surefire.plugin>3.2.2</version.surefire.plugin>
+    <version.surefire.plugin>3.2.3</version.surefire.plugin>
   </properties>
 
   <dependencyManagement>
