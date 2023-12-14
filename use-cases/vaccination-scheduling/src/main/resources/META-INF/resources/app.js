@@ -1,6 +1,9 @@
 var autoRefreshIntervalId = null;
 var vaccineCenterLeafletGroup = null;
 var personLeafletGroup = null;
+const dateTimeFormatter = JSJoda.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+const dateFormatter = JSJoda.DateTimeFormatter.ofPattern("yyyy-MM-dd")
+const timeFormatter = JSJoda.DateTimeFormatter.ofPattern("HH:mm")
 
 function refreshSolution() {
   $.getJSON("/vaccinationSchedule?page=0", function (schedule) {
@@ -38,16 +41,16 @@ function refreshSolution() {
     const dateTimeList = [];
     const vaccinationCenterIdToBoothIdSetMap = new Map(
       schedule.vaccinationCenterList.map(vaccinationCenter => [vaccinationCenter.id, new Set()]));
-    schedule.appointmentList.forEach((appointment) => {
-      const dateTime = moment(appointment.dateTime, "YYYY,M,D,H,m");
-      const dateTimeString = dateTime.format("YYYY MMM D HH:mm")
+      schedule.appointmentList.forEach((appointment) => {
+      const dateTime = JSJoda.LocalDateTime.parse(appointment.dateTime);
+      const dateTimeString = dateTimeFormatter.format(dateTime)
       if (!dateTimeSet.has(dateTimeString)) {
         dateTimeSet.add(dateTimeString);
         dateTimeList.push(dateTime);
       }
       vaccinationCenterIdToBoothIdSetMap.get(appointment.vaccinationCenter).add(appointment.boothId);
     });
-    dateTimeList.sort((a, b) => a.unix() - b.unix());
+    dateTimeList.sort((a, b) => a.compareTo(b));
 
     const thead = $("<thead>").appendTo(scheduleTable);
     const headerRow = $("<tr>").appendTo(thead);
@@ -62,7 +65,7 @@ function refreshSolution() {
     });
 
     const appointmentMap = new Map(schedule.appointmentList
-      .map(appointment => [moment(appointment.dateTime, "YYYY,M,D,H,m") + "/" + appointment.vaccinationCenter + "/" + appointment.boothId, appointment]));
+      .map(appointment => [JSJoda.LocalDateTime.parse(appointment.dateTime) + "/" + appointment.vaccinationCenter + "/" + appointment.boothId, appointment]));
     if (schedule.appointmentList.length !== appointmentMap.size) {
       var conflicts = schedule.appointmentList.length - appointmentMap.size;
       scheduleTable.append($(`<p class="badge badge-danger">There are ${conflicts} double bookings.</span>`));
@@ -70,7 +73,7 @@ function refreshSolution() {
     const appointmentToPersonMap = new Map();
     schedule.personList.forEach((person) => {
       if (person.appointment != null) {
-        appointmentToPersonMap.set(moment(person.appointment.dateTime, "YYYY,M,D,H,m") + "/" + person.appointment.vaccinationCenter + "/" + person.appointment.boothId, person);
+        appointmentToPersonMap.set(JSJoda.LocalDateTime.parse(person.appointment.dateTime) + "/" + person.appointment.vaccinationCenter + "/" + person.appointment.boothId, person);
       }
     });
 
@@ -78,10 +81,10 @@ function refreshSolution() {
     var previousDateTime = null;
     dateTimeList.forEach((dateTime) => {
       const row = $(`<tr>`).appendTo(tbody);
-      var showDate = (previousDateTime == null || !dateTime.isSame(previousDateTime, "day"));
+      var showDate = (previousDateTime == null || dateTime.toLocalDate().compareTo(previousDateTime.toLocalDate()) !== 0);
       row
         .append($(`<th class="align-middle"/>`)
-          .append($(`<span style="float: right"/>`).text(showDate ? dateTime.format("ddd MMM D HH:mm") : dateTime.format("HH:mm"))));
+          .append($(`<span style="float: right"/>`).text(showDate ? dateTimeFormatter.format(dateTime) : timeFormatter.format(dateTime))));
       previousDateTime = dateTime;
       schedule.vaccinationCenterList.forEach((vaccinationCenter) => {
         const boothIdSet = vaccinationCenterIdToBoothIdSetMap.get(vaccinationCenter.id);
@@ -96,9 +99,10 @@ function refreshSolution() {
             if (person == null) {
               cardBody.append($(`<h5 class="card-title mb-0"/>`).text("Unassigned"));
             } else {
-              var appointmentDateTime = moment(appointment.dateTime, "YYYY,M,D,H,m");
-              var birthdate = moment(person.birthdate, "YYYY,M,D");
-              var age = appointmentDateTime.diff(birthdate, 'years')
+              var appointmentDateTime = JSJoda.LocalDateTime.parse(appointment.dateTime);
+
+              var birthdate = JSJoda.LocalDate.parse(person.birthdate);
+              var age = birthdate.until(appointmentDateTime.toLocalDate(), JSJoda.ChronoUnit.YEARS);
               cardBody.append($(`<h5 class="card-title mb-1"/>`)
                 .text(person.name + " (" + age + ")"));
               const vaccineType = vaccineTypeMap.get(appointment.vaccineType);
@@ -124,15 +128,16 @@ function refreshSolution() {
                 cardBody.append($(`<p class="badge badge-warning ms-2 mb-0"/>`).text("Preferred vaccination center is " + preferredVaccinationCenter.name));
               }
               if (person.readyDate != null) {
-                var readyDate = moment(person.readyDate, "YYYY,M,D");
-                var readyDateDiff = appointmentDateTime.diff(readyDate, 'days');
+                var readyDate = JSJoda.LocalDate.parse(person.readyDate);
+                var readyDateDiff = readyDate.until(appointmentDateTime.toLocalDate(), JSJoda.ChronoUnit.DAYS);
                 if (readyDateDiff < 0) {
                   cardBody.append($(`<p class="badge badge-danger ms-2 mb-0"/>`).text("Dose is " + (-readyDateDiff) + " days too early"));
                 }
               }
               if (person.dueDate != null) {
-                var dueDate = moment(person.dueDate, "YYYY,M,D");
-                var dueDateDiff = appointmentDateTime.diff(dueDate, 'days');
+                var dueDate = JSJoda.LocalDate.parse(person.dueDate);
+                var dueDateDiff = dueDate.until(appointmentDateTime.toLocalDate(), JSJoda.ChronoUnit.DAYS);
+
                 if (dueDateDiff > 0) {
                   cardBody.append($(`<p class="badge badge-danger ms-2 mb-0"/>`).text("Dose is " + (dueDateDiff) + " days too late"));
                 }
@@ -140,8 +145,9 @@ function refreshSolution() {
               var dosePrefix = person.doseNumber.toString() + ((person.doseNumber === 1) ? "st" : "nd");
               var doseSuffix = "";
               if (person.idealDate != null) {
-                var idealDate = moment(person.idealDate, "YYYY,M,D");
-                var idealDateDiff = appointmentDateTime.diff(idealDate, 'days');
+                var idealDate = JSJoda.LocalDate.parse(person.idealDate);
+                var idealDateDiff =  idealDate.until(appointmentDateTime.toLocalDate(), JSJoda.ChronoUnit.DAYS);
+
                 doseSuffix = " (" + (idealDateDiff === 0 ? "ideal day"
                     : (idealDateDiff < 0 ? (-idealDateDiff) + " days too early"
                     : idealDateDiff + " days too late")) + ")";
@@ -178,8 +184,8 @@ function refreshSolution() {
       } else {
         unassignedPersonCount++;
         var firstDateTime = dateTimeList[0];
-        var birthdate = moment(person.birthdate, "YYYY,M,D");
-        var age = firstDateTime.diff(birthdate, 'years');
+        var birthdate = JSJoda.LocalDate.parse(person.birthdate);
+        var age = birthdate.until(firstDateTime.toLocalDate(), JSJoda.ChronoUnit.YEARS);
 
         var dosePrefix = person.doseNumber.toString() + ((person.doseNumber === 1) ? "st" : "nd");
         var doseSuffix = "";
@@ -188,7 +194,7 @@ function refreshSolution() {
           doseSuffix += " " + vaccineType.name;
         }
         if (person.idealDate != null) {
-          doseSuffix += " (ideally " + moment(person.idealDate, "YYYY,M,D").format("ddd MMM D") + ")";
+          doseSuffix += " (ideally " + dateFormatter.format(JSJoda.LocalDate.parse(person.idealDate)) + ")";
         }
         unassignedPeronsDiv.append($(`<div class="col"/>`).append($(`<div class="card"/>`)
             .append($(`<div class="card-body pt-1 pb-1 px-2"/>`)
