@@ -45,6 +45,6 @@ public interface DistanceCalculator {
      */
     default void initDistanceMaps(Collection<Location> locations) {
         Map<Location, Map<Location, Long>> distanceMatrix = calculateBulkDistance(locations, locations);
-        locations.forEach(location -> location.setDistanceMap(distanceMatrix.get(location)));
+        locations.forEach(location -> location.setDistances(distanceMatrix.get(location)));
     }
 }

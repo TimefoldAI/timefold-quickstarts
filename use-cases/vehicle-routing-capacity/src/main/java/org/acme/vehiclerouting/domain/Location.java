@@ -14,7 +14,7 @@ public class Location {
     private double longitude;
 
     @JsonIgnore
-    private Map<Location, Long> distanceMap;
+    private Map<Location, Long> distances;
 
     @JsonCreator
     public Location(@JsonProperty("latitude") double latitude, @JsonProperty("longitude") double longitude) {
@@ -30,17 +30,17 @@ public class Location {
         return longitude;
     }
 
-    public Map<Location, Long> getDistanceMap() {
-        return distanceMap;
+    public Map<Location, Long> getDistances() {
+        return distances;
     }
 
     /**
      * Set the distance map. Distances are in meters.
      *
-     * @param distanceMap a map containing distances from here to other locations
+     * @param distances a map containing distances from here to other locations
      */
-    public void setDistanceMap(Map<Location, Long> distanceMap) {
-        this.distanceMap = distanceMap;
+    public void setDistances(Map<Location, Long> distances) {
+        this.distances = distances;
     }
 
     /**
@@ -50,7 +50,7 @@ public class Location {
      * @return distance in meters
      */
     public long getDistanceTo(Location location) {
-        return distanceMap.get(location);
+        return distances.get(location);
     }
 
     // ************************************************************************

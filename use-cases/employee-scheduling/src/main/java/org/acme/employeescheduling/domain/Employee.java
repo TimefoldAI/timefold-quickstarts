@@ -16,15 +16,15 @@ public class Employee {
     String name;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    Set<String> skillSet;
+    Set<String> skills;
 
     public Employee() {
 
     }
 
-    public Employee(String name, Set<String> skillSet) {
+    public Employee(String name, Set<String> skills) {
         this.name = name;
-        this.skillSet = skillSet;
+        this.skills = skills;
     }
 
     public String getName() {
@@ -35,12 +35,12 @@ public class Employee {
         this.name = name;
     }
 
-    public Set<String> getSkillSet() {
-        return skillSet;
+    public Set<String> getSkills() {
+        return skills;
     }
 
-    public void setSkillSet(Set<String> skillSet) {
-        this.skillSet = skillSet;
+    public void setSkills(Set<String> skills) {
+        this.skills = skills;
     }
 
     @Override

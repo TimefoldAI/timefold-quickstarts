@@ -78,7 +78,7 @@ public class MaintenanceScheduleResource {
 
     @Transactional
     protected void save(MaintenanceSchedule schedule) {
-        for (Job job : schedule.getJobList()) {
+        for (Job job : schedule.getJobs()) {
             // TODO this is awfully naive: optimistic locking causes issues if called by the SolverManager
             Job attachedJob = jobRepository.findById(job.getId());
             attachedJob.setCrew(job.getCrew());

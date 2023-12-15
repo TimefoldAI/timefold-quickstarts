@@ -106,7 +106,7 @@ public class EmployeeScheduleResource {
 
     @Transactional
     protected void save(EmployeeSchedule schedule) {
-        for (Shift shift : schedule.getShiftList()) {
+        for (Shift shift : schedule.getShifts()) {
             // TODO this is awfully naive: optimistic locking causes issues if called by the SolverManager
             Shift attachedShift = shiftRepository.findById(shift.getId());
             attachedShift.setEmployee(shift.getEmployee());

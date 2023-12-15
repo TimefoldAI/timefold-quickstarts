@@ -26,13 +26,13 @@ class FoodPackagingConstraintProviderTest {
     public static final Product PRODUCT_B = new Product(2L, "Product B");
 
     static {
-        PRODUCT_A_SMALL.setCleaningDurationMap(Map.of(
+        PRODUCT_A_SMALL.setCleaningDurations(Map.of(
                 PRODUCT_A_LARGE, Duration.ofMinutes(5),
                 PRODUCT_B, Duration.ofMinutes(60)));
-        PRODUCT_A_LARGE.setCleaningDurationMap(Map.of(
+        PRODUCT_A_LARGE.setCleaningDurations(Map.of(
                 PRODUCT_A_SMALL, Duration.ofMinutes(0),
                 PRODUCT_B, Duration.ofMinutes(60)));
-        PRODUCT_B.setCleaningDurationMap(Map.of(
+        PRODUCT_B.setCleaningDurations(Map.of(
                 PRODUCT_A_SMALL, Duration.ofMinutes(40),
                 PRODUCT_A_LARGE, Duration.ofMinutes(40)));
     }
@@ -138,7 +138,7 @@ class FoodPackagingConstraintProviderTest {
         for (int i = 0; i < jobs.length; i++) {
             Job job = jobs[i];
             job.setLine(line);
-            line.getJobList().add(job);
+            line.getJobs().add(job);
             if (i > 0) {
                 job.setPreviousJob(jobs[i - 1]);
             }

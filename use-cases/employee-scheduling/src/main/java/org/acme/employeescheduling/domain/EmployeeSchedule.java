@@ -13,14 +13,14 @@ import ai.timefold.solver.core.api.solver.SolverStatus;
 @PlanningSolution
 public class EmployeeSchedule {
     @ProblemFactCollectionProperty
-    List<Availability> availabilityList;
+    List<Availability> availabilities;
 
     @ProblemFactCollectionProperty
     @ValueRangeProvider
-    List<Employee> employeeList;
+    List<Employee> employees;
 
     @PlanningEntityCollectionProperty
-    List<Shift> shiftList;
+    List<Shift> shifts;
 
     @PlanningScore
     HardSoftScore score;
@@ -32,11 +32,11 @@ public class EmployeeSchedule {
     // No-arg constructor required for Timefold
     public EmployeeSchedule() {}
 
-    public EmployeeSchedule(ScheduleState scheduleState, List<Availability> availabilityList, List<Employee> employeeList, List<Shift> shiftList) {
+    public EmployeeSchedule(ScheduleState scheduleState, List<Availability> availabilities, List<Employee> employees, List<Shift> shifts) {
         this.scheduleState = scheduleState;
-        this.availabilityList = availabilityList;
-        this.employeeList = employeeList;
-        this.shiftList = shiftList;
+        this.availabilities = availabilities;
+        this.employees = employees;
+        this.shifts = shifts;
     }
 
     public ScheduleState getScheduleState() {
@@ -47,28 +47,28 @@ public class EmployeeSchedule {
         this.scheduleState = scheduleState;
     }
 
-    public List<Availability> getAvailabilityList() {
-        return availabilityList;
+    public List<Availability> getAvailabilities() {
+        return availabilities;
     }
 
-    public void setAvailabilityList(List<Availability> availabilityList) {
-        this.availabilityList = availabilityList;
+    public void setAvailabilities(List<Availability> availabilities) {
+        this.availabilities = availabilities;
     }
 
-    public List<Employee> getEmployeeList() {
-        return employeeList;
+    public List<Employee> getEmployees() {
+        return employees;
     }
 
-    public void setEmployeeList(List<Employee> employeeList) {
-        this.employeeList = employeeList;
+    public void setEmployees(List<Employee> employees) {
+        this.employees = employees;
     }
 
-    public List<Shift> getShiftList() {
-        return shiftList;
+    public List<Shift> getShifts() {
+        return shifts;
     }
 
-    public void setShiftList(List<Shift> shiftList) {
-        this.shiftList = shiftList;
+    public void setShifts(List<Shift> shifts) {
+        this.shifts = shifts;
     }
 
     public HardSoftScore getScore() {

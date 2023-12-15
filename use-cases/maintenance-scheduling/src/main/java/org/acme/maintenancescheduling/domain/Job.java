@@ -30,7 +30,7 @@ public class Job {
     private LocalDate idealEndDate; // Exclusive
 
     @ElementCollection(fetch = FetchType.EAGER)
-    private Set<String> tagSet;
+    private Set<String> tags;
 
     @PlanningVariable
     @ManyToOne
@@ -45,16 +45,16 @@ public class Job {
     public Job() {
     }
 
-    public Job(String name, int durationInDays, LocalDate readyDate, LocalDate dueDate, LocalDate idealEndDate, Set<String> tagSet) {
+    public Job(String name, int durationInDays, LocalDate readyDate, LocalDate dueDate, LocalDate idealEndDate, Set<String> tags) {
         this.name = name;
         this.durationInDays = durationInDays;
         this.readyDate = readyDate;
         this.dueDate = dueDate;
         this.idealEndDate = idealEndDate;
-        this.tagSet = tagSet;
+        this.tags = tags;
     }
 
-    public Job(Long id, String name, int durationInDays, LocalDate readyDate, LocalDate dueDate, LocalDate idealEndDate, Set<String> tagSet,
+    public Job(Long id, String name, int durationInDays, LocalDate readyDate, LocalDate dueDate, LocalDate idealEndDate, Set<String> tags,
             Crew crew, LocalDate startDate) {
         this.id = id;
         this.name = name;
@@ -62,7 +62,7 @@ public class Job {
         this.readyDate = readyDate;
         this.dueDate = dueDate;
         this.idealEndDate = idealEndDate;
-        this.tagSet = tagSet;
+        this.tags = tags;
         this.crew = crew;
         this.startDate = startDate;
         this.endDate = EndDateUpdatingVariableListener.calculateEndDate(startDate, durationInDays);
@@ -102,8 +102,8 @@ public class Job {
         return idealEndDate;
     }
 
-    public Set<String> getTagSet() {
-        return tagSet;
+    public Set<String> getTags() {
+        return tags;
     }
 
     public Crew getCrew() {

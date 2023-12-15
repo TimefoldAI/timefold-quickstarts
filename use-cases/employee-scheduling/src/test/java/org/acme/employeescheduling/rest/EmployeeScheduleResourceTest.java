@@ -32,8 +32,8 @@ public class EmployeeScheduleResourceTest {
             Thread.sleep(20L);
             employeeSchedule = employeeScheduleResource.getSchedule();
         }
-        assertFalse(employeeSchedule.getShiftList().isEmpty());
-        for (Shift shift : employeeSchedule.getShiftList()) {
+        assertFalse(employeeSchedule.getShifts().isEmpty());
+        for (Shift shift : employeeSchedule.getShifts()) {
             assertNotNull(shift.getEmployee());
         }
         assertTrue(employeeSchedule.getScore().isFeasible());

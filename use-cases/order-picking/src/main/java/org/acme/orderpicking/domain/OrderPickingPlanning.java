@@ -23,7 +23,7 @@ public class OrderPickingPlanning {
         this.solverStatus = solverStatus;
         this.solution = solution;
         this.solverWasNeverStarted = solverWasNeverStarted;
-        for (Trolley trolley : solution.getTrolleyList()) {
+        for (Trolley trolley : solution.getTrolleys()) {
             distanceToTravelByTrolley.put(trolley.getId(), Warehouse.calculateDistanceToTravel(trolley));
         }
     }
