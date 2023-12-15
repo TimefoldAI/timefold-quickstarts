@@ -67,14 +67,14 @@ function refreshSchedule() {
     byLineItemDataSet.clear();
     byJobItemDataSet.clear();
 
-    $.each(schedule.lineList, (index, line) => {
+    $.each(schedule.lines, (index, line) => {
       const lineGroupElement = $(`<div/>`)
         .append($(`<h5 class="card-title mb-1"/>`).text(line.name))
         .append($(`<p class="card-text ms-2 mb-0"/>`).text(line.operator));
       byLineGroupDataSet.add({id : line.id, content: lineGroupElement.html()});
     });
 
-    $.each(schedule.jobList, (index, job) => {
+    $.each(schedule.jobs, (index, job) => {
       byJobGroupDataSet.add({id : job.id, content: job.name});
       byJobItemDataSet.add({
         id: job.id + "_readyToIdealEnd", group: job.id,

@@ -155,7 +155,7 @@ function refreshSchedule() {
         byLocationTimeline.setCustomTime(schedule.scheduleState.lastHistoricDate, 'published');
         byLocationTimeline.setCustomTime(schedule.scheduleState.firstDraftDate, 'draft');
 
-        schedule.availabilityList.forEach((availability, index) => {
+        schedule.availabilities.forEach((availability, index) => {
             const availabilityDate = JSJoda.LocalDate.parse(availability.date);
             const start = availabilityDate.atStartOfDay().toString();
             const end = availabilityDate.plusDays(1).atStartOfDay().toString();
@@ -173,16 +173,16 @@ function refreshSchedule() {
         });
 
 
-        schedule.employeeList.forEach((employee, index) => {
+        schedule.employees.forEach((employee, index) => {
             const employeeGroupElement = $('<div class="card-body p-2"/>')
                     .append($(`<h5 class="card-title mb-2"/>)`)
                             .append(employee.name))
                     .append($('<div/>')
-                            .append($(employee.skillSet.map(skill => `<span class="badge me-1 mt-1" style="background-color:#d3d7cf">${skill}</span>`).join(''))));
+                            .append($(employee.skills.map(skill => `<span class="badge me-1 mt-1" style="background-color:#d3d7cf">${skill}</span>`).join(''))));
             byEmployeeGroupDataSet.add({id : employee.name, content: employeeGroupElement.html()});
         });
 
-        schedule.shiftList.forEach((shift, index) => {
+        schedule.shifts.forEach((shift, index) => {
             if (groups.indexOf(shift.location) === -1) {
                 groups.push(shift.location);
                 byLocationGroupDataSet.add({
@@ -207,7 +207,7 @@ function refreshSchedule() {
                     style: "background-color: #EF292999"
                 });
             } else {
-                const skillColor = (shift.employee.skillSet.indexOf(shift.requiredSkill) === -1? '#ef2929' : '#8ae234');
+                const skillColor = (shift.employee.skills.indexOf(shift.requiredSkill) === -1? '#ef2929' : '#8ae234');
                 const byEmployeeShiftElement = $('<div class="card-body p-2"/>')
                         .append($(`<h5 class="card-title mb-2"/>)`)
                                 .append(shift.location))

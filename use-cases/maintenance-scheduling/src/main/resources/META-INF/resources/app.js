@@ -65,11 +65,11 @@ function refreshSchedule() {
         byCrewItemDataSet.clear();
         byJobItemDataSet.clear();
 
-        $.each(schedule.crewList, (index, crew) => {
+        $.each(schedule.crews, (index, crew) => {
             byCrewGroupDataSet.add({id : crew.id, content: crew.name});
         });
 
-        $.each(schedule.jobList, (index, job) => {
+        $.each(schedule.jobs, (index, job) => {
             const jobGroupElement = $(`<div/>`)
               .append($(`<h5 class="card-title mb-1"/>`).text(job.name))
               .append($(`<p class="card-text ms-2 mb-0"/>`).text(`${job.durationInDays} workdays`));
@@ -99,7 +99,7 @@ function refreshSchedule() {
                     .append($(`<p class="card-text ms-2 mb-0"/>`).text(`Due: ${job.dueDate}`));
                 const byJobJobElement = $(`<div/>`)
                   .append($(`<h5 class="card-title mb-1"/>`).text(`Unassigned`));
-                $.each(job.tagSet, (index, tag) => {
+                $.each(job.tags, (index, tag) => {
                     const color = pickColor(tag);
                     unassignedJobElement.append($(`<span class="badge me-1" style="background-color: ${color}"/>`).text(tag));
                     byJobJobElement.append($(`<span class="badge me-1" style="background-color: ${color}"/>`).text(tag));
@@ -127,7 +127,7 @@ function refreshSchedule() {
                     byCrewJobElement.append($(`<p class="badge badge-danger mb-0"/>`).text(`After due (too late)`));
                     byJobJobElement.append($(`<p class="badge badge-danger mb-0"/>`).text(`After due (too late)`));
                 }
-                $.each(job.tagSet, (index, tag) => {
+                $.each(job.tags, (index, tag) => {
                     const color = pickColor(tag);
                     byCrewJobElement.append($(`<span class="badge me-1" style="background-color: ${color}"/>`).text(tag));
                     byJobJobElement.append($(`<span class="badge me-1" style="background-color: ${color}"/>`).text(tag));

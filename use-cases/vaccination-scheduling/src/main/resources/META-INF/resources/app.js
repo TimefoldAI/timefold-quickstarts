@@ -29,21 +29,21 @@ function refreshSolution() {
 
     if (schedule.appointmentList.size > 10000) {
       scheduleTable.append($(`<p/>`)
-        .text("There are " + schedule.appointmentList.size + " appointments. Too much data to show a schedule."));
+        .text("There are " + schedule.appointments.size + " appointments. Too much data to show a schedule."));
       return;
     }
 
 
     const vaccinationCenterMap = new Map(
-      schedule.vaccinationCenterList.map(vaccinationCenter => [vaccinationCenter.id, vaccinationCenter]));
+      schedule.vaccinationCenters.map(vaccinationCenter => [vaccinationCenter.id, vaccinationCenter]));
 
     const dateTimeSet = new Set();
     const dateTimeList = [];
     const vaccinationCenterIdToBoothIdSetMap = new Map(
       schedule.vaccinationCenterList.map(vaccinationCenter => [vaccinationCenter.id, new Set()]));
-      schedule.appointmentList.forEach((appointment) => {
-      const dateTime = JSJoda.LocalDateTime.parse(appointment.dateTime);
-      const dateTimeString = dateTimeFormatter.format(dateTime)
+    schedule.appointmentList.forEach((appointment) => {
+      const dateTime = moment(appointment.dateTime, "YYYY,M,D,H,m");
+      const dateTimeString = dateTime.format("YYYY MMM D HH:mm")
       if (!dateTimeSet.has(dateTimeString)) {
         dateTimeSet.add(dateTimeString);
         dateTimeList.push(dateTime);
@@ -55,7 +55,7 @@ function refreshSolution() {
     const thead = $("<thead>").appendTo(scheduleTable);
     const headerRow = $("<tr>").appendTo(thead);
     headerRow.append($("<th>Time</th>"));
-    schedule.vaccinationCenterList.forEach((vaccinationCenter) => {
+    schedule.vaccinationCenters.forEach((vaccinationCenter) => {
       const boothIdSet = vaccinationCenterIdToBoothIdSetMap.get(vaccinationCenter.id);
       boothIdSet.forEach((boothId) => {
         headerRow
@@ -65,13 +65,13 @@ function refreshSolution() {
     });
 
     const appointmentMap = new Map(schedule.appointmentList
-      .map(appointment => [JSJoda.LocalDateTime.parse(appointment.dateTime) + "/" + appointment.vaccinationCenter + "/" + appointment.boothId, appointment]));
+      .map(appointment => [moment(appointment.dateTime, "YYYY,M,D,H,m") + "/" + appointment.vaccinationCenter + "/" + appointment.boothId, appointment]));
     if (schedule.appointmentList.length !== appointmentMap.size) {
       var conflicts = schedule.appointmentList.length - appointmentMap.size;
       scheduleTable.append($(`<p class="badge badge-danger">There are ${conflicts} double bookings.</span>`));
     }
     const appointmentToPersonMap = new Map();
-    schedule.personList.forEach((person) => {
+    schedule.people.forEach((person) => {
       if (person.appointment != null) {
         appointmentToPersonMap.set(JSJoda.LocalDateTime.parse(person.appointment.dateTime) + "/" + person.appointment.vaccinationCenter + "/" + person.appointment.boothId, person);
       }
@@ -86,7 +86,7 @@ function refreshSolution() {
         .append($(`<th class="align-middle"/>`)
           .append($(`<span style="float: right"/>`).text(showDate ? dateTimeFormatter.format(dateTime) : timeFormatter.format(dateTime))));
       previousDateTime = dateTime;
-      schedule.vaccinationCenterList.forEach((vaccinationCenter) => {
+      schedule.vaccinationCenters.forEach((vaccinationCenter) => {
         const boothIdSet = vaccinationCenterIdToBoothIdSetMap.get(vaccinationCenter.id);
         boothIdSet.forEach((boothId) => {
           var appointment = appointmentMap.get(dateTime + "/" + vaccinationCenter.id + "/" + boothId);
@@ -163,13 +163,13 @@ function refreshSolution() {
     });
 
 
-    schedule.vaccinationCenterList.forEach((vaccinationCenter) => {
+    schedule.vaccinationCenters.forEach((vaccinationCenter) => {
       L.marker(vaccinationCenter.location).addTo(vaccineCenterLeafletGroup);
     });
     var assignedPersonCount = 0;
     var unassignedPersonCount = 0;
     personLeafletGroup.clearLayers();
-    schedule.personList.forEach((person) => {
+    schedule.people.forEach((person) => {
       const appointment = person.appointment;
       const personColor = (appointment == null ? "gray" : pickColor(appointment.vaccineType));
       L.circleMarker(person.homeLocation, {radius: 4, color: personColor, weight: 2}).addTo(personLeafletGroup);
