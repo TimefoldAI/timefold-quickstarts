@@ -13,11 +13,11 @@ function refreshSolution() {
     const vaccineTypesDiv = $("#vaccineTypes");
     vaccineTypesDiv.children().remove();
     const vaccineTypeMap = new Map();
-    schedule.vaccineTypeList.forEach((vaccineType) => {
+    schedule.vaccineTypes.forEach((vaccineType) => {
       const color = pickColor(vaccineType.name);
       vaccineTypesDiv.append($(`<div class="col"/>`).append($(`<div class="card" style="background-color: ${color}"/>`)
           .append($(`<div class="card-body p-2"/>`)
-            .append($(`<h5 class="card-title mb-0"/>`).text(vaccineType.name)))));
+              .append($(`<h5 class="card-title mb-0"/>`).text(vaccineType.name)))));
       vaccineTypeMap.set(vaccineType.name, vaccineType);
     });
 
@@ -27,23 +27,23 @@ function refreshSolution() {
     const unassignedPeronsDiv = $("#unassignedPersons");
     unassignedPeronsDiv.children().remove();
 
-    if (schedule.appointmentList.size > 10000) {
+    if (schedule.appointments.size > 10000) {
       scheduleTable.append($(`<p/>`)
-        .text("There are " + schedule.appointments.size + " appointments. Too much data to show a schedule."));
+          .text("There are " + schedule.appointments.size + " appointments. Too much data to show a schedule."));
       return;
     }
 
 
     const vaccinationCenterMap = new Map(
-      schedule.vaccinationCenters.map(vaccinationCenter => [vaccinationCenter.id, vaccinationCenter]));
+        schedule.vaccinationCenters.map(vaccinationCenter => [vaccinationCenter.id, vaccinationCenter]));
 
     const dateTimeSet = new Set();
     const dateTimeList = [];
     const vaccinationCenterIdToBoothIdSetMap = new Map(
-      schedule.vaccinationCenterList.map(vaccinationCenter => [vaccinationCenter.id, new Set()]));
-    schedule.appointmentList.forEach((appointment) => {
-      const dateTime = moment(appointment.dateTime, "YYYY,M,D,H,m");
-      const dateTimeString = dateTime.format("YYYY MMM D HH:mm")
+        schedule.vaccinationCenters.map(vaccinationCenter => [vaccinationCenter.id, new Set()]));
+    schedule.appointments.forEach((appointment) => {
+      const dateTime = JSJoda.LocalDateTime.parse(appointment.dateTime);
+      const dateTimeString = dateTimeFormatter.format(dateTime)
       if (!dateTimeSet.has(dateTimeString)) {
         dateTimeSet.add(dateTimeString);
         dateTimeList.push(dateTime);
@@ -59,15 +59,15 @@ function refreshSolution() {
       const boothIdSet = vaccinationCenterIdToBoothIdSetMap.get(vaccinationCenter.id);
       boothIdSet.forEach((boothId) => {
         headerRow
-          .append($("<th/>")
-            .append($("<span/>").text(vaccinationCenter.name + (boothIdSet.size <= 1 ? "" : " booth " + boothId))));
+            .append($("<th/>")
+                .append($("<span/>").text(vaccinationCenter.name + (boothIdSet.size <= 1 ? "" : " booth " + boothId))));
       });
     });
 
-    const appointmentMap = new Map(schedule.appointmentList
-      .map(appointment => [moment(appointment.dateTime, "YYYY,M,D,H,m") + "/" + appointment.vaccinationCenter + "/" + appointment.boothId, appointment]));
-    if (schedule.appointmentList.length !== appointmentMap.size) {
-      var conflicts = schedule.appointmentList.length - appointmentMap.size;
+    const appointmentMap = new Map(schedule.appointments
+        .map(appointment => [JSJoda.LocalDateTime.parse(appointment.dateTime) + "/" + appointment.vaccinationCenter + "/" + appointment.boothId, appointment]));
+    if (schedule.appointments.length !== appointmentMap.size) {
+      var conflicts = schedule.appointments.length - appointmentMap.size;
       scheduleTable.append($(`<p class="badge badge-danger">There are ${conflicts} double bookings.</span>`));
     }
     const appointmentToPersonMap = new Map();
@@ -83,8 +83,8 @@ function refreshSolution() {
       const row = $(`<tr>`).appendTo(tbody);
       var showDate = (previousDateTime == null || dateTime.toLocalDate().compareTo(previousDateTime.toLocalDate()) !== 0);
       row
-        .append($(`<th class="align-middle"/>`)
-          .append($(`<span style="float: right"/>`).text(showDate ? dateTimeFormatter.format(dateTime) : timeFormatter.format(dateTime))));
+          .append($(`<th class="align-middle"/>`)
+              .append($(`<span style="float: right"/>`).text(showDate ? dateTimeFormatter.format(dateTime) : timeFormatter.format(dateTime))));
       previousDateTime = dateTime;
       schedule.vaccinationCenters.forEach((vaccinationCenter) => {
         const boothIdSet = vaccinationCenterIdToBoothIdSetMap.get(vaccinationCenter.id);
@@ -104,26 +104,26 @@ function refreshSolution() {
               var birthdate = JSJoda.LocalDate.parse(person.birthdate);
               var age = birthdate.until(appointmentDateTime.toLocalDate(), JSJoda.ChronoUnit.YEARS);
               cardBody.append($(`<h5 class="card-title mb-1"/>`)
-                .text(person.name + " (" + age + ")"));
+                  .text(person.name + " (" + age + ")"));
               const vaccineType = vaccineTypeMap.get(appointment.vaccineType);
               if (vaccineType.maximumAge != null && age > vaccineType.maximumAge) {
                 cardBody.append($(`<p class="badge badge-danger mb-0"/>`).text(vaccineType.name + " maximum age is " + vaccineType.maximumAge));
               }
               if (person.requiredVaccineType != null
-                && appointment.vaccineType !== person.requiredVaccineType) {
+                  && appointment.vaccineType !== person.requiredVaccineType) {
                 cardBody.append($(`<p class="badge badge-danger ms-2 mb-0"/>`).text("Required vaccine is " + person.requiredVaccineType));
               }
               if (person.preferredVaccineType != null
-                && appointment.vaccineType !== person.preferredVaccineType) {
+                  && appointment.vaccineType !== person.preferredVaccineType) {
                 cardBody.append($(`<p class="badge badge-warning ms-2 mb-0"/>`).text("Preferred vaccine is " + person.preferredVaccineType));
               }
               if (person.requiredVaccinationCenter != null
-                && appointment.vaccinationCenter !== person.requiredVaccinationCenter) {
+                  && appointment.vaccinationCenter !== person.requiredVaccinationCenter) {
                 const requiredVaccinationCenter = vaccinationCenterMap.get(person.requiredVaccinationCenter);
                 cardBody.append($(`<p class="badge badge-danger ms-2 mb-0"/>`).text("Required vaccination center is " + requiredVaccinationCenter.name));
               }
               if (person.preferredVaccinationCenter != null
-                && appointment.vaccinationCenter !== person.preferredVaccinationCenter) {
+                  && appointment.vaccinationCenter !== person.preferredVaccinationCenter) {
                 const preferredVaccinationCenter = vaccinationCenterMap.get(person.preferredVaccinationCenter);
                 cardBody.append($(`<p class="badge badge-warning ms-2 mb-0"/>`).text("Preferred vaccination center is " + preferredVaccinationCenter.name));
               }
@@ -150,13 +150,13 @@ function refreshSolution() {
 
                 doseSuffix = " (" + (idealDateDiff === 0 ? "ideal day"
                     : (idealDateDiff < 0 ? (-idealDateDiff) + " days too early"
-                    : idealDateDiff + " days too late")) + ")";
+                        : idealDateDiff + " days too late")) + ")";
               }
               cardBody.append($(`<p class="card-text ms-2 mb-0"/>`).text(dosePrefix + " dose" + doseSuffix));
             }
             row.append($(`<td class="p-1"/>`)
-              .append($(`<div class="card" style="background-color: ${color}"/>`)
-                .append(cardBody)));
+                .append($(`<div class="card" style="background-color: ${color}"/>`)
+                    .append(cardBody)));
           }
         });
       });
@@ -198,8 +198,8 @@ function refreshSolution() {
         }
         unassignedPeronsDiv.append($(`<div class="col"/>`).append($(`<div class="card"/>`)
             .append($(`<div class="card-body pt-1 pb-1 px-2"/>`)
-              .append($(`<h5 class="card-title mb-1"/>`).text(person.name + " (" + age + ")"))
-              .append($(`<p class="card-text ms-2"/>`).text(dosePrefix + " dose" + doseSuffix)))));
+                .append($(`<h5 class="card-title mb-1"/>`).text(person.name + " (" + age + ")"))
+                .append($(`<p class="card-text ms-2"/>`).text(dosePrefix + " dose" + doseSuffix)))));
       }
     });
     $("#assignedPersonCount").text(assignedPersonCount);
@@ -278,7 +278,7 @@ $(document).ready(function () {
   });
 
   const leafletMap = L.map("leafletMap", {doubleClickZoom: false})
-    .setView([33.75, -84.40], 10);
+      .setView([33.75, -84.40], 10);
 
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19,
