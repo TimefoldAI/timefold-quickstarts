@@ -1,14 +1,17 @@
 package org.acme.callcenter.domain;
 
-import java.util.List;
-import java.util.Set;
-
 import ai.timefold.solver.core.api.domain.solution.PlanningEntityCollectionProperty;
 import ai.timefold.solver.core.api.domain.solution.PlanningScore;
 import ai.timefold.solver.core.api.domain.solution.PlanningSolution;
 import ai.timefold.solver.core.api.domain.solution.ProblemFactCollectionProperty;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
 import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import static java.util.stream.Collectors.joining;
 
 @PlanningSolution
 public class CallCenter {
@@ -65,5 +68,14 @@ public class CallCenter {
 
     public void setSolving(boolean solving) {
         this.solving = solving;
+    }
+
+    @Override
+    public String toString() {
+        return "CallCenter{" +
+                "\nskills={" + Optional.ofNullable(skills).map(sk-> sk.stream().map(Skill::getName).collect(joining(", "))).orElse("-") + "}\n" +
+                "agents={\n" + Optional.ofNullable(agents).map(sk-> sk.stream().map(Agent::toString).collect(joining("\n"))).orElse("-") + "\n}\n" +
+                "calls={\n" + Optional.ofNullable(calls).map(sk-> sk.stream().map(Call::toString).collect(joining("\n"))).orElse("-") + "\n}\n" +
+                "}\n";
     }
 }

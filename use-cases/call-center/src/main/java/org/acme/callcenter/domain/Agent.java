@@ -1,13 +1,16 @@
 package org.acme.callcenter.domain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import static java.util.stream.Collectors.joining;
 
 public class Agent extends PreviousCallOrAgent {
 
@@ -56,5 +59,13 @@ public class Agent extends PreviousCallOrAgent {
 
     public Set<Skill> getSkills() {
         return skills;
+    }
+
+    @Override
+    public String toString() {
+        return "Agent{" +
+                "name='" + name + '\'' +
+                ", skills=" + Optional.ofNullable(skills).map(sk -> sk.stream().map(Skill::getName).collect(joining(", "))).orElse("-") +
+                "}";
     }
 }

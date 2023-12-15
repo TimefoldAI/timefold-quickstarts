@@ -5,7 +5,9 @@ import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.acme.callcenter.solver.ResponseTimeUpdatingVariableListener;
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
@@ -16,6 +18,8 @@ import ai.timefold.solver.core.api.domain.variable.PlanningVariableGraphType;
 import ai.timefold.solver.core.api.domain.variable.ShadowVariable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import static java.util.stream.Collectors.joining;
 
 @PlanningEntity
 public class Call extends PreviousCallOrAgent {
@@ -161,5 +165,20 @@ public class Call extends PreviousCallOrAgent {
     @Override
     public int hashCode() {
         return Objects.hash(getId());
+    }
+
+    @Override
+    public String toString() {
+        return "Call{" +
+                "phoneNumber='" + phoneNumber + '\'' +
+                ", requiredSkills=" + Optional.ofNullable(requiredSkills).map(s -> s.stream().map(Skill::getName).collect(joining(", "))).orElse("-") +
+                ", duration=" + duration +
+                ", startTime=" + startTime +
+                ", pickUpTime=" + pickUpTime +
+                ", pinned=" + pinned +
+                ", previousCallOrAgent=" + previousCallOrAgent +
+                ", agent=" + agent +
+                ", estimatedWaiting=" + estimatedWaiting +
+                '}';
     }
 }
