@@ -14,6 +14,7 @@ import org.acme.schooltimetabling.solver.justifications.StudentGroupConflictJust
 import org.acme.schooltimetabling.solver.justifications.StudentGroupSubjectVarietyJustification;
 import org.acme.schooltimetabling.solver.justifications.TeacherConflictJustification;
 import org.acme.schooltimetabling.solver.justifications.TeacherRoomStabilityJustification;
+import org.acme.schooltimetabling.solver.justifications.TeacherTimeEfficiencyJustification;
 
 public class TimetableConstraintProvider implements ConstraintProvider {
 
@@ -92,7 +93,7 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                     return !between.isNegative() && between.compareTo(Duration.ofMinutes(30)) <= 0;
                 })
                 .reward(HardSoftScore.ONE_SOFT)
-                .justifyWith((lesson1, lesson2, score) -> new TeacherRoomStabilityJustification(lesson1.getTeacher(), lesson1.getId(), lesson2.getId()))
+                .justifyWith((lesson1, lesson2, score) -> new TeacherTimeEfficiencyJustification(lesson1.getTeacher(), lesson1.getId(), lesson2.getId()))
                 .asConstraint("Teacher time efficiency");
     }
 
