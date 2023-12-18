@@ -48,7 +48,7 @@ function printSolutionTable(orderPickingSolution) {
     const unassignedItemsByOrder = unassignedOrderItemsAndOrdersSpreading[0];
     const trolleysByOrder = unassignedOrderItemsAndOrdersSpreading[1];
     const unassignedTrolleys = [];
-    for (const trolley of orderPickingSolution.trolleyList) {
+    for (const trolley of orderPickingSolution.trolleys) {
         if (trolley.nextElement != null) {
             const travelDistance = TROLLEY_TRAVEL_DISTANCE.get(trolley.id);
             printTrolley(tableBody, trolley, travelDistance, unassignedItemsByOrder, trolleysByOrder);
@@ -167,7 +167,7 @@ function printUnassignedOrderRow(unassignedOrderTableBody, orderItem) {
 function findUnassignedOrderItemsAndOrdersSpreading(orderPickingSolution) {
     const unassignedItemsByOrder = new Map();
     const trolleysByOrder = new Map();
-    for (const trolleyStep of orderPickingSolution.trolleyStepList) {
+    for (const trolleyStep of orderPickingSolution.trolleySteps) {
         const orderItem = trolleyStep.orderItem;
         if (trolleyStep.trolleyId === null) {
             let unassignedItems = unassignedItemsByOrder.get(orderItem.orderId);
@@ -394,16 +394,16 @@ function printTrolleysMap(orderPickingSolution) {
     mapActionsContainer.children().remove();
     const trolleyCheckBoxes = [];
     let trolleyIndex = 0;
-    for (const trolley of orderPickingSolution.trolleyList) {
+    for (const trolley of orderPickingSolution.trolleys) {
         if (trolley.nextElement != null) {
-            printTrolleyPath(trolley, trolleyIndex, orderPickingSolution.trolleyList.length, false);
+            printTrolleyPath(trolley, trolleyIndex, orderPickingSolution.trolleys.length, false);
             trolleyCheckBoxes.push(trolley.id);
         }
         trolleyIndex++;
     }
-    for (const trolley of orderPickingSolution.trolleyList) {
+    for (const trolley of orderPickingSolution.trolleys) {
         if (trolley.nextElement != null) {
-            printTrolleyPath(trolley, trolleyIndex, orderPickingSolution.trolleyList.length, true);
+            printTrolleyPath(trolley, trolleyIndex, orderPickingSolution.trolleys.length, true);
             trolleyCheckBoxes.push(trolley.id);
         }
         trolleyIndex++;

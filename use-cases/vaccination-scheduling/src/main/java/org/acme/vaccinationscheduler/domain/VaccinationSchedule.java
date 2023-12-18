@@ -8,17 +8,17 @@ import ai.timefold.solver.core.api.solver.SolverStatus;
 
 public class VaccinationSchedule {
 
-    private List<VaccineType> vaccineTypeList;
+    private List<VaccineType> vaccineTypes;
 
-    private List<VaccinationCenter> vaccinationCenterList;
+    private List<VaccinationCenter> vaccinationCenters;
 
     /**
-     * Translated to {@link VaccinationSolution#getVaccinationCenterList()} before solving and back again after solving.
+     * Translated to {@link VaccinationSolution#getVaccinationCenters()} before solving and back again after solving.
      * See {@link VaccinationSolution#VaccinationSolution(VaccinationSchedule)} and {@link VaccinationSolution#toSchedule()}.
      */
-    private List<Appointment> appointmentList;
+    private List<Appointment> appointments;
 
-    private List<Person> personList;
+    private List<Person> people;
 
     private BendableLongScore score;
 
@@ -28,32 +28,32 @@ public class VaccinationSchedule {
     public VaccinationSchedule() {
     }
 
-    public VaccinationSchedule(List<VaccineType> vaccineTypeList, List<VaccinationCenter> vaccinationCenterList,
-            List<Appointment> appointmentList, List<Person> personList) {
-        this.vaccineTypeList = vaccineTypeList;
-        this.vaccinationCenterList = vaccinationCenterList;
-        this.appointmentList = appointmentList;
-        this.personList = personList;
+    public VaccinationSchedule(List<VaccineType> vaccineTypes, List<VaccinationCenter> vaccinationCenters,
+                               List<Appointment> appointments, List<Person> people) {
+        this.vaccineTypes = vaccineTypes;
+        this.vaccinationCenters = vaccinationCenters;
+        this.appointments = appointments;
+        this.people = people;
     }
 
     // ************************************************************************
     // Getters and setters
     // ************************************************************************
 
-    public List<VaccineType> getVaccineTypeList() {
-        return vaccineTypeList;
+    public List<VaccineType> getVaccineTypes() {
+        return vaccineTypes;
     }
 
-    public List<VaccinationCenter> getVaccinationCenterList() {
-        return vaccinationCenterList;
+    public List<VaccinationCenter> getVaccinationCenters() {
+        return vaccinationCenters;
     }
 
-    public List<Appointment> getAppointmentList() {
-        return appointmentList;
+    public List<Appointment> getAppointments() {
+        return appointments;
     }
 
-    public List<Person> getPersonList() {
-        return personList;
+    public List<Person> getPeople() {
+        return people;
     }
 
     public BendableLongScore getScore() {

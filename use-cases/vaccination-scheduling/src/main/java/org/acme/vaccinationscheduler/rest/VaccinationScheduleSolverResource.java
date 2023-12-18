@@ -49,21 +49,21 @@ public class VaccinationScheduleSolverResource {
             if (page < 0) {
                 throw new IllegalArgumentException("Unsupported page (" + page + ").");
             }
-            int appointmentListSize = schedule.getAppointmentList().size();
+            int appointmentListSize = schedule.getAppointments().size();
             if (appointmentListSize > APPOINTMENT_PAGE_LIMIT) {
-                List<VaccineType> vaccineTypeList = schedule.getVaccineTypeList();
-                List<VaccinationCenter> vaccinationCenterList = schedule.getVaccinationCenterList();
+                List<VaccineType> vaccineTypeList = schedule.getVaccineTypes();
+                List<VaccinationCenter> vaccinationCenterList = schedule.getVaccinationCenters();
                 List<Appointment> appointmentList;
                 List<Person> personList;
                 if (appointmentListSize <= APPOINTMENT_PAGE_LIMIT) {
-                    appointmentList = schedule.getAppointmentList();
-                    personList = schedule.getPersonList();
+                    appointmentList = schedule.getAppointments();
+                    personList = schedule.getPeople();
                 } else {
                     Map<VaccinationCenter, Set<String>> boothIdSetMap = new HashMap<>(vaccinationCenterList.size());
                     for (VaccinationCenter vaccinationCenter : vaccinationCenterList) {
                         boothIdSetMap.put(vaccinationCenter, new LinkedHashSet<>());
                     }
-                    for (Appointment appointment : schedule.getAppointmentList()) {
+                    for (Appointment appointment : schedule.getAppointments()) {
                         Set<String> boothIdSet = boothIdSetMap.get(appointment.getVaccinationCenter());
                         boothIdSet.add(appointment.getBoothId());
                     }
@@ -76,11 +76,11 @@ public class VaccinationScheduleSolverResource {
                                 boothIdList.subList(page * pageLength,
                                         Math.min(boothIdList.size(), (page + 1) * pageLength))));
                     });
-                    appointmentList = schedule.getAppointmentList().stream()
+                    appointmentList = schedule.getAppointments().stream()
                             .filter(appointment -> subBoothIdSetMap.get(appointment.getVaccinationCenter())
                                     .contains(appointment.getBoothId()))
                             .collect(Collectors.toList());
-                    personList = schedule.getPersonList().stream()
+                    personList = schedule.getPeople().stream()
                             .filter(person -> person.getAppointment() != null
                                     && subBoothIdSetMap.get(person.getAppointment().getVaccinationCenter())
                                     .contains(person.getAppointment().getBoothId()))

@@ -14,7 +14,7 @@ public class Location {
     private double longitude;
 
     @JsonIgnore
-    private Map<Location, Long> drivingTimeSecondsMap;
+    private Map<Location, Long> drivingTimeSeconds;
 
     @JsonCreator
     public Location(@JsonProperty("latitude") double latitude, @JsonProperty("longitude") double longitude) {
@@ -30,17 +30,17 @@ public class Location {
         return longitude;
     }
 
-    public Map<Location, Long> getDrivingTimeSecondsMap() {
-        return drivingTimeSecondsMap;
+    public Map<Location, Long> getDrivingTimeSeconds() {
+        return drivingTimeSeconds;
     }
 
     /**
      * Set the driving time map (in seconds).
      *
-     * @param drivingTimeSecondsMap a map containing driving time from here to other locations
+     * @param drivingTimeSeconds a map containing driving time from here to other locations
      */
-    public void setDrivingTimeSecondsMap(Map<Location, Long> drivingTimeSecondsMap) {
-        this.drivingTimeSecondsMap = drivingTimeSecondsMap;
+    public void setDrivingTimeSeconds(Map<Location, Long> drivingTimeSeconds) {
+        this.drivingTimeSeconds = drivingTimeSeconds;
     }
 
     /**
@@ -50,7 +50,7 @@ public class Location {
      * @return driving time in seconds
      */
     public long getDrivingTimeTo(Location location) {
-        return drivingTimeSecondsMap.get(location);
+        return drivingTimeSeconds.get(location);
     }
 
     @Override

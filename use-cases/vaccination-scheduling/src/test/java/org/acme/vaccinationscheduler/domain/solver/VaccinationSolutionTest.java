@@ -49,9 +49,9 @@ class VaccinationSolutionTest {
         assertTrue(solution.getPersonAssignmentList().isEmpty());
 
         schedule = solution.toSchedule();
-        assertEquals(0, schedule.getPersonList().size());
-        assertTrue(schedule.getAppointmentList().isEmpty());
-        assertTrue(schedule.getPersonList().isEmpty());
+        assertEquals(0, schedule.getPeople().size());
+        assertTrue(schedule.getAppointments().isEmpty());
+        assertTrue(schedule.getPeople().isEmpty());
     }
 
     @Test
@@ -97,7 +97,7 @@ class VaccinationSolutionTest {
         personAssignmentList.get(0).setVaccinationSlot(vaccinationSlotList.get(1));
         personAssignmentList.get(2).setVaccinationSlot(vaccinationSlotList.get(2));
         schedule = solution.toSchedule();
-        assertEquals(3, schedule.getPersonList().size());
+        assertEquals(3, schedule.getPeople().size());
         assertSame(vc1_13_0900, ann.getAppointment());
         assertNull(beth.getAppointment());
         assertSame(vc2_21_0900, carl.getAppointment());
@@ -149,7 +149,7 @@ class VaccinationSolutionTest {
         personAssignmentList.get(2).setVaccinationSlot(vaccinationSlotList.get(0));
         personAssignmentList.get(3).setVaccinationSlot(vaccinationSlotList.get(0));
         schedule = solution.toSchedule();
-        assertEquals(6, schedule.getPersonList().size());
+        assertEquals(6, schedule.getPeople().size());
         assertSame(vc1_11_0910, ann.getAppointment());
         assertNull(beth.getAppointment());
         assertSame(vc1_11_0900, carl.getAppointment());
@@ -191,7 +191,7 @@ class VaccinationSolutionTest {
         assertEquals("Carl", personAssignmentList.get(2).getName());
 
         schedule = solution.toSchedule();
-        assertEquals(3, schedule.getPersonList().size());
+        assertEquals(3, schedule.getPeople().size());
         assertSame(vc1_11_0900, ann.getAppointment());
         assertSame(vc1_11_0900, beth.getAppointment());
         assertSame(vc1_11_0910, carl.getAppointment());

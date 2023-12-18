@@ -85,9 +85,9 @@ public class DemoDataGenerator {
                         : cleaningMinutesMinimum + random.nextInt(cleaningMinutesMaximum - cleaningMinutesMinimum));
                 cleaningDurationMap.put(previousProduct, cleaningDuration);
             }
-            product.setCleaningDurationMap(cleaningDurationMap);
+            product.setCleaningDurations(cleaningDurationMap);
         }
-        solution.setProductList(productList);
+        solution.setProducts(productList);
 
         List<Line> lineList = new ArrayList<>(lineCount);
         for (int i = 0; i < lineCount; i++) {
@@ -95,7 +95,7 @@ public class DemoDataGenerator {
             String operator = "Operator " + ((char) ('A' + (i / 2)));
             lineList.add(new Line((long) i, name, operator, START_DATE_TIME));
         }
-        solution.setLineList(lineList);
+        solution.setLines(lineList);
 
         List<Job> jobList = new ArrayList<>(jobCount);
         for (int i = 0; i < jobCount; i++) {
@@ -110,7 +110,7 @@ public class DemoDataGenerator {
             jobList.add(new Job((long) i, name, product, duration, readyDateTime, idealEndDateTime, dueDateTime, 1, false));
         }
         jobList.sort(Comparator.comparing(Job::getName));
-        solution.setJobList(jobList);
+        solution.setJobs(jobList);
 
         repository.write(solution);
     }

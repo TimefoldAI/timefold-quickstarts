@@ -101,11 +101,11 @@ public class MaintenanceScheduleConstraintProvider implements ConstraintProvider
                         overlapping(Job::getStartDate, Job::getEndDate),
                         // TODO Use intersecting() when available https://github.com/TimefoldAI/timefold-solver/issues/8
                         filtering((job1, job2) -> !Collections.disjoint(
-                                job1.getTagSet(), job2.getTagSet())))
+                                job1.getTags(), job2.getTags())))
                 .penalizeLong(HardSoftLongScore.ofSoft(1_000),
                         (job1, job2) -> {
-                            Set<String> intersection = new HashSet<>(job1.getTagSet());
-                            intersection.retainAll(job2.getTagSet());
+                            Set<String> intersection = new HashSet<>(job1.getTags());
+                            intersection.retainAll(job2.getTags());
                             long overlap = DAYS.between(
                                     job1.getStartDate().isAfter(job2.getStartDate())
                                             ? job1.getStartDate()  : job2.getStartDate(),
