@@ -33,9 +33,9 @@ const byVehicleTimelineOptions = {
     zoomMin: 1000 * 60 * 60, // A single hour in milliseconds
     zoomMax: 1000 * 60 * 60 * 24 // A single day in milliseconds
 };
-const byVehicleGroupDataSet = new vis.DataSet();
-const byVehicleItemDataSet = new vis.DataSet();
-const byVehicleTimeline = new vis.Timeline(byVehiclePanel, byVehicleItemDataSet, byVehicleGroupDataSet, byVehicleTimelineOptions);
+const byVehicleGroupData = new vis.DataSet();
+const byVehicleItemData = new vis.DataSet();
+const byVehicleTimeline = new vis.Timeline(byVehiclePanel, byVehicleItemData, byVehicleGroupData, byVehicleTimelineOptions);
 
 const byCustomerPanel = document.getElementById("byCustomerPanel");
 const byCustomerTimelineOptions = {
@@ -48,9 +48,9 @@ const byCustomerTimelineOptions = {
     zoomMin: 1000 * 60 * 60, // A single hour in milliseconds
     zoomMax: 1000 * 60 * 60 * 24 // A single day in milliseconds
 };
-const byCustomerGroupDataSet = new vis.DataSet();
-const byCustomerItemDataSet = new vis.DataSet();
-const byCustomerTimeline = new vis.Timeline(byCustomerPanel, byCustomerItemDataSet, byCustomerGroupDataSet, byCustomerTimelineOptions);
+const byCustomerGroupData = new vis.DataSet();
+const byCustomerItemData = new vis.DataSet();
+const byCustomerTimeline = new vis.Timeline(byCustomerPanel, byCustomerItemData, byCustomerGroupData, byCustomerTimelineOptions);
 
 /************************************ Initialize ************************************/
 
@@ -188,13 +188,13 @@ function renderRoutes(solution) {
 }
 
 function renderTimelines(routePlan) {
-    byVehicleGroupDataSet.clear();
-    byCustomerGroupDataSet.clear();
-    byVehicleItemDataSet.clear();
-    byCustomerItemDataSet.clear();
+    byVehicleGroupData.clear();
+    byCustomerGroupData.clear();
+    byVehicleItemData.clear();
+    byCustomerItemData.clear();
 
     $.each(routePlan.vehicles, (index, vehicle) => {
-        byVehicleGroupDataSet.add({id: vehicle.id, content: 'vehicle-' + vehicle.id});
+        byVehicleGroupData.add({id: vehicle.id, content: 'vehicle-' + vehicle.id});
     });
 
     $.each(routePlan.customers, (index, customer) => {
@@ -204,13 +204,13 @@ function renderTimelines(routePlan) {
 
         const customerGroupElement = $(`<div/>`)
             .append($(`<h5 class="card-title mb-1"/>`).text(`${customer.name}`));
-        byCustomerGroupDataSet.add({
+        byCustomerGroupData.add({
             id: customer.id,
             content: customerGroupElement.html()
         });
 
         // Time window per customer.
-        byCustomerItemDataSet.add({
+        byCustomerItemData.add({
             id: customer.id + "_readyToDue",
             group: customer.id,
             start: customer.minStartTime,
@@ -224,7 +224,7 @@ function renderTimelines(routePlan) {
                 .append($(`<h5 class="card-title mb-1"/>`).text(`Unassigned`));
 
             // Unassigned are shown at the beginning of the customer's time window; the length is the service duration.
-            byCustomerItemDataSet.add({
+            byCustomerItemData.add({
                 id: customer.id + '_unassigned',
                 group: customer.id,
                 content: byJobJobElement.html(),
@@ -250,7 +250,7 @@ function renderTimelines(routePlan) {
                 .append($(`<h5 class="card-title mb-1"/>`).text('Travel'));
 
             const previousDeparture = arrivalTime.minusSeconds(customer.drivingTimeSecondsFromPreviousStandstill);
-            byVehicleItemDataSet.add({
+            byVehicleItemData.add({
                 id: customer.id + '_travel',
                 group: customer.vehicle, // customer.vehicle is the vehicle.id due to Jackson serialization
                 subgroup: customer.vehicle,
@@ -263,7 +263,7 @@ function renderTimelines(routePlan) {
                 const byVehicleWaitElement = $(`<div/>`)
                     .append($(`<h5 class="card-title mb-1"/>`).text('Wait'));
 
-                byVehicleItemDataSet.add({
+                byVehicleItemData.add({
                     id: customer.id + '_wait',
                     group: customer.vehicle, // customer.vehicle is the vehicle.id due to Jackson serialization
                     subgroup: customer.vehicle,
@@ -274,7 +274,7 @@ function renderTimelines(routePlan) {
             }
             let serviceElementBackground = afterDue ? '#EF292999' : '#83C15955'
 
-            byVehicleItemDataSet.add({
+            byVehicleItemData.add({
                 id: customer.id + '_service',
                 group: customer.vehicle, // customer.vehicle is the vehicle.id due to Jackson serialization
                 subgroup: customer.vehicle,
@@ -283,7 +283,7 @@ function renderTimelines(routePlan) {
                 end: customer.departureTime,
                 style: "background-color: " + serviceElementBackground
             });
-            byCustomerItemDataSet.add({
+            byCustomerItemData.add({
                 id: customer.id,
                 group: customer.id,
                 content: byCustomerElement.html(),
@@ -300,7 +300,7 @@ function renderTimelines(routePlan) {
         if (vehicle.customers.length > 0) {
             let lastCustomer = routePlan.customers.filter((customer) => customer.id == vehicle.customers[vehicle.customers.length -1]).pop();
             if (lastCustomer) {
-                byVehicleItemDataSet.add({
+                byVehicleItemData.add({
                     id: vehicle.id + '_travelBackToDepot',
                     group: vehicle.id, // customer.vehicle is the vehicle.id due to Jackson serialization
                     subgroup: vehicle.id,

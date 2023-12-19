@@ -45,8 +45,8 @@ class VaccinationSolutionTest {
                 appointmentList, personList);
 
         VaccinationSolution solution = new VaccinationSolution(schedule);
-        assertTrue(solution.getVaccinationSlotList().isEmpty());
-        assertTrue(solution.getPersonAssignmentList().isEmpty());
+        assertTrue(solution.getVaccinationSlots().isEmpty());
+        assertTrue(solution.getPersonAssignments().isEmpty());
 
         schedule = solution.toSchedule();
         assertEquals(0, schedule.getPeople().size());
@@ -82,13 +82,13 @@ class VaccinationSolutionTest {
                 appointmentList, personList);
 
         VaccinationSolution solution = new VaccinationSolution(schedule);
-        List<VaccinationSlot> vaccinationSlotList = solution.getVaccinationSlotList();
+        List<VaccinationSlot> vaccinationSlotList = solution.getVaccinationSlots();
         assertEquals(4, vaccinationSlotList.size());
         assertVaccinationSlot(vaccinationSlotList.get(0), VACCINATION_CENTER_1, MONDAY_0900, PFIZER, 5);
         assertVaccinationSlot(vaccinationSlotList.get(1), VACCINATION_CENTER_1, MONDAY_0900, MODERNA, 3);
         assertVaccinationSlot(vaccinationSlotList.get(2), VACCINATION_CENTER_2, MONDAY_0900, PFIZER, 2);
         assertVaccinationSlot(vaccinationSlotList.get(3), VACCINATION_CENTER_1, MONDAY_1000, PFIZER, 2);
-        List<PersonAssignment> personAssignmentList = solution.getPersonAssignmentList();
+        List<PersonAssignment> personAssignmentList = solution.getPersonAssignments();
         assertEquals(3, personAssignmentList.size());
         assertEquals("Ann", personAssignmentList.get(0).getName());
         assertEquals("Beth", personAssignmentList.get(1).getName());
@@ -134,10 +134,10 @@ class VaccinationSolutionTest {
                 appointmentList, personList);
 
         VaccinationSolution solution = new VaccinationSolution(schedule);
-        List<VaccinationSlot> vaccinationSlotList = solution.getVaccinationSlotList();
+        List<VaccinationSlot> vaccinationSlotList = solution.getVaccinationSlots();
         assertEquals(2, vaccinationSlotList.size());
         assertVaccinationSlot(vaccinationSlotList.get(0), VACCINATION_CENTER_1, MONDAY_0900, PFIZER, 4);
-        List<PersonAssignment> personAssignmentList = solution.getPersonAssignmentList();
+        List<PersonAssignment> personAssignmentList = solution.getPersonAssignments();
         assertEquals(6, personAssignmentList.size());
         assertEquals("Ann", personAssignmentList.get(0).getName());
         assertEquals("Beth", personAssignmentList.get(1).getName());
@@ -181,10 +181,10 @@ class VaccinationSolutionTest {
                 appointmentList, personList);
 
         VaccinationSolution solution = new VaccinationSolution(schedule);
-        List<VaccinationSlot> vaccinationSlotList = solution.getVaccinationSlotList();
+        List<VaccinationSlot> vaccinationSlotList = solution.getVaccinationSlots();
         assertEquals(1, vaccinationSlotList.size());
         assertVaccinationSlot(vaccinationSlotList.get(0), VACCINATION_CENTER_1, MONDAY_0900, PFIZER, 2);
-        List<PersonAssignment> personAssignmentList = solution.getPersonAssignmentList();
+        List<PersonAssignment> personAssignmentList = solution.getPersonAssignments();
         assertEquals(3, personAssignmentList.size());
         assertEquals("Ann", personAssignmentList.get(0).getName());
         assertEquals("Beth", personAssignmentList.get(1).getName());

@@ -31,7 +31,7 @@ public class VaccinationCustomConstructionHeuristic implements CustomPhaseComman
 
         // Index the VaccinationSlot instances by vaccinationCenter, vaccineType and date
         Map<VaccinationCenter, Map<VaccineType, Map<LocalDate, Map<VaccinationSlot, Integer>>>> vaccinationCenterToSlotMap
-                = schedule.getVaccinationSlotList().stream()
+                = schedule.getVaccinationSlots().stream()
                 .sorted(Comparator
                         .comparing((VaccinationSlot vaccinationSlot) -> vaccinationSlot.getVaccineType().getName())
                         .thenComparing(VaccinationSlot::getDate)
@@ -45,7 +45,7 @@ public class VaccinationCustomConstructionHeuristic implements CustomPhaseComman
                                                     throw new IllegalStateException("Duplicate key (" + key + ").");
                                                 },
                                                 LinkedHashMap::new)))));
-        schedule.getPersonAssignmentList().stream()
+        schedule.getPersonAssignments().stream()
                 .filter(person -> person.getVaccinationSlot() != null)
                 .forEach(person ->  {
             VaccinationSlot vaccinationSlot = person.getVaccinationSlot();
@@ -63,11 +63,11 @@ public class VaccinationCustomConstructionHeuristic implements CustomPhaseComman
                     slotToAvailabilityMap, vaccinationSlot,
                     availability);
         });
-        List<PersonAssignment> personList = schedule.getPersonAssignmentList().stream()
+        List<PersonAssignment> people = schedule.getPersonAssignments().stream()
                 .filter(person -> !person.isPinned() && person.getVaccinationSlot() == null)
                 .sorted(new PersonAssignmentDifficultyComparator().reversed())
                 .collect(Collectors.toList());
-        for (PersonAssignment person : personList) {
+        for (PersonAssignment person : people) {
             VaccinationSlot vaccinationSlot = findAvailableVaccinationSlot(scoreDirector, vaccinationCenterToSlotMap, person);
             if (vaccinationSlot != null) {
                 scoreDirector.beforeVariableChanged(person, "vaccinationSlot");
@@ -103,7 +103,7 @@ public class VaccinationCustomConstructionHeuristic implements CustomPhaseComman
                     continue;
                 }
                 Map<LocalDate, Map<VaccinationSlot, Integer>> dateToSlotMap = vaccineTypeEntry.getValue();
-                List<LocalDate> dateList = dateToSlotMap.keySet().stream()
+                List<LocalDate> dates = dateToSlotMap.keySet().stream()
                         .filter(date -> {
                             // Skip all slots with an invalid date
                             long age = YEARS.between(person.getBirthdate(), date);
@@ -125,7 +125,7 @@ public class VaccinationCustomConstructionHeuristic implements CustomPhaseComman
                                 : Comparator.<LocalDate, Long>comparing(date ->
                                 Math.abs(DAYS.between(person.getIdealDate(), date))))
                         .collect(Collectors.toList());
-                for (LocalDate date : dateList) {
+                for (LocalDate date : dates) {
                     Map<VaccinationSlot, Integer> slotToAvailabilityMap = dateToSlotMap.get(date);
                     for (Map.Entry<VaccinationSlot, Integer> slotEntry : slotToAvailabilityMap.entrySet()) {
                         VaccinationSlot vaccinationSlot = slotEntry.getKey();

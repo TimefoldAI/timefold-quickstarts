@@ -128,8 +128,8 @@ function renderSchedule(timetable) {
   const theadByTeacher = $("<thead>").appendTo(timetableByTeacher);
   const headerRowByTeacher = $("<tr>").appendTo(theadByTeacher);
   headerRowByTeacher.append($("<th>Timeslot</th>"));
-  const teacherList = [...new Set(timetable.lessons.map(lesson => lesson.teacher))];
-  $.each(teacherList, (index, teacher) => {
+  const teachers = [...new Set(timetable.lessons.map(lesson => lesson.teacher))];
+  $.each(teachers, (index, teacher) => {
     headerRowByTeacher
       .append($("<th/>")
         .append($("<span/>").text(teacher)));
@@ -137,8 +137,8 @@ function renderSchedule(timetable) {
   const theadByStudentGroup = $("<thead>").appendTo(timetableByStudentGroup);
   const headerRowByStudentGroup = $("<tr>").appendTo(theadByStudentGroup);
   headerRowByStudentGroup.append($("<th>Timeslot</th>"));
-  const studentGroupList = [...new Set(timetable.lessons.map(lesson => lesson.studentGroup))];
-  $.each(studentGroupList, (index, studentGroup) => {
+  const studentGroups = [...new Set(timetable.lessons.map(lesson => lesson.studentGroup))];
+  $.each(studentGroups, (index, studentGroup) => {
     headerRowByStudentGroup
       .append($("<th/>")
         .append($("<span/>").text(studentGroup)));
@@ -173,7 +173,7 @@ function renderSchedule(timetable) {
                     -
                     ${LocalTime.parse(timeslot.endTime).format(dateTimeFormatter)}
                 `)));
-    $.each(teacherList, (index, teacher) => {
+    $.each(teachers, (index, teacher) => {
       rowByTeacher.append($("<td/>").prop("id", `timeslot${timeslot.id}teacher${convertToId(teacher)}`));
     });
 
@@ -186,7 +186,7 @@ function renderSchedule(timetable) {
                     -
                     ${LocalTime.parse(timeslot.endTime).format(dateTimeFormatter)}
                 `)));
-    $.each(studentGroupList, (index, studentGroup) => {
+    $.each(studentGroups, (index, studentGroup) => {
       rowByStudentGroup.append($("<td/>").prop("id", `timeslot${timeslot.id}studentGroup${convertToId(studentGroup)}`));
     });
   });
