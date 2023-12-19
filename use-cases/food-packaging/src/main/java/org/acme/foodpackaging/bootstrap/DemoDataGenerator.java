@@ -13,12 +13,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+
+import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-
-import io.quarkus.runtime.StartupEvent;
 import org.acme.foodpackaging.domain.Job;
 import org.acme.foodpackaging.domain.Line;
 import org.acme.foodpackaging.domain.PackagingSchedule;
@@ -74,12 +74,12 @@ public class DemoDataGenerator {
             ingredientMap.put(new Product(productId++, ingredient + " and " + ingredientB + " " + PRODUCT_VARIATION_LIST.get(2)), Set.of(ingredient, ingredientB));
             ingredientMap.put(new Product(productId++, ingredient + ", " + ingredientA + " and " + ingredientC + " " + PRODUCT_VARIATION_LIST.get(1)), Set.of(ingredient, ingredientA, ingredientC));
         }
-        ArrayList<Product> productList = new ArrayList<>(ingredientMap.keySet());
-        for (Product product : productList) {
-            Map<Product, Duration> cleaningDurationMap = new HashMap<>(productList.size());
-            Set<String> ingredientSet = ingredientMap.get(product);
-            for (Product previousProduct : productList) {
-                boolean noCleaning = ingredientSet.containsAll(ingredientMap.get(previousProduct));
+        List<Product> products = new ArrayList<>(ingredientMap.keySet());
+        for (Product product : products) {
+            Map<Product, Duration> cleaningDurationMap = new HashMap<>(products.size());
+            Set<String> ingredients = ingredientMap.get(product);
+            for (Product previousProduct : products) {
+                boolean noCleaning = ingredients.containsAll(ingredientMap.get(previousProduct));
                 Duration cleaningDuration = Duration.ofMinutes(product == previousProduct ? 0
                         : noCleaning ? noCleaningMinutes
                         : cleaningMinutesMinimum + random.nextInt(cleaningMinutesMaximum - cleaningMinutesMinimum));
@@ -87,19 +87,19 @@ public class DemoDataGenerator {
             }
             product.setCleaningDurations(cleaningDurationMap);
         }
-        solution.setProducts(productList);
+        solution.setProducts(products);
 
-        List<Line> lineList = new ArrayList<>(lineCount);
+        List<Line> lines = new ArrayList<>(lineCount);
         for (int i = 0; i < lineCount; i++) {
             String name = "Line " + (i + 1);
             String operator = "Operator " + ((char) ('A' + (i / 2)));
-            lineList.add(new Line((long) i, name, operator, START_DATE_TIME));
+            lines.add(new Line((long) i, name, operator, START_DATE_TIME));
         }
-        solution.setLines(lineList);
+        solution.setLines(lines);
 
-        List<Job> jobList = new ArrayList<>(jobCount);
+        List<Job> jobs = new ArrayList<>(jobCount);
         for (int i = 0; i < jobCount; i++) {
-            Product product = productList.get(random.nextInt(productList.size()));
+            Product product = products.get(random.nextInt(products.size()));
             String name = product.getName();
             Duration duration = Duration.ofMinutes(jobDurationMinutesMinimum
                     + random.nextInt(jobDurationMinutesMaximum - jobDurationMinutesMinimum));
@@ -107,10 +107,10 @@ public class DemoDataGenerator {
             LocalDateTime readyDateTime = START_DATE.plusDays(random.nextInt(Math.max(1, targetDayIndex - 2))).atTime(LocalTime.MIDNIGHT);
             LocalDateTime idealEndDateTime = START_DATE.plusDays(targetDayIndex + random.nextInt(3)).atTime(16, 0);
             LocalDateTime dueDateTime = idealEndDateTime.plusDays(1 + random.nextInt(3));
-            jobList.add(new Job((long) i, name, product, duration, readyDateTime, idealEndDateTime, dueDateTime, 1, false));
+            jobs.add(new Job((long) i, name, product, duration, readyDateTime, idealEndDateTime, dueDateTime, 1, false));
         }
-        jobList.sort(Comparator.comparing(Job::getName));
-        solution.setJobs(jobList);
+        jobs.sort(Comparator.comparing(Job::getName));
+        solution.setJobs(jobs);
 
         repository.write(solution);
     }

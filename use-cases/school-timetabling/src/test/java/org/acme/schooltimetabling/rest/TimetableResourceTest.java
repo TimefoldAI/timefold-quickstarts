@@ -29,10 +29,10 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
 
 @QuarkusTest
-public class TimetableResourceTest {
+class TimetableResourceTest {
 
     @Test
-    public void solveDemoDataUntilFeasible() {
+    void solveDemoDataUntilFeasible() {
         Timetable testTimetable = given()
                 .when().get("/demo-data/SMALL")
                 .then()
@@ -58,7 +58,7 @@ public class TimetableResourceTest {
                                 .jsonPath().get("solverStatus")));
 
         Timetable solution = get("/timetables/" + jobId).then().extract().as(Timetable.class);
-        assertEquals(solution.getSolverStatus(), SolverStatus.NOT_SOLVING);
+        assertEquals(SolverStatus.NOT_SOLVING, solution.getSolverStatus());
         assertNotNull(solution.getLessons());
         assertNotNull(solution.getTimeslots());
         assertNotNull(solution.getRooms());
@@ -68,19 +68,19 @@ public class TimetableResourceTest {
     }
 
     @Test
-    public void analyze() {
+    void analyze() {
         Timetable testTimetable = given()
                 .when().get("/demo-data/SMALL")
                 .then()
                 .statusCode(200)
                 .extract()
                 .as(Timetable.class);
-        var roomList = testTimetable.getRooms();
-        var timeslotList = testTimetable.getTimeslots();
+        var rooms = testTimetable.getRooms();
+        var timeslots = testTimetable.getTimeslots();
         int i = 0;
         for (var lesson : testTimetable.getLessons()) { // Initialize the solution.
-            lesson.setRoom(roomList.get(i % roomList.size()));
-            lesson.setTimeslot(timeslotList.get(i % timeslotList.size()));
+            lesson.setRoom(rooms.get(i % rooms.size()));
+            lesson.setTimeslot(timeslots.get(i % timeslots.size()));
             i += 1;
         }
 

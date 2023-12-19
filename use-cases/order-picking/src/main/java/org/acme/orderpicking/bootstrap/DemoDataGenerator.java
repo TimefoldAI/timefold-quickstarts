@@ -234,7 +234,7 @@ public class DemoDataGenerator {
     }
 
     private List<Order> buildOrders(int size, List<Product> products) {
-        List<Order> orderList = new ArrayList<>();
+        List<Order> orders = new ArrayList<>();
         Order order;
         for (int orderNumber = 1; orderNumber <= size; orderNumber++) {
             int orderItemsSize = ORDER_ITEMS_SIZE_MINIMUM + random.nextInt(products.size() - ORDER_ITEMS_SIZE_MINIMUM);
@@ -250,9 +250,9 @@ public class DemoDataGenerator {
                     orderProducts.add(product.getId());
                 }
             }
-            orderList.add(order);
+            orders.add(order);
         }
-        return orderList;
+        return orders;
     }
 
     private List<Product> buildProducts() {
