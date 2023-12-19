@@ -13,12 +13,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+
+import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-
-import io.quarkus.runtime.StartupEvent;
 import org.acme.foodpackaging.domain.Job;
 import org.acme.foodpackaging.domain.Line;
 import org.acme.foodpackaging.domain.PackagingSchedule;
@@ -74,7 +74,7 @@ public class DemoDataGenerator {
             ingredientMap.put(new Product(productId++, ingredient + " and " + ingredientB + " " + PRODUCT_VARIATION_LIST.get(2)), Set.of(ingredient, ingredientB));
             ingredientMap.put(new Product(productId++, ingredient + ", " + ingredientA + " and " + ingredientC + " " + PRODUCT_VARIATION_LIST.get(1)), Set.of(ingredient, ingredientA, ingredientC));
         }
-        ArrayList<Product> products = new ArrayList<>(ingredientMap.keySet());
+        List<Product> products = new ArrayList<>(ingredientMap.keySet());
         for (Product product : products) {
             Map<Product, Duration> cleaningDurationMap = new HashMap<>(products.size());
             Set<String> ingredients = ingredientMap.get(product);
