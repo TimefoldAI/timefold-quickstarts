@@ -1,18 +1,6 @@
 package org.acme.callcenter.solver;
 
-import io.quarkus.test.junit.QuarkusTest;
-import jakarta.inject.Inject;
-import org.acme.callcenter.data.DataGenerator;
-import org.acme.callcenter.domain.Agent;
-import org.acme.callcenter.domain.Call;
-import org.acme.callcenter.domain.CallCenter;
-import org.acme.callcenter.domain.Skill;
-import org.acme.callcenter.service.SolverService;
-import org.acme.callcenter.solver.retry.Retry;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Timeout;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
@@ -20,7 +8,20 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import jakarta.inject.Inject;
+
+import org.acme.callcenter.data.DataGenerator;
+import org.acme.callcenter.domain.Agent;
+import org.acme.callcenter.domain.Call;
+import org.acme.callcenter.domain.CallCenter;
+import org.acme.callcenter.domain.Skill;
+import org.acme.callcenter.service.SolverService;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+
+import io.quarkus.test.junit.QuarkusTest;
 
 @QuarkusTest
 public class SolverServiceTest {
@@ -76,7 +77,6 @@ public class SolverServiceTest {
 
     @Test
     @Timeout(60)
-    @Retry(3)
     void removeCall() {
         CallCenter inputProblem = dataGenerator.generateCallCenter();
         Call call1 = new Call(1L, "123-456-7891", Skill.ENGLISH, Skill.CAR_INSURANCE);
@@ -87,9 +87,7 @@ public class SolverServiceTest {
         CallCenter bestSolution = solve(inputProblem, () -> solverService.removeCall(call1.getId()));
 
         Agent agentWithCalls = getFirstAgentWithCallOrFail(bestSolution);
-        assertThat(agentWithCalls.getSkills())
-                .withFailMessage(() -> String.format("The solution hasn't the required skills [%s, %s]. \n%s", Skill.ENGLISH, Skill.CAR_INSURANCE, bestSolution))
-                .contains(Skill.ENGLISH, Skill.CAR_INSURANCE);
+        assertThat(agentWithCalls.getSkills()).contains(Skill.ENGLISH, Skill.CAR_INSURANCE);
 
         assertThat(agentWithCalls.getAssignedCalls()).hasSize(1);
         Call call = agentWithCalls.getAssignedCalls().get(0);

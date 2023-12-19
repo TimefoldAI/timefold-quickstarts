@@ -61,7 +61,6 @@ public class SolverService {
 
     public void stopSolving() {
         solverManager.terminateEarly(SINGLETON_ID);
-        waitingProblemChanges.clear();
     }
 
     public boolean isSolving() {
