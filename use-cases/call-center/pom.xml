@@ -87,6 +87,11 @@
       <version>3.24.2</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.awaitility</groupId>
+      <artifactId>awaitility</artifactId>
+      <scope>test</scope>
+    </dependency>
 
     <!-- UI -->
     <dependency>
