@@ -6,6 +6,7 @@ import java.util.EnumSet;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -41,7 +42,8 @@ public class DataGenerator {
     }
 
     public CallCenter generateCallCenter() {
-        return new CallCenter(EnumSet.allOf(Skill.class), Arrays.asList(AGENTS), new ArrayList<>());
+        return new CallCenter(EnumSet.allOf(Skill.class), Arrays.stream(AGENTS).map(Agent::copy).collect(Collectors.toList()),
+                new ArrayList<>());
     }
 
     public Call generateCall(int durationSeconds) {

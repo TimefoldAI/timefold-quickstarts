@@ -45,7 +45,7 @@ public class SolverService {
     public void startSolving(CallCenter inputProblem,
             Consumer<CallCenter> bestSolutionConsumer, Consumer<Throwable> errorHandler) {
         solverManager.solveAndListen(SINGLETON_ID, id -> inputProblem, bestSolution -> {
-            if (bestSolution.getScore().isSolutionInitialized()) {
+            if (bestSolution.getScore().isSolutionInitialized() && bestSolution.isFeasible()) {
                 bestSolutionConsumer.accept(bestSolution);
                 pinCallAssignedToAgents(bestSolution.getCalls());
             }

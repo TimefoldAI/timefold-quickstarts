@@ -10,14 +10,23 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
+import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
+import ai.timefold.solver.core.api.solver.SolverManager;
+import ai.timefold.solver.core.config.localsearch.LocalSearchPhaseConfig;
+import ai.timefold.solver.core.config.solver.SolverConfig;
+import ai.timefold.solver.core.config.solver.SolverManagerConfig;
+import ai.timefold.solver.core.config.solver.termination.TerminationConfig;
 import jakarta.inject.Inject;
 
 import org.acme.callcenter.data.DataGenerator;
 import org.acme.callcenter.domain.Agent;
 import org.acme.callcenter.domain.Call;
 import org.acme.callcenter.domain.CallCenter;
+import org.acme.callcenter.domain.PreviousCallOrAgent;
 import org.acme.callcenter.domain.Skill;
 import org.acme.callcenter.service.SolverService;
+import org.acme.callcenter.solver.change.PinCallProblemChange;
+import org.acme.callcenter.solver.change.RemoveCallProblemChange;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -96,6 +105,63 @@ class SolverServiceTest {
         assertThat(call.getId()).isEqualTo(call2.getId());
     }
 
+    @Test
+    @Timeout(60)
+    void removeCallWithInfeasibleInitialSolution() {
+        // Invalid initial solution
+        CallCenter inputProblem = dataGenerator.generateCallCenter();
+        Call call1 = new Call(1L, "123-456-7891", Skill.ENGLISH, Skill.CAR_INSURANCE);
+        Call call2 = new Call(2L, "123-456-7892", Skill.ENGLISH, Skill.CAR_INSURANCE);
+        inputProblem.getCalls().add(call1);
+        inputProblem.getCalls().add(call2);
+        inputProblem.getAgents().get(0).setNextCall(call2);
+        inputProblem.getAgents().get(1).setNextCall(call1);
+        call1.setAgent(inputProblem.getAgents().get(1));
+        call1.setPreviousCallOrAgent(inputProblem.getAgents().get(1));
+        call1.setEstimatedWaiting(Duration.ofSeconds(1));
+        call2.setAgent(inputProblem.getAgents().get(0));
+        call2.setPreviousCallOrAgent(inputProblem.getAgents().get(0));
+        call2.setEstimatedWaiting(Duration.ofSeconds(1));
+        inputProblem.setScore(HardSoftScore.ofUninitialized(0, -1, 0));
+
+        // We have an initial solution, then we run only LocalSearchPhaseConfig
+        SolverConfig solverConfig = new SolverConfig()
+                .withSolutionClass(CallCenter.class)
+                .withEntityClasses(Call.class, PreviousCallOrAgent.class)
+                .withConstraintProviderClass(CallCenterConstraintsProvider.class)
+                .withPhases(new LocalSearchPhaseConfig())
+                .withTerminationConfig(new TerminationConfig().withSpentLimit(Duration.ofSeconds(30L)));
+
+        // Create a custom manager
+        try (SolverManager<CallCenter, Long> solverManager2 = SolverManager.create(solverConfig, new SolverManagerConfig())) {
+            AtomicReference<CallCenter> bestSolutionRef = new AtomicReference<>();
+
+            solverManager2.solveAndListen(1L, id -> inputProblem, bestSolution -> {
+                if (bestSolution.getScore().isSolutionInitialized() && bestSolution.getScore().isFeasible()) {
+                    bestSolutionRef.set(bestSolution);
+                    bestSolution.getCalls().stream()
+                            .filter(call -> !call.isPinned()
+                                    && call.getPreviousCallOrAgent() != null
+                                    && call.getPreviousCallOrAgent() instanceof Agent)
+                            .map(PinCallProblemChange::new)
+                            .forEach(problemChange -> solverManager2.addProblemChange(1L, problemChange));
+                }
+            }, (id, error) -> {});
+
+            // Remove the call 1
+            solverManager2.addProblemChange(1L, new RemoveCallProblemChange(1L));
+
+            // Wait for the local search
+            await()
+                    .atMost(Duration.ofSeconds(30))
+                    .pollInterval(Duration.ofMillis(100L))
+                    .until(() -> bestSolutionRef.get() != null);
+
+            Agent agentWithCalls = getFirstAgentWithCallOrFail(bestSolutionRef.get());
+            assertThat(agentWithCalls.getSkills()).contains(Skill.ENGLISH, Skill.CAR_INSURANCE);
+        }
+    }
+
     @SafeVarargs
     private CallCenter solve(CallCenter inputProblem, Supplier<CompletableFuture<Void>>... problemChanges) {
         AtomicReference<Throwable> errorDuringSolving = new AtomicReference<>();
@@ -116,13 +182,12 @@ class SolverServiceTest {
             throw new IllegalStateException("Exception during solving", errorDuringSolving.get());
         }
 
-        // We have identified an issue where the Solver may fail to find a feasible solution when returning the best
-        // solution. Our current theory is that we should wait for the Solver to find a feasible solution up to 30 seconds
-        // before returning the best solution.
+        // We wait for the solver to find a feasible solution
         await()
                 .atMost(Duration.ofSeconds(30))
                 .pollInterval(Duration.ofMillis(100L))
-                .until(() -> bestSolution.get() != null && bestSolution.get().isFeasible());
+                .until(() -> bestSolution.get() != null);
+
         return bestSolution.get();
     }
 
