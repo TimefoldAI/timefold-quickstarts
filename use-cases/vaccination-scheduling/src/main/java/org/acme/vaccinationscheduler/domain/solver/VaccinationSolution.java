@@ -56,10 +56,10 @@ public class VaccinationSolution {
      */
     @ProblemFactCollectionProperty
     @ValueRangeProvider
-    private List<VaccinationSlot> vaccinationSlotList;
+    private List<VaccinationSlot> vaccinationSlots;
 
     @PlanningEntityCollectionProperty
-    private List<PersonAssignment> personAssignmentList;
+    private List<PersonAssignment> personAssignments;
 
     @PlanningScore(bendableHardLevelsSize = VaccinationScheduleConstraintProvider.HARD_LEVELS_SIZE,
             bendableSoftLevelsSize = VaccinationScheduleConstraintProvider.SOFT_LEVELS_SIZE)
@@ -70,25 +70,25 @@ public class VaccinationSolution {
     }
 
     public VaccinationSolution(List<VaccineType> vaccineTypes, List<VaccinationCenter> vaccinationCenters,
-                               List<Appointment> appointments, List<VaccinationSlot> vaccinationSlotList,
-                               List<PersonAssignment> personAssignmentList, BendableLongScore score) {
+                               List<Appointment> appointments, List<VaccinationSlot> vaccinationSlots,
+                               List<PersonAssignment> personAssignments, BendableLongScore score) {
         this.vaccineTypes = vaccineTypes;
         this.vaccinationCenters = vaccinationCenters;
         this.appointments = appointments;
-        this.vaccinationSlotList = vaccinationSlotList;
-        this.personAssignmentList = personAssignmentList;
+        this.vaccinationSlots = vaccinationSlots;
+        this.personAssignments = personAssignments;
         this.score = score;
     }
 
     /**
-     * Translates {@link VaccinationSchedule#getAppointments()} into {@link #vaccinationSlotList}.
+     * Translates {@link VaccinationSchedule#getAppointments()} into {@link #vaccinationSlots}.
      */
     public VaccinationSolution(VaccinationSchedule schedule) {
         this(schedule, new EuclideanDistanceCalculator());
     }
 
     /**
-     * Translates {@link VaccinationSchedule#getAppointments()} into {@link #vaccinationSlotList}.
+     * Translates {@link VaccinationSchedule#getAppointments()} into {@link #vaccinationSlots}.
      */
     public VaccinationSolution(VaccinationSchedule schedule, DistanceCalculator distanceCalculator) {
         this.vaccineTypes = schedule.getVaccineTypes();
@@ -100,7 +100,7 @@ public class VaccinationSolution {
                         appointment.getVaccinationCenter(),
                         appointment.getDateTime().truncatedTo(ChronoUnit.HOURS),
                         appointment.getVaccineType());
-        Set<Appointment> scheduledAppointmentSet = schedule.getPeople().stream()
+        Set<Appointment> scheduledAppointments = schedule.getPeople().stream()
                 .map(Person::getAppointment)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
@@ -110,7 +110,7 @@ public class VaccinationSolution {
                         Collectors.toList(), subAppointmentList -> subAppointmentList.stream().sorted(
                                 Comparator.comparing(Appointment::getDateTime).thenComparing(Appointment::getBoothId))
                                 .collect(Collectors.toList()))));
-        vaccinationSlotList = new ArrayList<>(appointmentListMap.size());
+        vaccinationSlots = new ArrayList<>(appointmentListMap.size());
         Map<Triple<VaccinationCenter, LocalDateTime, VaccineType>, VaccinationSlot> vaccinationSlotMap = new HashMap<>(appointmentListMap.size());
         long nextVaccinationSlotId = 0;
         for (Map.Entry<Triple<VaccinationCenter, LocalDateTime, VaccineType>, List<Appointment>> entry : appointmentListMap.entrySet()) {
@@ -120,17 +120,17 @@ public class VaccinationSolution {
             LocalDateTime startDateTime = triple.getMiddle();
             VaccineType vaccineType = triple.getRight();
             List<Appointment> unscheduledAppointmentList = appointmentList.stream()
-                    .filter(appointment -> !scheduledAppointmentSet.contains(appointment))
+                    .filter(appointment -> !scheduledAppointments.contains(appointment))
                     .collect(Collectors.toList());
             int capacity = appointmentList.size();
             VaccinationSlot vaccinationSlot = new VaccinationSlot(nextVaccinationSlotId++, vaccinationCenter,
                     startDateTime, vaccineType, unscheduledAppointmentList, capacity);
-            vaccinationSlotList.add(vaccinationSlot);
+            vaccinationSlots.add(vaccinationSlot);
             vaccinationSlotMap.put(triple, vaccinationSlot);
         }
 
         List<Person> personList = schedule.getPeople();
-        personAssignmentList = new ArrayList<>(personList.size());
+        personAssignments = new ArrayList<>(personList.size());
 
         Location[] fromLocations = personList.stream().map(Person::getHomeLocation).toArray(Location[]::new);
         Location[] toLocations = vaccinationCenters.stream().map(VaccinationCenter::getLocation).toArray(Location[]::new);
@@ -157,21 +157,21 @@ public class VaccinationSolution {
                 }
                 personAssignment.setVaccinationSlot(vaccinationSlot);
             }
-            personAssignmentList.add(personAssignment);
+            personAssignments.add(personAssignment);
         }
         this.score = schedule.getScore();
     }
 
     /**
-     * Translates {@link #vaccinationSlotList} back into {@link VaccinationSchedule#getAppointments()}.
+     * Translates {@link #vaccinationSlots} back into {@link VaccinationSchedule#getAppointments()}.
      */
     public VaccinationSchedule toSchedule() {
         Map<VaccinationSlot, List<Appointment>> appointmentListMap =
-                vaccinationSlotList.stream().collect(toMap(vaccinationSlot -> vaccinationSlot,
+                vaccinationSlots.stream().collect(toMap(vaccinationSlot -> vaccinationSlot,
                         // Shallow clone the appointmentList so the best solution event consumer doesn't corrupt the working solution
                         vaccinationSlot -> new ArrayList<>(vaccinationSlot.getUnscheduledAppointments())));
-        List<Person> personList = new ArrayList<>(personAssignmentList.size());
-        for (PersonAssignment personAssignment : personAssignmentList) {
+        List<Person> personList = new ArrayList<>(personAssignments.size());
+        for (PersonAssignment personAssignment : personAssignments) {
             Person person = personAssignment.getPerson();
             if (!person.isPinned()) {
                 VaccinationSlot vaccinationSlot = personAssignment.getVaccinationSlot();
@@ -218,16 +218,16 @@ public class VaccinationSolution {
         return appointments;
     }
 
-    public List<VaccinationSlot> getVaccinationSlotList() {
-        return vaccinationSlotList;
+    public List<VaccinationSlot> getVaccinationSlots() {
+        return vaccinationSlots;
     }
 
-    public void setVaccinationSlotList(List<VaccinationSlot> vaccinationSlotList) {
-        this.vaccinationSlotList = vaccinationSlotList;
+    public void setVaccinationSlots(List<VaccinationSlot> vaccinationSlots) {
+        this.vaccinationSlots = vaccinationSlots;
     }
 
-    public List<PersonAssignment> getPersonAssignmentList() {
-        return personAssignmentList;
+    public List<PersonAssignment> getPersonAssignments() {
+        return personAssignments;
     }
 
     public BendableLongScore getScore() {

@@ -66,4 +66,8 @@ public class CallCenter {
     public void setSolving(boolean solving) {
         this.solving = solving;
     }
+
+    public boolean isFeasible() {
+        return score.isFeasible();
+    }
 }

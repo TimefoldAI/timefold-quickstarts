@@ -48,15 +48,15 @@ public class DemoDataGenerator {
             return;
         }
 
-        List<Crew> crewList = new ArrayList<>();
-        crewList.add(new Crew("Alpha crew"));
-        crewList.add(new Crew("Beta crew"));
-        crewList.add(new Crew("Gamma crew"));
+        List<Crew> crews = new ArrayList<>();
+        crews.add(new Crew("Alpha crew"));
+        crews.add(new Crew("Beta crew"));
+        crews.add(new Crew("Gamma crew"));
         if (demoData == DemoData.LARGE) {
-            crewList.add(new Crew("Delta crew"));
-            crewList.add(new Crew("Epsilon crew"));
+            crews.add(new Crew("Delta crew"));
+            crews.add(new Crew("Epsilon crew"));
         }
-        crewRepository.persist(crewList);
+        crewRepository.persist(crews);
 
         LocalDate fromDate = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.MONDAY));
         int weekListSize = (demoData == DemoData.LARGE) ? 16 : 8;
@@ -70,9 +70,9 @@ public class DemoDataGenerator {
         final String[] JOB_TARGET_NAMES = {"Street", "Bridge", "Tunnel", "Highway", "Boulevard", "Avenue",
                 "Square", "Plaza"};
 
-        List<Job> jobList = new ArrayList<>();
-        int jobListSize = weekListSize * crewList.size() * 3 / 5;
-        int jobAreaTargetLimit = Math.min(JOB_TARGET_NAMES.length, crewList.size() * 2);
+        List<Job> jobs = new ArrayList<>();
+        int jobListSize = weekListSize * crews.size() * 3 / 5;
+        int jobAreaTargetLimit = Math.min(JOB_TARGET_NAMES.length, crews.size() * 2);
         Random random = new Random(17);
         for (int i = 0; i < jobListSize; i++) {
             String jobArea = JOB_AREA_NAMES[i / jobAreaTargetLimit];
@@ -86,11 +86,11 @@ public class DemoDataGenerator {
             LocalDate readyDate = EndDateUpdatingVariableListener.calculateEndDate(fromDate, readyWorkdayOffset);
             LocalDate dueDate = EndDateUpdatingVariableListener.calculateEndDate(readyDate, readyDueBetweenWorkdays);
             LocalDate idealEndDate = EndDateUpdatingVariableListener.calculateEndDate(readyDate, readyIdealEndBetweenWorkdays);
-            Set<String> tagSet = random.nextDouble() < 0.1 ? Set.of(jobArea, "Subway") : Set.of(jobArea);
-            jobList.add(new Job(jobArea + " " + jobTarget, durationInDays, readyDate, dueDate, idealEndDate, tagSet));
+            Set<String> tags = random.nextDouble() < 0.1 ? Set.of(jobArea, "Subway") : Set.of(jobArea);
+            jobs.add(new Job(jobArea + " " + jobTarget, durationInDays, readyDate, dueDate, idealEndDate, tags));
         }
 
-        jobRepository.persist(jobList);
+        jobRepository.persist(jobs);
     }
 
 }

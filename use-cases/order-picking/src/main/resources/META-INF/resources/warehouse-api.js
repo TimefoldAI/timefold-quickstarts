@@ -186,7 +186,7 @@ function drawTextForTrolley(strokeStyle, warehouseLocations, trolleyIndex, troll
 
     ctx.fillStyle = strokeStyle;
     ctx.strokeStyle = "#000000";
-    let overlappingOrderTextList = [];
+    let overlappingOrderTexts = [];
     const SHELVING_ROW_HEIGHT = SHELVING_HEIGHT / SHELVING_ROWS;
     const TEXT_SEPERATOR_HEIGHT = SHELVING_ROW_HEIGHT * 4;
     const SEPERATION_PER_TROLLEY = TEXT_SEPERATOR_HEIGHT / trolleyCount;
@@ -197,11 +197,11 @@ function drawTextForTrolley(strokeStyle, warehouseLocations, trolleyIndex, troll
         const pointFlooredRow = Math.floor(point.y / TEXT_SEPERATOR_HEIGHT) * TEXT_SEPERATOR_HEIGHT;
 
         point.y = pointFlooredRow + SEPERATION_PER_TROLLEY * trolleyIndex;
-        addToOverlap(overlappingOrderTextList, i.toString(10), point);
+        addToOverlap(overlappingOrderTexts, i.toString(10), point);
     }
 
-    for (let i = 0; i < overlappingOrderTextList.length; i++) {
-        const overlappingOrders = overlappingOrderTextList[i];
+    for (let i = 0; i < overlappingOrderTexts.length; i++) {
+        const overlappingOrders = overlappingOrderTexts[i];
         const text = '(' + overlappingOrders.orders.join(', ') + ')';
 
         ctx.strokeText(text, overlappingOrders.x, overlappingOrders.y);
@@ -209,10 +209,10 @@ function drawTextForTrolley(strokeStyle, warehouseLocations, trolleyIndex, troll
     }
 }
 
-function addToOverlap(overlappingOrderTextList, orderText, orderPoint) {
+function addToOverlap(overlappingOrderTexts, orderText, orderPoint) {
     const SHELVING_ROW_HEIGHT = SHELVING_HEIGHT / SHELVING_ROWS;
-    for (let i = 0; i < overlappingOrderTextList.length; i++) {
-        const overlappingOrderText = overlappingOrderTextList[i];
+    for (let i = 0; i < overlappingOrderTexts.length; i++) {
+        const overlappingOrderText = overlappingOrderTexts[i];
         const distance = Math.abs(orderPoint.x - overlappingOrderText.x) + Math.abs(orderPoint.y - overlappingOrderText.y);
         if (distance < 2 * SHELVING_ROW_HEIGHT) {
             overlappingOrderText.orders.push(orderText);
@@ -224,7 +224,7 @@ function addToOverlap(overlappingOrderTextList, orderText, orderPoint) {
         x: orderPoint.x,
         y: orderPoint.y,
     };
-    overlappingOrderTextList.push(newOverlappingOrderText);
+    overlappingOrderTexts.push(newOverlappingOrderText);
 }
 
 /**

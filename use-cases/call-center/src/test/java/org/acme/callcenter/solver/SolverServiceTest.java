@@ -1,7 +1,9 @@
 package org.acme.callcenter.solver;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -24,7 +26,7 @@ import org.junit.jupiter.api.Timeout;
 import io.quarkus.test.junit.QuarkusTest;
 
 @QuarkusTest
-public class SolverServiceTest {
+class SolverServiceTest {
 
     @Inject
     DataGenerator dataGenerator;
@@ -113,6 +115,14 @@ public class SolverServiceTest {
         if (errorDuringSolving.get() != null) {
             throw new IllegalStateException("Exception during solving", errorDuringSolving.get());
         }
+
+        // We have identified an issue where the Solver may fail to find a feasible solution when returning the best
+        // solution. Our current theory is that we should wait for the Solver to find a feasible solution up to 30 seconds
+        // before returning the best solution.
+        await()
+                .atMost(Duration.ofSeconds(30))
+                .pollInterval(Duration.ofMillis(100L))
+                .until(() -> bestSolution.get() != null && bestSolution.get().isFeasible());
         return bestSolution.get();
     }
 
