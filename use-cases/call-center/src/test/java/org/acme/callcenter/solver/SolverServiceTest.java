@@ -133,23 +133,23 @@ class SolverServiceTest {
                 .withTerminationConfig(new TerminationConfig().withSpentLimit(Duration.ofSeconds(30L)));
 
         // Create a custom manager
-        try (SolverManager<CallCenter, Long> solverManager2 = SolverManager.create(solverConfig, new SolverManagerConfig())) {
+        try (SolverManager<CallCenter, Long> localSearchSolverManager = SolverManager.create(solverConfig, new SolverManagerConfig())) {
             AtomicReference<CallCenter> bestSolutionRef = new AtomicReference<>();
 
-            solverManager2.solveAndListen(1L, id -> inputProblem, bestSolution -> {
-                if (bestSolution.getScore().isSolutionInitialized() && bestSolution.getScore().isFeasible()) {
+            localSearchSolverManager.solveAndListen(1L, id -> inputProblem, bestSolution -> {
+                if (bestSolution.isFeasible()) {
                     bestSolutionRef.set(bestSolution);
                     bestSolution.getCalls().stream()
                             .filter(call -> !call.isPinned()
                                     && call.getPreviousCallOrAgent() != null
                                     && call.getPreviousCallOrAgent() instanceof Agent)
                             .map(PinCallProblemChange::new)
-                            .forEach(problemChange -> solverManager2.addProblemChange(1L, problemChange));
+                            .forEach(problemChange -> localSearchSolverManager.addProblemChange(1L, problemChange));
                 }
             }, (id, error) -> {});
 
             // Remove the call 1
-            solverManager2.addProblemChange(1L, new RemoveCallProblemChange(1L));
+            localSearchSolverManager.addProblemChange(1L, new RemoveCallProblemChange(1L));
 
             // Wait for the local search
             await()

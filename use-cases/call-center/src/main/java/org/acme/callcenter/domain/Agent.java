@@ -57,8 +57,4 @@ public class Agent extends PreviousCallOrAgent {
     public Set<Skill> getSkills() {
         return skills;
     }
-
-    public Agent copy() {
-        return new Agent(getId(), name, skills);
-    }
 }
