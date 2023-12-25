@@ -36,7 +36,7 @@ dependencies {
     implementation "io.quarkus:quarkus-webjars-locator"
     runtimeOnly "ai.timefold.solver:timefold-solver-webui"
     runtimeOnly "org.webjars:bootstrap:5.2.3"
-    runtimeOnly "org.webjars:jquery:3.6.4"
+    runtimeOnly "org.webjars:jquery:3.7.1"
     runtimeOnly "org.webjars:font-awesome:5.15.1"
     runtimeOnly "org.webjars.npm:js-joda:1.11.0"
 }
