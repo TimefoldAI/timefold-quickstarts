@@ -21,7 +21,7 @@ Issue #ID
 - [ ] This pull request includes an explicative title and description.
 - [ ] The GitHub issue is linked.
 
-### Merge PR
+### Merging
 
 - [ ] At least one other engineer has approved the changes.
 - [ ] After merging the change, the issue requires you to follow up with the user.
