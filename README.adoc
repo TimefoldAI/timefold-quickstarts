@@ -16,8 +16,7 @@ a|* <<school-timetabling, School timetabling>>
 * <<order-picking, Order Picking>>
 * <<employee-scheduling, Employee Scheduling>>
 * <<food-packaging, Food packaging>>
-* <<vehicle-routing-with-capacity, Vehicle Routing with capacity>>
-* <<vehicle-routing-with-time-windows, Vehicle Routing with time windows>>
+* <<vehicle-routing, Vehicle Routing>>
 
 a|* link:use-cases/school-timetabling/README.adoc[Quarkus] (Java, Maven or Gradle, Quarkus)
 * link:technology/java-spring-boot/README.adoc[Spring Boot] (Java, Maven or Gradle, Spring Boot)
@@ -120,21 +119,13 @@ image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screensh
 
 * link:use-cases/food-packaging/README.adoc[Run quarkus-food-packaging] (Java, Maven, Quarkus)
 
-=== Vehicle Routing with capacity
+=== Vehicle Routing
 
-Find the most efficient routes for a fleet of vehicles with capacity.
+Find the most efficient routes for vehicles to reach customers, taking into account vehicle capacity and time windows when customers are available. Sometimes also called "CVRPTW".
 
-image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screenshot/quarkus-vehicle-routing-capacity-screenshot.png[]
+image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screenshot/quarkus-vehicle-routing-screenshot.png[]
 
-* link:use-cases/vehicle-routing-capacity/README.adoc[Run quarkus-vehicle-routing-capacity] (Java, Maven, Quarkus)
-
-=== Vehicle Routing with time windows
-
-Find the most efficient routes for field service technicians to visits with time windows.
-
-image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screenshot/quarkus-vehicle-routing-time-windows-screenshot.png[]
-
-* link:use-cases/vehicle-routing-time-windows/README.adoc[Run quarkus-vehicle-routing-time-windows] (Java, Maven, Quarkus)
+* link:use-cases/vehicle-routing/README.adoc[Run quarkus-vehicle-routing] (Java, Maven, Quarkus)
 
 === Timefold examples (desktop)
 
