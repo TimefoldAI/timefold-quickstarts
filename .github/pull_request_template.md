@@ -17,4 +17,4 @@
 - [ ] This pull request includes an explanatory title and description.
 - [ ] The GitHub issue is linked.
 - [ ] At least one other engineer has approved the changes.
-- [ ] After merging the change, the issue requires you to follow up with the user.
+- [ ] After PR is merged, inform the reporter.
