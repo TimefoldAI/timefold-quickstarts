@@ -39,9 +39,9 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "School Timetables", description = "School timetable service assigning lessons to rooms and timeslots.")
 @RestController
 @RequestMapping("/timetables")
-public class TimetableResource {
+public class TimetableController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TimetableResource.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TimetableController.class);
 
     private final SolverManager<Timetable, String> solverManager;
     private final SolutionManager<Timetable, HardSoftScore> solutionManager;
@@ -49,7 +49,7 @@ public class TimetableResource {
     // TODO: Without any "time to live", the map may eventually grow out of memory.
     private final ConcurrentMap<String, Job> jobIdToJob = new ConcurrentHashMap<>();
 
-    public TimetableResource(SolverManager<Timetable, String> solverManager, SolutionManager<Timetable, HardSoftScore> solutionManager) {
+    public TimetableController(SolverManager<Timetable, String> solverManager, SolutionManager<Timetable, HardSoftScore> solutionManager) {
         this.solverManager = solverManager;
         this.solutionManager = solutionManager;
     }
