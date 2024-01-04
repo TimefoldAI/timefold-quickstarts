@@ -27,7 +27,7 @@ import java.util.List;
 @Tag(name = "Demo data", description = "Timefold-provided demo school timetable data.")
 @RestController
 @RequestMapping("/demo-data")
-public class TimetableDemoResource {
+public class TimetableDemoController {
 
     public enum DemoData {
         SMALL,

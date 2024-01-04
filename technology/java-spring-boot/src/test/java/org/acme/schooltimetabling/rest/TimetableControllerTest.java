@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
         "timefold.solver.termination.spent-limit=1h",
         "timefold.solver.termination.best-score-limit=0hard/*soft" },
         webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-class TimetableResourceTest {
+class TimetableControllerTest {
 
     @Test
     void solveDemoDataUntilFeasible() {
