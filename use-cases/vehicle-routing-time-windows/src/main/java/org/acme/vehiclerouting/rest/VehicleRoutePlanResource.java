@@ -84,13 +84,15 @@ public class VehicleRoutePlanResource {
     public String solve(VehicleRoutePlan problem) {
         String jobId = UUID.randomUUID().toString();
         jobIdToJob.put(jobId, Job.ofRoutePlan(problem));
-        solverManager.solveAndListen(jobId,
-                jobId_ -> jobIdToJob.get(jobId).routePlan,
-                solution -> jobIdToJob.put(jobId, Job.ofRoutePlan(solution)),
-                (jobId_, exception) -> {
+        solverManager.solveBuilder()
+                .withProblemId(jobId)
+                .withProblemFinder(jobId_ -> jobIdToJob.get(jobId).routePlan)
+                .withBestSolutionConsumer(solution -> jobIdToJob.put(jobId, Job.ofRoutePlan(solution)))
+                .withExceptionHandler((jobId_, exception) -> {
                     jobIdToJob.put(jobId, Job.ofException(exception));
                     LOGGER.error("Failed solving jobId ({}).", jobId, exception);
-                });
+                })
+                .run();
         return jobId;
     }
 

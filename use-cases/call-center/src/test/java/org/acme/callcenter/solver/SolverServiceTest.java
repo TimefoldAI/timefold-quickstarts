@@ -10,13 +10,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
+import jakarta.inject.Inject;
+
 import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
 import ai.timefold.solver.core.api.solver.SolverManager;
 import ai.timefold.solver.core.config.localsearch.LocalSearchPhaseConfig;
 import ai.timefold.solver.core.config.solver.SolverConfig;
 import ai.timefold.solver.core.config.solver.SolverManagerConfig;
 import ai.timefold.solver.core.config.solver.termination.TerminationConfig;
-import jakarta.inject.Inject;
 
 import org.acme.callcenter.data.DataGenerator;
 import org.acme.callcenter.domain.Agent;
@@ -133,20 +134,26 @@ class SolverServiceTest {
                 .withTerminationConfig(new TerminationConfig().withSpentLimit(Duration.ofSeconds(30L)));
 
         // Create a custom manager
-        try (SolverManager<CallCenter, Long> localSearchSolverManager = SolverManager.create(solverConfig, new SolverManagerConfig())) {
+        try (SolverManager<CallCenter, Long> localSearchSolverManager =
+                SolverManager.create(solverConfig, new SolverManagerConfig())) {
             AtomicReference<CallCenter> bestSolutionRef = new AtomicReference<>();
 
-            localSearchSolverManager.solveAndListen(1L, id -> inputProblem, bestSolution -> {
-                if (bestSolution.isFeasible()) {
-                    bestSolutionRef.set(bestSolution);
-                    bestSolution.getCalls().stream()
-                            .filter(call -> !call.isPinned()
-                                    && call.getPreviousCallOrAgent() != null
-                                    && call.getPreviousCallOrAgent() instanceof Agent)
-                            .map(PinCallProblemChange::new)
-                            .forEach(problemChange -> localSearchSolverManager.addProblemChange(1L, problemChange));
-                }
-            }, (id, error) -> {});
+            localSearchSolverManager.solveBuilder()
+                    .withProblemId(1L)
+                    .withProblemFinder(id -> inputProblem)
+                    .withBestSolutionConsumer(bestSolution -> {
+                        if (bestSolution.isFeasible()) {
+                            bestSolutionRef.set(bestSolution);
+                            bestSolution.getCalls().stream()
+                                    .filter(call -> !call.isPinned()
+                                            && call.getPreviousCallOrAgent() != null
+                                            && call.getPreviousCallOrAgent() instanceof Agent)
+                                    .map(PinCallProblemChange::new)
+                                    .forEach(problemChange -> localSearchSolverManager.addProblemChange(1L, problemChange));
+                        }
+                    }).withExceptionHandler((id, error) -> {
+                    })
+                    .run();
 
             // Remove the call 1
             localSearchSolverManager.addProblemChange(1L, new RemoveCallProblemChange(1L));

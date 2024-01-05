@@ -97,14 +97,19 @@ class TimetableResource {
     fun solve(problem: Timetable?): String {
         val jobId = UUID.randomUUID().toString()
         jobIdToJob[jobId] = Job.ofTimetable(problem)
-        solverManager!!.solveAndListen(jobId, Function<String, Timetable?> { jobId_: String? ->
-            jobIdToJob[jobId]!!.timetable
-        }, Consumer { solution: Timetable? ->
-            jobIdToJob[jobId] = Job.ofTimetable(solution)
-        }, BiConsumer { jobId_: String?, exception: Throwable? ->
-            jobIdToJob[jobId] = Job.ofException(exception)
-            LOGGER.error("Failed solving jobId ({}).", jobId, exception)
-        })
+        solverManager!!.solveBuilder()
+            .withProblemId(jobId)
+            .withProblemFinder(Function<String, Timetable?> { jobId_: String? ->
+                jobIdToJob[jobId]!!.timetable
+            })
+            .withBestSolutionConsumer(Consumer { solution: Timetable? ->
+                jobIdToJob[jobId] = Job.ofTimetable(solution)
+            })
+            .withExceptionHandler(BiConsumer { jobId_: String?, exception: Throwable? ->
+                jobIdToJob[jobId] = Job.ofException(exception)
+                LOGGER.error("Failed solving jobId ({}).", jobId, exception)
+            })
+            .run()
         return jobId
     }
 

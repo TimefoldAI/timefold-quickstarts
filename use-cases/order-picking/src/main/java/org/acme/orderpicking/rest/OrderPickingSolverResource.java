@@ -8,11 +8,12 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 
+import ai.timefold.solver.core.api.solver.SolverManager;
+import ai.timefold.solver.core.api.solver.SolverStatus;
+
 import org.acme.orderpicking.domain.OrderPickingPlanning;
 import org.acme.orderpicking.domain.OrderPickingSolution;
 import org.acme.orderpicking.persistence.OrderPickingRepository;
-import ai.timefold.solver.core.api.solver.SolverManager;
-import ai.timefold.solver.core.api.solver.SolverStatus;
 
 @Path("orderPicking")
 @ApplicationScoped
@@ -38,8 +39,11 @@ public class OrderPickingSolverResource {
     @Path("solve")
     public void solve() {
         solverWasNeverStarted.set(false);
-        solverManager.solveAndListen(PROBLEM_ID, (problemId) -> orderPickingRepository.find(),
-                                     orderPickingRepository::save);
+        solverManager.solveBuilder()
+                .withProblemId(PROBLEM_ID)
+                .withProblemFinder((problemId) -> orderPickingRepository.find())
+                .withBestSolutionConsumer(orderPickingRepository::save)
+                .run();
     }
 
     @POST

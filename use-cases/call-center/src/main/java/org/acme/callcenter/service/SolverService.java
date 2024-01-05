@@ -9,6 +9,10 @@ import java.util.function.Consumer;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import ai.timefold.solver.core.api.solver.SolverManager;
+import ai.timefold.solver.core.api.solver.SolverStatus;
+import ai.timefold.solver.core.api.solver.change.ProblemChange;
+
 import org.acme.callcenter.domain.Agent;
 import org.acme.callcenter.domain.Call;
 import org.acme.callcenter.domain.CallCenter;
@@ -16,9 +20,6 @@ import org.acme.callcenter.solver.change.AddCallProblemChange;
 import org.acme.callcenter.solver.change.PinCallProblemChange;
 import org.acme.callcenter.solver.change.ProlongCallByMinuteProblemChange;
 import org.acme.callcenter.solver.change.RemoveCallProblemChange;
-import ai.timefold.solver.core.api.solver.SolverManager;
-import ai.timefold.solver.core.api.solver.SolverStatus;
-import ai.timefold.solver.core.api.solver.change.ProblemChange;
 
 @ApplicationScoped
 public class SolverService {
@@ -44,12 +45,16 @@ public class SolverService {
 
     public void startSolving(CallCenter inputProblem,
             Consumer<CallCenter> bestSolutionConsumer, Consumer<Throwable> errorHandler) {
-        solverManager.solveAndListen(SINGLETON_ID, id -> inputProblem, bestSolution -> {
-            if (bestSolution.isFeasible()) {
-                bestSolutionConsumer.accept(bestSolution);
-                pinCallAssignedToAgents(bestSolution.getCalls());
-            }
-        }, (id, error) -> errorHandler.accept(error));
+        solverManager.solveBuilder()
+                .withProblemId(SINGLETON_ID)
+                .withProblemFinder(id -> inputProblem)
+                .withBestSolutionConsumer(bestSolution -> {
+                    if (bestSolution.isFeasible()) {
+                        bestSolutionConsumer.accept(bestSolution);
+                        pinCallAssignedToAgents(bestSolution.getCalls());
+                    }
+                })
+                .withExceptionHandler((id, error) -> errorHandler.accept(error)).run();
 
         for (WaitingProblemChange waitingProblemChange : waitingProblemChanges) {
             CompletableFuture<Void> changeInProgress =

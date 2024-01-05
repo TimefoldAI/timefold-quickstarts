@@ -5,10 +5,11 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 
-import org.acme.foodpackaging.domain.PackagingSchedule;
-import org.acme.foodpackaging.persistence.PackagingScheduleRepository;
 import ai.timefold.solver.core.api.solver.SolverManager;
 import ai.timefold.solver.core.api.solver.SolverStatus;
+
+import org.acme.foodpackaging.domain.PackagingSchedule;
+import org.acme.foodpackaging.persistence.PackagingScheduleRepository;
 
 @Path("schedule")
 public class PackagingScheduleResource {
@@ -34,9 +35,11 @@ public class PackagingScheduleResource {
     @POST
     @Path("solve")
     public void solve() {
-        solverManager.solveAndListen(SINGLETON_SOLUTION_ID,
-                id -> repository.read(),
-                schedule -> repository.write(schedule));
+        solverManager.solveBuilder()
+                .withProblemId(SINGLETON_SOLUTION_ID)
+                .withProblemFinder(id -> repository.read())
+                .withBestSolutionConsumer(schedule -> repository.write(schedule))
+                .run();
     }
 
     @POST
