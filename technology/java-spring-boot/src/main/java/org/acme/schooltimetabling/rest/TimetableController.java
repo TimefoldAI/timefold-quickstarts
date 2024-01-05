@@ -5,20 +5,15 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import jakarta.websocket.server.PathParam;
+
 import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
 import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
 import ai.timefold.solver.core.api.solver.ScoreAnalysisFetchPolicy;
 import ai.timefold.solver.core.api.solver.SolutionManager;
 import ai.timefold.solver.core.api.solver.SolverManager;
 import ai.timefold.solver.core.api.solver.SolverStatus;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.websocket.server.PathParam;
+
 import org.acme.schooltimetabling.domain.Timetable;
 import org.acme.schooltimetabling.rest.exception.ErrorInfo;
 import org.acme.schooltimetabling.rest.exception.TimetableSolverException;
@@ -36,6 +31,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @Tag(name = "School Timetables", description = "School timetable service assigning lessons to rooms and timeslots.")
 @RestController
 @RequestMapping("/timetables")
@@ -49,7 +52,8 @@ public class TimetableController {
     // TODO: Without any "time to live", the map may eventually grow out of memory.
     private final ConcurrentMap<String, Job> jobIdToJob = new ConcurrentHashMap<>();
 
-    public TimetableController(SolverManager<Timetable, String> solverManager, SolutionManager<Timetable, HardSoftScore> solutionManager) {
+    public TimetableController(SolverManager<Timetable, String> solverManager,
+            SolutionManager<Timetable, HardSoftScore> solutionManager) {
         this.solverManager = solverManager;
         this.solutionManager = solutionManager;
     }
@@ -58,7 +62,7 @@ public class TimetableController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "List of all job IDs.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(type = "array", implementation = String.class)))})
+                            schema = @Schema(type = "array", implementation = String.class))) })
     @GetMapping
     public Collection<String> list() {
         return jobIdToJob.keySet();
@@ -68,18 +72,21 @@ public class TimetableController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "202",
                     description = "The job ID. Use that ID to get the solution with the other methods.",
-                    content = @Content(mediaType = MediaType.TEXT_PLAIN_VALUE, schema = @Schema(implementation = String.class)))})
+                    content = @Content(mediaType = MediaType.TEXT_PLAIN_VALUE,
+                            schema = @Schema(implementation = String.class))) })
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
     public String solve(@RequestBody Timetable problem) {
         String jobId = UUID.randomUUID().toString();
         jobIdToJob.put(jobId, Job.ofTimetable(problem));
-        solverManager.solveAndListen(jobId,
-                jobId_ -> jobIdToJob.get(jobId).timetable,
-                solution -> jobIdToJob.put(jobId, Job.ofTimetable(solution)),
-                (jobId_, exception) -> {
+        solverManager.solveBuilder()
+                .withProblemId(jobId)
+                .withProblemFinder(jobId_ -> jobIdToJob.get(jobId).timetable)
+                .withBestSolutionConsumer(solution -> jobIdToJob.put(jobId, Job.ofTimetable(solution)))
+                .withExceptionHandler((jobId_, exception) -> {
                     jobIdToJob.put(jobId, Job.ofException(exception));
                     LOGGER.error("Failed solving jobId ({}).", jobId, exception);
-                });
+                })
+                .run();
         return jobId;
     }
 
@@ -87,10 +94,11 @@ public class TimetableController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "202",
                     description = "Resulting score analysis, optionally without constraint matches.",
-                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ScoreAnalysis.class)))})
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ScoreAnalysis.class))) })
     @PutMapping(value = "/analyze", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ScoreAnalysis<HardSoftScore> analyze(@RequestBody Timetable problem,
-                                                @RequestParam(name = "fetchPolicy", required = false) ScoreAnalysisFetchPolicy fetchPolicy) {
+            @RequestParam(name = "fetchPolicy", required = false) ScoreAnalysisFetchPolicy fetchPolicy) {
         return fetchPolicy == null ? solutionManager.analyze(problem) : solutionManager.analyze(problem, fetchPolicy);
     }
 

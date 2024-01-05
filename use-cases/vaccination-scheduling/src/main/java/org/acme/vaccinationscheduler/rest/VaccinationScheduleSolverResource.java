@@ -15,6 +15,9 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;
 
+import ai.timefold.solver.core.api.solver.SolverManager;
+import ai.timefold.solver.core.api.solver.SolverStatus;
+
 import org.acme.vaccinationscheduler.domain.Appointment;
 import org.acme.vaccinationscheduler.domain.Person;
 import org.acme.vaccinationscheduler.domain.VaccinationCenter;
@@ -22,8 +25,6 @@ import org.acme.vaccinationscheduler.domain.VaccinationSchedule;
 import org.acme.vaccinationscheduler.domain.VaccineType;
 import org.acme.vaccinationscheduler.domain.solver.VaccinationSolution;
 import org.acme.vaccinationscheduler.persistence.VaccinationScheduleRepository;
-import ai.timefold.solver.core.api.solver.SolverManager;
-import ai.timefold.solver.core.api.solver.SolverStatus;
 
 @Path("vaccinationSchedule")
 public class VaccinationScheduleSolverResource {
@@ -83,7 +84,7 @@ public class VaccinationScheduleSolverResource {
                     people = schedule.getPeople().stream()
                             .filter(person -> person.getAppointment() != null
                                     && subBoothIds.get(person.getAppointment().getVaccinationCenter())
-                                    .contains(person.getAppointment().getBoothId()))
+                                            .contains(person.getAppointment().getBoothId()))
                             .collect(Collectors.toList());
 
                     List<Person> unassignedPeople = people.stream()
@@ -106,14 +107,16 @@ public class VaccinationScheduleSolverResource {
     @POST
     @Path("solve")
     public void solve() {
-        solverManager.solveAndListen(1L,
-                (problemId) -> {
+        solverManager.solveBuilder()
+                .withProblemId(1L)
+                .withProblemFinder((problemId) -> {
                     VaccinationSchedule schedule = vaccinationScheduleRepository.find();
                     return new VaccinationSolution(schedule);
-                },
-                vaccinationSolution -> {
+                })
+                .withBestSolutionConsumer(vaccinationSolution -> {
                     vaccinationScheduleRepository.save(vaccinationSolution.toSchedule());
-                });
+                })
+                .run();
     }
 
     public SolverStatus getSolverStatus() {
