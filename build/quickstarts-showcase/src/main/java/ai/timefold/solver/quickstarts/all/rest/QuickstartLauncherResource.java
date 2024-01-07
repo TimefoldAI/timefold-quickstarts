@@ -52,8 +52,7 @@ public class QuickstartLauncherResource {
                 new QuickstartMeta("maintenance-scheduling"),
                 new QuickstartMeta("vaccination-scheduling"),
                 new QuickstartMeta("call-center"),
-                new QuickstartMeta("vehicle-routing-capacity"),
-                new QuickstartMeta("vehicle-routing-time-windows"),
+                new QuickstartMeta("vehicle-routing"),
                 new QuickstartMeta("order-picking"),
                 new QuickstartMeta("employee-scheduling"),
                 new QuickstartMeta("food-packaging"));
