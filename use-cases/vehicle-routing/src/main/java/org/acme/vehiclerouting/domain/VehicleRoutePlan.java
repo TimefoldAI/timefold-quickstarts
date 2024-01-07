@@ -22,8 +22,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * The plan for routing vehicles to customers, including:
  * <ul>
- *     <li>capacity - each vehicle has a capacity for customers demand,</li>
- *     <li>time windows - each customer accepts the vehicle only in specified time window.</li>
+ * <li>capacity - each vehicle has a capacity for customers demand,</li>
+ * <li>time windows - each customer accepts the vehicle only in specified time window.</li>
  * </ul>
  *
  * The planning solution is optimized according to the driving time (as opposed to the travel distance, for example)

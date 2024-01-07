@@ -46,14 +46,14 @@ public class VehicleRouteDemoResource {
 
     public enum DemoData {
         PHILADELPHIA(0, 60, 6, 2, LocalTime.of(7, 30),
-                1,2,15, 30,
+                1, 2, 15, 30,
                 new Location(39.7656099067391, -76.83782328143754),
                 new Location(40.77636644354855, -74.9300739430771)),
-        HARTFORT(1,50, 6, 2, LocalTime.of(7, 30),
-                1,3,20, 30,
+        HARTFORT(1, 50, 6, 2, LocalTime.of(7, 30),
+                1, 3, 20, 30,
                 new Location(41.48366520850297, -73.15901689943055),
                 new Location(41.99512052869307, -72.25114548877427)),
-        FIRENZE(2,77, 6, 2, LocalTime.of(7, 30),
+        FIRENZE(2, 77, 6, 2, LocalTime.of(7, 30),
                 1, 2, 20, 40,
                 new Location(43.751466, 11.177210), new Location(43.809291, 11.290195));
 
@@ -70,8 +70,8 @@ public class VehicleRouteDemoResource {
         private Location northEastCorner;
 
         DemoData(long seed, int customerCount, int vehicleCount, int depotCount, LocalTime vehicleStartTime,
-                 int minDemand, int maxDemand, int minVehicleCapacity, int maxVehicleCapacity,
-                 Location southWestCorner, Location northEastCorner) {
+                int minDemand, int maxDemand, int minVehicleCapacity, int maxVehicleCapacity,
+                Location southWestCorner, Location northEastCorner) {
             if (minDemand < 1) {
                 throw new IllegalStateException("minDemand (%s) must be greater than zero.".formatted(minDemand));
             }
@@ -107,12 +107,14 @@ public class VehicleRouteDemoResource {
                         "Number of depotCount (%s) must be greater than zero.".formatted(depotCount));
             }
             if (northEastCorner.getLatitude() <= southWestCorner.getLatitude()) {
-                throw new IllegalStateException("northEastCorner.getLatitude (%s) must be greater than southWestCorner.getLatitude(%s)."
-                        .formatted(northEastCorner.getLatitude(), southWestCorner.getLatitude()));
+                throw new IllegalStateException(
+                        "northEastCorner.getLatitude (%s) must be greater than southWestCorner.getLatitude(%s)."
+                                .formatted(northEastCorner.getLatitude(), southWestCorner.getLatitude()));
             }
             if (northEastCorner.getLongitude() <= southWestCorner.getLongitude()) {
-                throw new IllegalStateException("northEastCorner.getLongitude (%s) must be greater than southWestCorner.getLongitude(%s)."
-                        .formatted(northEastCorner.getLongitude(), southWestCorner.getLongitude()));
+                throw new IllegalStateException(
+                        "northEastCorner.getLongitude (%s) must be greater than southWestCorner.getLongitude(%s)."
+                                .formatted(northEastCorner.getLongitude(), southWestCorner.getLongitude()));
             }
 
             this.seed = seed;
@@ -198,7 +200,8 @@ public class VehicleRouteDemoResource {
         Supplier<Customer> customerSupplier = () -> {
             boolean morningTimeWindow = random.nextBoolean();
 
-            LocalDateTime minStartTime = morningTimeWindow ? tomorrowAt(MORNING_WINDOW_START) : tomorrowAt(AFTERNOON_WINDOW_START);
+            LocalDateTime minStartTime =
+                    morningTimeWindow ? tomorrowAt(MORNING_WINDOW_START) : tomorrowAt(AFTERNOON_WINDOW_START);
             LocalDateTime maxEndTime = morningTimeWindow ? tomorrowAt(MORNING_WINDOW_END) : tomorrowAt(AFTERNOON_WINDOW_END);
             int serviceDurationMinutes = SERVICE_DURATION_MINUTES[random.nextInt(SERVICE_DURATION_MINUTES.length)];
             return new Customer(
@@ -216,8 +219,8 @@ public class VehicleRouteDemoResource {
                 .collect(Collectors.toList());
 
         return new VehicleRoutePlan(name, demoData.southWestCorner, demoData.northEastCorner,
-                                    tomorrowAt(demoData.vehicleStartTime), tomorrowAt(LocalTime.MIDNIGHT).plusDays(1L),
-                                    depots, vehicles, customers);
+                tomorrowAt(demoData.vehicleStartTime), tomorrowAt(LocalTime.MIDNIGHT).plusDays(1L),
+                depots, vehicles, customers);
     }
 
     private static LocalDateTime tomorrowAt(LocalTime time) {

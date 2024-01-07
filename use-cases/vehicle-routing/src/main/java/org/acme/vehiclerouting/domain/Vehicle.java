@@ -113,7 +113,7 @@ public class Vehicle {
             return departureTime;
         }
 
-        Customer lastCustomer = customers.get(customers.size()-1);
+        Customer lastCustomer = customers.get(customers.size() - 1);
         return lastCustomer.getDepartureTime().plusSeconds(lastCustomer.getLocation().getDrivingTimeTo(depot.getLocation()));
     }
 
