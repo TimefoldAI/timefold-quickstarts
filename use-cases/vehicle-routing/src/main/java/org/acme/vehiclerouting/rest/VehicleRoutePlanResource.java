@@ -10,13 +10,17 @@ import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
 import ai.timefold.solver.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
+import ai.timefold.solver.core.api.solver.ScoreAnalysisFetchPolicy;
 import ai.timefold.solver.core.api.solver.SolutionManager;
 import ai.timefold.solver.core.api.solver.SolverManager;
 import ai.timefold.solver.core.api.solver.SolverStatus;
@@ -177,6 +181,21 @@ public class VehicleRoutePlanResource {
         // TODO: Replace with .terminateEarlyAndWait(... [, timeout]); see https://github.com/TimefoldAI/timefold-solver/issues/77
         solverManager.terminateEarly(jobId);
         return getRoutePlan(jobId);
+    }
+
+    @Operation(summary = "Submit a route plan to analyze its score.")
+    @APIResponses(value = {
+            @APIResponse(responseCode = "200",
+                    description = "Resulting score analysis, optionally without constraint matches.",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = ScoreAnalysis.class))) })
+    @PUT
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("analyze")
+    public ScoreAnalysis<HardSoftLongScore> analyze(VehicleRoutePlan problem,
+            @QueryParam("fetchPolicy") ScoreAnalysisFetchPolicy fetchPolicy) {
+        return fetchPolicy == null ? solutionManager.analyze(problem) : solutionManager.analyze(problem, fetchPolicy);
     }
 
     private record Job(VehicleRoutePlan routePlan, Throwable exception) {
