@@ -141,7 +141,7 @@ function renderRoutes(solution) {
     }
     // Vehicles
     vehiclesTable.children().remove();
-    solution.vehicles.forEach((vehicle) => {
+    solution.vehicles.forEach(function (vehicle) {
         const {id, capacity, totalDemand, totalDrivingTimeSeconds} = vehicle;
         const percentage = totalDemand / capacity * 100;
         const color = colorByVehicle(vehicle);
@@ -164,7 +164,7 @@ function renderRoutes(solution) {
     });
     // Depots
     depotsTable.children().remove();
-    solution.depots.forEach((depot) => {
+    solution.depots.forEach(function (depot) {
         const {id} = depot;
         const color = colorByDepot(depot);
         const icon = defaultIcon;
@@ -178,7 +178,7 @@ function renderRoutes(solution) {
       </tr>`);
     });
     // Customers
-    solution.customers.forEach((customer) => {
+    solution.customers.forEach(function (customer) {
         getCustomerMarker(customer).setPopupContent(customerPopupContent(customer));
     });
     // Route
@@ -202,7 +202,7 @@ function renderTimelines(routePlan) {
     byVehicleItemData.clear();
     byCustomerItemData.clear();
 
-    $.each(routePlan.vehicles, (index, vehicle) => {
+    $.each(routePlan.vehicles, function (index, vehicle) {
         const { totalDemand, capacity } = vehicle
         const percentage = totalDemand / capacity * 100;
         const vehicleWithLoad = `<h5 class="card-title mb-1">vehicle-${vehicle.id}</h5>
@@ -215,7 +215,7 @@ function renderTimelines(routePlan) {
         byVehicleGroupData.add({id: vehicle.id, content: vehicleWithLoad});
     });
 
-    $.each(routePlan.customers, (index, customer) => {
+    $.each(routePlan.customers, function (index, customer) {
         const minStartTime = JSJoda.LocalDateTime.parse(customer.minStartTime);
         const maxEndTime = JSJoda.LocalDateTime.parse(customer.maxEndTime);
         const serviceDuration = JSJoda.Duration.ofSeconds(customer.serviceDuration);
@@ -314,7 +314,7 @@ function renderTimelines(routePlan) {
 
     });
 
-    $.each(routePlan.vehicles, (index, vehicle) => {
+    $.each(routePlan.vehicles, function (index, vehicle) {
         if (vehicle.customers.length > 0) {
             let lastCustomer = routePlan.customers.filter((customer) => customer.id == vehicle.customers[vehicle.customers.length -1]).pop();
             if (lastCustomer) {
@@ -338,117 +338,8 @@ function renderTimelines(routePlan) {
 }
 
 function analyze() {
+    // see score-analysis.js
     analyzeScore(loadedRoutePlan, "/route-plans/analyze")
-}
-
-function analyzeScore(solution, endpointPath) {
-    new bootstrap.Modal("#scoreAnalysisModal").show()
-    const scoreAnalysisModalContent = $("#scoreAnalysisModalContent");
-    scoreAnalysisModalContent.children().remove();
-    if (solution.score == null || solution.score.indexOf('init') != -1) {
-        scoreAnalysisModalContent.text("Score not ready for analysis, try to run the solver first or wait until it advances.");
-    } else {
-        $.put(endpointPath, JSON.stringify(solution), function (scoreAnalysis) {
-            let constraints = scoreAnalysis.constraints;
-            constraints.sort((a, b) => {
-                let aComponents = getScoreComponents(a.score), bComponents = getScoreComponents(b.score);
-                if (aComponents.hard < 0 && bComponents.hard > 0) return -1;
-                if (aComponents.hard > 0 && bComponents.soft < 0) return 1;
-                if (Math.abs(aComponents.hard) > Math.abs(bComponents.hard)) {
-                    return -1;
-                } else {
-                    if (aComponents.medium < 0 && bComponents.medium > 0) return -1;
-                    if (aComponents.medium > 0 && bComponents.medium < 0) return 1;
-                    if (Math.abs(aComponents.medium) > Math.abs(bComponents.medium)) {
-                        return -1;
-                    } else {
-                        if (aComponents.soft < 0 && bComponents.soft > 0) return -1;
-                        if (aComponents.soft > 0 && bComponents.soft < 0) return 1;
-
-                        return Math.abs(bComponents.soft) - Math.abs(aComponents.soft);
-                    }
-                }
-            });
-            constraints.map((e) => {
-                let components = getScoreComponents(e.weight);
-                e.type = components.hard != 0 ? 'hard' : (components.medium != 0 ? 'medium' : 'soft');
-                e.weight = components[e.type];
-                let scores = getScoreComponents(e.score);
-                e.implicitScore = scores.hard != 0 ? scores.hard : (scores.medium != 0 ? scores.medium : scores.soft);
-            });
-            scoreAnalysis.constraints = constraints;
-
-            scoreAnalysisModalContent.children().remove();
-            scoreAnalysisModalContent.text("");
-
-            const analysisTable = $(`<table class="table"/>`).css({textAlign: 'center'});
-            const analysisTHead = $(`<thead/>`).append($(`<tr/>`)
-                .append($(`<th></th>`))
-                .append($(`<th>Constraint</th>`).css({textAlign: 'left'}))
-                .append($(`<th>Type</th>`))
-                .append($(`<th># Matches</th>`))
-                .append($(`<th>Weight</th>`))
-                .append($(`<th>Score</th>`))
-                .append($(`<th></th>`)));
-            analysisTable.append(analysisTHead);
-            const analysisTBody = $(`<tbody/>`)
-            $.each(scoreAnalysis.constraints, (index, constraintAnalysis) => {
-                let icon = constraintAnalysis.type == "hard" && constraintAnalysis.implicitScore < 0 ? '<span class="fas fa-exclamation-triangle" style="color: red"></span>' : '';
-                if (!icon) icon = constraintAnalysis.weight < 0 && constraintAnalysis.matches.length == 0 ? '<span class="fas fa-check-circle" style="color: green"></span>' : '';
-
-                let row = $(`<tr/>`);
-                row.append($(`<td/>`).html(icon))
-                    .append($(`<td/>`).text(constraintAnalysis.name).css({textAlign: 'left'}))
-                    .append($(`<td/>`).text(constraintAnalysis.type))
-                    .append($(`<td/>`).html(`<b>${constraintAnalysis.matches.length}</b>`))
-                    .append($(`<td/>`).text(constraintAnalysis.weight))
-                    .append($(`<td/>`).text(constraintAnalysis.implicitScore));
-
-                analysisTBody.append(row);
-
-                if (constraintAnalysis.matches.length > 0) {
-                    let matchesRow = $(`<tr/>`).addClass("collapse").attr("id", "row" + index + "Collapse");
-                    let matchesListGroup = $(`<ul/>`).addClass('list-group').addClass('list-group-flush').css({textAlign: 'left'});
-
-                    $.each(constraintAnalysis.matches, (index2, match) => {
-                        matchesListGroup.append($(`<li/>`).addClass('list-group-item').addClass('list-group-item-light').text(match.justification.description));
-                    });
-
-                    matchesRow.append($(`<td/>`));
-                    matchesRow.append($(`<td/>`).attr('colspan', '6').append(matchesListGroup));
-                    analysisTBody.append(matchesRow);
-
-                    row.append($(`<td/>`).append($(`<a/>`).attr("data-toggle", "collapse").attr('href', "#row" + index + "Collapse").append($(`<span/>`).addClass('fas').addClass('fa-arrow-down')).click(e => {
-                        matchesRow.collapse('toggle');
-                        let target = $(e.target);
-                        if (target.hasClass('fa-arrow-down')) {
-                            target.removeClass('fa-arrow-down').addClass('fa-arrow-up');
-                        } else {
-                            target.removeClass('fa-arrow-up').addClass('fa-arrow-down');
-                        }
-                    })));
-                } else {
-                    row.append($(`<td/>`));
-                }
-
-            });
-            analysisTable.append(analysisTBody);
-            scoreAnalysisModalContent.append(analysisTable);
-        }).fail(function (xhr, ajaxOptions, thrownError) {
-                showError("Score analysis failed.", xhr);
-            },
-            "text");
-    }
-}
-
-function getScoreComponents(score) {
-    let components = {hard: 0, medium: 0, soft: 0};
-
-    $.each([...score.matchAll(/(-?[0-9]+)(hard|medium|soft)/g)], (i, parts) => {
-        components[parts[2]] = parseInt(parts[1], 10);
-    });
-
-    return components;
 }
 
 // TODO: move the general functionality to the webjar.
@@ -542,7 +433,7 @@ function stopSolving() {
 
 function fetchDemoData() {
     $.get("/demo-data", function (data) {
-        data.forEach(item => {
+        data.forEach(function (item) {
             $("#testDataButton").append($('<a id="' + item + 'TestData" class="dropdown-item" href="#">' + item + '</a>'));
 
             $("#" + item + "TestData").click(function () {
