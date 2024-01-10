@@ -7,8 +7,15 @@ import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
 
 import org.acme.vehiclerouting.domain.Customer;
 import org.acme.vehiclerouting.domain.Vehicle;
+import org.acme.vehiclerouting.solver.justifications.MinimizeTravelTimeJustification;
+import org.acme.vehiclerouting.solver.justifications.ServiceFinishedAfterMaxEndTimeJustification;
+import org.acme.vehiclerouting.solver.justifications.VehicleCapacityJustification;
 
 public class VehicleRoutingConstraintProvider implements ConstraintProvider {
+
+    public static final String VEHICLE_CAPACITY = "vehicleCapacity";
+    public static final String SERVICE_FINISHED_AFTER_MAX_END_TIME = "serviceFinishedAfterMaxEndTime";
+    public static final String MINIMIZE_TRAVEL_TIME = "minimizeTravelTime";
 
     @Override
     public Constraint[] defineConstraints(ConstraintFactory factory) {
@@ -28,7 +35,9 @@ public class VehicleRoutingConstraintProvider implements ConstraintProvider {
                 .filter(vehicle -> vehicle.getTotalDemand() > vehicle.getCapacity())
                 .penalizeLong(HardSoftLongScore.ONE_HARD,
                         vehicle -> vehicle.getTotalDemand() - vehicle.getCapacity())
-                .asConstraint("vehicleCapacity");
+                .justifyWith((vehicle, score) -> new VehicleCapacityJustification(vehicle.getId(), vehicle.getTotalDemand(),
+                        vehicle.getCapacity()))
+                .asConstraint(VEHICLE_CAPACITY);
     }
 
     protected Constraint serviceFinishedAfterMaxEndTime(ConstraintFactory factory) {
@@ -36,7 +45,9 @@ public class VehicleRoutingConstraintProvider implements ConstraintProvider {
                 .filter(Customer::isServiceFinishedAfterMaxEndTime)
                 .penalizeLong(HardSoftLongScore.ONE_HARD,
                         Customer::getServiceFinishedDelayInMinutes)
-                .asConstraint("serviceFinishedAfterMaxEndTime");
+                .justifyWith((customer, score) -> new ServiceFinishedAfterMaxEndTimeJustification(customer.getId(),
+                        customer.getServiceFinishedDelayInMinutes()))
+                .asConstraint(SERVICE_FINISHED_AFTER_MAX_END_TIME);
     }
 
     // ************************************************************************
@@ -47,6 +58,8 @@ public class VehicleRoutingConstraintProvider implements ConstraintProvider {
         return factory.forEach(Vehicle.class)
                 .penalizeLong(HardSoftLongScore.ONE_SOFT,
                         Vehicle::getTotalDrivingTimeSeconds)
-                .asConstraint("minimizeTravelTime");
+                .justifyWith((vehicle, score) -> new MinimizeTravelTimeJustification(vehicle.getId(),
+                        vehicle.getTotalDrivingTimeSeconds()))
+                .asConstraint(MINIMIZE_TRAVEL_TIME);
     }
 }

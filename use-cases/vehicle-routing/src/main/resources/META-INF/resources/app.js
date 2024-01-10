@@ -8,6 +8,7 @@ const solveButton = $('#solveButton');
 const stopSolvingButton = $('#stopSolvingButton');
 const vehiclesTable = $('#vehicles');
 const depotsTable = $('#depots');
+const analyzeButton = $('#analyzeButton');
 
 /*************************************** Map constants and variable definitions  **************************************/
 
@@ -64,6 +65,7 @@ $(document).ready(function () {
 
     solveButton.click(solve);
     stopSolvingButton.click(stopSolving);
+    analyzeButton.click(analyze);
     refreshSolvingButtons(false);
 
     // HACK to allow vis-timeline to work within Bootstrap tabs
@@ -139,7 +141,7 @@ function renderRoutes(solution) {
     }
     // Vehicles
     vehiclesTable.children().remove();
-    solution.vehicles.forEach((vehicle) => {
+    solution.vehicles.forEach(function (vehicle) {
         const {id, capacity, totalDemand, totalDrivingTimeSeconds} = vehicle;
         const percentage = totalDemand / capacity * 100;
         const color = colorByVehicle(vehicle);
@@ -162,7 +164,7 @@ function renderRoutes(solution) {
     });
     // Depots
     depotsTable.children().remove();
-    solution.depots.forEach((depot) => {
+    solution.depots.forEach(function (depot) {
         const {id} = depot;
         const color = colorByDepot(depot);
         const icon = defaultIcon;
@@ -176,7 +178,7 @@ function renderRoutes(solution) {
       </tr>`);
     });
     // Customers
-    solution.customers.forEach((customer) => {
+    solution.customers.forEach(function (customer) {
         getCustomerMarker(customer).setPopupContent(customerPopupContent(customer));
     });
     // Route
@@ -191,7 +193,6 @@ function renderRoutes(solution) {
 
     // Summary
     $('#score').text(solution.score);
-    $('#scoreInfo').text(solution.scoreExplanation);
     $('#drivingTime').text(formatDrivingTime(solution.totalDrivingTimeSeconds));
 }
 
@@ -201,7 +202,7 @@ function renderTimelines(routePlan) {
     byVehicleItemData.clear();
     byCustomerItemData.clear();
 
-    $.each(routePlan.vehicles, (index, vehicle) => {
+    $.each(routePlan.vehicles, function (index, vehicle) {
         const { totalDemand, capacity } = vehicle
         const percentage = totalDemand / capacity * 100;
         const vehicleWithLoad = `<h5 class="card-title mb-1">vehicle-${vehicle.id}</h5>
@@ -214,7 +215,7 @@ function renderTimelines(routePlan) {
         byVehicleGroupData.add({id: vehicle.id, content: vehicleWithLoad});
     });
 
-    $.each(routePlan.customers, (index, customer) => {
+    $.each(routePlan.customers, function (index, customer) {
         const minStartTime = JSJoda.LocalDateTime.parse(customer.minStartTime);
         const maxEndTime = JSJoda.LocalDateTime.parse(customer.maxEndTime);
         const serviceDuration = JSJoda.Duration.ofSeconds(customer.serviceDuration);
@@ -313,7 +314,7 @@ function renderTimelines(routePlan) {
 
     });
 
-    $.each(routePlan.vehicles, (index, vehicle) => {
+    $.each(routePlan.vehicles, function (index, vehicle) {
         if (vehicle.customers.length > 0) {
             let lastCustomer = routePlan.customers.filter((customer) => customer.id == vehicle.customers[vehicle.customers.length -1]).pop();
             if (lastCustomer) {
@@ -334,6 +335,11 @@ function renderTimelines(routePlan) {
         byVehicleTimeline.setWindow(routePlan.startDateTime, routePlan.endDateTime);
         byCustomerTimeline.setWindow(routePlan.startDateTime, routePlan.endDateTime);
     }
+}
+
+function analyze() {
+    // see score-analysis.js
+    analyzeScore(loadedRoutePlan, "/route-plans/analyze")
 }
 
 // TODO: move the general functionality to the webjar.
@@ -427,7 +433,7 @@ function stopSolving() {
 
 function fetchDemoData() {
     $.get("/demo-data", function (data) {
-        data.forEach(item => {
+        data.forEach(function (item) {
             $("#testDataButton").append($('<a id="' + item + 'TestData" class="dropdown-item" href="#">' + item + '</a>'));
 
             $("#" + item + "TestData").click(function () {
