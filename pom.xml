@@ -6,7 +6,7 @@
   <parent>
     <groupId>ai.timefold.solver</groupId>
     <artifactId>timefold-solver-build-parent</artifactId>
-    <version>1.5.0</version>
+    <version>1.6.0</version>
     <relativePath/>
   </parent>
   <!-- IMPORTANT: the individual quickstarts have no parent pom. -->
@@ -28,8 +28,7 @@
     <module>use-cases/maintenance-scheduling</module>
     <module>use-cases/call-center</module>
     <module>use-cases/vaccination-scheduling</module>
-    <module>use-cases/vehicle-routing-capacity</module>
-    <module>use-cases/vehicle-routing-time-windows</module>
+    <module>use-cases/vehicle-routing</module>
     <module>use-cases/order-picking</module>
     <module>use-cases/employee-scheduling</module>
     <module>use-cases/food-packaging</module>

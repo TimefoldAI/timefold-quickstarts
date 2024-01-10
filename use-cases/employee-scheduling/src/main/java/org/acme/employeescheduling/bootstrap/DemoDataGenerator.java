@@ -102,17 +102,17 @@ public class DemoDataGenerator {
         List<String> namePermutations = joinAllCombinations(FIRST_NAMES, LAST_NAMES);
         Collections.shuffle(namePermutations, random);
 
-        List<Employee> employeeList = new ArrayList<>();
+        List<Employee> employees = new ArrayList<>();
         for (int i = 0; i < 15; i++) {
             Set<String> skills = pickSubset(List.of(OPTIONAL_SKILLS), random, 3, 1);
             skills.add(pickRandom(REQUIRED_SKILLS, random));
             Employee employee = new Employee(namePermutations.get(i), skills);
             employeeRepository.persist(employee);
-            employeeList.add(employee);
+            employees.add(employee);
         }
 
         for (int i = 0; i < INITIAL_ROSTER_LENGTH_IN_DAYS; i++) {
-            Set<Employee> employeesWithAvailabitiesOnDay = pickSubset(employeeList, random, 4, 3, 2, 1);
+            Set<Employee> employeesWithAvailabitiesOnDay = pickSubset(employees, random, 4, 3, 2, 1);
             LocalDate date = START_DATE.plusDays(i);
             for (Employee employee : employeesWithAvailabitiesOnDay) {
                 AvailabilityType availabilityType = pickRandom(AvailabilityType.values(), random);
@@ -125,8 +125,8 @@ public class DemoDataGenerator {
 
     private void generateShiftsForDay(LocalDate date, Random random) {
         for (String location : LOCATIONS) {
-            List<LocalTime> shiftStartTimeList = locationToShiftStartTimeListMap.get(location);
-            for (LocalTime shiftStartTime : shiftStartTimeList) {
+            List<LocalTime> shiftStartTimes = locationToShiftStartTimeListMap.get(location);
+            for (LocalTime shiftStartTime : shiftStartTimes) {
                 LocalDateTime shiftStartDateTime = date.atTime(shiftStartTime);
                 LocalDateTime shiftEndDateTime = shiftStartDateTime.plus(SHIFT_LENGTH);
                 generateShiftForTimeslot(shiftStartDateTime, shiftEndDateTime, location, random);
@@ -195,11 +195,11 @@ public class DemoDataGenerator {
     }
 
     public void generateDraftShifts(ScheduleState scheduleState) {
-        List<Employee> employeeList = employeeRepository.listAll();
+        List<Employee> employees = employeeRepository.listAll();
         Random random = new Random(0);
 
         for (int i = 0; i < scheduleState.getPublishLength(); i++) {
-            Set<Employee> employeesWithAvailabitiesOnDay = pickSubset(employeeList, random, 4, 3, 2, 1);
+            Set<Employee> employeesWithAvailabitiesOnDay = pickSubset(employees, random, 4, 3, 2, 1);
             LocalDate date = scheduleState.getFirstDraftDate().plusDays(scheduleState.getPublishLength() + i);
             for (Employee employee : employeesWithAvailabitiesOnDay) {
                 AvailabilityType availabilityType = pickRandom(AvailabilityType.values(), random);

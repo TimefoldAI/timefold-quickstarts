@@ -1,11 +1,10 @@
 plugins {
     id "java"
-    id "io.quarkus" version "3.3.3"
+    id "io.quarkus" version "3.6.4"
 }
 
-def quarkusVersion = "3.3.3"
-def timefoldVersion = "1.5.0"
-def assertjVersion = "3.24.2"
+def quarkusVersion = "3.6.4"
+def timefoldVersion = "1.6.0"
 
 group = "org.acme"
 version = "1.0-SNAPSHOT"
@@ -16,27 +15,30 @@ repositories {
 }
 
 dependencies {
+
     implementation enforcedPlatform("io.quarkus:quarkus-bom:${quarkusVersion}")
+    implementation platform("ai.timefold.solver:timefold-solver-bom:${timefoldVersion}")
+
     implementation "io.quarkus:quarkus-resteasy"
     implementation "io.quarkus:quarkus-resteasy-jackson"
     implementation "io.quarkus:quarkus-smallrye-openapi"
-    implementation "io.quarkus:quarkus-webjars-locator"
-    testImplementation "io.quarkus:quarkus-junit5"
-    testImplementation "io.rest-assured:rest-assured"
-    testImplementation "org.awaitility:awaitility"
-
-    implementation platform("ai.timefold.solver:timefold-solver-bom:${timefoldVersion}")
     implementation "ai.timefold.solver:timefold-solver-quarkus"
     implementation "ai.timefold.solver:timefold-solver-quarkus-jackson"
-    testImplementation "ai.timefold.solver:timefold-solver-test"
-    testImplementation "org.assertj:assertj-core:${assertjVersion}"
 
+    // Testing
+    testImplementation "io.quarkus:quarkus-junit5"
+    testImplementation "io.quarkus:quarkus-junit5-internal"
+    testImplementation "io.rest-assured:rest-assured"
+    testImplementation "ai.timefold.solver:timefold-solver-test"
+    testImplementation "org.awaitility:awaitility"
+
+    // UI
+    implementation "io.quarkus:quarkus-webjars-locator"
     runtimeOnly "ai.timefold.solver:timefold-solver-webui"
     runtimeOnly "org.webjars:bootstrap:5.2.3"
     runtimeOnly "org.webjars:jquery:3.6.4"
-    runtimeOnly "org.webjars:font-awesome:5.11.2"
+    runtimeOnly "org.webjars:font-awesome:5.15.1"
     runtimeOnly "org.webjars.npm:js-joda:1.11.0"
-
 }
 
 java {

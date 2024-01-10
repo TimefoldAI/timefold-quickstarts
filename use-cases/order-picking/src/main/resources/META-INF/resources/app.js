@@ -48,7 +48,7 @@ function printSolutionTable(orderPickingSolution) {
     const unassignedItemsByOrder = unassignedOrderItemsAndOrdersSpreading[0];
     const trolleysByOrder = unassignedOrderItemsAndOrdersSpreading[1];
     const unassignedTrolleys = [];
-    for (const trolley of orderPickingSolution.trolleyList) {
+    for (const trolley of orderPickingSolution.trolleys) {
         if (trolley.nextElement != null) {
             const travelDistance = TROLLEY_TRAVEL_DISTANCE.get(trolley.id);
             printTrolley(tableBody, trolley, travelDistance, unassignedItemsByOrder, trolleysByOrder);
@@ -64,11 +64,11 @@ function printUnassignedEntities(unassignedTrolleys, unAssignedItemsByOrder) {
     unassignedEntitiesContainer.empty();
 
     const unassignedEntitiesNav = $('<nav>').appendTo(unassignedEntitiesContainer);
-    const unassignedEntitiesTabList = $('<div class="nav nav-tabs" id="unassignedEntitiesTabList" role="tablist">').appendTo(unassignedEntitiesNav);
+    const unassignedEntitiesTabs = $('<div class="nav nav-tabs" id="unassignedEntitiesTabList" role="tablist">').appendTo(unassignedEntitiesNav);
     const unassignedEntitiesTabListContent = $('<div class="tab-content" id="unassignedEntitiesTabListContent">').appendTo(unassignedEntitiesContainer);
 
-    printUnassignedTrolleys(unassignedTrolleys, unassignedEntitiesTabList, unassignedEntitiesTabListContent);
-    printUnassignedOrders(unAssignedItemsByOrder, unassignedEntitiesTabList, unassignedEntitiesTabListContent);
+    printUnassignedTrolleys(unassignedTrolleys, unassignedEntitiesTabs, unassignedEntitiesTabListContent);
+    printUnassignedOrders(unAssignedItemsByOrder, unassignedEntitiesTabs, unassignedEntitiesTabListContent);
 }
 
 function printTabNavLink(navTabs, active, tabId, tabPaneId, name) {
@@ -82,8 +82,8 @@ function printTabPane(navTabsContainer, active, show, tabPaneId, tabId) {
     return $(`<div class="tab-pane fade ${showValue} ${activeValue}" id="${tabPaneId}" role="tabpanel" aria-labelledby="${tabId}"></div>`).appendTo(navTabsContainer);
 }
 
-function printUnassignedTrolleys(trolleys, unassignedEntitiesTabList, unassignedEntitiesTabListContent) {
-    printTabNavLink(unassignedEntitiesTabList, true, 'unassignedTrolleys', 'unassignedTrolleysTab', 'Trolleys');
+function printUnassignedTrolleys(trolleys, unassignedEntitiesTabs, unassignedEntitiesTabListContent) {
+    printTabNavLink(unassignedEntitiesTabs, true, 'unassignedTrolleys', 'unassignedTrolleysTab', 'Trolleys');
     const tabPane = printTabPane(unassignedEntitiesTabListContent, true, true, 'unassignedTrolleysTab', 'unassignedTrolleys');
     const unassignedTrolleysTable = $(`<table class="table table-striped" id="unassignedTrolleysTable">`).appendTo(tabPane);
     printUnassignedTrolleysTableHeader(unassignedTrolleysTable);
@@ -111,24 +111,24 @@ function printUnassignedTrolleyRow(unassignedTrolleysTableBody, trolley, locatio
     trolleyRow.append($(`<td>${trolley.bucketCapacity}</td>`));
 }
 
-function printUnassignedOrders(unAssignedItemsByOrder, unassignedEntitiesTabList, unassignedEntitiesTabListContent) {
+function printUnassignedOrders(unAssignedItemsByOrder, unassignedEntitiesTabs, unassignedEntitiesTabListContent) {
     const orderIds = Array.from(unAssignedItemsByOrder.keys());
     orderIds.sort((a, b) => a - b);
     for (const orderId of orderIds) {
         const unassignedItems = unAssignedItemsByOrder.get(orderId);
         if (unassignedItems.length > 0) {
             unassignedItems.sort((item1, item2) => item1.id - item2.id);
-            printUnassignedOrder(orderId, unassignedItems, unassignedEntitiesTabList, unassignedEntitiesTabListContent);
+            printUnassignedOrder(orderId, unassignedItems, unassignedEntitiesTabs, unassignedEntitiesTabListContent);
         }
     }
 }
 
-function printUnassignedOrder(orderId, unassignedItems, unassignedEntitiesTabList, unassignedEntitiesTabListContent) {
+function printUnassignedOrder(orderId, unassignedItems, unassignedEntitiesTabs, unassignedEntitiesTabListContent) {
     const name = 'Order_' + orderId;
     const tabId = 'unassignedOrder_' + orderId;
     const tabPaneId = "unassignedOrderTab_" + orderId;
 
-    printTabNavLink(unassignedEntitiesTabList, false, tabId, tabPaneId, name);
+    printTabNavLink(unassignedEntitiesTabs, false, tabId, tabPaneId, name);
     const tabPane = printTabPane(unassignedEntitiesTabListContent, false, false, tabPaneId, tabId);
     const unassignedOrderTable = $('<table class="table table-striped">').appendTo(tabPane);
     printUnassignedOrderTableHeader(unassignedOrderTable);
@@ -167,7 +167,7 @@ function printUnassignedOrderRow(unassignedOrderTableBody, orderItem) {
 function findUnassignedOrderItemsAndOrdersSpreading(orderPickingSolution) {
     const unassignedItemsByOrder = new Map();
     const trolleysByOrder = new Map();
-    for (const trolleyStep of orderPickingSolution.trolleyStepList) {
+    for (const trolleyStep of orderPickingSolution.trolleySteps) {
         const orderItem = trolleyStep.orderItem;
         if (trolleyStep.trolleyId === null) {
             let unassignedItems = unassignedItemsByOrder.get(orderItem.orderId);
@@ -394,16 +394,16 @@ function printTrolleysMap(orderPickingSolution) {
     mapActionsContainer.children().remove();
     const trolleyCheckBoxes = [];
     let trolleyIndex = 0;
-    for (const trolley of orderPickingSolution.trolleyList) {
+    for (const trolley of orderPickingSolution.trolleys) {
         if (trolley.nextElement != null) {
-            printTrolleyPath(trolley, trolleyIndex, orderPickingSolution.trolleyList.length, false);
+            printTrolleyPath(trolley, trolleyIndex, orderPickingSolution.trolleys.length, false);
             trolleyCheckBoxes.push(trolley.id);
         }
         trolleyIndex++;
     }
-    for (const trolley of orderPickingSolution.trolleyList) {
+    for (const trolley of orderPickingSolution.trolleys) {
         if (trolley.nextElement != null) {
-            printTrolleyPath(trolley, trolleyIndex, orderPickingSolution.trolleyList.length, true);
+            printTrolleyPath(trolley, trolleyIndex, orderPickingSolution.trolleys.length, true);
             trolleyCheckBoxes.push(trolley.id);
         }
         trolleyIndex++;

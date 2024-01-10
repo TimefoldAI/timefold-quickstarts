@@ -4,11 +4,12 @@ import java.util.concurrent.ExecutionException;
 
 import jakarta.inject.Inject;
 
+import ai.timefold.solver.core.api.solver.SolverManager;
+
 import org.acme.facilitylocation.bootstrap.DemoDataBuilder;
 import org.acme.facilitylocation.domain.FacilityLocationProblem;
 import org.acme.facilitylocation.domain.Location;
 import org.junit.jupiter.api.Test;
-import ai.timefold.solver.core.api.solver.SolverManager;
 
 import io.quarkus.test.junit.QuarkusTest;
 
@@ -29,7 +30,12 @@ public class SolverManagerTest {
                 .setSouthWestCorner(new Location(-10, -10))
                 .setNorthEastCorner(new Location(10, 10))
                 .build();
-        solverManager.solve(0L, id -> problem, SolverManagerTest::printSolution).getFinalBestSolution();
+        solverManager.solveBuilder()
+                .withProblemId(0L)
+                .withProblemFinder(id -> problem)
+                .withFinalBestSolutionConsumer(SolverManagerTest::printSolution)
+                .run()
+                .getFinalBestSolution();
     }
 
     static void printSolution(FacilityLocationProblem solution) {

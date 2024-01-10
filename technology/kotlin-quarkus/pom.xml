@@ -11,12 +11,11 @@
     <maven.compiler.release>17</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <version.io.quarkus>3.6.1</version.io.quarkus>
-    <version.kotlin>1.9.21</version.kotlin>
-    <version.ai.timefold.solver>1.5.0</version.ai.timefold.solver>
+    <version.io.quarkus>3.6.4</version.io.quarkus>
+    <version.kotlin>1.9.22</version.kotlin>
+    <version.ai.timefold.solver>1.6.0</version.ai.timefold.solver>
 
-    <version.compiler.plugin>3.11.0</version.compiler.plugin>
-    <version.surefire.plugin>3.2.2</version.surefire.plugin>
+    <version.surefire.plugin>3.2.5</version.surefire.plugin>
   </properties>
 
   <dependencyManagement>
@@ -59,26 +58,8 @@
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-hibernate-orm-panache</artifactId>
+      <artifactId>quarkus-smallrye-openapi</artifactId>
     </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-hibernate-orm-panache-kotlin</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-jdbc-h2</artifactId>
-    </dependency>
-    <!-- TODO Add RoomResource etc to add/remove rooms, timeslots and lessons -->
-    <!-- Blocked by https://github.com/quarkusio/quarkus/issues/12235 -->
-<!--    <dependency>-->
-<!--      <groupId>io.quarkus</groupId>-->
-<!--      <artifactId>quarkus-hibernate-orm-rest-data-panache</artifactId>-->
-<!--    </dependency>-->
-<!--    <dependency>-->
-<!--      <groupId>io.quarkus</groupId>-->
-<!--      <artifactId>quarkus-hibernate-orm-rest-data-panache-kotlin</artifactId>-->
-<!--    </dependency>-->
     <dependency>
       <groupId>ai.timefold.solver</groupId>
       <artifactId>timefold-solver-quarkus</artifactId>
@@ -96,7 +77,7 @@
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-test-h2</artifactId>
+      <artifactId>quarkus-junit5-internal</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -168,10 +149,6 @@
             </goals>
           </execution>
         </executions>
-      </plugin>
-      <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>${version.compiler.plugin}</version>
       </plugin>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>

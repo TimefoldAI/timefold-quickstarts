@@ -35,9 +35,9 @@ public class TrolleyStep extends TrolleyOrTrolleyStep {
      * Planning variable: changes during planning, between score calculations.
      * <p>
      * The Trolleys for building the chains are taken from the value range provider
-     * {@link OrderPickingSolution#getTrolleyList()}.
+     * {@link OrderPickingSolution#getTrolleys()}.
      * The intermediary elements, the TrolleySteps, for building the chains are taken from the value range provider
-     * {@link OrderPickingSolution#getTrolleyStepList()}.
+     * {@link OrderPickingSolution#getTrolleySteps()}.
      */
     @JsonIgnore
     @PlanningVariable(graphType = PlanningVariableGraphType.CHAINED)

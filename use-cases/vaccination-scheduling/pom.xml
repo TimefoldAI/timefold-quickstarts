@@ -11,11 +11,11 @@
     <maven.compiler.release>17</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <version.io.quarkus>3.6.1</version.io.quarkus>
-    <version.ai.timefold.solver>1.5.0</version.ai.timefold.solver>
+    <version.io.quarkus>3.6.4</version.io.quarkus>
+    <version.ai.timefold.solver>1.6.0</version.ai.timefold.solver>
 
-    <version.compiler.plugin>3.11.0</version.compiler.plugin>
-    <version.surefire.plugin>3.2.2</version.surefire.plugin>
+    <version.compiler.plugin>3.12.1</version.compiler.plugin>
+    <version.surefire.plugin>3.2.5</version.surefire.plugin>
   </properties>
 
   <dependencyManagement>
@@ -109,14 +109,14 @@
     </dependency>
     <dependency>
       <groupId>org.webjars</groupId>
-      <artifactId>momentjs</artifactId>
-      <version>2.24.0</version>
+      <artifactId>leaflet</artifactId>
+      <version>1.6.0</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
-      <groupId>org.webjars</groupId>
-      <artifactId>leaflet</artifactId>
-      <version>1.6.0</version>
+      <groupId>org.webjars.npm</groupId>
+      <artifactId>js-joda</artifactId>
+      <version>1.11.0</version>
       <scope>runtime</scope>
     </dependency>
   </dependencies>

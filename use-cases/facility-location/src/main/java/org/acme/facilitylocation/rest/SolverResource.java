@@ -7,11 +7,12 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 
-import org.acme.facilitylocation.domain.FacilityLocationProblem;
-import org.acme.facilitylocation.persistence.FacilityLocationProblemRepository;
 import ai.timefold.solver.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
 import ai.timefold.solver.core.api.solver.SolutionManager;
 import ai.timefold.solver.core.api.solver.SolverManager;
+
+import org.acme.facilitylocation.domain.FacilityLocationProblem;
+import org.acme.facilitylocation.persistence.FacilityLocationProblemRepository;
 
 @Path("/flp")
 public class SolverResource {
@@ -51,11 +52,12 @@ public class SolverResource {
     @Path("solve")
     public void solve() {
         Optional<FacilityLocationProblem> maybeSolution = repository.solution();
-        maybeSolution.ifPresent(facilityLocationProblem -> solverManager.solveAndListen(
-                PROBLEM_ID,
-                id -> facilityLocationProblem,
-                repository::update,
-                (problemId, throwable) -> solverError.set(throwable)));
+        maybeSolution.ifPresent(facilityLocationProblem -> solverManager.solveBuilder()
+                .withProblemId(PROBLEM_ID)
+                .withProblemFinder(id -> facilityLocationProblem)
+                .withBestSolutionConsumer(repository::update)
+                .withExceptionHandler((problemId, throwable) -> solverError.set(throwable))
+                .run());
     }
 
     @POST

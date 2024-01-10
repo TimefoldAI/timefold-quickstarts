@@ -58,7 +58,8 @@ public class TimetableResource {
     }
 
     @Inject
-    public TimetableResource(SolverManager<Timetable, String> solverManager, SolutionManager<Timetable, HardSoftScore> solutionManager) {
+    public TimetableResource(SolverManager<Timetable, String> solverManager,
+            SolutionManager<Timetable, HardSoftScore> solutionManager) {
         this.solverManager = solverManager;
         this.solutionManager = solutionManager;
     }
@@ -85,13 +86,15 @@ public class TimetableResource {
     public String solve(Timetable problem) {
         String jobId = UUID.randomUUID().toString();
         jobIdToJob.put(jobId, Job.ofTimetable(problem));
-        solverManager.solveAndListen(jobId,
-                jobId_ -> jobIdToJob.get(jobId).timetable,
-                solution -> jobIdToJob.put(jobId, Job.ofTimetable(solution)),
-                (jobId_, exception) -> {
+        solverManager.solveBuilder()
+                .withProblemId(jobId)
+                .withProblemFinder(jobId_ -> jobIdToJob.get(jobId).timetable)
+                .withBestSolutionConsumer(solution -> jobIdToJob.put(jobId, Job.ofTimetable(solution)))
+                .withExceptionHandler((jobId_, exception) -> {
                     jobIdToJob.put(jobId, Job.ofException(exception));
                     LOGGER.error("Failed solving jobId ({}).", jobId, exception);
-                });
+                })
+                .run();
         return jobId;
     }
 
@@ -99,12 +102,14 @@ public class TimetableResource {
     @APIResponses(value = {
             @APIResponse(responseCode = "202",
                     description = "Resulting score analysis, optionally without constraint matches.",
-                    content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ScoreAnalysis.class))) })
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = ScoreAnalysis.class))) })
     @PUT
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces(MediaType.APPLICATION_JSON)
     @Path("analyze")
-    public ScoreAnalysis<HardSoftScore> analyze(Timetable problem, @QueryParam("fetchPolicy") ScoreAnalysisFetchPolicy fetchPolicy) {
+    public ScoreAnalysis<HardSoftScore> analyze(Timetable problem,
+            @QueryParam("fetchPolicy") ScoreAnalysisFetchPolicy fetchPolicy) {
         return fetchPolicy == null ? solutionManager.analyze(problem) : solutionManager.analyze(problem, fetchPolicy);
     }
 

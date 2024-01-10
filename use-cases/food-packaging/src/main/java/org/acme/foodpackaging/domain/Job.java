@@ -31,13 +31,13 @@ public class Job {
     @PlanningPin
     private boolean pinned;
 
-    @InverseRelationShadowVariable(sourceVariableName = "jobList")
+    @InverseRelationShadowVariable(sourceVariableName = "jobs")
     private Line line;
     @JsonIgnore
-    @PreviousElementShadowVariable(sourceVariableName = "jobList")
+    @PreviousElementShadowVariable(sourceVariableName = "jobs")
     private Job previousJob;
     @JsonIgnore
-    @NextElementShadowVariable(sourceVariableName = "jobList")
+    @NextElementShadowVariable(sourceVariableName = "jobs")
     private Job nextJob;
 
     /** Start is after cleanup. */

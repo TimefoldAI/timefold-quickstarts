@@ -18,7 +18,7 @@ public class Line {
 
     @JsonIgnore
     @PlanningListVariable
-    private List<Job> jobList;
+    private List<Job> jobs;
 
     // No-arg constructor required for OptaPlanner and Jackson
     public Line() {
@@ -29,7 +29,7 @@ public class Line {
         this.name = name;
         this.operator = operator;
         this.startDateTime = startDateTime;
-        jobList = new ArrayList<>();
+        jobs = new ArrayList<>();
     }
 
     @Override
@@ -57,8 +57,8 @@ public class Line {
         return startDateTime;
     }
 
-    public List<Job> getJobList() {
-        return jobList;
+    public List<Job> getJobs() {
+        return jobs;
     }
 
 }

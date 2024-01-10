@@ -8,9 +8,9 @@ const byCrewTimelineOptions = {
     xss: {disabled: true}, // Items are XSS safe through JQuery
     zoomMin: 3 * 1000 * 60 * 60 * 24 // Three day in milliseconds
 };
-var byCrewGroupDataSet = new vis.DataSet();
-var byCrewItemDataSet = new vis.DataSet();
-var byCrewTimeline = new vis.Timeline(byCrewPanel, byCrewItemDataSet, byCrewGroupDataSet, byCrewTimelineOptions);
+var byCrewGroupData = new vis.DataSet();
+var byCrewItemData = new vis.DataSet();
+var byCrewTimeline = new vis.Timeline(byCrewPanel, byCrewItemData, byCrewGroupData, byCrewTimelineOptions);
 
 const byJobPanel = document.getElementById("byJobPanel");
 const byJobTimelineOptions = {
@@ -19,9 +19,9 @@ const byJobTimelineOptions = {
     xss: {disabled: true}, // Items are XSS safe through JQuery
     zoomMin: 3 * 1000 * 60 * 60 * 24 // Three day in milliseconds
 };
-var byJobGroupDataSet = new vis.DataSet();
-var byJobItemDataSet = new vis.DataSet();
-var byJobTimeline = new vis.Timeline(byJobPanel, byJobItemDataSet, byJobGroupDataSet, byJobTimelineOptions);
+var byJobGroupData = new vis.DataSet();
+var byJobItemData = new vis.DataSet();
+var byJobTimeline = new vis.Timeline(byJobPanel, byJobItemData, byJobGroupData, byJobTimelineOptions);
 
 $(document).ready(function () {
     replaceTimefoldAutoHeaderFooter();
@@ -60,30 +60,30 @@ function refreshSchedule() {
         const unassignedJobs = $("#unassignedJobs");
         unassignedJobs.children().remove();
         var unassignedJobsCount = 0;
-        byCrewGroupDataSet.clear();
-        byJobGroupDataSet.clear();
-        byCrewItemDataSet.clear();
-        byJobItemDataSet.clear();
+        byCrewGroupData.clear();
+        byJobGroupData.clear();
+        byCrewItemData.clear();
+        byJobItemData.clear();
 
-        $.each(schedule.crewList, (index, crew) => {
-            byCrewGroupDataSet.add({id : crew.id, content: crew.name});
+        $.each(schedule.crews, (index, crew) => {
+            byCrewGroupData.add({id : crew.id, content: crew.name});
         });
 
-        $.each(schedule.jobList, (index, job) => {
+        $.each(schedule.jobs, (index, job) => {
             const jobGroupElement = $(`<div/>`)
               .append($(`<h5 class="card-title mb-1"/>`).text(job.name))
               .append($(`<p class="card-text ms-2 mb-0"/>`).text(`${job.durationInDays} workdays`));
-            byJobGroupDataSet.add({
+            byJobGroupData.add({
                 id : job.id,
                 content: jobGroupElement.html()
             });
-            byJobItemDataSet.add({
+            byJobItemData.add({
                   id: job.id + "_readyToIdealEnd", group: job.id,
                   start: job.readyDate, end: job.idealEndDate,
                   type: "background",
                   style: "background-color: #8AE23433"
             });
-            byJobItemDataSet.add({
+            byJobItemData.add({
                   id: job.id + "_idealEndToDue", group: job.id,
                   start: job.idealEndDate, end: job.dueDate,
                   type: "background",
@@ -99,13 +99,13 @@ function refreshSchedule() {
                     .append($(`<p class="card-text ms-2 mb-0"/>`).text(`Due: ${job.dueDate}`));
                 const byJobJobElement = $(`<div/>`)
                   .append($(`<h5 class="card-title mb-1"/>`).text(`Unassigned`));
-                $.each(job.tagSet, (index, tag) => {
+                $.each(job.tags, (index, tag) => {
                     const color = pickColor(tag);
                     unassignedJobElement.append($(`<span class="badge me-1" style="background-color: ${color}"/>`).text(tag));
                     byJobJobElement.append($(`<span class="badge me-1" style="background-color: ${color}"/>`).text(tag));
                 });
                 unassignedJobs.append($(`<div class="col"/>`).append($(`<div class="card"/>`).append(unassignedJobElement)));
-                byJobItemDataSet.add({
+                byJobItemData.add({
                     id : job.id, group: job.id,
                     content: byJobJobElement.html(),
                     start: job.readyDate, end: JSJoda.LocalDate.parse(job.readyDate).plusDays(job.durationInDays).toString(),
@@ -127,17 +127,17 @@ function refreshSchedule() {
                     byCrewJobElement.append($(`<p class="badge badge-danger mb-0"/>`).text(`After due (too late)`));
                     byJobJobElement.append($(`<p class="badge badge-danger mb-0"/>`).text(`After due (too late)`));
                 }
-                $.each(job.tagSet, (index, tag) => {
+                $.each(job.tags, (index, tag) => {
                     const color = pickColor(tag);
                     byCrewJobElement.append($(`<span class="badge me-1" style="background-color: ${color}"/>`).text(tag));
                     byJobJobElement.append($(`<span class="badge me-1" style="background-color: ${color}"/>`).text(tag));
                 });
-                byCrewItemDataSet.add({
+                byCrewItemData.add({
                     id : job.id, group: job.crew.id,
                     content: byCrewJobElement.html(),
                     start: job.startDate, end: job.endDate
                 });
-                byJobItemDataSet.add({
+                byJobItemData.add({
                     id : job.id, group: job.id,
                     content: byJobJobElement.html(),
                     start: job.startDate, end: job.endDate

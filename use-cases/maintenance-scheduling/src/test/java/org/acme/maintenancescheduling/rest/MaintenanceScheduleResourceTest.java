@@ -32,8 +32,8 @@ public class MaintenanceScheduleResourceTest {
             Thread.sleep(20L);
             maintenanceSchedule = maintenanceScheduleResource.getSchedule();
         }
-        assertFalse(maintenanceSchedule.getJobList().isEmpty());
-        for (Job job : maintenanceSchedule.getJobList()) {
+        assertFalse(maintenanceSchedule.getJobs().isEmpty());
+        for (Job job : maintenanceSchedule.getJobs()) {
             assertNotNull(job.getCrew());
             assertNotNull(job.getStartDate());
         }
