@@ -24,17 +24,17 @@ public class VaccinationSlot {
     private LocalTime startTime;
     private VaccineType vaccineType;
 
-    private List<Appointment> unscheduledAppointmentList;
+    private List<Appointment> unscheduledAppointments;
     private int capacity;
 
     public VaccinationSlot(Long id, VaccinationCenter vaccinationCenter,
-            LocalDateTime startDateTime, VaccineType vaccineType, List<Appointment> unscheduledAppointmentList, int capacity) {
+                           LocalDateTime startDateTime, VaccineType vaccineType, List<Appointment> unscheduledAppointments, int capacity) {
         this.id = id;
         this.vaccinationCenter = vaccinationCenter;
         this.date = startDateTime.toLocalDate();
         this.startTime = startDateTime.toLocalTime();
         this.vaccineType = vaccineType;
-        this.unscheduledAppointmentList = unscheduledAppointmentList;
+        this.unscheduledAppointments = unscheduledAppointments;
         this.capacity = capacity;
     }
 
@@ -46,7 +46,7 @@ public class VaccinationSlot {
         this.date = startDateTime == null ? null : startDateTime.toLocalDate();
         this.startTime = startDateTime == null ? null : startDateTime.toLocalTime();
         this.vaccineType = vaccineType;
-        unscheduledAppointmentList = null;
+        unscheduledAppointments = null;
         this.capacity = capacity;
     }
 
@@ -84,8 +84,8 @@ public class VaccinationSlot {
         return vaccineType;
     }
 
-    public List<Appointment> getUnscheduledAppointmentList() {
-        return unscheduledAppointmentList;
+    public List<Appointment> getUnscheduledAppointments() {
+        return unscheduledAppointments;
     }
 
     public int getCapacity() {

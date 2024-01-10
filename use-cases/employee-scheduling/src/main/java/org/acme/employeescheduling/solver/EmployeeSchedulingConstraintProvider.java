@@ -45,7 +45,7 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
 
     Constraint requiredSkill(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(Shift.class)
-                .filter(shift -> !shift.getEmployee().getSkillSet().contains(shift.getRequiredSkill()))
+                .filter(shift -> !shift.getEmployee().getSkills().contains(shift.getRequiredSkill()))
                 .penalize(HardSoftScore.ONE_HARD)
                 .asConstraint("Missing required skill");
     }

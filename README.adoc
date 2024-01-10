@@ -16,12 +16,11 @@ a|* <<school-timetabling, School timetabling>>
 * <<order-picking, Order Picking>>
 * <<employee-scheduling, Employee Scheduling>>
 * <<food-packaging, Food packaging>>
-* <<vehicle-routing-with-capacity, Vehicle Routing with capacity>>
-* <<vehicle-routing-with-time-windows, Vehicle Routing with time windows>>
+* <<vehicle-routing, Vehicle Routing>>
 
-a|* link:use-cases/school-timetabling/README.adoc[Quarkus] (Java, Maven or Gradle, Quarkus, H2)
-* link:technology/java-spring-boot/README.adoc[Spring Boot] (Java, Maven or Gradle, Spring Boot, H2)
-* link:technology/kotlin-quarkus/README.adoc[Kotlin] (Kotlin, Maven, Quarkus, H2)
+a|* link:use-cases/school-timetabling/README.adoc[Quarkus] (Java, Maven or Gradle, Quarkus)
+* link:technology/java-spring-boot/README.adoc[Spring Boot] (Java, Maven or Gradle, Spring Boot)
+* link:technology/kotlin-quarkus/README.adoc[Kotlin] (Kotlin, Maven, Quarkus)
 
 2+a|* <<timefold-solver-examples, Timefold examples (desktop)>>
 |===
@@ -56,10 +55,9 @@ Assign lessons to timeslots and rooms to produce a better schedule for teachers 
 
 image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screenshot/quarkus-school-timetabling-screenshot.png[]
 
-* link:use-cases/school-timetabling/README.adoc[Run quarkus-school-timetabling] (Java, Maven or Gradle, Quarkus, H2)
-* link:technology/java-spring-boot/README.adoc[Run spring-boot-school-timetabling] (Java, Maven or Gradle, Spring Boot, H2)
-* link:technology/kotlin-quarkus/README.adoc[Run kotlin-quarkus-school-timetabling] (Kotlin, Maven, Quarkus, H2)
-* link:use-cases/vehicle-routing-capacity/README.adoc[Run quarkus-vehicle-routing-capacity] (Java, Maven or Gradle, Quarkus)
+* link:use-cases/school-timetabling/README.adoc[Run quarkus-school-timetabling] (Java, Maven or Gradle, Quarkus)
+* link:technology/java-spring-boot/README.adoc[Run spring-boot-school-timetabling] (Java, Maven or Gradle, Spring Boot)
+* link:technology/kotlin-quarkus/README.adoc[Run kotlin-quarkus-school-timetabling] (Kotlin, Maven, Quarkus)
 
 Without a UI:
 
@@ -79,7 +77,7 @@ Schedule maintenance jobs to crews over time to reduce both premature and overdu
 
 image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screenshot/quarkus-maintenance-scheduling-screenshot.png[]
 
-* link:use-cases/maintenance-scheduling/README.adoc[Run quarkus-maintenance-scheduling] (Java, Maven, Quarkus)
+* link:use-cases/maintenance-scheduling/README.adoc[Run quarkus-maintenance-scheduling] (Java, Maven, Quarkus, H2)
 
 === Call center
 
@@ -111,7 +109,7 @@ Schedule shifts to employees, accounting for employee availability and shift ski
 
 image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screenshot/quarkus-employee-scheduling-screenshot.png[]
 
-* link:use-cases/employee-scheduling/README.adoc[Run quarkus-employee-scheduling] (Java, Maven, Quarkus)
+* link:use-cases/employee-scheduling/README.adoc[Run quarkus-employee-scheduling] (Java, Maven, Quarkus, H2)
 
 === Food Packaging
 
@@ -121,21 +119,13 @@ image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screensh
 
 * link:use-cases/food-packaging/README.adoc[Run quarkus-food-packaging] (Java, Maven, Quarkus)
 
-=== Vehicle Routing with capacity
+=== Vehicle Routing
 
-Find the most efficient routes for a fleet of vehicles with capacity.
+Find the most efficient routes for vehicles to reach customers, taking into account vehicle capacity and time windows when customers are available. Sometimes also called "CVRPTW".
 
-image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screenshot/quarkus-vehicle-routing-capacity-screenshot.png[]
+image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screenshot/quarkus-vehicle-routing-screenshot.png[]
 
-* link:use-cases/vehicle-routing-capacity/README.adoc[Run quarkus-vehicle-routing-capacity] (Java, Maven, Quarkus)
-
-=== Vehicle Routing with time windows
-
-Find the most efficient routes for field service technicians to visits with time windows.
-
-image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screenshot/quarkus-vehicle-routing-time-windows-screenshot.png[]
-
-* link:use-cases/vehicle-routing-time-windows/README.adoc[Run quarkus-vehicle-routing-time-windows] (Java, Maven, Quarkus)
+* link:use-cases/vehicle-routing/README.adoc[Run quarkus-vehicle-routing] (Java, Maven, Quarkus)
 
 === Timefold examples (desktop)
 
@@ -143,7 +133,24 @@ Many examples in desktop technology.
 
 image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screenshot/timefold-solver-examples-screenshot.png[]
 
-* https://timefold.ai[Download]
+[[run]]
+==== Run the application
+
+. Git clone the timefold-solver repo and navigate to this directory:
++
+[source, shell]
+----
+$ git clone https://github.com/TimefoldAI/timefold-solver.git
+...
+$ cd timefold-solver/examples
+----
+
+. Start the application with Maven:
++
+[source, shell]
+----
+$ mvn exec:java
+----
 
 == Legal notice
 

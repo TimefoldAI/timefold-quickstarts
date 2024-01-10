@@ -9,30 +9,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
 
-import jakarta.inject.Singleton;
-
-import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
-import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
-import ai.timefold.solver.core.api.score.constraint.ConstraintRef;
-import ai.timefold.solver.core.api.score.stream.ConstraintJustification;
 import ai.timefold.solver.core.api.solver.SolverStatus;
-import ai.timefold.solver.jackson.api.score.analysis.AbstractScoreAnalysisJacksonDeserializer;
 
 import org.acme.schooltimetabling.domain.Timetable;
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-
-import io.quarkus.jackson.ObjectMapperCustomizer;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
 
 @QuarkusTest
-public class TimetableResourceTest {
+class TimetableResourceTest {
 
     @Test
-    public void solveDemoDataUntilFeasible() {
+    void solveDemoDataUntilFeasible() {
         Timetable testTimetable = given()
                 .when().get("/demo-data/SMALL")
                 .then()
@@ -58,7 +47,7 @@ public class TimetableResourceTest {
                                 .jsonPath().get("solverStatus")));
 
         Timetable solution = get("/timetables/" + jobId).then().extract().as(Timetable.class);
-        assertEquals(solution.getSolverStatus(), SolverStatus.NOT_SOLVING);
+        assertEquals(SolverStatus.NOT_SOLVING, solution.getSolverStatus());
         assertNotNull(solution.getLessons());
         assertNotNull(solution.getTimeslots());
         assertNotNull(solution.getRooms());
@@ -68,19 +57,19 @@ public class TimetableResourceTest {
     }
 
     @Test
-    public void analyze() {
+    void analyze() {
         Timetable testTimetable = given()
                 .when().get("/demo-data/SMALL")
                 .then()
                 .statusCode(200)
                 .extract()
                 .as(Timetable.class);
-        var roomList = testTimetable.getRooms();
-        var timeslotList = testTimetable.getTimeslots();
+        var rooms = testTimetable.getRooms();
+        var timeslots = testTimetable.getTimeslots();
         int i = 0;
         for (var lesson : testTimetable.getLessons()) { // Initialize the solution.
-            lesson.setRoom(roomList.get(i % roomList.size()));
-            lesson.setTimeslot(timeslotList.get(i % timeslotList.size()));
+            lesson.setRoom(rooms.get(i % rooms.size()));
+            lesson.setTimeslot(timeslots.get(i % timeslots.size()));
             i += 1;
         }
 
@@ -107,6 +96,5 @@ public class TimetableResourceTest {
                 .asString();
         assertNotNull(analysis2); // Too long to validate in its entirety.
     }
-
 
 }

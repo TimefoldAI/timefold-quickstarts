@@ -1,16 +1,22 @@
 package org.acme.kotlin.schooltimetabling.solver
 
-import org.acme.kotlin.schooltimetabling.domain.Lesson
 import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore
 import ai.timefold.solver.core.api.score.stream.Constraint
 import ai.timefold.solver.core.api.score.stream.ConstraintFactory
 import ai.timefold.solver.core.api.score.stream.ConstraintProvider
 import ai.timefold.solver.core.api.score.stream.Joiners
+import org.acme.kotlin.schooltimetabling.domain.Lesson
+import org.acme.kotlin.schooltimetabling.solver.justifications.RoomConflictJustification
+import org.acme.kotlin.schooltimetabling.solver.justifications.StudentGroupConflictJustification
+import org.acme.kotlin.schooltimetabling.solver.justifications.StudentGroupSubjectVarietyJustification
+import org.acme.kotlin.schooltimetabling.solver.justifications.TeacherConflictJustification
+import org.acme.kotlin.schooltimetabling.solver.justifications.TeacherRoomStabilityJustification
+import org.acme.kotlin.schooltimetabling.solver.justifications.TeacherTimeEfficiencyJustification
 import java.time.Duration
 
 class TimeTableConstraintProvider : ConstraintProvider {
 
-    override fun defineConstraints(constraintFactory: ConstraintFactory): Array<Constraint>? {
+    override fun defineConstraints(constraintFactory: ConstraintFactory): Array<Constraint> {
         return arrayOf(
             // Hard constraints
             roomConflict(constraintFactory),
@@ -36,7 +42,10 @@ class TimeTableConstraintProvider : ConstraintProvider {
             )
             // ... and penalize each pair with a hard weight.
             .penalize(HardSoftScore.ONE_HARD)
-            .asConstraint("Room conflict");
+            .justifyWith { lesson1: Lesson, lesson2: Lesson, _ ->
+                RoomConflictJustification(lesson1.room, lesson1,lesson2)
+            }
+            .asConstraint("Room conflict")
     }
 
     fun teacherConflict(constraintFactory: ConstraintFactory): Constraint {
@@ -48,7 +57,10 @@ class TimeTableConstraintProvider : ConstraintProvider {
                 Joiners.equal(Lesson::teacher)
             )
             .penalize(HardSoftScore.ONE_HARD)
-            .asConstraint("Teacher conflict");
+            .justifyWith { lesson1: Lesson, lesson2: Lesson, _ ->
+                TeacherConflictJustification(lesson1.teacher, lesson1, lesson2)
+            }
+            .asConstraint("Teacher conflict")
     }
 
     fun studentGroupConflict(constraintFactory: ConstraintFactory): Constraint {
@@ -60,7 +72,10 @@ class TimeTableConstraintProvider : ConstraintProvider {
                 Joiners.equal(Lesson::studentGroup)
             )
             .penalize(HardSoftScore.ONE_HARD)
-            .asConstraint("Student group conflict");
+            .justifyWith { lesson1: Lesson, lesson2: Lesson, _ ->
+                StudentGroupConflictJustification(lesson1.studentGroup, lesson1, lesson2)
+            }
+            .asConstraint("Student group conflict")
     }
 
     fun teacherRoomStability(constraintFactory: ConstraintFactory): Constraint {
@@ -72,7 +87,10 @@ class TimeTableConstraintProvider : ConstraintProvider {
             )
             .filter { lesson1: Lesson, lesson2: Lesson -> lesson1.room !== lesson2.room }
             .penalize(HardSoftScore.ONE_SOFT)
-            .asConstraint("Teacher room stability");
+            .justifyWith { lesson1: Lesson, lesson2: Lesson, _ ->
+                TeacherRoomStabilityJustification(lesson1.teacher, lesson1, lesson2)
+            }
+            .asConstraint("Teacher room stability")
     }
 
     fun teacherTimeEfficiency(constraintFactory: ConstraintFactory): Constraint {
@@ -87,10 +105,13 @@ class TimeTableConstraintProvider : ConstraintProvider {
                     lesson1.timeslot?.endTime,
                     lesson2.timeslot?.startTime
                 )
-                !between.isNegative && between.compareTo(Duration.ofMinutes(30)) <= 0
+                !between.isNegative && between <= Duration.ofMinutes(30)
             }
             .reward(HardSoftScore.ONE_SOFT)
-            .asConstraint("Teacher time efficiency");
+            .justifyWith{ lesson1: Lesson, lesson2: Lesson, _ ->
+                TeacherTimeEfficiencyJustification(lesson1.teacher, lesson1, lesson2)
+            }
+            .asConstraint("Teacher time efficiency")
     }
 
     fun studentGroupSubjectVariety(constraintFactory: ConstraintFactory): Constraint {
@@ -106,10 +127,13 @@ class TimeTableConstraintProvider : ConstraintProvider {
                     lesson1.timeslot?.endTime,
                     lesson2.timeslot?.startTime
                 )
-                !between.isNegative && between.compareTo(Duration.ofMinutes(30)) <= 0
+                !between.isNegative && between <= Duration.ofMinutes(30)
             }
             .penalize(HardSoftScore.ONE_SOFT)
-            .asConstraint("Student group subject variety");
+            .justifyWith { lesson1: Lesson, lesson2: Lesson, _ ->
+                StudentGroupSubjectVarietyJustification(lesson1.studentGroup, lesson1, lesson2)
+            }
+            .asConstraint("Student group subject variety")
     }
 
 }

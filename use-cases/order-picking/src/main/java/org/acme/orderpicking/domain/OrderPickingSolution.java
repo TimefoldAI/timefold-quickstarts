@@ -19,7 +19,7 @@ public class OrderPickingSolution {
      */
     @ValueRangeProvider
     @ProblemFactCollectionProperty
-    private List<Trolley> trolleyList;
+    private List<Trolley> trolleys;
 
     /**
      * Defines the available TrolleySteps.
@@ -28,7 +28,7 @@ public class OrderPickingSolution {
      */
     @ValueRangeProvider
     @PlanningEntityCollectionProperty
-    private List<TrolleyStep> trolleyStepList;
+    private List<TrolleyStep> trolleySteps;
 
     @PlanningScore
     private HardSoftLongScore score;
@@ -37,25 +37,25 @@ public class OrderPickingSolution {
         // Marshalling constructor
     }
 
-    public OrderPickingSolution(List<Trolley> trolleyList, List<TrolleyStep> trolleyStepList) {
-        this.trolleyList = trolleyList;
-        this.trolleyStepList = trolleyStepList;
+    public OrderPickingSolution(List<Trolley> trolleys, List<TrolleyStep> trolleySteps) {
+        this.trolleys = trolleys;
+        this.trolleySteps = trolleySteps;
     }
 
-    public List<Trolley> getTrolleyList() {
-        return trolleyList;
+    public List<Trolley> getTrolleys() {
+        return trolleys;
     }
 
-    public void setTrolleyList(List<Trolley> trolleyList) {
-        this.trolleyList = trolleyList;
+    public void setTrolleys(List<Trolley> trolleys) {
+        this.trolleys = trolleys;
     }
 
-    public List<TrolleyStep> getTrolleyStepList() {
-        return trolleyStepList;
+    public List<TrolleyStep> getTrolleySteps() {
+        return trolleySteps;
     }
 
-    public void setTrolleyStepList(List<TrolleyStep> trolleyStepList) {
-        this.trolleyStepList = trolleyStepList;
+    public void setTrolleySteps(List<TrolleyStep> trolleySteps) {
+        this.trolleySteps = trolleySteps;
     }
 
     public HardSoftLongScore getScore() {

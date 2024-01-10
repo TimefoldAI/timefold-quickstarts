@@ -22,7 +22,7 @@ public class PersonAssignment {
 
     private Person person;
 
-    private Map<VaccinationCenter, Long> distanceMap;
+    private Map<VaccinationCenter, Long> distances;
     private Long nearestVaccinationCenterDistance;
 
     /**
@@ -37,39 +37,39 @@ public class PersonAssignment {
     public PersonAssignment() {
     }
 
-    public PersonAssignment(Person person, Map<VaccinationCenter, Long> distanceMap) {
+    public PersonAssignment(Person person, Map<VaccinationCenter, Long> distances) {
         this.person = person;
-        this.distanceMap = distanceMap;
-        if (distanceMap != null) {
-            nearestVaccinationCenterDistance = distanceMap.values().stream().mapToLong(Long::valueOf).min().orElse(0);
+        this.distances = distances;
+        if (distances != null) {
+            nearestVaccinationCenterDistance = distances.values().stream().mapToLong(Long::valueOf).min().orElse(0);
         }
     }
 
     public PersonAssignment(PersonAssignment original) {
         this.person = original.person;
-        this.distanceMap = original.distanceMap;
+        this.distances = original.distances;
         this.nearestVaccinationCenterDistance = original.nearestVaccinationCenterDistance;
         this.vaccinationSlot = original.vaccinationSlot;
     }
 
-    public PersonAssignment(String id, String name, Location homeLocation, Map<VaccinationCenter, Long> distanceMap, LocalDate birthdate, long priorityRating, VaccinationSlot vaccinationSlot) {
-        this(new Person(id, name, homeLocation, birthdate, priorityRating), distanceMap);
+    public PersonAssignment(String id, String name, Location homeLocation, Map<VaccinationCenter, Long> distances, LocalDate birthdate, long priorityRating, VaccinationSlot vaccinationSlot) {
+        this(new Person(id, name, homeLocation, birthdate, priorityRating), distances);
         this.vaccinationSlot = vaccinationSlot;
     }
 
-    public PersonAssignment(String id, String name, Location homeLocation, Map<VaccinationCenter, Long> distanceMap, LocalDate birthdate, long priorityRating,
-            int doseNumber, VaccineType requiredVaccineType, VaccineType preferredVaccineType,
-            VaccinationCenter requiredVaccinationCenter, VaccinationCenter preferredVaccinationCenter,
-            LocalDate readyDate, LocalDate idealDate, LocalDate dueDate,
-            VaccinationSlot vaccinationSlot) {
+    public PersonAssignment(String id, String name, Location homeLocation, Map<VaccinationCenter, Long> distances, LocalDate birthdate, long priorityRating,
+                            int doseNumber, VaccineType requiredVaccineType, VaccineType preferredVaccineType,
+                            VaccinationCenter requiredVaccinationCenter, VaccinationCenter preferredVaccinationCenter,
+                            LocalDate readyDate, LocalDate idealDate, LocalDate dueDate,
+                            VaccinationSlot vaccinationSlot) {
         this(new Person(id, name, homeLocation, birthdate, priorityRating, doseNumber,
                 requiredVaccineType, preferredVaccineType, requiredVaccinationCenter, preferredVaccinationCenter,
-                readyDate, idealDate, dueDate), distanceMap);
+                readyDate, idealDate, dueDate), distances);
         this.vaccinationSlot = vaccinationSlot;
     }
 
     public long getDistanceTo(VaccinationCenter vaccinationCenter) {
-        Long distance = distanceMap.get(vaccinationCenter);
+        Long distance = distances.get(vaccinationCenter);
         if (distance == null) {
             throw new IllegalStateException("The person (" + person
                     + ") is lacking a distance to vaccination center (" + vaccinationCenter + ").");

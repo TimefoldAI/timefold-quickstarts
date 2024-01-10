@@ -8,6 +8,11 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 
+import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
+import ai.timefold.solver.core.api.solver.SolutionManager;
+import ai.timefold.solver.core.api.solver.SolverManager;
+import ai.timefold.solver.core.api.solver.SolverStatus;
+
 import org.acme.employeescheduling.bootstrap.DemoDataGenerator;
 import org.acme.employeescheduling.domain.EmployeeSchedule;
 import org.acme.employeescheduling.domain.ScheduleState;
@@ -16,10 +21,6 @@ import org.acme.employeescheduling.persistence.AvailabilityRepository;
 import org.acme.employeescheduling.persistence.EmployeeRepository;
 import org.acme.employeescheduling.persistence.ScheduleStateRepository;
 import org.acme.employeescheduling.persistence.ShiftRepository;
-import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
-import ai.timefold.solver.core.api.solver.SolutionManager;
-import ai.timefold.solver.core.api.solver.SolverManager;
-import ai.timefold.solver.core.api.solver.SolverStatus;
 
 import io.quarkus.panache.common.Sort;
 
@@ -64,9 +65,11 @@ public class EmployeeScheduleResource {
     @POST
     @Path("solve")
     public void solve() {
-        solverManager.solveAndListen(SINGLETON_SCHEDULE_ID,
-                this::findById,
-                this::save);
+        solverManager.solveBuilder()
+                .withProblemId(SINGLETON_SCHEDULE_ID)
+                .withProblemFinder(this::findById)
+                .withBestSolutionConsumer(this::save)
+                .run();
     }
 
     @POST
@@ -106,7 +109,7 @@ public class EmployeeScheduleResource {
 
     @Transactional
     protected void save(EmployeeSchedule schedule) {
-        for (Shift shift : schedule.getShiftList()) {
+        for (Shift shift : schedule.getShifts()) {
             // TODO this is awfully naive: optimistic locking causes issues if called by the SolverManager
             Shift attachedShift = shiftRepository.findById(shift.getId());
             attachedShift.setEmployee(shift.getEmployee());

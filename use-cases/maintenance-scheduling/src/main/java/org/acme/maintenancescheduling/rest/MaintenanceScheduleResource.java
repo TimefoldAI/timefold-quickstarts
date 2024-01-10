@@ -6,15 +6,16 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 
+import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
+import ai.timefold.solver.core.api.solver.SolutionManager;
+import ai.timefold.solver.core.api.solver.SolverManager;
+import ai.timefold.solver.core.api.solver.SolverStatus;
+
 import org.acme.maintenancescheduling.domain.Job;
 import org.acme.maintenancescheduling.domain.MaintenanceSchedule;
 import org.acme.maintenancescheduling.persistence.CrewRepository;
 import org.acme.maintenancescheduling.persistence.JobRepository;
 import org.acme.maintenancescheduling.persistence.WorkCalendarRepository;
-import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
-import ai.timefold.solver.core.api.solver.SolutionManager;
-import ai.timefold.solver.core.api.solver.SolverManager;
-import ai.timefold.solver.core.api.solver.SolverStatus;
 
 import io.quarkus.panache.common.Sort;
 
@@ -54,9 +55,11 @@ public class MaintenanceScheduleResource {
     @POST
     @Path("solve")
     public void solve() {
-        solverManager.solveAndListen(SINGLETON_SCHEDULE_ID,
-                this::findById,
-                this::save);
+        solverManager.solveBuilder()
+                .withProblemId(SINGLETON_SCHEDULE_ID)
+                .withProblemFinder(this::findById)
+                .withBestSolutionConsumer(this::save)
+                .run();
     }
 
     @POST
@@ -78,7 +81,7 @@ public class MaintenanceScheduleResource {
 
     @Transactional
     protected void save(MaintenanceSchedule schedule) {
-        for (Job job : schedule.getJobList()) {
+        for (Job job : schedule.getJobs()) {
             // TODO this is awfully naive: optimistic locking causes issues if called by the SolverManager
             Job attachedJob = jobRepository.findById(job.getId());
             attachedJob.setCrew(job.getCrew());

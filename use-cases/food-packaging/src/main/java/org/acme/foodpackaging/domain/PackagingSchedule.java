@@ -18,14 +18,14 @@ public class PackagingSchedule {
     private WorkCalendar workCalendar;
 
     @ProblemFactCollectionProperty
-    private List<Product> productList;
+    private List<Product> products;
 
     @PlanningEntityCollectionProperty
-    private List<Line> lineList;
+    private List<Line> lines;
 
     @PlanningEntityCollectionProperty
     @ValueRangeProvider
-    private List<Job> jobList;
+    private List<Job> jobs;
 
     @PlanningScore
     private HardMediumSoftLongScore score;
@@ -49,28 +49,28 @@ public class PackagingSchedule {
         this.workCalendar = workCalendar;
     }
 
-    public List<Product> getProductList() {
-        return productList;
+    public List<Product> getProducts() {
+        return products;
     }
 
-    public void setProductList(List<Product> productList) {
-        this.productList = productList;
+    public void setProducts(List<Product> products) {
+        this.products = products;
     }
 
-    public List<Line> getLineList() {
-        return lineList;
+    public List<Line> getLines() {
+        return lines;
     }
 
-    public void setLineList(List<Line> lineList) {
-        this.lineList = lineList;
+    public void setLines(List<Line> lines) {
+        this.lines = lines;
     }
 
-    public List<Job> getJobList() {
-        return jobList;
+    public List<Job> getJobs() {
+        return jobs;
     }
 
-    public void setJobList(List<Job> jobList) {
-        this.jobList = jobList;
+    public void setJobs(List<Job> jobs) {
+        this.jobs = jobs;
     }
 
     public HardMediumSoftLongScore getScore() {
