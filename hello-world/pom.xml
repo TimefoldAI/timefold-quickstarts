@@ -18,7 +18,7 @@
     <version.ch.qos.logback>1.4.14</version.ch.qos.logback>
 
     <version.compiler.plugin>3.12.1</version.compiler.plugin>
-    <version.surefire.plugin>3.2.3</version.surefire.plugin>
+    <version.surefire.plugin>3.2.5</version.surefire.plugin>
     <version.assembly.plugin>3.6.0</version.assembly.plugin>
   </properties>
 
