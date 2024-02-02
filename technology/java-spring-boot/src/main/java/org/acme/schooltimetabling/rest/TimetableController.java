@@ -5,8 +5,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import jakarta.websocket.server.PathParam;
-
 import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
 import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
 import ai.timefold.solver.core.api.solver.ScoreAnalysisFetchPolicy;
@@ -17,8 +15,15 @@ import ai.timefold.solver.core.api.solver.SolverStatus;
 import org.acme.schooltimetabling.domain.Timetable;
 import org.acme.schooltimetabling.rest.exception.ErrorInfo;
 import org.acme.schooltimetabling.rest.exception.TimetableSolverException;
+import org.acme.schooltimetabling.solver.justifications.RoomConflictJustification;
+import org.acme.schooltimetabling.solver.justifications.StudentGroupConflictJustification;
+import org.acme.schooltimetabling.solver.justifications.StudentGroupSubjectVarietyJustification;
+import org.acme.schooltimetabling.solver.justifications.TeacherConflictJustification;
+import org.acme.schooltimetabling.solver.justifications.TeacherRoomStabilityJustification;
+import org.acme.schooltimetabling.solver.justifications.TeacherTimeEfficiencyJustification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -97,6 +102,14 @@ public class TimetableController {
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = ScoreAnalysis.class))) })
     @PutMapping(value = "/analyze", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RegisterReflectionForBinding({
+            RoomConflictJustification.class,
+            StudentGroupConflictJustification.class,
+            StudentGroupSubjectVarietyJustification.class,
+            TeacherConflictJustification.class,
+            TeacherRoomStabilityJustification.class,
+            TeacherTimeEfficiencyJustification.class
+    })
     public ScoreAnalysis<HardSoftScore> analyze(@RequestBody Timetable problem,
             @RequestParam(name = "fetchPolicy", required = false) ScoreAnalysisFetchPolicy fetchPolicy) {
         return fetchPolicy == null ? solutionManager.analyze(problem) : solutionManager.analyze(problem, fetchPolicy);
@@ -172,7 +185,7 @@ public class TimetableController {
     })
     @DeleteMapping(value = "/{jobId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public Timetable terminateSolving(
-            @Parameter(description = "The job ID returned by the POST method.") @PathParam("jobId") String jobId) {
+            @Parameter(description = "The job ID returned by the POST method.") @PathVariable("jobId") String jobId) {
         // TODO: Replace with .terminateEarlyAndWait(... [, timeout]); see https://github.com/TimefoldAI/timefold-solver/issues/77
         solverManager.terminateEarly(jobId);
         return getTimeTable(jobId);
