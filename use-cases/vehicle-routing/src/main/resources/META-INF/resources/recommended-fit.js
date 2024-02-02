@@ -38,7 +38,7 @@ function addNewCustomer(id, lat, lng, map, marker) {
         "      <div class='row'>" +
         "        <div class='col-2'>" +
         "          <label for='inputDemand'>Demand</label>" +
-        "          <input type='number' class='form-control' id='inputDemand' aria-describedby='inputDemand' value='10' required>" +
+        "          <input type='number' class='form-control' id='inputDemand' aria-describedby='inputDemand' required>" +
         "          <div class='invalid-feedback'>" +
         "            Field is required" +
         "          </div>" +
@@ -49,14 +49,14 @@ function addNewCustomer(id, lat, lng, map, marker) {
         "      <div class='row'>" +
         "        <div class='col-3'>" +
         "          <label for='inputMinStartTime'>Min Start Time</label>" +
-        `          <input type='datetime-local' class='form-control' id='inputMinStartTime' aria-describedby='inputMinStartTime' value='2024-02-02T10:56' required>` +
+        `          <input type='datetime-local' class='form-control' id='inputMinStartTime' aria-describedby='inputMinStartTime' required>` +
         "          <div class='invalid-feedback'>" +
         "            Field is required" +
         "          </div>" +
         "        </div>" +
         "        <div class='col-3'>" +
         "          <label for='inputMaxStartTime'>Max Start Time</label>" +
-        `          <input type='datetime-local' class='form-control' id='inputMaxStartTime' aria-describedby='inputMaxStartTime' value='2024-02-02T11:56' required>` +
+        `          <input type='datetime-local' class='form-control' id='inputMaxStartTime' aria-describedby='inputMaxStartTime' required>` +
         "          <div class='invalid-feedback'>" +
         "            Field is required" +
         "          </div>" +
@@ -68,7 +68,7 @@ function addNewCustomer(id, lat, lng, map, marker) {
         "      <div class='row'>" +
         "        <div class='col-3'>" +
         "          <label for='inputDuration'>Duration in Minutes</label>" +
-        "          <input type='number' class='form-control' id='inputDuration' aria-describedby='inputDuration' value='10' required>" +
+        "          <input type='number' class='form-control' id='inputDuration' aria-describedby='inputDuration' required>" +
         "          <div class='invalid-feedback'>" +
         "            Field is required" +
         "          </div>" +
