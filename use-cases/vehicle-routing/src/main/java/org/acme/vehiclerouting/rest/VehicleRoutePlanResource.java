@@ -15,6 +15,7 @@ import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
 import ai.timefold.solver.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
 import ai.timefold.solver.core.api.solver.*;
 
+import org.acme.vehiclerouting.domain.Customer;
 import org.acme.vehiclerouting.domain.Vehicle;
 import org.acme.vehiclerouting.domain.dto.ApplyRecommendationRequest;
 import org.acme.vehiclerouting.domain.dto.RecommendationRequest;
@@ -106,8 +107,10 @@ public class VehicleRoutePlanResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("recommendation")
     public List<RecommendedFit<VehicleRecommendation, HardSoftLongScore>> recommendedFit(RecommendationRequest request) {
+        Customer customer = request.solution().getCustomers().stream().filter(c -> c.getId().equals(request.customerId()))
+                .findFirst().orElseThrow(() -> new IllegalStateException("Customer %s not found".formatted(request.customerId())));
         List<RecommendedFit<VehicleRecommendation, HardSoftLongScore>> recommendedFitList = solutionManager
-                .recommendFit(request.solution(), request.customer(), c -> new VehicleRecommendation(c.getVehicle(),
+                .recommendFit(request.solution(), customer, c -> new VehicleRecommendation(c.getVehicle().getId(),
                         c.getVehicle().getCustomers().indexOf(c)));
         if (!recommendedFitList.isEmpty()) {
             return recommendedFitList.subList(0, Math.min(MAX_RECOMMENDED_FIT_LIST_SIZE, recommendedFitList.size()));
@@ -130,7 +133,9 @@ public class VehicleRoutePlanResource {
         String vehicleId = request.vehicleId();
         Vehicle vehicleTarget = updatedSolution.getVehicles().stream().filter(v -> v.getId().equals(vehicleId))
                 .findFirst().orElseThrow(() -> new IllegalStateException("Vehicle %s not found".formatted(vehicleId)));
-        vehicleTarget.getCustomers().add(request.index(), request.customer());
+        Customer customer = request.solution().getCustomers().stream().filter(c -> c.getId().equals(request.customerId()))
+                .findFirst().orElseThrow(() -> new IllegalStateException("Customer %s not found".formatted(request.customerId())));
+        vehicleTarget.getCustomers().add(request.index(), customer);
         solutionManager.update(updatedSolution);
         return updatedSolution;
     }

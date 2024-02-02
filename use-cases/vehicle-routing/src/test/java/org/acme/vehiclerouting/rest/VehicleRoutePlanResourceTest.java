@@ -134,7 +134,7 @@ public class VehicleRoutePlanResourceTest {
 
         // Request recommendation
         solution.getCustomers().add(newCustomer);
-        RecommendationRequest request = new RecommendationRequest(solution, newCustomer);
+        RecommendationRequest request = new RecommendationRequest(solution, newCustomer.getId());
         List<Pair<VehicleRecommendation, ScoreAnalysis>> recommendedFitList = parseRecommendedFitList(given()
                 .contentType(ContentType.JSON)
                 .body(request)
@@ -150,8 +150,8 @@ public class VehicleRoutePlanResourceTest {
 
         // Apply the recommendation
         VehicleRecommendation recommendation = recommendedFitList.get(0).getLeft();
-        ApplyRecommendationRequest applyRequest = new ApplyRecommendationRequest(solution, newCustomer,
-                recommendation.vehicle().getId(), recommendation.index());
+        ApplyRecommendationRequest applyRequest = new ApplyRecommendationRequest(solution, newCustomer.getId(),
+                recommendation.vehicleId(), recommendation.index());
 
         VehicleRoutePlan updatedSolution = given()
                 .contentType(ContentType.JSON)

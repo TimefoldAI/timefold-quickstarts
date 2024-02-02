@@ -52,7 +52,7 @@
           <button id="solveButton" type="button" class="btn btn-success">
             <i class="fas fa-play"></i> Solve
           </button>
-          <button id="stopSolvingButton" type="button" class="btn btn-danger">
+          <button id="stopSolvingButton" type="button" class="btn btn-danger p-2">
             <i class="fas fa-stop"></i> Stop solving
           </button>
         </div>
@@ -196,6 +196,26 @@
     </div>
   </div>
 </div>
+<form id='customerForm' class='needs-validation' novalidate>
+    <div class="modal fadebd-example-modal-lg" id="newCustomerModal" tabindex="-1"
+         aria-labelledby="newCustomerModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="newCustomerModalLabel">New Customer</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="newCustomerModalContent">
+                    <!-- Filled in by app.js -->
+                </div>
+                <div class="modal-footer" id="newCustomerModalFooter">
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
 <footer id="timefold-auto-footer"></footer>
 
 <script src="/webjars/leaflet/leaflet.js"></script>
@@ -206,6 +226,7 @@
         integrity="sha256-Jy2+UO7rZ2Dgik50z3XrrNpnc5+2PAx9MhL2CicodME=" crossorigin="anonymous"></script>
 <script src="/webjars/timefold/js/timefold-webui.js"></script>
 <script src="/score-analysis.js"></script>
+<script src="/recommended-fit.js"></script>
 <script src="/app.js"></script>
 </body>
 </html>
