@@ -98,9 +98,9 @@ function requestRecommendations(customerId, solution, endpointPath) {
             });
             analysisTable.append(analysisTBody);
             customerOptions += "<div class='form-check'>" +
-                `  <input class='form-check-input' type='radio' name='recommendationOptions' id='option${index}' value='option${index}'>` +
+                `  <input class='form-check-input' type='radio' name='recommendationOptions' id='option${index}' value='option${index}' ${index === 0 ? 'checked=true' : ''}>` +
                 `  <label class='form-check-label' for='option${index}'>` +
-                `    Add <b>${customer.name}</b> to the vehicle <b>${recommendation.proposition.vehicleId}</b> at the position <b>${recommendation.proposition.index + 1}</b>` +
+                `    Add <b>${customer.name}</b> to the vehicle <b>${recommendation.proposition.vehicleId}</b> at the position <b>${recommendation.proposition.index + 1} ${index === 0 ? ' (Best Recommendation)' : ''}</b>` +
                 "  </label>" +
                 `  <a id="analyzeRecommendationButton${index}" class="float-justify" href="#" role="button">` +
                 "    <i class='fas fa-info-circle'></i>" +

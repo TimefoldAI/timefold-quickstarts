@@ -394,16 +394,13 @@ function applyRecommendationModal(recommendations) {
             checkedRecommendation = recommendations[index];
         }
     });
-    if (checkedRecommendation != null) {
-        $("#recommendationOptions").removeClass("is-invalid");
-        const updatedCustomer = {...newCustomer, serviceDuration: `PT${newCustomer['serviceDuration']}M`};
-        let updatedCustomerList = [...loadedRoutePlan['customers']];
-        updatedCustomerList.push(updatedCustomer);
-        let updatedSolution = {...loadedRoutePlan, customers: updatedCustomerList};
-        // see recommended-fit.js
-        applyRecommendation(updatedSolution, newCustomer.id, checkedRecommendation.proposition.vehicleId, checkedRecommendation.proposition.index,
-            "/route-plans/recommendation/apply");
-    }
+    const updatedCustomer = {...newCustomer, serviceDuration: `PT${newCustomer['serviceDuration']}M`};
+    let updatedCustomerList = [...loadedRoutePlan['customers']];
+    updatedCustomerList.push(updatedCustomer);
+    let updatedSolution = {...loadedRoutePlan, customers: updatedCustomerList};
+    // see recommended-fit.js
+    applyRecommendation(updatedSolution, newCustomer.id, checkedRecommendation.proposition.vehicleId, checkedRecommendation.proposition.index,
+        "/route-plans/recommendation/apply");
 }
 
 function updateSolutionWithNewCustomer(newSolution) {
