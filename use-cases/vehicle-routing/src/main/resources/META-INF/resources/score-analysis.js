@@ -13,6 +13,7 @@ function analyzeScore(solution, endpointPath) {
 
 function visualizeScoreAnalysis(scoreAnalysisModalContent, solution, endpointPath) {
     $.put(endpointPath, JSON.stringify(solution), function (scoreAnalysis) {
+        console.log(scoreAnalysis)
         let constraints = scoreAnalysis.constraints;
         constraints.sort(compareConstraintsBySeverity);
         constraints.map(addDerivedScoreAttributes);
@@ -78,7 +79,7 @@ function getScoreComponents(score) {
     return components;
 }
 
-function visualizeConstraintAnalysis(analysisTBody, constraintIndex, constraintAnalysis) {
+function visualizeConstraintAnalysis(analysisTBody, constraintIndex, constraintAnalysis, recommendation = false, recommendationIndex = null) {
     let icon = constraintAnalysis.type == "hard" && constraintAnalysis.implicitScore < 0 ? '<span class="fas fa-exclamation-triangle" style="color: red"></span>' : '';
     if (!icon) icon = constraintAnalysis.weight < 0 && constraintAnalysis.matches.length == 0 ? '<span class="fas fa-check-circle" style="color: green"></span>' : '';
 
@@ -88,19 +89,19 @@ function visualizeConstraintAnalysis(analysisTBody, constraintIndex, constraintA
         .append($(`<td/>`).text(constraintAnalysis.type))
         .append($(`<td/>`).html(`<b>${constraintAnalysis.matches.length}</b>`))
         .append($(`<td/>`).text(constraintAnalysis.weight))
-        .append($(`<td/>`).text(constraintAnalysis.implicitScore));
+        .append($(`<td/>`).text(recommendation ? constraintAnalysis.score : constraintAnalysis.implicitScore));
 
     analysisTBody.append(row);
 
     if (constraintAnalysis.matches.length > 0) {
-        visualizeConstraintMatches(analysisTBody, row, constraintIndex, constraintAnalysis.matches)
+        visualizeConstraintMatches(analysisTBody, row, constraintIndex, constraintAnalysis.matches, recommendation, recommendationIndex)
     } else {
         row.append($(`<td/>`));
     }
 }
 
-function visualizeConstraintMatches(analysisTBody, row, constraintIndex, matches) {
-    let matchesRow = $(`<tr/>`).addClass("collapse").attr("id", "row" + constraintIndex + "Collapse");
+function visualizeConstraintMatches(analysisTBody, row, constraintIndex, matches, recommendation = false, recommendationIndex = null) {
+    let matchesRow = $(`<tr/>`).addClass("collapse").attr("id", recommendation ? "row" + constraintIndex + "Collapse" + recommendationIndex : "row" + constraintIndex + "Collapse");
     let matchesListGroup = $(`<ul/>`).addClass('list-group').addClass('list-group-flush').css({textAlign: 'left'});
 
     $.each(matches, function (index2, match) {
@@ -111,13 +112,18 @@ function visualizeConstraintMatches(analysisTBody, row, constraintIndex, matches
     matchesRow.append($(`<td/>`).attr('colspan', '6').append(matchesListGroup));
     analysisTBody.append(matchesRow);
 
-    row.append($(`<td/>`).append($(`<a/>`).attr("data-toggle", "collapse").attr('href', "#row" + constraintIndex + "Collapse").append($(`<span/>`).addClass('fas').addClass('fa-arrow-down')).click(function (e) {
-        matchesRow.collapse('toggle');
-        let target = $(e.target);
-        if (target.hasClass('fa-arrow-down')) {
-            target.removeClass('fa-arrow-down').addClass('fa-arrow-up');
-        } else {
-            target.removeClass('fa-arrow-up').addClass('fa-arrow-down');
-        }
-    })));
+    if (recommendation) {
+        row.append($(`<td/>`).append($(`<a/>`).attr("data-toggle", "collapse").attr('id', "row" + constraintIndex + "Button" + recommendationIndex).attr('href', "#row" + constraintIndex + "Collapse").append($(`<span/>`).addClass('fas').addClass('fa-arrow-down'))));
+    } else {
+        row.append($(`<td/>`).append($(`<a/>`).attr("data-toggle", "collapse").attr('href', "#row" + constraintIndex + "Collapse").append($(`<span/>`).addClass('fas').addClass('fa-arrow-down')).click(function (e) {
+            console.log('clicou', e)
+            matchesRow.collapse('toggle');
+            let target = $(e.target);
+            if (target.hasClass('fa-arrow-down')) {
+                target.removeClass('fa-arrow-down').addClass('fa-arrow-up');
+            } else {
+                target.removeClass('fa-arrow-up').addClass('fa-arrow-down');
+            }
+        })));
+    }
 }

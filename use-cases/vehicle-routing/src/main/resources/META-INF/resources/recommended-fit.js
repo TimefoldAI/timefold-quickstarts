@@ -5,14 +5,6 @@ function addNewCustomer(id, lat, lng, map, marker) {
     let customerForm = "";
     customerForm += "<div class='form-group'>" +
         "      <div class='row'>" +
-        "        <div class='col-2'>" +
-        "          <label for='inputId'>Id</label>" +
-        `          <input type='text' disabled class='form-control' id='inputId' aria-describedby='inputId' value='${id}'>` +
-        "        </div>" +
-        "      </div>" +
-        "  </div>";
-    customerForm += "<div class='form-group'>" +
-        "      <div class='row'>" +
         "        <div class='col-5'>" +
         "          <label for='inputName'>Name</label>" +
         `          <input type='text' class='form-control' id='inputName' aria-describedby='inputName' value='customer${id}' required>` +
@@ -78,8 +70,8 @@ function addNewCustomer(id, lat, lng, map, marker) {
     customerModalContent.append(customerForm);
     const customerModalFooter = $("#newCustomerModalFooter");
     customerModalFooter.children().remove();
-    customerModalFooter.append("<button id='recommendationButton' type='button' class='btn btn-success'>Next</button>");
-    $("#recommendationButton").click(newCustomerModal);
+    customerModalFooter.append("<button id='recommendationButton' type='button' class='btn btn-success'><i class='fas fa-arrow-right'></i> Get Recommendations</button>");
+    $("#recommendationButton").click(getRecommendationsModal);
 }
 
 function requestRecommendations(customerId, solution, endpointPath) {
@@ -89,24 +81,68 @@ function requestRecommendations(customerId, solution, endpointPath) {
         let customerOptions = "";
         const customer = solution.customers.find(c => c.id === customerId);
         recommendations.forEach((recommendation, index) => {
+
+            const analysisTable = $(`<table class="table"/>`).css({textAlign: 'center'});
+            const analysisTHead = $(`<thead/>`).append($(`<tr/>`)
+                .append($(`<th></th>`))
+                .append($(`<th>Constraint</th>`).css({textAlign: 'left'}))
+                .append($(`<th>Type</th>`))
+                .append($(`<th># Matches</th>`))
+                .append($(`<th>Weight</th>`))
+                .append($(`<th>Score</th>`))
+                .append($(`<th></th>`)));
+            analysisTable.append(analysisTHead);
+            const analysisTBody = $(`<tbody/>`)
+            $.each(recommendation.scoreDiff.constraints, function (index2, constraintAnalysis) {
+                visualizeConstraintAnalysis(analysisTBody, index2, constraintAnalysis, true, index)
+            });
+            analysisTable.append(analysisTBody);
             customerOptions += "<div class='form-check'>" +
                 `  <input class='form-check-input' type='radio' name='recommendationOptions' id='option${index}' value='option${index}'>` +
                 `  <label class='form-check-label' for='option${index}'>` +
-                `    Add <b>${customer.name}</b> to the vehicle <b>${recommendation.proposition.vehicleId}</b> at the position <b>${recommendation.proposition.index + 1}</b> (${recommendation.scoreDiff.score})` +
+                `    Add <b>${customer.name}</b> to the vehicle <b>${recommendation.proposition.vehicleId}</b> at the position <b>${recommendation.proposition.index + 1}</b>` +
                 "  </label>" +
+                `  <a id="analyzeRecommendationButton${index}" class="float-justify" href="#" role="button">` +
+                "    <i class='fas fa-info-circle'></i>" +
+                "  </a>" +
+                `  <div class='collapse' id='collapse${index}'>` +
+                "    <div class='card card-body'>" +
+                `      <table class="table" style='text-align: center'>${analysisTable.html()}</table>` +
+                "    </div>" +
+                "  </div>" +
                 "</div>";
         });
-        $("#newCustomerModalLabel").text("Top-5 Recommendations");
         customerModalContent.append(customerOptions);
+        // We add button events only after modal content is loaded
+        recommendations.forEach((recommendation, index) => {
+            $(`#analyzeRecommendationButton${index}`).click(_ => {
+                $(`#collapse${index}`).collapse('toggle');
+            });
+            $.each(recommendation.scoreDiff.constraints, function (index2, _) {
+                $(`#row${index2}Button${index}`).click(e => {
+                    $(`#row${index2}Collapse${index}`).collapse('toggle');
+                    let target = $(e.target);
+                    if (target.hasClass('fa-arrow-down')) {
+                        target.removeClass('fa-arrow-down').addClass('fa-arrow-up');
+                    } else {
+                        target.removeClass('fa-arrow-up').addClass('fa-arrow-down');
+                    }
+                });
+            });
+        });
         const customerModalFooter = $("#newCustomerModalFooter");
         customerModalFooter.children().remove();
-        customerModalFooter.append("<button id='applyRecommendationButton' type='button' class='btn btn-success'>Apply Recommendation</button>");
-        $("#applyRecommendationButton").click(_ => applyCustomerModal(recommendations));
+        customerModalFooter.append("<button id='applyRecommendationButton' type='button' class='btn btn-success'><i class='fas fa-check'></i> Accept and Solve</button>");
+        $("#applyRecommendationButton").click(_ => applyRecommendationModal(recommendations));
     }).fail(function (xhr, ajaxOptions, thrownError) {
             showError("Recommendations request analysis failed.", xhr);
             $('#newCustomerModal').modal('hide');
         },
         "text");
+}
+
+function toggleCollapse(index) {
+
 }
 
 function applyRecommendation(solution, customerId, vehicleId, index, endpointPath) {

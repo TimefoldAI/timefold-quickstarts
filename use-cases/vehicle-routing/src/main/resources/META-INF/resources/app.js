@@ -81,7 +81,7 @@ $(document).ready(function () {
         customerMaker = L.circleMarker(e.latlng);
         customerMaker.setStyle({color: 'green'});
         customerMaker.addTo(map);
-        openCustomerModal(e.latlng.lat, e.latlng.lng);
+        openRecommendationModal(e.latlng.lat, e.latlng.lng);
     });
     // Remove customer mark
     $("#newCustomerModal").on("hidden.bs.modal", function () {
@@ -353,14 +353,14 @@ function analyze() {
     analyzeScore(loadedRoutePlan, "/route-plans/analyze")
 }
 
-function openCustomerModal(lat, lng) {
+function openRecommendationModal(lat, lng) {
     // see recommended-fit.js
     const customerId = Math.max(...loadedRoutePlan.customers.map(c => parseInt(c.id))) + 1;
     newCustomer = {id: customerId, location: [lat, lng]};
     addNewCustomer(customerId, lat, lng, map, customerMaker);
 }
 
-function newCustomerModal() {
+function getRecommendationsModal() {
     let formValid = true;
     formValid = validateFormField(newCustomer, 'name' , '#inputName') && formValid;
     formValid = validateFormField(newCustomer, 'demand' , '#inputDemand') && formValid;
@@ -372,6 +372,7 @@ function newCustomerModal() {
         let updatedCustomerList = [...loadedRoutePlan['customers']];
         updatedCustomerList.push(updatedCustomer);
         let updatedSolution = {...loadedRoutePlan, customers: updatedCustomerList};
+        // see recommended-fit.js
         requestRecommendations(updatedCustomer.id, updatedSolution, "/route-plans/recommendation")
     }
 }
@@ -380,14 +381,13 @@ function validateFormField(target, fieldName, inputName) {
     target[fieldName] = $(inputName).val();
     if ($(inputName).val() == "") {
         $(inputName).addClass("is-invalid");
-        console.log($(inputName))
     } else {
         $(inputName).removeClass("is-invalid");
     }
     return $(inputName).val() != "";
 }
 
-function applyCustomerModal(recommendations) {
+function applyRecommendationModal(recommendations) {
     let checkedRecommendation = null;
     recommendations.forEach((recommendation, index) => {
         if ($('#option'+ index).is(":checked")) {
@@ -400,6 +400,7 @@ function applyCustomerModal(recommendations) {
         let updatedCustomerList = [...loadedRoutePlan['customers']];
         updatedCustomerList.push(updatedCustomer);
         let updatedSolution = {...loadedRoutePlan, customers: updatedCustomerList};
+        // see recommended-fit.js
         applyRecommendation(updatedSolution, newCustomer.id, checkedRecommendation.proposition.vehicleId, checkedRecommendation.proposition.index,
             "/route-plans/recommendation/apply");
     }
