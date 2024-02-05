@@ -410,7 +410,8 @@ function updateSolutionWithNewCustomer(newSolution) {
     loadedRoutePlan = newSolution;
     renderRoutes(newSolution);
     renderTimelines(newSolution);
-    $('#newCustomerModal').modal('hide')
+    $('#newCustomerModal').modal('hide');
+    solve();
 }
 
 // TODO: move the general functionality to the webjar.
