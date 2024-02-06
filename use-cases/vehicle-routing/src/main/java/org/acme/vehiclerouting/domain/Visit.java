@@ -17,9 +17,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
-@JsonIdentityInfo(scope = Customer.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@JsonIdentityInfo(scope = Visit.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @PlanningEntity
-public class Customer {
+public class Visit {
 
     private String id;
     private String name;
@@ -31,17 +31,17 @@ public class Customer {
 
     private Vehicle vehicle;
 
-    private Customer previousCustomer;
+    private Visit previousVisit;
 
-    private Customer nextCustomer;
+    private Visit nextVisit;
 
     private LocalDateTime arrivalTime;
 
-    public Customer() {
+    public Visit() {
     }
 
-    public Customer(String id, String name, Location location, int demand,
-            LocalDateTime minStartTime, LocalDateTime maxEndTime, Duration serviceDuration) {
+    public Visit(String id, String name, Location location, int demand,
+                 LocalDateTime minStartTime, LocalDateTime maxEndTime, Duration serviceDuration) {
         this.id = id;
         this.name = name;
         this.location = location;
@@ -92,7 +92,7 @@ public class Customer {
     }
 
     @JsonIdentityReference(alwaysAsId = true)
-    @InverseRelationShadowVariable(sourceVariableName = "customers")
+    @InverseRelationShadowVariable(sourceVariableName = "visits")
     public Vehicle getVehicle() {
         return vehicle;
     }
@@ -102,27 +102,27 @@ public class Customer {
     }
 
     @JsonIdentityReference(alwaysAsId = true)
-    @PreviousElementShadowVariable(sourceVariableName = "customers")
-    public Customer getPreviousCustomer() {
-        return previousCustomer;
+    @PreviousElementShadowVariable(sourceVariableName = "visits")
+    public Visit getPreviousVisit() {
+        return previousVisit;
     }
 
-    public void setPreviousCustomer(Customer previousCustomer) {
-        this.previousCustomer = previousCustomer;
+    public void setPreviousVisit(Visit previousVisit) {
+        this.previousVisit = previousVisit;
     }
 
     @JsonIdentityReference(alwaysAsId = true)
-    @NextElementShadowVariable(sourceVariableName = "customers")
-    public Customer getNextCustomer() {
-        return nextCustomer;
+    @NextElementShadowVariable(sourceVariableName = "visits")
+    public Visit getNextVisit() {
+        return nextVisit;
     }
 
-    public void setNextCustomer(Customer nextCustomer) {
-        this.nextCustomer = nextCustomer;
+    public void setNextVisit(Visit nextVisit) {
+        this.nextVisit = nextVisit;
     }
 
     @ShadowVariable(variableListenerClass = ArrivalTimeUpdatingVariableListener.class, sourceVariableName = "vehicle")
-    @ShadowVariable(variableListenerClass = ArrivalTimeUpdatingVariableListener.class, sourceVariableName = "previousCustomer")
+    @ShadowVariable(variableListenerClass = ArrivalTimeUpdatingVariableListener.class, sourceVariableName = "previousVisit")
     public LocalDateTime getArrivalTime() {
         return arrivalTime;
     }
@@ -171,10 +171,10 @@ public class Customer {
             throw new IllegalStateException(
                     "This method must not be called when the shadow variables are not initialized yet.");
         }
-        if (previousCustomer == null) {
+        if (previousVisit == null) {
             return vehicle.getDepot().getLocation().getDrivingTimeTo(location);
         }
-        return previousCustomer.getLocation().getDrivingTimeTo(location);
+        return previousVisit.getLocation().getDrivingTimeTo(location);
     }
 
     // Required by the web UI even before the solution has been initialized.

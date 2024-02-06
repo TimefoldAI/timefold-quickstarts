@@ -120,9 +120,9 @@ public class VehicleRoutePlanResourceTest {
         VehicleRoutePlan solution = get("/route-plans/" + jobId).then().extract().as(VehicleRoutePlan.class);
         assertEquals(solution.getSolverStatus(), SolverStatus.NOT_SOLVING);
         assertNotNull(solution.getVehicles());
-        assertNotNull(solution.getCustomers());
+        assertNotNull(solution.getVisits());
         assertNotNull(solution.getDepots());
-        assertNotNull(solution.getVehicles().get(0).getCustomers());
+        assertNotNull(solution.getVehicles().get(0).getVisits());
         return solution;
     }
 

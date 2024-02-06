@@ -40,7 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Tag(name = "Vehicle Routing with Capacity and Time Windows",
-        description = "Vehicle Routing optimizes routes of vehicles with given capacities to visit customers available in specified time windows.")
+        description = "Vehicle Routing optimizes routes of vehicles with given capacities to visits available in specified time windows.")
 @Path("route-plans")
 public class VehicleRoutePlanResource {
 

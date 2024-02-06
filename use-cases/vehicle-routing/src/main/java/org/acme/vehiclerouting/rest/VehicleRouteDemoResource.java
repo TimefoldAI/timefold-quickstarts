@@ -18,11 +18,8 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.MediaType;
 
-import org.acme.vehiclerouting.domain.Customer;
-import org.acme.vehiclerouting.domain.Depot;
-import org.acme.vehiclerouting.domain.Location;
-import org.acme.vehiclerouting.domain.Vehicle;
-import org.acme.vehiclerouting.domain.VehicleRoutePlan;
+import org.acme.vehiclerouting.domain.*;
+import org.acme.vehiclerouting.domain.Visit;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -58,7 +55,7 @@ public class VehicleRouteDemoResource {
                 new Location(43.751466, 11.177210), new Location(43.809291, 11.290195));
 
         private long seed;
-        private int customerCount;
+        private int visitCount;
         private int vehicleCount;
         private int depotCount;
         private LocalTime vehicleStartTime;
@@ -69,9 +66,9 @@ public class VehicleRouteDemoResource {
         private Location southWestCorner;
         private Location northEastCorner;
 
-        DemoData(long seed, int customerCount, int vehicleCount, int depotCount, LocalTime vehicleStartTime,
-                int minDemand, int maxDemand, int minVehicleCapacity, int maxVehicleCapacity,
-                Location southWestCorner, Location northEastCorner) {
+        DemoData(long seed, int visitCount, int vehicleCount, int depotCount, LocalTime vehicleStartTime,
+                 int minDemand, int maxDemand, int minVehicleCapacity, int maxVehicleCapacity,
+                 Location southWestCorner, Location northEastCorner) {
             if (minDemand < 1) {
                 throw new IllegalStateException("minDemand (%s) must be greater than zero.".formatted(minDemand));
             }
@@ -94,9 +91,9 @@ public class VehicleRouteDemoResource {
                 throw new IllegalStateException("maxVehicleCapacity (%s) must be greater than minVehicleCapacity (%s)."
                         .formatted(maxVehicleCapacity, minVehicleCapacity));
             }
-            if (customerCount < 1) {
+            if (visitCount < 1) {
                 throw new IllegalStateException(
-                        "Number of customerCount (%s) must be greater than zero.".formatted(customerCount));
+                        "Number of visitCount (%s) must be greater than zero.".formatted(visitCount));
             }
             if (vehicleCount < 1) {
                 throw new IllegalStateException(
@@ -118,7 +115,7 @@ public class VehicleRouteDemoResource {
             }
 
             this.seed = seed;
-            this.customerCount = customerCount;
+            this.visitCount = visitCount;
             this.vehicleCount = vehicleCount;
             this.depotCount = depotCount;
             this.vehicleStartTime = vehicleStartTime;
@@ -196,16 +193,16 @@ public class VehicleRouteDemoResource {
             return firstName + " " + lastName;
         };
 
-        AtomicLong customerSequence = new AtomicLong();
-        Supplier<Customer> customerSupplier = () -> {
+        AtomicLong visitSequence = new AtomicLong();
+        Supplier<Visit> visitSupplier = () -> {
             boolean morningTimeWindow = random.nextBoolean();
 
             LocalDateTime minStartTime =
                     morningTimeWindow ? tomorrowAt(MORNING_WINDOW_START) : tomorrowAt(AFTERNOON_WINDOW_START);
             LocalDateTime maxEndTime = morningTimeWindow ? tomorrowAt(MORNING_WINDOW_END) : tomorrowAt(AFTERNOON_WINDOW_END);
             int serviceDurationMinutes = SERVICE_DURATION_MINUTES[random.nextInt(SERVICE_DURATION_MINUTES.length)];
-            return new Customer(
-                    String.valueOf(customerSequence.incrementAndGet()),
+            return new Visit(
+                    String.valueOf(visitSequence.incrementAndGet()),
                     nameSupplier.get(),
                     new Location(latitudes.nextDouble(), longitudes.nextDouble()),
                     demand.nextInt(),
@@ -214,13 +211,13 @@ public class VehicleRouteDemoResource {
                     Duration.ofMinutes(serviceDurationMinutes));
         };
 
-        List<Customer> customers = Stream.generate(customerSupplier)
-                .limit(demoData.customerCount)
+        List<Visit> visits = Stream.generate(visitSupplier)
+                .limit(demoData.visitCount)
                 .collect(Collectors.toList());
 
         return new VehicleRoutePlan(name, demoData.southWestCorner, demoData.northEastCorner,
                 tomorrowAt(demoData.vehicleStartTime), tomorrowAt(LocalTime.MIDNIGHT).plusDays(1L),
-                depots, vehicles, customers);
+                depots, vehicles, visits);
     }
 
     private static LocalDateTime tomorrowAt(LocalTime time) {

@@ -20,9 +20,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * The plan for routing vehicles to customers, including:
+ * The plan for routing vehicles to visits, including:
  * <ul>
- * <li>capacity - each vehicle has a capacity for customers demand,</li>
+ * <li>capacity - each vehicle has a capacity for visits demand,</li>
  * <li>time windows - each customer accepts the vehicle only in specified time window.</li>
  * </ul>
  *
@@ -52,7 +52,7 @@ public class VehicleRoutePlan {
 
     @PlanningEntityCollectionProperty
     @ValueRangeProvider
-    private List<Customer> customers;
+    private List<Visit> visits;
 
     @PlanningScore
     private HardSoftLongScore score;
@@ -78,7 +78,7 @@ public class VehicleRoutePlan {
             @JsonProperty("endDateTime") LocalDateTime endDateTime,
             @JsonProperty("depots") List<Depot> depots,
             @JsonProperty("vehicles") List<Vehicle> vehicles,
-            @JsonProperty("customers") List<Customer> customers) {
+            @JsonProperty("visits") List<Visit> visits) {
         this.name = name;
         this.southWestCorner = southWestCorner;
         this.northEastCorner = northEastCorner;
@@ -86,10 +86,10 @@ public class VehicleRoutePlan {
         this.endDateTime = endDateTime;
         this.depots = depots;
         this.vehicles = vehicles;
-        this.customers = customers;
+        this.visits = visits;
         List<Location> locations = Stream.concat(
                 depots.stream().map(Depot::getLocation),
-                customers.stream().map(Customer::getLocation)).toList();
+                visits.stream().map(Visit::getLocation)).toList();
 
         DrivingTimeCalculator drivingTimeCalculator = HaversineDrivingTimeCalculator.getInstance();
         drivingTimeCalculator.initDrivingTimeMaps(locations);
@@ -123,8 +123,8 @@ public class VehicleRoutePlan {
         return vehicles;
     }
 
-    public List<Customer> getCustomers() {
-        return customers;
+    public List<Visit> getVisits() {
+        return visits;
     }
 
     public HardSoftLongScore getScore() {

@@ -5,7 +5,7 @@ import ai.timefold.solver.core.api.score.stream.Constraint;
 import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
 import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
 
-import org.acme.vehiclerouting.domain.Customer;
+import org.acme.vehiclerouting.domain.Visit;
 import org.acme.vehiclerouting.domain.Vehicle;
 import org.acme.vehiclerouting.solver.justifications.MinimizeTravelTimeJustification;
 import org.acme.vehiclerouting.solver.justifications.ServiceFinishedAfterMaxEndTimeJustification;
@@ -41,12 +41,12 @@ public class VehicleRoutingConstraintProvider implements ConstraintProvider {
     }
 
     protected Constraint serviceFinishedAfterMaxEndTime(ConstraintFactory factory) {
-        return factory.forEach(Customer.class)
-                .filter(Customer::isServiceFinishedAfterMaxEndTime)
+        return factory.forEach(Visit.class)
+                .filter(Visit::isServiceFinishedAfterMaxEndTime)
                 .penalizeLong(HardSoftLongScore.ONE_HARD,
-                        Customer::getServiceFinishedDelayInMinutes)
-                .justifyWith((customer, score) -> new ServiceFinishedAfterMaxEndTimeJustification(customer.getId(),
-                        customer.getServiceFinishedDelayInMinutes()))
+                        Visit::getServiceFinishedDelayInMinutes)
+                .justifyWith((visit, score) -> new ServiceFinishedAfterMaxEndTimeJustification(visit.getId(),
+                        visit.getServiceFinishedDelayInMinutes()))
                 .asConstraint(SERVICE_FINISHED_AFTER_MAX_END_TIME);
     }
 
