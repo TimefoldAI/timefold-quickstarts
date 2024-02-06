@@ -6,6 +6,7 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
 import ai.timefold.solver.core.api.solver.SolverStatus;
 
 import org.acme.vehiclerouting.domain.Customer;
+import org.acme.vehiclerouting.domain.Location;
 import org.acme.vehiclerouting.domain.dto.ApplyRecommendationRequest;
 import org.acme.vehiclerouting.domain.dto.RecommendationRequest;
 import org.acme.vehiclerouting.domain.VehicleRoutePlan;
@@ -97,8 +99,8 @@ public class VehicleRoutePlanResourceTest {
         assertNull(minimizeTravelTimeAnalysis.matches());
     }
 
-    @Test
-    public void testRecommendedFit() throws JsonProcessingException {
+    private VehicleRoutePlan generateInitialSolution() {
+        // Fetching the problem data
         VehicleRoutePlan vehicleRoutePlan = given()
                 .when().get("/demo-data/FIRENZE")
                 .then()
@@ -106,10 +108,7 @@ public class VehicleRoutePlanResourceTest {
                 .extract()
                 .as(VehicleRoutePlan.class);
 
-        int size = vehicleRoutePlan.getCustomers().size();
-        Customer newCustomer = vehicleRoutePlan.getCustomers().get(size - 1);
-        vehicleRoutePlan.getCustomers().remove(size - 1);
-
+        // Starting the optimization
         String jobId = given()
                 .contentType(ContentType.JSON)
                 .body(vehicleRoutePlan)
@@ -120,6 +119,7 @@ public class VehicleRoutePlanResourceTest {
                 .extract()
                 .asString();
 
+        // Waiting for the solution
         await()
                 .atMost(Duration.ofMinutes(1))
                 .pollInterval(Duration.ofMillis(500L))
@@ -128,9 +128,19 @@ public class VehicleRoutePlanResourceTest {
                                 .jsonPath().get("solverStatus")));
 
         VehicleRoutePlan solution = get("/route-plans/" + jobId).then().extract().as(VehicleRoutePlan.class);
+        return solution;
+    }
+
+    @Test
+    public void testRecommendedFit() {
+        VehicleRoutePlan solution = generateInitialSolution();
         assertNotNull(solution);
         assertEquals(solution.getSolverStatus(), SolverStatus.NOT_SOLVING);
-        assertEquals(size - 1, solution.getCustomers().size());
+
+        Customer newCustomer = new Customer(String.valueOf(solution.getCustomers().size() + 1),
+                "customer%d".formatted(solution.getCustomers().size() + 1), new Location(43.77800837529796, 11.223969038020176),
+                2, LocalDateTime.now().plusDays(1).withHour(8).withMinute(0), LocalDateTime.now().plusDays(1).withHour(14).withMinute(0),
+                Duration.ofMinutes(10));
 
         // Request recommendation
         solution.getCustomers().add(newCustomer);
