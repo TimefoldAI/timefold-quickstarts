@@ -7,19 +7,31 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import jakarta.inject.Inject;
-import jakarta.ws.rs.*;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
 import ai.timefold.solver.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
-import ai.timefold.solver.core.api.solver.*;
+import ai.timefold.solver.core.api.solver.RecommendedFit;
+import ai.timefold.solver.core.api.solver.ScoreAnalysisFetchPolicy;
+import ai.timefold.solver.core.api.solver.SolutionManager;
+import ai.timefold.solver.core.api.solver.SolverManager;
+import ai.timefold.solver.core.api.solver.SolverStatus;
 
 import org.acme.vehiclerouting.domain.Customer;
 import org.acme.vehiclerouting.domain.Vehicle;
+import org.acme.vehiclerouting.domain.VehicleRoutePlan;
 import org.acme.vehiclerouting.domain.dto.ApplyRecommendationRequest;
 import org.acme.vehiclerouting.domain.dto.RecommendationRequest;
-import org.acme.vehiclerouting.domain.VehicleRoutePlan;
 import org.acme.vehiclerouting.domain.dto.VehicleRecommendation;
 import org.acme.vehiclerouting.rest.exception.ErrorInfo;
 import org.acme.vehiclerouting.rest.exception.VehicleRoutingSolverException;
@@ -107,8 +119,10 @@ public class VehicleRoutePlanResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("recommendation")
     public List<RecommendedFit<VehicleRecommendation, HardSoftLongScore>> recommendedFit(RecommendationRequest request) {
-        Customer customer = request.solution().getCustomers().stream().filter(c -> c.getId().equals(request.customerId()))
-                .findFirst().orElseThrow(() -> new IllegalStateException("Customer %s not found".formatted(request.customerId())));
+        Customer customer = request.solution().getCustomers().stream()
+                .filter(c -> c.getId().equals(request.customerId()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("Customer %s not found".formatted(request.customerId())));
         List<RecommendedFit<VehicleRecommendation, HardSoftLongScore>> recommendedFitList = solutionManager
                 .recommendFit(request.solution(), customer, c -> new VehicleRecommendation(c.getVehicle().getId(),
                         c.getVehicle().getCustomers().indexOf(c)));
@@ -118,7 +132,7 @@ public class VehicleRoutePlanResource {
         return recommendedFitList;
     }
 
-    @Operation(summary = "Applies a give recommentation.")
+    @Operation(summary = "Applies a given recommentation.")
     @APIResponses(value = {
             @APIResponse(responseCode = "200",
                     description = "The new solution updated with the recommentation.",
@@ -131,10 +145,14 @@ public class VehicleRoutePlanResource {
     public VehicleRoutePlan applyRecommendedFit(ApplyRecommendationRequest request) {
         VehicleRoutePlan updatedSolution = request.solution();
         String vehicleId = request.vehicleId();
-        Vehicle vehicleTarget = updatedSolution.getVehicles().stream().filter(v -> v.getId().equals(vehicleId))
-                .findFirst().orElseThrow(() -> new IllegalStateException("Vehicle %s not found".formatted(vehicleId)));
-        Customer customer = request.solution().getCustomers().stream().filter(c -> c.getId().equals(request.customerId()))
-                .findFirst().orElseThrow(() -> new IllegalStateException("Customer %s not found".formatted(request.customerId())));
+        Vehicle vehicleTarget = updatedSolution.getVehicles().stream()
+                .filter(v -> v.getId().equals(vehicleId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("Vehicle %s not found".formatted(vehicleId)));
+        Customer customer = request.solution().getCustomers().stream()
+                .filter(c -> c.getId().equals(request.customerId()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("Customer %s not found".formatted(request.customerId())));
         vehicleTarget.getCustomers().add(request.index(), customer);
         solutionManager.update(updatedSolution);
         return updatedSolution;
