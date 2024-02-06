@@ -7,19 +7,16 @@ let loadedRoutePlan = null;
 const solveButton = $('#solveButton');
 const stopSolvingButton = $('#stopSolvingButton');
 const vehiclesTable = $('#vehicles');
-const depotsTable = $('#depots');
 const analyzeButton = $('#analyzeButton');
 
 /*************************************** Map constants and variable definitions  **************************************/
 
-const depotMarkerByIdMap = new Map();
+const homeLocationMarkerByIdMap = new Map();
 const visitMarkerByIdMap = new Map();
-
-const defaultIcon = new L.Icon.Default();
 
 const map = L.map('map', {doubleClickZoom: false}).setView([51.505, -0.09], 13);
 const visitGroup = L.layerGroup().addTo(map);
-const depotGroup = L.layerGroup().addTo(map);
+const homeLocationGroup = L.layerGroup().addTo(map);
 const routeGroup = L.layerGroup().addTo(map);
 
 /************************************ Time line constants and variable definitions ************************************/
@@ -84,20 +81,13 @@ function colorByVehicle(vehicle) {
     return vehicle === null ? null : pickColor('vehicle' + vehicle.id);
 }
 
-function colorByDepot(depot) {
-    return depot === null ? null : pickColor('depot' + depot.id);
-}
-
 function formatDrivingTime(drivingTimeInSeconds) {
     return `${Math.floor(drivingTimeInSeconds / 3600)}h ${Math.round((drivingTimeInSeconds % 3600) / 60)}m`;
 }
 
-function depotPopupContent(depot, color) {
-    return `<h5>Depot ${depot.id}</h5>
-<ul class="list-unstyled">
-<li><span style="background-color: ${color}; display: inline-block; width: 12px; height: 12px; text-align: center">
-</span> ${color}</li>
-</ul>`;
+function homeLocationPopupContent(vehicle) {
+    return `<h5>Vehicle ${vehicle.id}</h5>
+Home Location`;
 }
 
 function visitPopupContent(visit) {
@@ -112,14 +102,14 @@ function showTimeOnly(localDateTimeString) {
     return JSJoda.LocalDateTime.parse(localDateTimeString).toLocalTime();
 }
 
-function getDepotMarker(depot) {
-    let marker = depotMarkerByIdMap.get(depot.id);
+function getHomeLocationMarker(vehicle) {
+    let marker = homeLocationMarkerByIdMap.get(vehicle.id);
     if (marker) {
         return marker;
     }
-    marker = L.marker(depot.location);
-    marker.addTo(depotGroup).bindPopup();
-    depotMarkerByIdMap.set(depot.id, marker);
+    marker = L.circleMarker(vehicle.homeLocation, { color: colorByVehicle(vehicle), fillOpacity: 0.8 });
+    marker.addTo(homeLocationGroup).bindPopup();
+    homeLocationMarkerByIdMap.set(vehicle.id, marker);
     return marker;
 }
 
@@ -142,6 +132,7 @@ function renderRoutes(solution) {
     // Vehicles
     vehiclesTable.children().remove();
     solution.vehicles.forEach(function (vehicle) {
+        getHomeLocationMarker(vehicle).setPopupContent(homeLocationPopupContent(vehicle));
         const {id, capacity, totalDemand, totalDrivingTimeSeconds} = vehicle;
         const percentage = totalDemand / capacity * 100;
         const color = colorByVehicle(vehicle);
@@ -162,21 +153,6 @@ function renderRoutes(solution) {
         <td>${formatDrivingTime(totalDrivingTimeSeconds)}</td>
       </tr>`);
     });
-    // Depots
-    depotsTable.children().remove();
-    solution.depots.forEach(function (depot) {
-        const {id} = depot;
-        const color = colorByDepot(depot);
-        const icon = defaultIcon;
-        const marker = getDepotMarker(depot);
-        marker.setIcon(icon);
-        marker.setPopupContent(depotPopupContent(depot, color));
-        depotsTable.append(`<tr>
-      <td><i class="fas fa-crosshairs" id="crosshairs-${id}"
-      style="background-color: ${color}; display: inline-block; width: 1rem; height: 1rem; text-align: center">
-      </i></td><td>Depot ${id}</td>
-      </tr>`);
-    });
     // Visits
     solution.visits.forEach(function (visit) {
         getVisitMarker(visit).setPopupContent(visitPopupContent(visit));
@@ -184,11 +160,10 @@ function renderRoutes(solution) {
     // Route
     routeGroup.clearLayers();
     const visitByIdMap = new Map(solution.visits.map(visit => [visit.id, visit]));
-    const depotByIdMap = new Map(solution.depots.map(depot => [depot.id, depot]));
     for (let vehicle of solution.vehicles) {
-        const depotLocation = depotByIdMap.get(vehicle.depot).location;
+        const homeLocation = vehicle.homeLocation;
         const locations = vehicle.visits.map(visitId => visitByIdMap.get(visitId).location);
-        L.polyline([depotLocation, ...locations, depotLocation], {color: colorByVehicle(vehicle)}).addTo(routeGroup);
+        L.polyline([homeLocation, ...locations, homeLocation], {color: colorByVehicle(vehicle)}).addTo(routeGroup);
     }
 
     // Summary
@@ -319,7 +294,7 @@ function renderTimelines(routePlan) {
             let lastVisit = routePlan.visits.filter((visit) => visit.id == vehicle.visits[vehicle.visits.length -1]).pop();
             if (lastVisit) {
                 byVehicleItemData.add({
-                    id: vehicle.id + '_travelBackToDepot',
+                    id: vehicle.id + '_travelBackToHomeLocation',
                     group: vehicle.id, // visit.vehicle is the vehicle.id due to Jackson serialization
                     subgroup: vehicle.id,
                     content: $(`<div/>`).append($(`<h5 class="card-title mb-1"/>`).text('Travel')).html(),
@@ -441,8 +416,8 @@ function fetchDemoData() {
                 scheduleId = null;
                 demoDataId = item;
                 initialized = false;
-                depotGroup.clearLayers();
-                depotMarkerByIdMap.clear();
+                homeLocationGroup.clearLayers();
+                homeLocationMarkerByIdMap.clear();
                 visitGroup.clearLayers();
                 visitMarkerByIdMap.clear();
                 refreshRoutePlan();

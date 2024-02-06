@@ -172,7 +172,7 @@ public class Visit {
                     "This method must not be called when the shadow variables are not initialized yet.");
         }
         if (previousVisit == null) {
-            return vehicle.getDepot().getLocation().getDrivingTimeTo(location);
+            return vehicle.getHomeLocation().getDrivingTimeTo(location);
         }
         return previousVisit.getLocation().getDrivingTimeTo(location);
     }

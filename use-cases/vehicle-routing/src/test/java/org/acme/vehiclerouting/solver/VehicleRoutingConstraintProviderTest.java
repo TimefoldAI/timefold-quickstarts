@@ -44,7 +44,7 @@ class VehicleRoutingConstraintProviderTest {
         LocalDateTime tomorrow_07_00 = LocalDateTime.of(TOMORROW, LocalTime.of(7, 0));
         LocalDateTime tomorrow_08_00 = LocalDateTime.of(TOMORROW, LocalTime.of(8, 0));
         LocalDateTime tomorrow_10_00 = LocalDateTime.of(TOMORROW, LocalTime.of(10, 0));
-        Vehicle vehicleA = new Vehicle("1", 100, new Depot("1", LOCATION_1), tomorrow_07_00);
+        Vehicle vehicleA = new Vehicle("1", 100, LOCATION_1, tomorrow_07_00);
         Visit visit1 = new Visit("2", "John", LOCATION_2, 80, tomorrow_08_00, tomorrow_10_00, Duration.ofMinutes(30L));
         vehicleA.getVisits().add(visit1);
 
@@ -58,7 +58,7 @@ class VehicleRoutingConstraintProviderTest {
         LocalDateTime tomorrow_07_00 = LocalDateTime.of(TOMORROW, LocalTime.of(7, 0));
         LocalDateTime tomorrow_08_00 = LocalDateTime.of(TOMORROW, LocalTime.of(8, 0));
         LocalDateTime tomorrow_10_00 = LocalDateTime.of(TOMORROW, LocalTime.of(10, 0));
-        Vehicle vehicleA = new Vehicle("1", 100, new Depot("1", LOCATION_1), tomorrow_07_00);
+        Vehicle vehicleA = new Vehicle("1", 100, LOCATION_1, tomorrow_07_00);
         Visit visit1 = new Visit("2", "John", LOCATION_2, 80, tomorrow_08_00, tomorrow_10_00, Duration.ofMinutes(30L));
         vehicleA.getVisits().add(visit1);
         Visit visit2 = new Visit("3", "Paul", LOCATION_3, 40, tomorrow_08_00, tomorrow_10_00, Duration.ofMinutes(30L));
@@ -74,7 +74,7 @@ class VehicleRoutingConstraintProviderTest {
         LocalDateTime tomorrow_07_00 = LocalDateTime.of(TOMORROW, LocalTime.of(7, 0));
         LocalDateTime tomorrow_08_00 = LocalDateTime.of(TOMORROW, LocalTime.of(8, 0));
         LocalDateTime tomorrow_10_00 = LocalDateTime.of(TOMORROW, LocalTime.of(10, 0));
-        Vehicle vehicleA = new Vehicle("1", 100, new Depot("1", LOCATION_1), tomorrow_07_00);
+        Vehicle vehicleA = new Vehicle("1", 100, LOCATION_1, tomorrow_07_00);
         Visit visit1 = new Visit("2", "John", LOCATION_2, 80, tomorrow_08_00, tomorrow_10_00, Duration.ofMinutes(30L));
         vehicleA.getVisits().add(visit1);
         Visit visit2 = new Visit("3", "Paul", LOCATION_3, 40, tomorrow_08_00, tomorrow_10_00, Duration.ofMinutes(30L));
@@ -98,7 +98,7 @@ class VehicleRoutingConstraintProviderTest {
         visit1.setArrivalTime(tomorrow_08_40);
         Visit visit2 = new Visit("3", "Paul", LOCATION_3, 40, tomorrow_08_00, tomorrow_09_00, Duration.ofHours(1L));
         visit2.setArrivalTime(tomorrow_10_30);
-        Vehicle vehicleA = new Vehicle("1", 100, new Depot("1", LOCATION_1), tomorrow_07_00);
+        Vehicle vehicleA = new Vehicle("1", 100, LOCATION_1, tomorrow_07_00);
 
         connect(vehicleA, visit1, visit2);
 

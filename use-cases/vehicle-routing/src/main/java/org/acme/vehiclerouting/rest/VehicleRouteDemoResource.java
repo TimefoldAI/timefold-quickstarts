@@ -42,22 +42,21 @@ public class VehicleRouteDemoResource {
     private static final LocalTime AFTERNOON_WINDOW_END = LocalTime.of(18, 0);
 
     public enum DemoData {
-        PHILADELPHIA(0, 60, 6, 2, LocalTime.of(7, 30),
+        PHILADELPHIA(0, 55, 6, LocalTime.of(7, 30),
                 1, 2, 15, 30,
                 new Location(39.7656099067391, -76.83782328143754),
                 new Location(40.77636644354855, -74.9300739430771)),
-        HARTFORT(1, 50, 6, 2, LocalTime.of(7, 30),
+        HARTFORT(1, 50, 6, LocalTime.of(7, 30),
                 1, 3, 20, 30,
                 new Location(41.48366520850297, -73.15901689943055),
                 new Location(41.99512052869307, -72.25114548877427)),
-        FIRENZE(2, 77, 6, 2, LocalTime.of(7, 30),
+        FIRENZE(2, 77, 6, LocalTime.of(7, 30),
                 1, 2, 20, 40,
                 new Location(43.751466, 11.177210), new Location(43.809291, 11.290195));
 
         private long seed;
         private int visitCount;
         private int vehicleCount;
-        private int depotCount;
         private LocalTime vehicleStartTime;
         private int minDemand;
         private int maxDemand;
@@ -66,7 +65,7 @@ public class VehicleRouteDemoResource {
         private Location southWestCorner;
         private Location northEastCorner;
 
-        DemoData(long seed, int visitCount, int vehicleCount, int depotCount, LocalTime vehicleStartTime,
+        DemoData(long seed, int visitCount, int vehicleCount, LocalTime vehicleStartTime,
                  int minDemand, int maxDemand, int minVehicleCapacity, int maxVehicleCapacity,
                  Location southWestCorner, Location northEastCorner) {
             if (minDemand < 1) {
@@ -99,10 +98,6 @@ public class VehicleRouteDemoResource {
                 throw new IllegalStateException(
                         "Number of vehicleCount (%s) must be greater than zero.".formatted(vehicleCount));
             }
-            if (depotCount < 1) {
-                throw new IllegalStateException(
-                        "Number of depotCount (%s) must be greater than zero.".formatted(depotCount));
-            }
             if (northEastCorner.getLatitude() <= southWestCorner.getLatitude()) {
                 throw new IllegalStateException(
                         "northEastCorner.getLatitude (%s) must be greater than southWestCorner.getLatitude(%s)."
@@ -117,7 +112,6 @@ public class VehicleRouteDemoResource {
             this.seed = seed;
             this.visitCount = visitCount;
             this.vehicleCount = vehicleCount;
-            this.depotCount = depotCount;
             this.vehicleStartTime = vehicleStartTime;
             this.minDemand = minDemand;
             this.maxDemand = maxDemand;
@@ -164,22 +158,11 @@ public class VehicleRouteDemoResource {
         PrimitiveIterator.OfInt vehicleCapacity = random.ints(demoData.minVehicleCapacity, demoData.maxVehicleCapacity + 1)
                 .iterator();
 
-        PrimitiveIterator.OfInt depotRandom = random.ints(0, demoData.depotCount).iterator();
-
-        AtomicLong depotSequence = new AtomicLong();
-        Supplier<Depot> depotSupplier = () -> new Depot(
-                String.valueOf(depotSequence.incrementAndGet()),
-                new Location(latitudes.nextDouble(), longitudes.nextDouble()));
-
-        List<Depot> depots = Stream.generate(depotSupplier)
-                .limit(demoData.depotCount)
-                .collect(Collectors.toList());
-
         AtomicLong vehicleSequence = new AtomicLong();
         Supplier<Vehicle> vehicleSupplier = () -> new Vehicle(
                 String.valueOf(vehicleSequence.incrementAndGet()),
                 vehicleCapacity.nextInt(),
-                depots.get(depotRandom.nextInt()),
+                new Location(latitudes.nextDouble(), longitudes.nextDouble()),
                 tomorrowAt(demoData.vehicleStartTime));
 
         List<Vehicle> vehicles = Stream.generate(vehicleSupplier)
@@ -217,7 +200,7 @@ public class VehicleRouteDemoResource {
 
         return new VehicleRoutePlan(name, demoData.southWestCorner, demoData.northEastCorner,
                 tomorrowAt(demoData.vehicleStartTime), tomorrowAt(LocalTime.MIDNIGHT).plusDays(1L),
-                depots, vehicles, visits);
+                vehicles, visits);
     }
 
     private static LocalDateTime tomorrowAt(LocalTime time) {

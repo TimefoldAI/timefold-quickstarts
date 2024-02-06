@@ -21,7 +21,7 @@ public class Vehicle {
     private String id;
     private int capacity;
     @JsonIdentityReference
-    private Depot depot;
+    private Location homeLocation;
 
     private LocalDateTime departureTime;
 
@@ -32,10 +32,10 @@ public class Vehicle {
     public Vehicle() {
     }
 
-    public Vehicle(String id, int capacity, Depot depot, LocalDateTime departureTime) {
+    public Vehicle(String id, int capacity, Location homeLocation, LocalDateTime departureTime) {
         this.id = id;
         this.capacity = capacity;
-        this.depot = depot;
+        this.homeLocation = homeLocation;
         this.departureTime = departureTime;
         this.visits = new ArrayList<>();
     }
@@ -56,12 +56,12 @@ public class Vehicle {
         this.capacity = capacity;
     }
 
-    public Depot getDepot() {
-        return depot;
+    public Location getHomeLocation() {
+        return homeLocation;
     }
 
-    public void setDepot(Depot depot) {
-        this.depot = depot;
+    public void setHomeLocation(Location homeLocation) {
+        this.homeLocation = homeLocation;
     }
 
     public LocalDateTime getDepartureTime() {
@@ -96,13 +96,13 @@ public class Vehicle {
         }
 
         long totalDrivingTime = 0;
-        Location previousLocation = depot.getLocation();
+        Location previousLocation = homeLocation;
 
         for (Visit visit : visits) {
             totalDrivingTime += previousLocation.getDrivingTimeTo(visit.getLocation());
             previousLocation = visit.getLocation();
         }
-        totalDrivingTime += previousLocation.getDrivingTimeTo(depot.getLocation());
+        totalDrivingTime += previousLocation.getDrivingTimeTo(homeLocation);
 
         return totalDrivingTime;
     }
@@ -114,7 +114,7 @@ public class Vehicle {
         }
 
         Visit lastVisit = visits.get(visits.size() - 1);
-        return lastVisit.getDepartureTime().plusSeconds(lastVisit.getLocation().getDrivingTimeTo(depot.getLocation()));
+        return lastVisit.getDepartureTime().plusSeconds(lastVisit.getLocation().getDrivingTimeTo(homeLocation));
     }
 
     @Override

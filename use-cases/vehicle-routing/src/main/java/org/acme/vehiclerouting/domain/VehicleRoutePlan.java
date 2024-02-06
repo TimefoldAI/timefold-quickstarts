@@ -44,9 +44,6 @@ public class VehicleRoutePlan {
 
     private LocalDateTime endDateTime;
 
-    @ProblemFactCollectionProperty
-    private List<Depot> depots;
-
     @PlanningEntityCollectionProperty
     private List<Vehicle> vehicles;
 
@@ -76,7 +73,6 @@ public class VehicleRoutePlan {
             @JsonProperty("northEastCorner") Location northEastCorner,
             @JsonProperty("startDateTime") LocalDateTime startDateTime,
             @JsonProperty("endDateTime") LocalDateTime endDateTime,
-            @JsonProperty("depots") List<Depot> depots,
             @JsonProperty("vehicles") List<Vehicle> vehicles,
             @JsonProperty("visits") List<Visit> visits) {
         this.name = name;
@@ -84,11 +80,10 @@ public class VehicleRoutePlan {
         this.northEastCorner = northEastCorner;
         this.startDateTime = startDateTime;
         this.endDateTime = endDateTime;
-        this.depots = depots;
         this.vehicles = vehicles;
         this.visits = visits;
         List<Location> locations = Stream.concat(
-                depots.stream().map(Depot::getLocation),
+                vehicles.stream().map(Vehicle::getHomeLocation),
                 visits.stream().map(Visit::getLocation)).toList();
 
         DrivingTimeCalculator drivingTimeCalculator = HaversineDrivingTimeCalculator.getInstance();
@@ -113,10 +108,6 @@ public class VehicleRoutePlan {
 
     public LocalDateTime getEndDateTime() {
         return endDateTime;
-    }
-
-    public List<Depot> getDepots() {
-        return depots;
     }
 
     public List<Vehicle> getVehicles() {
