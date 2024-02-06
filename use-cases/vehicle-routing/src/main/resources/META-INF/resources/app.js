@@ -1,5 +1,6 @@
 let autoRefreshIntervalId = null;
 let initialized = false;
+let optimizing = false;
 let demoDataId = null;
 let scheduleId = null;
 let loadedRoutePlan = null;
@@ -354,6 +355,17 @@ function analyze() {
 }
 
 function openRecommendationModal(lat, lng) {
+
+    if (!('score' in loadedRoutePlan) || optimizing) {
+        map.removeLayer(customerMaker);
+        customerMaker = null;
+        let message = "Please click the Solve button before adding new customers.";
+        if (optimizing) {
+            message = "Please wait for the solving process to finish."
+        }
+        alert(message);
+        return;
+    }
     // see recommended-fit.js
     const customerId = Math.max(...loadedRoutePlan.customers.map(c => parseInt(c.id))) + 1;
     newCustomer = {id: customerId, location: [lat, lng]};
@@ -368,7 +380,10 @@ function getRecommendationsModal() {
     formValid = validateFormField(newCustomer, 'maxEndTime' , '#inputMaxStartTime') && formValid;
     formValid = validateFormField(newCustomer, 'serviceDuration' , '#inputDuration') && formValid;
     if (formValid) {
-        const updatedCustomer = {...newCustomer, serviceDuration: `PT${newCustomer['serviceDuration']}M`};
+        const updatedMinStartTime = JSJoda.LocalDateTime.parse(newCustomer['minStartTime'], JSJoda.DateTimeFormatter.ofPattern('yyyy-M-d HH:mm')).format(JSJoda.DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        const updatedMaxEndTime = JSJoda.LocalDateTime.parse(newCustomer['maxEndTime'], JSJoda.DateTimeFormatter.ofPattern('yyyy-M-d HH:mm')).format(JSJoda.DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        const updatedCustomer = {...newCustomer, serviceDuration: `PT${newCustomer['serviceDuration']}M`, minStartTime: updatedMinStartTime, maxEndTime: updatedMaxEndTime};
+        console.log(updatedCustomer)
         let updatedCustomerList = [...loadedRoutePlan['customers']];
         updatedCustomerList.push(updatedCustomer);
         let updatedSolution = {...loadedRoutePlan, customers: updatedCustomerList};
@@ -394,7 +409,10 @@ function applyRecommendationModal(recommendations) {
             checkedRecommendation = recommendations[index];
         }
     });
-    const updatedCustomer = {...newCustomer, serviceDuration: `PT${newCustomer['serviceDuration']}M`};
+    const updatedMinStartTime = JSJoda.LocalDateTime.parse(newCustomer['minStartTime'], JSJoda.DateTimeFormatter.ofPattern('yyyy-M-d HH:mm')).format(JSJoda.DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+    const updatedMaxEndTime = JSJoda.LocalDateTime.parse(newCustomer['maxEndTime'], JSJoda.DateTimeFormatter.ofPattern('yyyy-M-d HH:mm')).format(JSJoda.DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+    const updatedCustomer = {...newCustomer, serviceDuration: `PT${newCustomer['serviceDuration']}M`, minStartTime: updatedMinStartTime, maxEndTime: updatedMaxEndTime};
+    console.log(updatedCustomer)
     let updatedCustomerList = [...loadedRoutePlan['customers']];
     updatedCustomerList.push(updatedCustomer);
     let updatedSolution = {...loadedRoutePlan, customers: updatedCustomerList};
@@ -452,6 +470,7 @@ function solve() {
 }
 
 function refreshSolvingButtons(solving) {
+    optimizing = solving;
     if (solving) {
         $("#solveButton").hide();
         $("#customerButton").hide();

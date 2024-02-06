@@ -30,7 +30,7 @@ function addNewCustomer(id, lat, lng, map, marker) {
         "      <div class='row'>" +
         "        <div class='col-2'>" +
         "          <label for='inputDemand'>Demand</label>" +
-        "          <input type='number' class='form-control' id='inputDemand' aria-describedby='inputDemand' required>" +
+        "          <input type='number' class='form-control' id='inputDemand' aria-describedby='inputDemand' value='1' required>" +
         "          <div class='invalid-feedback'>" +
         "            Field is required" +
         "          </div>" +
@@ -41,14 +41,14 @@ function addNewCustomer(id, lat, lng, map, marker) {
         "      <div class='row'>" +
         "        <div class='col-3'>" +
         "          <label for='inputMinStartTime'>Min Start Time</label>" +
-        `          <input type='datetime-local' class='form-control' id='inputMinStartTime' aria-describedby='inputMinStartTime' required>` +
+        `          <input class='form-control' id='inputMinStartTime' aria-describedby='inputMinStartTime' required>` +
         "          <div class='invalid-feedback'>" +
         "            Field is required" +
         "          </div>" +
         "        </div>" +
         "        <div class='col-3'>" +
         "          <label for='inputMaxStartTime'>Max Start Time</label>" +
-        `          <input type='datetime-local' class='form-control' id='inputMaxStartTime' aria-describedby='inputMaxStartTime' required>` +
+        `          <input class='form-control' id='inputMaxStartTime' aria-describedby='inputMaxStartTime' required>` +
         "          <div class='invalid-feedback'>" +
         "            Field is required" +
         "          </div>" +
@@ -60,7 +60,7 @@ function addNewCustomer(id, lat, lng, map, marker) {
         "      <div class='row'>" +
         "        <div class='col-3'>" +
         "          <label for='inputDuration'>Duration in Minutes</label>" +
-        "          <input type='number' class='form-control' id='inputDuration' aria-describedby='inputDuration' required>" +
+        "          <input type='number' class='form-control' id='inputDuration' aria-describedby='inputDuration' value='120' required>" +
         "          <div class='invalid-feedback'>" +
         "            Field is required" +
         "          </div>" +
@@ -68,6 +68,10 @@ function addNewCustomer(id, lat, lng, map, marker) {
         "      </div>" +
         "  </div>";
     customerModalContent.append(customerForm);
+    let startDate = JSJoda.LocalDateTime.now().plusDays(1);
+    let endDate = JSJoda.LocalDateTime.now().plusHours(30);
+    flatpickr("#inputMinStartTime", {enableTime: true, dateFormat: "Y-m-d H:i", defaultDate: startDate.format(JSJoda.DateTimeFormatter.ofPattern('yyyy-M-d HH:mm'))});
+    flatpickr("#inputMaxStartTime", {enableTime: true, dateFormat: "Y-m-d H:i", defaultDate: endDate.format(JSJoda.DateTimeFormatter.ofPattern('yyyy-M-d HH:mm'))});
     const customerModalFooter = $("#newCustomerModalFooter");
     customerModalFooter.children().remove();
     customerModalFooter.append("<button id='recommendationButton' type='button' class='btn btn-success'><i class='fas fa-arrow-right'></i> Get Recommendations</button>");
@@ -139,10 +143,6 @@ function requestRecommendations(customerId, solution, endpointPath) {
             $('#newCustomerModal').modal('hide');
         },
         "text");
-}
-
-function toggleCollapse(index) {
-
 }
 
 function applyRecommendation(solution, customerId, vehicleId, index, endpointPath) {
