@@ -150,7 +150,7 @@ public class VehicleRoutePlanResource {
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("Vehicle %s not found".formatted(vehicleId)));
         Visit visit = request.solution().getVisits().stream()
-                .filter(c -> c.getId().equals(request.visitId()))
+                .filter(v -> v.getId().equals(request.visitId()))
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("Visit %s not found".formatted(request.visitId())));
         vehicleTarget.getVisits().add(request.index(), visit);
