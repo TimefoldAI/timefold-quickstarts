@@ -27,9 +27,9 @@ import ai.timefold.solver.core.api.solver.SolutionManager;
 import ai.timefold.solver.core.api.solver.SolverManager;
 import ai.timefold.solver.core.api.solver.SolverStatus;
 
-import org.acme.vehiclerouting.domain.Customer;
 import org.acme.vehiclerouting.domain.Vehicle;
 import org.acme.vehiclerouting.domain.VehicleRoutePlan;
+import org.acme.vehiclerouting.domain.Visit;
 import org.acme.vehiclerouting.domain.dto.ApplyRecommendationRequest;
 import org.acme.vehiclerouting.domain.dto.RecommendationRequest;
 import org.acme.vehiclerouting.domain.dto.VehicleRecommendation;
@@ -47,7 +47,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Tag(name = "Vehicle Routing with Capacity and Time Windows",
-        description = "Vehicle Routing optimizes routes of vehicles with given capacities to visit customers available in specified time windows.")
+        description = "Vehicle Routing optimizes routes of vehicles with given capacities to visits available in specified time windows.")
 @Path("route-plans")
 public class VehicleRoutePlanResource {
 
@@ -108,10 +108,10 @@ public class VehicleRoutePlanResource {
         return jobId;
     }
 
-    @Operation(summary = "Request recommendations to the RecommendedFit API for a new customer.")
+    @Operation(summary = "Request recommendations to the RecommendedFit API for a new visit.")
     @APIResponses(value = {
             @APIResponse(responseCode = "200",
-                    description = "The list of fits for the given customer.",
+                    description = "The list of fits for the given visit.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
                             schema = @Schema(implementation = List.class)))})
     @POST
@@ -119,23 +119,23 @@ public class VehicleRoutePlanResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("recommendation")
     public List<RecommendedFit<VehicleRecommendation, HardSoftLongScore>> recommendedFit(RecommendationRequest request) {
-        Customer customer = request.solution().getCustomers().stream()
-                .filter(c -> c.getId().equals(request.customerId()))
+        Visit visit = request.solution().getVisits().stream()
+                .filter(v -> v.getId().equals(request.visitId()))
                 .findFirst()
-                .orElseThrow(() -> new IllegalStateException("Customer %s not found".formatted(request.customerId())));
+                .orElseThrow(() -> new IllegalStateException("Visit %s not found".formatted(request.visitId())));
         List<RecommendedFit<VehicleRecommendation, HardSoftLongScore>> recommendedFitList = solutionManager
-                .recommendFit(request.solution(), customer, c -> new VehicleRecommendation(c.getVehicle().getId(),
-                        c.getVehicle().getCustomers().indexOf(c)));
+                .recommendFit(request.solution(), visit, v -> new VehicleRecommendation(v.getVehicle().getId(),
+                        v.getVehicle().getVisits().indexOf(v)));
         if (!recommendedFitList.isEmpty()) {
             return recommendedFitList.subList(0, Math.min(MAX_RECOMMENDED_FIT_LIST_SIZE, recommendedFitList.size()));
         }
         return recommendedFitList;
     }
 
-    @Operation(summary = "Applies a given recommentation.")
+    @Operation(summary = "Applies a given recommendation.")
     @APIResponses(value = {
             @APIResponse(responseCode = "200",
-                    description = "The new solution updated with the recommentation.",
+                    description = "The new solution updated with the recommendation.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
                             schema = @Schema(implementation = VehicleRoutePlan.class)))})
     @POST
@@ -149,11 +149,11 @@ public class VehicleRoutePlanResource {
                 .filter(v -> v.getId().equals(vehicleId))
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("Vehicle %s not found".formatted(vehicleId)));
-        Customer customer = request.solution().getCustomers().stream()
-                .filter(c -> c.getId().equals(request.customerId()))
+        Visit visit = request.solution().getVisits().stream()
+                .filter(v -> v.getId().equals(request.visitId()))
                 .findFirst()
-                .orElseThrow(() -> new IllegalStateException("Customer %s not found".formatted(request.customerId())));
-        vehicleTarget.getCustomers().add(request.index(), customer);
+                .orElseThrow(() -> new IllegalStateException("Visit %s not found".formatted(request.visitId())));
+        vehicleTarget.getVisits().add(request.index(), visit);
         solutionManager.update(updatedSolution);
         return updatedSolution;
     }

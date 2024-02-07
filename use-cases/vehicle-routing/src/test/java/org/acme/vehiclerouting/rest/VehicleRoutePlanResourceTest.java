@@ -15,8 +15,8 @@ import ai.timefold.solver.core.api.score.analysis.ConstraintAnalysis;
 import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
 import ai.timefold.solver.core.api.solver.SolverStatus;
 
-import org.acme.vehiclerouting.domain.Customer;
 import org.acme.vehiclerouting.domain.Location;
+import org.acme.vehiclerouting.domain.Visit;
 import org.acme.vehiclerouting.domain.dto.ApplyRecommendationRequest;
 import org.acme.vehiclerouting.domain.dto.RecommendationRequest;
 import org.acme.vehiclerouting.domain.VehicleRoutePlan;
@@ -137,14 +137,14 @@ public class VehicleRoutePlanResourceTest {
         assertNotNull(solution);
         assertEquals(solution.getSolverStatus(), SolverStatus.NOT_SOLVING);
 
-        Customer newCustomer = new Customer(String.valueOf(solution.getCustomers().size() + 1),
-                "customer%d".formatted(solution.getCustomers().size() + 1), new Location(43.77800837529796, 11.223969038020176),
+        Visit newVisit = new Visit(String.valueOf(solution.getVisits().size() + 1),
+                "visit%d".formatted(solution.getVisits().size() + 1), new Location(43.77800837529796, 11.223969038020176),
                 2, LocalDateTime.now().plusDays(1).withHour(8).withMinute(0), LocalDateTime.now().plusDays(1).withHour(14).withMinute(0),
                 Duration.ofMinutes(10));
 
         // Request recommendation
-        solution.getCustomers().add(newCustomer);
-        RecommendationRequest request = new RecommendationRequest(solution, newCustomer.getId());
+        solution.getVisits().add(newVisit);
+        RecommendationRequest request = new RecommendationRequest(solution, newVisit.getId());
         List<Pair<VehicleRecommendation, ScoreAnalysis>> recommendedFitList = parseRecommendedFitList(given()
                 .contentType(ContentType.JSON)
                 .body(request)
@@ -160,7 +160,7 @@ public class VehicleRoutePlanResourceTest {
 
         // Apply the recommendation
         VehicleRecommendation recommendation = recommendedFitList.get(0).getLeft();
-        ApplyRecommendationRequest applyRequest = new ApplyRecommendationRequest(solution, newCustomer.getId(),
+        ApplyRecommendationRequest applyRequest = new ApplyRecommendationRequest(solution, newVisit.getId(),
                 recommendation.vehicleId(), recommendation.index());
 
         VehicleRoutePlan updatedSolution = given()
@@ -205,9 +205,8 @@ public class VehicleRoutePlanResourceTest {
         VehicleRoutePlan solution = get("/route-plans/" + jobId).then().extract().as(VehicleRoutePlan.class);
         assertEquals(solution.getSolverStatus(), SolverStatus.NOT_SOLVING);
         assertNotNull(solution.getVehicles());
-        assertNotNull(solution.getCustomers());
-        assertNotNull(solution.getDepots());
-        assertNotNull(solution.getVehicles().get(0).getCustomers());
+        assertNotNull(solution.getVisits());
+        assertNotNull(solution.getVehicles().get(0).getVisits());
         return solution;
     }
 

@@ -1,20 +1,20 @@
-function addNewCustomer(id, lat, lng, map, marker) {
-    $('#newCustomerModal').modal('show')
-    const customerModalContent = $("#newCustomerModalContent");
-    customerModalContent.children().remove();
-    let customerForm = "";
-    customerForm += "<div class='form-group'>" +
+function addNewVisit(id, lat, lng, map, marker) {
+    $('#newVisitModal').modal('show')
+    const visitModalContent = $("#newVisitModalContent");
+    visitModalContent.children().remove();
+    let visitForm = "";
+    visitForm += "<div class='form-group'>" +
         "      <div class='row'>" +
         "        <div class='col-5'>" +
         "          <label for='inputName'>Name</label>" +
-        `          <input type='text' class='form-control' id='inputName' aria-describedby='inputName' value='customer${id}' required>` +
+        `          <input type='text' class='form-control' id='inputName' aria-describedby='inputName' value='visit${id}' required>` +
         "          <div class='invalid-feedback'>" +
         "            Field is required" +
         "          </div>" +
         "        </div>" +
         "      </div>" +
         "  </div>";
-    customerForm += "<div class='form-group'>" +
+    visitForm += "<div class='form-group'>" +
         "      <div class='row'>" +
         "        <div class='col-4'>" +
         "          <label for='inputLatitude'>Latitude</label>" +
@@ -26,7 +26,7 @@ function addNewCustomer(id, lat, lng, map, marker) {
         "        </div>" +
         "      </div>" +
         "    </div>";
-    customerForm += "<div class='form-group'>" +
+    visitForm += "<div class='form-group'>" +
         "      <div class='row'>" +
         "        <div class='col-2'>" +
         "          <label for='inputDemand'>Demand</label>" +
@@ -37,7 +37,7 @@ function addNewCustomer(id, lat, lng, map, marker) {
         "        </div>" +
         "      </div>" +
         "  </div>";
-    customerForm += "<div class='form-group'>" +
+    visitForm += "<div class='form-group'>" +
         "      <div class='row'>" +
         "        <div class='col-3'>" +
         "          <label for='inputMinStartTime'>Min Start Time</label>" +
@@ -56,7 +56,7 @@ function addNewCustomer(id, lat, lng, map, marker) {
         "      </div>" +
         "   </div>" +
         "</div>";
-    customerForm += "<div class='form-group'>" +
+    visitForm += "<div class='form-group'>" +
         "      <div class='row'>" +
         "        <div class='col-3'>" +
         "          <label for='inputDuration'>Duration in Minutes</label>" +
@@ -67,23 +67,23 @@ function addNewCustomer(id, lat, lng, map, marker) {
         "        </div>" +
         "      </div>" +
         "  </div>";
-    customerModalContent.append(customerForm);
+    visitModalContent.append(visitForm);
     let startDate = JSJoda.LocalDateTime.now().plusDays(1);
     let endDate = JSJoda.LocalDateTime.now().plusHours(30);
     flatpickr("#inputMinStartTime", {enableTime: true, dateFormat: "Y-m-d H:i", defaultDate: startDate.format(JSJoda.DateTimeFormatter.ofPattern('yyyy-M-d HH:mm'))});
     flatpickr("#inputMaxStartTime", {enableTime: true, dateFormat: "Y-m-d H:i", defaultDate: endDate.format(JSJoda.DateTimeFormatter.ofPattern('yyyy-M-d HH:mm'))});
-    const customerModalFooter = $("#newCustomerModalFooter");
-    customerModalFooter.children().remove();
-    customerModalFooter.append("<button id='recommendationButton' type='button' class='btn btn-success'><i class='fas fa-arrow-right'></i> Get Recommendations</button>");
+    const visitModalFooter = $("#newVisitModalFooter");
+    visitModalFooter.children().remove();
+    visitModalFooter.append("<button id='recommendationButton' type='button' class='btn btn-success'><i class='fas fa-arrow-right'></i> Get Recommendations</button>");
     $("#recommendationButton").click(getRecommendationsModal);
 }
 
-function requestRecommendations(customerId, solution, endpointPath) {
-    $.post(endpointPath, JSON.stringify({solution, customerId}), function (recommendations) {
-        const customerModalContent = $("#newCustomerModalContent");
-        customerModalContent.children().remove();
-        let customerOptions = "";
-        const customer = solution.customers.find(c => c.id === customerId);
+function requestRecommendations(visitId, solution, endpointPath) {
+    $.post(endpointPath, JSON.stringify({solution, visitId}), function (recommendations) {
+        const visitModalContent = $("#newVisitModalContent");
+        visitModalContent.children().remove();
+        let visitOptions = "";
+        const visit = solution.visits.find(c => c.id === visitId);
         recommendations.forEach((recommendation, index) => {
 
             const analysisTable = $(`<table class="table"/>`).css({textAlign: 'center'});
@@ -101,10 +101,10 @@ function requestRecommendations(customerId, solution, endpointPath) {
                 visualizeConstraintAnalysis(analysisTBody, index2, constraintAnalysis, true, index)
             });
             analysisTable.append(analysisTBody);
-            customerOptions += "<div class='form-check'>" +
+            visitOptions += "<div class='form-check'>" +
                 `  <input class='form-check-input' type='radio' name='recommendationOptions' id='option${index}' value='option${index}' ${index === 0 ? 'checked=true' : ''}>` +
                 `  <label class='form-check-label' for='option${index}'>` +
-                `    Add <b>${customer.name}</b> to the vehicle <b>${recommendation.proposition.vehicleId}</b> at the position <b>${recommendation.proposition.index + 1} ${index === 0 ? ' (Best Recommendation)' : ''}</b>` +
+                `    Add <b>${visit.name}</b> to the vehicle <b>${recommendation.proposition.vehicleId}</b> at the position <b>${recommendation.proposition.index + 1} ${index === 0 ? ' (Best Recommendation)' : ''}</b>` +
                 "  </label>" +
                 `  <a id="analyzeRecommendationButton${index}" class="float-justify" href="#" role="button">` +
                 "    <i class='fas fa-info-circle'></i>" +
@@ -116,7 +116,7 @@ function requestRecommendations(customerId, solution, endpointPath) {
                 "  </div>" +
                 "</div>";
         });
-        customerModalContent.append(customerOptions);
+        visitModalContent.append(visitOptions);
         // We add button events only after modal content is loaded
         recommendations.forEach((recommendation, index) => {
             $(`#analyzeRecommendationButton${index}`).click(_ => {
@@ -134,23 +134,23 @@ function requestRecommendations(customerId, solution, endpointPath) {
                 });
             });
         });
-        const customerModalFooter = $("#newCustomerModalFooter");
-        customerModalFooter.children().remove();
-        customerModalFooter.append("<button id='applyRecommendationButton' type='button' class='btn btn-success'><i class='fas fa-check'></i> Accept and Solve</button>");
+        const visitModalFooter = $("#newVisitModalFooter");
+        visitModalFooter.children().remove();
+        visitModalFooter.append("<button id='applyRecommendationButton' type='button' class='btn btn-success'><i class='fas fa-check'></i> Accept and Solve</button>");
         $("#applyRecommendationButton").click(_ => applyRecommendationModal(recommendations));
     }).fail(function (xhr, ajaxOptions, thrownError) {
             showError("Recommendations request analysis failed.", xhr);
-            $('#newCustomerModal').modal('hide');
+            $('#newVisitModal').modal('hide');
         },
         "text");
 }
 
-function applyRecommendation(solution, customerId, vehicleId, index, endpointPath) {
-    $.post(endpointPath, JSON.stringify({solution, customerId, vehicleId, index}), function (updatedSolution) {
-        updateSolutionWithNewCustomer(updatedSolution);
+function applyRecommendation(solution, visitId, vehicleId, index, endpointPath) {
+    $.post(endpointPath, JSON.stringify({solution, visitId, vehicleId, index}), function (updatedSolution) {
+        updateSolutionWithNewVisit(updatedSolution);
     }).fail(function (xhr, ajaxOptions, thrownError) {
             showError("Apply recommendation request failed.", xhr);
-            $('#newCustomerModal').modal('hide');
+            $('#newVisitModal').modal('hide');
         },
         "text");
 }

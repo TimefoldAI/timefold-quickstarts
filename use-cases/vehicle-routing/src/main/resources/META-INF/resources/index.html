@@ -24,7 +24,7 @@
       <div id="notificationPanel" style="position: absolute; top: .5rem;"></div>
     </div>
     <h1>Vehicle routing with capacity and time windows</h1>
-    <p>Generate optimal route plan of a vehicle fleet with limited vehicle capacity and time windows. New customers may be added by clicking anywhere inside the map.</p>
+    <p>Generate optimal route plan of a vehicle fleet with limited vehicle capacity and time windows. New visits may be added by clicking anywhere inside the map.</p>
     <div class="container-fluid mb-2">
       <div class="row justify-content-start">
         <div class="col-9">
@@ -41,8 +41,8 @@
               </button>
             </li>
             <li class="nav-item" role="presentation">
-              <button class="nav-link" id="byCustomerTab" data-bs-toggle="tab" data-bs-target="#byCustomerPanel"
-                      type="button" role="tab" aria-controls="byCustomerPanel" aria-selected="false">By customer
+              <button class="nav-link" id="byVisitTab" data-bs-toggle="tab" data-bs-target="#byVisitPanel"
+                      type="button" role="tab" aria-controls="byVisitPanel" aria-selected="false">By visit
               </button>
             </li>
           </ul>
@@ -86,18 +86,6 @@
                 </table>
               </div>
               <div class="col">
-                <h5>Depots</h5>
-                <table class="table-sm w-100">
-                  <thead>
-                  <tr>
-                    <th class="col-1"></th>
-                    <th class="col-11">Name</th>
-                  </tr>
-                  </thead>
-                  <tbody id="depots"></tbody>
-                </table>
-              </div>
-              <div class="col">
                 <h5>Vehicles</h5>
                 <table class="table-sm w-100">
                   <thead>
@@ -124,7 +112,7 @@
 
       <div class="tab-pane fade" id="byVehiclePanel" role="tabpanel" aria-labelledby="byVehicleTab">
       </div>
-      <div class="tab-pane fade" id="byCustomerPanel" role="tabpanel" aria-labelledby="byCustomerTab">
+      <div class="tab-pane fade" id="byVisitPanel" role="tabpanel" aria-labelledby="byVisitTab">
       </div>
     </div>
   </div>
@@ -195,21 +183,21 @@
     </div>
   </div>
 </div>
-<form id='customerForm' class='needs-validation' novalidate>
-    <div class="modal fadebd-example-modal-lg" id="newCustomerModal" tabindex="-1"
-         aria-labelledby="newCustomerModalLabel"
+<form id='visitForm' class='needs-validation' novalidate>
+    <div class="modal fadebd-example-modal-lg" id="newVisitModal" tabindex="-1"
+         aria-labelledby="newVisitModalLabel"
          aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="newCustomerModalLabel">Add New Customer</h1>
+                    <h1 class="modal-title fs-5" id="newVisitModalLabel">Add New Visit</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"
                             aria-label="Close"></button>
                 </div>
-                <div class="modal-body" id="newCustomerModalContent">
+                <div class="modal-body" id="newVisitModalContent">
                     <!-- Filled in by app.js -->
                 </div>
-                <div class="modal-footer" id="newCustomerModalFooter">
+                <div class="modal-footer" id="newVisitModalFooter">
                 </div>
             </div>
         </div>
