@@ -10,7 +10,9 @@ import jakarta.inject.Inject;
 
 import ai.timefold.solver.test.api.score.stream.ConstraintVerifier;
 
-import org.acme.vehiclerouting.domain.*;
+import org.acme.vehiclerouting.domain.Location;
+import org.acme.vehiclerouting.domain.Vehicle;
+import org.acme.vehiclerouting.domain.VehicleRoutePlan;
 import org.acme.vehiclerouting.domain.Visit;
 import org.acme.vehiclerouting.domain.geo.HaversineDrivingTimeCalculator;
 import org.junit.jupiter.api.BeforeAll;

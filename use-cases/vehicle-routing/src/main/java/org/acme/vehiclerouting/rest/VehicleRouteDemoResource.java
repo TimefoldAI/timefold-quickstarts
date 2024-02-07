@@ -18,7 +18,9 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.MediaType;
 
-import org.acme.vehiclerouting.domain.*;
+import org.acme.vehiclerouting.domain.Location;
+import org.acme.vehiclerouting.domain.Vehicle;
+import org.acme.vehiclerouting.domain.VehicleRoutePlan;
 import org.acme.vehiclerouting.domain.Visit;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
