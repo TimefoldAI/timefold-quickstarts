@@ -1,9 +1,11 @@
 let autoRefreshIntervalId = null;
 let initialized = false;
+let optimizing = false;
 let demoDataId = null;
 let scheduleId = null;
 let loadedRoutePlan = null;
-
+let newVisit = null;
+let visitMarker = null;
 const solveButton = $('#solveButton');
 const stopSolvingButton = $('#stopSolvingButton');
 const vehiclesTable = $('#vehicles');
@@ -72,7 +74,17 @@ $(document).ready(function () {
     $("#byVisitTab").on('shown.bs.tab', function (event) {
         byVisitTimeline.redraw();
     })
-
+    // Add new visit
+    map.on('click', function (e) {
+        visitMarker = L.circleMarker(e.latlng);
+        visitMarker.setStyle({color: 'green'});
+        visitMarker.addTo(map);
+        openRecommendationModal(e.latlng.lat, e.latlng.lng);
+    });
+    // Remove visit mark
+    $("#newVisitModal").on("hidden.bs.modal", function () {
+        map.removeLayer(visitMarker);
+    });
     setupAjax();
     fetchDemoData();
 });
@@ -178,7 +190,7 @@ function renderTimelines(routePlan) {
     byVisitItemData.clear();
 
     $.each(routePlan.vehicles, function (index, vehicle) {
-        const { totalDemand, capacity } = vehicle
+        const {totalDemand, capacity} = vehicle
         const percentage = totalDemand / capacity * 100;
         const vehicleWithLoad = `<h5 class="card-title mb-1">vehicle-${vehicle.id}</h5>
                                  <div class="progress" data-bs-toggle="tooltip-load" data-bs-placement="left" 
@@ -317,6 +329,79 @@ function analyze() {
     analyzeScore(loadedRoutePlan, "/route-plans/analyze")
 }
 
+function openRecommendationModal(lat, lng) {
+
+    if (!('score' in loadedRoutePlan) || optimizing) {
+        map.removeLayer(visitMarker);
+        visitMarker = null;
+        let message = "Please click the Solve button before adding new visits.";
+        if (optimizing) {
+            message = "Please wait for the solving process to finish."
+        }
+        alert(message);
+        return;
+    }
+    // see recommended-fit.js
+    const visitId = Math.max(...loadedRoutePlan.visits.map(c => parseInt(c.id))) + 1;
+    newVisit = {id: visitId, location: [lat, lng]};
+    addNewVisit(visitId, lat, lng, map, visitMarker);
+}
+
+function getRecommendationsModal() {
+    let formValid = true;
+    formValid = validateFormField(newVisit, 'name' , '#inputName') && formValid;
+    formValid = validateFormField(newVisit, 'demand' , '#inputDemand') && formValid;
+    formValid = validateFormField(newVisit, 'minStartTime' , '#inputMinStartTime') && formValid;
+    formValid = validateFormField(newVisit, 'maxEndTime' , '#inputMaxStartTime') && formValid;
+    formValid = validateFormField(newVisit, 'serviceDuration' , '#inputDuration') && formValid;
+    if (formValid) {
+        const updatedMinStartTime = JSJoda.LocalDateTime.parse(newVisit['minStartTime'], JSJoda.DateTimeFormatter.ofPattern('yyyy-M-d HH:mm')).format(JSJoda.DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        const updatedMaxEndTime = JSJoda.LocalDateTime.parse(newVisit['maxEndTime'], JSJoda.DateTimeFormatter.ofPattern('yyyy-M-d HH:mm')).format(JSJoda.DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        const updatedVisit = {...newVisit, serviceDuration: `PT${newVisit['serviceDuration']}M`, minStartTime: updatedMinStartTime, maxEndTime: updatedMaxEndTime};
+        let updatedVisitList = [...loadedRoutePlan['visits']];
+        updatedVisitList.push(updatedVisit);
+        let updatedSolution = {...loadedRoutePlan, visits: updatedVisitList};
+        // see recommended-fit.js
+        requestRecommendations(updatedVisit.id, updatedSolution, "/route-plans/recommendation")
+    }
+}
+
+function validateFormField(target, fieldName, inputName) {
+    target[fieldName] = $(inputName).val();
+    if ($(inputName).val() == "") {
+        $(inputName).addClass("is-invalid");
+    } else {
+        $(inputName).removeClass("is-invalid");
+    }
+    return $(inputName).val() != "";
+}
+
+function applyRecommendationModal(recommendations) {
+    let checkedRecommendation = null;
+    recommendations.forEach((recommendation, index) => {
+        if ($('#option'+ index).is(":checked")) {
+            checkedRecommendation = recommendations[index];
+        }
+    });
+    const updatedMinStartTime = JSJoda.LocalDateTime.parse(newVisit['minStartTime'], JSJoda.DateTimeFormatter.ofPattern('yyyy-M-d HH:mm')).format(JSJoda.DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+    const updatedMaxEndTime = JSJoda.LocalDateTime.parse(newVisit['maxEndTime'], JSJoda.DateTimeFormatter.ofPattern('yyyy-M-d HH:mm')).format(JSJoda.DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+    const updatedVisit = {...newVisit, serviceDuration: `PT${newVisit['serviceDuration']}M`, minStartTime: updatedMinStartTime, maxEndTime: updatedMaxEndTime};
+    let updatedVisitList = [...loadedRoutePlan['visits']];
+    updatedVisitList.push(updatedVisit);
+    let updatedSolution = {...loadedRoutePlan, visits: updatedVisitList};
+    // see recommended-fit.js
+    applyRecommendation(updatedSolution, newVisit.id, checkedRecommendation.proposition.vehicleId, checkedRecommendation.proposition.index,
+        "/route-plans/recommendation/apply");
+}
+
+function updateSolutionWithNewVisit(newSolution) {
+    loadedRoutePlan = newSolution;
+    renderRoutes(newSolution);
+    renderTimelines(newSolution);
+    $('#newVisitModal').modal('hide');
+    solve();
+}
+
 // TODO: move the general functionality to the webjar.
 
 function setupAjax() {
@@ -358,14 +443,17 @@ function solve() {
 }
 
 function refreshSolvingButtons(solving) {
+    optimizing = solving;
     if (solving) {
         $("#solveButton").hide();
+        $("#visitButton").hide();
         $("#stopSolvingButton").show();
         if (autoRefreshIntervalId == null) {
             autoRefreshIntervalId = setInterval(refreshRoutePlan, 2000);
         }
     } else {
         $("#solveButton").show();
+        $("#visitButton").show();
         $("#stopSolvingButton").hide();
         if (autoRefreshIntervalId != null) {
             clearInterval(autoRefreshIntervalId);

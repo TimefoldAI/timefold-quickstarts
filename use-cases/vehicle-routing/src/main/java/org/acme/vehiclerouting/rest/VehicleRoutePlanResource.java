@@ -1,6 +1,7 @@
 package org.acme.vehiclerouting.rest;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -20,12 +21,18 @@ import jakarta.ws.rs.core.Response;
 
 import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
 import ai.timefold.solver.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
+import ai.timefold.solver.core.api.solver.RecommendedFit;
 import ai.timefold.solver.core.api.solver.ScoreAnalysisFetchPolicy;
 import ai.timefold.solver.core.api.solver.SolutionManager;
 import ai.timefold.solver.core.api.solver.SolverManager;
 import ai.timefold.solver.core.api.solver.SolverStatus;
 
+import org.acme.vehiclerouting.domain.Vehicle;
 import org.acme.vehiclerouting.domain.VehicleRoutePlan;
+import org.acme.vehiclerouting.domain.Visit;
+import org.acme.vehiclerouting.domain.dto.ApplyRecommendationRequest;
+import org.acme.vehiclerouting.domain.dto.RecommendationRequest;
+import org.acme.vehiclerouting.domain.dto.VehicleRecommendation;
 import org.acme.vehiclerouting.rest.exception.ErrorInfo;
 import org.acme.vehiclerouting.rest.exception.VehicleRoutingSolverException;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -45,6 +52,7 @@ import org.slf4j.LoggerFactory;
 public class VehicleRoutePlanResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VehicleRoutePlanResource.class);
+    private static final int MAX_RECOMMENDED_FIT_LIST_SIZE = 5;
 
     private final SolverManager<VehicleRoutePlan, String> solverManager;
 
@@ -61,7 +69,7 @@ public class VehicleRoutePlanResource {
 
     @Inject
     public VehicleRoutePlanResource(SolverManager<VehicleRoutePlan, String> solverManager,
-            SolutionManager<VehicleRoutePlan, HardSoftLongScore> solutionManager) {
+                                    SolutionManager<VehicleRoutePlan, HardSoftLongScore> solutionManager) {
         this.solverManager = solverManager;
         this.solutionManager = solutionManager;
     }
@@ -70,7 +78,7 @@ public class VehicleRoutePlanResource {
     @APIResponses(value = {
             @APIResponse(responseCode = "200", description = "Collection of all job IDs.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
-                            schema = @Schema(type = SchemaType.ARRAY, implementation = String.class))) })
+                            schema = @Schema(type = SchemaType.ARRAY, implementation = String.class)))})
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Collection<String> list() {
@@ -81,9 +89,9 @@ public class VehicleRoutePlanResource {
     @APIResponses(value = {
             @APIResponse(responseCode = "202",
                     description = "The job ID. Use that ID to get the solution with the other methods.",
-                    content = @Content(mediaType = MediaType.TEXT_PLAIN, schema = @Schema(implementation = String.class))) })
+                    content = @Content(mediaType = MediaType.TEXT_PLAIN, schema = @Schema(implementation = String.class)))})
     @POST
-    @Consumes({ MediaType.APPLICATION_JSON })
+    @Consumes({MediaType.APPLICATION_JSON})
     @Produces(MediaType.TEXT_PLAIN)
     public String solve(VehicleRoutePlan problem) {
         String jobId = UUID.randomUUID().toString();
@@ -98,6 +106,56 @@ public class VehicleRoutePlanResource {
                 })
                 .run();
         return jobId;
+    }
+
+    @Operation(summary = "Request recommendations to the RecommendedFit API for a new visit.")
+    @APIResponses(value = {
+            @APIResponse(responseCode = "200",
+                    description = "The list of fits for the given visit.",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = List.class)))})
+    @POST
+    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("recommendation")
+    public List<RecommendedFit<VehicleRecommendation, HardSoftLongScore>> recommendedFit(RecommendationRequest request) {
+        Visit visit = request.solution().getVisits().stream()
+                .filter(c -> c.getId().equals(request.visitId()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("Visit %s not found".formatted(request.visitId())));
+        List<RecommendedFit<VehicleRecommendation, HardSoftLongScore>> recommendedFitList = solutionManager
+                .recommendFit(request.solution(), visit, c -> new VehicleRecommendation(c.getVehicle().getId(),
+                        c.getVehicle().getVisits().indexOf(c)));
+        if (!recommendedFitList.isEmpty()) {
+            return recommendedFitList.subList(0, Math.min(MAX_RECOMMENDED_FIT_LIST_SIZE, recommendedFitList.size()));
+        }
+        return recommendedFitList;
+    }
+
+    @Operation(summary = "Applies a given recommendation.")
+    @APIResponses(value = {
+            @APIResponse(responseCode = "200",
+                    description = "The new solution updated with the recommendation.",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = VehicleRoutePlan.class)))})
+    @POST
+    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("recommendation/apply")
+    public VehicleRoutePlan applyRecommendedFit(ApplyRecommendationRequest request) {
+        VehicleRoutePlan updatedSolution = request.solution();
+        String vehicleId = request.vehicleId();
+        Vehicle vehicleTarget = updatedSolution.getVehicles().stream()
+                .filter(v -> v.getId().equals(vehicleId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("Vehicle %s not found".formatted(vehicleId)));
+        Visit visit = request.solution().getVisits().stream()
+                .filter(c -> c.getId().equals(request.visitId()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("Visit %s not found".formatted(request.visitId())));
+        vehicleTarget.getVisits().add(request.index(), visit);
+        solutionManager.update(updatedSolution);
+        return updatedSolution;
     }
 
     @Operation(
@@ -188,13 +246,13 @@ public class VehicleRoutePlanResource {
             @APIResponse(responseCode = "200",
                     description = "Resulting score analysis, optionally without constraint matches.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
-                            schema = @Schema(implementation = ScoreAnalysis.class))) })
+                            schema = @Schema(implementation = ScoreAnalysis.class)))})
     @PUT
-    @Consumes({ MediaType.APPLICATION_JSON })
+    @Consumes({MediaType.APPLICATION_JSON})
     @Produces(MediaType.APPLICATION_JSON)
     @Path("analyze")
     public ScoreAnalysis<HardSoftLongScore> analyze(VehicleRoutePlan problem,
-            @QueryParam("fetchPolicy") ScoreAnalysisFetchPolicy fetchPolicy) {
+                                                    @QueryParam("fetchPolicy") ScoreAnalysisFetchPolicy fetchPolicy) {
         return fetchPolicy == null ? solutionManager.analyze(problem) : solutionManager.analyze(problem, fetchPolicy);
     }
 

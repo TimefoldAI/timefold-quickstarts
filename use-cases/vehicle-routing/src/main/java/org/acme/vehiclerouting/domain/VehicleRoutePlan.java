@@ -23,11 +23,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * The plan for routing vehicles to visits, including:
  * <ul>
  * <li>capacity - each vehicle has a capacity for visits demand,</li>
- * <li>time windows - each customer accepts the vehicle only in specified time window.</li>
+ * <li>time windows - each visit accepts the vehicle only in specified time window.</li>
  * </ul>
  *
  * The planning solution is optimized according to the driving time (as opposed to the travel distance, for example)
- * because it is easy to determine if the vehicle arrival time fits into the customer time window.
+ * because it is easy to determine if the vehicle arrival time fits into the visit time window.
  * In addition, optimizing travel time optimizes the distance too, as a side effect - in case there is a faster route,
  * the travel time takes precedence (highway vs. local road).
  */

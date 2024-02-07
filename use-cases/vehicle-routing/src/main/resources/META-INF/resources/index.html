@@ -24,8 +24,7 @@
       <div id="notificationPanel" style="position: absolute; top: .5rem;"></div>
     </div>
     <h1>Vehicle routing with capacity and time windows</h1>
-    <p>Generate optimal route plan of a vehicle fleet with limited vehicle capacity and time windows.</p>
-
+    <p>Generate optimal route plan of a vehicle fleet with limited vehicle capacity and time windows. New visits may be added by clicking anywhere inside the map.</p>
     <div class="container-fluid mb-2">
       <div class="row justify-content-start">
         <div class="col-9">
@@ -52,7 +51,7 @@
           <button id="solveButton" type="button" class="btn btn-success">
             <i class="fas fa-play"></i> Solve
           </button>
-          <button id="stopSolvingButton" type="button" class="btn btn-danger">
+          <button id="stopSolvingButton" type="button" class="btn btn-danger p-2">
             <i class="fas fa-stop"></i> Stop solving
           </button>
         </div>
@@ -184,8 +183,30 @@
     </div>
   </div>
 </div>
+<form id='visitForm' class='needs-validation' novalidate>
+    <div class="modal fadebd-example-modal-lg" id="newVisitModal" tabindex="-1"
+         aria-labelledby="newVisitModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="newVisitModalLabel">Add New Visit</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="newVisitModalContent">
+                    <!-- Filled in by app.js -->
+                </div>
+                <div class="modal-footer" id="newVisitModalFooter">
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
 <footer id="timefold-auto-footer"></footer>
 
+<script src="/webjars/flatpickr/dist/flatpickr.min.js"></script>
+<link rel="stylesheet" href="/webjars/flatpickr/dist/flatpickr.min.css">
 <script src="/webjars/leaflet/leaflet.js"></script>
 <script src="/webjars/jquery/jquery.min.js"></script>
 <script src="/webjars/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -194,6 +215,7 @@
         integrity="sha256-Jy2+UO7rZ2Dgik50z3XrrNpnc5+2PAx9MhL2CicodME=" crossorigin="anonymous"></script>
 <script src="/webjars/timefold/js/timefold-webui.js"></script>
 <script src="/score-analysis.js"></script>
+<script src="/recommended-fit.js"></script>
 <script src="/app.js"></script>
 </body>
 </html>
