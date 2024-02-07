@@ -124,7 +124,7 @@ public class VehicleRoutePlanResource {
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("Visit %s not found".formatted(request.visitId())));
         List<RecommendedFit<VehicleRecommendation, HardSoftLongScore>> recommendedFitList = solutionManager
-                .recommendFit(request.solution(), visit, c -> new VehicleRecommendation(c.getVehicle().getId(),
+                .recommendFit(request.solution(), visit, v -> new VehicleRecommendation(c.getVehicle().getId(),
                         c.getVehicle().getVisits().indexOf(c)));
         if (!recommendedFitList.isEmpty()) {
             return recommendedFitList.subList(0, Math.min(MAX_RECOMMENDED_FIT_LIST_SIZE, recommendedFitList.size()));
