@@ -120,12 +120,12 @@ public class VehicleRoutePlanResource {
     @Path("recommendation")
     public List<RecommendedFit<VehicleRecommendation, HardSoftLongScore>> recommendedFit(RecommendationRequest request) {
         Visit visit = request.solution().getVisits().stream()
-                .filter(c -> c.getId().equals(request.visitId()))
+                .filter(v -> v.getId().equals(request.visitId()))
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("Visit %s not found".formatted(request.visitId())));
         List<RecommendedFit<VehicleRecommendation, HardSoftLongScore>> recommendedFitList = solutionManager
-                .recommendFit(request.solution(), visit, v -> new VehicleRecommendation(c.getVehicle().getId(),
-                        c.getVehicle().getVisits().indexOf(c)));
+                .recommendFit(request.solution(), visit, v -> new VehicleRecommendation(v.getVehicle().getId(),
+                        v.getVehicle().getVisits().indexOf(v)));
         if (!recommendedFitList.isEmpty()) {
             return recommendedFitList.subList(0, Math.min(MAX_RECOMMENDED_FIT_LIST_SIZE, recommendedFitList.size()));
         }
