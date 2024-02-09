@@ -11,7 +11,7 @@
     <maven.compiler.release>17</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <version.io.quarkus>3.7.1</version.io.quarkus>
+    <version.io.quarkus>3.7.2</version.io.quarkus>
     <version.kotlin>1.9.22</version.kotlin>
     <version.ai.timefold.solver>999-SNAPSHOT</version.ai.timefold.solver>
 
