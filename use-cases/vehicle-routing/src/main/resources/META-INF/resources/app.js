@@ -399,7 +399,6 @@ function updateSolutionWithNewVisit(newSolution) {
     renderRoutes(newSolution);
     renderTimelines(newSolution);
     $('#newVisitModal').modal('hide');
-    solve();
 }
 
 // TODO: move the general functionality to the webjar.

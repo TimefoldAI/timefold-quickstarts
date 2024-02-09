@@ -68,8 +68,8 @@ function addNewVisit(id, lat, lng, map, marker) {
         "      </div>" +
         "  </div>";
     visitModalContent.append(visitForm);
-    let startDate = JSJoda.LocalDateTime.now().plusDays(1);
-    let endDate = JSJoda.LocalDateTime.now().plusHours(30);
+    let startDate = JSJoda.LocalDateTime.now().plusDays(1).withHour(13).withMinute(0);
+    let endDate = JSJoda.LocalDateTime.now().plusDays(1).withHour(18).withMinute(0);
     flatpickr("#inputMinStartTime", {enableTime: true, dateFormat: "Y-m-d H:i", defaultDate: startDate.format(JSJoda.DateTimeFormatter.ofPattern('yyyy-M-d HH:mm'))});
     flatpickr("#inputMaxStartTime", {enableTime: true, dateFormat: "Y-m-d H:i", defaultDate: endDate.format(JSJoda.DateTimeFormatter.ofPattern('yyyy-M-d HH:mm'))});
     const visitModalFooter = $("#newVisitModalFooter");
@@ -104,7 +104,7 @@ function requestRecommendations(visitId, solution, endpointPath) {
             visitOptions += "<div class='form-check'>" +
                 `  <input class='form-check-input' type='radio' name='recommendationOptions' id='option${index}' value='option${index}' ${index === 0 ? 'checked=true' : ''}>` +
                 `  <label class='form-check-label' for='option${index}'>` +
-                `    Add <b>${visit.name}</b> to the vehicle <b>${recommendation.proposition.vehicleId}</b> at the position <b>${recommendation.proposition.index + 1} ${index === 0 ? ' (Best Recommendation)' : ''}</b>` +
+                `    ${index === 0 ? '<b>Best Solution - </b>': ''}Add <b>${visit.name}</b> to the vehicle <b>${recommendation.proposition.vehicleId}</b> at the position <b> ${recommendation.proposition.index + 1} (${recommendation.scoreDiff.score})</b>` +
                 "  </label>" +
                 `  <a id="analyzeRecommendationButton${index}" class="float-justify" href="#" role="button">` +
                 "    <i class='fas fa-info-circle'></i>" +
@@ -136,7 +136,7 @@ function requestRecommendations(visitId, solution, endpointPath) {
         });
         const visitModalFooter = $("#newVisitModalFooter");
         visitModalFooter.children().remove();
-        visitModalFooter.append("<button id='applyRecommendationButton' type='button' class='btn btn-success'><i class='fas fa-check'></i> Accept and Solve</button>");
+        visitModalFooter.append("<button id='applyRecommendationButton' type='button' class='btn btn-success'><i class='fas fa-check'></i> Accept</button>");
         $("#applyRecommendationButton").click(_ => applyRecommendationModal(recommendations));
     }).fail(function (xhr, ajaxOptions, thrownError) {
             showError("Recommendations request analysis failed.", xhr);
