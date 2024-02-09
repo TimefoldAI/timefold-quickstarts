@@ -60,7 +60,7 @@ function addNewVisit(id, lat, lng, map, marker) {
         "      <div class='row'>" +
         "        <div class='col-3'>" +
         "          <label for='inputDuration'>Duration in Minutes</label>" +
-        "          <input type='number' class='form-control' id='inputDuration' aria-describedby='inputDuration' value='120' required>" +
+        "          <input type='number' class='form-control' id='inputDuration' aria-describedby='inputDuration' value='30' required>" +
         "          <div class='invalid-feedback'>" +
         "            Field is required" +
         "          </div>" +
