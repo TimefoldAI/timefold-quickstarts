@@ -9,43 +9,27 @@ import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore
 import ai.timefold.solver.core.api.solver.SolverStatus
 
 @PlanningSolution
-class Timetable {
-
-    lateinit var name: String
-
+data class Timetable (
+    val name: String,
     @ProblemFactCollectionProperty
     @ValueRangeProvider
-    lateinit var timeslots: List<Timeslot>
-
+    val timeslots: List<Timeslot>,
     @ProblemFactCollectionProperty
     @ValueRangeProvider
-    lateinit var rooms: List<Room>
-
+    val rooms: List<Room>,
     @PlanningEntityCollectionProperty
-    lateinit var lessons: List<Lesson>
-
+    val lessons: List<Lesson>,
     @PlanningScore
-    var score: HardSoftScore? = null
-
+    var score: HardSoftScore? = null,
     // Ignored by Timefold, used by the UI to display solve or stop solving button
-    var solverStatus: SolverStatus? = null
+    var solverStatus: SolverStatus? = null) {
 
     // No-arg constructor required for Timefold
-    constructor() {}
+    constructor() : this("", emptyList(), emptyList(), emptyList())
 
-    constructor(name: String, score: HardSoftScore?, solverStatus: SolverStatus) {
-        this.name = name
-        this.score = score
-        this.solverStatus = solverStatus
-        this.timeslots = emptyList()
-        this.rooms = emptyList()
-        this.lessons = emptyList()
-    }
+    constructor(name: String, score: HardSoftScore?, solverStatus: SolverStatus)
+            : this(name, emptyList(), emptyList(), emptyList(), score, solverStatus)
 
-    constructor(name: String, timeslots: List<Timeslot>, rooms: List<Room>, lessons: List<Lesson>) {
-        this.name = name
-        this.timeslots = timeslots
-        this.rooms = rooms
-        this.lessons = lessons
-    }
+    override fun toString(): String = name
+
 }
