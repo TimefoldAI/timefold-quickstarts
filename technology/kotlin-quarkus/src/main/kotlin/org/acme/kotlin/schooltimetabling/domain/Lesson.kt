@@ -7,14 +7,12 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference
 
 
 @PlanningEntity
-class Lesson {
-
+data class Lesson (
     @PlanningId
-    var id: Long? = null
-
-    lateinit var subject: String
-    lateinit var teacher: String
-    lateinit var studentGroup: String
+    val id: Long,
+    val subject: String,
+    val teacher: String,
+    val studentGroup: String) {
 
     @JsonIdentityReference
     @PlanningVariable
@@ -24,22 +22,14 @@ class Lesson {
     @PlanningVariable
     var room: Room? = null
 
-    // No-arg constructor required for Hibernate and Timefold
-    constructor()
+    // No-arg constructor required for Timefold
+    constructor() : this(0, "", "", "")
 
-    constructor(id: Long?, subject: String, teacher: String, studentGroup: String) {
-        this.id = id
-        this.subject = subject.trim()
-        this.teacher = teacher.trim()
-        this.studentGroup = studentGroup.trim()
-    }
-
-    constructor(id: Long?, subject: String, teacher: String, studentGroup: String, timeslot: Timeslot?, room: Room?)
+    constructor(id: Long, subject: String, teacher: String, studentGroup: String, timeslot: Timeslot?, room: Room?)
             : this(id, subject, teacher, studentGroup) {
         this.timeslot = timeslot
         this.room = room
     }
-
 
     override fun toString(): String = "$subject($id)"
 
