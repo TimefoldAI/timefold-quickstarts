@@ -126,10 +126,10 @@ function requestRecommendations(visitId, solution, endpointPath) {
                 $(`#row${index2}Button${index}`).click(e => {
                     $(`#row${index2}Collapse${index}`).collapse('toggle');
                     let target = $(e.target);
-                    if (target.hasClass('fa-arrow-down')) {
-                        target.removeClass('fa-arrow-down').addClass('fa-arrow-up');
+                    if (target.hasClass('fa-chevron-down')) {
+                        target.removeClass('fa-chevron-down').addClass('fa-chevron-up');
                     } else {
-                        target.removeClass('fa-arrow-up').addClass('fa-arrow-down');
+                        target.removeClass('fa-chevron-up').addClass('fa-chevron-down');
                     }
                 });
             });

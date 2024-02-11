@@ -113,16 +113,16 @@ function visualizeConstraintMatches(analysisTBody, row, constraintIndex, matches
     analysisTBody.append(matchesRow);
 
     if (recommendation) {
-        row.append($(`<td/>`).append($(`<a/>`).attr("data-toggle", "collapse").attr('id', "row" + constraintIndex + "Button" + recommendationIndex).attr('href', "#row" + constraintIndex + "Collapse").append($(`<span/>`).addClass('fas').addClass('fa-arrow-down'))));
+        row.append($(`<td/>`).append($(`<a/>`).attr("data-toggle", "collapse").attr('id', "row" + constraintIndex + "Button" + recommendationIndex).attr('href', "#row" + constraintIndex + "Collapse").append($(`<span/>`).addClass('fas').addClass('fa-chevron-down'))));
     } else {
-        row.append($(`<td/>`).append($(`<a/>`).attr("data-toggle", "collapse").attr('href', "#row" + constraintIndex + "Collapse").append($(`<span/>`).addClass('fas').addClass('fa-arrow-down')).click(function (e) {
+        row.append($(`<td/>`).append($(`<a/>`).attr("data-toggle", "collapse").attr('href', "#row" + constraintIndex + "Collapse").append($(`<span/>`).addClass('fas').addClass('fa-chevron-down')).click(function (e) {
             console.log('clicou', e)
             matchesRow.collapse('toggle');
             let target = $(e.target);
-            if (target.hasClass('fa-arrow-down')) {
-                target.removeClass('fa-arrow-down').addClass('fa-arrow-up');
+            if (target.hasClass('fa-chevron-down')) {
+                target.removeClass('fa-chevron-down').addClass('fa-chevron-up');
             } else {
-                target.removeClass('fa-arrow-up').addClass('fa-arrow-down');
+                target.removeClass('fa-chevron-up').addClass('fa-chevron-down');
             }
         })));
     }
