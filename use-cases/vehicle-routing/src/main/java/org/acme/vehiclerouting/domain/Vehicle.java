@@ -21,23 +21,23 @@ public class Vehicle {
     private String id;
     private int capacity;
     @JsonIdentityReference
-    private Depot depot;
+    private Location homeLocation;
 
     private LocalDateTime departureTime;
 
     @JsonIdentityReference(alwaysAsId = true)
     @PlanningListVariable
-    private List<Customer> customers;
+    private List<Visit> visits;
 
     public Vehicle() {
     }
 
-    public Vehicle(String id, int capacity, Depot depot, LocalDateTime departureTime) {
+    public Vehicle(String id, int capacity, Location homeLocation, LocalDateTime departureTime) {
         this.id = id;
         this.capacity = capacity;
-        this.depot = depot;
+        this.homeLocation = homeLocation;
         this.departureTime = departureTime;
-        this.customers = new ArrayList<>();
+        this.visits = new ArrayList<>();
     }
 
     public String getId() {
@@ -56,24 +56,24 @@ public class Vehicle {
         this.capacity = capacity;
     }
 
-    public Depot getDepot() {
-        return depot;
+    public Location getHomeLocation() {
+        return homeLocation;
     }
 
-    public void setDepot(Depot depot) {
-        this.depot = depot;
+    public void setHomeLocation(Location homeLocation) {
+        this.homeLocation = homeLocation;
     }
 
     public LocalDateTime getDepartureTime() {
         return departureTime;
     }
 
-    public List<Customer> getCustomers() {
-        return customers;
+    public List<Visit> getVisits() {
+        return visits;
     }
 
-    public void setCustomers(List<Customer> customers) {
-        this.customers = customers;
+    public void setVisits(List<Visit> visits) {
+        this.visits = visits;
     }
 
     // ************************************************************************
@@ -83,38 +83,38 @@ public class Vehicle {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public int getTotalDemand() {
         int totalDemand = 0;
-        for (Customer customer : customers) {
-            totalDemand += customer.getDemand();
+        for (Visit visit : visits) {
+            totalDemand += visit.getDemand();
         }
         return totalDemand;
     }
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public long getTotalDrivingTimeSeconds() {
-        if (customers.isEmpty()) {
+        if (visits.isEmpty()) {
             return 0;
         }
 
         long totalDrivingTime = 0;
-        Location previousLocation = depot.getLocation();
+        Location previousLocation = homeLocation;
 
-        for (Customer customer : customers) {
-            totalDrivingTime += previousLocation.getDrivingTimeTo(customer.getLocation());
-            previousLocation = customer.getLocation();
+        for (Visit visit : visits) {
+            totalDrivingTime += previousLocation.getDrivingTimeTo(visit.getLocation());
+            previousLocation = visit.getLocation();
         }
-        totalDrivingTime += previousLocation.getDrivingTimeTo(depot.getLocation());
+        totalDrivingTime += previousLocation.getDrivingTimeTo(homeLocation);
 
         return totalDrivingTime;
     }
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public LocalDateTime arrivalTime() {
-        if (customers.isEmpty()) {
+        if (visits.isEmpty()) {
             return departureTime;
         }
 
-        Customer lastCustomer = customers.get(customers.size() - 1);
-        return lastCustomer.getDepartureTime().plusSeconds(lastCustomer.getLocation().getDrivingTimeTo(depot.getLocation()));
+        Visit lastVisit = visits.get(visits.size() - 1);
+        return lastVisit.getDepartureTime().plusSeconds(lastVisit.getLocation().getDrivingTimeTo(homeLocation));
     }
 
     @Override

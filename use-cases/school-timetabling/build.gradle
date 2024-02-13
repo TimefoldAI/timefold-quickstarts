@@ -1,10 +1,10 @@
 plugins {
     id "java"
-    id "io.quarkus" version "3.6.4"
+    id "io.quarkus" version "3.7.2"
 }
 
-def quarkusVersion = "3.6.4"
-def timefoldVersion = "1.6.0"
+def quarkusVersion = "3.7.2"
+def timefoldVersion = "1.7.0"
 
 group = "org.acme"
 version = "1.0-SNAPSHOT"

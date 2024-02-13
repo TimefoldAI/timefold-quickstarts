@@ -3,10 +3,10 @@ plugins {
     id "application"
 }
 
-def timefoldVersion = "1.6.0"
+def timefoldVersion = "1.7.0"
 def logbackVersion = "1.4.14"
-def junitJupiterVersion = "5.10.1"
-def assertjVersion = "3.25.1"
+def junitJupiterVersion = "5.10.2"
+def assertjVersion = "3.25.3"
 
 group = "org.acme"
 version = "1.0-SNAPSHOT"
