@@ -4,7 +4,7 @@ plugins {
 }
 
 def quarkusVersion = "3.7.2"
-def timefoldVersion = "1.7.0"
+def timefoldVersion = "999-SNAPSHOT"
 
 group = "org.acme"
 version = "1.0-SNAPSHOT"
