@@ -9,20 +9,10 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators
     generator = ObjectIdGenerators.PropertyGenerator::class,
     property = "id"
 )
-class Room {
-
+data class Room(
     @PlanningId
-    var id: Long? = null
-
-    lateinit var name: String
-
-    // No-arg constructor required for Hibernate
-    constructor()
-
-    constructor(id: Long?, name: String) {
-        this.id = id
-        this.name = name
-    }
+    val id: Long,
+    val name: String) {
 
     override fun toString(): String = name
 

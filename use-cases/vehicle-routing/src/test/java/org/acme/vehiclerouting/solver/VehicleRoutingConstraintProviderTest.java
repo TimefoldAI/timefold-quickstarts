@@ -10,11 +10,10 @@ import jakarta.inject.Inject;
 
 import ai.timefold.solver.test.api.score.stream.ConstraintVerifier;
 
-import org.acme.vehiclerouting.domain.Customer;
-import org.acme.vehiclerouting.domain.Depot;
 import org.acme.vehiclerouting.domain.Location;
 import org.acme.vehiclerouting.domain.Vehicle;
 import org.acme.vehiclerouting.domain.VehicleRoutePlan;
+import org.acme.vehiclerouting.domain.Visit;
 import org.acme.vehiclerouting.domain.geo.HaversineDrivingTimeCalculator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -47,12 +46,12 @@ class VehicleRoutingConstraintProviderTest {
         LocalDateTime tomorrow_07_00 = LocalDateTime.of(TOMORROW, LocalTime.of(7, 0));
         LocalDateTime tomorrow_08_00 = LocalDateTime.of(TOMORROW, LocalTime.of(8, 0));
         LocalDateTime tomorrow_10_00 = LocalDateTime.of(TOMORROW, LocalTime.of(10, 0));
-        Vehicle vehicleA = new Vehicle("1", 100, new Depot("1", LOCATION_1), tomorrow_07_00);
-        Customer customer1 = new Customer("2", "John", LOCATION_2, 80, tomorrow_08_00, tomorrow_10_00, Duration.ofMinutes(30L));
-        vehicleA.getCustomers().add(customer1);
+        Vehicle vehicleA = new Vehicle("1", 100, LOCATION_1, tomorrow_07_00);
+        Visit visit1 = new Visit("2", "John", LOCATION_2, 80, tomorrow_08_00, tomorrow_10_00, Duration.ofMinutes(30L));
+        vehicleA.getVisits().add(visit1);
 
         constraintVerifier.verifyThat(VehicleRoutingConstraintProvider::vehicleCapacity)
-                .given(vehicleA, customer1)
+                .given(vehicleA, visit1)
                 .penalizesBy(0);
     }
 
@@ -61,14 +60,14 @@ class VehicleRoutingConstraintProviderTest {
         LocalDateTime tomorrow_07_00 = LocalDateTime.of(TOMORROW, LocalTime.of(7, 0));
         LocalDateTime tomorrow_08_00 = LocalDateTime.of(TOMORROW, LocalTime.of(8, 0));
         LocalDateTime tomorrow_10_00 = LocalDateTime.of(TOMORROW, LocalTime.of(10, 0));
-        Vehicle vehicleA = new Vehicle("1", 100, new Depot("1", LOCATION_1), tomorrow_07_00);
-        Customer customer1 = new Customer("2", "John", LOCATION_2, 80, tomorrow_08_00, tomorrow_10_00, Duration.ofMinutes(30L));
-        vehicleA.getCustomers().add(customer1);
-        Customer customer2 = new Customer("3", "Paul", LOCATION_3, 40, tomorrow_08_00, tomorrow_10_00, Duration.ofMinutes(30L));
-        vehicleA.getCustomers().add(customer2);
+        Vehicle vehicleA = new Vehicle("1", 100, LOCATION_1, tomorrow_07_00);
+        Visit visit1 = new Visit("2", "John", LOCATION_2, 80, tomorrow_08_00, tomorrow_10_00, Duration.ofMinutes(30L));
+        vehicleA.getVisits().add(visit1);
+        Visit visit2 = new Visit("3", "Paul", LOCATION_3, 40, tomorrow_08_00, tomorrow_10_00, Duration.ofMinutes(30L));
+        vehicleA.getVisits().add(visit2);
 
         constraintVerifier.verifyThat(VehicleRoutingConstraintProvider::vehicleCapacity)
-                .given(vehicleA, customer1, customer2)
+                .given(vehicleA, visit1, visit2)
                 .penalizesBy(20);
     }
 
@@ -77,14 +76,14 @@ class VehicleRoutingConstraintProviderTest {
         LocalDateTime tomorrow_07_00 = LocalDateTime.of(TOMORROW, LocalTime.of(7, 0));
         LocalDateTime tomorrow_08_00 = LocalDateTime.of(TOMORROW, LocalTime.of(8, 0));
         LocalDateTime tomorrow_10_00 = LocalDateTime.of(TOMORROW, LocalTime.of(10, 0));
-        Vehicle vehicleA = new Vehicle("1", 100, new Depot("1", LOCATION_1), tomorrow_07_00);
-        Customer customer1 = new Customer("2", "John", LOCATION_2, 80, tomorrow_08_00, tomorrow_10_00, Duration.ofMinutes(30L));
-        vehicleA.getCustomers().add(customer1);
-        Customer customer2 = new Customer("3", "Paul", LOCATION_3, 40, tomorrow_08_00, tomorrow_10_00, Duration.ofMinutes(30L));
-        vehicleA.getCustomers().add(customer2);
+        Vehicle vehicleA = new Vehicle("1", 100, LOCATION_1, tomorrow_07_00);
+        Visit visit1 = new Visit("2", "John", LOCATION_2, 80, tomorrow_08_00, tomorrow_10_00, Duration.ofMinutes(30L));
+        vehicleA.getVisits().add(visit1);
+        Visit visit2 = new Visit("3", "Paul", LOCATION_3, 40, tomorrow_08_00, tomorrow_10_00, Duration.ofMinutes(30L));
+        vehicleA.getVisits().add(visit2);
 
         constraintVerifier.verifyThat(VehicleRoutingConstraintProvider::minimizeTravelTime)
-                .given(vehicleA, customer1, customer2)
+                .given(vehicleA, visit1, visit2)
                 .penalizesBy(2423L); // The sum of the approximate driving time between all three locations.
     }
 
@@ -97,29 +96,29 @@ class VehicleRoutingConstraintProviderTest {
         LocalDateTime tomorrow_10_30 = LocalDateTime.of(TOMORROW, LocalTime.of(10, 30));
         LocalDateTime tomorrow_18_00 = LocalDateTime.of(TOMORROW, LocalTime.of(18, 0));
 
-        Customer customer1 = new Customer("2", "John", LOCATION_2, 80, tomorrow_08_00, tomorrow_18_00, Duration.ofHours(1L));
-        customer1.setArrivalTime(tomorrow_08_40);
-        Customer customer2 = new Customer("3", "Paul", LOCATION_3, 40, tomorrow_08_00, tomorrow_09_00, Duration.ofHours(1L));
-        customer2.setArrivalTime(tomorrow_10_30);
-        Vehicle vehicleA = new Vehicle("1", 100, new Depot("1", LOCATION_1), tomorrow_07_00);
+        Visit visit1 = new Visit("2", "John", LOCATION_2, 80, tomorrow_08_00, tomorrow_18_00, Duration.ofHours(1L));
+        visit1.setArrivalTime(tomorrow_08_40);
+        Visit visit2 = new Visit("3", "Paul", LOCATION_3, 40, tomorrow_08_00, tomorrow_09_00, Duration.ofHours(1L));
+        visit2.setArrivalTime(tomorrow_10_30);
+        Vehicle vehicleA = new Vehicle("1", 100, LOCATION_1, tomorrow_07_00);
 
-        connect(vehicleA, customer1, customer2);
+        connect(vehicleA, visit1, visit2);
 
         constraintVerifier.verifyThat(VehicleRoutingConstraintProvider::serviceFinishedAfterMaxEndTime)
-                .given(vehicleA, customer1, customer2)
-                .penalizesBy(90 + customer2.getServiceDuration().toMinutes());
+                .given(vehicleA, visit1, visit2)
+                .penalizesBy(90 + visit2.getServiceDuration().toMinutes());
     }
 
-    static void connect(Vehicle vehicle, Customer... customers) {
-        vehicle.setCustomers(Arrays.asList(customers));
-        for (int i = 0; i < customers.length; i++) {
-            Customer customer = customers[i];
-            customer.setVehicle(vehicle);
+    static void connect(Vehicle vehicle, Visit... visits) {
+        vehicle.setVisits(Arrays.asList(visits));
+        for (int i = 0; i < visits.length; i++) {
+            Visit visit = visits[i];
+            visit.setVehicle(vehicle);
             if (i > 0) {
-                customer.setPreviousCustomer(customers[i - 1]);
+                visit.setPreviousVisit(visits[i - 1]);
             }
-            if (i < customers.length - 1) {
-                customer.setNextCustomer(customers[i + 1]);
+            if (i < visits.length - 1) {
+                visit.setNextVisit(visits[i + 1]);
             }
         }
     }

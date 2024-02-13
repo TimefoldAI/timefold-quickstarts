@@ -11,8 +11,8 @@
     <maven.compiler.release>17</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <version.io.quarkus>3.6.4</version.io.quarkus>
-    <version.ai.timefold.solver>1.6.0</version.ai.timefold.solver>
+    <version.io.quarkus>3.7.2</version.io.quarkus>
+    <version.ai.timefold.solver>1.7.0</version.ai.timefold.solver>
 
     <version.compiler.plugin>3.12.1</version.compiler.plugin>
     <version.resources.plugin>3.3.1</version.resources.plugin>
@@ -86,7 +86,7 @@
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
-      <version>3.25.1</version>
+      <version>3.25.3</version>
       <scope>test</scope>
     </dependency>
 
@@ -128,6 +128,12 @@
       <groupId>org.webjars.npm</groupId>
       <artifactId>js-joda</artifactId>
       <version>1.11.0</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.webjars.npm</groupId>
+      <artifactId>flatpickr</artifactId>
+      <version>4.6.13</version>
       <scope>runtime</scope>
     </dependency>
   </dependencies>

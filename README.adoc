@@ -121,7 +121,7 @@ image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screensh
 
 === Vehicle Routing
 
-Find the most efficient routes for vehicles to reach customers, taking into account vehicle capacity and time windows when customers are available. Sometimes also called "CVRPTW".
+Find the most efficient routes for vehicles to reach visits, taking into account vehicle capacity and time windows when visits are available. Sometimes also called "CVRPTW".
 
 image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screenshot/quarkus-vehicle-routing-screenshot.png[]
 

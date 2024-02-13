@@ -299,13 +299,13 @@ function analyze() {
           matchesRow.append($(`<td/>`).attr('colspan', '6').append(matchesListGroup));
           analysisTBody.append(matchesRow);
 
-          row.append($(`<td/>`).append($(`<a/>`).attr("data-toggle", "collapse").attr('href', "#row" + index + "Collapse").append($(`<span/>`).addClass('fas').addClass('fa-arrow-down')).click(e => {
+          row.append($(`<td/>`).append($(`<a/>`).attr("data-toggle", "collapse").attr('href', "#row" + index + "Collapse").append($(`<span/>`).addClass('fas').addClass('fa-chevron-down')).click(e => {
             matchesRow.collapse('toggle');
             let target = $(e.target);
-            if (target.hasClass('fa-arrow-down')) {
-              target.removeClass('fa-arrow-down').addClass('fa-arrow-up');
+            if (target.hasClass('fa-chevron-down')) {
+              target.removeClass('fa-chevron-down').addClass('fa-chevron-up');
             } else {
-              target.removeClass('fa-arrow-up').addClass('fa-arrow-down');
+              target.removeClass('fa-chevron-up').addClass('fa-chevron-down');
             }
           })));
         } else {
