@@ -68,11 +68,11 @@ public class DemoDataGenerator {
             String ingredientB = INGREDIENT_LIST.get((i + r + 2) % INGREDIENT_LIST.size());
             String ingredientC = INGREDIENT_LIST.get((i + r + 3) % INGREDIENT_LIST.size());
             for (String productVariation : PRODUCT_VARIATION_LIST) {
-                ingredientMap.put(new Product(productId++, ingredient + " " + productVariation), Set.of(ingredient));
+                ingredientMap.put(new Product(Long.toString(productId++), ingredient + " " + productVariation), Set.of(ingredient));
             }
-            ingredientMap.put(new Product(productId++, ingredient + " and " + ingredientA + " " + PRODUCT_VARIATION_LIST.get(1)), Set.of(ingredient, ingredientA));
-            ingredientMap.put(new Product(productId++, ingredient + " and " + ingredientB + " " + PRODUCT_VARIATION_LIST.get(2)), Set.of(ingredient, ingredientB));
-            ingredientMap.put(new Product(productId++, ingredient + ", " + ingredientA + " and " + ingredientC + " " + PRODUCT_VARIATION_LIST.get(1)), Set.of(ingredient, ingredientA, ingredientC));
+            ingredientMap.put(new Product(Long.toString(productId++), ingredient + " and " + ingredientA + " " + PRODUCT_VARIATION_LIST.get(1)), Set.of(ingredient, ingredientA));
+            ingredientMap.put(new Product(Long.toString(productId++), ingredient + " and " + ingredientB + " " + PRODUCT_VARIATION_LIST.get(2)), Set.of(ingredient, ingredientB));
+            ingredientMap.put(new Product(Long.toString(productId++), ingredient + ", " + ingredientA + " and " + ingredientC + " " + PRODUCT_VARIATION_LIST.get(1)), Set.of(ingredient, ingredientA, ingredientC));
         }
         List<Product> products = new ArrayList<>(ingredientMap.keySet());
         for (Product product : products) {
@@ -93,7 +93,7 @@ public class DemoDataGenerator {
         for (int i = 0; i < lineCount; i++) {
             String name = "Line " + (i + 1);
             String operator = "Operator " + ((char) ('A' + (i / 2)));
-            lines.add(new Line((long) i, name, operator, START_DATE_TIME));
+            lines.add(new Line(Integer.toString(i), name, operator, START_DATE_TIME));
         }
         solution.setLines(lines);
 
@@ -107,7 +107,7 @@ public class DemoDataGenerator {
             LocalDateTime readyDateTime = START_DATE.plusDays(random.nextInt(Math.max(1, targetDayIndex - 2))).atTime(LocalTime.MIDNIGHT);
             LocalDateTime idealEndDateTime = START_DATE.plusDays(targetDayIndex + random.nextInt(3)).atTime(16, 0);
             LocalDateTime dueDateTime = idealEndDateTime.plusDays(1 + random.nextInt(3));
-            jobs.add(new Job((long) i, name, product, duration, readyDateTime, idealEndDateTime, dueDateTime, 1, false));
+            jobs.add(new Job(Integer.toString(i), name, product, duration, readyDateTime, idealEndDateTime, dueDateTime, 1, false));
         }
         jobs.sort(Comparator.comparing(Job::getName));
         solution.setJobs(jobs);

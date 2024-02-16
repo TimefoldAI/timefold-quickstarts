@@ -11,7 +11,7 @@ import ai.timefold.solver.core.api.domain.variable.PlanningListVariable;
 @PlanningEntity
 public class Line {
 
-    private Long id;
+    private String id;
     private String name;
     private String operator;
     private LocalDateTime startDateTime;
@@ -24,7 +24,7 @@ public class Line {
     public Line() {
     }
 
-    public Line(Long id, String name, String operator, LocalDateTime startDateTime) {
+    public Line(String id, String name, String operator, LocalDateTime startDateTime) {
         this.id = id;
         this.name = name;
         this.operator = operator;
@@ -41,7 +41,7 @@ public class Line {
     // Getters and setters
     // ************************************************************************
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
