@@ -8,17 +8,18 @@ https://timefold.ai[timefold.ai]
 |===
 |Use case quickstarts |Technology quickstarts
 
-a|* <<school-timetabling, School timetabling>>
-* <<facility-location, Facility location problem>>
+a|* <<vehicle-routing, Vehicle Routing>>
 * <<maintenance-scheduling, Maintenance scheduling>>
-* <<call-center, Call center>>
-* <<vaccination-scheduling, Vaccination scheduling>>
-* <<order-picking, Order Picking>>
 * <<employee-scheduling, Employee Scheduling>>
 * <<food-packaging, Food packaging>>
-* <<vehicle-routing, Vehicle Routing>>
+* <<order-picking, Order Picking>>
+* <<school-timetabling, School timetabling>>
+* <<vaccination-scheduling, Vaccination scheduling>>
+* <<facility-location, Facility location problem>>
+* <<call-center, Call center>>
 
-a|* link:use-cases/school-timetabling/README.adoc[Quarkus] (Java, Maven or Gradle, Quarkus)
+a|* link:hello-world/README.adoc[Java (Hello World)] (Java, Maven or Gradle)
+* link:use-cases/school-timetabling/README.adoc[Quarkus] (Java, Maven or Gradle, Quarkus)
 * link:technology/java-spring-boot/README.adoc[Spring Boot] (Java, Maven or Gradle, Spring Boot)
 * link:technology/kotlin-quarkus/README.adoc[Kotlin] (Kotlin, Maven, Quarkus)
 
