@@ -3,7 +3,12 @@ package org.acme.vehiclerouting.rest;
 import static io.restassured.RestAssured.get;
 import static io.restassured.RestAssured.given;
 import static org.awaitility.Awaitility.await;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -16,10 +21,10 @@ import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
 import ai.timefold.solver.core.api.solver.SolverStatus;
 
 import org.acme.vehiclerouting.domain.Location;
+import org.acme.vehiclerouting.domain.VehicleRoutePlan;
 import org.acme.vehiclerouting.domain.Visit;
 import org.acme.vehiclerouting.domain.dto.ApplyRecommendationRequest;
 import org.acme.vehiclerouting.domain.dto.RecommendationRequest;
-import org.acme.vehiclerouting.domain.VehicleRoutePlan;
 import org.acme.vehiclerouting.domain.dto.VehicleRecommendation;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeAll;
@@ -131,21 +136,19 @@ public class VehicleRoutePlanResourceTest {
         return solution;
     }
 
-    @Test
-    public void testRecommendedFit() {
-        VehicleRoutePlan solution = generateInitialSolution();
-        assertNotNull(solution);
-        assertEquals(solution.getSolverStatus(), SolverStatus.NOT_SOLVING);
-
+    private Visit generateNewVisit(VehicleRoutePlan solution) {
         Visit newVisit = new Visit(String.valueOf(solution.getVisits().size() + 1),
                 "visit%d".formatted(solution.getVisits().size() + 1), new Location(43.77800837529796, 11.223969038020176),
-                2, LocalDateTime.now().plusDays(1).withHour(8).withMinute(0), LocalDateTime.now().plusDays(1).withHour(14).withMinute(0),
+                2, LocalDateTime.now().plusDays(1).withHour(8).withMinute(0),
+                LocalDateTime.now().plusDays(1).withHour(14).withMinute(0),
                 Duration.ofMinutes(10));
-
-        // Request recommendation
         solution.getVisits().add(newVisit);
+        return newVisit;
+    }
+
+    private List<Pair<VehicleRecommendation, ScoreAnalysis>> getRecommendations(VehicleRoutePlan solution, Visit newVisit) {
         RecommendationRequest request = new RecommendationRequest(solution, newVisit.getId());
-        List<Pair<VehicleRecommendation, ScoreAnalysis>> recommendedFitList = parseRecommendedFitList(given()
+        return parseRecommendedFitList(given()
                 .contentType(ContentType.JSON)
                 .body(request)
                 .expect().contentType(ContentType.JSON)
@@ -154,16 +157,17 @@ public class VehicleRoutePlanResourceTest {
                 .then()
                 .extract()
                 .as(List.class));
+    }
 
-        assertNotNull(recommendedFitList);
-        assertEquals(5, recommendedFitList.size());
-
-        // Apply the recommendation
+    private VehicleRoutePlan applyBestRecommendation(VehicleRoutePlan solution, Visit newVisit,
+            List<Pair<VehicleRecommendation, ScoreAnalysis>> recommendedFitList) {
+        // Selects the best recommendation
         VehicleRecommendation recommendation = recommendedFitList.get(0).getLeft();
         ApplyRecommendationRequest applyRequest = new ApplyRecommendationRequest(solution, newVisit.getId(),
                 recommendation.vehicleId(), recommendation.index());
 
-        VehicleRoutePlan updatedSolution = given()
+        // Applies the recommendation
+        return given()
                 .contentType(ContentType.JSON)
                 .body(applyRequest)
                 .expect().contentType(ContentType.JSON)
@@ -172,7 +176,25 @@ public class VehicleRoutePlanResourceTest {
                 .then()
                 .extract()
                 .as(VehicleRoutePlan.class);
+    }
 
+    @Test
+    public void testRecommendedFit() {
+        // Generate an initial solution
+        VehicleRoutePlan solution = generateInitialSolution();
+        assertNotNull(solution);
+        assertEquals(solution.getSolverStatus(), SolverStatus.NOT_SOLVING);
+
+        // Create a new visit
+        Visit newVisit = generateNewVisit(solution);
+
+        // Request recommendation
+        List<Pair<VehicleRecommendation, ScoreAnalysis>> recommendedFitList = getRecommendations(solution, newVisit);
+        assertNotNull(recommendedFitList);
+        assertEquals(5, recommendedFitList.size());
+
+        // Apply the best recommendation
+        VehicleRoutePlan updatedSolution = applyBestRecommendation(solution, newVisit, recommendedFitList);
         assertNotNull(updatedSolution);
         assertNotEquals(updatedSolution.getScore().toString(), solution.getScore().toString());
     }
@@ -215,13 +237,13 @@ public class VehicleRoutePlanResourceTest {
         return OBJECT_MAPPER.readValue(analysis, ScoreAnalysis.class);
     }
 
-    private List<Pair<VehicleRecommendation, ScoreAnalysis>> parseRecommendedFitList(List<Map<String, Object>> recommendedFitMap) {
+    private List<Pair<VehicleRecommendation, ScoreAnalysis>>
+            parseRecommendedFitList(List<Map<String, Object>> recommendedFitMap) {
         assertNotNull(recommendedFitMap);
         List<Pair<VehicleRecommendation, ScoreAnalysis>> recommendedFitList = new ArrayList<>(recommendedFitMap.size());
         recommendedFitMap.forEach(record -> recommendedFitList.add(Pair.of(
                 OBJECT_MAPPER.convertValue(record.get("proposition"), VehicleRecommendation.class),
-                OBJECT_MAPPER.convertValue(record.get("scoreDiff"), ScoreAnalysis.class)
-        )));
+                OBJECT_MAPPER.convertValue(record.get("scoreDiff"), ScoreAnalysis.class))));
         return recommendedFitList;
     }
 }
