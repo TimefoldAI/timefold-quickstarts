@@ -52,8 +52,8 @@ class SolverServiceTest {
     @Test
     @Timeout(60)
     void addCall() {
-        Call call1 = new Call(1L, "123-456-7891", Skill.ENGLISH, Skill.CAR_INSURANCE);
-        Call call2 = new Call(2L, "123-456-7892", Skill.ENGLISH, Skill.CAR_INSURANCE);
+        Call call1 = new Call("1", "123-456-7891", Skill.ENGLISH, Skill.CAR_INSURANCE);
+        Call call2 = new Call("2", "123-456-7892", Skill.ENGLISH, Skill.CAR_INSURANCE);
         CallCenter bestSolution = solve(dataGenerator.generateCallCenter(), () -> solverService.addCall(call1),
                 () -> solverService.addCall(call2));
 
@@ -68,8 +68,8 @@ class SolverServiceTest {
     @Timeout(60)
     void prolongCall() {
         CallCenter inputProblem = dataGenerator.generateCallCenter();
-        Call call1 = new Call(1L, "123-456-7891", Skill.ENGLISH, Skill.CAR_INSURANCE);
-        Call call2 = new Call(2L, "123-456-7892", Skill.ENGLISH, Skill.CAR_INSURANCE);
+        Call call1 = new Call("1", "123-456-7891", Skill.ENGLISH, Skill.CAR_INSURANCE);
+        Call call2 = new Call("2", "123-456-7892", Skill.ENGLISH, Skill.CAR_INSURANCE);
         inputProblem.getCalls().add(call1);
         inputProblem.getCalls().add(call2);
 
@@ -91,8 +91,8 @@ class SolverServiceTest {
     @Timeout(60)
     void removeCall() {
         CallCenter inputProblem = dataGenerator.generateCallCenter();
-        Call call1 = new Call(1L, "123-456-7891", Skill.ENGLISH, Skill.CAR_INSURANCE);
-        Call call2 = new Call(2L, "123-456-7892", Skill.ENGLISH, Skill.CAR_INSURANCE);
+        Call call1 = new Call("1", "123-456-7891", Skill.ENGLISH, Skill.CAR_INSURANCE);
+        Call call2 = new Call("2", "123-456-7892", Skill.ENGLISH, Skill.CAR_INSURANCE);
         inputProblem.getCalls().add(call1);
         inputProblem.getCalls().add(call2);
 
@@ -111,8 +111,8 @@ class SolverServiceTest {
     void removeCallWithInfeasibleInitialSolution() {
         // Invalid initial solution
         CallCenter inputProblem = dataGenerator.generateCallCenter();
-        Call call1 = new Call(1L, "123-456-7891", Skill.ENGLISH, Skill.CAR_INSURANCE);
-        Call call2 = new Call(2L, "123-456-7892", Skill.ENGLISH, Skill.CAR_INSURANCE);
+        Call call1 = new Call("1", "123-456-7891", Skill.ENGLISH, Skill.CAR_INSURANCE);
+        Call call2 = new Call("2", "123-456-7892", Skill.ENGLISH, Skill.CAR_INSURANCE);
         inputProblem.getCalls().add(call1);
         inputProblem.getCalls().add(call2);
         inputProblem.getAgents().get(0).setNextCall(call2);
@@ -156,7 +156,7 @@ class SolverServiceTest {
                     .run();
 
             // Remove the call 1
-            localSearchSolverManager.addProblemChange(1L, new RemoveCallProblemChange(1L));
+            localSearchSolverManager.addProblemChange(1L, new RemoveCallProblemChange("1"));
 
             // Wait for the local search
             await()

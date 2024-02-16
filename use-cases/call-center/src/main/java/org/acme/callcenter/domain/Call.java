@@ -44,14 +44,14 @@ public class Call extends PreviousCallOrAgent {
         // Required by Timefold.
     }
 
-    public Call(long id, String phoneNumber) {
+    public Call(String id, String phoneNumber) {
         super(id);
         this.phoneNumber = phoneNumber;
         this.requiredSkills = EnumSet.noneOf(Skill.class);
         this.startTime = LocalTime.now();
     }
 
-    public Call(long id, String phoneNumber, Set<Skill> requiredSkills, int durationSeconds) {
+    public Call(String id, String phoneNumber, Set<Skill> requiredSkills, int durationSeconds) {
         super(id);
         this.phoneNumber = phoneNumber;
         this.requiredSkills = EnumSet.copyOf(requiredSkills);
@@ -59,7 +59,7 @@ public class Call extends PreviousCallOrAgent {
         this.startTime = LocalTime.now();
     }
 
-    public Call(long id, String phoneNumber, Skill... requiredSkills) {
+    public Call(String id, String phoneNumber, Skill... requiredSkills) {
         this(id, phoneNumber);
         this.requiredSkills.addAll(Arrays.asList(requiredSkills));
     }

@@ -76,11 +76,11 @@ public class SolverService {
         return registerProblemChange(new AddCallProblemChange(call));
     }
 
-    public CompletableFuture<Void> removeCall(long callId) {
+    public CompletableFuture<Void> removeCall(String callId) {
         return registerProblemChange(new RemoveCallProblemChange(callId));
     }
 
-    public CompletableFuture<Void> prolongCall(long callId) {
+    public CompletableFuture<Void> prolongCall(String callId) {
         return registerProblemChange(new ProlongCallByMinuteProblemChange(callId));
     }
 

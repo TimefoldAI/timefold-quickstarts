@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @PlanningEntity
 public abstract class PreviousCallOrAgent {
 
-    private Long id;
+    private String id;
 
     @JsonIgnore
     @InverseRelationShadowVariable(sourceVariableName = "previousCallOrAgent")
@@ -21,7 +21,7 @@ public abstract class PreviousCallOrAgent {
         // Required by Timefold.
     }
 
-    public PreviousCallOrAgent(long id) {
+    public PreviousCallOrAgent(String id) {
         this.id = id;
     }
 
@@ -36,7 +36,7 @@ public abstract class PreviousCallOrAgent {
     public abstract Duration getDurationTillPickUp();
 
     @PlanningId
-    public Long getId() {
+    public String getId() {
         return id;
     }
 }

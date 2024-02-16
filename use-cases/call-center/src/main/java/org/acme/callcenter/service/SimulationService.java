@@ -28,7 +28,7 @@ public class SimulationService {
     private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
     private final SolverService solverService;
     private final DataGenerator dataGenerator;
-    private final ConcurrentMap<Long, CallInProgress> callsInProgress = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, CallInProgress> callsInProgress = new ConcurrentHashMap<>();
     private final AtomicBoolean running = new AtomicBoolean(false);
 
     // Initial simulation values that are overridden by a client.
@@ -101,7 +101,7 @@ public class SimulationService {
     /**
      * Cancels the scheduled end of a call in progress and schedules a new end, postponed by a minute.
      */
-    public void prolongCall(long callId) {
+    public void prolongCall(String callId) {
         callsInProgress.computeIfPresent(callId, (id, callInProgress) -> {
             callInProgress.scheduledCallEnd.cancel(true);
             Call call = callInProgress.call;

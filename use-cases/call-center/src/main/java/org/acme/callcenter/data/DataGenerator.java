@@ -63,7 +63,7 @@ public class DataGenerator {
         return firstGroup + "-" + secondGroup + "-" + thirdGroup;
     }
 
-    private static long nextId() {
-        return NEXT_ID.getAndIncrement();
+    private static String nextId() {
+        return Long.toString(NEXT_ID.getAndIncrement());
     }
 }

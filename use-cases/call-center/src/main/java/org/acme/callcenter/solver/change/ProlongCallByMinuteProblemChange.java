@@ -10,9 +10,9 @@ import ai.timefold.solver.core.api.solver.change.ProblemChangeDirector;
 public class ProlongCallByMinuteProblemChange implements ProblemChange<CallCenter> {
 
     private static final Duration PROLONGATION = Duration.ofMinutes(1L);
-    private final long callId;
+    private final String callId;
 
-    public ProlongCallByMinuteProblemChange(long callId) {
+    public ProlongCallByMinuteProblemChange(String callId) {
         this.callId = callId;
     }
 
