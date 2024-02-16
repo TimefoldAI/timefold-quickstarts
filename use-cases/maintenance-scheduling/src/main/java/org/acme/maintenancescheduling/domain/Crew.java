@@ -1,18 +1,18 @@
 package org.acme.maintenancescheduling.domain;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
+import org.hibernate.annotations.UuidGenerator;
 
 @Entity
 public class Crew {
 
     @PlanningId
     @Id
-    @GeneratedValue
-    private Long id;
+    @UuidGenerator
+    private String id;
 
     private String name;
 
@@ -24,7 +24,7 @@ public class Crew {
         this.name = name;
     }
 
-    public Crew(Long id, String name) {
+    public Crew(String id, String name) {
         this.id = id;
         this.name = name;
     }
@@ -38,7 +38,7 @@ public class Crew {
     // Getters and setters
     // ************************************************************************
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
