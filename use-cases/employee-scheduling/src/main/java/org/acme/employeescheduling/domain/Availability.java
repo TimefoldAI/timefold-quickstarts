@@ -8,14 +8,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
+import org.hibernate.annotations.UuidGenerator;
 
 @Entity
 public class Availability {
 
     @PlanningId
     @Id
-    @GeneratedValue
-    Long id;
+    @UuidGenerator
+    String id;
 
     @ManyToOne
     Employee employee;
@@ -33,11 +34,11 @@ public class Availability {
         this.availabilityType = availabilityType;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
