@@ -17,7 +17,7 @@ import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
 @PlanningEntity
 public class Consumer {
 
-    private long id;
+    private String id;
     private Location location;
     private long demand;
 
@@ -27,7 +27,7 @@ public class Consumer {
     public Consumer() {
     }
 
-    public Consumer(long id, Location location, long demand) {
+    public Consumer(String id, Location location, long demand) {
         this.id = id;
         this.location = location;
         this.demand = demand;
@@ -49,7 +49,7 @@ public class Consumer {
         return facility.getLocation().getDistanceTo(location);
     }
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 
