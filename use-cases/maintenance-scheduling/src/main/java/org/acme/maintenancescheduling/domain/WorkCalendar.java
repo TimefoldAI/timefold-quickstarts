@@ -2,15 +2,15 @@ package org.acme.maintenancescheduling.domain;
 
 import java.time.LocalDate;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import org.hibernate.annotations.UuidGenerator;
 
 @Entity
 public class WorkCalendar {
 
     @Id
-    @GeneratedValue
-    private Long id;
+    @UuidGenerator
+    private String id;
 
     private LocalDate fromDate; // Inclusive
     private LocalDate toDate; // Exclusive
@@ -33,7 +33,7 @@ public class WorkCalendar {
     // Getters and setters
     // ************************************************************************
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 

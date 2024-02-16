@@ -18,19 +18,19 @@ public class Agent extends PreviousCallOrAgent {
         // Required by Timefold.
     }
 
-    public Agent(long id, String name) {
+    public Agent(String id, String name) {
         super(id);
         this.name = name;
         this.skills = EnumSet.noneOf(Skill.class);
     }
 
-    public Agent(long id, String name, Set<Skill> skills) {
+    public Agent(String id, String name, Set<Skill> skills) {
         super(id);
         this.name = name;
         this.skills = EnumSet.copyOf(skills);
     }
 
-    public Agent(long id, String name, Skill... skills) {
+    public Agent(String id, String name, Skill... skills) {
         this(id, name, EnumSet.copyOf(Arrays.asList(skills)));
     }
 

@@ -21,8 +21,8 @@ class CallCenterConstraintProviderTest {
 
     @Test
     void noRequiredSkillMissing() {
-        Agent agent = new Agent(1L, "Carl", Skill.ENGLISH);
-        Call call = new Call(1L,"123-456-7890", Skill.ENGLISH, Skill.PROPERTY_INSURANCE, Skill.CAR_INSURANCE);
+        Agent agent = new Agent("1", "Carl", Skill.ENGLISH);
+        Call call = new Call("1","123-456-7890", Skill.ENGLISH, Skill.PROPERTY_INSURANCE, Skill.CAR_INSURANCE);
         call.setPreviousCallOrAgent(agent);
         call.setAgent(agent);
         constraintVerifier.verifyThat(CallCenterConstraintsProvider::noRequiredSkillMissing)
@@ -32,10 +32,10 @@ class CallCenterConstraintProviderTest {
 
     @Test
     void minimizeWaitingTime() {
-        Agent agent = new Agent(1L, "Carl", Skill.ENGLISH);
-        Call call1 = new Call(1L,"123-456-7890", Skill.ENGLISH);
-        Call call2 = new Call(2L,"123-456-7891", Skill.ENGLISH);
-        Call call3 = new Call(3L,"123-456-7892", Skill.ENGLISH);
+        Agent agent = new Agent("1", "Carl", Skill.ENGLISH);
+        Call call1 = new Call("1","123-456-7890", Skill.ENGLISH);
+        Call call2 = new Call("2","123-456-7891", Skill.ENGLISH);
+        Call call3 = new Call("3","123-456-7892", Skill.ENGLISH);
 
         call1.setPreviousCallOrAgent(agent);
         call1.setAgent(agent);

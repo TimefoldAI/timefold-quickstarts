@@ -20,13 +20,13 @@ public class CallResource {
 
     @DELETE
     @Path("{id}")
-    public void deleteCall(@PathParam("id") long id) {
+    public void deleteCall(@PathParam("id") String id) {
         solverService.removeCall(id);
     }
 
     @PUT
     @Path("{id}")
-    public void prolongCall(@PathParam("id") long id) {
+    public void prolongCall(@PathParam("id") String id) {
         solverService.prolongCall(id);
         simulationService.prolongCall(id);
     }

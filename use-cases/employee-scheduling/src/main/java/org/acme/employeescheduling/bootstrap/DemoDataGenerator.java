@@ -116,7 +116,8 @@ public class DemoDataGenerator {
             LocalDate date = START_DATE.plusDays(i);
             for (Employee employee : employeesWithAvailabitiesOnDay) {
                 AvailabilityType availabilityType = pickRandom(AvailabilityType.values(), random);
-                availabilityRepository.persist(new Availability(employee, date, availabilityType));
+                Availability a = new Availability(employee, date, availabilityType);
+                availabilityRepository.persist(a);
             }
 
             generateShiftsForDay(date, random);

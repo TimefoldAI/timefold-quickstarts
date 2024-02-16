@@ -16,7 +16,7 @@ import ai.timefold.solver.core.api.domain.variable.InverseRelationShadowVariable
 @PlanningEntity
 public class Facility {
 
-    private long id;
+    private String id;
     private Location location;
     private long setupCost;
     private long capacity;
@@ -27,14 +27,14 @@ public class Facility {
     public Facility() {
     }
 
-    public Facility(long id, Location location, long setupCost, long capacity) {
+    public Facility(String id, Location location, long setupCost, long capacity) {
         this.id = id;
         this.location = location;
         this.setupCost = setupCost;
         this.capacity = capacity;
     }
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 

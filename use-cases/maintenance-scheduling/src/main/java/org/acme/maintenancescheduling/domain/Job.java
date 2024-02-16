@@ -5,7 +5,6 @@ import java.util.Set;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 
@@ -14,14 +13,15 @@ import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
 import ai.timefold.solver.core.api.domain.variable.ShadowVariable;
+import org.hibernate.annotations.UuidGenerator;
 
 @PlanningEntity
 @Entity
 public class Job {
 
     @Id
-    @GeneratedValue
-    private Long id;
+    @UuidGenerator
+    private String id;
 
     private String name;
     private int durationInDays;
@@ -54,7 +54,7 @@ public class Job {
         this.tags = tags;
     }
 
-    public Job(Long id, String name, int durationInDays, LocalDate readyDate, LocalDate dueDate, LocalDate idealEndDate, Set<String> tags,
+    public Job(String id, String name, int durationInDays, LocalDate readyDate, LocalDate dueDate, LocalDate idealEndDate, Set<String> tags,
             Crew crew, LocalDate startDate) {
         this.id = id;
         this.name = name;
@@ -78,7 +78,7 @@ public class Job {
     // ************************************************************************
 
     @PlanningId
-    public Long getId() {
+    public String getId() {
         return id;
     }
 

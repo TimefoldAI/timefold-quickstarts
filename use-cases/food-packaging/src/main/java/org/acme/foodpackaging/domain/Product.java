@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class Product {
 
-    private Long id;
+    private String id;
     private String name;
     /** The map key is previous product on assembly line. */
     private Map<Product, Duration> cleaningDurations;
@@ -14,7 +14,7 @@ public class Product {
     public Product() {
     }
 
-    public Product(Long id, String name) {
+    public Product(String id, String name) {
         this.id = id;
         this.name = name;
     }
@@ -37,7 +37,7 @@ public class Product {
     // Getters and setters
     // ************************************************************************
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 

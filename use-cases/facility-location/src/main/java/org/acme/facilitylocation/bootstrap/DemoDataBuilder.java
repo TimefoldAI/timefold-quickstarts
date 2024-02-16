@@ -100,7 +100,7 @@ public class DemoDataBuilder {
         Supplier<Location> locationSupplier = () -> new Location(latitudes.nextDouble(), longitudes.nextDouble());
         List<Facility> facilities = Stream.generate(locationSupplier)
                 .map(location -> new Facility(
-                        sequence.incrementAndGet(),
+                        Long.toString(sequence.incrementAndGet()),
                         location,
                         averageSetupCost + (long) (setupCostStandardDeviation * random.nextGaussian()),
                         capacity / facilityCount))
@@ -108,7 +108,7 @@ public class DemoDataBuilder {
                 .collect(Collectors.toList());
         List<Consumer> consumers = Stream.generate(locationSupplier)
                 .map(location -> new Consumer(
-                        sequence.incrementAndGet(),
+                        Long.toString(sequence.incrementAndGet()),
                         location,
                         demand / consumerCount))
                 .limit(consumerCount)

@@ -10,9 +10,9 @@ import ai.timefold.solver.core.api.solver.change.ProblemChangeDirector;
 
 public class RemoveCallProblemChange implements ProblemChange<CallCenter> {
 
-    private final long callId;
+    private final String callId;
 
-    public RemoveCallProblemChange(long callId) {
+    public RemoveCallProblemChange(String callId) {
         this.callId = callId;
     }
 

@@ -4,21 +4,21 @@ import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
+import org.hibernate.annotations.UuidGenerator;
 
 @Entity
 @PlanningEntity(pinningFilter = ShiftPinningFilter.class)
 public class Shift {
     @Id
     @PlanningId
-    @GeneratedValue
-    Long id;
+    @UuidGenerator
+    String id;
 
     LocalDateTime start;
     @Column(name = "endDateTime") // "end" clashes with H2 syntax.
@@ -42,7 +42,7 @@ public class Shift {
         this(null, start, end, location, requiredSkill, employee);
     }
 
-    public Shift(Long id, LocalDateTime start, LocalDateTime end, String location, String requiredSkill, Employee employee) {
+    public Shift(String id, LocalDateTime start, LocalDateTime end, String location, String requiredSkill, Employee employee) {
         this.id = id;
         this.start = start;
         this.end = end;
@@ -51,11 +51,11 @@ public class Shift {
         this.employee = employee;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
