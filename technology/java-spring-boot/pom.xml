@@ -2,6 +2,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+  <!-- Use spring boot parent to use its native profile -->
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>3.2.2</version>
+  </parent>
 
   <groupId>org.acme</groupId>
   <artifactId>timefold-solver-spring-boot-school-timetabling-quickstart</artifactId>
@@ -83,12 +89,10 @@
     </dependency>
 
     <!-- UI -->
-    <dependency>
-      <groupId>org.webjars</groupId>
-      <artifactId>webjars-locator</artifactId>
-      <version>0.50</version>
-      <scope>runtime</scope>
-    </dependency>
+    <!-- No webjar locator; incompatible in native mode;
+         see https://github.com/spring-projects/spring-framework/issues/27619
+         and https://github.com/webjars/webjars-locator-core/issues/96
+     -->
     <dependency>
       <groupId>ai.timefold.solver</groupId>
       <artifactId>timefold-solver-webui</artifactId>
@@ -142,6 +146,14 @@
             </goals>
           </execution>
         </executions>
+        <configuration>
+          <!-- optimizedLaunch disables the C2 compiler, which has a massive performance impact -->
+          <optimizedLaunch>false</optimizedLaunch>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.graalvm.buildtools</groupId>
+        <artifactId>native-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </build>
