@@ -1,5 +1,6 @@
 package org.acme.vaccinationscheduler.domain;
 
+import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
@@ -7,6 +8,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
         property = "id")
 public class VaccinationCenter {
 
+    @PlanningId
     private String id;
 
     private String name;

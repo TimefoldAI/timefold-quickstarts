@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.variable.PlanningListVariable;
@@ -11,6 +12,7 @@ import ai.timefold.solver.core.api.domain.variable.PlanningListVariable;
 @PlanningEntity
 public class Line {
 
+    @PlanningId
     private String id;
     private String name;
     private String operator;

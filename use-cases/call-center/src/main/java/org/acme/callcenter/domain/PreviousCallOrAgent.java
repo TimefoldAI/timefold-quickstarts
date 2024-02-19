@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @PlanningEntity
 public abstract class PreviousCallOrAgent {
 
+    @PlanningId
     private String id;
 
     @JsonIgnore
