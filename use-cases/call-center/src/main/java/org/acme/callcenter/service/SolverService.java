@@ -24,13 +24,13 @@ import org.acme.callcenter.solver.change.RemoveCallProblemChange;
 @ApplicationScoped
 public class SolverService {
 
-    private final SolverManager<CallCenter, Long> solverManager;
-    public static final long SINGLETON_ID = 1L;
+    private final SolverManager<CallCenter, String> solverManager;
+    public static final String SINGLETON_ID = "1";
 
     private final BlockingQueue<WaitingProblemChange> waitingProblemChanges = new LinkedBlockingQueue<>();
 
     @Inject
-    public SolverService(SolverManager<CallCenter, Long> solverManager) {
+    public SolverService(SolverManager<CallCenter, String> solverManager) {
         this.solverManager = solverManager;
     }
 

@@ -11,7 +11,7 @@ import java.time.LocalTime;
 public class Timeslot {
 
     @PlanningId
-    private Long id;
+    private String id;
 
     private DayOfWeek dayOfWeek;
     private LocalTime startTime;
@@ -21,14 +21,14 @@ public class Timeslot {
     public Timeslot() {
     }
 
-    public Timeslot(long id, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
+    public Timeslot(String id, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
         this.id = id;
         this.dayOfWeek = dayOfWeek;
         this.startTime = startTime;
         this.endTime = endTime;
     }
 
-    public Timeslot(long id, DayOfWeek dayOfWeek, LocalTime startTime) {
+    public Timeslot(String id, DayOfWeek dayOfWeek, LocalTime startTime) {
         this(id, dayOfWeek, startTime, startTime.plusMinutes(50));
     }
 
@@ -41,7 +41,7 @@ public class Timeslot {
     // Getters and setters
     // ************************************************************************
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 

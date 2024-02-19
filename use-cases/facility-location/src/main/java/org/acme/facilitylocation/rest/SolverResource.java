@@ -17,16 +17,16 @@ import org.acme.facilitylocation.persistence.FacilityLocationProblemRepository;
 @Path("/flp")
 public class SolverResource {
 
-    private static final long PROBLEM_ID = 0L;
+    private static final String PROBLEM_ID = "1";
 
     private final AtomicReference<Throwable> solverError = new AtomicReference<>();
 
     private final FacilityLocationProblemRepository repository;
-    private final SolverManager<FacilityLocationProblem, Long> solverManager;
+    private final SolverManager<FacilityLocationProblem, String> solverManager;
     private final SolutionManager<FacilityLocationProblem, HardSoftLongScore> solutionManager;
 
     public SolverResource(FacilityLocationProblemRepository repository,
-            SolverManager<FacilityLocationProblem, Long> solverManager,
+            SolverManager<FacilityLocationProblem, String> solverManager,
             SolutionManager<FacilityLocationProblem, HardSoftLongScore> solutionManager) {
         this.repository = repository;
         this.solverManager = solverManager;

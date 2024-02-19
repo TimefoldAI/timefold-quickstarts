@@ -27,7 +27,7 @@ import io.quarkus.panache.common.Sort;
 @Path("/schedule")
 public class EmployeeScheduleResource {
 
-    public static final Long SINGLETON_SCHEDULE_ID = 1L;
+    public static final String SINGLETON_SCHEDULE_ID = "1";
 
     @Inject
     AvailabilityRepository availabilityRepository;
@@ -42,7 +42,7 @@ public class EmployeeScheduleResource {
     DemoDataGenerator dataGenerator;
 
     @Inject
-    SolverManager<EmployeeSchedule, Long> solverManager;
+    SolverManager<EmployeeSchedule, String> solverManager;
     @Inject
     SolutionManager<EmployeeSchedule, HardSoftScore> solutionManager;
 
@@ -96,7 +96,7 @@ public class EmployeeScheduleResource {
     }
 
     @Transactional
-    protected EmployeeSchedule findById(Long id) {
+    protected EmployeeSchedule findById(String id) {
         if (!SINGLETON_SCHEDULE_ID.equals(id)) {
             throw new IllegalStateException("There is no schedule with id (" + id + ").");
         }

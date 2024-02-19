@@ -123,7 +123,7 @@ public class VaccinationSolution {
                     .filter(appointment -> !scheduledAppointments.contains(appointment))
                     .collect(Collectors.toList());
             int capacity = appointmentList.size();
-            VaccinationSlot vaccinationSlot = new VaccinationSlot(nextVaccinationSlotId++, vaccinationCenter,
+            VaccinationSlot vaccinationSlot = new VaccinationSlot(Long.toString(nextVaccinationSlotId++), vaccinationCenter,
                     startDateTime, vaccineType, unscheduledAppointmentList, capacity);
             vaccinationSlots.add(vaccinationSlot);
             vaccinationSlotMap.put(triple, vaccinationSlot);
