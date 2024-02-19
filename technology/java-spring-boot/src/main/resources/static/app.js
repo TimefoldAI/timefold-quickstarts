@@ -227,7 +227,7 @@ function analyze() {
   const scoreAnalysisModalContent = $("#scoreAnalysisModalContent");
   scoreAnalysisModalContent.children().remove();
   if (loadedSchedule.score == null || loadedSchedule.score.indexOf('init') != -1) {
-    scoreAnalysisModalContent.text("Analyzing score...");
+    scoreAnalysisModalContent.text("No score to analyze yet, please first press the 'solve' button.");
   } else {
     $.put("/timetables/analyze", JSON.stringify(loadedSchedule), function (scoreAnalysis) {
       let constraints = scoreAnalysis.constraints;
