@@ -78,7 +78,6 @@ public class Job {
     // Getters and setters
     // ************************************************************************
 
-    @PlanningId
     public String getId() {
         return id;
     }
