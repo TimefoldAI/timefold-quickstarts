@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators
 )
 data class Room(
     @PlanningId
-    val id: Long,
+    val id: String,
     val name: String) {
 
     override fun toString(): String = name

@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 public class Room {
 
     @PlanningId
-    private Long id;
+    private String id;
 
     private String name;
 
@@ -16,7 +16,7 @@ public class Room {
     public Room() {
     }
 
-    public Room(long id, String name) {
+    public Room(String id, String name) {
         this.id = id;
         this.name = name;
     }
@@ -30,7 +30,7 @@ public class Room {
     // Getters and setters
     // ************************************************************************
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 

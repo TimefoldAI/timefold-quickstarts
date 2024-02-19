@@ -13,7 +13,7 @@ import java.time.LocalTime
 )
 data class Timeslot(
     @PlanningId
-    val id: Long,
+    val id: String,
     val dayOfWeek: DayOfWeek,
     val startTime: LocalTime,
     val endTime: LocalTime = startTime.plusMinutes(50)) {
