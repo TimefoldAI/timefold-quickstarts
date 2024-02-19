@@ -68,6 +68,6 @@ public class CallCenter {
     }
 
     public boolean isFeasible() {
-        return score.isFeasible();
+        return score != null && score.isFeasible();
     }
 }
