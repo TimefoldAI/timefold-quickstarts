@@ -39,13 +39,6 @@ const greyIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 
-const fetchHeaders = {
-  headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-  },
-};
-
 const createCostFormat = (notation) => new Intl.NumberFormat('en-US', {
   style: 'currency',
   currency: 'USD',
@@ -57,68 +50,35 @@ const shortCostFormat = createCostFormat('compact');
 const longCostFormat = createCostFormat('standard');
 
 const getStatus = () => {
-  fetch('/flp/status', fetchHeaders)
-    .then((response) => {
-      if (!response.ok) {
-        return handleErrorResponse('Get status failed', response);
-      } else {
-        return response.json().then((data) => showProblem(data));
-      }
-    })
-    .catch((error) => handleClientError('Failed to process response', error));
+  $.get('/flp/status', null, (data) => {
+        return showProblem(data);
+    }).fail((xhr, ajaxOptions, thrownError) => {
+      showError('Get status failed.', xhr);
+    },
+    "text");
 };
 
 const solve = () => {
-  fetch('/flp/solve', {...fetchHeaders, method: 'POST'})
-    .then((response) => {
-      if (!response.ok) {
-        return handleErrorResponse('Start solving failed', response);
-      } else {
-        updateSolvingStatus(true);
-        autoRefreshCount = 300;
-        if (autoRefreshIntervalId == null) {
-          autoRefreshIntervalId = setInterval(autoRefresh, 500);
-        }
+  $.post('/flp/solve', null, () => {
+      updateSolvingStatus(true);
+      autoRefreshCount = 300;
+      if (autoRefreshIntervalId == null) {
+        autoRefreshIntervalId = setInterval(autoRefresh, 500);
       }
-    })
-    .catch((error) => handleClientError('Failed to process response', error));
+    }).fail((xhr, ajaxOptions, thrownError) => {
+      showError('Start solving failed.', xhr);
+    },
+    "text");
 };
 
 const stopSolving = () => {
-  fetch('/flp/stopSolving', {...fetchHeaders, method: 'POST'})
-    .then((response) => {
-      if (!response.ok) {
-        return handleErrorResponse('Stop solving failed', response);
-      } else {
-        updateSolvingStatus(false);
-        getStatus();
-      }
-    })
-    .catch((error) => handleClientError('Failed to process response', error));
-};
-
-const formatErrorResponseBody = (body) => {
-  // JSON must not contain \t (Quarkus bug)
-  const json = JSON.parse(body.replace(/\t/g, '  '));
-  return `${json.details}\n${json.stack}`;
-};
-
-const handleErrorResponse = (title, response) => {
-  return response.text()
-    .then((body) => {
-      const message = `${title} (${response.status}: ${response.statusText}).`;
-      const stackTrace = body ? formatErrorResponseBody(body) : '';
-      showError(message, stackTrace);
-    });
-};
-
-const handleClientError = (title, error) => {
-  console.error(error);
-  showError(`${title}.`,
-    // Stack looks differently in Chrome and Firefox.
-    error.stack.startsWith(error.name)
-      ? error.stack
-      : `${error.name}: ${error.message}\n    ${error.stack.replace(/\n/g, '\n    ')}`);
+  $.post('/flp/stopSolving', null, () => {
+      updateSolvingStatus(false);
+      getStatus();
+    }).fail((xhr, ajaxOptions, thrownError) => {
+      showError('Stop solving failed.', xhr);
+    },
+    "text");
 };
 
 const updateSolvingStatus = (solving) => {
@@ -206,6 +166,35 @@ style="background-color: ${colorIfUsed}; display: inline-block; width: 1rem; hei
   $('#scoreInfo').text(scoreExplanation);
   updateSolvingStatus(isSolving);
 };
+
+function setupAjax() {
+  $.ajaxSetup({
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json,text/plain', // plain text is required by solve() returning UUID of the solver job
+    }
+  });
+
+  // Extend jQuery to support $.put() and $.delete()
+  jQuery.each(["put", "delete"], function (i, method) {
+    jQuery[method] = function (url, data, callback, type) {
+      if (jQuery.isFunction(data)) {
+        type = type || callback;
+        callback = data;
+        data = undefined;
+      }
+      return jQuery.ajax({
+        url: url,
+        type: method,
+        dataType: type,
+        data: data,
+        success: callback
+      });
+    };
+  });
+}
+
+setupAjax();
 
 const map = L.map('map', {doubleClickZoom: false}).setView([51.505, -0.09], 13);
 map.whenReady(getStatus);
