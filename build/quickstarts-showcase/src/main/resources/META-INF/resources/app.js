@@ -2,6 +2,113 @@ var loadingPorts = [];
 var startedPorts = [];
 var autoPingIntervalId = null;
 
+const quickstarts = [
+  {
+    id: "vehicle-routing",
+    title: "Vehicle routing",
+    description: 'Find the most efficient routes for vehicles to reach customers, taking into account vehicle capacity and time windows when customers are available. Sometimes also called "CVRPTW".',
+    icon: "fa-truck",
+    screenshot: "screenshot/quarkus-vehicle-routing-screenshot.png"
+  },
+  {
+    id: "maintenance-scheduling",
+    title: "Maintenance scheduling",
+    description: "Schedule maintenance jobs to crews over time to reduce both premature and overdue maintenance.",
+    icon: "fa-tools",
+    screenshot: "screenshot/quarkus-maintenance-scheduling-screenshot.png"
+  },
+  {
+    id: "employee-scheduling",
+    title: "Employee scheduling",
+    description: "Schedule shifts to employees, accounting for employee availability and shift skill requirements.",
+    icon: "fa-calendar",
+    screenshot: "screenshot/quarkus-employee-scheduling-screenshot.png"
+  },
+  {
+    id: "food-packaging",
+    title: "Food packaging",
+    description: "Generate the optimal schedule for your food packaging manufacturing lines.",
+    icon: "fa-box",
+    screenshot: "screenshot/quarkus-food-packaging-screenshot.png"
+  },
+  {
+    id: "order-picking",
+    title: "Order picking",
+    description: "Generate an optimal picking plan for completing a set of orders.",
+    icon: "fa-cart-plus",
+    screenshot: "screenshot/quarkus-order-picking-screenshot.png"
+  },
+  {
+    id: "school-timetabling",
+    title: "School timetabling",
+    description: "Assign lessons to timeslots and rooms to produce a better schedule for teachers and students.",
+    icon: "fa-graduation-cap",
+    screenshot: "screenshot/quarkus-school-timetabling-screenshot.png"
+  },
+  {
+    id: "vaccination-scheduling",
+    title: "Vaccination scheduling",
+    description: "Assign people to vaccination injection appointments over time at vaccination centers to end a pandemic sooner.",
+    icon: "fa-syringe",
+    screenshot: "screenshot/quarkus-vaccination-scheduling-screenshot.png"
+  },
+  {
+    id: "facility-location",
+    title: "Facility location problem",
+    description: "Pick the best geographical locations for new stores, distribution centers, covid test centers or telco masts.",
+    icon: "fa-broadcast-tower",
+    screenshot: "screenshot/quarkus-vaccination-scheduling-screenshot.png"
+  },
+  {
+    id: "call-center",
+    title: "Call center",
+    description: "Assign incoming calls to agents based on required skills while minimizing customer wait times.",
+    icon: "fa-headset",
+    screenshot: "screenshot/quarkus-call-center-screenshot.png"
+  }
+];
+
+function initQuickstartCards() {
+  const container = $('#quickstartCardsContainer');
+  $.each(quickstarts, (index, quickstart) => {
+    container.append(`
+      <div class="col mb-4">
+        <div class="card">
+          <div class="card-header">
+            <h5><i class="fas ${quickstart.icon}"></i> ${quickstart.title}</h5>
+          </div>
+          <img src="${quickstart.screenshot}" class="card-img-top mt-3" alt="Screenshot"/>
+          <div class="card-body">
+            <p class="card-text">${quickstart.description}</p>
+            <button id="${quickstart.id}-launch" type="button" class="btn btn-primary w-100">
+              <span class="fas fa-play"></span> Launch
+            </button>
+            <div id="${quickstart.id}-ports" class="row row-cols-1 row-cols-md-3 mt-3"></div>
+          </div>
+        </div>
+      </div>
+    `);
+    $(`#${quickstart.id}-launch`).click(function () {
+      launchQuickstart(quickstart.id);
+    });
+  });
+
+  container.append(`
+    <div class="col mb-4">
+      <div class="card">
+        <div class="card-header">Timefold examples</div>
+        <img src="screenshot/timefold-solver-examples-screenshot.png" class="card-img-top mt-3" alt="Screenshot"/>
+        <div class="card-body">
+          <p class="card-text">Many examples in desktop technology.</p>
+          <a href="https://timefold.ai" target="_blank">
+            <button type="button" class="btn btn-secondary w-100">Download</button>
+          </a>
+        </div>
+      </div>
+    </div>
+  `);
+}
+
 function refreshQuickstartsPanel() {
   $.getJSON("/quickstart", function (quickstarts) {
     $.each(quickstarts, (index, quickstart) => {
@@ -99,7 +206,6 @@ function exit() {
 }
 
 $(document).ready(function () {
-  replaceTimefoldAutoHeaderFooter();
   $.ajaxSetup({
     headers: {
       'Content-Type': 'application/json',
@@ -123,36 +229,12 @@ $(document).ready(function () {
       });
     };
   });
-  $("#school-timetabling-launch").click(function () {
-    launchQuickstart("school-timetabling");
-  });
-  $("#facility-location-launch").click(function () {
-    launchQuickstart("facility-location");
-  });
-  $("#maintenance-scheduling-launch").click(function () {
-    launchQuickstart("maintenance-scheduling");
-  });
-  $("#call-center-launch").click(function () {
-      launchQuickstart("call-center");
-  });
-  $("#vaccination-scheduling-launch").click(function () {
-    launchQuickstart("vaccination-scheduling");
-  });
-  $("#vehicle-routing-launch").click(function () {
-    launchQuickstart("vehicle-routing");
-  });
-  $("#order-picking-launch").click(function () {
-    launchQuickstart("order-picking");
-  });
-  $("#employee-scheduling-launch").click(function () {
-    launchQuickstart("employee-scheduling");
-  });
-  $("#food-packaging-launch").click(function () {
-    launchQuickstart("food-packaging");
-  });
+
   $("#exit").click(function () {
     exit();
   });
 
+  replaceTimefoldAutoHeaderFooter();
+  initQuickstartCards();
   refreshQuickstartsPanel();
 });
