@@ -14,13 +14,13 @@ import org.acme.foodpackaging.persistence.PackagingScheduleRepository;
 @Path("schedule")
 public class PackagingScheduleResource {
 
-    public static final Long SINGLETON_SOLUTION_ID = 1L;
+    public static final String SINGLETON_SOLUTION_ID = "1";
 
     @Inject
     PackagingScheduleRepository repository;
 
     @Inject
-    SolverManager<PackagingSchedule, Long> solverManager;
+    SolverManager<PackagingSchedule, String> solverManager;
 
     @GET
     public PackagingSchedule get() {

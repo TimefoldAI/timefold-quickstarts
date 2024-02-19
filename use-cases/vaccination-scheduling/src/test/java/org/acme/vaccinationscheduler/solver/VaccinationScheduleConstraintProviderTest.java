@@ -39,19 +39,19 @@ class VaccinationScheduleConstraintProviderTest {
     private static final LocalDateTime THURSDAY_0900 = LocalDateTime.of(THURSDAY, LocalTime.of(9, 0));
     private static final LocalDateTime FRIDAY_0900 = LocalDateTime.of(FRIDAY, LocalTime.of(9, 0));
     private static final VaccinationSlot PFIZER_MONDAY_SLOT =
-            new VaccinationSlot(1L, VACCINATION_CENTER_1, MONDAY_0900, PFIZER, 12);
+            new VaccinationSlot("1", VACCINATION_CENTER_1, MONDAY_0900, PFIZER, 12);
     private static final VaccinationSlot PFIZER_TUESDAY_SLOT =
-            new VaccinationSlot(2L, VACCINATION_CENTER_1, TUESDAY_0900, PFIZER, 12);
+            new VaccinationSlot("2", VACCINATION_CENTER_1, TUESDAY_0900, PFIZER, 12);
     private static final VaccinationSlot PFIZER_WEDNESDAY_SLOT =
-            new VaccinationSlot(3L, VACCINATION_CENTER_1, WEDNESDAY_0900, PFIZER, 12);
+            new VaccinationSlot("3", VACCINATION_CENTER_1, WEDNESDAY_0900, PFIZER, 12);
     private static final VaccinationSlot PFIZER_THURSDAY_SLOT =
-            new VaccinationSlot(4L, VACCINATION_CENTER_1, THURSDAY_0900, PFIZER, 12);
+            new VaccinationSlot("4", VACCINATION_CENTER_1, THURSDAY_0900, PFIZER, 12);
     private static final VaccinationSlot PFIZER_FRIDAY_SLOT =
-            new VaccinationSlot(5L, VACCINATION_CENTER_1, FRIDAY_0900, PFIZER, 12);
-    private static final VaccinationSlot MODERNA_SLOT = new VaccinationSlot(11L, VACCINATION_CENTER_1, MONDAY_0900, MODERNA, 12);
-    private static final VaccinationSlot AZ_SLOT = new VaccinationSlot(12L, VACCINATION_CENTER_1, MONDAY_0900, ASTRAZENECA, 12);
-    private static final VaccinationSlot AGE_40_TO_55_VACCINE_SLOT = new VaccinationSlot(12L, VACCINATION_CENTER_1, MONDAY_0900, AGE_40_TO_55_VACCINE, 12);
-    private static final VaccinationSlot VACCINATION_CENTER_2_SLOT = new VaccinationSlot(13L, VACCINATION_CENTER_2, MONDAY_0900, PFIZER, 12);
+            new VaccinationSlot("5", VACCINATION_CENTER_1, FRIDAY_0900, PFIZER, 12);
+    private static final VaccinationSlot MODERNA_SLOT = new VaccinationSlot("11", VACCINATION_CENTER_1, MONDAY_0900, MODERNA, 12);
+    private static final VaccinationSlot AZ_SLOT = new VaccinationSlot("12", VACCINATION_CENTER_1, MONDAY_0900, ASTRAZENECA, 12);
+    private static final VaccinationSlot AGE_40_TO_55_VACCINE_SLOT = new VaccinationSlot("13", VACCINATION_CENTER_1, MONDAY_0900, AGE_40_TO_55_VACCINE, 12);
+    private static final VaccinationSlot VACCINATION_CENTER_2_SLOT = new VaccinationSlot("14", VACCINATION_CENTER_2, MONDAY_0900, PFIZER, 12);
 
     @Inject
     ConstraintVerifier<VaccinationScheduleConstraintProvider, VaccinationSolution> constraintVerifier;

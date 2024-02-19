@@ -17,7 +17,7 @@ import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 public class VaccinationSlot {
 
     @PlanningId
-    private Long id;
+    private String id;
 
     private VaccinationCenter vaccinationCenter;
     private LocalDate date;
@@ -27,7 +27,7 @@ public class VaccinationSlot {
     private List<Appointment> unscheduledAppointments;
     private int capacity;
 
-    public VaccinationSlot(Long id, VaccinationCenter vaccinationCenter,
+    public VaccinationSlot(String id, VaccinationCenter vaccinationCenter,
                            LocalDateTime startDateTime, VaccineType vaccineType, List<Appointment> unscheduledAppointments, int capacity) {
         this.id = id;
         this.vaccinationCenter = vaccinationCenter;
@@ -39,7 +39,7 @@ public class VaccinationSlot {
     }
 
     /** For testing purposes only */
-    public VaccinationSlot(Long id, VaccinationCenter vaccinationCenter,
+    public VaccinationSlot(String id, VaccinationCenter vaccinationCenter,
             LocalDateTime startDateTime, VaccineType vaccineType, int capacity) {
         this.id = id;
         this.vaccinationCenter = vaccinationCenter;
@@ -64,7 +64,7 @@ public class VaccinationSlot {
     // Getters and setters
     // ************************************************************************
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 

@@ -19,11 +19,11 @@ import org.acme.orderpicking.persistence.OrderPickingRepository;
 @ApplicationScoped
 public class OrderPickingSolverResource {
 
-    private static final long PROBLEM_ID = 1;
+    private static final String PROBLEM_ID = "1";
     private final AtomicBoolean solverWasNeverStarted = new AtomicBoolean(true);
 
     @Inject
-    SolverManager<OrderPickingSolution, Long> solverManager;
+    SolverManager<OrderPickingSolution, String> solverManager;
 
     @Inject
     OrderPickingRepository orderPickingRepository;

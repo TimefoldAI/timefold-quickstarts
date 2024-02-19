@@ -22,7 +22,7 @@ import io.quarkus.panache.common.Sort;
 @Path("/schedule")
 public class MaintenanceScheduleResource {
 
-    public static final Long SINGLETON_SCHEDULE_ID = 1L;
+    public static final String SINGLETON_SCHEDULE_ID = "1";
 
     @Inject
     WorkCalendarRepository workCalendarRepository;
@@ -32,7 +32,7 @@ public class MaintenanceScheduleResource {
     JobRepository jobRepository;
 
     @Inject
-    SolverManager<MaintenanceSchedule, Long> solverManager;
+    SolverManager<MaintenanceSchedule, String> solverManager;
     @Inject
     SolutionManager<MaintenanceSchedule, HardSoftScore> solutionManager;
 
@@ -69,7 +69,7 @@ public class MaintenanceScheduleResource {
     }
 
     @Transactional
-    protected MaintenanceSchedule findById(Long id) {
+    protected MaintenanceSchedule findById(String id) {
         if (!SINGLETON_SCHEDULE_ID.equals(id)) {
             throw new IllegalStateException("There is no schedule with id (" + id + ").");
         }
