@@ -36,7 +36,6 @@ public abstract class PreviousCallOrAgent {
 
     public abstract Duration getDurationTillPickUp();
 
-    @PlanningId
     public String getId() {
         return id;
     }
