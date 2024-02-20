@@ -13,13 +13,6 @@ const waitingCallColor = 'White';
 var autoRefreshIntervalId = null;
 var solving = false;
 
-const fetchHeaders = {
-  headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-  },
-};
-
 function refresh() {
   $.getJSON("/call-center", (callCenterData) => {
     solving = callCenterData.solving;
@@ -128,30 +121,24 @@ function printSkills(container, skills) {
 }
 
 function solve() {
-  fetch('/call-center/solve', { ...fetchHeaders, method: 'POST' })
-    .then((response) => {
-      if (!response.ok) {
-        return handleErrorResponse('Start solving failed.', response);
-      } else {
-        solving = true;
-        refreshSolvingButtons();
-      }
-    })
-    .catch((error) => handleClientError('Failed to process response.', error));
+  $.post('/call-center/solve', null, () => {
+      solving = true;
+      refreshSolvingButtons();
+    }).fail((xhr, ajaxOptions, thrownError) => {
+      showError("Start solving failed.", xhr);
+    },
+    "text");
 }
 
 function stopSolving() {
-  fetch('/call-center/stop', { ...fetchHeaders, method: 'POST' })
-    .then((response) => {
-      if (!response.ok) {
-        return handleErrorResponse('Stop solving failed', response);
-      } else {
-        solving = false;
-        refreshSolvingButtons();
-        refresh();
-      }
-    })
-    .catch((error) => handleClientError('Failed to process response.', error));
+  $.post('/call-center/stop', null, () => {
+      solving = false;
+      refreshSolvingButtons();
+      refresh();
+    }).fail((xhr, ajaxOptions, thrownError) => {
+      showError("Stop solving failed.", xhr);
+    },
+    "text");
 }
 
 function refreshSolvingButtons() {
@@ -172,72 +159,63 @@ function refreshSolvingButtons() {
 }
 
 function removeCall(call) {
-  fetch("/call/" + call.id, { ...fetchHeaders, method: 'DELETE' })
-    .then((response) => {
-      if (!response.ok) {
-        return handleErrorResponse('Cancelling a call (' + call.phoneNumber + ') failed.', response);
-      } else {
-        refresh();
-      }
-    })
-    .catch((error) => handleClientError('Failed to process response.', error));
+  $.delete("/call/" + call.id, null, () => {
+      refresh();
+    }).fail((xhr, ajaxOptions, thrownError) => {
+      showError('Cancelling a call (' + call.phoneNumber + ') failed.', xhr);
+    },
+    "text");
 }
 
 function prolongCall(call) {
-  fetch("/call/" + call.id, { ...fetchHeaders, method: 'PUT' })
-    .then((response) => {
-      if (!response.ok) {
-        return handleErrorResponse('Prolonging a call (' + call.phoneNumber + ') failed.', response);
-      } else {
-        refresh();
-      }
-    })
-    .catch((error) => handleClientError('Failed to process response.', error));
+  $.put("/call/" + call.id, null, () => {
+      refresh();
+    }).fail((xhr, ajaxOptions, thrownError) => {
+      showError('Prolonging a call (' + call.phoneNumber + ') failed.', xhr);
+    },
+    "text");
 }
 
 function restartSimulation(frequency, duration) {
-  fetch('/simulation', { 
-    ...fetchHeaders, 
-    method: 'PUT',
-    body: JSON.stringify({
-      'frequency': frequency,
-      'duration': duration
-    })
-  })
-  .then((response) => {
-    if (!response.ok) {
-      return handleErrorResponse('Updating simulation parameters (frequency:' + frequency + ', duration:' + duration + ') failed.', response);
-    }
-  })
-  .catch((error) => handleClientError('Failed to process response.', error));
+  $.put('/simulation', JSON.stringify({'frequency': frequency, 'duration': duration}), () => {
+  }).fail((xhr, ajaxOptions, thrownError) => {
+      showError('Updating simulation parameters (frequency:' + frequency + ', duration:' + duration + ') failed.', xhr);
+    },
+    "text");
 }
 
-const formatErrorResponseBody = (body) => {
-  // JSON must not contain \t (Quarkus bug)
-  const json = JSON.parse(body.replace(/\t/g, '  '));
-  return `${json.details}\n${json.stack}`;
-};
+function setupAjax() {
+  $.ajaxSetup({
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json,text/plain', // plain text is required by solve() returning UUID of the solver job
+    }
+  });
 
-const handleErrorResponse = (title, response) => {
-  return response.text()
-    .then((body) => {
-      const message = `${title} (${response.status}: ${response.statusText}).`;
-      const stackTrace = body ? formatErrorResponseBody(body) : '';
-      showError(message, stackTrace);
-    });
-};
-
-const handleClientError = (title, error) => {
-  console.error(title + "\n" + error);
-  showError(`${title}.`,
-    // Stack looks differently in Chrome and Firefox.
-    error.stack.startsWith(error.name)
-      ? error.stack
-      : `${error.name}: ${error.message}\n    ${error.stack.replace(/\n/g, '\n    ')}`);
-};
+  // Extend jQuery to support $.put() and $.delete()
+  jQuery.each(["put", "delete"], function (i, method) {
+    jQuery[method] = function (url, data, callback, type) {
+      if (jQuery.isFunction(data)) {
+        type = type || callback;
+        callback = data;
+        data = undefined;
+      }
+      return jQuery.ajax({
+        url: url,
+        type: method,
+        dataType: type,
+        data: data,
+        success: callback
+      });
+    };
+  });
+}
 
 $(document).ready(function () {
   replaceTimefoldAutoHeaderFooter();
+
+  setupAjax();
+
   $('#solveButton').click(solve);
 
   $('#stopSolvingButton').click(function () {
