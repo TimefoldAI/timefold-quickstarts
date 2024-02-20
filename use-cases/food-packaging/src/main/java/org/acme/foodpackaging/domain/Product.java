@@ -1,10 +1,13 @@
 package org.acme.foodpackaging.domain;
 
+import ai.timefold.solver.core.api.domain.lookup.PlanningId;
+
 import java.time.Duration;
 import java.util.Map;
 
 public class Product {
 
+    @PlanningId
     private String id;
     private String name;
     /** The map key is previous product on assembly line. */

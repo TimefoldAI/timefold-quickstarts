@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @PlanningEntity
 public abstract class PreviousCallOrAgent {
 
+    @PlanningId
     private String id;
 
     @JsonIgnore
@@ -35,7 +36,6 @@ public abstract class PreviousCallOrAgent {
 
     public abstract Duration getDurationTillPickUp();
 
-    @PlanningId
     public String getId() {
         return id;
     }

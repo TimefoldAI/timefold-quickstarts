@@ -19,6 +19,7 @@ import org.hibernate.annotations.UuidGenerator;
 @Entity
 public class Job {
 
+    @PlanningId
     @Id
     @UuidGenerator
     private String id;
@@ -77,7 +78,6 @@ public class Job {
     // Getters and setters
     // ************************************************************************
 
-    @PlanningId
     public String getId() {
         return id;
     }
