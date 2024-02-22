@@ -168,7 +168,7 @@ public class PersonAssignment {
         return person.isPinned();
     }
 
-    @PlanningVariable(nullable = true)
+    @PlanningVariable(allowsUnassigned = true)
     public VaccinationSlot getVaccinationSlot() {
         return vaccinationSlot;
     }

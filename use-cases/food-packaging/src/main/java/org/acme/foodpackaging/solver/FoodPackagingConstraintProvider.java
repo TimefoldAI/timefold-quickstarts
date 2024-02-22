@@ -2,12 +2,13 @@ package org.acme.foodpackaging.solver;
 
 import java.time.Duration;
 
-import org.acme.foodpackaging.domain.Job;
 import ai.timefold.solver.core.api.score.buildin.hardmediumsoftlong.HardMediumSoftLongScore;
 import ai.timefold.solver.core.api.score.stream.Constraint;
 import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
 import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
 import ai.timefold.solver.core.api.score.stream.Joiners;
+
+import org.acme.foodpackaging.domain.Job;
 
 public class FoodPackagingConstraintProvider implements ConstraintProvider {
 
@@ -56,8 +57,7 @@ public class FoodPackagingConstraintProvider implements ConstraintProvider {
     // TODO Currently dwarfed by minimizeAndLoadBalanceMakeSpan in the same score level, because that squares
     protected Constraint operatorCleaningConflict(ConstraintFactory factory) {
         return factory.forEach(Job.class)
-                .filter(job ->job.getLine() != null)
-                .join(factory.forEach(Job.class).filter(job ->job.getLine() != null),
+                .join(factory.forEach(Job.class),
                         Joiners.equal(job -> job.getLine().getOperator()),
                         Joiners.overlapping(Job::getStartCleaningDateTime, Job::getStartProductionDateTime),
                         Joiners.lessThan(Job::getId))

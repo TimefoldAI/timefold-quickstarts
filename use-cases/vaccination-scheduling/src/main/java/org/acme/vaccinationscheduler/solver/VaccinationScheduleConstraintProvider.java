@@ -152,7 +152,7 @@ public class VaccinationScheduleConstraintProvider implements ConstraintProvider
         // even before 1st dose healthcare workers and older people (although 2nd dosers will normally be that too).
         // This is to avoid a snowball effect on the backlog.
         return constraintFactory
-                .forEachIncludingNullVars(PersonAssignment.class)
+                .forEachIncludingUnassigned(PersonAssignment.class)
                 // TODO filter for ideal date is earlier or equal to planning window last day
                 .filter(personAssignment -> personAssignment.getDoseNumber() > 1 && personAssignment.getVaccinationSlot() == null)
                 .penalizeLong(ofSoft(0, 1),
@@ -164,7 +164,7 @@ public class VaccinationScheduleConstraintProvider implements ConstraintProvider
         // Assign healthcare workers and older people for an appointment.
         // Priority rating is a person's age augmented by a few hundred points if they're a healthcare worker.
         return constraintFactory
-                .forEachIncludingNullVars(PersonAssignment.class)
+                .forEachIncludingUnassigned(PersonAssignment.class)
                 .filter(personAssignment -> personAssignment.getVaccinationSlot() == null)
                 // This is softer than scheduleSecondOrLaterDosePeople()
                 // to avoid creating a backlog of 2nd dose persons, that would grow too big to respect due dates.

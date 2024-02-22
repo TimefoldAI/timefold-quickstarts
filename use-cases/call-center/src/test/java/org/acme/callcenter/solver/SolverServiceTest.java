@@ -177,12 +177,16 @@ class SolverServiceTest {
 
         CountDownLatch allChangesProcessed = new CountDownLatch(problemChanges.length);
         for (Supplier<CompletableFuture<Void>> problemChange : problemChanges) {
-            problemChange.get().thenRun(() -> allChangesProcessed.countDown());
+            problemChange.get().thenRun(allChangesProcessed::countDown);
         }
         try {
             allChangesProcessed.await(1, TimeUnit.MINUTES);
         } catch (InterruptedException e) {
-            throw new RuntimeException("Waiting for problem changes in progress has been interrupted.", e);
+            if (errorDuringSolving.get() != null) {
+                throw new RuntimeException("Waiting for problem changes in progress has been interrupted due to solver failure.", errorDuringSolving.get());
+            } else {
+                throw new RuntimeException("Waiting for problem changes in progress has been interrupted.", e);
+            }
         }
 
         if (errorDuringSolving.get() != null) {
