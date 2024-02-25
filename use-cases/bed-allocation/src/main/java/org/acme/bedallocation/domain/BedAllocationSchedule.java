@@ -29,8 +29,6 @@ public class BedAllocationSchedule {
     @ValueRangeProvider
     private List<Bed> bedList;
     @ProblemFactCollectionProperty
-    private List<Night> nightList;
-    @ProblemFactCollectionProperty
     private List<Patient> patientList;
     @ProblemFactCollectionProperty
     private List<Stay> stayList;
@@ -103,14 +101,6 @@ public class BedAllocationSchedule {
 
     public void setBedList(List<Bed> bedList) {
         this.bedList = bedList;
-    }
-
-    public List<Night> getNightList() {
-        return nightList;
-    }
-
-    public void setNightList(List<Night> nightList) {
-        this.nightList = nightList;
     }
 
     public List<Patient> getPatientList() {

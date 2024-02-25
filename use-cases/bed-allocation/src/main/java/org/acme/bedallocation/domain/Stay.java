@@ -1,5 +1,9 @@
 package org.acme.bedallocation.domain;
 
+import static java.time.temporal.ChronoUnit.DAYS;
+
+import java.time.LocalDate;
+
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -14,35 +18,35 @@ public class Stay {
     private String id;
 
     private Patient patient;
-    private Night firstNight;
-    private Night lastNight;
+    private LocalDate arrivalDate;
+    private LocalDate departureDate;
     private Specialism specialism;
 
     public Stay() {
     }
 
-    public Stay(String id, Patient patient, Night firstNight, Night lastNight, Specialism specialism) {
+    public Stay(String id, Patient patient, LocalDate arrivalDate, LocalDate departureDate, Specialism specialism) {
         this.id = id;
         this.patient = patient;
-        this.firstNight = firstNight;
-        this.lastNight = lastNight;
+        this.arrivalDate = arrivalDate;
+        this.departureDate = departureDate;
         this.specialism = specialism;
     }
 
     @JsonIgnore
     public int getNightCount() {
-        return lastNight.getIndex() - firstNight.getIndex() + 1;
+        return (int) DAYS.between(arrivalDate, departureDate) + 1; // TODO is + 1 still desired?
     }
 
     public int calculateSameNightCount(Stay other) {
-        int firstNightIndex = Math.max(getFirstNight().getIndex(), other.getFirstNight().getIndex());
-        int lastNightIndex = Math.min(getLastNight().getIndex(), other.getLastNight().getIndex());
-        return Math.max(0, lastNightIndex - firstNightIndex + 1);
+        LocalDate maxArrivalDate = arrivalDate.compareTo(other.arrivalDate) < 0 ? other.arrivalDate : arrivalDate;
+        LocalDate minDepartureDate = departureDate.compareTo(other.departureDate) < 0 ? departureDate : other.departureDate;
+        return Math.max(0, (int) DAYS.between(maxArrivalDate, minDepartureDate) + 1); // TODO is + 1 still desired?
     }
 
     @Override
     public String toString() {
-        return patient + "(" + firstNight + "-" + lastNight + ")";
+        return patient + "(" + arrivalDate + "-" + departureDate + ")";
     }
     
     // ************************************************************************
@@ -61,20 +65,20 @@ public class Stay {
         this.patient = patient;
     }
 
-    public Night getFirstNight() {
-        return firstNight;
+    public LocalDate getArrivalDate() {
+        return arrivalDate;
     }
 
-    public void setFirstNight(Night firstNight) {
-        this.firstNight = firstNight;
+    public void setArrivalDate(LocalDate arrivalDate) {
+        this.arrivalDate = arrivalDate;
     }
 
-    public Night getLastNight() {
-        return lastNight;
+    public LocalDate getDepartureDate() {
+        return departureDate;
     }
 
-    public void setLastNight(Night lastNight) {
-        this.lastNight = lastNight;
+    public void setDepartureDate(LocalDate departureDate) {
+        this.departureDate = departureDate;
     }
 
     public Specialism getSpecialism() {

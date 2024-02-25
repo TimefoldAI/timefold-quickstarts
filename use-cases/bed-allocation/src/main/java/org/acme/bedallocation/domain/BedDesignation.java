@@ -60,16 +60,6 @@ public class BedDesignation {
     }
 
     @JsonIgnore
-    public int getFirstNightIndex() {
-        return stay.getFirstNight().getIndex();
-    }
-
-    @JsonIgnore
-    public int getLastNightIndex() {
-        return stay.getLastNight().getIndex();
-    }
-
-    @JsonIgnore
     public int getNightCount() {
         return stay.getNightCount();
     }

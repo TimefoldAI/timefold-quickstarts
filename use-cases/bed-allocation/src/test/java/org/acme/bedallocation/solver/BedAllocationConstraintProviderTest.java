@@ -1,5 +1,6 @@
 package org.acme.bedallocation.solver;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.acme.bedallocation.domain.GenderRoomLimitation;
@@ -7,7 +8,6 @@ import org.acme.bedallocation.domain.Stay;
 import org.acme.bedallocation.domain.Bed;
 import org.acme.bedallocation.domain.BedAllocationSchedule;
 import org.acme.bedallocation.domain.Equipment;
-import org.acme.bedallocation.domain.Night;
 import org.acme.bedallocation.domain.Patient;
 import org.acme.bedallocation.domain.BedDesignation;
 import org.acme.bedallocation.domain.Department;
@@ -25,8 +25,8 @@ import jakarta.inject.Inject;
 @QuarkusTest
 class BedAllocationConstraintProviderTest {
 
-    private static final Night ZERO_NIGHT = new Night("0", 0);
-    private static final Night FIVE_NIGHT = new Night("5", 5);
+    private static final LocalDate ZERO_NIGHT = LocalDate.of(2021, 2, 1);
+    private static final LocalDate FIVE_NIGHT = ZERO_NIGHT.plusDays(5);
 
     private static final Specialism DEFAULT_SPECIALISM = new Specialism();
 
