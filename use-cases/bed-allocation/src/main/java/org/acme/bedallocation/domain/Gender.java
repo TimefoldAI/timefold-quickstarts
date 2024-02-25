@@ -3,15 +3,7 @@ package org.acme.bedallocation.domain;
 public enum Gender {
     MALE("M"),
     FEMALE("F");
-
-    public static Gender valueOfCode(String code) {
-        for (Gender gender : values()) {
-            if (code.equalsIgnoreCase(gender.getCode())) {
-                return gender;
-            }
-        }
-        return null;
-    }
+    // TODO add NONBINARY(X)
 
     private final String code;
 
