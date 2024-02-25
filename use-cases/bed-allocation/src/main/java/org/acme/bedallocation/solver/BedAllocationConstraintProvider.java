@@ -15,8 +15,10 @@ import org.acme.bedallocation.domain.BedDesignation;
 import org.acme.bedallocation.domain.Department;
 import org.acme.bedallocation.domain.DepartmentSpecialism;
 import org.acme.bedallocation.domain.Gender;
-import org.acme.bedallocation.domain.GenderRoomLimitation;
-import org.acme.bedallocation.domain.Patient;
+import org.acme.bedallocation.domain.GenderLimitation;
+import org.acme.bedallocation.domain.PreferredPatientEquipment;
+import org.acme.bedallocation.domain.RequiredPatientEquipment;
+import org.acme.bedallocation.domain.RoomEquipment;
 import org.acme.bedallocation.domain.RoomSpecialism;
 
 public class BedAllocationConstraintProvider implements ConstraintProvider {
@@ -25,151 +27,154 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
     public Constraint[] defineConstraints(ConstraintFactory constraintFactory) {
         return new Constraint[] {
                 // Hard constraints
-                sameBedInSameNight(constraintFactory),
-                femaleInMaleRoom(constraintFactory),
-                maleInFemaleRoom(constraintFactory),
-                differentGenderInSameGenderRoomInSameNight(constraintFactory),
-                departmentMinimumAge(constraintFactory),
-                departmentMaximumAge(constraintFactory),
-                requiredPatientEquipment(constraintFactory),
+                sameBedInSameNightConstraint(constraintFactory),
+                femaleInMaleRoomConstraint(constraintFactory),
+                maleInFemaleRoomConstraint(constraintFactory),
+                differentGenderInSameGenderRoomInSameNightConstraint(constraintFactory),
+                departmentMinimumAgeConstraint(constraintFactory),
+                departmentMaximumAgeConstraint(constraintFactory),
+                requiredPatientEquipmentConstraint(constraintFactory),
                 // Medium constraints
-                assignEveryPatientToABed(constraintFactory),
+                assignEveryPatientToABedConstraint(constraintFactory),
                 // Soft constraints
-                preferredMaximumRoomCapacity(constraintFactory),
-                departmentSpecialism(constraintFactory),
-                roomSpecialismNotExists(constraintFactory),
-                roomSpecialismNotFirstPriority(constraintFactory),
-                preferredPatientEquipment(constraintFactory)
+                preferredMaximumRoomCapacityConstraint(constraintFactory),
+                departmentSpecialismConstraint(constraintFactory),
+                roomSpecialismNotExistsConstraint(constraintFactory),
+                roomSpecialismNotFirstPriorityConstraint(constraintFactory),
+                preferredPatientEquipmentConstraint(constraintFactory)
         };
     }
 
-    public Constraint sameBedInSameNight(ConstraintFactory constraintFactory) {
+    public Constraint sameBedInSameNightConstraint(ConstraintFactory constraintFactory) {
         return constraintFactory.forEachUniquePair(BedDesignation.class,
                 equal(BedDesignation::getBed))
-                .filter((left, right) -> left.getStay().calculateSameNightCount(right.getStay()) > 0)
+                .filter((left, right) -> left.getAdmissionPart().calculateSameNightCount(right.getAdmissionPart()) > 0)
                 .penalize(HardMediumSoftScore.ofHard(1000),
-                        (left, right) -> left.getStay().calculateSameNightCount(right.getStay()))
+                        (left, right) -> left.getAdmissionPart().calculateSameNightCount(right.getAdmissionPart()))
                 .asConstraint("sameBedInSameNight");
     }
 
-    public Constraint femaleInMaleRoom(ConstraintFactory constraintFactory) {
+    public Constraint femaleInMaleRoomConstraint(ConstraintFactory constraintFactory) {
         return constraintFactory.forEachIncludingUnassigned(BedDesignation.class)
-                .filter(bedDesignation -> bedDesignation.getPatientGender() == Gender.FEMALE
-                        && bedDesignation.getRoomGenderRoomLimitation() == GenderRoomLimitation.MALE_ONLY)
-                .penalize(HardMediumSoftScore.ofHard(50), BedDesignation::getNightCount)
+                .filter(bd -> bd.getPatientGender() == Gender.FEMALE
+                        && bd.getRoomGenderLimitation() == GenderLimitation.MALE_ONLY)
+                .penalize(HardMediumSoftScore.ofHard(50), BedDesignation::getAdmissionPartNightCount)
                 .asConstraint("femaleInMaleRoom");
     }
 
-    public Constraint maleInFemaleRoom(ConstraintFactory constraintFactory) {
+    public Constraint maleInFemaleRoomConstraint(ConstraintFactory constraintFactory) {
         return constraintFactory.forEachIncludingUnassigned(BedDesignation.class)
-                .filter(bedDesignation -> bedDesignation.getPatientGender() == Gender.MALE
-                        && bedDesignation.getRoomGenderRoomLimitation() == GenderRoomLimitation.FEMALE_ONLY)
-                .penalize(HardMediumSoftScore.ofHard(50), BedDesignation::getNightCount)
+                .filter(bd -> bd.getPatientGender() == Gender.MALE
+                        && bd.getRoomGenderLimitation() == GenderLimitation.FEMALE_ONLY)
+                .penalize(HardMediumSoftScore.ofHard(50), BedDesignation::getAdmissionPartNightCount)
                 .asConstraint("maleInFemaleRoom");
     }
 
-    public Constraint differentGenderInSameGenderRoomInSameNight(ConstraintFactory constraintFactory) {
+    public Constraint differentGenderInSameGenderRoomInSameNightConstraint(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(BedDesignation.class)
-                .filter(bedDesignation -> bedDesignation.getRoomGenderRoomLimitation() == GenderRoomLimitation.SAME_GENDER)
+                .filter(bd -> bd.getRoomGenderLimitation() == GenderLimitation.SAME_GENDER)
                 .join(constraintFactory.forEach(BedDesignation.class)
-                        .filter(bedDesignation -> bedDesignation.getRoomGenderRoomLimitation() == GenderRoomLimitation.SAME_GENDER),
+                        .filter(bd -> bd.getRoomGenderLimitation() == GenderLimitation.SAME_GENDER),
                         equal(BedDesignation::getRoom),
                         lessThan(BedDesignation::getId),
                         filtering((left, right) -> left.getPatient().getGender() != right.getPatient().getGender()
-                                && left.getStay().calculateSameNightCount(right.getStay()) > 0))
+                                && left.getAdmissionPart().calculateSameNightCount(right.getAdmissionPart()) > 0))
                 .penalize(HardMediumSoftScore.ofHard(1000),
-                        (left, right) -> left.getStay().calculateSameNightCount(right.getStay()))
+                        (left, right) -> left.getAdmissionPart().calculateSameNightCount(right.getAdmissionPart()))
                 .asConstraint("differentGenderInSameGenderRoomInSameNight");
     }
 
-    public Constraint departmentMinimumAge(ConstraintFactory constraintFactory) {
+    public Constraint departmentMinimumAgeConstraint(ConstraintFactory constraintFactory) {
         return constraintFactory.forEachIncludingUnassigned(Department.class)
                 .filter(d -> d.getMinimumAge() != null)
                 .join(constraintFactory.forEachIncludingUnassigned(BedDesignation.class),
                         equal(Function.identity(), BedDesignation::getDepartment),
                         greaterThan(Department::getMinimumAge, BedDesignation::getPatientAge))
                 .penalize(HardMediumSoftScore.ofHard(100),
-                        (d, bedDesignation) -> bedDesignation.getNightCount())
+                        (d, bd) -> bd.getAdmissionPartNightCount())
                 .asConstraint("departmentMinimumAge");
     }
 
-    public Constraint departmentMaximumAge(ConstraintFactory constraintFactory) {
+    public Constraint departmentMaximumAgeConstraint(ConstraintFactory constraintFactory) {
         return constraintFactory.forEachIncludingUnassigned(Department.class)
                 .filter(d -> d.getMaximumAge() != null)
                 .join(constraintFactory.forEachIncludingUnassigned(BedDesignation.class),
                         equal(Function.identity(), BedDesignation::getDepartment),
                         lessThan(Department::getMaximumAge, BedDesignation::getPatientAge))
                 .penalize(HardMediumSoftScore.ofHard(100),
-                        (d, bedDesignation) -> bedDesignation.getNightCount())
+                        (d, bd) -> bd.getAdmissionPartNightCount())
                 .asConstraint("departmentMaximumAge");
     }
 
-    public Constraint requiredPatientEquipment(ConstraintFactory constraintFactory) {
-        return constraintFactory.forEach(BedDesignation.class)
-            .expand(BedDesignation::getPatient)
-            .flattenLast(Patient::getRequiredEquipments)
-            .filter((bedDesignation, requiredEquipment) -> !bedDesignation.getRoom().getEquipmentList().contains(requiredEquipment))
-            .penalize(HardMediumSoftScore.ofHard(50),
-                (bedDesignation, requiredEquipment) -> bedDesignation.getNightCount())
-            .asConstraint("requiredPatientEquipment");
+    public Constraint requiredPatientEquipmentConstraint(ConstraintFactory constraintFactory) {
+        return constraintFactory.forEach(RequiredPatientEquipment.class)
+                .join(BedDesignation.class,
+                        equal(RequiredPatientEquipment::getPatient, BedDesignation::getPatient))
+                .ifNotExists(RoomEquipment.class,
+                        equal((rpe, bd) -> bd.getRoom(), RoomEquipment::getRoom),
+                        equal((rpe, bd) -> rpe.getEquipment(), RoomEquipment::getEquipment))
+                .penalize(HardMediumSoftScore.ofHard(50),
+                        (rpe, bd) -> bd.getAdmissionPartNightCount())
+                .asConstraint("requiredPatientEquipment");
     }
 
     //Medium
-    public Constraint assignEveryPatientToABed(ConstraintFactory constraintFactory) {
+    public Constraint assignEveryPatientToABedConstraint(ConstraintFactory constraintFactory) {
         return constraintFactory.forEachIncludingUnassigned(BedDesignation.class)
-                .filter(bedDesignation -> bedDesignation.getBed() == null)
-                .penalize(HardMediumSoftScore.ONE_MEDIUM, BedDesignation::getNightCount)
+                .filter(bd -> bd.getBed() == null)
+                .penalize(HardMediumSoftScore.ONE_MEDIUM, BedDesignation::getAdmissionPartNightCount)
                 .asConstraint("assignEveryPatientToABed");
     }
 
     //Soft
-    public Constraint preferredMaximumRoomCapacity(ConstraintFactory constraintFactory) {
+    public Constraint preferredMaximumRoomCapacityConstraint(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(BedDesignation.class)
-                .filter(bedDesignation -> bedDesignation.getPatient().getPreferredMaximumRoomCapacity() != null
-                        && bedDesignation.getPatient().getPreferredMaximumRoomCapacity() < bedDesignation.getRoom().getCapacity())
-                .penalize(HardMediumSoftScore.ofSoft(8), BedDesignation::getNightCount)
+                .filter(bd -> bd.getPatient().getPreferredMaximumRoomCapacity() != null
+                        && bd.getPatient().getPreferredMaximumRoomCapacity() < bd.getRoom().getCapacity())
+                .penalize(HardMediumSoftScore.ofSoft(8), BedDesignation::getAdmissionPartNightCount)
                 .asConstraint("preferredMaximumRoomCapacity");
     }
 
-    public Constraint departmentSpecialism(ConstraintFactory constraintFactory) {
+    public Constraint departmentSpecialismConstraint(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(BedDesignation.class)
                 .ifNotExists(DepartmentSpecialism.class,
                         equal(BedDesignation::getDepartment, DepartmentSpecialism::getDepartment),
-                        equal(BedDesignation::getStaySpecialism, DepartmentSpecialism::getSpecialism))
-                .penalize(HardMediumSoftScore.ofSoft(10), BedDesignation::getNightCount)
+                        equal(BedDesignation::getAdmissionPartSpecialism, DepartmentSpecialism::getSpecialism))
+                .penalize(HardMediumSoftScore.ofSoft(10), BedDesignation::getAdmissionPartNightCount)
                 .asConstraint("departmentSpecialism");
     }
 
-    public Constraint roomSpecialismNotExists(ConstraintFactory constraintFactory) {
+    public Constraint roomSpecialismNotExistsConstraint(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(BedDesignation.class)
-                .filter(bedDesignation -> bedDesignation.getStaySpecialism() != null)
+                .filter(bd -> bd.getAdmissionPartSpecialism() != null)
                 .ifNotExists(RoomSpecialism.class,
                         equal(BedDesignation::getRoom, RoomSpecialism::getRoom),
-                        equal(BedDesignation::getStaySpecialism, RoomSpecialism::getSpecialism))
-                .penalize(HardMediumSoftScore.ofSoft(20), BedDesignation::getNightCount)
+                        equal(BedDesignation::getAdmissionPartSpecialism, RoomSpecialism::getSpecialism))
+                .penalize(HardMediumSoftScore.ofSoft(20), BedDesignation::getAdmissionPartNightCount)
                 .asConstraint("roomSpecialismNotExists");
     }
 
-    public Constraint roomSpecialismNotFirstPriority(ConstraintFactory constraintFactory) {
+    public Constraint roomSpecialismNotFirstPriorityConstraint(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(BedDesignation.class)
-                .filter(bedDesignation -> bedDesignation.getStaySpecialism() != null)
+                .filter(bd -> bd.getAdmissionPartSpecialism() != null)
                 .join(constraintFactory.forEach(RoomSpecialism.class)
                         .filter(rs -> rs.getPriority() > 1),
                         equal(BedDesignation::getRoom, RoomSpecialism::getRoom),
-                        equal(BedDesignation::getStaySpecialism, RoomSpecialism::getSpecialism))
+                        equal(BedDesignation::getAdmissionPartSpecialism, RoomSpecialism::getSpecialism))
                 .penalize(HardMediumSoftScore.ofSoft(10),
-                        (bedDesignation, roomSpecialism) -> (roomSpecialism.getPriority() - 1) * bedDesignation.getNightCount())
+                        (bd, rs) -> (rs.getPriority() - 1) * bd.getAdmissionPartNightCount())
                 .asConstraint("roomSpecialismNotFirstPriority");
     }
 
-    public Constraint preferredPatientEquipment(ConstraintFactory constraintFactory) {
-        return constraintFactory.forEach(BedDesignation.class)
-            .expand(BedDesignation::getPatient)
-            .flattenLast(Patient::getPreferredEquipments)
-            .filter((bedDesignation, preferredEquipment) -> !bedDesignation.getRoom().getEquipmentList().contains(preferredEquipment))
-            .penalize(HardMediumSoftScore.ofSoft(20),
-                (bedDesignation, preferredEquipment) -> bedDesignation.getNightCount())
-            .asConstraint("preferredPatientEquipment");
+    public Constraint preferredPatientEquipmentConstraint(ConstraintFactory constraintFactory) {
+        return constraintFactory.forEach(PreferredPatientEquipment.class)
+                .join(BedDesignation.class,
+                        equal(PreferredPatientEquipment::getPatient, BedDesignation::getPatient))
+                .ifNotExists(RoomEquipment.class,
+                        equal((re, bd) -> bd.getRoom(), RoomEquipment::getRoom),
+                        equal((re, bd) -> re.getEquipment(), RoomEquipment::getEquipment))
+                .penalize(HardMediumSoftScore.ofSoft(20),
+                        (re, bd) -> bd.getAdmissionPartNightCount())
+                .asConstraint("preferredPatientEquipment");
     }
-
 }

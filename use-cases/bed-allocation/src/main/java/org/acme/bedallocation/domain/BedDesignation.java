@@ -15,7 +15,7 @@ public class BedDesignation {
     @PlanningId
     private String id;
 
-    private Stay stay;
+    private AdmissionPart admissionPart;
     @PlanningVariable(allowsUnassigned = true)
     private Bed bed;
 
@@ -23,45 +23,55 @@ public class BedDesignation {
     public BedDesignation() {
     }
 
-    public BedDesignation(String id, Stay stay) {
+    public BedDesignation(String id, AdmissionPart admissionPart) {
         this.id = id;
-        this.stay = stay;
+        this.admissionPart = admissionPart;
     }
 
-    public BedDesignation(String id, Stay stay, Bed bed) {
-        this(id, stay);
+    public BedDesignation(String id, AdmissionPart admissionPart, Bed bed) {
+        this(id, admissionPart);
         this.bed = bed;
     }
 
 
     @JsonIgnore
     public Patient getPatient() {
-        return stay.getPatient();
+        return admissionPart.getPatient();
     }
 
     @JsonIgnore
     public Gender getPatientGender() {
-        return stay.getPatient().getGender();
+        return admissionPart.getPatient().getGender();
     }
 
     @JsonIgnore
     public int getPatientAge() {
-        return stay.getPatient().getAge();
+        return admissionPart.getPatient().getAge();
     }
 
     @JsonIgnore
     public Integer getPatientPreferredMaximumRoomCapacity() {
-        return stay.getPatient().getPreferredMaximumRoomCapacity();
+        return admissionPart.getPatient().getPreferredMaximumRoomCapacity();
     }
 
     @JsonIgnore
-    public Specialism getStaySpecialism() {
-        return stay.getSpecialism();
+    public Specialism getAdmissionPartSpecialism() {
+        return admissionPart.getSpecialism();
     }
 
     @JsonIgnore
-    public int getNightCount() {
-        return stay.getNightCount();
+    public int getFirstNightIndex() {
+        return admissionPart.getFirstNight().getIndex();
+    }
+
+    @JsonIgnore
+    public int getLastNightIndex() {
+        return admissionPart.getLastNight().getIndex();
+    }
+
+    @JsonIgnore
+    public int getAdmissionPartNightCount() {
+        return admissionPart.getNightCount();
     }
 
     @JsonIgnore
@@ -89,16 +99,16 @@ public class BedDesignation {
     }
 
     @JsonIgnore
-    public GenderRoomLimitation getRoomGenderRoomLimitation() {
+    public GenderLimitation getRoomGenderLimitation() {
         if (bed == null) {
             return null;
         }
-        return bed.getRoom().getGenderRoomLimitation();
+        return bed.getRoom().getGenderLimitation();
     }
 
     @Override
     public String toString() {
-        return stay.toString();
+        return admissionPart.toString();
     }
 
     // ************************************************************************
@@ -109,12 +119,12 @@ public class BedDesignation {
         return id;
     }
 
-    public Stay getStay() {
-        return stay;
+    public AdmissionPart getAdmissionPart() {
+        return admissionPart;
     }
 
-    public void setStay(Stay stay) {
-        this.stay = stay;
+    public void setAdmissionPart(AdmissionPart admissionPart) {
+        this.admissionPart = admissionPart;
     }
 
     public Bed getBed() {

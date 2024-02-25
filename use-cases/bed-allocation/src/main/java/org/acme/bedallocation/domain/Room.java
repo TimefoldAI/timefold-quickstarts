@@ -19,36 +19,37 @@ public class Room {
 
     private Department department;
     private int capacity;
-    private GenderRoomLimitation genderRoomLimitation;
+    private GenderLimitation genderLimitation;
 
     private List<RoomSpecialism> roomSpecialismList;
-    private List<Equipment> equipmentList;
+    private List<RoomEquipment> roomEquipmentList;
     private List<Bed> bedList;
 
     public Room() {
     }
 
-    public Room(String id, String name, Department department, int capacity, GenderRoomLimitation genderRoomLimitation) {
+    public Room(String id, String name, Department department, int capacity, GenderLimitation genderLimitation) {
         this.id = id;
         this.name = name;
         this.department = department;
         this.capacity = capacity;
-        this.genderRoomLimitation = genderRoomLimitation;
+        this.genderLimitation = genderLimitation;
     }
 
-    public int countHardDisallowedStay(Stay stay) {
-        return countMissingRequiredRoomProperties(stay.getPatient())
-            + department.countHardDisallowedStay(stay)
-            + countDisallowedPatientGender(stay.getPatient());
+    public int countHardDisallowedAdmissionPart(AdmissionPart admissionPart) {
+        return countMissingRequiredRoomProperties(admissionPart.getPatient())
+            + department.countHardDisallowedAdmissionPart(admissionPart)
+            + countDisallowedPatientGender(admissionPart.getPatient());
         // TODO preferredMaximumRoomCapacity and specialism
     }
 
     public int countMissingRequiredRoomProperties(Patient patient) {
         int count = 0;
-        for (Equipment requiredEquipment : patient.getRequiredEquipments()) {
+        for (RequiredPatientEquipment requiredPatientEquipment : patient.getRequiredPatientEquipmentList()) {
+            Equipment requiredEquipment = requiredPatientEquipment.getEquipment();
             boolean hasRequiredEquipment = false;
-            for (Equipment equipment : equipmentList) {
-                if (equipment.equals(requiredEquipment)) {
+            for (RoomEquipment roomEquipment : roomEquipmentList) {
+                if (roomEquipment.getEquipment().equals(requiredEquipment)) {
                     hasRequiredEquipment = true;
                 }
             }
@@ -60,7 +61,7 @@ public class Room {
     }
 
     public int countDisallowedPatientGender(Patient patient) {
-        switch (genderRoomLimitation) {
+        switch (genderLimitation) {
             case ANY_GENDER:
                 return 0;
             case MALE_ONLY:
@@ -71,21 +72,22 @@ public class Room {
                 // Constraints check this
                 return 1;
             default:
-                throw new IllegalStateException("The genderRoomLimitation (" + genderRoomLimitation + ") is not implemented.");
+                throw new IllegalStateException("The genderLimitation (" + genderLimitation + ") is not implemented.");
         }
     }
 
-    public int countSoftDisallowedStay(Stay stay) {
-        return countMissingPreferredRoomProperties(stay.getPatient());
+    public int countSoftDisallowedAdmissionPart(AdmissionPart admissionPart) {
+        return countMissingPreferredRoomProperties(admissionPart.getPatient());
         // TODO preferredMaximumRoomCapacity and specialism
     }
 
     public int countMissingPreferredRoomProperties(Patient patient) {
         int count = 0;
-        for (Equipment preferredEquipment : patient.getPreferredEquipments()) {
+        for (PreferredPatientEquipment preferredPatientEquipment : patient.getPreferredPatientEquipmentList()) {
+            Equipment preferredEquipment = preferredPatientEquipment.getEquipment();
             boolean hasPreferredEquipment = false;
-            for (Equipment equipment : equipmentList) {
-                if (equipment.equals(preferredEquipment)) {
+            for (RoomEquipment roomEquipment : roomEquipmentList) {
+                if (roomEquipment.getEquipment().equals(preferredEquipment)) {
                     hasPreferredEquipment = true;
                 }
             }
@@ -133,12 +135,12 @@ public class Room {
         this.capacity = capacity;
     }
 
-    public GenderRoomLimitation getGenderRoomLimitation() {
-        return genderRoomLimitation;
+    public GenderLimitation getGenderLimitation() {
+        return genderLimitation;
     }
 
-    public void setGenderRoomLimitation(GenderRoomLimitation genderRoomLimitation) {
-        this.genderRoomLimitation = genderRoomLimitation;
+    public void setGenderLimitation(GenderLimitation genderLimitation) {
+        this.genderLimitation = genderLimitation;
     }
 
     public List<RoomSpecialism> getRoomSpecialismList() {
@@ -149,12 +151,12 @@ public class Room {
         this.roomSpecialismList = roomSpecialismList;
     }
 
-    public List<Equipment> getEquipmentList() {
-        return equipmentList;
+    public List<RoomEquipment> getRoomEquipmentList() {
+        return roomEquipmentList;
     }
 
-    public void setEquipmentList(List<Equipment> equipmentList) {
-        this.equipmentList = equipmentList;
+    public void setRoomEquipmentList(List<RoomEquipment> roomEquipmentList) {
+        this.roomEquipmentList = roomEquipmentList;
     }
 
     public List<Bed> getBedList() {
