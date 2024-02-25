@@ -1,6 +1,6 @@
 package org.acme.bedallocation.domain;
 
-public enum GenderLimitation {
+public enum GenderRoomLimitation {
     ANY_GENDER("N"), // mixed
     MALE_ONLY("M"),
     FEMALE_ONLY("F"),
@@ -8,7 +8,7 @@ public enum GenderLimitation {
 
     private final String code;
 
-    GenderLimitation(String code) {
+    GenderRoomLimitation(String code) {
         this.code = code;
     }
 

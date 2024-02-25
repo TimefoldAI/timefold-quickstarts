@@ -19,7 +19,7 @@ public class Room {
 
     private Department department;
     private int capacity;
-    private GenderLimitation genderLimitation;
+    private GenderRoomLimitation genderRoomLimitation;
 
     private List<RoomSpecialism> roomSpecialismList;
     private List<RoomEquipment> roomEquipmentList;
@@ -28,12 +28,12 @@ public class Room {
     public Room() {
     }
 
-    public Room(String id, String name, Department department, int capacity, GenderLimitation genderLimitation) {
+    public Room(String id, String name, Department department, int capacity, GenderRoomLimitation genderRoomLimitation) {
         this.id = id;
         this.name = name;
         this.department = department;
         this.capacity = capacity;
-        this.genderLimitation = genderLimitation;
+        this.genderRoomLimitation = genderRoomLimitation;
     }
 
     public int countHardDisallowedStay(Stay stay) {
@@ -61,7 +61,7 @@ public class Room {
     }
 
     public int countDisallowedPatientGender(Patient patient) {
-        switch (genderLimitation) {
+        switch (genderRoomLimitation) {
             case ANY_GENDER:
                 return 0;
             case MALE_ONLY:
@@ -72,7 +72,7 @@ public class Room {
                 // Constraints check this
                 return 1;
             default:
-                throw new IllegalStateException("The genderLimitation (" + genderLimitation + ") is not implemented.");
+                throw new IllegalStateException("The genderRoomLimitation (" + genderRoomLimitation + ") is not implemented.");
         }
     }
 
@@ -135,12 +135,12 @@ public class Room {
         this.capacity = capacity;
     }
 
-    public GenderLimitation getGenderLimitation() {
-        return genderLimitation;
+    public GenderRoomLimitation getGenderRoomLimitation() {
+        return genderRoomLimitation;
     }
 
-    public void setGenderLimitation(GenderLimitation genderLimitation) {
-        this.genderLimitation = genderLimitation;
+    public void setGenderRoomLimitation(GenderRoomLimitation genderRoomLimitation) {
+        this.genderRoomLimitation = genderRoomLimitation;
     }
 
     public List<RoomSpecialism> getRoomSpecialismList() {

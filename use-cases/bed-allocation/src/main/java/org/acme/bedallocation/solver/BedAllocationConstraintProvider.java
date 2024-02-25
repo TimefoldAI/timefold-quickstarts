@@ -15,7 +15,7 @@ import org.acme.bedallocation.domain.BedDesignation;
 import org.acme.bedallocation.domain.Department;
 import org.acme.bedallocation.domain.DepartmentSpecialism;
 import org.acme.bedallocation.domain.Gender;
-import org.acme.bedallocation.domain.GenderLimitation;
+import org.acme.bedallocation.domain.GenderRoomLimitation;
 import org.acme.bedallocation.domain.PreferredPatientEquipment;
 import org.acme.bedallocation.domain.RequiredPatientEquipment;
 import org.acme.bedallocation.domain.RoomEquipment;
@@ -57,7 +57,7 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
     public Constraint femaleInMaleRoom(ConstraintFactory constraintFactory) {
         return constraintFactory.forEachIncludingUnassigned(BedDesignation.class)
                 .filter(bedDesignation -> bedDesignation.getPatientGender() == Gender.FEMALE
-                        && bedDesignation.getRoomGenderLimitation() == GenderLimitation.MALE_ONLY)
+                        && bedDesignation.getRoomGenderRoomLimitation() == GenderRoomLimitation.MALE_ONLY)
                 .penalize(HardMediumSoftScore.ofHard(50), BedDesignation::getStayNightCount)
                 .asConstraint("femaleInMaleRoom");
     }
@@ -65,16 +65,16 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
     public Constraint maleInFemaleRoom(ConstraintFactory constraintFactory) {
         return constraintFactory.forEachIncludingUnassigned(BedDesignation.class)
                 .filter(bedDesignation -> bedDesignation.getPatientGender() == Gender.MALE
-                        && bedDesignation.getRoomGenderLimitation() == GenderLimitation.FEMALE_ONLY)
+                        && bedDesignation.getRoomGenderRoomLimitation() == GenderRoomLimitation.FEMALE_ONLY)
                 .penalize(HardMediumSoftScore.ofHard(50), BedDesignation::getStayNightCount)
                 .asConstraint("maleInFemaleRoom");
     }
 
     public Constraint differentGenderInSameGenderRoomInSameNight(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(BedDesignation.class)
-                .filter(bedDesignation -> bedDesignation.getRoomGenderLimitation() == GenderLimitation.SAME_GENDER)
+                .filter(bedDesignation -> bedDesignation.getRoomGenderRoomLimitation() == GenderRoomLimitation.SAME_GENDER)
                 .join(constraintFactory.forEach(BedDesignation.class)
-                        .filter(bedDesignation -> bedDesignation.getRoomGenderLimitation() == GenderLimitation.SAME_GENDER),
+                        .filter(bedDesignation -> bedDesignation.getRoomGenderRoomLimitation() == GenderRoomLimitation.SAME_GENDER),
                         equal(BedDesignation::getRoom),
                         lessThan(BedDesignation::getId),
                         filtering((left, right) -> left.getPatient().getGender() != right.getPatient().getGender()

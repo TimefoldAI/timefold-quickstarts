@@ -1,5 +1,6 @@
 package org.acme.bedallocation.solver;
 
+import org.acme.bedallocation.domain.GenderRoomLimitation;
 import org.acme.bedallocation.domain.Stay;
 import org.acme.bedallocation.domain.Bed;
 import org.acme.bedallocation.domain.BedAllocationSchedule;
@@ -10,7 +11,6 @@ import org.acme.bedallocation.domain.BedDesignation;
 import org.acme.bedallocation.domain.Department;
 import org.acme.bedallocation.domain.DepartmentSpecialism;
 import org.acme.bedallocation.domain.Gender;
-import org.acme.bedallocation.domain.GenderLimitation;
 import org.acme.bedallocation.domain.PreferredPatientEquipment;
 import org.acme.bedallocation.domain.RequiredPatientEquipment;
 import org.acme.bedallocation.domain.Room;
@@ -37,7 +37,7 @@ class BedAllocationConstraintProviderTest {
     @Test
     void femaleInMaleRoom() {
         Room room = new Room();
-        room.setGenderLimitation(GenderLimitation.MALE_ONLY);
+        room.setGenderRoomLimitation(GenderRoomLimitation.MALE_ONLY);
 
         Bed bed = new Bed();
         bed.setRoom(room);
@@ -46,17 +46,17 @@ class BedAllocationConstraintProviderTest {
         patient.setGender(Gender.FEMALE);
 
         Stay genderAdmission = new Stay("0", patient, ZERO_NIGHT, FIVE_NIGHT, DEFAULT_SPECIALISM);
-        BedDesignation genderLimitationDesignation = new BedDesignation("0", genderAdmission, bed);
+        BedDesignation genderRoomLimitationDesignation = new BedDesignation("0", genderAdmission, bed);
 
         constraintVerifier.verifyThat(BedAllocationConstraintProvider::femaleInMaleRoom)
-                .given(genderLimitationDesignation)
+                .given(genderRoomLimitationDesignation)
                 .penalizesBy(6);
     }
 
     @Test
     void maleInFemaleRoom() {
         Room room = new Room();
-        room.setGenderLimitation(GenderLimitation.FEMALE_ONLY);
+        room.setGenderRoomLimitation(GenderRoomLimitation.FEMALE_ONLY);
 
         Bed bed = new Bed();
         bed.setRoom(room);
@@ -65,10 +65,10 @@ class BedAllocationConstraintProviderTest {
         patient.setGender(Gender.MALE);
 
         Stay genderAdmission = new Stay("0", patient, ZERO_NIGHT, FIVE_NIGHT, DEFAULT_SPECIALISM);
-        BedDesignation genderLimitationDesignation = new BedDesignation("0", genderAdmission, bed);
+        BedDesignation genderRoomLimitationDesignation = new BedDesignation("0", genderAdmission, bed);
 
         constraintVerifier.verifyThat(BedAllocationConstraintProvider::maleInFemaleRoom)
-                .given(genderLimitationDesignation)
+                .given(genderRoomLimitationDesignation)
                 .penalizesBy(6);
     }
 
@@ -168,7 +168,7 @@ class BedAllocationConstraintProviderTest {
     void differentGenderInSameGenderRoomInSameNight() {
 
         Room room = new Room();
-        room.setGenderLimitation(GenderLimitation.SAME_GENDER);
+        room.setGenderRoomLimitation(GenderRoomLimitation.SAME_GENDER);
 
         //Assign female
         Patient female = new Patient();

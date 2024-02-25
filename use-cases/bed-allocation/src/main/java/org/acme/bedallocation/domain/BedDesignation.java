@@ -99,11 +99,11 @@ public class BedDesignation {
     }
 
     @JsonIgnore
-    public GenderLimitation getRoomGenderLimitation() {
+    public GenderRoomLimitation getRoomGenderRoomLimitation() {
         if (bed == null) {
             return null;
         }
-        return bed.getRoom().getGenderLimitation();
+        return bed.getRoom().getGenderRoomLimitation();
     }
 
     @Override
