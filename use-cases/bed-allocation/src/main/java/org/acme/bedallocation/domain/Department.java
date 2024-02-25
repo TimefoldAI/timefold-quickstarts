@@ -27,8 +27,8 @@ public class Department {
         this.name = name;
     }
 
-    public int countHardDisallowedAdmissionPart(AdmissionPart admissionPart) {
-        return countDisallowedPatientAge(admissionPart.getPatient());
+    public int countHardDisallowedStay(Stay stay) {
+        return countDisallowedPatientAge(stay.getPatient());
     }
 
     public int countDisallowedPatientAge(Patient patient) {

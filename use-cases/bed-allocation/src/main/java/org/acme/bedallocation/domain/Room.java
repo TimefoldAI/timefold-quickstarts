@@ -36,10 +36,10 @@ public class Room {
         this.genderLimitation = genderLimitation;
     }
 
-    public int countHardDisallowedAdmissionPart(AdmissionPart admissionPart) {
-        return countMissingRequiredRoomProperties(admissionPart.getPatient())
-            + department.countHardDisallowedAdmissionPart(admissionPart)
-            + countDisallowedPatientGender(admissionPart.getPatient());
+    public int countHardDisallowedStay(Stay stay) {
+        return countMissingRequiredRoomProperties(stay.getPatient())
+            + department.countHardDisallowedStay(stay)
+            + countDisallowedPatientGender(stay.getPatient());
         // TODO preferredMaximumRoomCapacity and specialism
     }
 
@@ -76,8 +76,8 @@ public class Room {
         }
     }
 
-    public int countSoftDisallowedAdmissionPart(AdmissionPart admissionPart) {
-        return countMissingPreferredRoomProperties(admissionPart.getPatient());
+    public int countSoftDisallowedStay(Stay stay) {
+        return countMissingPreferredRoomProperties(stay.getPatient());
         // TODO preferredMaximumRoomCapacity and specialism
     }
 

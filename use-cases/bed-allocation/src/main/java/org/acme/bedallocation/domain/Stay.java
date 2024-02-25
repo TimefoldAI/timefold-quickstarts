@@ -7,8 +7,8 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 
 
-@JsonIdentityInfo(scope = AdmissionPart.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class AdmissionPart {
+@JsonIdentityInfo(scope = Stay.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+public class Stay {
 
     @PlanningId
     private String id;
@@ -18,10 +18,10 @@ public class AdmissionPart {
     private Night lastNight;
     private Specialism specialism;
 
-    public AdmissionPart() {
+    public Stay() {
     }
 
-    public AdmissionPart(String id, Patient patient, Night firstNight, Night lastNight, Specialism specialism) {
+    public Stay(String id, Patient patient, Night firstNight, Night lastNight, Specialism specialism) {
         this.id = id;
         this.patient = patient;
         this.firstNight = firstNight;
@@ -34,7 +34,7 @@ public class AdmissionPart {
         return lastNight.getIndex() - firstNight.getIndex() + 1;
     }
 
-    public int calculateSameNightCount(AdmissionPart other) {
+    public int calculateSameNightCount(Stay other) {
         int firstNightIndex = Math.max(getFirstNight().getIndex(), other.getFirstNight().getIndex());
         int lastNightIndex = Math.min(getLastNight().getIndex(), other.getLastNight().getIndex());
         return Math.max(0, lastNightIndex - firstNightIndex + 1);

@@ -35,7 +35,7 @@ public class BedAllocationSchedule {
     @ProblemFactCollectionProperty
     private List<Patient> patientList;
     @ProblemFactCollectionProperty
-    private List<AdmissionPart> admissionPartList;
+    private List<Stay> stayList;
     @ProblemFactCollectionProperty
     private List<RequiredPatientEquipment> requiredPatientEquipmentList;
     @ProblemFactCollectionProperty
@@ -135,12 +135,12 @@ public class BedAllocationSchedule {
         this.patientList = patientList;
     }
 
-    public List<AdmissionPart> getAdmissionPartList() {
-        return admissionPartList;
+    public List<Stay> getStayList() {
+        return stayList;
     }
 
-    public void setAdmissionPartList(List<AdmissionPart> admissionPartList) {
-        this.admissionPartList = admissionPartList;
+    public void setStayList(List<Stay> stayList) {
+        this.stayList = stayList;
     }
 
     public List<RequiredPatientEquipment> getRequiredPatientEquipmentList() {
