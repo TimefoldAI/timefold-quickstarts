@@ -16,6 +16,7 @@ import org.acme.bedallocation.domain.Department;
 import org.acme.bedallocation.domain.DepartmentSpecialism;
 import org.acme.bedallocation.domain.Gender;
 import org.acme.bedallocation.domain.GenderRoomLimitation;
+import org.acme.bedallocation.domain.Patient;
 import org.acme.bedallocation.domain.RoomSpecialism;
 
 public class BedAllocationConstraintProvider implements ConstraintProvider {
@@ -105,8 +106,8 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
 
     public Constraint requiredPatientEquipment(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(BedDesignation.class)
-            .map(Function.identity(), Function.identity())
-            .flattenLast(bedDesignation -> bedDesignation.getPatient().getRequiredEquipments())
+            .expand(BedDesignation::getPatient)
+            .flattenLast(Patient::getRequiredEquipments)
             .filter((bedDesignation, requiredEquipment) -> !bedDesignation.getRoom().getEquipmentList().contains(requiredEquipment))
             .penalize(HardMediumSoftScore.ofHard(50),
                 (bedDesignation, requiredEquipment) -> bedDesignation.getNightCount())
@@ -163,8 +164,8 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
 
     public Constraint preferredPatientEquipment(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(BedDesignation.class)
-            .map(Function.identity(), Function.identity())
-            .flattenLast(bedDesignation -> bedDesignation.getPatient().getPreferredEquipments())
+            .expand(BedDesignation::getPatient)
+            .flattenLast(Patient::getPreferredEquipments)
             .filter((bedDesignation, preferredEquipment) -> !bedDesignation.getRoom().getEquipmentList().contains(preferredEquipment))
             .penalize(HardMediumSoftScore.ofSoft(20),
                 (bedDesignation, preferredEquipment) -> bedDesignation.getNightCount())
