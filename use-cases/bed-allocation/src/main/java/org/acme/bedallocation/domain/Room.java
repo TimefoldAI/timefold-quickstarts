@@ -22,7 +22,7 @@ public class Room {
     private GenderRoomLimitation genderRoomLimitation;
 
     private List<RoomSpecialism> roomSpecialismList;
-    private List<RoomEquipment> roomEquipmentList;
+    private List<Equipment> equipmentList;
     private List<Bed> bedList;
 
     public Room() {
@@ -45,11 +45,10 @@ public class Room {
 
     public int countMissingRequiredRoomProperties(Patient patient) {
         int count = 0;
-        for (RequiredPatientEquipment requiredPatientEquipment : patient.getRequiredPatientEquipmentList()) {
-            Equipment requiredEquipment = requiredPatientEquipment.getEquipment();
+        for (Equipment requiredEquipment : patient.getRequiredEquipments()) {
             boolean hasRequiredEquipment = false;
-            for (RoomEquipment roomEquipment : roomEquipmentList) {
-                if (roomEquipment.getEquipment().equals(requiredEquipment)) {
+            for (Equipment equipment : equipmentList) {
+                if (equipment.equals(requiredEquipment)) {
                     hasRequiredEquipment = true;
                 }
             }
@@ -83,11 +82,10 @@ public class Room {
 
     public int countMissingPreferredRoomProperties(Patient patient) {
         int count = 0;
-        for (PreferredPatientEquipment preferredPatientEquipment : patient.getPreferredPatientEquipmentList()) {
-            Equipment preferredEquipment = preferredPatientEquipment.getEquipment();
+        for (Equipment preferredEquipment : patient.getPreferredEquipments()) {
             boolean hasPreferredEquipment = false;
-            for (RoomEquipment roomEquipment : roomEquipmentList) {
-                if (roomEquipment.getEquipment().equals(preferredEquipment)) {
+            for (Equipment equipment : equipmentList) {
+                if (equipment.equals(preferredEquipment)) {
                     hasPreferredEquipment = true;
                 }
             }
@@ -151,12 +149,12 @@ public class Room {
         this.roomSpecialismList = roomSpecialismList;
     }
 
-    public List<RoomEquipment> getRoomEquipmentList() {
-        return roomEquipmentList;
+    public List<Equipment> getEquipmentList() {
+        return equipmentList;
     }
 
-    public void setRoomEquipmentList(List<RoomEquipment> roomEquipmentList) {
-        this.roomEquipmentList = roomEquipmentList;
+    public void setEquipmentList(List<Equipment> equipmentList) {
+        this.equipmentList = equipmentList;
     }
 
     public List<Bed> getBedList() {

@@ -1,5 +1,7 @@
 package org.acme.bedallocation.solver;
 
+import java.util.List;
+
 import org.acme.bedallocation.domain.GenderRoomLimitation;
 import org.acme.bedallocation.domain.Stay;
 import org.acme.bedallocation.domain.Bed;
@@ -11,10 +13,7 @@ import org.acme.bedallocation.domain.BedDesignation;
 import org.acme.bedallocation.domain.Department;
 import org.acme.bedallocation.domain.DepartmentSpecialism;
 import org.acme.bedallocation.domain.Gender;
-import org.acme.bedallocation.domain.PreferredPatientEquipment;
-import org.acme.bedallocation.domain.RequiredPatientEquipment;
 import org.acme.bedallocation.domain.Room;
-import org.acme.bedallocation.domain.RoomEquipment;
 import org.acme.bedallocation.domain.RoomSpecialism;
 import org.acme.bedallocation.domain.Specialism;
 import org.junit.jupiter.api.Test;
@@ -134,33 +133,22 @@ class BedAllocationConstraintProviderTest {
 
     @Test
     void requiredPatientEquipment() {
-        Patient patient = new Patient();
-        Room room = new Room();
-
         Equipment equipment1 = new Equipment();
         Equipment equipment2 = new Equipment();
+
+        Room room = new Room();
+        room.setEquipmentList(List.of(equipment2));
 
         Bed bed = new Bed();
         bed.setRoom(room);
 
+        Patient patient = new Patient();
+        patient.setRequiredEquipments(List.of(equipment1, equipment2));
         Stay admission = new Stay("0", patient, ZERO_NIGHT, FIVE_NIGHT, DEFAULT_SPECIALISM);
         BedDesignation designation = new BedDesignation("0", admission, bed);
 
-        //ReqPatientEq1
-        RequiredPatientEquipment requiredPatientEquipment1 = new RequiredPatientEquipment();
-        requiredPatientEquipment1.setPatient(patient);
-        requiredPatientEquipment1.setEquipment(equipment1);
-        //ReqPatientEq2
-        RequiredPatientEquipment requiredPatientEquipment2 = new RequiredPatientEquipment();
-        requiredPatientEquipment2.setPatient(patient);
-        requiredPatientEquipment2.setEquipment(equipment2);
-        //RoomEquipment
-        RoomEquipment roomEquipment = new RoomEquipment();
-        roomEquipment.setEquipment(equipment2);
-        roomEquipment.setRoom(room);
-
         constraintVerifier.verifyThat(BedAllocationConstraintProvider::requiredPatientEquipment)
-                .given(requiredPatientEquipment1, requiredPatientEquipment2, roomEquipment, designation)
+                .given(designation)
                 .penalizesBy(6);
     }
 
@@ -234,34 +222,22 @@ class BedAllocationConstraintProviderTest {
 
     @Test
     void preferredPatientEquipment() {
-
-        Patient patient = new Patient();
+        Equipment equipment1 = new Equipment();
+        Equipment equipment2 = new Equipment();
 
         Room room = new Room();
+        room.setEquipmentList(List.of(equipment2));
 
         Bed bed = new Bed();
         bed.setRoom(room);
 
+        Patient patient = new Patient();
+        patient.setPreferredEquipments(List.of(equipment1, equipment2));
         Stay stay = new Stay("0", patient, ZERO_NIGHT, FIVE_NIGHT, DEFAULT_SPECIALISM);
         BedDesignation bedDesignation = new BedDesignation("0", stay, bed);
 
-        Equipment equipment1 = new Equipment();
-        Equipment equipment2 = new Equipment();
-
-        PreferredPatientEquipment preferredPatientEquipment1 = new PreferredPatientEquipment();
-        preferredPatientEquipment1.setEquipment(equipment1);
-        preferredPatientEquipment1.setPatient(patient);
-
-        PreferredPatientEquipment preferredPatientEquipment2 = new PreferredPatientEquipment();
-        preferredPatientEquipment2.setEquipment(equipment2);
-        preferredPatientEquipment2.setPatient(patient);
-
-        RoomEquipment roomEquippedOnlyByOneEq = new RoomEquipment();
-        roomEquippedOnlyByOneEq.setEquipment(equipment2);
-        roomEquippedOnlyByOneEq.setRoom(room);
-
         constraintVerifier.verifyThat(BedAllocationConstraintProvider::preferredPatientEquipment)
-                .given(preferredPatientEquipment1, preferredPatientEquipment2, roomEquippedOnlyByOneEq, bedDesignation)
+                .given(bedDesignation)
                 .penalizesBy(6);
     }
 

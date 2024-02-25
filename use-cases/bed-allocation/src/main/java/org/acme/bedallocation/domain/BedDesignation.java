@@ -70,7 +70,7 @@ public class BedDesignation {
     }
 
     @JsonIgnore
-    public int getStayNightCount() {
+    public int getNightCount() {
         return stay.getNightCount();
     }
 

@@ -26,8 +26,6 @@ public class BedAllocationSchedule {
     @ProblemFactCollectionProperty
     private List<RoomSpecialism> roomSpecialismList;
     @ProblemFactCollectionProperty
-    private List<RoomEquipment> roomEquipmentList;
-    @ProblemFactCollectionProperty
     @ValueRangeProvider
     private List<Bed> bedList;
     @ProblemFactCollectionProperty
@@ -36,10 +34,6 @@ public class BedAllocationSchedule {
     private List<Patient> patientList;
     @ProblemFactCollectionProperty
     private List<Stay> stayList;
-    @ProblemFactCollectionProperty
-    private List<RequiredPatientEquipment> requiredPatientEquipmentList;
-    @ProblemFactCollectionProperty
-    private List<PreferredPatientEquipment> preferredPatientEquipmentList;
 
     @PlanningEntityCollectionProperty
     private List<BedDesignation> bedDesignationList;
@@ -103,14 +97,6 @@ public class BedAllocationSchedule {
         this.roomSpecialismList = roomSpecialismList;
     }
 
-    public List<RoomEquipment> getRoomEquipmentList() {
-        return roomEquipmentList;
-    }
-
-    public void setRoomEquipmentList(List<RoomEquipment> roomEquipmentList) {
-        this.roomEquipmentList = roomEquipmentList;
-    }
-
     public List<Bed> getBedList() {
         return bedList;
     }
@@ -141,22 +127,6 @@ public class BedAllocationSchedule {
 
     public void setStayList(List<Stay> stayList) {
         this.stayList = stayList;
-    }
-
-    public List<RequiredPatientEquipment> getRequiredPatientEquipmentList() {
-        return requiredPatientEquipmentList;
-    }
-
-    public void setRequiredPatientEquipmentList(List<RequiredPatientEquipment> requiredPatientEquipmentList) {
-        this.requiredPatientEquipmentList = requiredPatientEquipmentList;
-    }
-
-    public List<PreferredPatientEquipment> getPreferredPatientEquipmentList() {
-        return preferredPatientEquipmentList;
-    }
-
-    public void setPreferredPatientEquipmentList(List<PreferredPatientEquipment> preferredPatientEquipmentList) {
-        this.preferredPatientEquipmentList = preferredPatientEquipmentList;
     }
 
     public List<BedDesignation> getBedDesignationList() {

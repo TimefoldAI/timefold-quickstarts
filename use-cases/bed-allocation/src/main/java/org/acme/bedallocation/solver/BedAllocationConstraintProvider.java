@@ -16,9 +16,6 @@ import org.acme.bedallocation.domain.Department;
 import org.acme.bedallocation.domain.DepartmentSpecialism;
 import org.acme.bedallocation.domain.Gender;
 import org.acme.bedallocation.domain.GenderRoomLimitation;
-import org.acme.bedallocation.domain.PreferredPatientEquipment;
-import org.acme.bedallocation.domain.RequiredPatientEquipment;
-import org.acme.bedallocation.domain.RoomEquipment;
 import org.acme.bedallocation.domain.RoomSpecialism;
 
 public class BedAllocationConstraintProvider implements ConstraintProvider {
@@ -58,7 +55,7 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
         return constraintFactory.forEachIncludingUnassigned(BedDesignation.class)
                 .filter(bedDesignation -> bedDesignation.getPatientGender() == Gender.FEMALE
                         && bedDesignation.getRoomGenderRoomLimitation() == GenderRoomLimitation.MALE_ONLY)
-                .penalize(HardMediumSoftScore.ofHard(50), BedDesignation::getStayNightCount)
+                .penalize(HardMediumSoftScore.ofHard(50), BedDesignation::getNightCount)
                 .asConstraint("femaleInMaleRoom");
     }
 
@@ -66,7 +63,7 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
         return constraintFactory.forEachIncludingUnassigned(BedDesignation.class)
                 .filter(bedDesignation -> bedDesignation.getPatientGender() == Gender.MALE
                         && bedDesignation.getRoomGenderRoomLimitation() == GenderRoomLimitation.FEMALE_ONLY)
-                .penalize(HardMediumSoftScore.ofHard(50), BedDesignation::getStayNightCount)
+                .penalize(HardMediumSoftScore.ofHard(50), BedDesignation::getNightCount)
                 .asConstraint("maleInFemaleRoom");
     }
 
@@ -91,7 +88,7 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
                         equal(Function.identity(), BedDesignation::getDepartment),
                         greaterThan(Department::getMinimumAge, BedDesignation::getPatientAge))
                 .penalize(HardMediumSoftScore.ofHard(100),
-                        (d, bedDesignation) -> bedDesignation.getStayNightCount())
+                        (d, bedDesignation) -> bedDesignation.getNightCount())
                 .asConstraint("departmentMinimumAge");
     }
 
@@ -102,27 +99,25 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
                         equal(Function.identity(), BedDesignation::getDepartment),
                         lessThan(Department::getMaximumAge, BedDesignation::getPatientAge))
                 .penalize(HardMediumSoftScore.ofHard(100),
-                        (d, bedDesignation) -> bedDesignation.getStayNightCount())
+                        (d, bedDesignation) -> bedDesignation.getNightCount())
                 .asConstraint("departmentMaximumAge");
     }
 
     public Constraint requiredPatientEquipment(ConstraintFactory constraintFactory) {
-        return constraintFactory.forEach(RequiredPatientEquipment.class)
-                .join(BedDesignation.class,
-                        equal(RequiredPatientEquipment::getPatient, BedDesignation::getPatient))
-                .ifNotExists(RoomEquipment.class,
-                        equal((rpe, bedDesignation) -> bedDesignation.getRoom(), RoomEquipment::getRoom),
-                        equal((rpe, bedDesignation) -> rpe.getEquipment(), RoomEquipment::getEquipment))
-                .penalize(HardMediumSoftScore.ofHard(50),
-                        (rpe, bedDesignation) -> bedDesignation.getStayNightCount())
-                .asConstraint("requiredPatientEquipment");
+        return constraintFactory.forEach(BedDesignation.class)
+            .map(Function.identity(), Function.identity())
+            .flattenLast(bedDesignation -> bedDesignation.getPatient().getRequiredEquipments())
+            .filter((bedDesignation, requiredEquipment) -> !bedDesignation.getRoom().getEquipmentList().contains(requiredEquipment))
+            .penalize(HardMediumSoftScore.ofHard(50),
+                (bedDesignation, requiredEquipment) -> bedDesignation.getNightCount())
+            .asConstraint("requiredPatientEquipment");
     }
 
     //Medium
     public Constraint assignEveryPatientToABed(ConstraintFactory constraintFactory) {
         return constraintFactory.forEachIncludingUnassigned(BedDesignation.class)
                 .filter(bedDesignation -> bedDesignation.getBed() == null)
-                .penalize(HardMediumSoftScore.ONE_MEDIUM, BedDesignation::getStayNightCount)
+                .penalize(HardMediumSoftScore.ONE_MEDIUM, BedDesignation::getNightCount)
                 .asConstraint("assignEveryPatientToABed");
     }
 
@@ -131,7 +126,7 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
         return constraintFactory.forEach(BedDesignation.class)
                 .filter(bedDesignation -> bedDesignation.getPatient().getPreferredMaximumRoomCapacity() != null
                         && bedDesignation.getPatient().getPreferredMaximumRoomCapacity() < bedDesignation.getRoom().getCapacity())
-                .penalize(HardMediumSoftScore.ofSoft(8), BedDesignation::getStayNightCount)
+                .penalize(HardMediumSoftScore.ofSoft(8), BedDesignation::getNightCount)
                 .asConstraint("preferredMaximumRoomCapacity");
     }
 
@@ -140,7 +135,7 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
                 .ifNotExists(DepartmentSpecialism.class,
                         equal(BedDesignation::getDepartment, DepartmentSpecialism::getDepartment),
                         equal(BedDesignation::getStaySpecialism, DepartmentSpecialism::getSpecialism))
-                .penalize(HardMediumSoftScore.ofSoft(10), BedDesignation::getStayNightCount)
+                .penalize(HardMediumSoftScore.ofSoft(10), BedDesignation::getNightCount)
                 .asConstraint("departmentSpecialism");
     }
 
@@ -150,7 +145,7 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
                 .ifNotExists(RoomSpecialism.class,
                         equal(BedDesignation::getRoom, RoomSpecialism::getRoom),
                         equal(BedDesignation::getStaySpecialism, RoomSpecialism::getSpecialism))
-                .penalize(HardMediumSoftScore.ofSoft(20), BedDesignation::getStayNightCount)
+                .penalize(HardMediumSoftScore.ofSoft(20), BedDesignation::getNightCount)
                 .asConstraint("roomSpecialismNotExists");
     }
 
@@ -162,19 +157,18 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
                         equal(BedDesignation::getRoom, RoomSpecialism::getRoom),
                         equal(BedDesignation::getStaySpecialism, RoomSpecialism::getSpecialism))
                 .penalize(HardMediumSoftScore.ofSoft(10),
-                        (bedDesignation, roomSpecialism) -> (roomSpecialism.getPriority() - 1) * bedDesignation.getStayNightCount())
+                        (bedDesignation, roomSpecialism) -> (roomSpecialism.getPriority() - 1) * bedDesignation.getNightCount())
                 .asConstraint("roomSpecialismNotFirstPriority");
     }
 
     public Constraint preferredPatientEquipment(ConstraintFactory constraintFactory) {
-        return constraintFactory.forEach(PreferredPatientEquipment.class)
-                .join(BedDesignation.class,
-                        equal(PreferredPatientEquipment::getPatient, BedDesignation::getPatient))
-                .ifNotExists(RoomEquipment.class,
-                        equal((re, bedDesignation) -> bedDesignation.getRoom(), RoomEquipment::getRoom),
-                        equal((re, bedDesignation) -> re.getEquipment(), RoomEquipment::getEquipment))
-                .penalize(HardMediumSoftScore.ofSoft(20),
-                        (re, bedDesignation) -> bedDesignation.getStayNightCount())
-                .asConstraint("preferredPatientEquipment");
+        return constraintFactory.forEach(BedDesignation.class)
+            .map(Function.identity(), Function.identity())
+            .flattenLast(bedDesignation -> bedDesignation.getPatient().getPreferredEquipments())
+            .filter((bedDesignation, preferredEquipment) -> !bedDesignation.getRoom().getEquipmentList().contains(preferredEquipment))
+            .penalize(HardMediumSoftScore.ofSoft(20),
+                (bedDesignation, preferredEquipment) -> bedDesignation.getNightCount())
+            .asConstraint("preferredPatientEquipment");
     }
+
 }
