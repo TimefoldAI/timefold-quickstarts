@@ -11,7 +11,7 @@ import ai.timefold.solver.core.api.score.buildin.hardmediumsoft.HardMediumSoftSc
 
 
 @PlanningSolution
-public class PatientAdmissionSchedule {
+public class BedAllocationSchedule {
 
     @ProblemFactCollectionProperty
     private List<Specialism> specialismList;
@@ -48,7 +48,7 @@ public class PatientAdmissionSchedule {
     private HardMediumSoftScore score;
 
     // No-arg constructor required for Timefold
-    public PatientAdmissionSchedule() {
+    public BedAllocationSchedule() {
     }
 
     // ************************************************************************
