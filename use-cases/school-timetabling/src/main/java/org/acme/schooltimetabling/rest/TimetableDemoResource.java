@@ -1,6 +1,7 @@
 package org.acme.schooltimetabling.rest;
 
-import java.time.DayOfWeek;
+//import java.time.DayOfWeek;
+import java.time.LocalDate; //added
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +55,7 @@ public class TimetableDemoResource {
             required = true) @PathParam("demoDataId") DemoData demoData) {
         List<Timeslot> timeslots = new ArrayList<>(10);
         long nextTimeslotId = 0L;
-        timeslots.add(new Timeslot(nextTimeslotId++, DayOfWeek.MONDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)));
+       /*  timeslots.add(new Timeslot(nextTimeslotId++, DayOfWeek.MONDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)));
         timeslots.add(new Timeslot(nextTimeslotId++, DayOfWeek.MONDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)));
         timeslots.add(new Timeslot(nextTimeslotId++, DayOfWeek.MONDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)));
         timeslots.add(new Timeslot(nextTimeslotId++, DayOfWeek.MONDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)));
@@ -64,9 +65,16 @@ public class TimetableDemoResource {
         timeslots.add(new Timeslot(nextTimeslotId++, DayOfWeek.TUESDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)));
         timeslots.add(new Timeslot(nextTimeslotId++, DayOfWeek.TUESDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)));
         timeslots.add(new Timeslot(nextTimeslotId++, DayOfWeek.TUESDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)));
-        timeslots.add(new Timeslot(nextTimeslotId++, DayOfWeek.TUESDAY, LocalTime.of(14, 30), LocalTime.of(15, 30)));
+        timeslots.add(new Timeslot(nextTimeslotId++, DayOfWeek.TUESDAY, LocalTime.of(14, 30), LocalTime.of(15, 30))); */
+
+        timeslots.add(new Timeslot(nextTimeslotId++, LocalDate.of(2024, 6, 15), LocalTime.of(7, 30), LocalTime.of(8, 00)));
+        timeslots.add(new Timeslot(nextTimeslotId++, LocalDate.of(2024, 6, 15), LocalTime.of(11, 30), LocalTime.of(12, 00)));
+        timeslots.add(new Timeslot(nextTimeslotId++, LocalDate.of(2024, 6, 15), LocalTime.of(5, 30), LocalTime.of(6, 00)));
+        
+
+
         if (demoData == DemoData.LARGE) {
-            timeslots.add(new Timeslot(nextTimeslotId++, DayOfWeek.WEDNESDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)));
+          /* timeslots.add(new Timeslot(nextTimeslotId++, DayOfWeek.WEDNESDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)));
             timeslots.add(new Timeslot(nextTimeslotId++, DayOfWeek.WEDNESDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)));
             timeslots.add(new Timeslot(nextTimeslotId++, DayOfWeek.WEDNESDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)));
             timeslots.add(new Timeslot(nextTimeslotId++, DayOfWeek.WEDNESDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)));
@@ -80,14 +88,14 @@ public class TimetableDemoResource {
             timeslots.add(new Timeslot(nextTimeslotId++, DayOfWeek.FRIDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)));
             timeslots.add(new Timeslot(nextTimeslotId++, DayOfWeek.FRIDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)));
             timeslots.add(new Timeslot(nextTimeslotId++, DayOfWeek.FRIDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)));
-            timeslots.add(new Timeslot(nextTimeslotId++, DayOfWeek.FRIDAY, LocalTime.of(14, 30), LocalTime.of(15, 30)));
+            timeslots.add(new Timeslot(nextTimeslotId++, DayOfWeek.FRIDAY, LocalTime.of(14, 30), LocalTime.of(15, 30))); */
         }
 
         List<Room> rooms = new ArrayList<>(3);
         long nextRoomId = 0L;
-        rooms.add(new Room(nextRoomId++, "Room A"));
-        rooms.add(new Room(nextRoomId++, "Room B"));
-        rooms.add(new Room(nextRoomId++, "Room C"));
+        rooms.add(new Room(nextRoomId++, "Day 1"));
+        rooms.add(new Room(nextRoomId++, "Day 2"));
+        rooms.add(new Room(nextRoomId++, "Day 3"));
         if (demoData == DemoData.LARGE) {
             rooms.add(new Room(nextRoomId++, "Room D"));
             rooms.add(new Room(nextRoomId++, "Room E"));
@@ -96,16 +104,32 @@ public class TimetableDemoResource {
 
         List<Lesson> lessons = new ArrayList<>();
         long nextLessonId = 0L;
-        lessons.add(new Lesson(nextLessonId++, "Math", "A. Turing", "9th grade"));
-        lessons.add(new Lesson(nextLessonId++, "Math", "A. Turing", "9th grade"));
-        lessons.add(new Lesson(nextLessonId++, "Physics", "M. Curie", "9th grade"));
-        lessons.add(new Lesson(nextLessonId++, "Chemistry", "M. Curie", "9th grade"));
-        lessons.add(new Lesson(nextLessonId++, "Biology", "C. Darwin", "9th grade"));
-        lessons.add(new Lesson(nextLessonId++, "History", "I. Jones", "9th grade"));
-        lessons.add(new Lesson(nextLessonId++, "English", "I. Jones", "9th grade"));
-        lessons.add(new Lesson(nextLessonId++, "English", "I. Jones", "9th grade"));
-        lessons.add(new Lesson(nextLessonId++, "Spanish", "P. Cruz", "9th grade"));
-        lessons.add(new Lesson(nextLessonId++, "Spanish", "P. Cruz", "9th grade"));
+        lessons.add(new Lesson(nextLessonId++, "Monkeys", "Turing",  "Group A"));
+        lessons.add(new Lesson(nextLessonId++, "Monkeys", "Turing",  "Group A"));
+        lessons.add(new Lesson(nextLessonId++, "Monkeys", "Turing",  "Group A"));
+        lessons.add(new Lesson(nextLessonId++, "Monkeys", "Turing",  "Group A"));
+        lessons.add(new Lesson(nextLessonId++, "Monkeys", "Turing",  "Group A"));
+        lessons.add(new Lesson(nextLessonId++, "Monkeys", "Johnson", "Group A"));
+        lessons.add(new Lesson(nextLessonId++, "Monkeys", "Johnson", "Group A"));
+        lessons.add(new Lesson(nextLessonId++, "Monkeys", "Johnson", "Group A"));
+        lessons.add(new Lesson(nextLessonId++, "Monkeys", "Johnson", "Group A"));
+        lessons.add(new Lesson(nextLessonId++, "Monkeys", "Johnson", "Group A"));
+        lessons.add(new Lesson(nextLessonId++, "Monkeys", "Curie",   "Group A"));
+        lessons.add(new Lesson(nextLessonId++, "Monkeys", "Curie",   "Group A"));
+        lessons.add(new Lesson(nextLessonId++, "Monkeys", "Curie",   "Group A"));
+        lessons.add(new Lesson(nextLessonId++, "Monkeys", "Curie",   "Group A"));
+        lessons.add(new Lesson(nextLessonId++, "Monkeys", "Curie",   "Group A"));
+        lessons.add(new Lesson(nextLessonId++, "Monkeys", "Smith",   "Group B"));
+        lessons.add(new Lesson(nextLessonId++, "Monkeys", "Smith",   "Group B"));
+        lessons.add(new Lesson(nextLessonId++, "Monkeys", "Smith",   "Group B"));
+        lessons.add(new Lesson(nextLessonId++, "Monkeys", "Smith",   "Group B"));
+        lessons.add(new Lesson(nextLessonId++, "Monkeys", "Smith",   "Group B"));
+        lessons.add(new Lesson(nextLessonId++, "Dogs",    "Darwin",  "Group A"));
+        lessons.add(new Lesson(nextLessonId++, "Dogs",    "Jones",   "Group C"));
+        lessons.add(new Lesson(nextLessonId++, "Dogs",    "Conner",  "Group A"));
+        lessons.add(new Lesson(nextLessonId++, "Dogs",    "Allen",   "Group B"));
+        lessons.add(new Lesson(nextLessonId++, "Gorilla", "Cruz",    "Group C"));
+        lessons.add(new Lesson(nextLessonId++, "Gorilla", "Phillip", "Group B"));
         if (demoData == DemoData.LARGE) {
             lessons.add(new Lesson(nextLessonId++, "Math", "A. Turing", "9th grade"));
             lessons.add(new Lesson(nextLessonId++, "Math", "A. Turing", "9th grade"));
@@ -124,16 +148,16 @@ public class TimetableDemoResource {
             lessons.add(new Lesson(nextLessonId++, "Physical education", "C. Lewis", "9th grade"));
         }
 
-        lessons.add(new Lesson(nextLessonId++, "Math", "A. Turing", "10th grade"));
-        lessons.add(new Lesson(nextLessonId++, "Math", "A. Turing", "10th grade"));
-        lessons.add(new Lesson(nextLessonId++, "Math", "A. Turing", "10th grade"));
-        lessons.add(new Lesson(nextLessonId++, "Physics", "M. Curie", "10th grade"));
-        lessons.add(new Lesson(nextLessonId++, "Chemistry", "M. Curie", "10th grade"));
-        lessons.add(new Lesson(nextLessonId++, "French", "M. Curie", "10th grade"));
-        lessons.add(new Lesson(nextLessonId++, "Geography", "C. Darwin", "10th grade"));
-        lessons.add(new Lesson(nextLessonId++, "History", "I. Jones", "10th grade"));
-        lessons.add(new Lesson(nextLessonId++, "English", "P. Cruz", "10th grade"));
-        lessons.add(new Lesson(nextLessonId++, "Spanish", "P. Cruz", "10th grade"));
+        lessons.add(new Lesson(nextLessonId++, "Monkeys",  "Engle", "Group A"));
+        lessons.add(new Lesson(nextLessonId++, "Monkeys",  "Clyde", "Group D"));
+        lessons.add(new Lesson(nextLessonId++, "Monkeys",  "Chost", "Group B"));
+        lessons.add(new Lesson(nextLessonId++, "Dogs",     "Olson", "Group C"));
+        lessons.add(new Lesson(nextLessonId++, "Dogs",     "Marti", "Group D"));
+        lessons.add(new Lesson(nextLessonId++, "Dogs",     "Stant", "Group B"));
+        lessons.add(new Lesson(nextLessonId++, "Gorillas", "Chips", "Group A"));
+        lessons.add(new Lesson(nextLessonId++, "Gorillas", "Harve", "Group B"));
+        lessons.add(new Lesson(nextLessonId++, "Gorillas", "Kline", "Group D"));
+        lessons.add(new Lesson(nextLessonId++, "Gorillas", "Aaron", "Group A"));
         if (demoData == DemoData.LARGE) {
             lessons.add(new Lesson(nextLessonId++, "Math", "A. Turing", "10th grade"));
             lessons.add(new Lesson(nextLessonId++, "Math", "A. Turing", "10th grade"));

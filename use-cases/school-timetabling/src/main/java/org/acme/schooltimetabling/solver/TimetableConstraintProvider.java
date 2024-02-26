@@ -1,14 +1,21 @@
 package org.acme.schooltimetabling.solver;
 
 import java.time.Duration;
+//import java.util.stream.Collectors;
 
 import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
 import ai.timefold.solver.core.api.score.stream.Constraint;
 import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
 import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
 import ai.timefold.solver.core.api.score.stream.Joiners;
+//import ai.timefold.solver.core.api.score.stream.bi.BiConstraintStream;
+//import ai.timefold.solver.core.api.score.stream.uni.UniConstraintCollector;
+import static ai.timefold.solver.core.api.score.stream.ConstraintCollectors.sum;
 
 import org.acme.schooltimetabling.domain.Lesson;
+//import org.acme.schooltimetabling.domain.Lesson.getCount;
+//import org.acme.schooltimetabling.domain.Room;
+//import org.acme.schooltimetabling.domain.Timeslot;
 import org.acme.schooltimetabling.solver.justifications.RoomConflictJustification;
 import org.acme.schooltimetabling.solver.justifications.StudentGroupConflictJustification;
 import org.acme.schooltimetabling.solver.justifications.StudentGroupSubjectVarietyJustification;
@@ -22,13 +29,14 @@ public class TimetableConstraintProvider implements ConstraintProvider {
     public Constraint[] defineConstraints(ConstraintFactory constraintFactory) {
         return new Constraint[] {
                 // Hard constraints
-                roomConflict(constraintFactory),
+                //roomConflict(constraintFactory),
                 teacherConflict(constraintFactory),
                 studentGroupConflict(constraintFactory),
                 // Soft constraints
                 teacherRoomStability(constraintFactory),
                 teacherTimeEfficiency(constraintFactory),
-                studentGroupSubjectVariety(constraintFactory)
+                studentGroupSubjectVariety(constraintFactory),
+                kpPerShiftMax(constraintFactory)
         };
     }
 
@@ -47,7 +55,31 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                 .asConstraint("Room conflict");
     }
 
-    Constraint teacherConflict(ConstraintFactory constraintFactory) {
+    Constraint kpPerShiftMax(ConstraintFactory constraintFactory) {
+        // A room can accommodate at most one lesson at the same time.
+        return constraintFactory
+
+        .forEach(Lesson.class)
+        .groupBy(lesson -> lesson.getTimeslot(),
+                 lesson -> lesson.getRoom(),
+                 sum(lesson -> Lesson.getCount()))
+        .filter((timeslot,  room, getCount) -> getCount > 5)
+        .penalize(HardSoftScore.ONE_HARD)
+        .asConstraint("Timeslot capacity exceeded");
+        
+        /* .forEach(Lesson.class)
+        .groupBy(Lesson::getTimeslot, Lesson::getRoom, 
+        toList()).filter(((timeslot, room, lessons) -> {var studentGroups = lessons.stream()
+                .map(Lesson::getStudentGroup).collect(Collectors.toSet());                      
+                return studentGroups.size() <= 5;}))
+                .penalize("Room capacity exceeded", HardSoftScore.ONE_HARD); */
+    }
+
+
+
+
+
+Constraint teacherConflict(ConstraintFactory constraintFactory) {
         // A teacher can teach at most one lesson at the same time.
         return constraintFactory
                 .forEachUniquePair(Lesson.class,
@@ -86,7 +118,8 @@ public class TimetableConstraintProvider implements ConstraintProvider {
         return constraintFactory
                 .forEachUniquePair(Lesson.class,
                         Joiners.equal(Lesson::getTeacher),
-                        Joiners.equal((lesson) -> lesson.getTimeslot().getDayOfWeek()))
+                        /* Joiners.equal((lesson) -> lesson.getTimeslot().getDayOfWeek())) */
+                        Joiners.equal((lesson) -> lesson.getTimeslot().getLocalDate()))
                 .filter((lesson1, lesson2) -> {
                     Duration between = Duration.between(lesson1.getTimeslot().getEndTime(),
                             lesson2.getTimeslot().getStartTime());
@@ -104,7 +137,8 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                 .join(Lesson.class,
                         Joiners.equal(Lesson::getSubject),
                         Joiners.equal(Lesson::getStudentGroup),
-                        Joiners.equal((lesson) -> lesson.getTimeslot().getDayOfWeek()))
+                        /*Joiners.equal((lesson) -> lesson.getTimeslot().getDayOfWeek())) */
+                        Joiners.equal((lesson) -> lesson.getTimeslot().getLocalDate()))
                 .filter((lesson1, lesson2) -> {
                     Duration between = Duration.between(lesson1.getTimeslot().getEndTime(),
                             lesson2.getTimeslot().getStartTime());

@@ -154,8 +154,10 @@ function renderSchedule(timetable) {
     const rowByRoom = $("<tr>").appendTo(tbodyByRoom);
     rowByRoom
       .append($(`<th class="align-middle"/>`)
+        //.append($("<span/>").text(`
+        //           ${timeslot.dayOfWeek.charAt(0) + timeslot.dayOfWeek.slice(1).toLowerCase()}
         .append($("<span/>").text(`
-                    ${timeslot.dayOfWeek.charAt(0) + timeslot.dayOfWeek.slice(1).toLowerCase()}
+                    ${timeslot.localDate.charAt(0) + timeslot.localDate.slice(1).toLowerCase()}
                     ${LocalTime.parse(timeslot.startTime).format(dateTimeFormatter)}
                     -
                     ${LocalTime.parse(timeslot.endTime).format(dateTimeFormatter)}
@@ -167,8 +169,10 @@ function renderSchedule(timetable) {
     const rowByTeacher = $("<tr>").appendTo(tbodyByTeacher);
     rowByTeacher
       .append($(`<th class="align-middle"/>`)
+      /*.append($("<span/>").text(`
+                    ${timeslot.dayOfWeek.charAt(0) + timeslot.dayOfWeek.slice(1).toLowerCase()} */
         .append($("<span/>").text(`
-                    ${timeslot.dayOfWeek.charAt(0) + timeslot.dayOfWeek.slice(1).toLowerCase()}
+                    ${timeslot.localDate.charAt(0) + timeslot.localDate.slice(1).toLowerCase()}
                     ${LocalTime.parse(timeslot.startTime).format(dateTimeFormatter)}
                     -
                     ${LocalTime.parse(timeslot.endTime).format(dateTimeFormatter)}
@@ -180,8 +184,10 @@ function renderSchedule(timetable) {
     const rowByStudentGroup = $("<tr>").appendTo(tbodyByStudentGroup);
     rowByStudentGroup
       .append($(`<th class="align-middle"/>`)
+      /*.append($("<span/>").text(`
+                    ${timeslot.dayOfWeek.charAt(0) + timeslot.dayOfWeek.slice(1).toLowerCase()} */
         .append($("<span/>").text(`
-                    ${timeslot.dayOfWeek.charAt(0) + timeslot.dayOfWeek.slice(1).toLowerCase()}
+                    ${timeslot.localDate.charAt(0) + timeslot.localDate.slice(1).toLowerCase()}
                     ${LocalTime.parse(timeslot.startTime).format(dateTimeFormatter)}
                     -
                     ${LocalTime.parse(timeslot.endTime).format(dateTimeFormatter)}

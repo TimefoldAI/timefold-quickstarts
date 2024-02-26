@@ -27,6 +27,7 @@ public class Lesson {
     public Lesson() {
     }
 
+
     public Lesson(long id, String subject, String teacher, String studentGroup) {
         this.id = id;
         this.subject = subject;
@@ -79,5 +80,9 @@ public class Lesson {
 
     public void setRoom(Room room) {
         this.room = room;
+    }
+
+    public static int getCount() {
+        return 1;
     }
 }

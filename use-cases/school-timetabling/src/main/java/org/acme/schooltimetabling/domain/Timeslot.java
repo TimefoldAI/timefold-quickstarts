@@ -1,5 +1,6 @@
 package org.acme.schooltimetabling.domain;
 
+import java.time.LocalDate; //added
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 
@@ -13,6 +14,7 @@ public class Timeslot {
     @PlanningId
     private Long id;
 
+    private LocalDate localDate; //added
     private DayOfWeek dayOfWeek;
     private LocalTime startTime;
     private LocalTime endTime;
@@ -21,15 +23,22 @@ public class Timeslot {
     public Timeslot() {
     }
 
-    public Timeslot(long id, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
+   /*  public Timeslot(long id, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
         this.id = id;
         this.dayOfWeek = dayOfWeek;
+        this.startTime = startTime;
+        this.endTime = endTime; 
+    } */
+
+    public Timeslot(long id, LocalDate localDate, LocalTime startTime, LocalTime endTime) {
+        this.id = id;
+        this.localDate = localDate;
         this.startTime = startTime;
         this.endTime = endTime;
     }
 
-    public Timeslot(long id, DayOfWeek dayOfWeek, LocalTime startTime) {
-        this(id, dayOfWeek, startTime, startTime.plusMinutes(50));
+    public Timeslot(long id, LocalDate localDate, LocalTime startTime) {
+        this(id, localDate, startTime, startTime.plusMinutes(50));
     }
 
     @Override
@@ -45,8 +54,12 @@ public class Timeslot {
         return id;
     }
 
-    public DayOfWeek getDayOfWeek() {
+    /* public DayOfWeek getDayOfWeek() {
         return dayOfWeek;
+    } */
+
+    public LocalDate getLocalDate() {
+        return localDate;
     }
 
     public LocalTime getStartTime() {
