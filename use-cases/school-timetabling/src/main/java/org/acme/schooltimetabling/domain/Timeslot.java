@@ -14,13 +14,38 @@ public class Timeslot {
     @PlanningId
     private Long id;
 
-    private LocalDate localDate; //added
+    private String name;
+
+    /* private LocalDate localDate; //added
     private DayOfWeek dayOfWeek;
     private LocalTime startTime;
     private LocalTime endTime;
+    */
 
     // No-arg constructor required for Hibernate
     public Timeslot() {
+    }
+
+    public Timeslot(long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
+
+    // ************************************************************************
+    // Getters and setters
+    // ************************************************************************
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
     }
 
    /*  public Timeslot(long id, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
@@ -30,7 +55,7 @@ public class Timeslot {
         this.endTime = endTime; 
     } */
 
-    public Timeslot(long id, LocalDate localDate, LocalTime startTime, LocalTime endTime) {
+    /*public Timeslot(long id, LocalDate localDate, LocalTime startTime, LocalTime endTime) {
         this.id = id;
         this.localDate = localDate;
         this.startTime = startTime;
@@ -56,7 +81,7 @@ public class Timeslot {
 
     /* public DayOfWeek getDayOfWeek() {
         return dayOfWeek;
-    } */
+    } 
 
     public LocalDate getLocalDate() {
         return localDate;
@@ -69,4 +94,6 @@ public class Timeslot {
     public LocalTime getEndTime() {
         return endTime;
     }
+
+    */
 }

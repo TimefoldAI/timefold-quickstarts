@@ -156,12 +156,15 @@ function renderSchedule(timetable) {
       .append($(`<th class="align-middle"/>`)
         //.append($("<span/>").text(`
         //           ${timeslot.dayOfWeek.charAt(0) + timeslot.dayOfWeek.slice(1).toLowerCase()}
+        /*
         .append($("<span/>").text(`
                     ${timeslot.localDate.charAt(0) + timeslot.localDate.slice(1).toLowerCase()}
                     ${LocalTime.parse(timeslot.startTime).format(dateTimeFormatter)}
                     -
                     ${LocalTime.parse(timeslot.endTime).format(dateTimeFormatter)}
                 `)));
+        */
+        .append($("<span/>").text(`${timeslot.name}`)));
     $.each(timetable.rooms, (index, room) => {
       rowByRoom.append($("<td/>").prop("id", `timeslot${timeslot.id}room${room.id}`));
     });
@@ -170,13 +173,15 @@ function renderSchedule(timetable) {
     rowByTeacher
       .append($(`<th class="align-middle"/>`)
       /*.append($("<span/>").text(`
-                    ${timeslot.dayOfWeek.charAt(0) + timeslot.dayOfWeek.slice(1).toLowerCase()} */
+                    ${timeslot.dayOfWeek.charAt(0) + timeslot.dayOfWeek.slice(1).toLowerCase()} 
         .append($("<span/>").text(`
                     ${timeslot.localDate.charAt(0) + timeslot.localDate.slice(1).toLowerCase()}
                     ${LocalTime.parse(timeslot.startTime).format(dateTimeFormatter)}
                     -
                     ${LocalTime.parse(timeslot.endTime).format(dateTimeFormatter)}
                 `)));
+        */
+        .append($("<span/>").text(`${timeslot.name}`)));
     $.each(teachers, (index, teacher) => {
       rowByTeacher.append($("<td/>").prop("id", `timeslot${timeslot.id}teacher${convertToId(teacher)}`));
     });
@@ -185,13 +190,15 @@ function renderSchedule(timetable) {
     rowByStudentGroup
       .append($(`<th class="align-middle"/>`)
       /*.append($("<span/>").text(`
-                    ${timeslot.dayOfWeek.charAt(0) + timeslot.dayOfWeek.slice(1).toLowerCase()} */
+                    ${timeslot.dayOfWeek.charAt(0) + timeslot.dayOfWeek.slice(1).toLowerCase()} 
         .append($("<span/>").text(`
                     ${timeslot.localDate.charAt(0) + timeslot.localDate.slice(1).toLowerCase()}
                     ${LocalTime.parse(timeslot.startTime).format(dateTimeFormatter)}
                     -
                     ${LocalTime.parse(timeslot.endTime).format(dateTimeFormatter)}
                 `)));
+        */
+        .append($("<span/>").text(`${timeslot.name}`)));
     $.each(studentGroups, (index, studentGroup) => {
       rowByStudentGroup.append($("<td/>").prop("id", `timeslot${timeslot.id}studentGroup${convertToId(studentGroup)}`));
     });
@@ -203,7 +210,7 @@ function renderSchedule(timetable) {
       .append($(`<div class="card-body p-2"/>`)
         .append($(`<h5 class="card-title mb-1"/>`).text(lesson.subject))
         .append($(`<p class="card-text ms-2 mb-1"/>`)
-          .append($(`<em/>`).text(`by ${lesson.teacher}`)))
+          .append($(`<em/>`).text(`${lesson.teacher}`)))
         .append($(`<small class="ms-2 mt-1 card-text text-muted align-bottom float-end"/>`).text(lesson.id))
         .append($(`<p class="card-text ms-2"/>`).text(lesson.studentGroup)));
     if (lesson.timeslot == null || lesson.room == null) {

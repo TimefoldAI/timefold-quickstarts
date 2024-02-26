@@ -53,7 +53,7 @@ public class TimetableDemoResource {
     @Path("/{demoDataId}")
     public Response generate(@Parameter(description = "Unique identifier of the demo data.",
             required = true) @PathParam("demoDataId") DemoData demoData) {
-        List<Timeslot> timeslots = new ArrayList<>(10);
+        List<Timeslot> timeslots = new ArrayList<>(3);
         long nextTimeslotId = 0L;
        /*  timeslots.add(new Timeslot(nextTimeslotId++, DayOfWeek.MONDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)));
         timeslots.add(new Timeslot(nextTimeslotId++, DayOfWeek.MONDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)));
@@ -65,11 +65,15 @@ public class TimetableDemoResource {
         timeslots.add(new Timeslot(nextTimeslotId++, DayOfWeek.TUESDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)));
         timeslots.add(new Timeslot(nextTimeslotId++, DayOfWeek.TUESDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)));
         timeslots.add(new Timeslot(nextTimeslotId++, DayOfWeek.TUESDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)));
-        timeslots.add(new Timeslot(nextTimeslotId++, DayOfWeek.TUESDAY, LocalTime.of(14, 30), LocalTime.of(15, 30))); */
+        timeslots.add(new Timeslot(nextTimeslotId++, DayOfWeek.TUESDAY, LocalTime.of(14, 30), LocalTime.of(15, 30))); 
 
         timeslots.add(new Timeslot(nextTimeslotId++, LocalDate.of(2024, 6, 15), LocalTime.of(7, 30), LocalTime.of(8, 00)));
         timeslots.add(new Timeslot(nextTimeslotId++, LocalDate.of(2024, 6, 15), LocalTime.of(11, 30), LocalTime.of(12, 00)));
-        timeslots.add(new Timeslot(nextTimeslotId++, LocalDate.of(2024, 6, 15), LocalTime.of(5, 30), LocalTime.of(6, 00)));
+        timeslots.add(new Timeslot(nextTimeslotId++, LocalDate.of(2024, 6, 15), LocalTime.of(5, 30), LocalTime.of(6, 00)));*/
+
+        timeslots.add(new Timeslot(nextTimeslotId++, "Breakfast"));
+        timeslots.add(new Timeslot(nextTimeslotId++, "Lunch"));
+        timeslots.add(new Timeslot(nextTimeslotId++, "Supper"));
         
 
 
@@ -91,11 +95,14 @@ public class TimetableDemoResource {
             timeslots.add(new Timeslot(nextTimeslotId++, DayOfWeek.FRIDAY, LocalTime.of(14, 30), LocalTime.of(15, 30))); */
         }
 
-        List<Room> rooms = new ArrayList<>(3);
+        List<Room> rooms = new ArrayList<>(6);
         long nextRoomId = 0L;
         rooms.add(new Room(nextRoomId++, "Day 1"));
         rooms.add(new Room(nextRoomId++, "Day 2"));
         rooms.add(new Room(nextRoomId++, "Day 3"));
+        rooms.add(new Room(nextRoomId++, "Day 4"));
+        rooms.add(new Room(nextRoomId++, "Day 5"));
+        rooms.add(new Room(nextRoomId++, "Day 6"));
         if (demoData == DemoData.LARGE) {
             rooms.add(new Room(nextRoomId++, "Room D"));
             rooms.add(new Room(nextRoomId++, "Room E"));

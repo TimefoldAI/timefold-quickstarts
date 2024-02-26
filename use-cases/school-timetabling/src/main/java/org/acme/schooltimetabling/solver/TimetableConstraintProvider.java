@@ -4,6 +4,7 @@ import java.time.Duration;
 //import java.util.stream.Collectors;
 
 import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
+import ai.timefold.solver.core.api.score.buildin.simple.SimpleScore;
 import ai.timefold.solver.core.api.score.stream.Constraint;
 import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
 import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
@@ -13,6 +14,7 @@ import ai.timefold.solver.core.api.score.stream.Joiners;
 import static ai.timefold.solver.core.api.score.stream.ConstraintCollectors.sum;
 
 import org.acme.schooltimetabling.domain.Lesson;
+import org.acme.schooltimetabling.domain.Timeslot;
 //import org.acme.schooltimetabling.domain.Lesson.getCount;
 //import org.acme.schooltimetabling.domain.Room;
 //import org.acme.schooltimetabling.domain.Timeslot;
@@ -33,10 +35,11 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                 teacherConflict(constraintFactory),
                 studentGroupConflict(constraintFactory),
                 // Soft constraints
-                teacherRoomStability(constraintFactory),
-                teacherTimeEfficiency(constraintFactory),
-                studentGroupSubjectVariety(constraintFactory),
-                kpPerShiftMax(constraintFactory)
+                blockDayOneBreakfastAndLunchKP(constraintFactory),
+                //teacherRoomStability(constraintFactory),
+                //teacherTimeEfficiency(constraintFactory),
+                //studentGroupSubjectVariety(constraintFactory),
+                kpPerShiftMaxGtFive(constraintFactory)
         };
     }
 
@@ -55,17 +58,22 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                 .asConstraint("Room conflict");
     }
 
-    Constraint kpPerShiftMax(ConstraintFactory constraintFactory) {
+    Constraint kpPerShiftMaxGtFive(ConstraintFactory constraintFactory) {
         // A room can accommodate at most one lesson at the same time.
         return constraintFactory
 
-        .forEach(Lesson.class)
-        .groupBy(lesson -> lesson.getTimeslot(),
-                 lesson -> lesson.getRoom(),
+                .forEach(Lesson.class)
+                .groupBy(lesson -> lesson.getTimeslot(),
+                         lesson -> lesson.getRoom(),
                  sum(lesson -> Lesson.getCount()))
-        .filter((timeslot,  room, getCount) -> getCount > 5)
-        .penalize(HardSoftScore.ONE_HARD)
-        .asConstraint("Timeslot capacity exceeded");
+                .filter((timeslot,  room, getCount) -> getCount > 5)
+                .penalize(HardSoftScore.ONE_HARD)
+                .asConstraint("Timeslot capacity exceeded");
+
+    }
+
+
+      
         
         /* .forEach(Lesson.class)
         .groupBy(Lesson::getTimeslot, Lesson::getRoom, 
@@ -73,7 +81,6 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                 .map(Lesson::getStudentGroup).collect(Collectors.toSet());                      
                 return studentGroups.size() <= 5;}))
                 .penalize("Room capacity exceeded", HardSoftScore.ONE_HARD); */
-    }
 
 
 
@@ -113,12 +120,24 @@ Constraint teacherConflict(ConstraintFactory constraintFactory) {
                 .asConstraint("Teacher room stability");
     }
 
+    Constraint blockDayOneBreakfastAndLunchKP(ConstraintFactory constraintFactory) {
+        // No KP should be scheduled on Day One Breakfast or Lunch
+        return constraintFactory
+                .forEach(Lesson.class)
+                .groupBy(lesson -> lesson.getTimeslot(),
+                         lesson -> lesson.getRoom())
+                .filter((timeslot,  room) -> (timeslot.getName().equals("Breakfast") && room.getName().equals("Day 1")) || (timeslot.getName().equals("Lunch") && room.getName().equals("Day 1")))
+                .penalize(HardSoftScore.ONE_HARD)
+                .asConstraint("Day 1 is blocked for KP");
+    }
+
+    /* 
     Constraint teacherTimeEfficiency(ConstraintFactory constraintFactory) {
         // A teacher prefers to teach sequential lessons and dislikes gaps between lessons.
         return constraintFactory
                 .forEachUniquePair(Lesson.class,
                         Joiners.equal(Lesson::getTeacher),
-                        /* Joiners.equal((lesson) -> lesson.getTimeslot().getDayOfWeek())) */
+                        /* Joiners.equal((lesson) -> lesson.getTimeslot().getDayOfWeek())) 
                         Joiners.equal((lesson) -> lesson.getTimeslot().getLocalDate()))
                 .filter((lesson1, lesson2) -> {
                     Duration between = Duration.between(lesson1.getTimeslot().getEndTime(),
@@ -128,7 +147,7 @@ Constraint teacherConflict(ConstraintFactory constraintFactory) {
                 .reward(HardSoftScore.ONE_SOFT)
                 .justifyWith((lesson1, lesson2, score) -> new TeacherTimeEfficiencyJustification(lesson1.getTeacher(), lesson1, lesson2))
                 .asConstraint("Teacher time efficiency");
-    }
+    } 
 
     Constraint studentGroupSubjectVariety(ConstraintFactory constraintFactory) {
         // A student group dislikes sequential lessons on the same subject.
@@ -137,7 +156,7 @@ Constraint teacherConflict(ConstraintFactory constraintFactory) {
                 .join(Lesson.class,
                         Joiners.equal(Lesson::getSubject),
                         Joiners.equal(Lesson::getStudentGroup),
-                        /*Joiners.equal((lesson) -> lesson.getTimeslot().getDayOfWeek())) */
+                        /*Joiners.equal((lesson) -> lesson.getTimeslot().getDayOfWeek())) 
                         Joiners.equal((lesson) -> lesson.getTimeslot().getLocalDate()))
                 .filter((lesson1, lesson2) -> {
                     Duration between = Duration.between(lesson1.getTimeslot().getEndTime(),
@@ -148,5 +167,6 @@ Constraint teacherConflict(ConstraintFactory constraintFactory) {
                 .justifyWith((lesson1, lesson2, score) -> new StudentGroupSubjectVarietyJustification(lesson1.getStudentGroup(), lesson1, lesson2))
                 .asConstraint("Student group subject variety");
     }
+    */
 
 }
