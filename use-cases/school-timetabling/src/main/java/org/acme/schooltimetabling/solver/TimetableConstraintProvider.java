@@ -5,6 +5,7 @@ import java.time.Duration;
 
 import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
 import ai.timefold.solver.core.api.score.buildin.simple.SimpleScore;
+import ai.timefold.solver.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
 import ai.timefold.solver.core.api.score.stream.Constraint;
 import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
 import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
@@ -34,9 +35,9 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                 //roomConflict(constraintFactory),
                 //teacherConflict(constraintFactory),
                 scoutKPConflict(constraintFactory),
-                studentGroupConflict(constraintFactory),
+                //studentGroupConflict(constraintFactory),
                 // Soft constraints
-                blockDayOneBreakfastAndLunchKP(constraintFactory),
+                blockDayOneAndDayTenKP(constraintFactory),
                 //teacherRoomStability(constraintFactory),
                 //teacherTimeEfficiency(constraintFactory),
                 //studentGroupSubjectVariety(constraintFactory),
@@ -67,21 +68,13 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                 .groupBy(lesson -> lesson.getTimeslot(),
                          lesson -> lesson.getRoom(),
                  sum(lesson -> Lesson.getCount()))
-                .filter((timeslot,  room, getCount) -> getCount > 5)
-                .penalize(HardSoftScore.ONE_HARD)
+                .filter((timeslot,  room, getCount) -> getCount < 6)
+                .reward(HardSoftScore.ONE_SOFT)
                 .asConstraint("Timeslot capacity exceeded");
 
     }
 
 
-      
-        
-        /* .forEach(Lesson.class)
-        .groupBy(Lesson::getTimeslot, Lesson::getRoom, 
-        toList()).filter(((timeslot, room, lessons) -> {var studentGroups = lessons.stream()
-                .map(Lesson::getStudentGroup).collect(Collectors.toSet());                      
-                return studentGroups.size() <= 5;}))
-                .penalize("Room capacity exceeded", HardSoftScore.ONE_HARD); */
                 
     Constraint scoutKPConflict(ConstraintFactory constraintFactory) {
         // A scout covers one KP duty for a timeslot
@@ -134,15 +127,15 @@ Constraint teacherConflict(ConstraintFactory constraintFactory) {
                 .asConstraint("Teacher room stability");
     }
 
-    Constraint blockDayOneBreakfastAndLunchKP(ConstraintFactory constraintFactory) {
+    Constraint blockDayOneAndDayTenKP(ConstraintFactory constraintFactory) {
         // No KP should be scheduled on Day One Breakfast or Lunch
         return constraintFactory
                 .forEach(Lesson.class)
                 .groupBy(lesson -> lesson.getTimeslot(),
                          lesson -> lesson.getRoom())
-                .filter((timeslot,  room) -> (timeslot.getName().equals("Breakfast") && room.getName().equals("Day 1")) || (timeslot.getName().equals("Lunch") && room.getName().equals("Day 1")))
+                .filter((timeslot,  room) -> (timeslot.getName().equals("Breakfast") && room.getName().equals("Day 1")) || (timeslot.getName().equals("Lunch") && room.getName().equals("Day 1")) || (timeslot.getName().equals("Lunch") && room.getName().equals("Day 10")) || (timeslot.getName().equals("Supper") && room.getName().equals("Day 10")))
                 .penalize(HardSoftScore.ONE_HARD)
-                .asConstraint("Day 1 is blocked for KP");
+                .asConstraint("Day 1 Breakfast and Lunch and Day 10 Lunch and Supper is blocked for KP");
     }
 
     /* 
