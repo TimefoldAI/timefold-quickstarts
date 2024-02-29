@@ -84,7 +84,49 @@ class SolverServiceTest {
                 .findFirst()
                 .orElseGet(() -> Assertions.fail("The expected prolonged call has not been found."));
         assertThat(prolongedCall.getDuration()).hasMinutes(1L);
-        assertThat(prolongedCall.getDurationTillPickUp()).hasMinutes(1L);
+    }
+
+    @Test
+    @Timeout(60)
+    void prolongCallWithProlongedCallPinned() {
+        // Invalid initial solution
+        CallCenter inputProblem = dataGenerator.generateCallCenter();
+        Call call1 = new Call("1", "123-456-7891", Skill.SPANISH, Skill.CAR_INSURANCE);
+        Call call2 = new Call("2", "123-456-7892", Skill.SPANISH, Skill.CAR_INSURANCE);
+
+        inputProblem.getCalls().add(call1);
+        inputProblem.getCalls().add(call2);
+
+        // Force the call1 to be pinned
+        Agent agent = inputProblem.getAgents().get(1);
+        call1.setPreviousCallOrAgent(agent);
+        call2.setAgent(agent);
+        call1.setDuration(Duration.ofSeconds(0));
+        call1.setEstimatedWaiting(Duration.ofSeconds(0));
+        call1.setNextCall(call2);
+
+        call2.setPreviousCallOrAgent(call1);
+        call2.setAgent(agent);
+        call2.setDuration(Duration.ofSeconds(0));
+        call2.setEstimatedWaiting(Duration.ofSeconds(0));
+        call2.setNextCall(null);
+
+        agent.setNextCall(call1);
+        inputProblem.setScore(HardSoftScore.ofUninitialized(0, 0, 0));
+
+        CallCenter bestSolution = solve(inputProblem, () -> solverService.prolongCall(call1.getId()));
+
+        Agent agentWithCalls = getFirstAgentWithCallOrFail(bestSolution);
+        assertThat(agentWithCalls.getSkills()).contains(Skill.ENGLISH, Skill.CAR_INSURANCE);
+
+        assertThat(agentWithCalls.getAssignedCalls()).hasSize(2);
+        Call prolongedCall = agentWithCalls.getAssignedCalls().stream()
+                .filter(call -> call.getId().equals(call1.getId()))
+                .findFirst()
+                .orElseGet(() -> Assertions.fail("The expected prolonged call has not been found."));
+        assertThat(prolongedCall.getDuration()).hasMinutes(1L);
+        // call1 had the pickUpTime loaded after it was pinned, and getDurationTillPickUp won't be one minute anymore
+        assertThat(prolongedCall.getDurationTillPickUp().toSeconds()).isLessThan(60);
     }
 
     @Test
@@ -183,7 +225,9 @@ class SolverServiceTest {
             allChangesProcessed.await(1, TimeUnit.MINUTES);
         } catch (InterruptedException e) {
             if (errorDuringSolving.get() != null) {
-                throw new RuntimeException("Waiting for problem changes in progress has been interrupted due to solver failure.", errorDuringSolving.get());
+                throw new RuntimeException(
+                        "Waiting for problem changes in progress has been interrupted due to solver failure.",
+                        errorDuringSolving.get());
             } else {
                 throw new RuntimeException("Waiting for problem changes in progress has been interrupted.", e);
             }
