@@ -32,7 +32,8 @@ public class TimetableConstraintProvider implements ConstraintProvider {
         return new Constraint[] {
                 // Hard constraints
                 //roomConflict(constraintFactory),
-                teacherConflict(constraintFactory),
+                //teacherConflict(constraintFactory),
+                scoutKPConflict(constraintFactory),
                 studentGroupConflict(constraintFactory),
                 // Soft constraints
                 blockDayOneBreakfastAndLunchKP(constraintFactory),
@@ -81,8 +82,21 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                 .map(Lesson::getStudentGroup).collect(Collectors.toSet());                      
                 return studentGroups.size() <= 5;}))
                 .penalize("Room capacity exceeded", HardSoftScore.ONE_HARD); */
-
-
+                
+    Constraint scoutKPConflict(ConstraintFactory constraintFactory) {
+        // A scout covers one KP duty for a timeslot
+        return constraintFactory
+                .forEach(Lesson.class)
+                .join(Lesson.class,
+                        Joiners.equal(Lesson::getRoom),
+                        Joiners.equal(Lesson::getTimeslot),
+                        Joiners.equal((lesson) -> lesson.getTeacher()))
+                //.filter((lesson1, lesson2) -> lesson1.getRoom() != lesson2.getRoom() && lesson1.getTimeslot() != lesson2.getTimeslot())
+                .penalize(HardSoftScore.ONE_HARD)
+                .justifyWith(
+                        (lesson1, lesson2, score) -> new TeacherConflictJustification(lesson1.getTeacher(), lesson1, lesson2))
+                .asConstraint("Scout KP conflict");
+    }
 
 
 
