@@ -2,22 +2,13 @@ package org.acme.employeescheduling.domain;
 
 import java.time.LocalDate;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
-import org.hibernate.annotations.UuidGenerator;
 
-@Entity
 public class Availability {
 
     @PlanningId
-    @Id
-    @UuidGenerator
     String id;
 
-    @ManyToOne
     Employee employee;
 
     LocalDate date;
@@ -27,7 +18,8 @@ public class Availability {
     public Availability() {
     }
 
-    public Availability(Employee employee, LocalDate date, AvailabilityType availabilityType) {
+    public Availability(String id, Employee employee, LocalDate date, AvailabilityType availabilityType) {
+        this.id = id;
         this.employee = employee;
         this.date = date;
         this.availabilityType = availabilityType;

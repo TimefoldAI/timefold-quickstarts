@@ -39,6 +39,11 @@ public class EmployeeSchedule {
         this.shifts = shifts;
     }
 
+    public EmployeeSchedule(HardSoftScore score, SolverStatus solverStatus) {
+        this.score = score;
+        this.solverStatus = solverStatus;
+    }
+
     public ScheduleState getScheduleState() {
         return scheduleState;
     }

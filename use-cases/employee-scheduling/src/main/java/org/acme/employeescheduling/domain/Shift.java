@@ -2,33 +2,22 @@ package org.acme.employeescheduling.domain;
 
 import java.time.LocalDateTime;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
-import org.hibernate.annotations.UuidGenerator;
 
-@Entity
 @PlanningEntity(pinningFilter = ShiftPinningFilter.class)
 public class Shift {
-    @Id
     @PlanningId
-    @UuidGenerator
     String id;
 
     LocalDateTime start;
-    @Column(name = "endDateTime") // "end" clashes with H2 syntax.
     LocalDateTime end;
 
     String location;
     String requiredSkill;
 
     @PlanningVariable
-    @ManyToOne
     Employee employee;
 
     public Shift() {

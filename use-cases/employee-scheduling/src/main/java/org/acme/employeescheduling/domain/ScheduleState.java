@@ -4,15 +4,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-@Entity
 public class ScheduleState {
 
-    @Id
     String tenantId;
 
     Integer publishLength; // In number of days
@@ -58,6 +53,7 @@ public class ScheduleState {
         return lastHistoricDate.plusDays(1);
     }
 
+    @JsonIgnore
     public LocalDate getFirstUnplannedDate() {
         return firstDraftDate.plusDays(draftLength);
     }

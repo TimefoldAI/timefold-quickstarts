@@ -3,14 +3,15 @@ package org.acme.employeescheduling.solver;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-import org.acme.employeescheduling.domain.Availability;
-import org.acme.employeescheduling.domain.AvailabilityType;
-import org.acme.employeescheduling.domain.Shift;
 import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
 import ai.timefold.solver.core.api.score.stream.Constraint;
 import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
 import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
 import ai.timefold.solver.core.api.score.stream.Joiners;
+
+import org.acme.employeescheduling.domain.Availability;
+import org.acme.employeescheduling.domain.AvailabilityType;
+import org.acme.employeescheduling.domain.Shift;
 
 public class EmployeeSchedulingConstraintProvider implements ConstraintProvider {
 

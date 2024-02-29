@@ -2,20 +2,12 @@ package org.acme.employeescheduling.domain;
 
 import java.util.Set;
 
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Id;
-
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 
-@Entity
 public class Employee {
-    @Id
     @PlanningId
     String name;
 
-    @ElementCollection(fetch = FetchType.EAGER)
     Set<String> skills;
 
     public Employee() {
