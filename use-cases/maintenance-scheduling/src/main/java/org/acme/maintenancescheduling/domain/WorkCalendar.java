@@ -16,7 +16,8 @@ public class WorkCalendar {
     public WorkCalendar() {
     }
 
-    public WorkCalendar(LocalDate fromDate, LocalDate toDate) {
+    public WorkCalendar(String id, LocalDate fromDate, LocalDate toDate) {
+        this.id = id;
         this.fromDate = fromDate;
         this.toDate = toDate;
     }

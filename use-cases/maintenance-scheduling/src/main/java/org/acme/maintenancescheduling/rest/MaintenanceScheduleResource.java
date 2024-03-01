@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -21,6 +22,8 @@ import ai.timefold.solver.core.api.solver.SolverManager;
 import ai.timefold.solver.core.api.solver.SolverStatus;
 
 import org.acme.maintenancescheduling.domain.MaintenanceSchedule;
+import org.acme.maintenancescheduling.rest.exception.ErrorInfo;
+import org.acme.maintenancescheduling.rest.exception.MaintenanceScheduleSolverException;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -88,13 +91,13 @@ public class MaintenanceScheduleResource {
     @Operation(
             summary = "Get the solution and score for a given job ID. This is the best solution so far, as it might still be running or not even started.")
     @APIResponses(value = {
-            @APIResponse(responseCode = "200", description = "The best solution of the timetable so far.",
+            @APIResponse(responseCode = "200", description = "The best solution of the schedule so far.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
-                            schema = @Schema(implementation = Timetable.class))),
-            @APIResponse(responseCode = "404", description = "No timetable found.",
+                            schema = @Schema(implementation = MaintenanceSchedule.class))),
+            @APIResponse(responseCode = "404", description = "No schedule found.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
                             schema = @Schema(implementation = ErrorInfo.class))),
-            @APIResponse(responseCode = "500", description = "Exception during solving a timetable.",
+            @APIResponse(responseCode = "500", description = "Exception during solving a schedule.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
                             schema = @Schema(implementation = ErrorInfo.class)))
     })
@@ -109,67 +112,59 @@ public class MaintenanceScheduleResource {
         return schedule;
     }
 
-    //
-    //    // To try, open http://localhost:8080/schedule
-    //    @GET
-    //    public MaintenanceSchedule getSchedule() {
-    //        // Get the solver status before loading the solution
-    //        // to avoid the race condition that the solver terminates between them
-    //        SolverStatus solverStatus = getSolverStatus();
-    //        MaintenanceSchedule solution = findById(SINGLETON_SCHEDULE_ID);
-    //        solutionManager.update(solution); // Sets the score
-    //        solution.setSolverStatus(solverStatus);
-    //        return solution;
-    //    }
-    //
-    //    public SolverStatus getSolverStatus() {
-    //        return solverManager.getSolverStatus(SINGLETON_SCHEDULE_ID);
-    //    }
-    //
-    //    @POST
-    //    @Path("solve")
-    //    public void solve() {
-    //        solverManager.solveBuilder()
-    //                .withProblemId(SINGLETON_SCHEDULE_ID)
-    //                .withProblemFinder(this::findById)
-    //                .withBestSolutionConsumer(this::save)
-    //                .run();
-    //    }
-    //
-    //    @POST
-    //    @Path("stopSolving")
-    //    public void stopSolving() {
-    //        solverManager.terminateEarly(SINGLETON_SCHEDULE_ID);
-    //    }
-    //
-    //    @Transactional
-    //    protected MaintenanceSchedule findById(String id) {
-    //        if (!SINGLETON_SCHEDULE_ID.equals(id)) {
-    //            throw new IllegalStateException("There is no schedule with id (" + id + ").");
-    //        }
-    //        return new MaintenanceSchedule(
-    //                workCalendarRepository.listAll().get(0),
-    //                crewRepository.listAll(Sort.by("name").and("id")),
-    //                jobRepository.listAll(Sort.by("dueDate").and("readyDate").and("name").and("id")));
-    //    }
-    //
-    //    @Transactional
-    //    protected void save(MaintenanceSchedule schedule) {
-    //        for (Job job : schedule.getJobs()) {
-    //            // TODO this is awfully naive: optimistic locking causes issues if called by the SolverManager
-    //            Job attachedJob = jobRepository.findById(job.getId());
-    //            attachedJob.setCrew(job.getCrew());
-    //            attachedJob.setStartDate(job.getStartDate());
-    //            attachedJob.setEndDate(job.getEndDate());
-    //        }
-    //    }
+    @Operation(
+            summary = "Get the schedule status and score for a given job ID.")
+    @APIResponses(value = {
+            @APIResponse(responseCode = "200", description = "The schedule status and the best score so far.",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = MaintenanceSchedule.class))),
+            @APIResponse(responseCode = "404", description = "No schedule found.",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = ErrorInfo.class))),
+            @APIResponse(responseCode = "500", description = "Exception during solving a schedule.",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = ErrorInfo.class)))
+    })
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("{jobId}/status")
+    public MaintenanceSchedule getStatus(
+            @Parameter(description = "The job ID returned by the POST method.") @PathParam("jobId") String jobId) {
+        MaintenanceSchedule schedule = getMaintenanceScheduleAndCheckForExceptions(jobId);
+        SolverStatus solverStatus = solverManager.getSolverStatus(jobId);
+        return new MaintenanceSchedule(schedule.getScore(), solverStatus);
+    }
+
+    @Operation(
+            summary = "Terminate solving for a given job ID. Returns the best solution of the schedule so far, as it might still be running or not even started.")
+    @APIResponses(value = {
+            @APIResponse(responseCode = "200", description = "The best solution of the schedule so far.",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = MaintenanceSchedule.class))),
+            @APIResponse(responseCode = "404", description = "No schedule found.",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = ErrorInfo.class))),
+            @APIResponse(responseCode = "500", description = "Exception during solving a schedule.",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = ErrorInfo.class)))
+    })
+    @DELETE
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("{jobId}")
+    public MaintenanceSchedule terminateSolving(
+            @Parameter(description = "The job ID returned by the POST method.") @PathParam("jobId") String jobId) {
+        // TODO: Replace with .terminateEarlyAndWait(... [, timeout]); see https://github.com/TimefoldAI/timefold-solver/issues/77
+        solverManager.terminateEarly(jobId);
+        return getSchedule(jobId);
+    }
+
     private MaintenanceSchedule getMaintenanceScheduleAndCheckForExceptions(String jobId) {
         Job job = jobIdToJob.get(jobId);
         if (job == null) {
-            throw new TimetableSolverException(jobId, Response.Status.NOT_FOUND, "No timetable found.");
+            throw new MaintenanceScheduleSolverException(jobId, Response.Status.NOT_FOUND, "No schedule found.");
         }
         if (job.exception != null) {
-            throw new TimetableSolverException(jobId, job.exception);
+            throw new MaintenanceScheduleSolverException(jobId, job.exception);
         }
         return job.schedule;
     }

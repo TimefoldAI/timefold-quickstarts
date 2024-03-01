@@ -40,23 +40,23 @@ public class DemoDataGenerator {
         LocalDate fromDate = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.MONDAY));
         int weekListSize = (demoData == DemoData.LARGE) ? 16 : 8;
         LocalDate toDate = fromDate.plusWeeks(weekListSize);
-        maintenanceSchedule.setWorkCalendar(new WorkCalendar(fromDate, toDate));
+        maintenanceSchedule.setWorkCalendar(new WorkCalendar("1", fromDate, toDate));
 
         int workdayTotal = weekListSize * 5;
 
-        final String[] JOB_AREA_NAMES = {
+        final String[] jobAreaNames = {
                 "Downtown", "Uptown", "Park", "Airport", "Bay", "Hill", "Forest", "Station", "Hospital",
                 "Harbor", "Market", "Fort", "Beach", "Garden", "River", "Springs", "Tower", "Mountain" };
-        final String[] JOB_TARGET_NAMES = { "Street", "Bridge", "Tunnel", "Highway", "Boulevard", "Avenue",
+        final String[] jobTargetNames = { "Street", "Bridge", "Tunnel", "Highway", "Boulevard", "Avenue",
                 "Square", "Plaza" };
 
         List<Job> jobs = new ArrayList<>();
         int jobListSize = weekListSize * crews.size() * 3 / 5;
-        int jobAreaTargetLimit = Math.min(JOB_TARGET_NAMES.length, crews.size() * 2);
+        int jobAreaTargetLimit = Math.min(jobTargetNames.length, crews.size() * 2);
         Random random = new Random(17);
         for (int i = 0; i < jobListSize; i++) {
-            String jobArea = JOB_AREA_NAMES[i / jobAreaTargetLimit];
-            String jobTarget = JOB_TARGET_NAMES[i % jobAreaTargetLimit];
+            String jobArea = jobAreaNames[i / jobAreaTargetLimit];
+            String jobTarget = jobTargetNames[i % jobAreaTargetLimit];
             // 1 day to 2 workweeks (1 workweek on average)
             int durationInDays = 1 + random.nextInt(10);
             int readyDueBetweenWorkdays = durationInDays + 5 // at least 5 days of flexibility
@@ -67,10 +67,11 @@ public class DemoDataGenerator {
             LocalDate dueDate = EndDateUpdatingVariableListener.calculateEndDate(readyDate, readyDueBetweenWorkdays);
             LocalDate idealEndDate = EndDateUpdatingVariableListener.calculateEndDate(readyDate, readyIdealEndBetweenWorkdays);
             Set<String> tags = random.nextDouble() < 0.1 ? Set.of(jobArea, "Subway") : Set.of(jobArea);
-            jobs.add(new Job(Integer.toString(i), jobArea + " " + jobTarget, durationInDays, readyDate, dueDate, idealEndDate, tags));
+            jobs.add(new Job(Integer.toString(i), jobArea + " " + jobTarget, durationInDays, readyDate, dueDate, idealEndDate,
+                    tags));
         }
         maintenanceSchedule.setJobs(jobs);
-        return  maintenanceSchedule;
+        return maintenanceSchedule;
     }
 
 }

@@ -3,7 +3,6 @@ package org.acme.maintenancescheduling.domain;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import ai.timefold.solver.core.api.domain.solution.PlanningEntityCollectionProperty;
 import ai.timefold.solver.core.api.domain.solution.PlanningScore;
@@ -42,6 +41,11 @@ public class MaintenanceSchedule {
         this.jobs = jobs;
     }
 
+    public MaintenanceSchedule(HardSoftLongScore score, SolverStatus solverStatus) {
+        this.score = score;
+        this.solverStatus = solverStatus;
+    }
+
     @ValueRangeProvider
     public List<LocalDate> createStartDateList() {
         return workCalendar.getFromDate().datesUntil(workCalendar.getToDate())
@@ -50,7 +54,7 @@ public class MaintenanceSchedule {
                 // To skip holidays too, cache all working days in WorkCalendar.
                 .filter(date -> date.getDayOfWeek() != DayOfWeek.SATURDAY
                         && date.getDayOfWeek() != DayOfWeek.SUNDAY)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     // ************************************************************************
