@@ -1,5 +1,6 @@
 package org.acme.employeescheduling.rest;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,6 +23,7 @@ import ai.timefold.solver.core.api.solver.SolverManager;
 import ai.timefold.solver.core.api.solver.SolverStatus;
 
 import org.acme.employeescheduling.domain.EmployeeSchedule;
+import org.acme.employeescheduling.domain.ScheduleState;
 import org.acme.employeescheduling.rest.exception.EmployeeScheduleSolverException;
 import org.acme.employeescheduling.rest.exception.ErrorInfo;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -29,6 +31,7 @@ import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
@@ -43,6 +46,8 @@ public class EmployeeScheduleResource {
 
     public static final String SINGLETON_SCHEDULE_ID = "1";
 
+    private final DemoDataGenerator dataGenerator;
+
     SolverManager<EmployeeSchedule, String> solverManager;
     SolutionManager<EmployeeSchedule, HardSoftScore> solutionManager;
 
@@ -51,9 +56,10 @@ public class EmployeeScheduleResource {
 
     @Inject
     public EmployeeScheduleResource(SolverManager<EmployeeSchedule, String> solverManager,
-            SolutionManager<EmployeeSchedule, HardSoftScore> solutionManager) {
+            SolutionManager<EmployeeSchedule, HardSoftScore> solutionManager, DemoDataGenerator dataGenerator) {
         this.solverManager = solverManager;
         this.solutionManager = solutionManager;
+        this.dataGenerator = dataGenerator;
     }
 
     @Operation(summary = "List the job IDs of all submitted schedules.")
@@ -169,6 +175,40 @@ public class EmployeeScheduleResource {
         EmployeeSchedule schedule = getEmployeeScheduleAndCheckForExceptions(jobId);
         SolverStatus solverStatus = solverManager.getSolverStatus(jobId);
         return new EmployeeSchedule(schedule.getScore(), solverStatus);
+    }
+
+    @Operation(
+            summary = "Publish a schedule.")
+    @APIResponses(value = {
+            @APIResponse(responseCode = "200", description = "The schedule updated.",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = EmployeeSchedule.class))),
+            @APIResponse(responseCode = "404", description = "No schedule found.",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = ErrorInfo.class))),
+            @APIResponse(responseCode = "500", description = "Exception while trying to publish the schedule.",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = ErrorInfo.class)))
+    })
+    @POST
+    @Path("{jobId}/publish")
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces(MediaType.TEXT_PLAIN)
+    public EmployeeSchedule
+            publish(@Parameter(description = "The job ID returned by the POST method.") @PathParam("jobId") String jobId) {
+        if (!getStatus(jobId).getSolverStatus().equals(SolverStatus.NOT_SOLVING)) {
+            throw new IllegalStateException("Cannot publish a schedule while solving is in progress.");
+        }
+        EmployeeSchedule schedule = getEmployeeScheduleAndCheckForExceptions(jobId);
+        ScheduleState scheduleState = schedule.getScheduleState();
+        LocalDate newHistoricDate = scheduleState.getFirstDraftDate();
+        LocalDate newDraftDate = scheduleState.getFirstDraftDate().plusDays(scheduleState.getPublishLength());
+
+        scheduleState.setLastHistoricDate(newHistoricDate);
+        scheduleState.setFirstDraftDate(newDraftDate);
+
+        dataGenerator.addDraftShifts(schedule);
+        return schedule;
     }
 
     private record Job(EmployeeSchedule schedule, Throwable exception) {
