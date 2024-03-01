@@ -9,19 +9,23 @@
 
     <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="/webjars/font-awesome/css/all.css"/>
-    <link rel="stylesheet" href="/webjars/timefold/css/timefold-webui.css" />
+    <link rel="stylesheet" href="/webjars/timefold/css/timefold-webui.css"/>
+    <link rel="icon" href="/webjars/timefold/img/timefold-favicon.svg" type="image/svg+xml">
     <style>
         .vis-time-axis .vis-grid.vis-saturday,
         .vis-time-axis .vis-grid.vis-sunday {
             background: #D3D7CFFF;
         }
     </style>
-    <link rel="icon" href="/webjars/timefold/img/timefold-favicon.svg" type="image/svg+xml">
 </head>
 
 <body>
-<header id="timefold-auto-header"></header>
-<div class="container-fluid">
+<header id="timefold-auto-header">
+    <!-- Filled in by app.js -->
+</header>
+<div class="tab-content">
+
+    <div id="demo" class="tab-pane fade show active container-fluid">
     <div class="sticky-top d-flex justify-content-center align-items-center" aria-live="polite" aria-atomic="true">
         <div id="notificationPanel" style="position: absolute; top: .5rem;"></div>
     </div>
@@ -29,9 +33,6 @@
     <p>Generate the optimal schedule for your maintenance staff.</p>
 
     <div class="mb-2">
-        <button id="refreshButton" type="button" class="btn btn-secondary">
-            <span class="fas fa-refresh"></span> Refresh
-        </button>
         <button id="solveButton" type="button" class="btn btn-success">
             <span class="fas fa-play"></span> Solve
         </button>
@@ -63,14 +64,65 @@
     <h2>Unassigned jobs</h2>
     <div id="unassignedJobs" class="row row-cols-3 g-3 mb-4"></div>
 </div>
+
+    <div id="rest" class="tab-pane fade  container-fluid">
+        <h1>REST API Guide</h1>
+
+        <h2>Maintenance Scheduling solver integration via cURL</h2>
+
+        <h3>1. Download demo data</h3>
+        <pre>
+            <button class="btn btn-outline-dark btn-sm float-end"
+                    onclick="copyTextToClipboard('curl1')">Copy</button>
+            <code id="curl1">curl -X GET -H 'Accept:application/json' http://localhost:8080/demo-data/SMALL -o sample.json</code>
+    </pre>
+
+        <h3>2. Post the sample data for solving</h3>
+        <p>The POST operation returns a <code>jobId</code> that should be used in subsequent commands.</p>
+        <pre>
+            <button class="btn btn-outline-dark btn-sm float-end"
+                    onclick="copyTextToClipboard('curl2')">Copy</button>
+            <code id="curl2">curl -X POST -H 'Content-Type:application/json' http://localhost:8080/schedules -d@sample.json</code>
+    </pre>
+
+        <h3>3. Get the current status and score</h3>
+        <pre>
+            <button class="btn btn-outline-dark btn-sm float-end"
+                    onclick="copyTextToClipboard('curl3')">Copy</button>
+            <code id="curl3">curl -X GET -H 'Accept:application/json' http://localhost:8080/schedules/{jobId}/status</code>
+    </pre>
+
+        <h3>4. Get the complete solution</h3>
+        <pre>
+            <button class="btn btn-outline-dark btn-sm float-end"
+                    onclick="copyTextToClipboard('curl4')">Copy</button>
+            <code id="curl4">curl -X GET -H 'Accept:application/json' http://localhost:8080/schedules/{jobId}</code>
+    </pre>
+
+        <h3>5. Terminate solving early</h3>
+        <pre>
+            <button class="btn btn-outline-dark btn-sm float-end"
+                    onclick="copyTextToClipboard('curl5')">Copy</button>
+            <code id="curl5">curl -X DELETE -H 'Accept:application/json' http://localhost:8080/schedules/{id}</code>
+    </pre>
+    </div>
+
+    <div id="openapi" class="tab-pane fade container-fluid">
+        <h1>REST API Reference</h1>
+        <div class="ratio ratio-1x1">
+            <!-- "scrolling" attribute is obsolete, but e.g. Chrome does not support "overflow:hidden" -->
+            <iframe src="/q/swagger-ui" style="overflow:hidden;" scrolling="no"></iframe>
+        </div>
+    </div>
+</div>
 <footer id="timefold-auto-footer"></footer>
 
+<script src="/webjars/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="/webjars/jquery/jquery.min.js"></script>
-<script src="/webjars/bootstrap/js/bootstrap.min.js"></script>
 <script src="/webjars/js-joda/dist/js-joda.min.js"></script>
+<script src="/webjars/timefold/js/timefold-webui.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vis-timeline@7.7.2/standalone/umd/vis-timeline-graph2d.min.js"
         integrity="sha256-Jy2+UO7rZ2Dgik50z3XrrNpnc5+2PAx9MhL2CicodME=" crossorigin="anonymous"></script>
-<script src="/webjars/timefold/js/timefold-webui.js"></script>
 <script src="/app.js"></script>
 </body>
 </html>
