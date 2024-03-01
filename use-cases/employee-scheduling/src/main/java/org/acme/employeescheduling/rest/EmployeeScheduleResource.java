@@ -31,7 +31,6 @@ import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
-import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
@@ -39,7 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Tag(name = "Employee Schedules", description = "Employee Schedules service for assigning employees to shifts.")
-@Path("/schedules")
+@Path("schedules")
 public class EmployeeScheduleResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EmployeeScheduleResource.class);
@@ -99,7 +98,7 @@ public class EmployeeScheduleResource {
     @Operation(
             summary = "Get the solution and score for a given job ID. This is the best solution so far, as it might still be running or not even started.")
     @APIResponses(value = {
-            @APIResponse(responseCode = "200", description = "The best solution of the timetable so far.",
+            @APIResponse(responseCode = "200", description = "The best solution of the schedule so far.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
                             schema = @Schema(implementation = EmployeeSchedule.class))),
             @APIResponse(responseCode = "404", description = "No schedule found.",
@@ -192,9 +191,8 @@ public class EmployeeScheduleResource {
     })
     @POST
     @Path("{jobId}/publish")
-    @Consumes({ MediaType.APPLICATION_JSON })
-    @Produces(MediaType.TEXT_PLAIN)
-    public EmployeeSchedule
+    @Produces(MediaType.APPLICATION_JSON)
+    public void
             publish(@Parameter(description = "The job ID returned by the POST method.") @PathParam("jobId") String jobId) {
         if (!getStatus(jobId).getSolverStatus().equals(SolverStatus.NOT_SOLVING)) {
             throw new IllegalStateException("Cannot publish a schedule while solving is in progress.");
@@ -208,7 +206,7 @@ public class EmployeeScheduleResource {
         scheduleState.setFirstDraftDate(newDraftDate);
 
         dataGenerator.addDraftShifts(schedule);
-        return schedule;
+        jobIdToJob.put(jobId, Job.ofSchedule(schedule));
     }
 
     private record Job(EmployeeSchedule schedule, Throwable exception) {

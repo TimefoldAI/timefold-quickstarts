@@ -42,10 +42,10 @@ public class EmployeeScheduleDemoResource {
             @APIResponse(responseCode = "200", description = "Unsolved demo schedule.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
                             schema = @Schema(implementation = EmployeeSchedule.class)))})
-    @Operation(summary = "Find an unsolved demo timetable by ID.")
+    @Operation(summary = "Find an unsolved demo schedule by ID.")
     @GET
     @Path("/{demoDataId}")
     public Response generate(@PathParam("demoDataId") DemoData demoData) {
-        return Response.ok(dataGenerator.generateDemoData(demoData)).build();
+        return Response.ok(dataGenerator.generateDemoData()).build();
     }
 }

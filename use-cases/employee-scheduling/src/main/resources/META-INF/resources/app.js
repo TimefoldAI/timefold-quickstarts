@@ -53,11 +53,7 @@ byLocationTimeline.setCustomTimeTitle('Draft Shifts', 'draft');
 
 $(document).ready(function () {
     replaceQuickstartTimefoldAutoHeaderFooter();
-    setupAjax();
 
-    $("#refreshButton").click(function () {
-        refreshSchedule();
-    });
     $("#solveButton").click(function () {
         solve();
     });
@@ -75,6 +71,7 @@ $(document).ready(function () {
         byLocationTimeline.redraw();
     })
 
+    setupAjax();
     fetchDemoData();
 });
 
@@ -82,7 +79,7 @@ function setupAjax() {
     $.ajaxSetup({
         headers: {
             'Content-Type': 'application/json',
-            'Accept': 'application/json'
+            'Accept': 'application/json,text/plain', // plain text is required by solve() returning UUID of the solver job
         }
     });
     // Extend jQuery to support $.put() and $.delete()
@@ -106,20 +103,8 @@ function setupAjax() {
 
 function fetchDemoData() {
     $.get("/demo-data", function (data) {
-        data.forEach(item => {
-            $("#testDataButton").append($('<a id="' + item + 'TestData" class="dropdown-item" href="#">' + item + '</a>'));
-
-            $("#" + item + "TestData").click(function () {
-                switchDataDropDownItemActive(item);
-                scheduleId = null;
-                demoDataId = item;
-                refreshSchedule();
-            });
-        });
-
         // load first data set
         demoDataId = data[0];
-        switchDataDropDownItemActive(demoDataId);
         refreshSchedule();
     }).fail(function (xhr, ajaxOptions, thrownError) {
         // disable this page as there is no data
@@ -127,12 +112,6 @@ function fetchDemoData() {
         $demo.empty();
         $demo.html("<h1><p align=\"center\">No test data available</p></h1>")
     });
-}
-
-function switchDataDropDownItemActive(newItem) {
-    activeCssClass = "active";
-    $("#testDataButton > a." + activeCssClass).removeClass(activeCssClass);
-    $("#" + newItem + "TestData").addClass(activeCssClass);
 }
 
 function getAvailabilityColor(availabilityType) {
@@ -172,7 +151,6 @@ function refreshSchedule() {
 
         path = "/demo-data/" + demoDataId;
     }
-
     $.getJSON(path, function (schedule) {
         loadedSchedule = schedule;
         renderSchedule(schedule);
@@ -314,10 +292,9 @@ function solve() {
 }
 
 function publish() {
-    $.post(`/schedules/${scheduleId}/publish`, function (schedule) {
-        loadedSchedule = schedule;
-        renderSchedule(schedule)
+    $.post(`/schedules/${scheduleId}/publish`, function () {
         refreshSolvingButtons(true);
+        refreshSchedule();
     }).fail(function (xhr, ajaxOptions, thrownError) {
         showError("Publish failed.", xhr);
     });
@@ -326,12 +303,18 @@ function publish() {
 function refreshSolvingButtons(solving) {
     if (solving) {
         $("#solveButton").hide();
+        $("#publish").hide();
         $("#stopSolvingButton").show();
         if (autoRefreshIntervalId == null) {
             autoRefreshIntervalId = setInterval(refreshSchedule, 2000);
         }
     } else {
         $("#solveButton").show();
+        if (scheduleId != null) {
+            $("#publish").show();
+        } else {
+            $("#publish").hide();
+        }
         $("#stopSolvingButton").hide();
         if (autoRefreshIntervalId != null) {
             clearInterval(autoRefreshIntervalId);
@@ -374,14 +357,6 @@ function replaceQuickstartTimefoldAutoHeaderFooter() {
                 <button class="nav-link" id="navOpenApi" data-bs-toggle="pill" data-bs-target="#openapi" type="button">REST API</button>
               </li>
             </ul>
-          </div>
-          <div class="ms-auto">
-              <div class="dropdown">
-                  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      Data
-                  </button>
-                  <div id="testDataButton" class="dropdown-menu" aria-labelledby="dropdownMenuButton"></div>
-              </div>
           </div>
         </nav>
       </div>`));

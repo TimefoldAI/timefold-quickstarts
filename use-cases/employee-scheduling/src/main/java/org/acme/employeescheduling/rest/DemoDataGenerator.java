@@ -30,7 +30,6 @@ import org.acme.employeescheduling.domain.Shift;
 public class DemoDataGenerator {
 
     public enum DemoData {
-        NONE,
         SMALL,
         LARGE
     }
@@ -54,7 +53,7 @@ public class DemoDataGenerator {
 
     Map<String, List<LocalTime>> locationToShiftStartTimeListMap = new HashMap<>();
 
-    public EmployeeSchedule generateDemoData(DemoData demoData) {
+    public EmployeeSchedule generateDemoData() {
         EmployeeSchedule employeeSchedule = new EmployeeSchedule();
 
         int initialRosterLengthInDays = 14;
@@ -77,9 +76,6 @@ public class DemoDataGenerator {
             shiftTemplateIndex = (shiftTemplateIndex + 1) % SHIFT_START_TIMES_COMBOS.length;
         }
 
-        if (demoData == DemoData.NONE) {
-            return employeeSchedule;
-        }
         List<String> namePermutations = joinAllCombinations(FIRST_NAMES, LAST_NAMES);
         Collections.shuffle(namePermutations, random);
 
