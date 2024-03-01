@@ -88,37 +88,37 @@ public class DemoDataGenerator {
         }
         employeeSchedule.setEmployees(employees);
 
-        List<Availability> availabilityList = new LinkedList<>();
-        List<Shift> shiftList = new LinkedList<>();
+        List<Availability> availabilities = new LinkedList<>();
+        List<Shift> shifts = new LinkedList<>();
         int count = 0;
         for (int i = 0; i < initialRosterLengthInDays; i++) {
             Set<Employee> employeesWithAvailabitiesOnDay = pickSubset(employees, random, 4, 3, 2, 1);
             LocalDate date = startDate.plusDays(i);
             for (Employee employee : employeesWithAvailabitiesOnDay) {
                 AvailabilityType availabilityType = pickRandom(AvailabilityType.values(), random);
-                availabilityList.add(new Availability(Integer.toString(count++), employee, date, availabilityType));
+                availabilities.add(new Availability(Integer.toString(count++), employee, date, availabilityType));
             }
-            shiftList.addAll(generateShiftsForDay(date, random));
+            shifts.addAll(generateShiftsForDay(date, random));
         }
         AtomicInteger countShift = new AtomicInteger();
-        shiftList.forEach(s -> s.setId(Integer.toString(countShift.getAndIncrement())));
-        employeeSchedule.setAvailabilities(availabilityList);
-        employeeSchedule.setShifts(shiftList);
+        shifts.forEach(s -> s.setId(Integer.toString(countShift.getAndIncrement())));
+        employeeSchedule.setAvailabilities(availabilities);
+        employeeSchedule.setShifts(shifts);
 
         return employeeSchedule;
     }
 
     private List<Shift> generateShiftsForDay(LocalDate date, Random random) {
-        List<Shift> shiftList = new LinkedList<>();
+        List<Shift> shifts = new LinkedList<>();
         for (String location : LOCATIONS) {
             List<LocalTime> shiftStartTimes = locationToShiftStartTimeListMap.get(location);
             for (LocalTime shiftStartTime : shiftStartTimes) {
                 LocalDateTime shiftStartDateTime = date.atTime(shiftStartTime);
                 LocalDateTime shiftEndDateTime = shiftStartDateTime.plus(SHIFT_LENGTH);
-                shiftList.addAll(generateShiftForTimeslot(shiftStartDateTime, shiftEndDateTime, location, random));
+                shifts.addAll(generateShiftForTimeslot(shiftStartDateTime, shiftEndDateTime, location, random));
             }
         }
-        return shiftList;
+        return shifts;
     }
 
     private List<Shift> generateShiftForTimeslot(LocalDateTime timeslotStart, LocalDateTime timeslotEnd, String location,
@@ -130,7 +130,7 @@ public class DemoDataGenerator {
             shiftCount++;
         }
 
-        List<Shift> shiftList = new LinkedList<>();
+        List<Shift> shifts = new LinkedList<>();
         for (int i = 0; i < shiftCount; i++) {
             String requiredSkill;
             if (random.nextBoolean()) {
@@ -138,17 +138,17 @@ public class DemoDataGenerator {
             } else {
                 requiredSkill = pickRandom(OPTIONAL_SKILLS, random);
             }
-            shiftList.add(new Shift(timeslotStart, timeslotEnd, location, requiredSkill));
+            shifts.add(new Shift(timeslotStart, timeslotEnd, location, requiredSkill));
         }
-        return shiftList;
+        return shifts;
     }
 
     public void addDraftShifts(EmployeeSchedule schedule) {
         List<Employee> employees = schedule.getEmployees();
         Random random = new Random(0);
 
-        List<Shift> shiftList = new LinkedList<>();
-        List<Availability> availabilityList = new LinkedList<>();
+        List<Shift> shifts = new LinkedList<>();
+        List<Availability> availabilities = new LinkedList<>();
         int countAvailability = schedule.getAvailabilities().stream()
                 .map(Availability::getId)
                 .mapToInt(Integer::parseInt)
@@ -165,13 +165,13 @@ public class DemoDataGenerator {
                     .plusDays(schedule.getScheduleState().getPublishLength() + i);
             for (Employee employee : employeesWithAvailabitiesOnDay) {
                 AvailabilityType availabilityType = pickRandom(AvailabilityType.values(), random);
-                availabilityList.add(new Availability(Integer.toString(++countAvailability), employee, date, availabilityType));
+                availabilities.add(new Availability(Integer.toString(++countAvailability), employee, date, availabilityType));
             }
-            shiftList.addAll(generateShiftsForDay(date, random));
+            shifts.addAll(generateShiftsForDay(date, random));
         }
-        schedule.getAvailabilities().addAll(availabilityList);
-        shiftList.forEach(s -> s.setId(Integer.toString(countShift.incrementAndGet())));
-        schedule.getShifts().addAll(shiftList);
+        schedule.getAvailabilities().addAll(availabilities);
+        shifts.forEach(s -> s.setId(Integer.toString(countShift.incrementAndGet())));
+        schedule.getShifts().addAll(shifts);
     }
 
     private <T> T pickRandom(T[] source, Random random) {
