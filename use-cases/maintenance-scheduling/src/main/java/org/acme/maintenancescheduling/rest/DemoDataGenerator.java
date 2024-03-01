@@ -1,4 +1,4 @@
-package org.acme.maintenancescheduling.bootstrap;
+package org.acme.maintenancescheduling.rest;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -7,68 +7,48 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.event.Observes;
-import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 
 import org.acme.maintenancescheduling.domain.Crew;
 import org.acme.maintenancescheduling.domain.Job;
+import org.acme.maintenancescheduling.domain.MaintenanceSchedule;
 import org.acme.maintenancescheduling.domain.WorkCalendar;
-import org.acme.maintenancescheduling.persistence.CrewRepository;
-import org.acme.maintenancescheduling.persistence.JobRepository;
-import org.acme.maintenancescheduling.persistence.WorkCalendarRepository;
 import org.acme.maintenancescheduling.solver.EndDateUpdatingVariableListener;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
-import io.quarkus.runtime.StartupEvent;
 
 @ApplicationScoped
 public class DemoDataGenerator {
 
-    @ConfigProperty(name = "schedule.demoData", defaultValue = "SMALL")
-    public DemoData demoData;
-
     public enum DemoData {
-        NONE,
         SMALL,
         LARGE
     }
 
-    @Inject
-    WorkCalendarRepository workCalendarRepository;
-    @Inject
-    CrewRepository crewRepository;
-    @Inject
-    JobRepository jobRepository;
-
-    @Transactional
-    public void generateDemoData(@Observes StartupEvent startupEvent) {
-        if (demoData == DemoData.NONE) {
-            return;
-        }
+    public MaintenanceSchedule generateDemoData(DemoData demoData) {
+        MaintenanceSchedule maintenanceSchedule = new MaintenanceSchedule();
 
         List<Crew> crews = new ArrayList<>();
-        crews.add(new Crew("Alpha crew"));
-        crews.add(new Crew("Beta crew"));
-        crews.add(new Crew("Gamma crew"));
+        crews.add(new Crew("1", "Alpha crew"));
+        crews.add(new Crew("2", "Beta crew"));
+        crews.add(new Crew("3", "Gamma crew"));
         if (demoData == DemoData.LARGE) {
-            crews.add(new Crew("Delta crew"));
-            crews.add(new Crew("Epsilon crew"));
+            crews.add(new Crew("4", "Delta crew"));
+            crews.add(new Crew("5", "Epsilon crew"));
         }
-        crewRepository.persist(crews);
+        maintenanceSchedule.setCrews(crews);
 
         LocalDate fromDate = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.MONDAY));
         int weekListSize = (demoData == DemoData.LARGE) ? 16 : 8;
         LocalDate toDate = fromDate.plusWeeks(weekListSize);
-        workCalendarRepository.persist(new WorkCalendar(fromDate, toDate));
+        maintenanceSchedule.setWorkCalendar(new WorkCalendar(fromDate, toDate));
+
         int workdayTotal = weekListSize * 5;
 
         final String[] JOB_AREA_NAMES = {
                 "Downtown", "Uptown", "Park", "Airport", "Bay", "Hill", "Forest", "Station", "Hospital",
-                "Harbor", "Market", "Fort", "Beach", "Garden", "River", "Springs", "Tower", "Mountain"};
-        final String[] JOB_TARGET_NAMES = {"Street", "Bridge", "Tunnel", "Highway", "Boulevard", "Avenue",
-                "Square", "Plaza"};
+                "Harbor", "Market", "Fort", "Beach", "Garden", "River", "Springs", "Tower", "Mountain" };
+        final String[] JOB_TARGET_NAMES = { "Street", "Bridge", "Tunnel", "Highway", "Boulevard", "Avenue",
+                "Square", "Plaza" };
 
         List<Job> jobs = new ArrayList<>();
         int jobListSize = weekListSize * crews.size() * 3 / 5;
@@ -87,10 +67,10 @@ public class DemoDataGenerator {
             LocalDate dueDate = EndDateUpdatingVariableListener.calculateEndDate(readyDate, readyDueBetweenWorkdays);
             LocalDate idealEndDate = EndDateUpdatingVariableListener.calculateEndDate(readyDate, readyIdealEndBetweenWorkdays);
             Set<String> tags = random.nextDouble() < 0.1 ? Set.of(jobArea, "Subway") : Set.of(jobArea);
-            jobs.add(new Job(jobArea + " " + jobTarget, durationInDays, readyDate, dueDate, idealEndDate, tags));
+            jobs.add(new Job(Integer.toString(i), jobArea + " " + jobTarget, durationInDays, readyDate, dueDate, idealEndDate, tags));
         }
-
-        jobRepository.persist(jobs);
+        maintenanceSchedule.setJobs(jobs);
+        return  maintenanceSchedule;
     }
 
 }

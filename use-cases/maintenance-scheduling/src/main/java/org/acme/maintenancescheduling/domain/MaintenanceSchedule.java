@@ -36,7 +36,7 @@ public class MaintenanceSchedule {
     }
 
     public MaintenanceSchedule(WorkCalendar workCalendar,
-                               List<Crew> crews, List<Job> jobs) {
+            List<Crew> crews, List<Job> jobs) {
         this.workCalendar = workCalendar;
         this.crews = crews;
         this.jobs = jobs;
@@ -61,12 +61,24 @@ public class MaintenanceSchedule {
         return workCalendar;
     }
 
+    public void setWorkCalendar(WorkCalendar workCalendar) {
+        this.workCalendar = workCalendar;
+    }
+
     public List<Crew> getCrews() {
         return crews;
     }
 
+    public void setCrews(List<Crew> crews) {
+        this.crews = crews;
+    }
+
     public List<Job> getJobs() {
         return jobs;
+    }
+
+    public void setJobs(List<Job> jobs) {
+        this.jobs = jobs;
     }
 
     public HardSoftLongScore getScore() {
