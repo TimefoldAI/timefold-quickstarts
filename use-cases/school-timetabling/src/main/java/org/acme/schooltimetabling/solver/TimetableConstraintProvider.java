@@ -38,6 +38,7 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                 //studentGroupConflict(constraintFactory),
                 // Soft constraints
                 blockDayOneAndDayTenKP(constraintFactory),
+                groupACanNotKPBreakfast(constraintFactory),
                 //teacherRoomStability(constraintFactory),
                 //teacherTimeEfficiency(constraintFactory),
                 //studentGroupSubjectVariety(constraintFactory),
@@ -74,9 +75,25 @@ public class TimetableConstraintProvider implements ConstraintProvider {
 
     }
 
+    Constraint groupACanNotKPBreakfast(ConstraintFactory constraintFactory) {
+        return constraintFactory
+                .forEach(Lesson.class)
+                .groupBy(lesson -> lesson.getTimeslot(),
+                         lesson -> lesson.getRoom(),
+                         lesson -> lesson.getStudentGroup())
+                .filter((timeslot, room, studentGroup) -> (timeslot.getName().equals("Breakfast") && studentGroup.equals("Group A")))
+                //.filter((lesson1, lesson2) -> {
+                //    Duration between = Duration.between(lesson1.getTimeslot().getEndTime(),
+                //            lesson2.getTimeslot().getStartTime());
+                //    return !between.isNegative() && between.compareTo(Duration.ofMinutes(30)) <= 0;
+                .penalize(HardSoftScore.ONE_SOFT)
+                //.justifyWith((lesson1, lesson2, score) -> new StudentGroupSubjectVarietyJustification(lesson1.getStudentGroup(), lesson1, lesson2))
+                .asConstraint("Student group subject variety");
+    }
 
-                
-    Constraint scoutKPConflict(ConstraintFactory constraintFactory) {
+        
+
+     Constraint scoutKPConflict(ConstraintFactory constraintFactory) {
         // A scout covers one KP duty for a timeslot
         return constraintFactory
                 .forEach(Lesson.class)
@@ -93,7 +110,7 @@ public class TimetableConstraintProvider implements ConstraintProvider {
 
 
 
-Constraint teacherConflict(ConstraintFactory constraintFactory) {
+    Constraint teacherConflict(ConstraintFactory constraintFactory) {
         // A teacher can teach at most one lesson at the same time.
         return constraintFactory
                 .forEachUniquePair(Lesson.class,
@@ -137,6 +154,8 @@ Constraint teacherConflict(ConstraintFactory constraintFactory) {
                 .penalize(HardSoftScore.ONE_HARD)
                 .asConstraint("Day 1 Breakfast and Lunch and Day 10 Lunch and Supper is blocked for KP");
     }
+
+
 
     /* 
     Constraint teacherTimeEfficiency(ConstraintFactory constraintFactory) {
