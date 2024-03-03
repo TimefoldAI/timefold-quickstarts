@@ -13,7 +13,7 @@ import ai.timefold.solver.test.api.score.stream.ConstraintVerifier;
 import io.quarkus.test.junit.QuarkusTest;
 
 @QuarkusTest
-public class MaintenanceSchedulingConstraintProviderTest {
+ class MaintenanceSchedulingConstraintProviderTest {
 
     private static final Crew ALPHA_CREW = new Crew("1", "Alpha crew");
     private static final Crew BETA_CREW = new Crew("2", "Beta crew");
@@ -25,7 +25,7 @@ public class MaintenanceSchedulingConstraintProviderTest {
     ConstraintVerifier<MaintenanceScheduleConstraintProvider, MaintenanceSchedule> constraintVerifier;
 
     @Test
-    public void crewConflict() {
+     void crewConflict() {
         constraintVerifier.verifyThat(MaintenanceScheduleConstraintProvider::crewConflict)
                 .given(ALPHA_CREW,
                         new Job("1", "Downtown tunnel", 1, null, null, null, null, ALPHA_CREW, DAY_1),
@@ -49,7 +49,7 @@ public class MaintenanceSchedulingConstraintProviderTest {
     }
 
     @Test
-    public void readyDate() {
+     void readyDate() {
         constraintVerifier.verifyThat(MaintenanceScheduleConstraintProvider::readyDate)
                 .given(new Job("1", "Downtown tunnel", 1, DAY_2, null, null, null, ALPHA_CREW, DAY_2))
                 .penalizesBy(0);
@@ -65,7 +65,7 @@ public class MaintenanceSchedulingConstraintProviderTest {
     }
 
     @Test
-    public void dueDate() {
+     void dueDate() {
         constraintVerifier.verifyThat(MaintenanceScheduleConstraintProvider::dueDate)
                 .given(new Job("1", "Downtown tunnel", 1, null, DAY_2, null, null, ALPHA_CREW, DAY_2))
                 .penalizesBy(1);
@@ -81,7 +81,7 @@ public class MaintenanceSchedulingConstraintProviderTest {
     }
 
     @Test
-    public void beforeIdealEndDate() {
+     void beforeIdealEndDate() {
         constraintVerifier.verifyThat(MaintenanceScheduleConstraintProvider::beforeIdealEndDate)
                 .given(new Job("1", "Downtown tunnel", 0, null, null, DAY_2, null, ALPHA_CREW, DAY_2))
                 .penalizesBy(0);
@@ -97,7 +97,7 @@ public class MaintenanceSchedulingConstraintProviderTest {
     }
 
     @Test
-    public void afterIdealEndDate() {
+     void afterIdealEndDate() {
         constraintVerifier.verifyThat(MaintenanceScheduleConstraintProvider::afterIdealEndDate)
                 .given(new Job("1", "Downtown tunnel", 1, null, null, DAY_2, null, ALPHA_CREW, DAY_2))
                 .penalizesBy(1);
@@ -113,7 +113,7 @@ public class MaintenanceSchedulingConstraintProviderTest {
     }
 
     @Test
-    public void tagConflict() {
+     void tagConflict() {
         constraintVerifier.verifyThat(MaintenanceScheduleConstraintProvider::tagConflict)
                 .given(
                         new Job("1", "Downtown tunnel", 1, null, null, null, Set.of("Downtown"), ALPHA_CREW, DAY_1),

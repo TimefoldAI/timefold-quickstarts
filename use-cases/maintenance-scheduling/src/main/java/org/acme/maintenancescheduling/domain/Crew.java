@@ -1,17 +1,10 @@
 package org.acme.maintenancescheduling.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
-import org.hibernate.annotations.UuidGenerator;
 
-@Entity
 public class Crew {
 
     @PlanningId
-    @Id
-    @UuidGenerator
     private String id;
 
     private String name;
