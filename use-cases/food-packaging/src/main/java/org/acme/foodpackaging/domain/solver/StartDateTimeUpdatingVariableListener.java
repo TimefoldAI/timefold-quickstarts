@@ -66,7 +66,7 @@ public class StartDateTimeUpdatingVariableListener implements VariableListener<P
             startProductionDateTime = line.getStartDateTime();
         } else {
             startCleaningDateTime = previousJob.getEndDateTime();
-            startProductionDateTime = startCleaningDateTime.plus(job.getProduct().getCleanupDuration(previousJob.getProduct()));
+            startProductionDateTime = startCleaningDateTime == null ? null : startCleaningDateTime.plus(job.getProduct().getCleanupDuration(previousJob.getProduct()));
         }
         // An equal startCleaningDateTime does not guarantee an equal startProductionDateTime
         for (Job shadowJob = job;
