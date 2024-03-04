@@ -1,6 +1,7 @@
 package org.acme.employeescheduling.domain;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 
@@ -60,5 +61,17 @@ public class Availability {
     @Override
     public String toString() {
         return availabilityType + "(" + employee + ", " + date + ")";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Availability that)) return false;
+        return Objects.equals(getId(), that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId());
     }
 }

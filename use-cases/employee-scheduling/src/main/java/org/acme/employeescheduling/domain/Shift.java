@@ -1,6 +1,7 @@
 package org.acme.employeescheduling.domain;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
@@ -91,5 +92,17 @@ public class Shift {
     @Override
     public String toString() {
         return location + " " + start + "-" + end;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Shift shift)) return false;
+        return Objects.equals(getId(), shift.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId());
     }
 }
