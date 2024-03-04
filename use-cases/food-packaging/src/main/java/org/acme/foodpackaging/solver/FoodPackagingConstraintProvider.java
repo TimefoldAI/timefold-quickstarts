@@ -57,7 +57,8 @@ public class FoodPackagingConstraintProvider implements ConstraintProvider {
     // TODO Currently dwarfed by minimizeAndLoadBalanceMakeSpan in the same score level, because that squares
     protected Constraint operatorCleaningConflict(ConstraintFactory factory) {
         return factory.forEach(Job.class)
-                .join(factory.forEach(Job.class),
+                .filter(job ->job.getLine() != null)
+                .join(factory.forEach(Job.class).filter(job ->job.getLine() != null),
                         Joiners.equal(job -> job.getLine().getOperator()),
                         Joiners.overlapping(Job::getStartCleaningDateTime, Job::getStartProductionDateTime),
                         Joiners.lessThan(Job::getId))
