@@ -23,7 +23,6 @@ public class Lesson {
     @PlanningVariable
     private Room room;
 
-    // No-arg constructor required for Hibernate and Timefold
     public Lesson() {
     }
 

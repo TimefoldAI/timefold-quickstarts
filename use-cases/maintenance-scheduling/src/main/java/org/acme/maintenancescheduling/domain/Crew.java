@@ -11,7 +11,6 @@ public class Crew {
 
     private String name;
 
-    // No-arg constructor required for Hibernate
     public Crew() {
     }
 
