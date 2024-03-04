@@ -12,7 +12,6 @@ public class WorkCalendar {
     private LocalDate fromDate; // Inclusive
     private LocalDate toDate; // Exclusive
 
-    // No-arg constructor required for Hibernate
     public WorkCalendar() {
     }
 

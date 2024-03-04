@@ -9,7 +9,6 @@ public class Room {
 
     private String name;
 
-    // No-arg constructor required for Hibernate
     public Room() {
     }
 

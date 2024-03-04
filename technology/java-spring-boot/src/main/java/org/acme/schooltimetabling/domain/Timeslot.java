@@ -17,7 +17,6 @@ public class Timeslot {
     private LocalTime startTime;
     private LocalTime endTime;
 
-    // No-arg constructor required for Hibernate
     public Timeslot() {
     }
 
