@@ -1,21 +1,14 @@
 package org.acme.employeescheduling.domain;
 
+import java.util.Objects;
 import java.util.Set;
-
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Id;
 
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 
-@Entity
 public class Employee {
-    @Id
     @PlanningId
     String name;
 
-    @ElementCollection(fetch = FetchType.EAGER)
     Set<String> skills;
 
     public Employee() {
@@ -46,5 +39,21 @@ public class Employee {
     @Override
     public String toString() {
         return name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Employee employee)) {
+            return false;
+        }
+        return Objects.equals(getName(), employee.getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return getName().hashCode();
     }
 }

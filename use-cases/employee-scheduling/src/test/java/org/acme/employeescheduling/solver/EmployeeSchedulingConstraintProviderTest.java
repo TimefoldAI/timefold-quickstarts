@@ -8,18 +8,19 @@ import java.util.Set;
 
 import jakarta.inject.Inject;
 
+import ai.timefold.solver.test.api.score.stream.ConstraintVerifier;
+
 import org.acme.employeescheduling.domain.Availability;
 import org.acme.employeescheduling.domain.AvailabilityType;
 import org.acme.employeescheduling.domain.Employee;
 import org.acme.employeescheduling.domain.EmployeeSchedule;
 import org.acme.employeescheduling.domain.Shift;
 import org.junit.jupiter.api.Test;
-import ai.timefold.solver.test.api.score.stream.ConstraintVerifier;
 
 import io.quarkus.test.junit.QuarkusTest;
 
 @QuarkusTest
-public class EmployeeSchedulingConstraintProviderTest {
+class EmployeeSchedulingConstraintProviderTest {
     private static final LocalDate DAY_1 = LocalDate.of(2021, 2, 1);
 
     private static final LocalDateTime DAY_START_TIME = DAY_1.atTime(LocalTime.of(9, 0));
@@ -31,22 +32,22 @@ public class EmployeeSchedulingConstraintProviderTest {
     ConstraintVerifier<EmployeeSchedulingConstraintProvider, EmployeeSchedule> constraintVerifier;
 
     @Test
-    public void testRequiredSkill() {
+    void testRequiredSkill() {
         Employee employee = new Employee("Amy", Set.of());
         constraintVerifier.verifyThat(EmployeeSchedulingConstraintProvider::requiredSkill)
                 .given(employee,
-                       new Shift(DAY_START_TIME, DAY_END_TIME, "Location", "Skill", employee))
+                   new Shift("1", DAY_START_TIME, DAY_END_TIME, "Location", "Skill", employee))
                 .penalizes(1);
 
         employee = new Employee("Beth", Set.of("Skill"));
         constraintVerifier.verifyThat(EmployeeSchedulingConstraintProvider::requiredSkill)
                 .given(employee,
-                       new Shift(DAY_START_TIME, DAY_END_TIME, "Location", "Skill", employee))
+                       new Shift("2", DAY_START_TIME, DAY_END_TIME, "Location", "Skill", employee))
                 .penalizes(0);
     }
 
     @Test
-    public void testOverlappingShifts() {
+    void testOverlappingShifts() {
         Employee employee1 = new Employee("Amy", Set.of("Skill"));
         Employee employee2 = new Employee("Beth", Set.of("Skill"));
         constraintVerifier.verifyThat(EmployeeSchedulingConstraintProvider::noOverlappingShifts)
@@ -69,7 +70,7 @@ public class EmployeeSchedulingConstraintProviderTest {
     }
 
     @Test
-    public void testOneShiftPerDay() {
+    void testOneShiftPerDay() {
         Employee employee1 = new Employee("Amy", Set.of("Skill"));
         Employee employee2 = new Employee("Beth", Set.of("Skill"));
         constraintVerifier.verifyThat(EmployeeSchedulingConstraintProvider::noOverlappingShifts)
@@ -98,7 +99,7 @@ public class EmployeeSchedulingConstraintProviderTest {
     }
 
     @Test
-    public void testAtLeast10HoursBetweenConsecutiveShifts() {
+    void testAtLeast10HoursBetweenConsecutiveShifts() {
         Employee employee1 = new Employee("Amy", Set.of("Skill"));
         Employee employee2 = new Employee("Beth", Set.of("Skill"));
         constraintVerifier.verifyThat(EmployeeSchedulingConstraintProvider::atLeast10HoursBetweenTwoShifts)
@@ -129,11 +130,11 @@ public class EmployeeSchedulingConstraintProviderTest {
     }
 
     @Test
-    public void testUnavailableEmployee() {
+    void testUnavailableEmployee() {
         Employee employee1 = new Employee("Amy", Set.of("Skill"));
         Employee employee2 = new Employee("Beth", Set.of("Skill"));
-        Availability unavailability = new Availability(employee1, DAY_1, AvailabilityType.UNAVAILABLE);
-        Availability desired = new Availability(employee1, DAY_1, AvailabilityType.DESIRED);
+        Availability unavailability = new Availability("1", employee1, DAY_1, AvailabilityType.UNAVAILABLE);
+        Availability desired = new Availability("2", employee1, DAY_1, AvailabilityType.DESIRED);
         constraintVerifier.verifyThat(EmployeeSchedulingConstraintProvider::unavailableEmployee)
                 .given(employee1,
                        unavailability,
@@ -157,11 +158,11 @@ public class EmployeeSchedulingConstraintProviderTest {
     }
 
     @Test
-    public void testDesiredDayForEmployee() {
+    void testDesiredDayForEmployee() {
         Employee employee1 = new Employee("Amy", Set.of("Skill"));
         Employee employee2 = new Employee("Beth", Set.of("Skill"));
-        Availability unavailability = new Availability(employee1, DAY_1, AvailabilityType.UNAVAILABLE);
-        Availability desired = new Availability(employee1, DAY_1, AvailabilityType.DESIRED);
+        Availability unavailability = new Availability("1", employee1, DAY_1, AvailabilityType.UNAVAILABLE);
+        Availability desired = new Availability("2", employee1, DAY_1, AvailabilityType.DESIRED);
         constraintVerifier.verifyThat(EmployeeSchedulingConstraintProvider::desiredDayForEmployee)
                 .given(employee1,
                        desired,
@@ -185,11 +186,11 @@ public class EmployeeSchedulingConstraintProviderTest {
     }
 
     @Test
-    public void testUndesiredDayForEmployee() {
+    void testUndesiredDayForEmployee() {
         Employee employee1 = new Employee("Amy", Set.of("Skill"));
         Employee employee2 = new Employee("Beth", Set.of("Skill"));
-        Availability unavailability = new Availability(employee1, DAY_1, AvailabilityType.UNAVAILABLE);
-        Availability undesired = new Availability(employee1, DAY_1, AvailabilityType.UNDESIRED);
+        Availability unavailability = new Availability("1", employee1, DAY_1, AvailabilityType.UNAVAILABLE);
+        Availability undesired = new Availability("2", employee1, DAY_1, AvailabilityType.UNDESIRED);
         constraintVerifier.verifyThat(EmployeeSchedulingConstraintProvider::undesiredDayForEmployee)
                 .given(employee1,
                        undesired,
