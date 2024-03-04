@@ -129,10 +129,13 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                          lesson -> lesson.getRoom(),
                          lesson -> lesson.getTags())
                          //lesson -> Set<String> intersection = new HashSet<>(lesson.getTags()))
-                .filter((timeslot, room, tags) -> timeslot.getName().equals("Lunch") && room.getName().equals("Day 3"))
-                //.filter((timeslot, room, tags) -> timeslot.getName().equals("Lunch"))
-                        //&& lesson -> lesson.getRoom().getName().equals("Day 1"))
-                //.penalizeLong(HardSoftLongScore.ofHard(1),
+                .filter((timeslot, room, tags) ->  room.getName().equals("Day 3"))
+                                                //&& timeslot.getName().equals("Lunch")
+                                                //&& 
+                                                 //  room.getName().equals("Day 6")
+                                                //&& timeslot.getName().equals("Lunch")   
+                                                //&& timeslot.getName().equals("Supper"))
+                //                               && room.getName().equals("Day 3"))
                 .penalize(HardSoftScore.ONE_HARD,
                         (timeslot, room, tags) -> { 
                                 
@@ -140,7 +143,7 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                                 //room.getName().equals("Day 3");
                                 //room.getName().equals("Day 5");
                                 Set<String> intersection = new HashSet<>(tags);
-                                Set<String> tagblock = new HashSet<>(Arrays.asList("Brave", "D3L"));
+                                Set<String> tagblock = new HashSet<>(Arrays.asList("D3L","D5S","D4S"));
                                 int countEqualMatches = 0;
                                 for(String a : intersection){
                                         for(String b : tagblock){
@@ -152,7 +155,7 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                                 return countEqualMatches * intersection.size();
                         })
 
-                .asConstraint("Braves Unavailable Breakfast and Lunch and Day 10 Lunch and Supper is blocked for KP");
+                .asConstraint("Braves Unavailable Day 3 - Lunch and Day 6 - Lunch and Supper");
     }
 
         
