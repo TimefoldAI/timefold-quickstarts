@@ -1,7 +1,11 @@
 package org.acme.schooltimetabling.solver;
 
 import java.time.Duration;
+import java.util.Arrays;
 //import java.util.stream.Collectors;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
 import ai.timefold.solver.core.api.score.buildin.simple.SimpleScore;
@@ -13,6 +17,8 @@ import ai.timefold.solver.core.api.score.stream.Joiners;
 //import ai.timefold.solver.core.api.score.stream.bi.BiConstraintStream;
 //import ai.timefold.solver.core.api.score.stream.uni.UniConstraintCollector;
 import static ai.timefold.solver.core.api.score.stream.ConstraintCollectors.sum;
+import static ai.timefold.solver.core.api.score.stream.Joiners.filtering;
+import static ai.timefold.solver.core.api.score.stream.Joiners.overlapping;
 
 import org.acme.schooltimetabling.domain.Lesson;
 import org.acme.schooltimetabling.domain.Timeslot;
@@ -25,6 +31,7 @@ import org.acme.schooltimetabling.solver.justifications.StudentGroupSubjectVarie
 import org.acme.schooltimetabling.solver.justifications.TeacherConflictJustification;
 import org.acme.schooltimetabling.solver.justifications.TeacherRoomStabilityJustification;
 import org.acme.schooltimetabling.solver.justifications.TeacherTimeEfficiencyJustification;
+import org.hibernate.mapping.Join;
 
 public class TimetableConstraintProvider implements ConstraintProvider {
 
@@ -39,6 +46,7 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                 // Soft constraints
                 blockDayOneAndDayTenKP(constraintFactory),
                 groupACanNotKPBreakfast(constraintFactory),
+                tagBraveKPNotAvailable(constraintFactory),
                 //teacherRoomStability(constraintFactory),
                 //teacherTimeEfficiency(constraintFactory),
                 //studentGroupSubjectVariety(constraintFactory),
@@ -69,7 +77,7 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                 .groupBy(lesson -> lesson.getTimeslot(),
                          lesson -> lesson.getRoom(),
                  sum(lesson -> Lesson.getCount()))
-                .filter((timeslot,  room, getCount) -> getCount < 6)
+                .filter((timeslot,  room, getCount) -> getCount < 4)
                 .reward(HardSoftScore.ONE_SOFT)
                 .asConstraint("Timeslot capacity exceeded");
 
@@ -89,6 +97,62 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                 .penalize(HardSoftScore.ONE_SOFT)
                 //.justifyWith((lesson1, lesson2, score) -> new StudentGroupSubjectVarietyJustification(lesson1.getStudentGroup(), lesson1, lesson2))
                 .asConstraint("Student group subject variety");
+    }
+/* 
+    public Constraint tagConflict(ConstraintFactory constraintFactory) {
+        // Avoid overlapping maintenance jobs with the same tag (for example road maintenance in the same area).
+        return constraintFactory
+                .forEachUniquePair(Job.class,
+                        overlapping(Job::getStartDate, Job::getEndDate),
+                        // TODO Use intersecting() when available https://github.com/TimefoldAI/timefold-solver/issues/8
+                        filtering((job1, job2) -> !Collections.disjoint(
+                                job1.getTags(), job2.getTags())))
+                .penalizeLong(HardSoftLongScore.ofSoft(1_000),
+                        (job1, job2) -> {
+                            Set<String> intersection = new HashSet<>(job1.getTags());
+                            intersection.retainAll(job2.getTags());
+                            long overlap = DAYS.between(
+                                    job1.getStartDate().isAfter(job2.getStartDate())
+                                            ? job1.getStartDate()  : job2.getStartDate(),
+                                    job1.getEndDate().isBefore(job2.getEndDate())
+                                            ? job1.getEndDate() : job2.getEndDate());
+                            return intersection.size() * overlap;
+                        })
+                .asConstraint("Tag conflict");
+    } */
+
+    Constraint tagBraveKPNotAvailable(ConstraintFactory constraintFactory) {
+ 
+        return constraintFactory
+                .forEach(Lesson.class)
+                .groupBy(lesson -> lesson.getTimeslot(),
+                         lesson -> lesson.getRoom(),
+                         lesson -> lesson.getTags())
+                         //lesson -> Set<String> intersection = new HashSet<>(lesson.getTags()))
+                .filter((timeslot, room, tags) -> timeslot.getName().equals("Lunch") && room.getName().equals("Day 3"))
+                //.filter((timeslot, room, tags) -> timeslot.getName().equals("Lunch"))
+                        //&& lesson -> lesson.getRoom().getName().equals("Day 1"))
+                //.penalizeLong(HardSoftLongScore.ofHard(1),
+                .penalize(HardSoftScore.ONE_HARD,
+                        (timeslot, room, tags) -> { 
+                                
+                                //timeslot.getName().equals("Lunch"); 
+                                //room.getName().equals("Day 3");
+                                //room.getName().equals("Day 5");
+                                Set<String> intersection = new HashSet<>(tags);
+                                Set<String> tagblock = new HashSet<>(Arrays.asList("Brave", "D3L"));
+                                int countEqualMatches = 0;
+                                for(String a : intersection){
+                                        for(String b : tagblock){
+                                                if(a.equals(b)){
+                                                        countEqualMatches++;
+                                                }
+                                        }
+                                }
+                                return countEqualMatches * intersection.size();
+                        })
+
+                .asConstraint("Braves Unavailable Breakfast and Lunch and Day 10 Lunch and Supper is blocked for KP");
     }
 
         

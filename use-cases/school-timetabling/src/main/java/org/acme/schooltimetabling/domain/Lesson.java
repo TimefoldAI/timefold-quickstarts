@@ -1,8 +1,13 @@
 package org.acme.schooltimetabling.domain;
 
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.FetchType;
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
+
+import java.util.Set;
+
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 
 @PlanningEntity
@@ -23,22 +28,27 @@ public class Lesson {
     @PlanningVariable
     private Room room;
 
+   @ElementCollection(fetch = FetchType.EAGER)
+   private Set<String> tags;
+
     // No-arg constructor required for Hibernate and Timefold
     public Lesson() {
     }
 
 
-    public Lesson(long id, String subject, String teacher, String studentGroup) {
+    public Lesson(long id, String subject, String teacher, String studentGroup, Set<String> tags) {
         this.id = id;
         this.subject = subject;
         this.teacher = teacher;
         this.studentGroup = studentGroup;
+        this.tags = tags;
     }
 
-    public Lesson(long id, String subject, String teacher, String studentGroup, Timeslot timeslot, Room room) {
-        this(id, subject, teacher, studentGroup);
+    public Lesson(long id, String subject, String teacher, String studentGroup, Timeslot timeslot, Room room, Set<String> tags) {
+        this(id, subject, teacher, studentGroup, tags);
         this.timeslot = timeslot;
         this.room = room;
+        this.tags = tags;
     }
 
     @Override
@@ -84,5 +94,9 @@ public class Lesson {
 
     public static int getCount() {
         return 1;
+    }
+
+    public Set<String> getTags() {
+        return tags;
     }
 }
