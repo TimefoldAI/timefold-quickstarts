@@ -96,13 +96,17 @@ public class Shift {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Shift shift)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Shift shift)) {
+            return false;
+        }
         return Objects.equals(getId(), shift.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId());
+        return getId().hashCode();
     }
 }

@@ -65,13 +65,17 @@ public class Availability {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Availability that)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Availability that)) {
+            return false;
+        }
         return Objects.equals(getId(), that.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId());
+        return getId().hashCode();
     }
 }
