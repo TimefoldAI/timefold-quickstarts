@@ -36,13 +36,13 @@ class EmployeeSchedulingConstraintProviderTest {
         Employee employee = new Employee("Amy", Set.of());
         constraintVerifier.verifyThat(EmployeeSchedulingConstraintProvider::requiredSkill)
                 .given(employee,
-                       new Shift(DAY_START_TIME, DAY_END_TIME, "Location", "Skill", employee))
+                   new Shift("1", DAY_START_TIME, DAY_END_TIME, "Location", "Skill", employee))
                 .penalizes(1);
 
         employee = new Employee("Beth", Set.of("Skill"));
         constraintVerifier.verifyThat(EmployeeSchedulingConstraintProvider::requiredSkill)
                 .given(employee,
-                       new Shift(DAY_START_TIME, DAY_END_TIME, "Location", "Skill", employee))
+                       new Shift("2", DAY_START_TIME, DAY_END_TIME, "Location", "Skill", employee))
                 .penalizes(0);
     }
 
