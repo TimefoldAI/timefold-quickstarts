@@ -51,7 +51,7 @@ public class Job {
     @PiggybackShadowVariable(shadowVariableName = "startCleaningDateTime")
     private LocalDateTime endDateTime;
 
-    // No-arg constructor required for OptaPlanner and Jackson
+    // No-arg constructor required for Timefold
     public Job() {
     }
 

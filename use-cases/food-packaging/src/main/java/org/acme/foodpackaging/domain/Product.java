@@ -10,7 +10,6 @@ public class Product {
     /** The map key is previous product on assembly line. */
     private Map<Product, Duration> cleaningDurationMap;
 
-    // No-arg constructor required for OptaPlanner and Jackson
     public Product() {
     }
 

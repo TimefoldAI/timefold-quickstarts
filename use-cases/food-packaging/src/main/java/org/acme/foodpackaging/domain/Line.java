@@ -20,7 +20,7 @@ public class Line {
     @PlanningListVariable
     private List<Job> jobList;
 
-    // No-arg constructor required for OptaPlanner and Jackson
+    // No-arg constructor required for Timefold
     public Line() {
     }
 
