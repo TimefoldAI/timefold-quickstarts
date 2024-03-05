@@ -46,11 +46,12 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                 // Soft constraints
                 blockDayOneAndDayTenKP(constraintFactory),
                 groupACanNotKPBreakfast(constraintFactory),
-                tagBraveKPNotAvailable(constraintFactory),
+                day6LunchKPNotAvailable(constraintFactory),
+                kpPerShiftMaxGtFivePenalize(constraintFactory)
                 //teacherRoomStability(constraintFactory),
                 //teacherTimeEfficiency(constraintFactory),
                 //studentGroupSubjectVariety(constraintFactory),
-                kpPerShiftMaxGtFive(constraintFactory)
+                //kpPerShiftMaxGtFive(constraintFactory)
         };
     }
 
@@ -79,6 +80,20 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                  sum(lesson -> Lesson.getCount()))
                 .filter((timeslot,  room, getCount) -> getCount < 4)
                 .reward(HardSoftScore.ONE_SOFT)
+                .asConstraint("Timeslot capacity exceeded");
+
+    }
+
+    Constraint kpPerShiftMaxGtFivePenalize(ConstraintFactory constraintFactory) {
+        // A room can accommodate at most one lesson at the same time.
+        return constraintFactory
+
+                .forEach(Lesson.class)
+                .groupBy(lesson -> lesson.getTimeslot(),
+                         lesson -> lesson.getRoom(),
+                 sum(lesson -> Lesson.getCount()))
+                .filter((timeslot,  room, getCount) -> getCount > 4)
+                .penalize(HardSoftScore.ONE_HARD)
                 .asConstraint("Timeslot capacity exceeded");
 
     }
@@ -121,21 +136,15 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                 .asConstraint("Tag conflict");
     } */
 
-    Constraint tagBraveKPNotAvailable(ConstraintFactory constraintFactory) {
+    Constraint day6LunchKPNotAvailable(ConstraintFactory constraintFactory) {
  
         return constraintFactory
                 .forEach(Lesson.class)
                 .groupBy(lesson -> lesson.getTimeslot(),
                          lesson -> lesson.getRoom(),
                          lesson -> lesson.getTags())
-                         //lesson -> Set<String> intersection = new HashSet<>(lesson.getTags()))
-                .filter((timeslot, room, tags) ->  room.getName().equals("Day 3"))
-                                                //&& timeslot.getName().equals("Lunch")
-                                                //&& 
-                                                 //  room.getName().equals("Day 6")
-                                                //&& timeslot.getName().equals("Lunch")   
-                                                //&& timeslot.getName().equals("Supper"))
-                //                               && room.getName().equals("Day 3"))
+                .filter((timeslot, room, tags) ->  room.getName().equals("Day 3")
+                                                && timeslot.getName().equals("Lunch"))
                 .penalize(HardSoftScore.ONE_HARD,
                         (timeslot, room, tags) -> { 
                                 
@@ -143,7 +152,7 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                                 //room.getName().equals("Day 3");
                                 //room.getName().equals("Day 5");
                                 Set<String> intersection = new HashSet<>(tags);
-                                Set<String> tagblock = new HashSet<>(Arrays.asList("D3L","D5S","D4S"));
+                                Set<String> tagblock = new HashSet<>(Arrays.asList("D3L"));
                                 int countEqualMatches = 0;
                                 for(String a : intersection){
                                         for(String b : tagblock){
@@ -155,7 +164,7 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                                 return countEqualMatches * intersection.size();
                         })
 
-                .asConstraint("Braves Unavailable Day 3 - Lunch and Day 6 - Lunch and Supper");
+                .asConstraint("Day 3 - Lunch Not Available");
     }
 
         
@@ -242,15 +251,14 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                 .asConstraint("Teacher time efficiency");
     } 
 
-    Constraint studentGroupSubjectVariety(ConstraintFactory constraintFactory) {
+    Constraint scoutPatrolSameDay(ConstraintFactory constraintFactory) {
         // A student group dislikes sequential lessons on the same subject.
         return constraintFactory
                 .forEach(Lesson.class)
                 .join(Lesson.class,
                         Joiners.equal(Lesson::getSubject),
-                        Joiners.equal(Lesson::getStudentGroup),
-                        /*Joiners.equal((lesson) -> lesson.getTimeslot().getDayOfWeek())) 
-                        Joiners.equal((lesson) -> lesson.getTimeslot().getLocalDate()))
+                        Joiners.equal(Lesson::getRoom),
+                        Joiners.equal((lesson::getTimeslot)) 
                 .filter((lesson1, lesson2) -> {
                     Duration between = Duration.between(lesson1.getTimeslot().getEndTime(),
                             lesson2.getTimeslot().getStartTime());
@@ -259,7 +267,7 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                 .penalize(HardSoftScore.ONE_SOFT)
                 .justifyWith((lesson1, lesson2, score) -> new StudentGroupSubjectVarietyJustification(lesson1.getStudentGroup(), lesson1, lesson2))
                 .asConstraint("Student group subject variety");
-    }
-    */
+    }*/
+    
 
-}
+} 
