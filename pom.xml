@@ -26,8 +26,6 @@
     <module>use-cases/school-timetabling</module>
     <module>use-cases/facility-location</module>
     <module>use-cases/maintenance-scheduling</module>
-    <module>use-cases/call-center</module>
-    <module>use-cases/vaccination-scheduling</module>
     <module>use-cases/vehicle-routing</module>
     <module>use-cases/order-picking</module>
     <module>use-cases/employee-scheduling</module>
