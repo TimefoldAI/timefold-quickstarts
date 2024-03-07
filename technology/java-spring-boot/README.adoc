@@ -2,7 +2,7 @@
 
 Assign lessons to timeslots and rooms to produce a better schedule for teachers and students.
 
-image::../../build/quickstarts-showcase/src/main/resources/META-INF/resources/screenshot/springboot-school-timetabling-screenshot.png[]
+image::./springboot-school-timetabling-screenshot.png[]
 
 * <<run,Run the application>>
 

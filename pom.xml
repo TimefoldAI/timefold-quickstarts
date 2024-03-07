@@ -30,7 +30,6 @@
     <module>use-cases/order-picking</module>
     <module>use-cases/employee-scheduling</module>
     <module>use-cases/food-packaging</module>
-    <module>build/quickstarts-showcase</module>
   </modules>
 
 </project>
