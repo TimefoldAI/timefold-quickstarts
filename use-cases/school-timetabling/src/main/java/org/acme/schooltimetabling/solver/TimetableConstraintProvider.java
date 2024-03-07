@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import ai.timefold.solver.core.api.score.Score;
 import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
 import ai.timefold.solver.core.api.score.buildin.simple.SimpleScore;
 import ai.timefold.solver.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
@@ -44,9 +45,14 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                 scoutKPConflict(constraintFactory),
                 //studentGroupConflict(constraintFactory),
                 // Soft constraints
+                keepMonkeyPatrolTogether(constraintFactory),
+                keepDogPatrolTogether(constraintFactory),
                 blockDayOneAndDayTenKP(constraintFactory),
-                groupACanNotKPBreakfast(constraintFactory),
-                day6LunchKPNotAvailable(constraintFactory),
+                //groupACanNotKPBreakfast(constraintFactory),
+                day2LunchKPNotAvailable(constraintFactory),
+                day2SupperKPNotAvailable(constraintFactory),
+                day3LunchKPNotAvailable(constraintFactory),
+                day3SupperKPNotAvailable(constraintFactory),
                 kpPerShiftMaxGtFivePenalize(constraintFactory)
                 //teacherRoomStability(constraintFactory),
                 //teacherTimeEfficiency(constraintFactory),
@@ -98,6 +104,42 @@ public class TimetableConstraintProvider implements ConstraintProvider {
 
     }
 
+    Constraint keepMonkeyPatrolTogether(ConstraintFactory constraintFactory) {
+        return constraintFactory
+        .forEach(Lesson.class)
+        //.groupBy(lesson -> lesson.getTimeslot(),
+        //         lesson -> lesson.getRoom(),
+        //         lesson -> lesson.getSubject())
+        .filter(lesson -> (lesson.getTimeslot().getName().equals("Breakfast") && lesson.getRoom().getName().equals("Day 2") && lesson.getSubject().equals("Monkeys"))
+                           || (lesson.getTimeslot().getName().equals("Breakfast") && lesson.getRoom().getName().equals("Day 5") && lesson.getSubject().equals("Monkeys"))
+                           || (lesson.getTimeslot().getName().equals("Breakfast") && lesson.getRoom().getName().equals("Day 8") && lesson.getSubject().equals("Monkeys"))
+                           || (lesson.getTimeslot().getName().equals("Supper") && lesson.getRoom().getName().equals("Day 2") && lesson.getSubject().equals("Monkeys"))
+                           || (lesson.getTimeslot().getName().equals("Supper") && lesson.getRoom().getName().equals("Day 5") && lesson.getSubject().equals("Monkeys"))
+                           || (lesson.getTimeslot().getName().equals("Supper") && lesson.getRoom().getName().equals("Day 8") && lesson.getSubject().equals("Monkeys")))
+                .reward(HardSoftScore.ONE_SOFT)
+                //                                     || (timeslot.getName().equals("Breakfast") && room.getName().equals("Day 5") && subject.equals("Monkeys"))))
+                //.justifyWith((lesson1, lesson2, score) -> new StudentGroupSubjectVarietyJustification(lesson1.getStudentGroup(), lesson1, lesson2))
+                .asConstraint("Monkey Patrol Together");
+    }
+
+    Constraint keepDogPatrolTogether(ConstraintFactory constraintFactory) {
+        return constraintFactory
+        .forEach(Lesson.class)
+        //.groupBy(lesson -> lesson.getTimeslot(),
+        //         lesson -> lesson.getRoom(),
+        //         lesson -> lesson.getSubject())
+        .filter(lesson -> (lesson.getTimeslot().getName().equals("Breakfast") && lesson.getRoom().getName().equals("Day 3") && lesson.getSubject().equals("Dogs"))
+                           || (lesson.getTimeslot().getName().equals("Breakfast") && lesson.getRoom().getName().equals("Day 6") && lesson.getSubject().equals("Dogs"))
+                           || (lesson.getTimeslot().getName().equals("Breakfast") && lesson.getRoom().getName().equals("Day 9") && lesson.getSubject().equals("Dogs"))
+                           || (lesson.getTimeslot().getName().equals("Supper") && lesson.getRoom().getName().equals("Day 3") && lesson.getSubject().equals("Dogs"))
+                           || (lesson.getTimeslot().getName().equals("Supper") && lesson.getRoom().getName().equals("Day 6") && lesson.getSubject().equals("Dogs"))
+                           || (lesson.getTimeslot().getName().equals("Supper") && lesson.getRoom().getName().equals("Day 9") && lesson.getSubject().equals("Dogs")))
+                .reward(HardSoftScore.ONE_SOFT)
+                //                                     || (timeslot.getName().equals("Breakfast") && room.getName().equals("Day 5") && subject.equals("Monkeys"))))
+                //.justifyWith((lesson1, lesson2, score) -> new StudentGroupSubjectVarietyJustification(lesson1.getStudentGroup(), lesson1, lesson2))
+                .asConstraint("Dogs Patrol Together");
+    }
+
     Constraint groupACanNotKPBreakfast(ConstraintFactory constraintFactory) {
         return constraintFactory
                 .forEach(Lesson.class)
@@ -136,7 +178,69 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                 .asConstraint("Tag conflict");
     } */
 
-    Constraint day6LunchKPNotAvailable(ConstraintFactory constraintFactory) {
+    Constraint day2LunchKPNotAvailable(ConstraintFactory constraintFactory) {
+ 
+        return constraintFactory
+                .forEach(Lesson.class)
+                .groupBy(lesson -> lesson.getTimeslot(),
+                         lesson -> lesson.getRoom(),
+                         lesson -> lesson.getTags())
+                .filter((timeslot, room, tags) ->  room.getName().equals("Day 2")
+                                                && timeslot.getName().equals("Lunch"))
+                .penalize(HardSoftScore.ONE_HARD,
+                        (timeslot, room, tags) -> { 
+                                
+                                //timeslot.getName().equals("Lunch"); 
+                                //room.getName().equals("Day 3");
+                                //room.getName().equals("Day 5");
+                                Set<String> intersection = new HashSet<>(tags);
+                                Set<String> tagblock = new HashSet<>(Arrays.asList("D2L"));
+                                int countEqualMatches = 0;
+                                for(String a : intersection){
+                                        for(String b : tagblock){
+                                                if(a.equals(b)){
+                                                        countEqualMatches++;
+                                                }
+                                        }
+                                }
+                                return countEqualMatches * intersection.size();
+                        })
+
+                .asConstraint("Day 2 - Lunch Not Available");
+    }
+
+    Constraint day2SupperKPNotAvailable(ConstraintFactory constraintFactory) {
+ 
+        return constraintFactory
+                .forEach(Lesson.class)
+                .groupBy(lesson -> lesson.getTimeslot(),
+                         lesson -> lesson.getRoom(),
+                         lesson -> lesson.getTags())
+                .filter((timeslot, room, tags) ->  room.getName().equals("Day 2")
+                                                && timeslot.getName().equals("Supper"))
+                .penalize(HardSoftScore.ONE_HARD,
+                        (timeslot, room, tags) -> { 
+                                
+                                //timeslot.getName().equals("Lunch"); 
+                                //room.getName().equals("Day 3");
+                                //room.getName().equals("Day 5");
+                                Set<String> intersection = new HashSet<>(tags);
+                                Set<String> tagblock = new HashSet<>(Arrays.asList("D2S"));
+                                int countEqualMatches = 0;
+                                for(String a : intersection){
+                                        for(String b : tagblock){
+                                                if(a.equals(b)){
+                                                        countEqualMatches++;
+                                                }
+                                        }
+                                }
+                                return countEqualMatches * intersection.size();
+                        })
+
+                .asConstraint("Day 2 - Supper Not Available");
+    }
+
+    Constraint day3LunchKPNotAvailable(ConstraintFactory constraintFactory) {
  
         return constraintFactory
                 .forEach(Lesson.class)
@@ -165,6 +269,37 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                         })
 
                 .asConstraint("Day 3 - Lunch Not Available");
+    }
+
+    Constraint day3SupperKPNotAvailable(ConstraintFactory constraintFactory) {
+ 
+        return constraintFactory
+                .forEach(Lesson.class)
+                .groupBy(lesson -> lesson.getTimeslot(),
+                         lesson -> lesson.getRoom(),
+                         lesson -> lesson.getTags())
+                .filter((timeslot, room, tags) ->  room.getName().equals("Day 3")
+                                                && timeslot.getName().equals("Supper"))
+                .penalize(HardSoftScore.ONE_HARD,
+                        (timeslot, room, tags) -> { 
+                                
+                                //timeslot.getName().equals("Lunch"); 
+                                //room.getName().equals("Day 3");
+                                //room.getName().equals("Day 5");
+                                Set<String> intersection = new HashSet<>(tags);
+                                Set<String> tagblock = new HashSet<>(Arrays.asList("D2S"));
+                                int countEqualMatches = 0;
+                                for(String a : intersection){
+                                        for(String b : tagblock){
+                                                if(a.equals(b)){
+                                                        countEqualMatches++;
+                                                }
+                                        }
+                                }
+                                return countEqualMatches * intersection.size();
+                        })
+
+                .asConstraint("Day 3 - Supper Not Available");
     }
 
         
