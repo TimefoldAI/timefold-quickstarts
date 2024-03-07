@@ -2,7 +2,7 @@
 
 Generate an optimal picking plan for completing a set of orders.
 
-image::./screenshot/quarkus-order-picking-screenshot.png[]
+image::./quarkus-order-picking-screenshot.png[]
 
 * <<run,Run the application>>
 * <<package,Run the packaged application>>

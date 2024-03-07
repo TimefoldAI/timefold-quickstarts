@@ -2,7 +2,7 @@
 
 Pick the best geographical locations for new stores, distribution centers, covid test centers or telco masts.
 
-image::./screenshot/quarkus-facility-location-screenshot.png[]
+image::./quarkus-facility-location-screenshot.png[]
 
 * <<run,Run the application>>
 * <<package,Run the packaged application>>

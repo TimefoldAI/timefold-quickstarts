@@ -2,7 +2,7 @@
 
 Schedule maintenance jobs to crews over time to reduce both premature and overdue maintenance.
 
-image::./screenshot/quarkus-maintenance-scheduling-screenshot.png[]
+image::./quarkus-maintenance-scheduling-screenshot.png[]
 
 * <<run,Run the application>>
 * <<package,Run the packaged application>>
