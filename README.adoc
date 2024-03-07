@@ -14,9 +14,7 @@ a|* <<vehicle-routing, Vehicle Routing>>
 * <<food-packaging, Food packaging>>
 * <<order-picking, Order Picking>>
 * <<school-timetabling, School timetabling>>
-* <<vaccination-scheduling, Vaccination scheduling>>
 * <<facility-location, Facility location problem>>
-* <<call-center, Call center>>
 
 a|* link:hello-world/README.adoc[Java (Hello World)] (Java, Maven or Gradle)
 * link:use-cases/school-timetabling/README.adoc[Quarkus] (Java, Maven or Gradle, Quarkus)
@@ -79,22 +77,6 @@ Schedule maintenance jobs to crews over time to reduce both premature and overdu
 image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screenshot/quarkus-maintenance-scheduling-screenshot.png[]
 
 * link:use-cases/maintenance-scheduling/README.adoc[Run quarkus-maintenance-scheduling] (Java, Maven, Quarkus, H2)
-
-=== Call center
-
-Schedule incoming calls to employees matching skills and availability.
-
-image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screenshot/quarkus-call-center-screenshot.png[]
-
-* link:use-cases/call-center/README.adoc[Run quarkus-call-center] (Java, Maven, Quarkus)
-
-=== Vaccination scheduling
-
-Assign people to vaccination injection appointments over time at vaccination centers to end a pandemic sooner.
-
-image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screenshot/quarkus-vaccination-scheduling-screenshot.png[]
-
-* link:use-cases/vaccination-scheduling/README.adoc[Run quarkus-vaccination-scheduling] (Java, Maven, Quarkus)
 
 === Order Picking
 

@@ -46,25 +46,11 @@ const quickstarts = [
     screenshot: "screenshot/quarkus-school-timetabling-screenshot.png"
   },
   {
-    id: "vaccination-scheduling",
-    title: "Vaccination scheduling",
-    description: "Assign people to vaccination injection appointments over time at vaccination centers to end a pandemic sooner.",
-    icon: "fa-syringe",
-    screenshot: "screenshot/quarkus-vaccination-scheduling-screenshot.png"
-  },
-  {
     id: "facility-location",
     title: "Facility location problem",
     description: "Pick the best geographical locations for new stores, distribution centers, covid test centers or telco masts.",
     icon: "fa-broadcast-tower",
-    screenshot: "screenshot/quarkus-vaccination-scheduling-screenshot.png"
-  },
-  {
-    id: "call-center",
-    title: "Call center",
-    description: "Assign incoming calls to agents based on required skills while minimizing customer wait times.",
-    icon: "fa-headset",
-    screenshot: "screenshot/quarkus-call-center-screenshot.png"
+    screenshot: "screenshot/quarkus-facility-location-screenshot.png"
   }
 ];
 

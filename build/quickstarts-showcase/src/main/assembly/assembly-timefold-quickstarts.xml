@@ -39,22 +39,8 @@
       </includes>
     </fileSet>
     <fileSet>
-      <directory>../../use-cases/vaccination-scheduling/target</directory>
-      <outputDirectory>quickstarts/binaries/use-cases/vaccination-scheduling</outputDirectory>
-      <includes>
-        <include>quarkus-app/**</include>
-      </includes>
-    </fileSet>
-    <fileSet>
       <directory>../../use-cases/vehicle-routing/target</directory>
       <outputDirectory>quickstarts/binaries/use-cases/vehicle-routing</outputDirectory>
-      <includes>
-        <include>quarkus-app/**</include>
-      </includes>
-    </fileSet>
-    <fileSet>
-      <directory>../../use-cases/call-center/target</directory>
-      <outputDirectory>quickstarts/binaries/use-cases/call-center</outputDirectory>
       <includes>
         <include>quarkus-app/**</include>
       </includes>
