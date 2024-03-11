@@ -93,9 +93,9 @@ public class DemoDataBuilder {
         // TODO SW<NE
 
         Random random = new Random(0);
-        PrimitiveIterator.OfDouble latitudes = random.doubles(southWestCorner.latitude, northEastCorner.latitude)
+        PrimitiveIterator.OfDouble latitudes = random.doubles(southWestCorner.getLatitude(), northEastCorner.getLatitude())
                 .iterator();
-        PrimitiveIterator.OfDouble longitudes = random.doubles(southWestCorner.longitude, northEastCorner.longitude)
+        PrimitiveIterator.OfDouble longitudes = random.doubles(southWestCorner.getLongitude(), northEastCorner.getLongitude())
                 .iterator();
         Supplier<Location> locationSupplier = () -> new Location(latitudes.nextDouble(), longitudes.nextDouble());
         List<Facility> facilities = Stream.generate(locationSupplier)
