@@ -79,8 +79,8 @@ public class DemoDataGenerator {
     }
     
     public static class ProductFamilyPair {
-        final Product product;
-        final ProductFamily family;
+        private final Product product;
+        private final ProductFamily family;
 
         public ProductFamilyPair(Product product, ProductFamily family) {
             this.product = product;
