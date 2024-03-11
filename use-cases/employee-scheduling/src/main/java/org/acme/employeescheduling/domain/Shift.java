@@ -10,16 +10,16 @@ import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
 @PlanningEntity(pinningFilter = ShiftPinningFilter.class)
 public class Shift {
     @PlanningId
-    String id;
+    private String id;
 
-    LocalDateTime start;
-    LocalDateTime end;
+    private LocalDateTime start;
+    private LocalDateTime end;
 
-    String location;
-    String requiredSkill;
+    private String location;
+    private String requiredSkill;
 
     @PlanningVariable
-    Employee employee;
+    private Employee employee;
 
     public Shift() {
     }

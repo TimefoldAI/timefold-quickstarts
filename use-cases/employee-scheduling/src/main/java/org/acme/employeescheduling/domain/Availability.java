@@ -8,13 +8,13 @@ import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 public class Availability {
 
     @PlanningId
-    String id;
+    private String id;
 
-    Employee employee;
+    private Employee employee;
 
-    LocalDate date;
+    private LocalDate date;
 
-    AvailabilityType availabilityType;
+    private AvailabilityType availabilityType;
 
     public Availability() {
     }

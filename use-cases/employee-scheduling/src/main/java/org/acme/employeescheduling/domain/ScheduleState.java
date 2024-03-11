@@ -8,15 +8,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class ScheduleState {
 
-    String tenantId;
+    private String tenantId;
 
-    Integer publishLength; // In number of days
+    private Integer publishLength; // In number of days
 
-    Integer draftLength; // In number of days
+    private Integer draftLength; // In number of days
 
-    LocalDate firstDraftDate;
+    private LocalDate firstDraftDate;
 
-    LocalDate lastHistoricDate;
+    private LocalDate lastHistoricDate;
 
     @JsonIgnore
     public boolean isHistoric(LocalDateTime dateTime) {
