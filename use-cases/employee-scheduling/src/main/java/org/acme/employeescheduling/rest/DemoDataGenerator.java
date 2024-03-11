@@ -34,16 +34,16 @@ public class DemoDataGenerator {
         LARGE
     }
 
-    static final String[] FIRST_NAMES = { "Amy", "Beth", "Chad", "Dan", "Elsa", "Flo", "Gus", "Hugo", "Ivy", "Jay" };
-    static final String[] LAST_NAMES = { "Cole", "Fox", "Green", "Jones", "King", "Li", "Poe", "Rye", "Smith", "Watt" };
-    static final String[] REQUIRED_SKILLS = { "Doctor", "Nurse" };
-    static final String[] OPTIONAL_SKILLS = { "Anaesthetics", "Cardiology" };
-    static final String[] LOCATIONS = { "Ambulatory care", "Critical care", "Pediatric care" };
-    static final Duration SHIFT_LENGTH = Duration.ofHours(8);
-    static final LocalTime MORNING_SHIFT_START_TIME = LocalTime.of(6, 0);
-    static final LocalTime DAY_SHIFT_START_TIME = LocalTime.of(9, 0);
-    static final LocalTime AFTERNOON_SHIFT_START_TIME = LocalTime.of(14, 0);
-    static final LocalTime NIGHT_SHIFT_START_TIME = LocalTime.of(22, 0);
+    private static final String[] FIRST_NAMES = { "Amy", "Beth", "Chad", "Dan", "Elsa", "Flo", "Gus", "Hugo", "Ivy", "Jay" };
+    private static final String[] LAST_NAMES = { "Cole", "Fox", "Green", "Jones", "King", "Li", "Poe", "Rye", "Smith", "Watt" };
+    private static final String[] REQUIRED_SKILLS = { "Doctor", "Nurse" };
+    private static final String[] OPTIONAL_SKILLS = { "Anaesthetics", "Cardiology" };
+    private static final String[] LOCATIONS = { "Ambulatory care", "Critical care", "Pediatric care" };
+    private static final Duration SHIFT_LENGTH = Duration.ofHours(8);
+    private static final LocalTime MORNING_SHIFT_START_TIME = LocalTime.of(6, 0);
+    private static final LocalTime DAY_SHIFT_START_TIME = LocalTime.of(9, 0);
+    private static final LocalTime AFTERNOON_SHIFT_START_TIME = LocalTime.of(14, 0);
+    private static final LocalTime NIGHT_SHIFT_START_TIME = LocalTime.of(22, 0);
 
     static final LocalTime[][] SHIFT_START_TIMES_COMBOS = {
             { MORNING_SHIFT_START_TIME, AFTERNOON_SHIFT_START_TIME },

@@ -7,9 +7,9 @@ import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 
 public class Employee {
     @PlanningId
-    String name;
+    private String name;
 
-    Set<String> skills;
+    private Set<String> skills;
 
     public Employee() {
 
