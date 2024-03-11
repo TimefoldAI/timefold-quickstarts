@@ -24,9 +24,9 @@ class FoodPackagingConstraintProviderTest {
 
     private static final LocalDate DAY = LocalDate.of(2021, 2, 1);
     private static final LocalDateTime DAY_START_TIME = DAY.atTime(LocalTime.of(9, 0));
-    public static final Product PRODUCT_A_SMALL = new Product("1", "Product A small");
-    public static final Product PRODUCT_A_LARGE = new Product("2", "Product A large");
-    public static final Product PRODUCT_B = new Product("3", "Product B");
+    private static final Product PRODUCT_A_SMALL = new Product("1", "Product A small");
+    private static final Product PRODUCT_A_LARGE = new Product("2", "Product A large");
+    private static final Product PRODUCT_B = new Product("3", "Product B");
 
     static {
         PRODUCT_A_SMALL.setCleaningDurations(Map.of(
