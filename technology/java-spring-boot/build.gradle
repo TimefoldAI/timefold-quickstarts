@@ -5,7 +5,7 @@ plugins {
     id "java"
 }
 
-def timefoldVersion = "1.8.0"
+def timefoldVersion = "999-SNAPSHOT"
 
 group = "org.acme"
 archivesBaseName = "timefold-solver-spring-boot-school-timetabling-quickstart"
