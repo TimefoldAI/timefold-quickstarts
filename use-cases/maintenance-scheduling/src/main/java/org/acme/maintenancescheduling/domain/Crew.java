@@ -1,22 +1,16 @@
 package org.acme.maintenancescheduling.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import java.util.Objects;
 
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 
-@Entity
 public class Crew {
 
     @PlanningId
-    @Id
-    @GeneratedValue
-    private Long id;
+    private String id;
 
     private String name;
 
-    // No-arg constructor required for Hibernate
     public Crew() {
     }
 
@@ -24,7 +18,7 @@ public class Crew {
         this.name = name;
     }
 
-    public Crew(Long id, String name) {
+    public Crew(String id, String name) {
         this.id = id;
         this.name = name;
     }
@@ -38,7 +32,7 @@ public class Crew {
     // Getters and setters
     // ************************************************************************
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
@@ -46,4 +40,19 @@ public class Crew {
         return name;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Crew crew)) {
+            return false;
+        }
+        return Objects.equals(getId(), crew.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getId().hashCode();
+    }
 }

@@ -1,10 +1,11 @@
 plugins {
-    id "org.springframework.boot" version "3.2.2"
+    id "org.springframework.boot" version "3.2.3"
     id "io.spring.dependency-management" version "1.1.4"
+    id 'org.graalvm.buildtools.native' version '0.10.1'
     id "java"
 }
 
-def timefoldVersion = "1.7.0"
+def timefoldVersion = "1.8.0"
 
 group = "org.acme"
 archivesBaseName = "timefold-solver-spring-boot-school-timetabling-quickstart"
@@ -39,7 +40,10 @@ dependencies {
     testImplementation "org.awaitility:awaitility"
 
     // UI
-    runtimeOnly "org.webjars:webjars-locator:0.50"
+    // No webjar locator; incompatible in native mode;
+    // see https://github.com/spring-projects/spring-framework/issues/27619
+    // and https://github.com/webjars/webjars-locator-core/issues/96
+    // runtimeOnly "org.webjars:webjars-locator:0.50"
     runtimeOnly "ai.timefold.solver:timefold-solver-webui"
     runtimeOnly "org.webjars:bootstrap:5.2.3"
     runtimeOnly "org.webjars:jquery:3.6.4"
@@ -53,4 +57,9 @@ test {
     testLogging {
         events "passed", "skipped", "failed"
     }
+}
+
+// optimizedLaunch disables the C2 compiler, which has a massive performance impact
+tasks.named("bootRun") {
+    optimizedLaunch = false
 }

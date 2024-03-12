@@ -30,10 +30,10 @@ public class PackagingSchedule {
     @PlanningScore
     private HardMediumSoftLongScore score;
 
-    // Ignored by OptaPlanner, used by the UI to display solve or stop solving button
+    // Ignored by Timefold, used by the UI to display solve or stop solving button
     private SolverStatus solverStatus;
 
-    // No-arg constructor required for OptaPlanner
+    // No-arg constructor required for Timefold
     public PackagingSchedule() {
     }
 

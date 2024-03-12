@@ -4,24 +4,19 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-@Entity
 public class ScheduleState {
 
-    @Id
-    Long tenantId;
+    private String tenantId;
 
-    Integer publishLength; // In number of days
+    private Integer publishLength; // In number of days
 
-    Integer draftLength; // In number of days
+    private Integer draftLength; // In number of days
 
-    LocalDate firstDraftDate;
+    private LocalDate firstDraftDate;
 
-    LocalDate lastHistoricDate;
+    private LocalDate lastHistoricDate;
 
     @JsonIgnore
     public boolean isHistoric(LocalDateTime dateTime) {
@@ -58,6 +53,7 @@ public class ScheduleState {
         return lastHistoricDate.plusDays(1);
     }
 
+    @JsonIgnore
     public LocalDate getFirstUnplannedDate() {
         return firstDraftDate.plusDays(draftLength);
     }
@@ -66,11 +62,11 @@ public class ScheduleState {
     // Getters and setters
     // ************************************************************************
 
-    public Long getTenantId() {
+    public String getTenantId() {
         return tenantId;
     }
 
-    public void setTenantId(Long tenantId) {
+    public void setTenantId(String tenantId) {
         this.tenantId = tenantId;
     }
 

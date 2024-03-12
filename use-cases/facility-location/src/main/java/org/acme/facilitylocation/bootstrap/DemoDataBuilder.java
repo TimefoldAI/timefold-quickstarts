@@ -93,14 +93,14 @@ public class DemoDataBuilder {
         // TODO SW<NE
 
         Random random = new Random(0);
-        PrimitiveIterator.OfDouble latitudes = random.doubles(southWestCorner.latitude, northEastCorner.latitude)
+        PrimitiveIterator.OfDouble latitudes = random.doubles(southWestCorner.getLatitude(), northEastCorner.getLatitude())
                 .iterator();
-        PrimitiveIterator.OfDouble longitudes = random.doubles(southWestCorner.longitude, northEastCorner.longitude)
+        PrimitiveIterator.OfDouble longitudes = random.doubles(southWestCorner.getLongitude(), northEastCorner.getLongitude())
                 .iterator();
         Supplier<Location> locationSupplier = () -> new Location(latitudes.nextDouble(), longitudes.nextDouble());
         List<Facility> facilities = Stream.generate(locationSupplier)
                 .map(location -> new Facility(
-                        sequence.incrementAndGet(),
+                        Long.toString(sequence.incrementAndGet()),
                         location,
                         averageSetupCost + (long) (setupCostStandardDeviation * random.nextGaussian()),
                         capacity / facilityCount))
@@ -108,7 +108,7 @@ public class DemoDataBuilder {
                 .collect(Collectors.toList());
         List<Consumer> consumers = Stream.generate(locationSupplier)
                 .map(location -> new Consumer(
-                        sequence.incrementAndGet(),
+                        Long.toString(sequence.incrementAndGet()),
                         location,
                         demand / consumerCount))
                 .limit(consumerCount)

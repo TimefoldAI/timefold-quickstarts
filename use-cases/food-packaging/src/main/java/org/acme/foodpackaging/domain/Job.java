@@ -18,7 +18,7 @@ import ai.timefold.solver.core.api.domain.variable.ShadowVariable;
 public class Job {
 
     @PlanningId
-    private Long id;
+    private String id;
     private String name;
 
     private Product product;
@@ -51,15 +51,15 @@ public class Job {
     @PiggybackShadowVariable(shadowVariableName = "startCleaningDateTime")
     private LocalDateTime endDateTime;
 
-    // No-arg constructor required for OptaPlanner and Jackson
+    // No-arg constructor required for Timefold
     public Job() {
     }
 
-    public Job(Long id, String name, Product product, Duration duration, LocalDateTime readyDateTime, LocalDateTime idealEndDateTime, LocalDateTime dueDateTime, int priority, boolean pinned) {
+    public Job(String id, String name, Product product, Duration duration, LocalDateTime readyDateTime, LocalDateTime idealEndDateTime, LocalDateTime dueDateTime, int priority, boolean pinned) {
         this(id, name, product, duration, readyDateTime, idealEndDateTime, dueDateTime, priority, pinned, null, null);
     }
 
-    public Job(Long id, String name, Product product, Duration duration, LocalDateTime readyDateTime, LocalDateTime idealEndDateTime, LocalDateTime dueDateTime, int priority, boolean pinned,
+    public Job(String id, String name, Product product, Duration duration, LocalDateTime readyDateTime, LocalDateTime idealEndDateTime, LocalDateTime dueDateTime, int priority, boolean pinned,
             LocalDateTime startCleaningDateTime, LocalDateTime startProductionDateTime) {
         this.id = id;
         this.name = name;
@@ -84,7 +84,7 @@ public class Job {
     // Getters and setters
     // ************************************************************************
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 

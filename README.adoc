@@ -8,52 +8,67 @@ https://timefold.ai[timefold.ai]
 |===
 |Use case quickstarts |Technology quickstarts
 
-a|* <<school-timetabling, School timetabling>>
-* <<facility-location, Facility location problem>>
+a|* <<vehicle-routing, Vehicle Routing>>
 * <<maintenance-scheduling, Maintenance scheduling>>
-* <<call-center, Call center>>
-* <<vaccination-scheduling, Vaccination scheduling>>
-* <<order-picking, Order Picking>>
 * <<employee-scheduling, Employee Scheduling>>
 * <<food-packaging, Food packaging>>
-* <<vehicle-routing, Vehicle Routing>>
+* <<order-picking, Order Picking>>
+* <<school-timetabling, School timetabling>>
+* <<facility-location, Facility location problem>>
 
-a|* link:use-cases/school-timetabling/README.adoc[Quarkus] (Java, Maven or Gradle, Quarkus)
+a|* link:hello-world/README.adoc[Java (Hello World)] (Java, Maven or Gradle)
+* link:use-cases/school-timetabling/README.adoc[Quarkus] (Java, Maven or Gradle, Quarkus)
 * link:technology/java-spring-boot/README.adoc[Spring Boot] (Java, Maven or Gradle, Spring Boot)
 * link:technology/kotlin-quarkus/README.adoc[Kotlin] (Kotlin, Maven, Quarkus)
-
-2+a|* <<timefold-solver-examples, Timefold examples (desktop)>>
 |===
 
-== Get started
-
-Run the https://timefold.ai[Timefold] quickstarts now:
-
-. Install JDK 17 or later with `JAVA_HOME` configured appropriately.
-For example with https://sdkman.io[Sdkman]:
-+
-[source, shell]
-----
-$ curl -s "https://get.sdkman.io" | bash
-$ sdk install java
-----
-
-. Clone this repository to build and run the quickstarts showcase:
-+
-[source, shell]
-----
-$ git clone https://github.com/TimefoldAI/timefold-quickstarts.git
-$ cd timefold-quickstarts
-$ ./runQuickstartsFromSource.sh
-----
-
 == Use cases
+
+=== Vehicle Routing
+
+Find the most efficient routes for vehicles to reach visits, taking into account vehicle capacity and time windows when visits are available. Sometimes also called "CVRPTW".
+
+image::use-cases/vehicle-routing/quarkus-vehicle-routing-screenshot.png[]
+
+* link:use-cases/vehicle-routing/README.adoc[Run quarkus-vehicle-routing] (Java, Maven, Quarkus)
+
+=== Maintenance scheduling
+
+Schedule maintenance jobs to crews over time to reduce both premature and overdue maintenance.
+
+image::use-cases/maintenance-scheduling/quarkus-maintenance-scheduling-screenshot.png[]
+
+* link:use-cases/maintenance-scheduling/README.adoc[Run quarkus-maintenance-scheduling] (Java, Maven, Quarkus)
+
+=== Employee Scheduling
+
+Schedule shifts to employees, accounting for employee availability and shift skill requirements.
+
+image::use-cases/employee-scheduling/quarkus-employee-scheduling-screenshot.png[]
+
+* link:use-cases/employee-scheduling/README.adoc[Run quarkus-employee-scheduling] (Java, Maven, Quarkus)
+
+=== Food Packaging
+
+Schedule food packaging orders to manufacturing lines, to minimize downtime and fulfill all orders in time.
+
+image::use-cases/food-packaging/quarkus-food-packaging-screenshot.png[]
+
+* link:use-cases/food-packaging/README.adoc[Run quarkus-food-packaging] (Java, Maven, Quarkus)
+
+=== Order Picking
+
+Generate an optimal picking plan for completing a set of orders.
+
+image::use-cases/order-picking/quarkus-order-picking-screenshot.png[]
+
+* link:use-cases/order-picking/README.adoc[Run quarkus-order-picking] (Java, Maven, Quarkus)
 
 === School timetabling
 
 Assign lessons to timeslots and rooms to produce a better schedule for teachers and students.
 
-image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screenshot/quarkus-school-timetabling-screenshot.png[]
+image::use-cases/school-timetabling/quarkus-school-timetabling-screenshot.png[]
 
 * link:use-cases/school-timetabling/README.adoc[Run quarkus-school-timetabling] (Java, Maven or Gradle, Quarkus)
 * link:technology/java-spring-boot/README.adoc[Run spring-boot-school-timetabling] (Java, Maven or Gradle, Spring Boot)
@@ -67,90 +82,9 @@ Without a UI:
 
 Pick the best geographical locations for new stores, distribution centers, covid test centers or telco masts.
 
-image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screenshot/quarkus-facility-location-screenshot.png[]
+image::use-cases/facility-location/quarkus-facility-location-screenshot.png[]
 
 * link:use-cases/facility-location/README.adoc[Run quarkus-facility-location] (Java, Maven, Quarkus)
-
-=== Maintenance scheduling
-
-Schedule maintenance jobs to crews over time to reduce both premature and overdue maintenance.
-
-image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screenshot/quarkus-maintenance-scheduling-screenshot.png[]
-
-* link:use-cases/maintenance-scheduling/README.adoc[Run quarkus-maintenance-scheduling] (Java, Maven, Quarkus, H2)
-
-=== Call center
-
-Schedule incoming calls to employees matching skills and availability.
-
-image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screenshot/quarkus-call-center-screenshot.png[]
-
-* link:use-cases/call-center/README.adoc[Run quarkus-call-center] (Java, Maven, Quarkus)
-
-=== Vaccination scheduling
-
-Assign people to vaccination injection appointments over time at vaccination centers to end a pandemic sooner.
-
-image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screenshot/quarkus-vaccination-scheduling-screenshot.png[]
-
-* link:use-cases/vaccination-scheduling/README.adoc[Run quarkus-vaccination-scheduling] (Java, Maven, Quarkus)
-
-=== Order Picking
-
-Generate an optimal picking plan for completing a set of orders.
-
-image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screenshot/quarkus-order-picking-screenshot.png[]
-
-* link:use-cases/order-picking/README.adoc[Run quarkus-order-picking] (Java, Maven, Quarkus)
-
-=== Employee Scheduling
-
-Schedule shifts to employees, accounting for employee availability and shift skill requirements.
-
-image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screenshot/quarkus-employee-scheduling-screenshot.png[]
-
-* link:use-cases/employee-scheduling/README.adoc[Run quarkus-employee-scheduling] (Java, Maven, Quarkus, H2)
-
-=== Food Packaging
-
-Schedule food packaging orders to manufacturing lines, to minimize downtime and fulfill all orders in time.
-
-image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screenshot/quarkus-food-packaging-screenshot.png[]
-
-* link:use-cases/food-packaging/README.adoc[Run quarkus-food-packaging] (Java, Maven, Quarkus)
-
-=== Vehicle Routing
-
-Find the most efficient routes for vehicles to reach visits, taking into account vehicle capacity and time windows when visits are available. Sometimes also called "CVRPTW".
-
-image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screenshot/quarkus-vehicle-routing-screenshot.png[]
-
-* link:use-cases/vehicle-routing/README.adoc[Run quarkus-vehicle-routing] (Java, Maven, Quarkus)
-
-=== Timefold examples (desktop)
-
-Many examples in desktop technology.
-
-image::build/quickstarts-showcase/src/main/resources/META-INF/resources/screenshot/timefold-solver-examples-screenshot.png[]
-
-[[run]]
-==== Run the application
-
-. Git clone the timefold-solver repo and navigate to this directory:
-+
-[source, shell]
-----
-$ git clone https://github.com/TimefoldAI/timefold-solver.git
-...
-$ cd timefold-solver/examples
-----
-
-. Start the application with Maven:
-+
-[source, shell]
-----
-$ mvn exec:java
-----
 
 == Legal notice
 

@@ -227,8 +227,9 @@ function analyze() {
   const scoreAnalysisModalContent = $("#scoreAnalysisModalContent");
   scoreAnalysisModalContent.children().remove();
   if (loadedSchedule.score == null || loadedSchedule.score.indexOf('init') != -1) {
-    scoreAnalysisModalContent.text("Analyzing score...");
+    scoreAnalysisModalContent.text("No score to analyze yet, please first press the 'solve' button.");
   } else {
+    $('#scoreAnalysisScoreLabel').text(`(${loadedSchedule.score})`);
     $.put("/timetables/analyze", JSON.stringify(loadedSchedule), function (scoreAnalysis) {
       let constraints = scoreAnalysis.constraints;
       constraints.sort((a, b) => {

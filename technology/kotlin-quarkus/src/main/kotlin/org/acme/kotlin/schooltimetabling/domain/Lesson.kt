@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference
 @PlanningEntity
 data class Lesson (
     @PlanningId
-    val id: Long,
+    val id: String,
     val subject: String,
     val teacher: String,
     val studentGroup: String) {
@@ -23,9 +23,9 @@ data class Lesson (
     var room: Room? = null
 
     // No-arg constructor required for Timefold
-    constructor() : this(0, "", "", "")
+    constructor() : this("0", "", "", "")
 
-    constructor(id: Long, subject: String, teacher: String, studentGroup: String, timeslot: Timeslot?, room: Room?)
+    constructor(id: String, subject: String, teacher: String, studentGroup: String, timeslot: Timeslot?, room: Room?)
             : this(id, subject, teacher, studentGroup) {
         this.timeslot = timeslot
         this.room = room

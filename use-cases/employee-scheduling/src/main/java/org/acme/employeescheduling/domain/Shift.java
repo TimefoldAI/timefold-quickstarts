@@ -1,35 +1,25 @@
 package org.acme.employeescheduling.domain;
 
 import java.time.LocalDateTime;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import java.util.Objects;
 
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
 
-@Entity
 @PlanningEntity(pinningFilter = ShiftPinningFilter.class)
 public class Shift {
-    @Id
     @PlanningId
-    @GeneratedValue
-    Long id;
+    private String id;
 
-    LocalDateTime start;
-    @Column(name = "endDateTime") // "end" clashes with H2 syntax.
-    LocalDateTime end;
+    private LocalDateTime start;
+    private LocalDateTime end;
 
-    String location;
-    String requiredSkill;
+    private String location;
+    private String requiredSkill;
 
     @PlanningVariable
-    @ManyToOne
-    Employee employee;
+    private Employee employee;
 
     public Shift() {
     }
@@ -42,7 +32,7 @@ public class Shift {
         this(null, start, end, location, requiredSkill, employee);
     }
 
-    public Shift(Long id, LocalDateTime start, LocalDateTime end, String location, String requiredSkill, Employee employee) {
+    public Shift(String id, LocalDateTime start, LocalDateTime end, String location, String requiredSkill, Employee employee) {
         this.id = id;
         this.start = start;
         this.end = end;
@@ -51,11 +41,11 @@ public class Shift {
         this.employee = employee;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -102,5 +92,21 @@ public class Shift {
     @Override
     public String toString() {
         return location + " " + start + "-" + end;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Shift shift)) {
+            return false;
+        }
+        return Objects.equals(getId(), shift.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getId().hashCode();
     }
 }

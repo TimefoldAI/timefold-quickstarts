@@ -3,7 +3,6 @@ package org.acme.maintenancescheduling.domain;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import ai.timefold.solver.core.api.domain.solution.PlanningEntityCollectionProperty;
 import ai.timefold.solver.core.api.domain.solution.PlanningScore;
@@ -36,10 +35,15 @@ public class MaintenanceSchedule {
     }
 
     public MaintenanceSchedule(WorkCalendar workCalendar,
-                               List<Crew> crews, List<Job> jobs) {
+            List<Crew> crews, List<Job> jobs) {
         this.workCalendar = workCalendar;
         this.crews = crews;
         this.jobs = jobs;
+    }
+
+    public MaintenanceSchedule(HardSoftLongScore score, SolverStatus solverStatus) {
+        this.score = score;
+        this.solverStatus = solverStatus;
     }
 
     @ValueRangeProvider
@@ -50,7 +54,7 @@ public class MaintenanceSchedule {
                 // To skip holidays too, cache all working days in WorkCalendar.
                 .filter(date -> date.getDayOfWeek() != DayOfWeek.SATURDAY
                         && date.getDayOfWeek() != DayOfWeek.SUNDAY)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     // ************************************************************************
@@ -61,12 +65,24 @@ public class MaintenanceSchedule {
         return workCalendar;
     }
 
+    public void setWorkCalendar(WorkCalendar workCalendar) {
+        this.workCalendar = workCalendar;
+    }
+
     public List<Crew> getCrews() {
         return crews;
     }
 
+    public void setCrews(List<Crew> crews) {
+        this.crews = crews;
+    }
+
     public List<Job> getJobs() {
         return jobs;
+    }
+
+    public void setJobs(List<Job> jobs) {
+        this.jobs = jobs;
     }
 
     public HardSoftLongScore getScore() {

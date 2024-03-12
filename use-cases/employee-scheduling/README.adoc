@@ -1,8 +1,8 @@
-= Employee Scheduling (Java, Quarkus, Maven, H2)
+= Employee Scheduling (Java, Quarkus, Maven)
 
 Schedule shifts to employees, accounting for employee availability and shift skill requirements.
 
-image::../../build/quickstarts-showcase/src/main/resources/META-INF/resources/screenshot/quarkus-employee-scheduling-screenshot.png[]
+image::./quarkus-employee-scheduling-screenshot.png[]
 
 * <<run,Run the application>>
 * <<package,Run the packaged application>>
@@ -99,16 +99,6 @@ build the application as a native executable:
 [source, shell]
 ----
 $ mvn package -Dnative -DskipTests
-----
-
-. Run a database. By default, `application.properties` is configured for H2:
-.. Download the http://www.h2database.com/html/download.html[H2 database] (Platform-independent zip) and unzip it.
-.. Start the H2 server with the option `-ifNotExists` (not recommended in production):
-+
-[source, shell]
-----
-$ cd h2/bin
-$ java -cp h2*.jar org.h2.tools.Server -ifNotExists
 ----
 
 . Run the native executable:
