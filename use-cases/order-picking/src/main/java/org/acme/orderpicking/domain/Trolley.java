@@ -1,5 +1,7 @@
 package org.acme.orderpicking.domain;
 
+import ai.timefold.solver.core.api.domain.lookup.PlanningId;
+
 /**
  * Represents the trolley that will be filled with the order items.
  * 
@@ -7,6 +9,7 @@ package org.acme.orderpicking.domain;
  */
 public class Trolley extends TrolleyOrTrolleyStep {
 
+    @PlanningId
     private String id;
     private int bucketCount;
     private int bucketCapacity;

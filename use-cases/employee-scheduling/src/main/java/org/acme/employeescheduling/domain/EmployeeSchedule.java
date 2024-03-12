@@ -13,21 +13,21 @@ import ai.timefold.solver.core.api.solver.SolverStatus;
 @PlanningSolution
 public class EmployeeSchedule {
     @ProblemFactCollectionProperty
-    List<Availability> availabilities;
+    private List<Availability> availabilities;
 
     @ProblemFactCollectionProperty
     @ValueRangeProvider
-    List<Employee> employees;
+    private List<Employee> employees;
 
     @PlanningEntityCollectionProperty
-    List<Shift> shifts;
+    private List<Shift> shifts;
 
     @PlanningScore
-    HardSoftScore score;
+    private HardSoftScore score;
 
-    ScheduleState scheduleState;
+    private ScheduleState scheduleState;
 
-    SolverStatus solverStatus;
+    private SolverStatus solverStatus;
 
     // No-arg constructor required for Timefold
     public EmployeeSchedule() {}
@@ -37,6 +37,11 @@ public class EmployeeSchedule {
         this.availabilities = availabilities;
         this.employees = employees;
         this.shifts = shifts;
+    }
+
+    public EmployeeSchedule(HardSoftScore score, SolverStatus solverStatus) {
+        this.score = score;
+        this.solverStatus = solverStatus;
     }
 
     public ScheduleState getScheduleState() {

@@ -2,7 +2,7 @@
 
 Schedule food packaging orders to manufacturing lines, to minimize downtime and fulfill all orders in time.
 
-image::../../build/quickstarts-showcase/src/main/resources/META-INF/resources/screenshot/quarkus-food-packaging-screenshot.png[]
+image::./quarkus-food-packaging-screenshot.png[]
 
 * <<run,Run the application>>
 * <<package,Run the packaged application>>

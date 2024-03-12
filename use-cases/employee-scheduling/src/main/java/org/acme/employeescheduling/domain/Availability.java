@@ -1,43 +1,36 @@
 package org.acme.employeescheduling.domain;
 
 import java.time.LocalDate;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import java.util.Objects;
 
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 
-@Entity
 public class Availability {
 
     @PlanningId
-    @Id
-    @GeneratedValue
-    Long id;
+    private String id;
 
-    @ManyToOne
-    Employee employee;
+    private Employee employee;
 
-    LocalDate date;
+    private LocalDate date;
 
-    AvailabilityType availabilityType;
+    private AvailabilityType availabilityType;
 
     public Availability() {
     }
 
-    public Availability(Employee employee, LocalDate date, AvailabilityType availabilityType) {
+    public Availability(String id, Employee employee, LocalDate date, AvailabilityType availabilityType) {
+        this.id = id;
         this.employee = employee;
         this.date = date;
         this.availabilityType = availabilityType;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -68,5 +61,21 @@ public class Availability {
     @Override
     public String toString() {
         return availabilityType + "(" + employee + ", " + date + ")";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Availability that)) {
+            return false;
+        }
+        return Objects.equals(getId(), that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getId().hashCode();
     }
 }

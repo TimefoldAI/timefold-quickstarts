@@ -12,6 +12,7 @@ function analyzeScore(solution, endpointPath) {
 }
 
 function visualizeScoreAnalysis(scoreAnalysisModalContent, solution, endpointPath) {
+    $('#scoreAnalysisScoreLabel').text(`(${solution.score})`);
     $.put(endpointPath, JSON.stringify(solution), function (scoreAnalysis) {
         console.log(scoreAnalysis)
         let constraints = scoreAnalysis.constraints;

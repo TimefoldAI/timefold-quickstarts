@@ -1,25 +1,22 @@
 package org.acme.maintenancescheduling.domain;
 
 import java.time.LocalDate;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
 
-@Entity
+import ai.timefold.solver.core.api.domain.lookup.PlanningId;
+
 public class WorkCalendar {
 
-    @Id
-    @GeneratedValue
-    private Long id;
+    @PlanningId
+    private String id;
 
     private LocalDate fromDate; // Inclusive
     private LocalDate toDate; // Exclusive
 
-    // No-arg constructor required for Hibernate
     public WorkCalendar() {
     }
 
-    public WorkCalendar(LocalDate fromDate, LocalDate toDate) {
+    public WorkCalendar(String id, LocalDate fromDate, LocalDate toDate) {
+        this.id = id;
         this.fromDate = fromDate;
         this.toDate = toDate;
     }
@@ -33,7 +30,7 @@ public class WorkCalendar {
     // Getters and setters
     // ************************************************************************
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 

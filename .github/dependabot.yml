@@ -1,24 +1,25 @@
 version: 2
 updates:
   - package-ecosystem: maven
+    target-branch: "development"
     directory: "/"
     schedule:
       interval: daily
       time: '05:00'
     open-pull-requests-limit: 10
-    target-branch: "development"
     commit-message:
       prefix: "deps: "
   - package-ecosystem: gradle
+    target-branch: "development"
     directory: "/"
     schedule:
       interval: daily
       time: '06:00'
     open-pull-requests-limit: 10
-    target-branch: "development"
     commit-message:
       prefix: "deps: "
   - package-ecosystem: "github-actions"
+    target-branch: "development"
     directory: "/"
     schedule:
       interval: "daily"

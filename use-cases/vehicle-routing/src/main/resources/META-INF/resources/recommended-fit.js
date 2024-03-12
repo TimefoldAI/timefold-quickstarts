@@ -104,10 +104,10 @@ function requestRecommendations(visitId, solution, endpointPath) {
             visitOptions += "<div class='form-check'>" +
                 `  <input class='form-check-input' type='radio' name='recommendationOptions' id='option${index}' value='option${index}' ${index === 0 ? 'checked=true' : ''}>` +
                 `  <label class='form-check-label' for='option${index}'>` +
-                `    ${index === 0 ? '<b>Best Solution - </b>': ''}Add <b>${visit.name}</b> to the vehicle <b>${recommendation.proposition.vehicleId}</b> at the position <b> ${recommendation.proposition.index + 1} (${recommendation.scoreDiff.score})</b>` +
+                `    Add <b>${visit.name}</b> to the vehicle <b>${recommendation.proposition.vehicleId}</b> at the position <b> ${recommendation.proposition.index + 1} (${recommendation.scoreDiff.score})</b>${index === 0 ? ' - <b>Best Solution</b>': ''}` +
                 "  </label>" +
                 `  <a id="analyzeRecommendationButton${index}" class="float-justify" href="#" role="button">` +
-                "    <i class='fas fa-info-circle'></i>" +
+                "    <i class='fas fa-chevron-down'></i>" +
                 "  </a>" +
                 `  <div class='collapse' id='collapse${index}'>` +
                 "    <div class='card card-body'>" +
@@ -119,8 +119,14 @@ function requestRecommendations(visitId, solution, endpointPath) {
         visitModalContent.append(visitOptions);
         // We add button events only after modal content is loaded
         recommendations.forEach((recommendation, index) => {
-            $(`#analyzeRecommendationButton${index}`).click(_ => {
+            $(`#analyzeRecommendationButton${index}`).click(e => {
                 $(`#collapse${index}`).collapse('toggle');
+                const chevron = $(e.currentTarget).find('i');
+                if (chevron.hasClass('fa-chevron-down')) {
+                    chevron.removeClass('fa-chevron-down').addClass('fa-chevron-up');
+                } else {
+                    chevron.removeClass('fa-chevron-up').addClass('fa-chevron-down');
+                }
             });
             $.each(recommendation.scoreDiff.constraints, function (index2, _) {
                 $(`#row${index2}Button${index}`).click(e => {

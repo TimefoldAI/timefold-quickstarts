@@ -2,12 +2,13 @@ package org.acme.foodpackaging.solver;
 
 import java.time.Duration;
 
-import org.acme.foodpackaging.domain.Job;
 import ai.timefold.solver.core.api.score.buildin.hardmediumsoftlong.HardMediumSoftLongScore;
 import ai.timefold.solver.core.api.score.stream.Constraint;
 import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
 import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
 import ai.timefold.solver.core.api.score.stream.Joiners;
+
+import org.acme.foodpackaging.domain.Job;
 
 public class FoodPackagingConstraintProvider implements ConstraintProvider {
 

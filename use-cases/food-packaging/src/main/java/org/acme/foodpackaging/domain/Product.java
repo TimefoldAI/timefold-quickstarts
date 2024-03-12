@@ -1,20 +1,22 @@
 package org.acme.foodpackaging.domain;
 
+import ai.timefold.solver.core.api.domain.lookup.PlanningId;
+
 import java.time.Duration;
 import java.util.Map;
 
 public class Product {
 
-    private Long id;
+    @PlanningId
+    private String id;
     private String name;
     /** The map key is previous product on assembly line. */
     private Map<Product, Duration> cleaningDurations;
 
-    // No-arg constructor required for OptaPlanner and Jackson
     public Product() {
     }
 
-    public Product(Long id, String name) {
+    public Product(String id, String name) {
         this.id = id;
         this.name = name;
     }
@@ -37,7 +39,7 @@ public class Product {
     // Getters and setters
     // ************************************************************************
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 

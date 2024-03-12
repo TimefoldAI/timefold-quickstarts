@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference;
 public class Lesson {
 
     @PlanningId
-    private Long id;
+    private String id;
 
     private String subject;
     private String teacher;
@@ -23,18 +23,17 @@ public class Lesson {
     @PlanningVariable
     private Room room;
 
-    // No-arg constructor required for Hibernate and Timefold
     public Lesson() {
     }
 
-    public Lesson(long id, String subject, String teacher, String studentGroup) {
+    public Lesson(String id, String subject, String teacher, String studentGroup) {
         this.id = id;
         this.subject = subject;
         this.teacher = teacher;
         this.studentGroup = studentGroup;
     }
 
-    public Lesson(long id, String subject, String teacher, String studentGroup, Timeslot timeslot, Room room) {
+    public Lesson(String id, String subject, String teacher, String studentGroup, Timeslot timeslot, Room room) {
         this(id, subject, teacher, studentGroup);
         this.timeslot = timeslot;
         this.room = room;
@@ -49,7 +48,7 @@ public class Lesson {
     // Getters and setters
     // ************************************************************************
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
