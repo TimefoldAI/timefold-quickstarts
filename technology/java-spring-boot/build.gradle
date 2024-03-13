@@ -30,7 +30,7 @@ dependencies {
     implementation "ai.timefold.solver:timefold-solver-spring-boot-starter"
 
     // Swagger
-    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0"
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:2.4.0"
 
     // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")
