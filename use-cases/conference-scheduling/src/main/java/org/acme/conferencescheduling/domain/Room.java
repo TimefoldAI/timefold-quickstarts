@@ -21,8 +21,17 @@ public class Room {
     public Room() {
     }
 
+    public Room(String name) {
+        this(name, 0, emptySet(), emptySet());
+    }
+
     public Room(String name, int capacity, Set<TalkType> talkTypes, Set<String> tags) {
         this(name, capacity, talkTypes, emptySet(), tags);
+    }
+
+    public Room(String name, Set<Timeslot> unavailableTimeslots) {
+        this(name);
+        this.unavailableTimeslots = unavailableTimeslots;
     }
 
     public Room(String name, int capacity, Set<TalkType> talkTypes, Set<Timeslot> unavailableTimeslots,
@@ -39,16 +48,32 @@ public class Room {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public int getCapacity() {
         return capacity;
+    }
+
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
     }
 
     public Set<TalkType> getTalkTypes() {
         return talkTypes;
     }
 
+    public void setTalkTypes(Set<TalkType> talkTypes) {
+        this.talkTypes = talkTypes;
+    }
+
     public Set<Timeslot> getUnavailableTimeslots() {
         return unavailableTimeslots;
+    }
+
+    public void setUnavailableTimeslots(Set<Timeslot> unavailableTimeslots) {
+        this.unavailableTimeslots = unavailableTimeslots;
     }
 
     public Set<String> getTags() {

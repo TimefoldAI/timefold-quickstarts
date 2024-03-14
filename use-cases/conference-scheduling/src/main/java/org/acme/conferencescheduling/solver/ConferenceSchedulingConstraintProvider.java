@@ -306,7 +306,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
         return factory.forEachUniquePair(Talk.class,
                 equal(talk -> talk.getTimeslot().getStartDateTime().toLocalDate()),
                 filtering((talk1, talk2) -> talk2.overlappingThemeTrackCount(talk1) > 0))
-                .filter((talk1, talk2) -> talk1.getRoom() != talk2.getRoom())
+                .filter((talk1, talk2) -> !talk1.getRoom().equals(talk2.getRoom()))
                 .penalizeConfigurable((talk1, talk2) -> talk1.overlappingThemeTrackCount(talk2) *
                         talk1.combinedDurationInMinutes(talk2))
                 .asConstraint(THEME_TRACK_ROOM_STABILITY);

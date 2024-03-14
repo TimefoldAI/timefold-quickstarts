@@ -79,24 +79,52 @@ public class Timeslot {
         return pause.toMinutes() >= pauseInMinutes;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public LocalDateTime getStartDateTime() {
         return startDateTime;
+    }
+
+    public void setStartDateTime(LocalDateTime startDateTime) {
+        this.startDateTime = startDateTime;
     }
 
     public LocalDateTime getEndDateTime() {
         return endDateTime;
     }
 
+    public void setEndDateTime(LocalDateTime endDateTime) {
+        this.endDateTime = endDateTime;
+    }
+
     public Set<TalkType> getTalkTypes() {
         return talkTypes;
+    }
+
+    public void setTalkTypes(Set<TalkType> talkTypes) {
+        this.talkTypes = talkTypes;
     }
 
     public Set<String> getTags() {
         return tags;
     }
 
+    public void setTags(Set<String> tags) {
+        this.tags = tags;
+    }
+
     public int getDurationInMinutes() {
         return durationInMinutes;
+    }
+
+    public void setDurationInMinutes(int durationInMinutes) {
+        this.durationInMinutes = durationInMinutes;
     }
 
     @Override

@@ -8,6 +8,8 @@ import ai.timefold.solver.core.api.score.buildin.hardmediumsoft.HardMediumSoftSc
 @ConstraintConfiguration(constraintPackage = "ai.timefold.solver.examples.conferencescheduling.score")
 public class ConferenceConstraintConfiguration {
 
+    private String id;
+
     public static final String ROOM_UNAVAILABLE_TIMESLOT = "Room unavailable timeslot";
     public static final String ROOM_CONFLICT = "Room conflict";
     public static final String SPEAKER_UNAVAILABLE_TIMESLOT = "Speaker unavailable timeslot";
@@ -135,6 +137,10 @@ public class ConferenceConstraintConfiguration {
     private HardMediumSoftScore speakerMakespan = HardMediumSoftScore.ofSoft(20);
 
     public ConferenceConstraintConfiguration() {
+    }
+
+    public ConferenceConstraintConfiguration(String id) {
+        this.id = id;
     }
 
     // ************************************************************************

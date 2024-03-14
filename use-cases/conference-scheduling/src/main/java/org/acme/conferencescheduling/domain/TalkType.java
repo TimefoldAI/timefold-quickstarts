@@ -34,12 +34,24 @@ public class TalkType {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public Set<Timeslot> getCompatibleTimeslots() {
         return compatibleTimeslots;
     }
 
+    public void setCompatibleTimeslots(Set<Timeslot> compatibleTimeslots) {
+        this.compatibleTimeslots = compatibleTimeslots;
+    }
+
     public Set<Room> getCompatibleRooms() {
         return compatibleRooms;
+    }
+
+    public void setCompatibleRooms(Set<Room> compatibleRooms) {
+        this.compatibleRooms = compatibleRooms;
     }
 
     @Override

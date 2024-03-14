@@ -1,8 +1,10 @@
 package org.acme.conferencescheduling.domain;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
@@ -50,6 +52,16 @@ public class Talk {
     private Room room;
 
     public Talk() {
+    }
+
+    public Talk(String code, Timeslot timeslot, Room room) {
+        this(code, timeslot, room, emptyList());
+    }
+
+    public Talk(String code, Timeslot timeslot, Room room, List<Speaker> speakers) {
+        this(code, null, null, speakers, emptySet(), emptySet(), emptySet(), 0, emptySet(), null, 0, 0);
+        this.timeslot = timeslot;
+        this.room = room;
     }
 
     public Talk(String code, String title, TalkType talkType, List<Speaker> speakers, Set<String> themeTrackTags,
@@ -363,96 +375,192 @@ public class Talk {
         return code;
     }
 
+    public void setCode(String code) {
+        this.code = code;
+    }
+
     public String getTitle() {
         return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public TalkType getTalkType() {
         return talkType;
     }
 
+    public void setTalkType(TalkType talkType) {
+        this.talkType = talkType;
+    }
+
     public List<Speaker> getSpeakers() {
         return speakers;
+    }
+
+    public void setSpeakers(List<Speaker> speakers) {
+        this.speakers = speakers;
     }
 
     public Set<String> getThemeTrackTags() {
         return themeTrackTags;
     }
 
+    public void setThemeTrackTags(Set<String> themeTrackTags) {
+        this.themeTrackTags = themeTrackTags;
+    }
+
     public Set<String> getSectorTags() {
         return sectorTags;
+    }
+
+    public void setSectorTags(Set<String> sectorTags) {
+        this.sectorTags = sectorTags;
     }
 
     public Set<String> getAudienceTypes() {
         return audienceTypes;
     }
 
+    public void setAudienceTypes(Set<String> audienceTypes) {
+        this.audienceTypes = audienceTypes;
+    }
+
     public int getAudienceLevel() {
         return audienceLevel;
+    }
+
+    public void setAudienceLevel(int audienceLevel) {
+        this.audienceLevel = audienceLevel;
     }
 
     public Set<String> getContentTags() {
         return contentTags;
     }
 
+    public void setContentTags(Set<String> contentTags) {
+        this.contentTags = contentTags;
+    }
+
     public String getLanguage() {
         return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
     }
 
     public Set<String> getRequiredTimeslotTags() {
         return requiredTimeslotTags;
     }
 
+    public void setRequiredTimeslotTags(Set<String> requiredTimeslotTags) {
+        this.requiredTimeslotTags = requiredTimeslotTags;
+    }
+
     public Set<String> getPreferredTimeslotTags() {
         return preferredTimeslotTags;
+    }
+
+    public void setPreferredTimeslotTags(Set<String> preferredTimeslotTags) {
+        this.preferredTimeslotTags = preferredTimeslotTags;
     }
 
     public Set<String> getProhibitedTimeslotTags() {
         return prohibitedTimeslotTags;
     }
 
+    public void setProhibitedTimeslotTags(Set<String> prohibitedTimeslotTags) {
+        this.prohibitedTimeslotTags = prohibitedTimeslotTags;
+    }
+
     public Set<String> getUndesiredTimeslotTags() {
         return undesiredTimeslotTags;
+    }
+
+    public void setUndesiredTimeslotTags(Set<String> undesiredTimeslotTags) {
+        this.undesiredTimeslotTags = undesiredTimeslotTags;
     }
 
     public Set<String> getRequiredRoomTags() {
         return requiredRoomTags;
     }
 
+    public void setRequiredRoomTags(Set<String> requiredRoomTags) {
+        this.requiredRoomTags = requiredRoomTags;
+    }
+
     public Set<String> getPreferredRoomTags() {
         return preferredRoomTags;
+    }
+
+    public void setPreferredRoomTags(Set<String> preferredRoomTags) {
+        this.preferredRoomTags = preferredRoomTags;
     }
 
     public Set<String> getProhibitedRoomTags() {
         return prohibitedRoomTags;
     }
 
+    public void setProhibitedRoomTags(Set<String> prohibitedRoomTags) {
+        this.prohibitedRoomTags = prohibitedRoomTags;
+    }
+
     public Set<String> getUndesiredRoomTags() {
         return undesiredRoomTags;
+    }
+
+    public void setUndesiredRoomTags(Set<String> undesiredRoomTags) {
+        this.undesiredRoomTags = undesiredRoomTags;
     }
 
     public Set<String> getMutuallyExclusiveTalksTags() {
         return mutuallyExclusiveTalksTags;
     }
 
+    public void setMutuallyExclusiveTalksTags(Set<String> mutuallyExclusiveTalksTags) {
+        this.mutuallyExclusiveTalksTags = mutuallyExclusiveTalksTags;
+    }
+
     public Set<Talk> getPrerequisiteTalks() {
         return prerequisiteTalks;
+    }
+
+    public void setPrerequisiteTalks(Set<Talk> prerequisiteTalks) {
+        this.prerequisiteTalks = prerequisiteTalks;
     }
 
     public int getFavoriteCount() {
         return favoriteCount;
     }
 
+    public void setFavoriteCount(int favoriteCount) {
+        this.favoriteCount = favoriteCount;
+    }
+
     public int getCrowdControlRisk() {
         return crowdControlRisk;
+    }
+
+    public void setCrowdControlRisk(int crowdControlRisk) {
+        this.crowdControlRisk = crowdControlRisk;
     }
 
     public Timeslot getPublishedTimeslot() {
         return publishedTimeslot;
     }
 
+    public void setPublishedTimeslot(Timeslot publishedTimeslot) {
+        this.publishedTimeslot = publishedTimeslot;
+    }
+
     public Room getPublishedRoom() {
         return publishedRoom;
+    }
+
+    public void setPublishedRoom(Room publishedRoom) {
+        this.publishedRoom = publishedRoom;
     }
 
     public boolean isPinnedByUser() {
@@ -479,24 +587,18 @@ public class Talk {
         this.room = room;
     }
 
-    public Talk withPrerequisiteTalkSet(Set<Talk> prerequisiteTalkSet) {
-        this.prerequisiteTalks = prerequisiteTalkSet;
-        return this;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof Talk talk))
+            return false;
+        return Objects.equals(getCode(), talk.getCode());
     }
 
-    public Talk withMutuallyExclusiveTalksTagSet(Set<String> mutuallyExclusiveTalksTagSet) {
-        this.mutuallyExclusiveTalksTags = mutuallyExclusiveTalksTagSet;
-        return this;
-    }
-
-    public Talk withUndesiredRoomTagSet(Set<String> undesiredRoomTagSet) {
-        this.undesiredRoomTags = undesiredRoomTagSet;
-        return this;
-    }
-
-    public Talk withRequiredRoomTagSet(Set<String> requiredRoomTagSet) {
-        this.requiredRoomTags = requiredRoomTagSet;
-        return this;
+    @Override
+    public int hashCode() {
+        return getCode().hashCode();
     }
 
     @Override

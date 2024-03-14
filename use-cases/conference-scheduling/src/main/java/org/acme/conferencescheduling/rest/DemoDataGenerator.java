@@ -131,8 +131,9 @@ public class DemoDataGenerator {
                 Set.of(MANAGERS_TAG), 2, Set.of(OPENSHIFT_TAG, KUBERNETES_TAG), "en", 551, 1));
         talks.add(new Talk("S01", "Advanced containerized WildFly", getTalkType(LAB_TALK_TAG),
                 getSpeakers(speakers, "Chad Green"), Set.of(CLOUD_TAG), emptySet(),
-                Set.of(BUSINESS_ANALYSTS_TAG), 3, Set.of(WILDFLY_TAG), "en", 528, 0)
-                .withUndesiredRoomTagSet(Set.of(RECORDED_TAG)));
+                Set.of(BUSINESS_ANALYSTS_TAG), 3, Set.of(WILDFLY_TAG), "en", 528, 0));
+        talks.stream().filter(t -> t.getCode().equals("S01")).findFirst()
+                .ifPresent(t -> t.setUndesiredRoomTags(Set.of(RECORDED_TAG)));
         talks.add(new Talk("S02", "Learn virtualized Spring", getTalkType(BREAKOUT_TALK_TAG),
                 getSpeakers(speakers, "Dan Jones"), Set.of(ARTIFICIAL_INTELLIGENCE_TAG), Set.of(TRANSPORTATION_TAG),
                 Set.of(MANAGERS_TAG), 3, Set.of(SPRING_TAG), "en", 497, 0));
@@ -144,8 +145,10 @@ public class DemoDataGenerator {
                 Set.of(PROGRAMMERS_TAG), 1, Set.of(TIMEFOLD_TAG), "en", 957, 0));
         talks.add(new Talk("S05", "Mastering machine learning jBPM", getTalkType(BREAKOUT_TALK_TAG),
                 getSpeakers(speakers, "Ivy Smith"), Set.of(MOBILE_TAG), emptySet(),
-                Set.of(PROGRAMMERS_TAG), 1, Set.of(JBPM_TAG), "en", 957, 0)
-                .withPrerequisiteTalkSet(talks.stream().filter(t -> t.getCode().equals("S02")).collect(toSet())));
+                Set.of(PROGRAMMERS_TAG), 1, Set.of(JBPM_TAG), "en", 957, 0));
+        talks.stream().filter(t -> t.getCode().equals("S05")).findFirst()
+                .ifPresent(
+                        t -> t.setPrerequisiteTalks(talks.stream().filter(t2 -> t2.getCode().equals("S02")).collect(toSet())));
         talks.add(new Talk("S06", "Tuning IOT-driven Camel", getTalkType(BREAKOUT_TALK_TAG),
                 getSpeakers(speakers, "Jay Watt"), Set.of(MOBILE_TAG), emptySet(),
                 Set.of(BUSINESS_ANALYSTS_TAG), 3, Set.of(CAMEL_TAG), "en", 568, 0));
@@ -163,8 +166,9 @@ public class DemoDataGenerator {
                 Set.of(MANAGERS_TAG), 1, Set.of(GWT_TAG), "en", 39, 0));
         talks.add(new Talk("S11", "Understand mobile Errai", getTalkType(BREAKOUT_TALK_TAG),
                 getSpeakers(speakers, "Flo Li", "Gus Poe"), Set.of(CULTURE_TAG), emptySet(),
-                Set.of(MANAGERS_TAG), 3, Set.of(ERRAI_TAG), "en", 977, 0)
-                .withMutuallyExclusiveTalksTagSet(Set.of(PLANTINUM_SPONSOR_TAG)));
+                Set.of(MANAGERS_TAG), 3, Set.of(ERRAI_TAG), "en", 977, 0));
+        talks.stream().filter(t -> t.getCode().equals("S11")).findFirst()
+                .ifPresent(t -> t.setMutuallyExclusiveTalksTags(Set.of(PLANTINUM_SPONSOR_TAG)));
         talks.add(new Talk("S12", "Applying modern Angular", getTalkType(BREAKOUT_TALK_TAG),
                 getSpeakers(speakers, "Hugo Rye"), Set.of(MIDDLEWARE_TAG), emptySet(),
                 Set.of(MANAGERS_TAG), 3, Set.of(ANGULAR_TAG), "en", 494, 0));
@@ -173,8 +177,9 @@ public class DemoDataGenerator {
                 Set.of(BUSINESS_ANALYSTS_TAG), 3, Set.of(WELD_TAG), "en", 500, 0));
         talks.add(new Talk("S14", "Troubleshooting reliable RestEasy", getTalkType(BREAKOUT_TALK_TAG),
                 getSpeakers(speakers, "Jay Watt"), Set.of(MODERN_WEB_TAG), emptySet(),
-                Set.of(BUSINESS_ANALYSTS_TAG), 2, Set.of(REST_EASY_TAG), "en", 658, 0)
-                .withRequiredRoomTagSet(Set.of(RECORDED_TAG)));
+                Set.of(BUSINESS_ANALYSTS_TAG), 2, Set.of(REST_EASY_TAG), "en", 658, 0));
+        talks.stream().filter(t -> t.getCode().equals("S11")).findFirst()
+                .ifPresent(t -> t.setRequiredRoomTags(Set.of(RECORDED_TAG)));
         talks.add(new Talk("S15", "Using secure Android", getTalkType(BREAKOUT_TALK_TAG),
                 getSpeakers(speakers, "Amy Fox", "Beth Green"), Set.of(IOT_TAG), emptySet(),
                 Set.of(MANAGERS_TAG), 1, Set.of(ANDROID_TAG), "en", 592, 0));
