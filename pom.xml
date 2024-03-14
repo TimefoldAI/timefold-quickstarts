@@ -30,6 +30,7 @@
     <module>use-cases/order-picking</module>
     <module>use-cases/employee-scheduling</module>
     <module>use-cases/food-packaging</module>
+    <module>use-cases/conference-scheduling</module>
   </modules>
 
 </project>
