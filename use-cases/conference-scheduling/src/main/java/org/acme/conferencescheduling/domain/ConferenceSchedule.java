@@ -8,11 +8,12 @@ import ai.timefold.solver.core.api.domain.solution.PlanningScore;
 import ai.timefold.solver.core.api.domain.solution.PlanningSolution;
 import ai.timefold.solver.core.api.domain.solution.ProblemFactCollectionProperty;
 import ai.timefold.solver.core.api.score.buildin.hardmediumsoft.HardMediumSoftScore;
+import ai.timefold.solver.core.api.solver.SolverStatus;
 
 @PlanningSolution
 public class ConferenceSchedule {
 
-    private String conferenceName;
+    private String name;
 
     @ConstraintConfigurationProvider
     private ConferenceConstraintConfiguration constraintConfiguration;
@@ -35,12 +36,21 @@ public class ConferenceSchedule {
     @PlanningScore
     private HardMediumSoftScore score = null;
 
+    // Ignored by Timefold, used by the UI to display solve or stop solving button
+    private SolverStatus solverStatus;
+
     public ConferenceSchedule() {
     }
 
-    public ConferenceSchedule(String conferenceName, Set<TalkType> talkTypes, Set<Timeslot> timeslots, Set<Room> rooms,
+    public ConferenceSchedule(String name, HardMediumSoftScore score, SolverStatus solverStatus) {
+        this.name = name;
+        this.score = score;
+        this.solverStatus = solverStatus;
+    }
+
+    public ConferenceSchedule(String name, Set<TalkType> talkTypes, Set<Timeslot> timeslots, Set<Room> rooms,
             Set<Speaker> speakers, Set<Talk> talks) {
-        this.conferenceName = conferenceName;
+        this.name = name;
         this.talkTypes = talkTypes;
         this.timeslots = timeslots;
         this.rooms = rooms;
@@ -52,12 +62,12 @@ public class ConferenceSchedule {
     // Simple getters and setters
     // ************************************************************************
 
-    public String getConferenceName() {
-        return conferenceName;
+    public String getName() {
+        return name;
     }
 
-    public void setConferenceName(String conferenceName) {
-        this.conferenceName = conferenceName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public ConferenceConstraintConfiguration getConstraintConfiguration() {
@@ -116,8 +126,16 @@ public class ConferenceSchedule {
         this.score = score;
     }
 
+    public SolverStatus getSolverStatus() {
+        return solverStatus;
+    }
+
+    public void setSolverStatus(SolverStatus solverStatus) {
+        this.solverStatus = solverStatus;
+    }
+
     @Override
     public String toString() {
-        return conferenceName;
+        return name;
     }
 }
