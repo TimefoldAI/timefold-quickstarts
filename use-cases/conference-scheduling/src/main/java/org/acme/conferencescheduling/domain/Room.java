@@ -1,0 +1,80 @@
+package org.acme.conferencescheduling.domain;
+
+import static java.util.Collections.emptySet;
+
+import java.util.Objects;
+import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
+@JsonIdentityInfo(scope = Room.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "name")
+public class Room {
+
+    private String name;
+    private int capacity;
+
+    private Set<TalkType> talkTypes;
+    private Set<Timeslot> unavailableTimeslots;
+    private Set<String> tags;
+
+    public Room() {
+    }
+
+    public Room(String name, int capacity, Set<TalkType> talkTypes, Set<String> tags) {
+        this(name, capacity, talkTypes, emptySet(), tags);
+    }
+
+    public Room(String name, int capacity, Set<TalkType> talkTypes, Set<Timeslot> unavailableTimeslots,
+            Set<String> tags) {
+        this.name = name;
+        this.capacity = capacity;
+        this.talkTypes = talkTypes;
+        this.unavailableTimeslots = unavailableTimeslots;
+        this.tags = tags;
+        talkTypes.forEach(t -> t.addCompatibleRoom(this));
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getCapacity() {
+        return capacity;
+    }
+
+    public Set<TalkType> getTalkTypes() {
+        return talkTypes;
+    }
+
+    public Set<Timeslot> getUnavailableTimeslots() {
+        return unavailableTimeslots;
+    }
+
+    public Set<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(Set<String> tags) {
+        this.tags = tags;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof Room room))
+            return false;
+        return Objects.equals(getName(), room.getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return getName().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
+}

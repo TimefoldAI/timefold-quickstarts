@@ -1,0 +1,506 @@
+package org.acme.conferencescheduling.domain;
+
+import static java.util.Collections.emptySet;
+
+import java.util.List;
+import java.util.Set;
+
+import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
+import ai.timefold.solver.core.api.domain.entity.PlanningPin;
+import ai.timefold.solver.core.api.domain.lookup.PlanningId;
+import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
+import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
+
+@PlanningEntity
+public class Talk {
+
+    @PlanningId
+    private String code;
+    private String title;
+    private TalkType talkType;
+    private List<Speaker> speakers;
+    private Set<String> themeTrackTags;
+    private Set<String> sectorTags;
+    private Set<String> audienceTypes;
+    private int audienceLevel;
+    private Set<String> contentTags;
+    private String language;
+    private Set<String> requiredTimeslotTags;
+    private Set<String> preferredTimeslotTags;
+    private Set<String> prohibitedTimeslotTags;
+    private Set<String> undesiredTimeslotTags;
+    private Set<String> requiredRoomTags;
+    private Set<String> preferredRoomTags;
+    private Set<String> prohibitedRoomTags;
+    private Set<String> undesiredRoomTags;
+    private Set<String> mutuallyExclusiveTalksTags;
+    private Set<Talk> prerequisiteTalks;
+    private int favoriteCount;
+    private int crowdControlRisk;
+    private Timeslot publishedTimeslot;
+    private Room publishedRoom;
+
+    @PlanningPin
+    private boolean pinnedByUser = false;
+
+    @PlanningVariable
+    private Timeslot timeslot;
+
+    @PlanningVariable
+    private Room room;
+
+    public Talk() {
+    }
+
+    public Talk(String code, String title, TalkType talkType, List<Speaker> speakers, Set<String> themeTrackTags,
+            Set<String> sectorTags, Set<String> audienceTypes, int audienceLevel, Set<String> contentTags,
+            String language, int favoriteCount, int crowdControlRisk) {
+        this(code, title, talkType, speakers, themeTrackTags, sectorTags, audienceTypes, audienceLevel, contentTags,
+                language, emptySet(), emptySet(), emptySet(), emptySet(), emptySet(), emptySet(), emptySet(),
+                emptySet(), emptySet(), emptySet(), favoriteCount, crowdControlRisk, null,
+                null);
+    }
+
+    public Talk(String code, String title, TalkType talkType, List<Speaker> speakers, Set<String> themeTrackTags,
+            Set<String> sectorTags, Set<String> audienceTypes, int audienceLevel, Set<String> contentTags,
+            String language, Set<String> requiredTimeslotTags, Set<String> preferredTimeslotTags,
+            Set<String> prohibitedTimeslotTags, Set<String> undesiredTimeslotTags, Set<String> requiredRoomTags,
+            Set<String> preferredRoomTags, Set<String> prohibitedRoomTags, Set<String> undesiredRoomTags,
+            Set<String> mutuallyExclusiveTalksTags, Set<Talk> prerequisiteTalks, int favoriteCount, int crowdControlRisk,
+            Timeslot publishedTimeslot, Room publishedRoom) {
+        this.code = code;
+        this.title = title;
+        this.talkType = talkType;
+        this.speakers = speakers;
+        this.themeTrackTags = themeTrackTags;
+        this.sectorTags = sectorTags;
+        this.audienceTypes = audienceTypes;
+        this.audienceLevel = audienceLevel;
+        this.contentTags = contentTags;
+        this.language = language;
+        this.requiredTimeslotTags = requiredTimeslotTags;
+        this.preferredTimeslotTags = preferredTimeslotTags;
+        this.prohibitedTimeslotTags = prohibitedTimeslotTags;
+        this.undesiredTimeslotTags = undesiredTimeslotTags;
+        this.requiredRoomTags = requiredRoomTags;
+        this.preferredRoomTags = preferredRoomTags;
+        this.prohibitedRoomTags = prohibitedRoomTags;
+        this.undesiredRoomTags = undesiredRoomTags;
+        this.mutuallyExclusiveTalksTags = mutuallyExclusiveTalksTags;
+        this.prerequisiteTalks = prerequisiteTalks;
+        this.favoriteCount = favoriteCount;
+        this.crowdControlRisk = crowdControlRisk;
+        this.publishedTimeslot = publishedTimeslot;
+        this.publishedRoom = publishedRoom;
+    }
+
+    @ValueRangeProvider
+    public Set<Timeslot> getTimeslotRange() {
+        return talkType.getCompatibleTimeslots();
+    }
+
+    @ValueRangeProvider
+    public Set<Room> getRoomRange() {
+        return talkType.getCompatibleRooms();
+    }
+
+    public boolean hasSpeaker(Speaker speaker) {
+        return speakers.contains(speaker);
+    }
+
+    public int overlappingThemeTrackCount(Talk other) {
+        return overlappingCount(themeTrackTags, other.themeTrackTags);
+    }
+
+    private static <Item_> int overlappingCount(Set<Item_> left, Set<Item_> right) {
+        int leftSize = left.size();
+        if (leftSize == 0) {
+            return 0;
+        }
+        int rightSize = right.size();
+        if (rightSize == 0) {
+            return 0;
+        }
+        Set<Item_> smaller = leftSize < rightSize ? left : right;
+        Set<Item_> other = smaller == left ? right : left;
+        int overlappingCount = 0;
+        for (Item_ item : smaller) { // Iterate over smaller set, lookup in the larger.
+            if (other.contains(item)) {
+                overlappingCount++;
+            }
+        }
+        return overlappingCount;
+    }
+
+    public int overlappingSectorCount(Talk other) {
+        return overlappingCount(sectorTags, other.sectorTags);
+    }
+
+    public int overlappingAudienceTypeCount(Talk other) {
+        return overlappingCount(audienceTypes, other.audienceTypes);
+
+    }
+
+    public int overlappingContentCount(Talk other) {
+        return overlappingCount(contentTags, other.contentTags);
+
+    }
+
+    public int missingRequiredTimeslotTagCount() {
+        if (timeslot == null) {
+            return 0;
+        }
+        return missingCount(requiredTimeslotTags, timeslot.getTags());
+
+    }
+
+    private static <Item_> int missingCount(Set<Item_> required, Set<Item_> available) {
+        int requiredCount = required.size();
+        if (requiredCount == 0) {
+            return 0; // If no items are required, none can be missing.
+        }
+        int availableCount = available.size();
+        if (availableCount == 0) {
+            return requiredCount; // All the items are missing.
+        }
+        int missingCount = 0;
+        for (Item_ item : required) {
+            if (!available.contains(item)) {
+                missingCount++;
+            }
+        }
+        return missingCount;
+    }
+
+    public int missingPreferredTimeslotTagCount() {
+        if (timeslot == null) {
+            return 0;
+        }
+        return missingCount(preferredTimeslotTags, timeslot.getTags());
+    }
+
+    public int prevailingProhibitedTimeslotTagCount() {
+        if (timeslot == null) {
+            return 0;
+        }
+        return overlappingCount(prohibitedTimeslotTags, timeslot.getTags());
+    }
+
+    public int prevailingUndesiredTimeslotTagCount() {
+        if (timeslot == null) {
+            return 0;
+        }
+        return overlappingCount(undesiredTimeslotTags, timeslot.getTags());
+    }
+
+    public int missingRequiredRoomTagCount() {
+        if (room == null) {
+            return 0;
+        }
+        return missingCount(requiredRoomTags, room.getTags());
+
+    }
+
+    public int missingPreferredRoomTagCount() {
+        if (room == null) {
+            return 0;
+        }
+        return missingCount(preferredRoomTags, room.getTags());
+    }
+
+    public int prevailingProhibitedRoomTagCount() {
+        if (room == null) {
+            return 0;
+        }
+        return overlappingCount(prohibitedRoomTags, room.getTags());
+
+    }
+
+    public int prevailingUndesiredRoomTagCount() {
+        if (room == null) {
+            return 0;
+        }
+        return overlappingCount(undesiredRoomTags, room.getTags());
+    }
+
+    public int missingSpeakerRequiredTimeslotTagCount() {
+        if (timeslot == null) {
+            return 0;
+        }
+        int count = 0;
+        for (Speaker speaker : speakers) {
+            count += missingCount(speaker.getRequiredTimeslotTags(), timeslot.getTags());
+        }
+        return count;
+    }
+
+    public int missingSpeakerPreferredTimeslotTagCount() {
+        if (timeslot == null) {
+            return 0;
+        }
+        int count = 0;
+        for (Speaker speaker : speakers) {
+            count += missingCount(speaker.getPreferredTimeslotTags(), timeslot.getTags());
+        }
+        return count;
+    }
+
+    public int prevailingSpeakerProhibitedTimeslotTagCount() {
+        if (timeslot == null) {
+            return 0;
+        }
+        int count = 0;
+        for (Speaker speaker : speakers) {
+            count += overlappingCount(speaker.getProhibitedTimeslotTags(), timeslot.getTags());
+        }
+        return count;
+    }
+
+    public int prevailingSpeakerUndesiredTimeslotTagCount() {
+        if (timeslot == null) {
+            return 0;
+        }
+        int count = 0;
+        for (Speaker speaker : speakers) {
+            count += overlappingCount(speaker.getUndesiredTimeslotTags(), timeslot.getTags());
+        }
+        return count;
+    }
+
+    public int missingSpeakerRequiredRoomTagCount() {
+        if (room == null) {
+            return 0;
+        }
+        int count = 0;
+        for (Speaker speaker : speakers) {
+            count += missingCount(speaker.getRequiredRoomTags(), room.getTags());
+        }
+        return count;
+    }
+
+    public int missingSpeakerPreferredRoomTagCount() {
+        if (room == null) {
+            return 0;
+        }
+        int count = 0;
+        for (Speaker speaker : speakers) {
+            count += missingCount(speaker.getPreferredRoomTags(), room.getTags());
+        }
+        return count;
+    }
+
+    public int prevailingSpeakerProhibitedRoomTagCount() {
+        if (room == null) {
+            return 0;
+        }
+        int count = 0;
+        for (Speaker speaker : speakers) {
+            count += overlappingCount(speaker.getProhibitedRoomTags(), room.getTags());
+        }
+        return count;
+    }
+
+    public int prevailingSpeakerUndesiredRoomTagCount() {
+        if (room == null) {
+            return 0;
+        }
+        int count = 0;
+        for (Speaker speaker : speakers) {
+            count += overlappingCount(speaker.getUndesiredRoomTags(), room.getTags());
+        }
+        return count;
+    }
+
+    public boolean hasUnavailableRoom() {
+        if (timeslot == null || room == null) {
+            return false;
+        }
+        return room.getUnavailableTimeslots().contains(timeslot);
+    }
+
+    public int overlappingMutuallyExclusiveTalksTagCount(Talk other) {
+        return overlappingCount(mutuallyExclusiveTalksTags, other.mutuallyExclusiveTalksTags);
+    }
+
+    public boolean hasMutualSpeaker(Talk other) {
+        for (Speaker speaker : speakers) {
+            if (other.hasSpeaker(speaker)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public Integer getDurationInMinutes() {
+        return timeslot == null ? null : timeslot.getDurationInMinutes();
+    }
+
+    public boolean overlapsTime(Talk other) {
+        return timeslot != null && other.getTimeslot() != null && timeslot.overlapsTime(other.getTimeslot());
+    }
+
+    public int overlappingDurationInMinutes(Talk other) {
+        if (timeslot == null) {
+            return 0;
+        }
+        if (other.getTimeslot() == null) {
+            return 0;
+        }
+        return timeslot.getOverlapInMinutes(other.getTimeslot());
+    }
+
+    public int combinedDurationInMinutes(Talk other) {
+        if (timeslot == null) {
+            return 0;
+        }
+        if (other.getTimeslot() == null) {
+            return 0;
+        }
+        return timeslot.getDurationInMinutes() + other.getTimeslot().getDurationInMinutes();
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public TalkType getTalkType() {
+        return talkType;
+    }
+
+    public List<Speaker> getSpeakers() {
+        return speakers;
+    }
+
+    public Set<String> getThemeTrackTags() {
+        return themeTrackTags;
+    }
+
+    public Set<String> getSectorTags() {
+        return sectorTags;
+    }
+
+    public Set<String> getAudienceTypes() {
+        return audienceTypes;
+    }
+
+    public int getAudienceLevel() {
+        return audienceLevel;
+    }
+
+    public Set<String> getContentTags() {
+        return contentTags;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public Set<String> getRequiredTimeslotTags() {
+        return requiredTimeslotTags;
+    }
+
+    public Set<String> getPreferredTimeslotTags() {
+        return preferredTimeslotTags;
+    }
+
+    public Set<String> getProhibitedTimeslotTags() {
+        return prohibitedTimeslotTags;
+    }
+
+    public Set<String> getUndesiredTimeslotTags() {
+        return undesiredTimeslotTags;
+    }
+
+    public Set<String> getRequiredRoomTags() {
+        return requiredRoomTags;
+    }
+
+    public Set<String> getPreferredRoomTags() {
+        return preferredRoomTags;
+    }
+
+    public Set<String> getProhibitedRoomTags() {
+        return prohibitedRoomTags;
+    }
+
+    public Set<String> getUndesiredRoomTags() {
+        return undesiredRoomTags;
+    }
+
+    public Set<String> getMutuallyExclusiveTalksTags() {
+        return mutuallyExclusiveTalksTags;
+    }
+
+    public Set<Talk> getPrerequisiteTalks() {
+        return prerequisiteTalks;
+    }
+
+    public int getFavoriteCount() {
+        return favoriteCount;
+    }
+
+    public int getCrowdControlRisk() {
+        return crowdControlRisk;
+    }
+
+    public Timeslot getPublishedTimeslot() {
+        return publishedTimeslot;
+    }
+
+    public Room getPublishedRoom() {
+        return publishedRoom;
+    }
+
+    public boolean isPinnedByUser() {
+        return pinnedByUser;
+    }
+
+    public void setPinnedByUser(boolean pinnedByUser) {
+        this.pinnedByUser = pinnedByUser;
+    }
+
+    public Timeslot getTimeslot() {
+        return timeslot;
+    }
+
+    public void setTimeslot(Timeslot timeslot) {
+        this.timeslot = timeslot;
+    }
+
+    public Room getRoom() {
+        return room;
+    }
+
+    public void setRoom(Room room) {
+        this.room = room;
+    }
+
+    public Talk withPrerequisiteTalkSet(Set<Talk> prerequisiteTalkSet) {
+        this.prerequisiteTalks = prerequisiteTalkSet;
+        return this;
+    }
+
+    public Talk withMutuallyExclusiveTalksTagSet(Set<String> mutuallyExclusiveTalksTagSet) {
+        this.mutuallyExclusiveTalksTags = mutuallyExclusiveTalksTagSet;
+        return this;
+    }
+
+    public Talk withUndesiredRoomTagSet(Set<String> undesiredRoomTagSet) {
+        this.undesiredRoomTags = undesiredRoomTagSet;
+        return this;
+    }
+
+    public Talk withRequiredRoomTagSet(Set<String> requiredRoomTagSet) {
+        this.requiredRoomTags = requiredRoomTagSet;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return code;
+    }
+}
