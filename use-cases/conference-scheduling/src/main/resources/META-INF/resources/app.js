@@ -65,27 +65,15 @@ function renderSchedule(schedule) {
     $("#score").text("Score: " + (schedule.score == null ? "?" : schedule.score));
 
     renderScheduleByRoom(schedule);
-
-    const unassignedTalks = $("#unassignedTalks");
-    unassignedTalks.children().remove();
-
-    $.each(schedule.talks, (index, talk) => {
-        const color = pickColor(talk.talkType);
-        const talkElement = $(`<div class="card" style="background-color: ${color}"/>`)
-            .append($(`<div class="card-body p-2"/>`)
-                .append($(`<h5 class="card-title mb-1"/>`).text(`${talk.code}: ${talk.title}`))
-                .append($(`<p class="card-text ms-2 mb-1"/>`)
-                    .append($(`<em/>`).text(`by ${talk.speakers.map(s => s.name).join(", ")}`)))
-                .append($(`<small class="ms-2 mt-1 card-text text-muted align-bottom float-end"/>`).text(talk.talkType.name)));
-        if (talk.timeslot == null || talk.room == null) {
-            unassignedTalks.append($(`<div class="col"/>`).append(talkElement));
-        }
-    });
+    renderScheduleBySpeaker(schedule);
 }
 
 function renderScheduleByRoom(schedule) {
     const scheduleByRoom = $("#scheduleByRoom");
     scheduleByRoom.children().remove();
+
+    const unassignedTalks = $("#unassignedTalks");
+    unassignedTalks.children().remove();
 
     const theadByRoom = $("<thead>").appendTo(scheduleByRoom);
     const headerRowByRoom = $("<tr>").appendTo(theadByRoom);
@@ -127,234 +115,68 @@ function renderScheduleByRoom(schedule) {
                 .append($(`<small class="ms-2 mt-1 card-text text-muted align-bottom float-end"/>`).text(talk.talkType.name)));
         if (talk.timeslot != null && talk.room != null) {
             $(`#timeslot${talk.timeslot.id}room${talk.room.id}`).append(talkElement.clone());
+        } else {
+            unassignedTalks.append($(`<div class="col"/>`).append(talkElement));
         }
     });
 }
 
+function renderScheduleBySpeaker(schedule) {
+    const scheduleBySpeaker = $("#scheduleBySpeaker");
+    scheduleBySpeaker.children().remove();
 
-// function renderScheduleBySpeaker(schedule) {
-//   refreshSolvingButtons(schedule.solverStatus != null && schedule.solverStatus !== "NOT_SOLVING");
-//   $("#score").text("Score: " + (schedule.score == null ? "?" : schedule.score));
-//
-//   const scheduleByRoom = $("#scheduleByRoom");
-//   scheduleByRoom.children().remove();
-//
-//   const scheduleBySpeaker = $("#scheduleBySpeaker");
-//   scheduleBySpeaker.children().remove();
-//
-//   const scheduleByTalk = $("#scheduleByTalk");
-//   scheduleByTalk.children().remove();
-//
-//   const unassignedTalks = $("#unassignedLessons");
-//   unassignedTalks.children().remove();
-//
-//   const theadByRoom = $("<thead>").appendTo(scheduleByRoom);
-//   const headerRowByRoom = $("<tr>").appendTo(theadByRoom);
-//   headerRowByRoom.append($("<th>Timeslot</th>"));
-//
-//   $.each(schedule.rooms, (index, room) => {
-//     headerRowByRoom
-//         .append($("<th/>")
-//             .append($("<span/>").text(room.name))
-//             .append($(`<button type="button" class="ms-2 mb-1 btn btn-light btn-sm p-1"/>`)));
-//   });
-//   const theadByTeacher = $("<thead>").appendTo(scheduleBySpeaker);
-//   const headerRowByTeacher = $("<tr>").appendTo(theadByTeacher);
-//   headerRowByTeacher.append($("<th>Timeslot</th>"));
-//   const teachers = [...new Set(schedule.lessons.map(lesson => lesson.teacher))];
-//   $.each(teachers, (index, teacher) => {
-//     headerRowByTeacher
-//         .append($("<th/>")
-//             .append($("<span/>").text(teacher)));
-//   });
-//   const theadByStudentGroup = $("<thead>").appendTo(scheduleByTalk);
-//   const headerRowByStudentGroup = $("<tr>").appendTo(theadByStudentGroup);
-//   headerRowByStudentGroup.append($("<th>Timeslot</th>"));
-//   const studentGroups = [...new Set(schedule.lessons.map(lesson => lesson.studentGroup))];
-//   $.each(studentGroups, (index, studentGroup) => {
-//     headerRowByStudentGroup
-//         .append($("<th/>")
-//             .append($("<span/>").text(studentGroup)));
-//   });
-//
-//   const tbodyByRoom = $("<tbody>").appendTo(scheduleByRoom);
-//   const tbodyByTeacher = $("<tbody>").appendTo(scheduleBySpeaker);
-//   const tbodyByStudentGroup = $("<tbody>").appendTo(scheduleByTalk);
-//
-//   const LocalTime = JSJoda.LocalTime;
-//
-//   $.each(schedule.timeslots, (index, timeslot) => {
-//     const rowByRoom = $("<tr>").appendTo(tbodyByRoom);
-//     rowByRoom
-//         .append($(`<th class="align-middle"/>`)
-//             .append($("<span/>").text(`
-//                     ${timeslot.dayOfWeek.charAt(0) + timeslot.dayOfWeek.slice(1).toLowerCase()}
-//                     ${LocalTime.parse(timeslot.startTime).format(dateTimeFormatter)}
-//                     -
-//                     ${LocalTime.parse(timeslot.endTime).format(dateTimeFormatter)}
-//                 `)));
-//     $.each(schedule.rooms, (index, room) => {
-//       rowByRoom.append($("<td/>").prop("id", `timeslot${timeslot.id}room${room.id}`));
-//     });
-//
-//     const rowByTeacher = $("<tr>").appendTo(tbodyByTeacher);
-//     rowByTeacher
-//         .append($(`<th class="align-middle"/>`)
-//             .append($("<span/>").text(`
-//                     ${timeslot.dayOfWeek.charAt(0) + timeslot.dayOfWeek.slice(1).toLowerCase()}
-//                     ${LocalTime.parse(timeslot.startTime).format(dateTimeFormatter)}
-//                     -
-//                     ${LocalTime.parse(timeslot.endTime).format(dateTimeFormatter)}
-//                 `)));
-//     $.each(teachers, (index, teacher) => {
-//       rowByTeacher.append($("<td/>").prop("id", `timeslot${timeslot.id}teacher${convertToId(teacher)}`));
-//     });
-//
-//     const rowByStudentGroup = $("<tr>").appendTo(tbodyByStudentGroup);
-//     rowByStudentGroup
-//         .append($(`<th class="align-middle"/>`)
-//             .append($("<span/>").text(`
-//                     ${timeslot.dayOfWeek.charAt(0) + timeslot.dayOfWeek.slice(1).toLowerCase()}
-//                     ${LocalTime.parse(timeslot.startTime).format(dateTimeFormatter)}
-//                     -
-//                     ${LocalTime.parse(timeslot.endTime).format(dateTimeFormatter)}
-//                 `)));
-//     $.each(studentGroups, (index, studentGroup) => {
-//       rowByStudentGroup.append($("<td/>").prop("id", `timeslot${timeslot.id}studentGroup${convertToId(studentGroup)}`));
-//     });
-//   });
-//
-//   $.each(schedule.lessons, (index, lesson) => {
-//     const color = pickColor(lesson.subject);
-//     const lessonElement = $(`<div class="card" style="background-color: ${color}"/>`)
-//         .append($(`<div class="card-body p-2"/>`)
-//             .append($(`<h5 class="card-title mb-1"/>`).text(lesson.subject))
-//             .append($(`<p class="card-text ms-2 mb-1"/>`)
-//                 .append($(`<em/>`).text(`by ${lesson.teacher}`)))
-//             .append($(`<small class="ms-2 mt-1 card-text text-muted align-bottom float-end"/>`).text(lesson.id))
-//             .append($(`<p class="card-text ms-2"/>`).text(lesson.studentGroup)));
-//     if (lesson.timeslot == null || lesson.room == null) {
-//       unassignedTalks.append($(`<div class="col"/>`).append(lessonElement));
-//     } else {
-//       // In the JSON, the lesson.timeslot and lesson.room are only IDs of these objects.
-//       $(`#timeslot${lesson.timeslot}room${lesson.room}`).append(lessonElement.clone());
-//       $(`#timeslot${lesson.timeslot}teacher${convertToId(lesson.teacher)}`).append(lessonElement.clone());
-//       $(`#timeslot${lesson.timeslot}studentGroup${convertToId(lesson.studentGroup)}`).append(lessonElement.clone());
-//     }
-//   });
-// }
-//
-// function renderScheduleByTalk(schedule) {
-//   refreshSolvingButtons(schedule.solverStatus != null && schedule.solverStatus !== "NOT_SOLVING");
-//   $("#score").text("Score: " + (schedule.score == null ? "?" : schedule.score));
-//
-//   const scheduleByRoom = $("#scheduleByRoom");
-//   scheduleByRoom.children().remove();
-//
-//   const scheduleBySpeaker = $("#scheduleBySpeaker");
-//   scheduleBySpeaker.children().remove();
-//
-//   const scheduleByTalk = $("#scheduleByTalk");
-//   scheduleByTalk.children().remove();
-//
-//   const unassignedTalks = $("#unassignedLessons");
-//   unassignedTalks.children().remove();
-//
-//   const theadByRoom = $("<thead>").appendTo(scheduleByRoom);
-//   const headerRowByRoom = $("<tr>").appendTo(theadByRoom);
-//   headerRowByRoom.append($("<th>Timeslot</th>"));
-//
-//   $.each(schedule.rooms, (index, room) => {
-//     headerRowByRoom
-//         .append($("<th/>")
-//             .append($("<span/>").text(room.name))
-//             .append($(`<button type="button" class="ms-2 mb-1 btn btn-light btn-sm p-1"/>`)));
-//   });
-//   const theadByTeacher = $("<thead>").appendTo(scheduleBySpeaker);
-//   const headerRowByTeacher = $("<tr>").appendTo(theadByTeacher);
-//   headerRowByTeacher.append($("<th>Timeslot</th>"));
-//   const teachers = [...new Set(schedule.lessons.map(lesson => lesson.teacher))];
-//   $.each(teachers, (index, teacher) => {
-//     headerRowByTeacher
-//         .append($("<th/>")
-//             .append($("<span/>").text(teacher)));
-//   });
-//   const theadByStudentGroup = $("<thead>").appendTo(scheduleByTalk);
-//   const headerRowByStudentGroup = $("<tr>").appendTo(theadByStudentGroup);
-//   headerRowByStudentGroup.append($("<th>Timeslot</th>"));
-//   const studentGroups = [...new Set(schedule.lessons.map(lesson => lesson.studentGroup))];
-//   $.each(studentGroups, (index, studentGroup) => {
-//     headerRowByStudentGroup
-//         .append($("<th/>")
-//             .append($("<span/>").text(studentGroup)));
-//   });
-//
-//   const tbodyByRoom = $("<tbody>").appendTo(scheduleByRoom);
-//   const tbodyByTeacher = $("<tbody>").appendTo(scheduleBySpeaker);
-//   const tbodyByStudentGroup = $("<tbody>").appendTo(scheduleByTalk);
-//
-//   const LocalTime = JSJoda.LocalTime;
-//
-//   $.each(schedule.timeslots, (index, timeslot) => {
-//     const rowByRoom = $("<tr>").appendTo(tbodyByRoom);
-//     rowByRoom
-//         .append($(`<th class="align-middle"/>`)
-//             .append($("<span/>").text(`
-//                     ${timeslot.dayOfWeek.charAt(0) + timeslot.dayOfWeek.slice(1).toLowerCase()}
-//                     ${LocalTime.parse(timeslot.startTime).format(dateTimeFormatter)}
-//                     -
-//                     ${LocalTime.parse(timeslot.endTime).format(dateTimeFormatter)}
-//                 `)));
-//     $.each(schedule.rooms, (index, room) => {
-//       rowByRoom.append($("<td/>").prop("id", `timeslot${timeslot.id}room${room.id}`));
-//     });
-//
-//     const rowByTeacher = $("<tr>").appendTo(tbodyByTeacher);
-//     rowByTeacher
-//         .append($(`<th class="align-middle"/>`)
-//             .append($("<span/>").text(`
-//                     ${timeslot.dayOfWeek.charAt(0) + timeslot.dayOfWeek.slice(1).toLowerCase()}
-//                     ${LocalTime.parse(timeslot.startTime).format(dateTimeFormatter)}
-//                     -
-//                     ${LocalTime.parse(timeslot.endTime).format(dateTimeFormatter)}
-//                 `)));
-//     $.each(teachers, (index, teacher) => {
-//       rowByTeacher.append($("<td/>").prop("id", `timeslot${timeslot.id}teacher${convertToId(teacher)}`));
-//     });
-//
-//     const rowByStudentGroup = $("<tr>").appendTo(tbodyByStudentGroup);
-//     rowByStudentGroup
-//         .append($(`<th class="align-middle"/>`)
-//             .append($("<span/>").text(`
-//                     ${timeslot.dayOfWeek.charAt(0) + timeslot.dayOfWeek.slice(1).toLowerCase()}
-//                     ${LocalTime.parse(timeslot.startTime).format(dateTimeFormatter)}
-//                     -
-//                     ${LocalTime.parse(timeslot.endTime).format(dateTimeFormatter)}
-//                 `)));
-//     $.each(studentGroups, (index, studentGroup) => {
-//       rowByStudentGroup.append($("<td/>").prop("id", `timeslot${timeslot.id}studentGroup${convertToId(studentGroup)}`));
-//     });
-//   });
-//
-//   $.each(schedule.lessons, (index, lesson) => {
-//     const color = pickColor(lesson.subject);
-//     const lessonElement = $(`<div class="card" style="background-color: ${color}"/>`)
-//         .append($(`<div class="card-body p-2"/>`)
-//             .append($(`<h5 class="card-title mb-1"/>`).text(lesson.subject))
-//             .append($(`<p class="card-text ms-2 mb-1"/>`)
-//                 .append($(`<em/>`).text(`by ${lesson.teacher}`)))
-//             .append($(`<small class="ms-2 mt-1 card-text text-muted align-bottom float-end"/>`).text(lesson.id))
-//             .append($(`<p class="card-text ms-2"/>`).text(lesson.studentGroup)));
-//     if (lesson.timeslot == null || lesson.room == null) {
-//       unassignedTalks.append($(`<div class="col"/>`).append(lessonElement));
-//     } else {
-//       // In the JSON, the lesson.timeslot and lesson.room are only IDs of these objects.
-//       $(`#timeslot${lesson.timeslot}room${lesson.room}`).append(lessonElement.clone());
-//       $(`#timeslot${lesson.timeslot}teacher${convertToId(lesson.teacher)}`).append(lessonElement.clone());
-//       $(`#timeslot${lesson.timeslot}studentGroup${convertToId(lesson.studentGroup)}`).append(lessonElement.clone());
-//     }
-//   });
-// }
+    const unassignedTalks = $("#unassignedTalks");
+    unassignedTalks.children().remove();
+
+    const theadBySpeaker = $("<thead>").appendTo(scheduleBySpeaker);
+    const headerRowBySpeaker = $("<tr>").appendTo(theadBySpeaker);
+    headerRowBySpeaker.append($("<th>Speaker</th>"));
+
+    const LocalDateTime = JSJoda.LocalDateTime;
+
+    $.each(schedule.timeslots.sort((a, b) => a.id > b.id ? 1 : (a.id < b.id ? -1 : 0)), (index, timeslot) => {
+        headerRowBySpeaker
+            .append($("<th/>")
+                .append($("<span/>").text(`   
+                    ${LocalDateTime.parse(timeslot.startDateTime).dayOfWeek().name().charAt(0) + LocalDateTime.parse(timeslot.startDateTime).dayOfWeek().name().slice(1).toLowerCase()}                 
+                    ${LocalDateTime.parse(timeslot.startDateTime).format(timeFormatter)}
+                    -
+                    ${LocalDateTime.parse(timeslot.endDateTime).format(timeFormatter)}
+                `))
+                .append($(`<button type="button" class="ms-2 mb-1 btn btn-light btn-sm p-1"/>`))
+            );
+    });
+
+    const tbodyBySpeaker = $("<tbody>").appendTo(scheduleBySpeaker);
+
+
+    $.each(schedule.speakers, (index, speaker) => {
+        const rowBySpeaker = $("<tr>").appendTo(tbodyBySpeaker);
+        rowBySpeaker
+            .append($(`<th class="align-middle"/>`)
+                .append($("<span/>").text(speaker.name)));
+        $.each(schedule.timeslots, (index, timeslot) => {
+            rowBySpeaker.append($("<td/>").prop("id", `speaker${speaker.id}timeslot${timeslot.id}`));
+        });
+    });
+
+    $.each(schedule.talks.sort((a, b) => a.code > b.code ? 1 : (a.code < b.code ? -1 : 0)), (index, talk) => {
+        $.each(talk.speakers, (_, speaker) => {
+            const color = pickColor(speaker.name);
+            const talkElement = $(`<div class="card" style="background-color: ${color}"/>`)
+                .append($(`<div class="card-body p-2"/>`)
+                    .append($(`<h5 class="card-title mb-1 text-truncate"/>`).text(`${talk.code}: ${talk.title}`))
+                    .append($(`<p class="card-text ms-2 mb-1"/>`)
+                        .append($(`<em/>`).text(`by ${speaker.name}`)))
+                    .append($(`<small class="ms-2 mt-1 card-text text-muted align-bottom float-end"/>`).text(talk.talkType.name)));
+            if (talk.timeslot != null && talk.room != null) {
+                $(`#speaker${speaker.id}timeslot${talk.timeslot.id}`).append(talkElement.clone());
+            } else {
+                unassignedTalks.append($(`<div class="col"/>`).append(talkElement));
+            }
+        });
+    });
+}
 
 function solve() {
     $.post("/schedules", JSON.stringify(loadedSchedule), function (data) {

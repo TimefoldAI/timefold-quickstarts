@@ -7,6 +7,7 @@ import java.util.Set;
 
 public class Speaker {
 
+    private String id;
     private String name;
 
     private Set<Timeslot> unavailableTimeslots;
@@ -23,20 +24,27 @@ public class Speaker {
     public Speaker() {
     }
 
+    public Speaker(String id, String name) {
+        this(id, name, emptySet(), emptySet(), emptySet(), emptySet(), emptySet(), emptySet(), emptySet(), emptySet(),
+                emptySet());
+    }
+
     public Speaker(String name) {
-        this(name, emptySet(), emptySet(), emptySet(), emptySet(), emptySet(), emptySet(), emptySet(), emptySet(),
+        this(name, name, emptySet(), emptySet(), emptySet(), emptySet(), emptySet(), emptySet(), emptySet(), emptySet(),
                 emptySet());
     }
 
-    public Speaker(String name, Set<String> undesiredTimeslotTags) {
-        this(name, emptySet(), emptySet(), emptySet(), emptySet(), undesiredTimeslotTags, emptySet(), emptySet(), emptySet(),
+    public Speaker(String id, String name, Set<String> undesiredTimeslotTags) {
+        this(id, name, emptySet(), emptySet(), emptySet(), emptySet(), undesiredTimeslotTags, emptySet(), emptySet(),
+                emptySet(),
                 emptySet());
     }
 
-    public Speaker(String name, Set<Timeslot> unavailableTimeslots, Set<String> requiredTimeslotTags,
+    public Speaker(String id, String name, Set<Timeslot> unavailableTimeslots, Set<String> requiredTimeslotTags,
             Set<String> preferredTimeslotTags, Set<String> prohibitedTimeslotTags, Set<String> undesiredTimeslotTags,
             Set<String> requiredRoomTags, Set<String> preferredRoomTags, Set<String> prohibitedRoomTags,
             Set<String> undesiredRoomTags) {
+        this.id = id;
         this.name = name;
         this.unavailableTimeslots = unavailableTimeslots;
         this.requiredTimeslotTags = requiredTimeslotTags;
@@ -47,6 +55,14 @@ public class Speaker {
         this.preferredRoomTags = preferredRoomTags;
         this.prohibitedRoomTags = prohibitedRoomTags;
         this.undesiredRoomTags = undesiredRoomTags;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getName() {

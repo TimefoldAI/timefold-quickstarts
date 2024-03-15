@@ -86,18 +86,18 @@ public class DemoDataGenerator {
 
     private Set<Speaker> generateSpeakers() {
         return Set.of(
-                new Speaker("Amy Cole"),
-                new Speaker("Beth Fox"),
-                new Speaker("Chad Green"),
-                new Speaker("Dan Jones"),
-                new Speaker("Elsa King"),
-                new Speaker("Flo Li"),
-                new Speaker("Gus Poe"),
-                new Speaker("Hugo Rye"),
-                new Speaker("Ivy Smith"),
-                new Speaker("Jay Watt"),
-                new Speaker("Amy Fox"),
-                new Speaker("Beth Green", Set.of(AFTER_LUNCH_TAG)));
+                new Speaker("1", "Amy Cole"),
+                new Speaker("2", "Beth Fox"),
+                new Speaker("3", "Chad Green"),
+                new Speaker("4", "Dan Jones"),
+                new Speaker("5", "Elsa King"),
+                new Speaker("6", "Flo Li"),
+                new Speaker("7", "Gus Poe"),
+                new Speaker("8", "Hugo Rye"),
+                new Speaker("9", "Ivy Smith"),
+                new Speaker("10", "Jay Watt"),
+                new Speaker("11", "Amy Fox"),
+                new Speaker("12", "Beth Green", Set.of(AFTER_LUNCH_TAG)));
     }
 
     private Set<Talk> generateTalks(Set<Speaker> speakers) {
