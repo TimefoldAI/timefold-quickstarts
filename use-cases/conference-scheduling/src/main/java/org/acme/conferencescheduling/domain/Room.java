@@ -7,6 +7,7 @@ import java.util.Set;
 
 public class Room {
 
+    private String id;
     private String name;
     private int capacity;
 
@@ -17,27 +18,40 @@ public class Room {
     public Room() {
     }
 
-    public Room(String name) {
-        this(name, 0, emptySet(), emptySet());
+    public Room(String id) {
+        this(id, id, 0, emptySet(), emptySet());
     }
 
-    public Room(String name, int capacity, Set<TalkType> talkTypes, Set<String> tags) {
-        this(name, capacity, talkTypes, emptySet(), tags);
+    public Room(String id, String name) {
+        this(id, name, 0, emptySet(), emptySet(), emptySet());
     }
 
-    public Room(String name, Set<Timeslot> unavailableTimeslots) {
-        this(name);
+    public Room(String id, String name, int capacity, Set<TalkType> talkTypes, Set<String> tags) {
+        this(id, name, capacity, talkTypes, emptySet(), tags);
+    }
+
+    public Room(String id, Set<Timeslot> unavailableTimeslots) {
+        this(id);
         this.unavailableTimeslots = unavailableTimeslots;
     }
 
-    public Room(String name, int capacity, Set<TalkType> talkTypes, Set<Timeslot> unavailableTimeslots,
+    public Room(String id, String name, int capacity, Set<TalkType> talkTypes, Set<Timeslot> unavailableTimeslots,
             Set<String> tags) {
+        this.id = id;
         this.name = name;
         this.capacity = capacity;
         this.talkTypes = talkTypes;
         this.unavailableTimeslots = unavailableTimeslots;
         this.tags = tags;
         talkTypes.forEach(t -> t.addCompatibleRoom(this));
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -86,16 +100,16 @@ public class Room {
             return true;
         if (!(o instanceof Room room))
             return false;
-        return Objects.equals(getName(), room.getName());
+        return Objects.equals(getId(), room.getId());
     }
 
     @Override
     public int hashCode() {
-        return getName().hashCode();
+        return getId().hashCode();
     }
 
     @Override
     public String toString() {
-        return name;
+        return id;
     }
 }

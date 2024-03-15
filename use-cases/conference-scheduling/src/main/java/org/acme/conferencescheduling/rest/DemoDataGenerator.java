@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -31,40 +32,14 @@ public class DemoDataGenerator {
     private static final String RECORDED_TAG = "Recorded";
     private static final String LARGE_TAG = "Large";
     // Theme tags
-    private static final String ARTIFICIAL_INTELLIGENCE_TAG = "Artificial Intelligence";
-    private static final String BIG_DATA_TAG = "Big Data";
-    private static final String CLOUD_TAG = "Cloud";
-    private static final String CULTURE_TAG = "Culture";
-    private static final String IOT_TAG = "IoT";
-    private static final String MIDDLEWARE_TAG = "Middleware";
-    private static final String MOBILE_TAG = "Mobile";
-    private static final String MODERN_WEB_TAG = "Modern Web";
+    private static final List<String> THEME_TAGS = List.of("Theme1", "Theme2", "Theme3");
     // Sector tags
-    private static final String TRANSPORTATION_TAG = "Transportation";
-    private static final String TELECOMMUNICATIONS_TAG = "Telecommunications";
+    private static final List<String> SECTOR_TAGS = List.of("Sector1", "Sector2", "Sector3");
     // Audience tags
-    private static final String BUSINESS_ANALYSTS_TAG = "Business analysts";
-    private static final String MANAGERS_TAG = "Managers";
-    private static final String PROGRAMMERS_TAG = "Programmers";
+    private static final List<String> AUDIENCE_TAGS = List.of("Audience1", "Audience2", "Audience3");
     // Content tags
-    private static final String ANDROID_TAG = "Android";
-    private static final String ANGULAR_TAG = "Angular";
-    private static final String CAMEL_TAG = "Camel";
-    private static final String DOCKER_TAG = "Docker";
-    private static final String DROOLS_TAG = "Drools";
-    private static final String ERRAI_TAG = "Errai";
-    private static final String GWT_TAG = "GWT";
-    private static final String HIBERNATE_TAG = "Hibernate";
-    private static final String JACKSON_TAG = "Jackson";
-    private static final String JBPM_TAG = "jBPM";
-    private static final String KUBERNETES_TAG = "Kubernetes";
-    private static final String OPENSHIFT_TAG = "OpenShift";
-    private static final String PLANTINUM_SPONSOR_TAG = "Platinum Sponsor";
-    private static final String REST_EASY_TAG = "RestEasy";
-    private static final String SPRING_TAG = "Spring";
-    private static final String TIMEFOLD_TAG = "Timefold";
-    private static final String WELD_TAG = "Weld";
-    private static final String WILDFLY_TAG = "WildFly";
+    private static final List<String> CONTENT_TAGS = List.of("Content1", "Content2", "Content3", "Content4", "Content5");
+    private final Random random = new Random();
 
     private static final Set<TalkType> TALK_TYPES = Set.of(
             new TalkType(LAB_TALK_TAG),
@@ -102,11 +77,11 @@ public class DemoDataGenerator {
 
     private Set<Room> generateRooms() {
         return Set.of(
-                new Room("R1", 60, Set.of(getTalkType(BREAKOUT_TALK_TAG)), Set.of(RECORDED_TAG)),
-                new Room("R2", 240, Set.of(getTalkType(BREAKOUT_TALK_TAG)), emptySet()),
-                new Room("R3", 630, Set.of(getTalkType(BREAKOUT_TALK_TAG)), Set.of(RECORDED_TAG, LARGE_TAG)),
-                new Room("R4", 70, Set.of(getTalkType(BREAKOUT_TALK_TAG)), Set.of(RECORDED_TAG)),
-                new Room("R5", 490, Set.of(getTalkType(LAB_TALK_TAG)), Set.of(RECORDED_TAG)));
+                new Room("R1", "Room A", 60, Set.of(getTalkType(BREAKOUT_TALK_TAG)), Set.of(RECORDED_TAG)),
+                new Room("R2", "Room B", 240, Set.of(getTalkType(BREAKOUT_TALK_TAG)), emptySet()),
+                new Room("R3", "Room C", 630, Set.of(getTalkType(BREAKOUT_TALK_TAG)), Set.of(RECORDED_TAG, LARGE_TAG)),
+                new Room("R4", "Room D", 70, Set.of(getTalkType(BREAKOUT_TALK_TAG)), Set.of(RECORDED_TAG)),
+                new Room("R5", "Room E", 490, Set.of(getTalkType(LAB_TALK_TAG)), Set.of(RECORDED_TAG)));
     }
 
     private Set<Speaker> generateSpeakers() {
@@ -127,63 +102,60 @@ public class DemoDataGenerator {
 
     private Set<Talk> generateTalks(Set<Speaker> speakers) {
         Set<Talk> talks = new HashSet<>();
-        talks.add(new Talk("S00", "Hands on real-time OpenShift", getTalkType(LAB_TALK_TAG),
-                getSpeakers(speakers, "Amy Cole", "Beth Fox"), Set.of(ARTIFICIAL_INTELLIGENCE_TAG), emptySet(),
-                Set.of(MANAGERS_TAG), 2, Set.of(OPENSHIFT_TAG, KUBERNETES_TAG), "en", 551, 1));
-        talks.add(new Talk("S01", "Advanced containerized WildFly", getTalkType(LAB_TALK_TAG),
-                getSpeakers(speakers, "Chad Green"), Set.of(CLOUD_TAG), emptySet(),
-                Set.of(BUSINESS_ANALYSTS_TAG), 3, Set.of(WILDFLY_TAG), "en", 528, 0));
+        talks.add(new Talk("S01", "Talk One", getTalkType(LAB_TALK_TAG),
+                getSpeakers(speakers, "Amy Cole", "Beth Fox"), Set.of(getRandomTheme()), emptySet(),
+                Set.of(getRandomAudience()), 2, Set.of(getRandomContent()), "en", 551, 1));
+        talks.add(new Talk("S02", "Talk Two", getTalkType(LAB_TALK_TAG),
+                getSpeakers(speakers, "Chad Green"), Set.of(getRandomTheme()), emptySet(),
+                Set.of(getRandomAudience()), 3, Set.of(getRandomContent()), "en", 528, 0));
         talks.stream().filter(t -> t.getCode().equals("S01")).findFirst()
                 .ifPresent(t -> t.setUndesiredRoomTags(Set.of(RECORDED_TAG)));
-        talks.add(new Talk("S02", "Learn virtualized Spring", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Dan Jones"), Set.of(ARTIFICIAL_INTELLIGENCE_TAG), Set.of(TRANSPORTATION_TAG),
-                Set.of(MANAGERS_TAG), 3, Set.of(SPRING_TAG), "en", 497, 0));
-        talks.add(new Talk("S03", "Intro to serverless Drools", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Elsa King", "Flo Li"), Set.of(IOT_TAG), emptySet(),
-                Set.of(BUSINESS_ANALYSTS_TAG), 1, Set.of(DROOLS_TAG), "en", 560, 0));
-        talks.add(new Talk("S04", "Discover AI-driven Timefold", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Gus Poe", "Hugo Rye"), Set.of(BIG_DATA_TAG), emptySet(),
-                Set.of(PROGRAMMERS_TAG), 1, Set.of(TIMEFOLD_TAG), "en", 957, 0));
-        talks.add(new Talk("S05", "Mastering machine learning jBPM", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Ivy Smith"), Set.of(MOBILE_TAG), emptySet(),
-                Set.of(PROGRAMMERS_TAG), 1, Set.of(JBPM_TAG), "en", 957, 0));
+        talks.add(new Talk("S03", "Talk Three", getTalkType(BREAKOUT_TALK_TAG),
+                getSpeakers(speakers, "Dan Jones"), Set.of(getRandomTheme()), Set.of(getRandomSector()),
+                Set.of(getRandomAudience()), 3, Set.of(getRandomContent()), "en", 497, 0));
+        talks.add(new Talk("S04", "Talk Four", getTalkType(BREAKOUT_TALK_TAG),
+                getSpeakers(speakers, "Elsa King", "Flo Li"), Set.of(getRandomContent()), emptySet(),
+                Set.of(getRandomAudience()), 1, Set.of(getRandomContent()), "en", 560, 0));
+        talks.add(new Talk("S05", "Talk Five", getTalkType(BREAKOUT_TALK_TAG),
+                getSpeakers(speakers, "Gus Poe", "Hugo Rye"), Set.of(getRandomTheme()), emptySet(),
+                Set.of(getRandomAudience()), 1, Set.of(getRandomContent()), "en", 957, 0));
+        talks.add(new Talk("S06", "Talk Six", getTalkType(BREAKOUT_TALK_TAG),
+                getSpeakers(speakers, "Ivy Smith"), Set.of(getRandomContent()), emptySet(),
+                Set.of(getRandomAudience()), 1, Set.of(getRandomContent()), "en", 957, 0));
         talks.stream().filter(t -> t.getCode().equals("S05")).findFirst()
                 .ifPresent(
                         t -> t.setPrerequisiteTalks(talks.stream().filter(t2 -> t2.getCode().equals("S02")).collect(toSet())));
-        talks.add(new Talk("S06", "Tuning IOT-driven Camel", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Jay Watt"), Set.of(MOBILE_TAG), emptySet(),
-                Set.of(BUSINESS_ANALYSTS_TAG), 3, Set.of(CAMEL_TAG), "en", 568, 0));
-        talks.add(new Talk("S07", "Building deep learning Jackson", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Amy Fox"), Set.of(CULTURE_TAG), Set.of(TELECOMMUNICATIONS_TAG),
-                Set.of(BUSINESS_ANALYSTS_TAG), 3, Set.of(JACKSON_TAG), "en", 183, 0));
-        talks.add(new Talk("S08", "Securing scalable Docker", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Beth Green", "Amy Cole"), Set.of(CLOUD_TAG, MODERN_WEB_TAG), emptySet(),
-                Set.of(BUSINESS_ANALYSTS_TAG), 3, Set.of(DOCKER_TAG), "en", 619, 0));
-        talks.add(new Talk("S09", "Debug enterprise Hibernate", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Beth Fox", "Chad Green"), Set.of(CULTURE_TAG), Set.of(TRANSPORTATION_TAG),
-                Set.of(BUSINESS_ANALYSTS_TAG), 3, Set.of(HIBERNATE_TAG), "en", 603, 1));
-        talks.add(new Talk("S10", "Prepare for streaming GWT", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Dan Jones", "Elsa King"), Set.of(ARTIFICIAL_INTELLIGENCE_TAG), emptySet(),
-                Set.of(MANAGERS_TAG), 1, Set.of(GWT_TAG), "en", 39, 0));
-        talks.add(new Talk("S11", "Understand mobile Errai", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Flo Li", "Gus Poe"), Set.of(CULTURE_TAG), emptySet(),
-                Set.of(MANAGERS_TAG), 3, Set.of(ERRAI_TAG), "en", 977, 0));
+        talks.add(new Talk("S07", "Talk Seven", getTalkType(BREAKOUT_TALK_TAG),
+                getSpeakers(speakers, "Jay Watt"), Set.of(getRandomContent()), emptySet(),
+                Set.of(getRandomAudience()), 3, Set.of(getRandomContent()), "en", 568, 0));
+        talks.add(new Talk("S08", "Talk Eight", getTalkType(BREAKOUT_TALK_TAG),
+                getSpeakers(speakers, "Amy Fox"), Set.of(getRandomContent()), Set.of(getRandomSector()),
+                Set.of(getRandomAudience()), 3, Set.of(getRandomContent()), "en", 183, 0));
+        talks.add(new Talk("S09", "Talk Nine", getTalkType(BREAKOUT_TALK_TAG),
+                getSpeakers(speakers, "Beth Green", "Amy Cole"), Set.of(getRandomTheme()), emptySet(),
+                Set.of(getRandomAudience()), 3, Set.of(getRandomContent()), "en", 619, 0));
+        talks.add(new Talk("S10", "Talk Ten", getTalkType(BREAKOUT_TALK_TAG),
+                getSpeakers(speakers, "Beth Fox", "Chad Green"), Set.of(getRandomTheme()), Set.of(getRandomSector()),
+                Set.of(getRandomAudience()), 3, Set.of(getRandomContent()), "en", 603, 1));
+        talks.add(new Talk("S11", "Talk Eleven", getTalkType(BREAKOUT_TALK_TAG),
+                getSpeakers(speakers, "Dan Jones", "Elsa King"), Set.of(getRandomTheme()), emptySet(),
+                Set.of(getRandomAudience()), 1, Set.of(getRandomContent()), "en", 39, 0));
+        talks.add(new Talk("S12", "Talk Twelve", getTalkType(BREAKOUT_TALK_TAG),
+                getSpeakers(speakers, "Flo Li", "Gus Poe"), Set.of(getRandomTheme()), emptySet(),
+                Set.of(getRandomAudience()), 3, Set.of(getRandomContent()), "en", 977, 0));
         talks.stream().filter(t -> t.getCode().equals("S11")).findFirst()
-                .ifPresent(t -> t.setMutuallyExclusiveTalksTags(Set.of(PLANTINUM_SPONSOR_TAG)));
-        talks.add(new Talk("S12", "Applying modern Angular", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Hugo Rye"), Set.of(MIDDLEWARE_TAG), emptySet(),
-                Set.of(MANAGERS_TAG), 3, Set.of(ANGULAR_TAG), "en", 494, 0));
-        talks.add(new Talk("S13", "Grok distributed Weld", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Ivy Smith"), Set.of(MOBILE_TAG), emptySet(),
-                Set.of(BUSINESS_ANALYSTS_TAG), 3, Set.of(WELD_TAG), "en", 500, 0));
-        talks.add(new Talk("S14", "Troubleshooting reliable RestEasy", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Jay Watt"), Set.of(MODERN_WEB_TAG), emptySet(),
-                Set.of(BUSINESS_ANALYSTS_TAG), 2, Set.of(REST_EASY_TAG), "en", 658, 0));
+                .ifPresent(t -> t.setMutuallyExclusiveTalksTags(Set.of(getRandomContent())));
+        talks.add(new Talk("S13", "Talk Thirteen", getTalkType(BREAKOUT_TALK_TAG),
+                getSpeakers(speakers, "Hugo Rye"), Set.of(getRandomContent()), emptySet(),
+                Set.of(getRandomAudience()), 3, Set.of(getRandomContent()), "en", 494, 0));
+        talks.add(new Talk("S14", "Talk Fourteen", getTalkType(BREAKOUT_TALK_TAG),
+                getSpeakers(speakers, "Ivy Smith"), Set.of(getRandomTheme()), emptySet(),
+                Set.of(getRandomAudience()), 3, Set.of(getRandomContent()), "en", 500, 0));
+        talks.add(new Talk("S15", "Talk Fifteen", getTalkType(BREAKOUT_TALK_TAG),
+                getSpeakers(speakers, "Jay Watt"), Set.of(getRandomTheme()), emptySet(),
+                Set.of(getRandomAudience()), 2, Set.of(getRandomContent()), "en", 658, 0));
         talks.stream().filter(t -> t.getCode().equals("S11")).findFirst()
                 .ifPresent(t -> t.setRequiredRoomTags(Set.of(RECORDED_TAG)));
-        talks.add(new Talk("S15", "Using secure Android", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Amy Fox", "Beth Green"), Set.of(IOT_TAG), emptySet(),
-                Set.of(MANAGERS_TAG), 1, Set.of(ANDROID_TAG), "en", 592, 0));
 
         return talks;
     }
@@ -199,6 +171,22 @@ public class DemoDataGenerator {
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .toList();
+    }
+
+    private String getRandomTheme() {
+        return THEME_TAGS.get(random.nextInt(THEME_TAGS.size()));
+    }
+
+    private String getRandomAudience() {
+        return AUDIENCE_TAGS.get(random.nextInt(AUDIENCE_TAGS.size()));
+    }
+
+    private String getRandomContent() {
+        return CONTENT_TAGS.get(random.nextInt(CONTENT_TAGS.size()));
+    }
+
+    private String getRandomSector() {
+        return SECTOR_TAGS.get(random.nextInt(SECTOR_TAGS.size()));
     }
 
 }
