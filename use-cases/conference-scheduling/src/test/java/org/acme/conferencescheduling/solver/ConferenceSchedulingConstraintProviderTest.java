@@ -138,7 +138,7 @@ class ConferenceSchedulingConstraintProviderTest {
         Talk talk2 = new Talk("2", MONDAY_10_05_TO_11, room, List.of(speaker1));
         Talk talk3 = new Talk("3", MONDAY_11_10_TO_12, room, List.of(speaker1));
         Talk talk4 = new Talk("4", MONDAY_9_TO_10, room, List.of(speaker2));
-        ConferenceConstraintConfiguration configuration = new ConferenceConstraintConfiguration("1");
+        ConferenceConstraintConfiguration configuration = new ConferenceConstraintConfiguration();
         configuration.setMinimumConsecutiveTalksPauseInMinutes(11);
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::consecutiveTalksPause)

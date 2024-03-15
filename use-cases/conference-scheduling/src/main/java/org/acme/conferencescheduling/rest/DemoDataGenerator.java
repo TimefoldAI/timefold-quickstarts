@@ -12,6 +12,7 @@ import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
 
+import org.acme.conferencescheduling.domain.ConferenceConstraintConfiguration;
 import org.acme.conferencescheduling.domain.ConferenceSchedule;
 import org.acme.conferencescheduling.domain.Room;
 import org.acme.conferencescheduling.domain.Speaker;
@@ -61,9 +62,7 @@ public class DemoDataGenerator {
     private static final String PLANTINUM_SPONSOR_TAG = "Platinum Sponsor";
     private static final String REST_EASY_TAG = "RestEasy";
     private static final String SPRING_TAG = "Spring";
-    private static final String TENSORFLOW_TAG = "Tensorflow";
     private static final String TIMEFOLD_TAG = "Timefold";
-    private static final String VERTX_TAG = "VertX";
     private static final String WELD_TAG = "Weld";
     private static final String WILDFLY_TAG = "WildFly";
 
@@ -73,8 +72,10 @@ public class DemoDataGenerator {
 
     public ConferenceSchedule generateDemoData() {
         Set<Speaker> speakers = generateSpeakers();
-        return new ConferenceSchedule("Conference", TALK_TYPES, generateTimeslots(), generateRooms(), speakers,
-                generateTalks(speakers));
+        ConferenceSchedule schedule = new ConferenceSchedule("Conference", TALK_TYPES, generateTimeslots(), generateRooms(),
+                speakers, generateTalks(speakers));
+        schedule.setConstraintConfiguration(new ConferenceConstraintConfiguration());
+        return schedule;
     }
 
     private Set<Timeslot> generateTimeslots() {
@@ -183,12 +184,6 @@ public class DemoDataGenerator {
         talks.add(new Talk("S15", "Using secure Android", getTalkType(BREAKOUT_TALK_TAG),
                 getSpeakers(speakers, "Amy Fox", "Beth Green"), Set.of(IOT_TAG), emptySet(),
                 Set.of(MANAGERS_TAG), 1, Set.of(ANDROID_TAG), "en", 592, 0));
-        talks.add(new Talk("S16", "Deliver stable Tensorflow", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Amy Cole"), Set.of(MOBILE_TAG), emptySet(),
-                Set.of(BUSINESS_ANALYSTS_TAG), 2, Set.of(TENSORFLOW_TAG), "en", 66, 0));
-        talks.add(new Talk("S17", "Implement platform-independent VertX", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Beth Fox", "Chad Green"), Set.of(MIDDLEWARE_TAG), emptySet(),
-                Set.of(PROGRAMMERS_TAG), 2, Set.of(VERTX_TAG), "en", 81, 0));
 
         return talks;
     }

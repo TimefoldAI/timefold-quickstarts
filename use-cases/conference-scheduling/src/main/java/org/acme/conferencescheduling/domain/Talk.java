@@ -13,6 +13,8 @@ import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @PlanningEntity
 public class Talk {
 
@@ -124,7 +126,7 @@ public class Talk {
         return overlappingCount(themeTrackTags, other.themeTrackTags);
     }
 
-    private static <Item_> int overlappingCount(Set<Item_> left, Set<Item_> right) {
+    private static <T> int overlappingCount(Set<T> left, Set<T> right) {
         int leftSize = left.size();
         if (leftSize == 0) {
             return 0;
@@ -133,11 +135,11 @@ public class Talk {
         if (rightSize == 0) {
             return 0;
         }
-        Set<Item_> smaller = leftSize < rightSize ? left : right;
-        Set<Item_> other = smaller == left ? right : left;
+        Set<T> smaller = leftSize < rightSize ? left : right;
+        Set<T> other = smaller == left ? right : left;
         int overlappingCount = 0;
-        for (Item_ item : smaller) { // Iterate over smaller set, lookup in the larger.
-            if (other.contains(item)) {
+        for (T t : smaller) { // Iterate over smaller set, lookup in the larger.
+            if (other.contains(t)) {
                 overlappingCount++;
             }
         }
@@ -166,7 +168,7 @@ public class Talk {
 
     }
 
-    private static <Item_> int missingCount(Set<Item_> required, Set<Item_> available) {
+    private static <T> int missingCount(Set<T> required, Set<T> available) {
         int requiredCount = required.size();
         if (requiredCount == 0) {
             return 0; // If no items are required, none can be missing.
@@ -176,8 +178,8 @@ public class Talk {
             return requiredCount; // All the items are missing.
         }
         int missingCount = 0;
-        for (Item_ item : required) {
-            if (!available.contains(item)) {
+        for (T t : required) {
+            if (!available.contains(t)) {
                 missingCount++;
             }
         }
@@ -343,6 +345,7 @@ public class Talk {
         return false;
     }
 
+    @JsonIgnore
     public Integer getDurationInMinutes() {
         return timeslot == null ? null : timeslot.getDurationInMinutes();
     }
