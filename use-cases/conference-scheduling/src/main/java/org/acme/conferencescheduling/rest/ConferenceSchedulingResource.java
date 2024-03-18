@@ -29,6 +29,7 @@ import ai.timefold.solver.core.api.solver.SolverManager;
 import ai.timefold.solver.core.api.solver.SolverStatus;
 
 import org.acme.conferencescheduling.domain.ConferenceSchedule;
+import org.acme.conferencescheduling.domain.Talk;
 import org.acme.conferencescheduling.rest.exception.ConferenceScheduleSolverException;
 import org.acme.conferencescheduling.rest.exception.ErrorInfo;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -139,6 +140,34 @@ public class ConferenceSchedulingResource {
         ConferenceSchedule schedule = getScheduleAndCheckForExceptions(jobId);
         SolverStatus solverStatus = solverManager.getSolverStatus(jobId);
         schedule.setSolverStatus(solverStatus);
+        return schedule;
+    }
+
+    @Operation(
+            summary = "Updates the published rooms and timeslots of all talks.")
+    @APIResponses(value = {
+            @APIResponse(responseCode = "200", description = "The published solution.",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = ConferenceSchedule.class))),
+            @APIResponse(responseCode = "404", description = "No schedule found.",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = ErrorInfo.class))),
+            @APIResponse(responseCode = "500", description = "Exception during solving a schedule.",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = ErrorInfo.class)))
+    })
+    @PUT
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("{jobId}/publish")
+    public ConferenceSchedule
+            publishSchedule(
+                    @Parameter(description = "The job ID returned by the POST method.") @PathParam("jobId") String jobId) {
+        ConferenceSchedule schedule = getScheduleAndCheckForExceptions(jobId);
+        for (Talk talk : schedule.getTalks()) {
+            talk.setPublishedRoom(talk.getRoom());
+            talk.setPublishedTimeslot(talk.getTimeslot());
+        }
+        jobIdToJob.put(jobId, Job.ofSchedule(schedule));
         return schedule;
     }
 

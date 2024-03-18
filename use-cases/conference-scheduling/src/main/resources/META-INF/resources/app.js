@@ -14,6 +14,9 @@ $(document).ready(function () {
     $("#stopSolvingButton").click(function () {
         stopSolving();
     });
+    $("#publishButton").click(function () {
+        publish();
+    });
     $("#analyzeButton").click(function () {
         analyze();
     });
@@ -315,7 +318,6 @@ function solve() {
     }, "text");
 }
 
-
 function analyze() {
     new bootstrap.Modal("#scoreAnalysisModal").show()
     const scoreAnalysisModalContent = $("#scoreAnalysisModalContent");
@@ -416,6 +418,19 @@ function analyze() {
     }
 }
 
+function publish() {
+    $("#publishButton").hide();
+    $("#publishLoadingButton").show();
+    $.put(`/schedules/${scheduleId}/publish`, function (schedule) {
+        loadedSchedule = schedule;
+        renderSchedule(schedule);
+    })
+        .fail(function (xhr, ajaxOptions, thrownError) {
+            showError("Publish failed.", xhr);
+            refreshSolvingButtons(false);
+        });
+}
+
 function getScoreComponents(score) {
     let components = {hard: 0, medium: 0, soft: 0};
 
@@ -426,16 +441,23 @@ function getScoreComponents(score) {
     return components;
 }
 
-
 function refreshSolvingButtons(solving) {
     if (solving) {
         $("#solveButton").hide();
+        $("#publishButton").hide();
+        $("#publishLoadingButton").hide();
         $("#stopSolvingButton").show();
         if (autoRefreshIntervalId == null) {
             autoRefreshIntervalId = setInterval(refreshSchedule, 2000);
         }
     } else {
         $("#solveButton").show();
+        if (scheduleId !== null) {
+            $("#publishButton").show();
+        } else {
+            $("#publishButton").hide();
+        }
+        $("#publishLoadingButton").hide();
         $("#stopSolvingButton").hide();
         if (autoRefreshIntervalId != null) {
             clearInterval(autoRefreshIntervalId);

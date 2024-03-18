@@ -24,14 +24,16 @@
             <button id="solveButton" type="button" class="btn btn-success">
                 <span class="fas fa-play"></span> Solve
             </button>
+            <button id="publishButton" type="button" class="btn btn-primary">
+                <span class="fas fa-refresh"></span> Publish
+            </button>
+            <button id="publishLoadingButton" type="button" class="btn btn-primary">
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                Publishing...
+            </button>
             <button id="stopSolvingButton" type="button" class="btn btn-danger">
                 <span class="fas fa-stop"></span> Stop solving
             </button>
-            <span id="score" class="score ms-2 align-middle fw-bold">Score: ?</span>
-            <button id="analyzeButton" type="button" class="ms-2 btn btn-secondary">
-                <span class="fas fa-question"></span>
-            </button>
-
 
             <div class="float-end">
                 <ul class="nav nav-pills" role="tablist">
@@ -73,6 +75,12 @@
                     </li>
                 </ul>
             </div>
+        </div>
+        <div class="mb-2">
+            <span id="score" class="score ms-2 align-middle fw-bold">Score: ?</span>
+            <button id="analyzeButton" type="button" class="ms-2 btn btn-secondary">
+                <span class="fas fa-question"></span>
+            </button>
         </div>
         <div class="tab-content">
             <div class="tab-pane fade show active" id="byRoomPanel" role="tabpanel" aria-labelledby="byRoomTab">
