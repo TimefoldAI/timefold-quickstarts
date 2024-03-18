@@ -60,11 +60,15 @@ import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
 import org.acme.conferencescheduling.domain.ConferenceConstraintConfiguration;
 import org.acme.conferencescheduling.domain.Speaker;
 import org.acme.conferencescheduling.domain.Talk;
-import org.acme.conferencescheduling.solver.justifications.SpeakerJustification;
-import org.acme.conferencescheduling.solver.justifications.TalkJustification;
-import org.acme.conferencescheduling.solver.justifications.TalkSpeakerJustification;
-import org.acme.conferencescheduling.solver.justifications.TwoTalkJustification;
-import org.acme.conferencescheduling.solver.justifications.TwoTalkSpeakerJustification;
+import org.acme.conferencescheduling.solver.justifications.ConferenceSchedulingJustification;
+import org.acme.conferencescheduling.solver.justifications.ConflictTalkJustification;
+import org.acme.conferencescheduling.solver.justifications.DiversityTalkJustification;
+import org.acme.conferencescheduling.solver.justifications.PreferredTagsJustification;
+import org.acme.conferencescheduling.solver.justifications.ProhibitedTagsJustification;
+import org.acme.conferencescheduling.solver.justifications.PublishedTimeslotJustification;
+import org.acme.conferencescheduling.solver.justifications.RequiredTagsJustification;
+import org.acme.conferencescheduling.solver.justifications.UnavailableTimeslotJustification;
+import org.acme.conferencescheduling.solver.justifications.UndesiredTagsJustification;
 
 /**
  * Provides the constraints for the conference scheduling problem.
@@ -132,7 +136,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
         return factory.forEach(Talk.class)
                 .filter(Talk::hasUnavailableRoom)
                 .penalizeConfigurable(Talk::getDurationInMinutes)
-                .justifyWith((talk, score) -> new TalkJustification("Unavailable timeslot for", talk))
+                .justifyWith((talk, score) -> new UnavailableTimeslotJustification(talk))
                 .asConstraint(ROOM_UNAVAILABLE_TIMESLOT);
     }
 
@@ -141,7 +145,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 equal(Talk::getRoom),
                 overlapping(t -> t.getTimeslot().getStartDateTime(), t -> t.getTimeslot().getEndDateTime()))
                 .penalizeConfigurable(Talk::overlappingDurationInMinutes)
-                .justifyWith((talk, talk2, score) -> new TwoTalkJustification("Conflict between", talk, talk2))
+                .justifyWith((talk, talk2, score) -> new ConflictTalkJustification(talk, talk2))
                 .asConstraint(ROOM_CONFLICT);
     }
 
@@ -153,7 +157,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                                 && speaker.getUnavailableTimeslots().contains(talk.getTimeslot())))
                 .penalizeConfigurable((talk, speaker) -> talk.getDurationInMinutes())
                 .justifyWith(
-                        (talk, speaker, score) -> new TalkSpeakerJustification("Unavailable timeslot for", talk, speaker))
+                        (talk, speaker, score) -> new UnavailableTimeslotJustification(talk, speaker))
                 .asConstraint(SPEAKER_UNAVAILABLE_TIMESLOT);
     }
 
@@ -163,8 +167,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .join(Speaker.class,
                         filtering((talk1, talk2, speaker) -> talk1.hasSpeaker(speaker) && talk2.hasSpeaker(speaker)))
                 .penalizeConfigurable((talk1, talk2, speaker) -> talk2.overlappingDurationInMinutes(talk1))
-                .justifyWith((talk, talk2, speaker, score) -> new TwoTalkSpeakerJustification("Conflict between", talk, talk2,
-                        speaker))
+                .justifyWith((talk, talk2, speaker, score) -> new ConflictTalkJustification(talk, talk2, speaker))
                 .asConstraint(SPEAKER_CONFLICT);
     }
 
@@ -174,7 +177,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                         greaterThan(t -> t.getTimeslot().getEndDateTime(), t -> t.getTimeslot().getStartDateTime()),
                         filtering((talk1, talk2) -> talk2.getPrerequisiteTalks().contains(talk1)))
                 .penalizeConfigurable(Talk::combinedDurationInMinutes)
-                .justifyWith((talk, talk2, score) -> new TwoTalkJustification("Talk prerequisite between", talk, talk2))
+                .justifyWith((talk, talk2, score) -> new ConferenceSchedulingJustification("Talk prerequisite between", talk, talk2))
                 .asConstraint(TALK_PREREQUISITE_TALKS);
     }
 
@@ -184,7 +187,8 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 filtering((talk1, talk2) -> talk2.overlappingMutuallyExclusiveTalksTagCount(talk1) > 0))
                 .penalizeConfigurable((talk1, talk2) -> talk1.overlappingMutuallyExclusiveTalksTagCount(talk2) *
                         talk1.overlappingDurationInMinutes(talk2))
-                .justifyWith((talk, talk2, score) -> new TwoTalkJustification("Mutually-exclusive-talks tags for", talk, talk2))
+                .justifyWith((talk, talk2, score) -> new ConferenceSchedulingJustification("Mutually-exclusive-talks tags for", talk,
+                        talk.getMutuallyExclusiveTalksTags(), talk2, talk2.getMutuallyExclusiveTalksTags()))
                 .asConstraint(TALK_MUTUALLY_EXCLUSIVE_TALKS_TAGS);
     }
 
@@ -195,7 +199,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                         filtering((talk1, talk2, config) -> !talk1.getTimeslot().pauseExists(talk2.getTimeslot(),
                                 config.getMinimumConsecutiveTalksPauseInMinutes())))
                 .penalizeConfigurable(Talk::combinedDurationInMinutes)
-                .justifyWith((talk, talk2, score) -> new TwoTalkJustification("Consecutive pause between", talk, talk2))
+                .justifyWith((talk, talk2, score) -> new ConferenceSchedulingJustification("Consecutive pauses between", talk, talk2))
                 .asConstraint(CONSECUTIVE_TALKS_PAUSE);
     }
 
@@ -209,7 +213,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .groupBy((talk1, talk2) -> talk1, countBi())
                 .filter((talk, count) -> count != 1)
                 .penalizeConfigurable((talk, count) -> talk.getDurationInMinutes())
-                .justifyWith((talk, integer, score) -> new TalkJustification("Crowd control for", talk))
+                .justifyWith((talk, integer, score) -> new ConferenceSchedulingJustification("Crowd control for", talk))
                 .asConstraint(CROWD_CONTROL);
     }
 
@@ -219,7 +223,13 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk, missingTagCount) -> missingTagCount > 0)
                 .penalizeConfigurable((talk, missingTagCount) -> missingTagCount * talk.getDurationInMinutes())
                 .indictWith((talk, missingTagCount) -> Collections.singleton(talk))
-                .justifyWith((talk, integer, score) -> new TalkJustification("Required tags for", talk))
+                .justifyWith(
+                        (talk, integer, score) -> new RequiredTagsJustification(talk.getSpeakers(),
+                                talk.getSpeakers().stream()
+                                        .flatMap(s -> s.getRequiredTimeslotTags().stream())
+                                        .distinct()
+                                        .toList(),
+                                talk.getTimeslot().getTags()))
                 .asConstraint(SPEAKER_REQUIRED_TIMESLOT_TAGS);
     }
 
@@ -229,7 +239,12 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk, prohibitedTagCount) -> prohibitedTagCount > 0)
                 .penalizeConfigurable((talk, prohibitedTagCount) -> prohibitedTagCount * talk.getDurationInMinutes())
                 .indictWith((talk, prohibitedTagCount) -> Collections.singleton(talk))
-                .justifyWith((talk, integer, score) -> new TalkJustification("Prohibited tags for", talk))
+                .justifyWith((talk, integer, score) -> new ProhibitedTagsJustification(talk.getSpeakers(),
+                        talk.getSpeakers().stream()
+                                .flatMap(s -> s.getProhibitedTimeslotTags().stream())
+                                .distinct()
+                                .toList(),
+                        talk.getTimeslot().getTags()))
                 .asConstraint(SPEAKER_PROHIBITED_TIMESLOT_TAGS);
     }
 
@@ -239,7 +254,9 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk, missingTagCount) -> missingTagCount > 0)
                 .penalizeConfigurable((talk, missingTagCount) -> missingTagCount * talk.getDurationInMinutes())
                 .indictWith((talk, missingTagCount) -> Collections.singleton(talk))
-                .justifyWith((talk, integer, score) -> new TalkJustification("Required tags for", talk))
+                .justifyWith((talk, integer, score) -> new RequiredTagsJustification(talk,
+                        talk.getRequiredTimeslotTags(),
+                        talk.getTimeslot().getTags()))
                 .asConstraint(TALK_REQUIRED_TIMESLOT_TAGS);
     }
 
@@ -249,7 +266,9 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk, prohibitedTagCount) -> prohibitedTagCount > 0)
                 .penalizeConfigurable((talk, prohibitedTagCount) -> prohibitedTagCount * talk.getDurationInMinutes())
                 .indictWith((talk, prohibitedTagCount) -> Collections.singleton(talk))
-                .justifyWith((talk, integer, score) -> new TalkJustification("Prohibited tags for", talk))
+                .justifyWith((talk, integer, score) -> new ProhibitedTagsJustification(talk,
+                        talk.getProhibitedTimeslotTags(),
+                        talk.getTimeslot().getTags()))
                 .asConstraint(TALK_PROHIBITED_TIMESLOT_TAGS);
     }
 
@@ -259,7 +278,12 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk, missingTagCount) -> missingTagCount > 0)
                 .penalizeConfigurable((talk, missingTagCount) -> missingTagCount * talk.getDurationInMinutes())
                 .indictWith((talk, missingTagCount) -> Collections.singleton(talk))
-                .justifyWith((talk, integer, score) -> new TalkJustification("Required tags for", talk))
+                .justifyWith((talk, integer, score) -> new RequiredTagsJustification(talk.getSpeakers(),
+                        talk.getSpeakers().stream()
+                                .flatMap(s -> s.getRequiredRoomTags().stream())
+                                .distinct()
+                                .toList(),
+                        talk.getRoom().getTags()))
                 .asConstraint(SPEAKER_REQUIRED_ROOM_TAGS);
     }
 
@@ -269,7 +293,12 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk, prohibitedTagCount) -> prohibitedTagCount > 0)
                 .penalizeConfigurable((talk, prohibitedTagCount) -> prohibitedTagCount * talk.getDurationInMinutes())
                 .indictWith((talk, prohibitedTagCount) -> Collections.singleton(talk))
-                .justifyWith((talk, integer, score) -> new TalkJustification("Prohibited tags for", talk))
+                .justifyWith((talk, integer, score) -> new ProhibitedTagsJustification(talk.getSpeakers(),
+                        talk.getSpeakers().stream()
+                                .flatMap(s -> s.getPreferredRoomTags().stream())
+                                .distinct()
+                                .toList(),
+                        talk.getRoom().getTags()))
                 .asConstraint(SPEAKER_PROHIBITED_ROOM_TAGS);
     }
 
@@ -279,7 +308,9 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk, missingTagCount) -> missingTagCount > 0)
                 .penalizeConfigurable((talk, missingTagCount) -> missingTagCount * talk.getDurationInMinutes())
                 .indictWith((talk, missingTagCount) -> Collections.singleton(talk))
-                .justifyWith((talk, integer, score) -> new TalkJustification("Required tags for", talk))
+                .justifyWith((talk, integer, score) -> new RequiredTagsJustification(talk,
+                        talk.getRequiredRoomTags(),
+                        talk.getRoom().getTags()))
                 .asConstraint(TALK_REQUIRED_ROOM_TAGS);
     }
 
@@ -289,7 +320,9 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk, prohibitedTagCount) -> prohibitedTagCount > 0)
                 .penalizeConfigurable((talk, prohibitedTagCount) -> prohibitedTagCount * talk.getDurationInMinutes())
                 .indictWith((talk, prohibitedTagCount) -> Collections.singleton(talk))
-                .justifyWith((talk, integer, score) -> new TalkJustification("Prohibited tags for", talk))
+                .justifyWith((talk, integer, score) -> new ProhibitedTagsJustification(talk,
+                        talk.getProhibitedRoomTags(),
+                        talk.getRoom().getTags()))
                 .asConstraint(TALK_PROHIBITED_ROOM_TAGS);
     }
 
@@ -302,7 +335,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter(talk -> talk.getPublishedTimeslot() != null
                         && talk.getTimeslot() != talk.getPublishedTimeslot())
                 .penalizeConfigurable()
-                .justifyWith((talk, score) -> new TalkJustification("Published timeslot for", talk))
+                .justifyWith((talk, score) -> new PublishedTimeslotJustification(talk, true))
                 .asConstraint(PUBLISHED_TIMESLOT);
     }
 
@@ -314,7 +347,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
         return factory.forEach(Talk.class)
                 .filter(talk -> talk.getPublishedRoom() != null && talk.getRoom() != talk.getPublishedRoom())
                 .penalizeConfigurable()
-                .justifyWith((talk, score) -> new TalkJustification("Published room for", talk))
+                .justifyWith((talk, score) -> new PublishedTimeslotJustification(talk, false))
                 .asConstraint(PUBLISHED_ROOM);
     }
 
@@ -324,7 +357,8 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 filtering((talk1, talk2) -> talk2.overlappingThemeTrackCount(talk1) > 0))
                 .penalizeConfigurable((talk1, talk2) -> talk1.overlappingThemeTrackCount(talk2) *
                         talk1.overlappingDurationInMinutes(talk2))
-                .justifyWith((talk, talk2, score) -> new TwoTalkJustification("Conflict between", talk, talk2))
+                .justifyWith((talk, talk2, score) -> new ConflictTalkJustification(talk, talk.getThemeTrackTags(), talk2,
+                        talk2.getThemeTrackTags()))
                 .asConstraint(THEME_TRACK_CONFLICT);
     }
 
@@ -335,7 +369,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk1, talk2) -> !talk1.getRoom().equals(talk2.getRoom()))
                 .penalizeConfigurable((talk1, talk2) -> talk1.overlappingThemeTrackCount(talk2) *
                         talk1.combinedDurationInMinutes(talk2))
-                .justifyWith((talk, talk2, score) -> new TwoTalkJustification("Stability between", talk, talk2))
+                .justifyWith((talk, talk2, score) -> new ConferenceSchedulingJustification("Stability between talks", talk, talk2))
                 .asConstraint(THEME_TRACK_ROOM_STABILITY);
     }
 
@@ -345,7 +379,8 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 filtering((talk1, talk2) -> talk2.overlappingSectorCount(talk1) > 0))
                 .penalizeConfigurable((talk1, talk2) -> talk1.overlappingSectorCount(talk2)
                         * talk1.overlappingDurationInMinutes(talk2))
-                .justifyWith((talk, talk2, score) -> new TwoTalkJustification("Conflict between", talk, talk2))
+                .justifyWith((talk, talk2, score) -> new ConflictTalkJustification(talk, talk.getSectorTags(), talk2,
+                        talk2.getSectorTags()))
                 .asConstraint(SECTOR_CONFLICT);
     }
 
@@ -355,7 +390,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 filtering((talk1, talk2) -> talk2.overlappingAudienceTypeCount(talk1) > 0))
                 .rewardConfigurable((talk1, talk2) -> talk1.overlappingAudienceTypeCount(talk2)
                         * talk1.getTimeslot().getDurationInMinutes())
-                .justifyWith((talk, talk2, score) -> new TwoTalkJustification("Diversity between", talk, talk2))
+                .justifyWith((talk, talk2, score) -> new DiversityTalkJustification(talk, talk2))
                 .asConstraint(AUDIENCE_TYPE_DIVERSITY);
     }
 
@@ -367,7 +402,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .penalizeConfigurable((talk1, talk2) -> talk1.overlappingThemeTrackCount(talk2)
                         * talk1.overlappingAudienceTypeCount(talk2)
                         * talk1.overlappingDurationInMinutes(talk2))
-                .justifyWith((talk, talk2, score) -> new TwoTalkJustification("Conflict between", talk, talk2))
+                .justifyWith((talk, talk2, score) -> new ConflictTalkJustification(talk, talk2))
                 .asConstraint(AUDIENCE_TYPE_THEME_TRACK_CONFLICT);
     }
 
@@ -376,7 +411,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 equal(Talk::getTimeslot))
                 .filter((talk1, talk2) -> talk1.getAudienceLevel() != talk2.getAudienceLevel())
                 .rewardConfigurable((talk1, talk2) -> talk1.getTimeslot().getDurationInMinutes())
-                .justifyWith((talk, talk2, score) -> new TwoTalkJustification("Diversity between", talk, talk2))
+                .justifyWith((talk, talk2, score) -> new DiversityTalkJustification(talk, talk2))
                 .asConstraint(AUDIENCE_LEVEL_DIVERSITY);
     }
 
@@ -389,7 +424,8 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                         filtering((talk1, talk2) -> talk2.overlappingContentCount(talk1) > 0))
                 .penalizeConfigurable((talk1, talk2) -> talk1.overlappingContentCount(talk2)
                         * talk1.combinedDurationInMinutes(talk2))
-                .justifyWith((talk, talk2, score) -> new TwoTalkJustification("Violation between", talk, talk2))
+                .justifyWith((talk, talk2, score) -> new ConferenceSchedulingJustification("Violation between talks", talk,
+                        talk.getContentTags(), talk2, talk2.getContentTags()))
                 .asConstraint(CONTENT_AUDIENCE_LEVEL_FLOW_VIOLATION);
     }
 
@@ -399,7 +435,8 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 filtering((talk1, talk2) -> talk2.overlappingContentCount(talk1) > 0))
                 .penalizeConfigurable((talk1, talk2) -> talk1.overlappingContentCount(talk2)
                         * talk1.overlappingDurationInMinutes(talk2))
-                .justifyWith((talk, talk2, score) -> new TwoTalkJustification("Conflict between", talk, talk2))
+                .justifyWith((talk, talk2, score) -> new ConflictTalkJustification(talk, talk.getContentTags(), talk2,
+                        talk2.getContentTags()))
                 .asConstraint(CONTENT_CONFLICT);
     }
 
@@ -408,7 +445,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 equal(Talk::getTimeslot))
                 .filter((talk1, talk2) -> !talk1.getLanguage().equals(talk2.getLanguage()))
                 .rewardConfigurable((talk1, talk2) -> talk1.getTimeslot().getDurationInMinutes())
-                .justifyWith((talk, talk2, score) -> new TwoTalkJustification("Diversity between", talk, talk2))
+                .justifyWith((talk, talk2, score) -> new DiversityTalkJustification(talk, talk2))
                 .asConstraint(LANGUAGE_DIVERSITY);
     }
 
@@ -419,7 +456,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .penalizeConfigurable(
                         (talk1, talk2) -> (talk2.overlappingThemeTrackCount(talk1) + talk2.overlappingContentCount(talk1))
                                 * talk1.combinedDurationInMinutes(talk2))
-                .justifyWith((talk, talk2, score) -> new TwoTalkJustification("Same day talks for", talk, talk2))
+                .justifyWith((talk, talk2, score) -> new ConferenceSchedulingJustification("Same day talks for", talk, talk2))
                 .asConstraint(SAME_DAY_TALKS);
     }
 
@@ -429,7 +466,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                         lessThan(Talk::getFavoriteCount),
                         greaterThan(talk -> talk.getRoom().getCapacity()))
                 .penalizeConfigurable(Talk::combinedDurationInMinutes)
-                .justifyWith((talk, talk2, score) -> new TwoTalkJustification("Popular talks for", talk, talk2))
+                .justifyWith((talk, talk2, score) -> new ConferenceSchedulingJustification("Popular talks for", talk, talk2))
                 .asConstraint(POPULAR_TALKS);
     }
 
@@ -439,7 +476,12 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk, missingTagCount) -> missingTagCount > 0)
                 .penalizeConfigurable((talk, missingTagCount) -> missingTagCount * talk.getDurationInMinutes())
                 .indictWith((talk, missingTagCount) -> Collections.singleton(talk))
-                .justifyWith((talk, integer, score) -> new TalkJustification("Preferred tags for", talk))
+                .justifyWith((talk, integer, score) -> new PreferredTagsJustification(talk.getSpeakers(),
+                        talk.getSpeakers().stream()
+                                .flatMap(s -> s.getPreferredTimeslotTags().stream())
+                                .distinct()
+                                .toList(),
+                        talk.getTimeslot().getTags()))
                 .asConstraint(SPEAKER_PREFERRED_TIMESLOT_TAGS);
     }
 
@@ -449,7 +491,12 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk, undesiredTagCount) -> undesiredTagCount > 0)
                 .penalizeConfigurable((talk, undesiredTagCount) -> undesiredTagCount * talk.getDurationInMinutes())
                 .indictWith((talk, undesiredTagCount) -> Collections.singleton(talk))
-                .justifyWith((talk, integer, score) -> new TalkJustification("Undesired tags for", talk))
+                .justifyWith((talk, integer, score) -> new UndesiredTagsJustification(talk.getSpeakers(),
+                        talk.getSpeakers().stream()
+                                .flatMap(s -> s.getUndesiredTimeslotTags().stream())
+                                .distinct()
+                                .toList(),
+                        talk.getTimeslot().getTags()))
                 .asConstraint(SPEAKER_UNDESIRED_TIMESLOT_TAGS);
     }
 
@@ -459,7 +506,9 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk, missingTagCount) -> missingTagCount > 0)
                 .penalizeConfigurable((talk, missingTagCount) -> missingTagCount * talk.getDurationInMinutes())
                 .indictWith((talk, missingTagCount) -> Collections.singleton(talk))
-                .justifyWith((talk, integer, score) -> new TalkJustification("Preferred tags for", talk))
+                .justifyWith((talk, integer, score) -> new PreferredTagsJustification(talk,
+                        talk.getPreferredTimeslotTags(),
+                        talk.getTimeslot().getTags()))
                 .asConstraint(TALK_PREFERRED_TIMESLOT_TAGS);
     }
 
@@ -469,7 +518,9 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk, undesiredTagCount) -> undesiredTagCount > 0)
                 .penalizeConfigurable((talk, undesiredTagCount) -> undesiredTagCount * talk.getDurationInMinutes())
                 .indictWith((talk, undesiredTagCount) -> Collections.singleton(talk))
-                .justifyWith((talk, integer, score) -> new TalkJustification("Undesired tags for", talk))
+                .justifyWith((talk, integer, score) -> new UndesiredTagsJustification(talk,
+                        talk.getPreferredTimeslotTags(),
+                        talk.getTimeslot().getTags()))
                 .asConstraint(TALK_UNDESIRED_TIMESLOT_TAGS);
     }
 
@@ -479,7 +530,12 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk, missingTagCount) -> missingTagCount > 0)
                 .penalizeConfigurable((talk, missingTagCount) -> missingTagCount * talk.getDurationInMinutes())
                 .indictWith((talk, missingTagCount) -> Collections.singleton(talk))
-                .justifyWith((talk, integer, score) -> new TalkJustification("Preferred tags for", talk))
+                .justifyWith((talk, integer, score) -> new PreferredTagsJustification(talk.getSpeakers(),
+                        talk.getSpeakers().stream()
+                                .flatMap(s -> s.getPreferredRoomTags().stream())
+                                .distinct()
+                                .toList(),
+                        talk.getRoom().getTags()))
                 .asConstraint(SPEAKER_PREFERRED_ROOM_TAGS);
     }
 
@@ -489,7 +545,12 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk, undesiredTagCount) -> undesiredTagCount > 0)
                 .penalizeConfigurable((talk, undesiredTagCount) -> undesiredTagCount * talk.getDurationInMinutes())
                 .indictWith((talk, undesiredTagCount) -> Collections.singleton(talk))
-                .justifyWith((talk, integer, score) -> new TalkJustification("Undesired tags for", talk))
+                .justifyWith((talk, integer, score) -> new UndesiredTagsJustification(talk.getSpeakers(),
+                        talk.getSpeakers().stream()
+                                .flatMap(s -> s.getUndesiredRoomTags().stream())
+                                .distinct()
+                                .toList(),
+                        talk.getRoom().getTags()))
                 .asConstraint(SPEAKER_UNDESIRED_ROOM_TAGS);
     }
 
@@ -499,7 +560,9 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk, missingTagCount) -> missingTagCount > 0)
                 .penalizeConfigurable((talk, missingTagCount) -> missingTagCount * talk.getDurationInMinutes())
                 .indictWith((talk, missingTagCount) -> Collections.singleton(talk))
-                .justifyWith((talk, integer, score) -> new TalkJustification("Preferred tags for", talk))
+                .justifyWith((talk, integer, score) -> new PreferredTagsJustification(talk,
+                        talk.getPreferredRoomTags(),
+                        talk.getRoom().getTags()))
                 .asConstraint(TALK_PREFERRED_ROOM_TAGS);
     }
 
@@ -509,7 +572,9 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk, undesiredTagCount) -> undesiredTagCount > 0)
                 .penalizeConfigurable((talk, undesiredTagCount) -> undesiredTagCount * talk.getDurationInMinutes())
                 .indictWith((talk, undesiredTagCount) -> Collections.singleton(talk))
-                .justifyWith((talk, integer, score) -> new TalkJustification("Undesired tags for", talk))
+                .justifyWith((talk, integer, score) -> new UndesiredTagsJustification(talk,
+                        talk.getUndesiredRoomTags(),
+                        talk.getRoom().getTags()))
                 .asConstraint(TALK_UNDESIRED_ROOM_TAGS);
     }
 
@@ -530,7 +595,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 // Each such day counts for 8 hours.
                 .penalizeConfigurable((speaker, daysBetweenTalks) -> (daysBetweenTalks - 1) * 8 * 60)
                 .indictWith((speaker, daysBetweenTalks) -> Collections.singleton(speaker))
-                .justifyWith((speaker, integer, score) -> new SpeakerJustification("Speaker makespan for", speaker))
+                .justifyWith((speaker, integer, score) -> new ConferenceSchedulingJustification("Speaker makespan for", speaker))
                 .asConstraint(SPEAKER_MAKESPAN);
     }
 

@@ -1,6 +1,9 @@
 package org.acme.conferencescheduling.rest;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -45,11 +48,10 @@ import org.slf4j.LoggerFactory;
 public class ConferenceSchedulingResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConferenceSchedulingResource.class);
+    private static final int MAX_JOBS_CACHE_SIZE = 2;
 
     private final SolverManager<ConferenceSchedule, String> solverManager;
     private final SolutionManager<ConferenceSchedule, HardSoftScore> solutionManager;
-
-    // TODO: Without any "time to live", the map may eventually grow out of memory.
     private final ConcurrentMap<String, Job> jobIdToJob = new ConcurrentHashMap<>();
 
     // Workaround to make Quarkus CDI happy. Do not use.
@@ -96,6 +98,7 @@ public class ConferenceSchedulingResource {
                     LOGGER.error("Failed solving jobId ({}).", id, exception);
                 })
                 .run();
+        cleanJobs();
         return jobId;
     }
 
@@ -195,14 +198,34 @@ public class ConferenceSchedulingResource {
         return job.schedule;
     }
 
-    private record Job(ConferenceSchedule schedule, Throwable exception) {
+    /**
+     * The method retains only the records of the last MAX_JOBS_CACHE_SIZE completed jobs by removing the oldest ones.
+     */
+    private void cleanJobs() {
+        if (jobIdToJob.size() <= MAX_JOBS_CACHE_SIZE) {
+            return;
+        }
+        List<String> jobsToRemove = jobIdToJob.entrySet().stream()
+                .filter(e -> getStatus(e.getKey()).getSolverStatus() != SolverStatus.NOT_SOLVING)
+                .filter(e -> jobIdToJob.get(e.getKey()).schedule() != null)
+                .sorted((j1, j2) -> jobIdToJob.get(j1.getKey()).createdAt().compareTo(jobIdToJob.get(j2.getKey()).createdAt()))
+                .map(Entry::getKey)
+                .toList();
+        if (jobsToRemove.size() > MAX_JOBS_CACHE_SIZE) {
+            for (int i = 0; i < jobsToRemove.size() - MAX_JOBS_CACHE_SIZE; i++) {
+                jobIdToJob.remove(jobsToRemove.get(i));
+            }
+        }
+    }
+
+    private record Job(ConferenceSchedule schedule, LocalDateTime createdAt, Throwable exception) {
 
         static Job ofSchedule(ConferenceSchedule schedule) {
-            return new Job(schedule, null);
+            return new Job(schedule, LocalDateTime.now(), null);
         }
 
         static Job ofException(Throwable error) {
-            return new Job(null, error);
+            return new Job(null, LocalDateTime.now(), error);
         }
     }
 }

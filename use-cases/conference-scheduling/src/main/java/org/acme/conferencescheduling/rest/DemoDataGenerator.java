@@ -32,14 +32,14 @@ public class DemoDataGenerator {
     private static final String RECORDED_TAG = "Recorded";
     private static final String LARGE_TAG = "Large";
     // Theme tags
-    private static final List<String> THEME_TAGS = List.of("Theme1", "Theme2", "Theme3");
+    private static final List<String> THEME_TAGS = List.of("Optimization", "AI", "Cloud");
     // Sector tags
-    private static final List<String> SECTOR_TAGS = List.of("Sector1", "Sector2", "Sector3");
+    private static final List<String> SECTOR_TAGS = List.of("Green", "Blue", "Orange");
     // Audience tags
-    private static final List<String> AUDIENCE_TAGS = List.of("Audience1", "Audience2", "Audience3");
+    private static final List<String> AUDIENCE_TAGS = List.of("Programmers", "Business Analysts", "Managers");
     // Content tags
-    private static final List<String> CONTENT_TAGS = List.of("Content1", "Content2", "Content3", "Content4", "Content5");
-    private final Random random = new Random();
+    private static final List<String> CONTENT_TAGS = List.of("Timefold", "Constraints", "Vehicle Routing Problem", "Kubernetes", "Metaheuristics");
+    private final Random random = new Random(0);
 
     private static final Set<TalkType> TALK_TYPES = Set.of(
             new TalkType(LAB_TALK_TAG),

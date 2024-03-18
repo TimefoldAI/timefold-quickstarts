@@ -127,19 +127,12 @@ public class Talk {
     }
 
     private static <T> int overlappingCount(Set<T> left, Set<T> right) {
-        int leftSize = left.size();
-        if (leftSize == 0) {
+        if (left.isEmpty() || right.isEmpty()) {
             return 0;
         }
-        int rightSize = right.size();
-        if (rightSize == 0) {
-            return 0;
-        }
-        Set<T> smaller = leftSize < rightSize ? left : right;
-        Set<T> other = smaller == left ? right : left;
         int overlappingCount = 0;
-        for (T t : smaller) { // Iterate over smaller set, lookup in the larger.
-            if (other.contains(t)) {
+        for (T t : left) {
+            if (right.contains(t)) {
                 overlappingCount++;
             }
         }
@@ -169,13 +162,11 @@ public class Talk {
     }
 
     private static <T> int missingCount(Set<T> required, Set<T> available) {
-        int requiredCount = required.size();
-        if (requiredCount == 0) {
+        if (required.isEmpty()) {
             return 0; // If no items are required, none can be missing.
         }
-        int availableCount = available.size();
-        if (availableCount == 0) {
-            return requiredCount; // All the items are missing.
+        if (available.isEmpty()) {
+            return required.size(); // All the items are missing.
         }
         int missingCount = 0;
         for (T t : required) {
