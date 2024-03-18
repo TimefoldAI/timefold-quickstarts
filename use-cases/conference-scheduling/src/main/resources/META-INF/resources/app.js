@@ -25,6 +25,22 @@ $(document).ready(function () {
         viewType = "S";
         refreshSchedule();
     });
+    $("#byThemeTrackTab").click(function () {
+        viewType = "TH";
+        refreshSchedule();
+    });
+    $("#bySectorsTab").click(function () {
+        viewType = "SC";
+        refreshSchedule();
+    });
+    $("#byAudienceTypeTab").click(function () {
+        viewType = "AT";
+        refreshSchedule();
+    });
+    $("#byAudienceLevelTab").click(function () {
+        viewType = "AL";
+        refreshSchedule();
+    });
 
     setupAjax();
     refreshSchedule();
@@ -74,8 +90,16 @@ function renderSchedule(schedule) {
 
     if (viewType === "R") {
         renderScheduleByRoom(schedule);
-    } else {
+    } else if (viewType === "S") {
         renderScheduleBySpeaker(schedule);
+    } else if (viewType === "TH") {
+        renderScheduleByThemeTrack(schedule);
+    } else if (viewType === "SC") {
+        renderScheduleBySectors(schedule);
+    } else if (viewType === "AT") {
+        renderScheduleByAudienceType(schedule);
+    } else if (viewType === "AL") {
+        renderScheduleByAudienceLevel(schedule);
     }
 }
 
@@ -122,8 +146,7 @@ function renderScheduleByRoom(schedule) {
             .append($(`<div class="card-body p-2"/>`)
                 .append($(`<h5 class="card-title mb-1 text-truncate"/>`).text(`${talk.code}: ${talk.title}`))
                 .append($(`<p class="card-text ms-2 mb-1"/>`)
-                    .append($(`<em/>`).text(`by ${talk.speakers.map(s => s.name).join(", ")}`)))
-                .append($(`<small class="ms-2 mt-1 card-text text-muted align-bottom float-end"/>`).text(talk.talkType.name)));
+                    .append($(`<em/>`).text(`by ${talk.speakers.map(s => s.name).join(", ")}`))));
         if (talk.timeslot != null && talk.room != null) {
             $(`#timeslot${talk.timeslot.id}room${talk.room.id}`).append(talkElement.clone());
         } else {
@@ -178,14 +201,107 @@ function renderScheduleBySpeaker(schedule) {
                 .append($(`<div class="card-body p-2"/>`)
                     .append($(`<h5 class="card-title mb-1 text-truncate"/>`).text(`${talk.code}: ${talk.title}`))
                     .append($(`<p class="card-text ms-2 mb-1"/>`)
-                        .append($(`<em/>`).text(`by ${speaker.name}`)))
-                    .append($(`<small class="ms-2 mt-1 card-text text-muted align-bottom float-end"/>`).text(talk.talkType.name)));
+                        .append($(`<em/>`).text(`by ${speaker.name}`))));
             if (talk.timeslot != null && talk.room != null) {
                 $(`#speaker${speaker.id}timeslot${talk.timeslot.id}`).append(talkElement.clone());
             } else {
                 unassignedTalks.append($(`<div class="col"/>`).append(talkElement));
             }
         });
+    });
+}
+
+function renderScheduleByThemeTrack(schedule) {
+    const allTalkThemes = schedule.talks.flatMap(t => t.themeTrackTags).sort();
+    const themes = [...new Set(allTalkThemes)];
+    renderScheduleByValues(schedule, "#scheduleByThemeTrack", "Theme Track Tag", "theme", "themeTrackTags", themes);
+}
+
+function renderScheduleBySectors(schedule) {
+    const allTalkSectors = schedule.talks.flatMap(t => t.sectorTags).sort();
+    const sectors = [...new Set(allTalkSectors)];
+    renderScheduleByValues(schedule, "#scheduleBySectors", "Sector Tag", "sector", "sectorTags", sectors);
+}
+
+function renderScheduleByAudienceType(schedule) {
+    const allAudienceTypes = schedule.talks.flatMap(t => t.audienceTypes).sort();
+    const audienceTypes = [...new Set(allAudienceTypes)];
+    renderScheduleByValues(schedule, "#scheduleByAudienceType", "Audience Type Tag", "audience_type", "audienceTypes", audienceTypes);
+}
+
+function renderScheduleByAudienceLevel(schedule) {
+    const allAudienceLevels = schedule.talks.map(t => t.audienceLevel).sort();
+    const audienceLevels = [...new Set(allAudienceLevels)];
+    renderScheduleByValues(schedule, "#scheduleByAudienceLevel", "Audience Level", "audience_level", "audienceLevel", audienceLevels, true);
+}
+
+function renderScheduleByValues(schedule, tableKey, rowTitle, rowKey, key, values, singleValue = false) {
+    const scheduleByValue = $(tableKey);
+    scheduleByValue.children().remove();
+
+    const unassignedTalks = $("#unassignedTalks");
+    unassignedTalks.children().remove();
+
+    const theadByValue = $("<thead>").appendTo(scheduleByValue);
+    const headerRowByValue = $("<tr>").appendTo(theadByValue);
+    headerRowByValue.append($(`<th>${rowTitle}</th>`));
+
+    const LocalDateTime = JSJoda.LocalDateTime;
+
+    $.each(schedule.timeslots.sort((a, b) => a.id > b.id ? 1 : (a.id < b.id ? -1 : 0)), (index, timeslot) => {
+        headerRowByValue
+            .append($("<th/>")
+                .append($("<span/>").text(`   
+                    ${LocalDateTime.parse(timeslot.startDateTime).dayOfWeek().name().charAt(0) + LocalDateTime.parse(timeslot.startDateTime).dayOfWeek().name().slice(1).toLowerCase()}                 
+                    ${LocalDateTime.parse(timeslot.startDateTime).format(timeFormatter)}
+                    -
+                    ${LocalDateTime.parse(timeslot.endDateTime).format(timeFormatter)}
+                `))
+                .append($(`<button type="button" class="ms-2 mb-1 btn btn-light btn-sm p-1"/>`))
+            );
+    });
+
+    const tbodyByValue = $("<tbody>").appendTo(scheduleByValue);
+
+    $.each(values, (index, value) => {
+        const rowByValue = $("<tr>").appendTo(tbodyByValue);
+        rowByValue
+            .append($(`<th class="align-middle"/>`)
+                .append($("<span/>").text(value)));
+        $.each(schedule.timeslots, (index, timeslot) => {
+            rowByValue.append($("<td/>").prop("id", `${rowKey}${value}timeslot${timeslot.id}`));
+        });
+    });
+
+    $.each(schedule.talks.sort((a, b) => a.code > b.code ? 1 : (a.code < b.code ? -1 : 0)), (index, talk) => {
+        if (singleValue) {
+            const value = talk[key];
+            const color = pickColor(value);
+            const talkElement = $(`<div class="card" style="background-color: ${color}"/>`)
+                .append($(`<div class="card-body p-2"/>`)
+                    .append($(`<h5 class="card-title mb-1 text-truncate"/>`).text(`${talk.code}: ${talk.title}`))
+                    .append($(`<p class="card-text ms-2 mb-1"/>`)
+                        .append($(`<em/>`).text(`at ${talk.room?.name ?? 'not scheduled'}`))));
+            if (talk.timeslot != null && talk.room != null) {
+                $(`#${rowKey}${value}timeslot${talk.timeslot.id}`).append(talkElement.clone());
+            } else {
+                unassignedTalks.append($(`<div class="col"/>`).append(talkElement));
+            }
+        } else {
+            $.each(talk[key], (_, value) => {
+                const color = pickColor(value);
+                const talkElement = $(`<div class="card" style="background-color: ${color}"/>`)
+                    .append($(`<div class="card-body p-2"/>`)
+                        .append($(`<h5 class="card-title mb-1 text-truncate"/>`).text(`${talk.code}: ${talk.title}`))
+                        .append($(`<p class="card-text ms-2 mb-1"/>`)
+                            .append($(`<em/>`).text(`at ${talk.room?.name ?? 'not scheduled'}`))));
+                if (talk.timeslot != null && talk.room != null) {
+                    $(`#${rowKey}${value}timeslot${talk.timeslot.id}`).append(talkElement.clone());
+                } else {
+                    unassignedTalks.append($(`<div class="col"/>`).append(talkElement));
+                }
+            });
+        }
     });
 }
 
@@ -335,11 +451,6 @@ function stopSolving() {
     }).fail(function (xhr, ajaxOptions, thrownError) {
         showError("Stop solving failed.", xhr);
     });
-}
-
-function convertToId(str) {
-    // Base64 encoding without padding to avoid XSS
-    return btoa(str).replace(/=/g, "");
 }
 
 function copyTextToClipboard(id) {

@@ -1,145 +1,192 @@
 <html lang="en">
 <head>
-  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
-  <meta content="width=device-width, initial-scale=1" name="viewport">
-  <title>Conference Scheduling - Timefold Quarkus</title>
-  <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css"/>
-  <link rel="stylesheet" href="/webjars/font-awesome/css/all.css"/>
-  <link rel="stylesheet" href="/webjars/timefold/css/timefold-webui.css"/>
-  <link rel="icon" href="/webjars/timefold/img/timefold-favicon.svg" type="image/svg+xml">
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <title>Conference Scheduling - Timefold Quarkus</title>
+    <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/webjars/font-awesome/css/all.css"/>
+    <link rel="stylesheet" href="/webjars/timefold/css/timefold-webui.css"/>
+    <link rel="icon" href="/webjars/timefold/img/timefold-favicon.svg" type="image/svg+xml">
 </head>
 <body>
 <header id="timefold-auto-header">
-  <!-- Filled in by app.js -->
+    <!-- Filled in by app.js -->
 </header>
 <div class="tab-content">
-  <div id="demo" class="tab-pane fade show active container">
-    <div class="sticky-top d-flex justify-content-center align-items-center" aria-live="polite" aria-atomic="true">
-      <div id="notificationPanel" style="position: absolute; top: .5rem;"></div>
-    </div>
-    <h1>Conference Scheduling solver</h1>
-    <p>Generate the optimal schedule for your conference talks.</p>
+    <div id="demo" class="tab-pane fade show active container">
+        <div class="sticky-top d-flex justify-content-center align-items-center" aria-live="polite" aria-atomic="true">
+            <div id="notificationPanel" style="position: absolute; top: .5rem;"></div>
+        </div>
+        <h1>Conference Scheduling solver</h1>
+        <p>Generate the optimal schedule for your conference talks.</p>
 
-    <div class="mb-2">
-      <button id="solveButton" type="button" class="btn btn-success">
-        <span class="fas fa-play"></span> Solve
-      </button>
-      <button id="stopSolvingButton" type="button" class="btn btn-danger">
-        <span class="fas fa-stop"></span> Stop solving
-      </button>
-      <span id="score" class="score ms-2 align-middle fw-bold">Score: ?</span>
-      <button id="analyzeButton" type="button" class="ms-2 btn btn-secondary">
-        <span class="fas fa-question"></span>
-      </button>
-
-
-      <div class="float-end">
-        <ul class="nav nav-pills" role="tablist">
-          <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="byRoomTab" data-bs-toggle="tab"
-                    data-bs-target="#byRoomPanel" type="button" role="tab" aria-controls="byRoomPanel"
-                    aria-selected="true">By room
+        <div class="mb-2">
+            <button id="solveButton" type="button" class="btn btn-success">
+                <span class="fas fa-play"></span> Solve
             </button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link" id="bySpeakerTab" data-bs-toggle="tab" data-bs-target="#byTeacher"
-                    type="button" role="tab" aria-controls="byTeacher" aria-selected="false">By Speaker
+            <button id="stopSolvingButton" type="button" class="btn btn-danger">
+                <span class="fas fa-stop"></span> Stop solving
             </button>
-          </li>
-        </ul>
-      </div>
+            <span id="score" class="score ms-2 align-middle fw-bold">Score: ?</span>
+            <button id="analyzeButton" type="button" class="ms-2 btn btn-secondary">
+                <span class="fas fa-question"></span>
+            </button>
+
+
+            <div class="float-end">
+                <ul class="nav nav-pills" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="byRoomTab" data-bs-toggle="tab"
+                                data-bs-target="#byRoomPanel" type="button" role="tab" aria-controls="byRoomPanel"
+                                aria-selected="true">By room
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="bySpeakerTab" data-bs-toggle="tab" data-bs-target="#byTeacherPanel"
+                                type="button" role="tab" aria-controls="byTeacherPanel" aria-selected="false">By Speaker
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="byThemeTrackTab" data-bs-toggle="tab"
+                                data-bs-target="#byThemeTrackPanel" type="button" role="tab"
+                                aria-controls="byThemeTrackPanel" aria-selected="false">By Theme
+                            Tracks
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="bySectorsTab" data-bs-toggle="tab"
+                                data-bs-target="#bySectorsPanel" type="button" role="tab"
+                                aria-controls="bySectorsPanel" aria-selected="false">By Sectors
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="byAudienceTypeTab" data-bs-toggle="tab"
+                                data-bs-target="#byAudienceTypePanel" type="button" role="tab"
+                                aria-controls="byAudienceTypePanel" aria-selected="false">By Audience Type
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="byAudienceLevelTab" data-bs-toggle="tab"
+                                data-bs-target="#byAudienceLevelPanel" type="button" role="tab"
+                                aria-controls="byAudienceLevelPanel" aria-selected="false">By Audience Level
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="byRoomPanel" role="tabpanel" aria-labelledby="byRoomTab">
+                <table class="table table-borderless table-striped" id="scheduleByRoom">
+                    <!-- Filled in by app.js -->
+                </table>
+            </div>
+            <div class="tab-pane fade" id="byTeacherPanel" role="tabpanel" aria-labelledby="bySpeakerTab">
+                <table class="table table-borderless table-striped" id="scheduleBySpeaker">
+                    <!-- Filled in by app.js -->
+                </table>
+            </div>
+            <div class="tab-pane fade" id="byThemeTrackPanel" role="tabpanel" aria-labelledby="byThemeTrackTab">
+                <table class="table table-borderless table-striped" id="scheduleByThemeTrack">
+                    <!-- Filled in by app.js -->
+                </table>
+            </div>
+            <div class="tab-pane fade" id="bySectorsPanel" role="tabpanel" aria-labelledby="bySectorsTab">
+                <table class="table table-borderless table-striped" id="scheduleBySectors">
+                    <!-- Filled in by app.js -->
+                </table>
+            </div>
+            <div class="tab-pane fade" id="byAudienceTypePanel" role="tabpanel" aria-labelledby="byAudienceTypeTab">
+                <table class="table table-borderless table-striped" id="scheduleByAudienceType">
+                    <!-- Filled in by app.js -->
+                </table>
+            </div>
+            <div class="tab-pane fade" id="byAudienceLevelPanel" role="tabpanel" aria-labelledby="byAudienceLevelTab">
+                <table class="table table-borderless table-striped" id="scheduleByAudienceLevel">
+                    <!-- Filled in by app.js -->
+                </table>
+            </div>
+        </div>
+
+        <h2>Unassigned talks</h2>
+        <div id="unassignedTalks" class="row row-cols-3 g-3 mb-4"></div>
     </div>
-    <div class="tab-content">
-      <div class="tab-pane fade show active" id="byRoomPanel" role="tabpanel" aria-labelledby="byRoomTab">
-        <table class="table table-borderless table-striped" id="scheduleByRoom">
-          <!-- Filled in by app.js -->
-        </table>
-      </div>
-      <div class="tab-pane fade" id="byTeacher" role="tabpanel" aria-labelledby="bySpeakerTab">
-        <table class="table table-borderless table-striped" id="scheduleBySpeaker">
-          <!-- Filled in by app.js -->
-        </table>
-      </div>
-    </div>
 
-    <h2>Unassigned talks</h2>
-    <div id="unassignedTalks" class="row row-cols-3 g-3 mb-4"></div>
-  </div>
+    <div id="rest" class="tab-pane fade  container-fluid">
+        <h1>REST API Guide</h1>
 
-  <div id="rest" class="tab-pane fade  container-fluid">
-    <h1>REST API Guide</h1>
+        <h2>Conference Scheduling solver integration via cURL</h2>
 
-    <h2>Conference Scheduling solver integration via cURL</h2>
-
-    <h3>1. Download demo data</h3>
-    <pre>
+        <h3>1. Download demo data</h3>
+        <pre>
             <button class="btn btn-outline-dark btn-sm float-end"
                     onclick="copyTextToClipboard('curl1')">Copy</button>
             <code id="curl1">curl -X GET -H 'Accept:application/json' http://localhost:8080/demo-data -o sample.json</code>
     </pre>
 
-    <h3>2. Post the sample data for solving</h3>
-    <p>The POST operation returns a <code>jobId</code> that should be used in subsequent commands.</p>
-    <pre>
+        <h3>2. Post the sample data for solving</h3>
+        <p>The POST operation returns a <code>jobId</code> that should be used in subsequent commands.</p>
+        <pre>
             <button class="btn btn-outline-dark btn-sm float-end"
                     onclick="copyTextToClipboard('curl2')">Copy</button>
             <code id="curl2">curl -X POST -H 'Content-Type:application/json' http://localhost:8080/schedules -d@sample.json</code>
     </pre>
 
-    <h3>3. Get the current status and score</h3>
-    <pre>
+        <h3>3. Get the current status and score</h3>
+        <pre>
             <button class="btn btn-outline-dark btn-sm float-end"
                     onclick="copyTextToClipboard('curl3')">Copy</button>
             <code id="curl3">curl -X GET -H 'Accept:application/json' http://localhost:8080/schedules/{jobId}/status</code>
     </pre>
 
-    <h3>4. Get the complete solution</h3>
-    <pre>
+        <h3>4. Get the complete solution</h3>
+        <pre>
             <button class="btn btn-outline-dark btn-sm float-end"
                     onclick="copyTextToClipboard('curl4')">Copy</button>
             <code id="curl4">curl -X GET -H 'Accept:application/json' http://localhost:8080/schedules/{jobId} -o solution.json</code>
     </pre>
 
-    <h3>5. Fetch the analysis of the solution</h3>
-    <pre>
+        <h3>5. Fetch the analysis of the solution</h3>
+        <pre>
             <button class="btn btn-outline-dark btn-sm float-end"
                     onclick="copyTextToClipboard('curl5')">Copy</button>
             <code id="curl5">curl -X PUT -H 'Accept:application/json' http://localhost:8080/schedules/analyze?fetchPolicy={FETCH_ALL|FETCH_SHALLOW} -d@solution.json</code>
     </pre>
 
-    <h3>6. Terminate solving early</h3>
-    <pre>
+        <h3>6. Terminate solving early</h3>
+        <pre>
             <button class="btn btn-outline-dark btn-sm float-end"
                     onclick="copyTextToClipboard('curl6')">Copy</button>
             <code id="curl6">curl -X DELETE -H 'Accept:application/json' http://localhost:8080/schedules/{jobId}</code>
     </pre>
-  </div>
-
-  <div id="openapi" class="tab-pane fade container-fluid">
-    <h1>REST API Reference</h1>
-    <div class="ratio ratio-1x1">
-      <!-- "scrolling" attribute is obsolete, but e.g. Chrome does not support "overflow:hidden" -->
-      <iframe src="/q/swagger-ui" style="overflow:hidden;" scrolling="no"></iframe>
     </div>
-  </div>
+
+    <div id="openapi" class="tab-pane fade container-fluid">
+        <h1>REST API Reference</h1>
+        <div class="ratio ratio-1x1">
+            <!-- "scrolling" attribute is obsolete, but e.g. Chrome does not support "overflow:hidden" -->
+            <iframe src="/q/swagger-ui" style="overflow:hidden;" scrolling="no"></iframe>
+        </div>
+    </div>
 </div>
 <footer id="timefold-auto-footer"></footer>
-<div class="modal fadebd-example-modal-lg" id="scoreAnalysisModal" tabindex="-1" aria-labelledby="scoreAnalysisModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h1 class="modal-title fs-5" id="scoreAnalysisModalLabel">Score analysis <span id="scoreAnalysisScoreLabel"></span></h1>
+<div class="modal fadebd-example-modal-lg" id="scoreAnalysisModal" tabindex="-1"
+     aria-labelledby="scoreAnalysisModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="scoreAnalysisModalLabel">Score analysis <span
+                        id="scoreAnalysisScoreLabel"></span></h1>
 
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body" id="scoreAnalysisModalContent">
-        <!-- Filled in by app.js -->
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
-      </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="scoreAnalysisModalContent">
+                <!-- Filled in by app.js -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
 
