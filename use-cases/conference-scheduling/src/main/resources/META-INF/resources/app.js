@@ -1,9 +1,9 @@
 var autoRefreshIntervalId = null;
 const timeFormatter = JSJoda.DateTimeFormatter.ofPattern('HH:mm');
 
-let demoDataId = null;
 let scheduleId = null;
 let loadedSchedule = null;
+let viewType = "R";
 
 $(document).ready(function () {
     replaceQuickstartTimefoldAutoHeaderFooter();
@@ -16,6 +16,14 @@ $(document).ready(function () {
     });
     $("#analyzeButton").click(function () {
         analyze();
+    });
+    $("#byRoomTab").click(function () {
+        viewType = "R";
+        refreshSchedule();
+    });
+    $("#bySpeakerTab").click(function () {
+        viewType = "S";
+        refreshSchedule();
     });
 
     setupAjax();
@@ -64,8 +72,11 @@ function renderSchedule(schedule) {
     refreshSolvingButtons(schedule.solverStatus != null && schedule.solverStatus !== "NOT_SOLVING");
     $("#score").text("Score: " + (schedule.score == null ? "?" : schedule.score));
 
-    renderScheduleByRoom(schedule);
-    renderScheduleBySpeaker(schedule);
+    if (viewType === "R") {
+        renderScheduleByRoom(schedule);
+    } else {
+        renderScheduleBySpeaker(schedule);
+    }
 }
 
 function renderScheduleByRoom(schedule) {

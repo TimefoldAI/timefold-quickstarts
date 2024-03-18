@@ -592,7 +592,7 @@ public class Talk {
 
     @Override
     public int hashCode() {
-        return getCode().hashCode();
+        return code.hashCode();
     }
 
     @Override

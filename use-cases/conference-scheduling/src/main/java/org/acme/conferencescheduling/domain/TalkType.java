@@ -1,6 +1,7 @@
 package org.acme.conferencescheduling.domain;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
@@ -52,6 +53,18 @@ public class TalkType {
 
     public void setCompatibleRooms(Set<Room> compatibleRooms) {
         this.compatibleRooms = compatibleRooms;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TalkType talkType)) return false;
+        return Objects.equals(getName(), talkType.getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
     }
 
     @Override

@@ -3,6 +3,7 @@ package org.acme.conferencescheduling.domain;
 
 import static java.util.Collections.emptySet;
 
+import java.util.Objects;
 import java.util.Set;
 
 public class Speaker {
@@ -143,6 +144,18 @@ public class Speaker {
 
     public void setUndesiredRoomTags(Set<String> undesiredRoomTags) {
         this.undesiredRoomTags = undesiredRoomTags;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Speaker speaker)) return false;
+        return Objects.equals(getId(), speaker.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
     }
 
     @Override
