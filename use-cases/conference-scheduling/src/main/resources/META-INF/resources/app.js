@@ -128,7 +128,7 @@ function renderScheduleByRoom(schedule) {
 
     const LocalDateTime = JSJoda.LocalDateTime;
 
-    $.each(schedule.timeslots, (index, timeslot) => {
+    $.each(schedule.timeslots.sort((a, b) => compareTimeslots(a, b)), (index, timeslot) => {
         const rowByRoom = $("<tr>").appendTo(tbodyByRoom);
         rowByRoom
             .append($(`<th class="align-middle"/>`)
@@ -156,6 +156,15 @@ function renderScheduleByRoom(schedule) {
             unassignedTalks.append($(`<div class="col"/>`).append(talkElement));
         }
     });
+}
+
+function compareTimeslots(t1, t2) {
+    const LocalDateTime = JSJoda.LocalDateTime;
+    const diff = LocalDateTime.parse(t1.startDateTime).compareTo(LocalDateTime.parse(t2.startDateTime));
+    if (diff === 0) {
+        return LocalDateTime.parse(t1.endDateTime).compareTo(LocalDateTime.parse(t2.endDateTime));
+    }
+    return diff;
 }
 
 function renderScheduleBySpeaker(schedule) {
@@ -192,7 +201,7 @@ function renderScheduleBySpeaker(schedule) {
         rowBySpeaker
             .append($(`<th class="align-middle"/>`)
                 .append($("<span/>").text(speaker.name)));
-        $.each(schedule.timeslots, (index, timeslot) => {
+        $.each(schedule.timeslots.sort((a, b) => compareTimeslots(a, b)), (index, timeslot) => {
             rowBySpeaker.append($("<td/>").prop("id", `speaker${speaker.id}timeslot${timeslot.id}`));
         });
     });
@@ -271,7 +280,7 @@ function renderScheduleByValues(schedule, tableKey, rowTitle, rowKey, key, value
         rowByValue
             .append($(`<th class="align-middle"/>`)
                 .append($("<span/>").text(value)));
-        $.each(schedule.timeslots, (index, timeslot) => {
+        $.each(schedule.timeslots.sort((a, b) => compareTimeslots(a, b)), (index, timeslot) => {
             rowByValue.append($("<td/>").prop("id", `${rowKey}${value}timeslot${timeslot.id}`));
         });
     });
@@ -484,6 +493,15 @@ function copyTextToClipboard(id) {
     dummy.select();
     document.execCommand("copy");
     document.body.removeChild(dummy);
+}
+
+function compareTimeslots(t1, t2) {
+    const LocalDateTime = JSJoda.LocalDateTime;
+    let diff = LocalDateTime.parse(t1.startDateTime).compareTo(LocalDateTime.parse(t2.startDateTime));
+    if (diff === 0) {
+        diff = LocalDateTime.parse(t1.endDateTime).compareTo(LocalDateTime.parse(t2.endDateTime));
+    }
+    return diff;
 }
 
 // TODO: move to the webjar

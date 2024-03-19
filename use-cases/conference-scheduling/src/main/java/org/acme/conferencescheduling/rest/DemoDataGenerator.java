@@ -56,23 +56,23 @@ public class DemoDataGenerator {
 
     private Set<Timeslot> generateTimeslots() {
         return Set.of(
-                new Timeslot("T1", LocalDateTime.now().withHour(10).withMinute(15).withSecond(0),
-                        LocalDateTime.now().withHour(12).withMinute(15).withSecond(0), Set.of(getTalkType(LAB_TALK_TAG)),
+                new Timeslot("T1", LocalDateTime.now().withHour(10).withMinute(15).withSecond(0).withNano(0),
+                        LocalDateTime.now().withHour(12).withMinute(15).withSecond(0).withNano(0), Set.of(getTalkType(LAB_TALK_TAG)),
                         emptySet()),
-                new Timeslot("T2", LocalDateTime.now().withHour(10).withMinute(15).withSecond(0),
-                        LocalDateTime.now().withHour(11).withMinute(0).withSecond(0), Set.of(getTalkType(BREAKOUT_TALK_TAG)),
+                new Timeslot("T2", LocalDateTime.now().withHour(10).withMinute(15).withSecond(0).withNano(0),
+                        LocalDateTime.now().withHour(11).withMinute(0).withSecond(0).withNano(0), Set.of(getTalkType(BREAKOUT_TALK_TAG)),
                         emptySet()),
-                new Timeslot("T3", LocalDateTime.now().withHour(11).withMinute(30).withSecond(0),
-                        LocalDateTime.now().withHour(12).withMinute(15).withSecond(0), Set.of(getTalkType(BREAKOUT_TALK_TAG)),
+                new Timeslot("T3", LocalDateTime.now().withHour(11).withMinute(30).withSecond(0).withNano(0),
+                        LocalDateTime.now().withHour(12).withMinute(15).withSecond(0).withNano(0), Set.of(getTalkType(BREAKOUT_TALK_TAG)),
                         emptySet()),
-                new Timeslot("T4", LocalDateTime.now().withHour(13).withMinute(0).withSecond(0),
-                        LocalDateTime.now().withHour(15).withMinute(0).withSecond(0), Set.of(getTalkType(LAB_TALK_TAG)),
+                new Timeslot("T4", LocalDateTime.now().withHour(13).withMinute(0).withSecond(0).withNano(0),
+                        LocalDateTime.now().withHour(15).withMinute(0).withSecond(0).withNano(0), Set.of(getTalkType(LAB_TALK_TAG)),
                         Set.of(AFTER_LUNCH_TAG)),
-                new Timeslot("T5", LocalDateTime.now().withHour(15).withMinute(30).withSecond(0),
-                        LocalDateTime.now().withHour(16).withMinute(15).withSecond(0), Set.of(getTalkType(BREAKOUT_TALK_TAG)),
+                new Timeslot("T5", LocalDateTime.now().withHour(15).withMinute(30).withSecond(0).withNano(0),
+                        LocalDateTime.now().withHour(16).withMinute(15).withSecond(0).withNano(0), Set.of(getTalkType(BREAKOUT_TALK_TAG)),
                         emptySet()),
-                new Timeslot("T6", LocalDateTime.now().withHour(16).withMinute(30).withSecond(0),
-                        LocalDateTime.now().withHour(17).withMinute(15).withSecond(0), Set.of(getTalkType(BREAKOUT_TALK_TAG)),
+                new Timeslot("T6", LocalDateTime.now().withHour(16).withMinute(30).withSecond(0).withNano(0),
+                        LocalDateTime.now().withHour(17).withMinute(15).withSecond(0).withNano(0), Set.of(getTalkType(BREAKOUT_TALK_TAG)),
                         emptySet()));
     }
 
