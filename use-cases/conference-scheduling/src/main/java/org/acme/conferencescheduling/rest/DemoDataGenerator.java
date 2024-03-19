@@ -40,16 +40,16 @@ public class DemoDataGenerator {
     // Content tags
     private static final List<String> CONTENT_TAGS =
             List.of("Timefold", "Constraints", "Metaheuristics", "Kubernetes");
-    private final Random random = new Random(0);
 
     private static final Set<TalkType> TALK_TYPES = Set.of(
             new TalkType(LAB_TALK_TAG),
             new TalkType(BREAKOUT_TALK_TAG));
 
     public ConferenceSchedule generateDemoData() {
+        Random random = new Random(0);
         Set<Speaker> speakers = generateSpeakers();
         ConferenceSchedule schedule = new ConferenceSchedule("Conference", TALK_TYPES, generateTimeslots(), generateRooms(),
-                speakers, generateTalks(speakers));
+                speakers, generateTalks(random, speakers));
         schedule.setConstraintConfiguration(new ConferenceConstraintConfiguration());
         return schedule;
     }
@@ -101,60 +101,63 @@ public class DemoDataGenerator {
                 new Speaker("12", "Beth Green", Set.of(AFTER_LUNCH_TAG)));
     }
 
-    private Set<Talk> generateTalks(Set<Speaker> speakers) {
+    private Set<Talk> generateTalks(Random random, Set<Speaker> speakers) {
         Set<Talk> talks = new HashSet<>();
         talks.add(new Talk("S01", "Talk One", getTalkType(LAB_TALK_TAG),
-                getSpeakers(speakers, "Amy Cole", "Beth Fox"), Set.of(getRandomTheme()), Set.of(getRandomSector()),
-                Set.of(getRandomAudience()), 2, Set.of(getRandomContent()), "en", 551, 1));
+                getSpeakers(speakers, "Amy Cole", "Beth Fox"), Set.of(getRandomTheme(random)), Set.of(getRandomSector(random)),
+                Set.of(getRandomAudience(random)), 2, Set.of(getRandomContent(random)), "en", 551, 1));
         talks.add(new Talk("S02", "Talk Two", getTalkType(LAB_TALK_TAG),
-                getSpeakers(speakers, "Chad Green"), Set.of(getRandomTheme()), Set.of(getRandomSector()),
-                Set.of(getRandomAudience()), 3, Set.of(getRandomContent()), "en", 528, 0));
+                getSpeakers(speakers, "Chad Green"), Set.of(getRandomTheme(random)), Set.of(getRandomSector(random)),
+                Set.of(getRandomAudience(random)), 3, Set.of(getRandomContent(random)), "en", 528, 0));
         talks.stream().filter(t -> t.getCode().equals("S01")).findFirst()
                 .ifPresent(t -> t.setUndesiredRoomTags(Set.of(RECORDED_TAG)));
         talks.add(new Talk("S03", "Talk Three", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Dan Jones"), Set.of(getRandomTheme()), Set.of(getRandomSector()),
-                Set.of(getRandomAudience()), 3, Set.of(getRandomContent()), "en", 497, 0));
+                getSpeakers(speakers, "Dan Jones"), Set.of(getRandomTheme(random)), Set.of(getRandomSector(random)),
+                Set.of(getRandomAudience(random)), 3, Set.of(getRandomContent(random)), "en", 497, 0));
         talks.add(new Talk("S04", "Talk Four", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Elsa King", "Flo Li"), Set.of(getRandomTheme()), Set.of(getRandomSector()),
-                Set.of(getRandomAudience()), 1, Set.of(getRandomContent()), "en", 560, 0));
+                getSpeakers(speakers, "Elsa King", "Flo Li"), Set.of(getRandomTheme(random)), Set.of(getRandomSector(random)),
+                Set.of(getRandomAudience(random)), 1, Set.of(getRandomContent(random)), "en", 560, 0));
         talks.add(new Talk("S05", "Talk Five", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Gus Poe", "Hugo Rye"), Set.of(getRandomTheme()), Set.of(getRandomSector()),
-                Set.of(getRandomAudience()), 1, Set.of(getRandomContent()), "en", 957, 0));
+                getSpeakers(speakers, "Gus Poe", "Hugo Rye"), Set.of(getRandomTheme(random)), Set.of(getRandomSector(random)),
+                Set.of(getRandomAudience(random)), 1, Set.of(getRandomContent(random)), "en", 957, 0));
         talks.add(new Talk("S06", "Talk Six", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Ivy Smith"), Set.of(getRandomTheme()), Set.of(getRandomSector()),
-                Set.of(getRandomAudience()), 1, Set.of(getRandomContent()), "en", 957, 0));
+                getSpeakers(speakers, "Ivy Smith"), Set.of(getRandomTheme(random)), Set.of(getRandomSector(random)),
+                Set.of(getRandomAudience(random)), 1, Set.of(getRandomContent(random)), "en", 957, 0));
         talks.stream().filter(t -> t.getCode().equals("S05")).findFirst()
                 .ifPresent(
                         t -> t.setPrerequisiteTalks(talks.stream().filter(t2 -> t2.getCode().equals("S02")).collect(toSet())));
         talks.add(new Talk("S07", "Talk Seven", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Jay Watt"), Set.of(getRandomTheme()), Set.of(getRandomSector()),
-                Set.of(getRandomAudience()), 3, Set.of(getRandomContent()), "en", 568, 0));
+                getSpeakers(speakers, "Jay Watt"), Set.of(getRandomTheme(random)), Set.of(getRandomSector(random)),
+                Set.of(getRandomAudience(random)), 3, Set.of(getRandomContent(random)), "en", 568, 0));
         talks.add(new Talk("S08", "Talk Eight", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Amy Fox"), Set.of(getRandomTheme()), Set.of(getRandomSector()),
-                Set.of(getRandomAudience()), 3, Set.of(getRandomContent()), "en", 183, 0));
+                getSpeakers(speakers, "Amy Fox"), Set.of(getRandomTheme(random)), Set.of(getRandomSector(random)),
+                Set.of(getRandomAudience(random)), 3, Set.of(getRandomContent(random)), "en", 183, 0));
         talks.add(new Talk("S09", "Talk Nine", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Beth Green", "Amy Cole"), Set.of(getRandomTheme()), Set.of(getRandomSector()),
-                Set.of(getRandomAudience()), 3, Set.of(getRandomContent()), "en", 619, 0));
+                getSpeakers(speakers, "Beth Green", "Amy Cole"), Set.of(getRandomTheme(random)),
+                Set.of(getRandomSector(random)),
+                Set.of(getRandomAudience(random)), 3, Set.of(getRandomContent(random)), "en", 619, 0));
         talks.add(new Talk("S10", "Talk Ten", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Beth Fox", "Chad Green"), Set.of(getRandomTheme()), Set.of(getRandomSector()),
-                Set.of(getRandomAudience()), 3, Set.of(getRandomContent()), "en", 603, 1));
+                getSpeakers(speakers, "Beth Fox", "Chad Green"), Set.of(getRandomTheme(random)),
+                Set.of(getRandomSector(random)),
+                Set.of(getRandomAudience(random)), 3, Set.of(getRandomContent(random)), "en", 603, 1));
         talks.add(new Talk("S11", "Talk Eleven", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Dan Jones", "Elsa King"), Set.of(getRandomTheme()), Set.of(getRandomSector()),
-                Set.of(getRandomAudience()), 1, Set.of(getRandomContent()), "en", 39, 0));
+                getSpeakers(speakers, "Dan Jones", "Elsa King"), Set.of(getRandomTheme(random)),
+                Set.of(getRandomSector(random)),
+                Set.of(getRandomAudience(random)), 1, Set.of(getRandomContent(random)), "en", 39, 0));
         talks.add(new Talk("S12", "Talk Twelve", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Flo Li", "Gus Poe"), Set.of(getRandomTheme()), Set.of(getRandomSector()),
-                Set.of(getRandomAudience()), 3, Set.of(getRandomContent()), "en", 977, 0));
+                getSpeakers(speakers, "Flo Li", "Gus Poe"), Set.of(getRandomTheme(random)), Set.of(getRandomSector(random)),
+                Set.of(getRandomAudience(random)), 3, Set.of(getRandomContent(random)), "en", 977, 0));
         talks.stream().filter(t -> t.getCode().equals("S11")).findFirst()
-                .ifPresent(t -> t.setMutuallyExclusiveTalksTags(Set.of(getRandomContent())));
+                .ifPresent(t -> t.setMutuallyExclusiveTalksTags(Set.of(getRandomContent(random))));
         talks.add(new Talk("S13", "Talk Thirteen", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Hugo Rye"), Set.of(getRandomTheme()), Set.of(getRandomSector()),
-                Set.of(getRandomAudience()), 3, Set.of(getRandomContent()), "en", 494, 0));
+                getSpeakers(speakers, "Hugo Rye"), Set.of(getRandomTheme(random)), Set.of(getRandomSector(random)),
+                Set.of(getRandomAudience(random)), 3, Set.of(getRandomContent(random)), "en", 494, 0));
         talks.add(new Talk("S14", "Talk Fourteen", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Ivy Smith"), Set.of(getRandomTheme()), Set.of(getRandomSector()),
-                Set.of(getRandomAudience()), 3, Set.of(getRandomContent()), "en", 500, 0));
+                getSpeakers(speakers, "Ivy Smith"), Set.of(getRandomTheme(random)), Set.of(getRandomSector(random)),
+                Set.of(getRandomAudience(random)), 3, Set.of(getRandomContent(random)), "en", 500, 0));
         talks.add(new Talk("S15", "Talk Fifteen", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Jay Watt"), Set.of(getRandomTheme()), Set.of(getRandomSector()),
-                Set.of(getRandomAudience()), 2, Set.of(getRandomContent()), "en", 658, 0));
+                getSpeakers(speakers, "Jay Watt"), Set.of(getRandomTheme(random)), Set.of(getRandomSector(random)),
+                Set.of(getRandomAudience(random)), 2, Set.of(getRandomContent(random)), "en", 658, 0));
         talks.stream().filter(t -> t.getCode().equals("S11")).findFirst()
                 .ifPresent(t -> t.setRequiredRoomTags(Set.of(RECORDED_TAG)));
 
@@ -174,19 +177,19 @@ public class DemoDataGenerator {
                 .toList();
     }
 
-    private String getRandomTheme() {
+    private String getRandomTheme(Random random) {
         return THEME_TAGS.get(random.nextInt(THEME_TAGS.size()));
     }
 
-    private String getRandomAudience() {
+    private String getRandomAudience(Random random) {
         return AUDIENCE_TAGS.get(random.nextInt(AUDIENCE_TAGS.size()));
     }
 
-    private String getRandomContent() {
+    private String getRandomContent(Random random) {
         return CONTENT_TAGS.get(random.nextInt(CONTENT_TAGS.size()));
     }
 
-    private String getRandomSector() {
+    private String getRandomSector(Random random) {
         return SECTOR_TAGS.get(random.nextInt(SECTOR_TAGS.size()));
     }
 
