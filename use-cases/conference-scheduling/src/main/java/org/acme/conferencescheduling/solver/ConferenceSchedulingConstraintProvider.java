@@ -342,7 +342,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
     Constraint publishedTimeslot(ConstraintFactory factory) {
         return factory.forEach(Talk.class)
                 .filter(talk -> talk.getPublishedTimeslot() != null
-                        && talk.getTimeslot() != talk.getPublishedTimeslot())
+                        && !talk.getTimeslot().equals(talk.getPublishedTimeslot()))
                 .penalizeConfigurable()
                 .justifyWith((talk, score) -> new PublishedTimeslotJustification(talk, true))
                 .asConstraint(PUBLISHED_TIMESLOT);
@@ -354,7 +354,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
 
     Constraint publishedRoom(ConstraintFactory factory) {
         return factory.forEach(Talk.class)
-                .filter(talk -> talk.getPublishedRoom() != null && talk.getRoom() != talk.getPublishedRoom())
+                .filter(talk -> talk.getPublishedRoom() != null && !talk.getRoom().equals(talk.getPublishedRoom()))
                 .penalizeConfigurable()
                 .justifyWith((talk, score) -> new PublishedTimeslotJustification(talk, false))
                 .asConstraint(PUBLISHED_ROOM);
