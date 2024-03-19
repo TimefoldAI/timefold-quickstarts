@@ -11,16 +11,15 @@ import org.acme.conferencescheduling.domain.Talk;
 
 public record UndesiredTagsJustification(String description) implements ConstraintJustification {
 
-    public UndesiredTagsJustification(Talk talk, Collection<String> expectedTags, Collection<String> actualTags) {
-        this("Undesired tags for talk %s. Undesired [%s]; Actual[%s]".formatted(talk.getTitle(),
-                String.join(", ", expectedTags),
-                String.join(", ", actualTags)));
+    public UndesiredTagsJustification(String type, Talk talk, Collection<String> undesiredTags,
+                                       Collection<String> actualTags) {
+        this("Talk %s has undesired %s tags [%s]".formatted(talk.getCode(), type,
+                undesiredTags.stream().filter(actualTags::contains).collect(joining(", "))));
     }
 
-    public UndesiredTagsJustification(Collection<Speaker> speakers, Collection<String> expectedTags,
-                                      Collection<String> actualTags) {
-        this("Undesired tags for speakers: %s. Undesired [%s]; Actual[%s]".formatted(
-                speakers.stream().map(Speaker::getName).collect(joining(", ")), String.join(", ", expectedTags),
-                String.join(", ", actualTags)));
+    public UndesiredTagsJustification(String type, Collection<Speaker> speakers, Collection<String> undesiredTags,
+                                       Collection<String> actualTags) {
+        this("Speakers [%s] have undesired %s tags [%s]".formatted(speakers.stream().map(Speaker::getName).collect(joining(", ")),
+                type, undesiredTags.stream().filter(actualTags::contains).collect(joining(", "))));
     }
 }

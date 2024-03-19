@@ -11,16 +11,17 @@ import org.acme.conferencescheduling.domain.Talk;
 
 public record RequiredTagsJustification(String description) implements ConstraintJustification {
 
-    public RequiredTagsJustification(Talk talk, Collection<String> expectedTags, Collection<String> actualTags) {
-        this("Required tags for talk %s. Expected [%s]; Actual[%s]".formatted(talk.getTitle(),
-                String.join(", ", expectedTags),
-                String.join(", ", actualTags)));
+    public RequiredTagsJustification(String type, Talk talk, Collection<String> expectedTags, Collection<String> actualTags) {
+        this("Missing required %s tags [%s] for talk %s."
+                .formatted(type,
+                        expectedTags.stream().filter(t -> !actualTags.contains(t)).collect(joining(", ")),
+                        talk.getCode()));
     }
 
-    public RequiredTagsJustification(Collection<Speaker> speakers, Collection<String> expectedTags,
-                                       Collection<String> actualTags) {
-        this("Required tags for speakers: %s. Expected [%s]; Actual[%s]".formatted(
-                speakers.stream().map(Speaker::getName).collect(joining(", ")), String.join(", ", expectedTags),
-                String.join(", ", actualTags)));
+    public RequiredTagsJustification(String type, Collection<Speaker> speakers, Collection<String> expectedTags,
+            Collection<String> actualTags) {
+        this("Missing required %s tags [%s] for speakers [%s].".formatted(type,
+                expectedTags.stream().filter(t -> !actualTags.contains(t)).collect(joining(", ")),
+                speakers.stream().map(Speaker::getName).collect(joining(", "))));
     }
 }
