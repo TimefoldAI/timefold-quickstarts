@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toSet;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
@@ -41,7 +42,7 @@ public class DemoDataGenerator {
     private static final List<String> CONTENT_TAGS = List.of("Timefold", "Constraints", "Metaheuristics", "Kubernetes");
     private static final Random random = new Random(0);
 
-    private static final Set<TalkType> TALK_TYPES = new LinkedHashSet<>(Set.of(
+    private static final Set<TalkType> TALK_TYPES = buildSet(List.of(
             new TalkType(LAB_TALK_TAG),
             new TalkType(BREAKOUT_TALK_TAG)));
 
@@ -54,29 +55,35 @@ public class DemoDataGenerator {
     }
 
     private Set<Timeslot> generateTimeslots() {
-        return new LinkedHashSet<>(Set.of(
+        return buildSet(List.of(
                 new Timeslot("T1", LocalDateTime.now().withHour(10).withMinute(15).withSecond(0).withNano(0),
-                        LocalDateTime.now().withHour(12).withMinute(15).withSecond(0).withNano(0), Set.of(getTalkType(LAB_TALK_TAG)),
+                        LocalDateTime.now().withHour(12).withMinute(15).withSecond(0).withNano(0),
+                        Set.of(getTalkType(LAB_TALK_TAG)),
                         emptySet()),
                 new Timeslot("T2", LocalDateTime.now().withHour(10).withMinute(15).withSecond(0).withNano(0),
-                        LocalDateTime.now().withHour(11).withMinute(0).withSecond(0).withNano(0), Set.of(getTalkType(BREAKOUT_TALK_TAG)),
+                        LocalDateTime.now().withHour(11).withMinute(0).withSecond(0).withNano(0),
+                        Set.of(getTalkType(BREAKOUT_TALK_TAG)),
                         emptySet()),
                 new Timeslot("T3", LocalDateTime.now().withHour(11).withMinute(30).withSecond(0).withNano(0),
-                        LocalDateTime.now().withHour(12).withMinute(15).withSecond(0).withNano(0), Set.of(getTalkType(BREAKOUT_TALK_TAG)),
+                        LocalDateTime.now().withHour(12).withMinute(15).withSecond(0).withNano(0),
+                        Set.of(getTalkType(BREAKOUT_TALK_TAG)),
                         emptySet()),
                 new Timeslot("T4", LocalDateTime.now().withHour(13).withMinute(0).withSecond(0).withNano(0),
-                        LocalDateTime.now().withHour(15).withMinute(0).withSecond(0).withNano(0), Set.of(getTalkType(LAB_TALK_TAG)),
+                        LocalDateTime.now().withHour(15).withMinute(0).withSecond(0).withNano(0),
+                        Set.of(getTalkType(LAB_TALK_TAG)),
                         Set.of(AFTER_LUNCH_TAG)),
                 new Timeslot("T5", LocalDateTime.now().withHour(15).withMinute(30).withSecond(0).withNano(0),
-                        LocalDateTime.now().withHour(16).withMinute(15).withSecond(0).withNano(0), Set.of(getTalkType(BREAKOUT_TALK_TAG)),
+                        LocalDateTime.now().withHour(16).withMinute(15).withSecond(0).withNano(0),
+                        Set.of(getTalkType(BREAKOUT_TALK_TAG)),
                         emptySet()),
                 new Timeslot("T6", LocalDateTime.now().withHour(16).withMinute(30).withSecond(0).withNano(0),
-                        LocalDateTime.now().withHour(17).withMinute(15).withSecond(0).withNano(0), Set.of(getTalkType(BREAKOUT_TALK_TAG)),
+                        LocalDateTime.now().withHour(17).withMinute(15).withSecond(0).withNano(0),
+                        Set.of(getTalkType(BREAKOUT_TALK_TAG)),
                         emptySet())));
     }
 
     private Set<Room> generateRooms() {
-        return new LinkedHashSet<>(Set.of(
+        return buildSet(List.of(
                 new Room("R1", "Room A", 60, Set.of(getTalkType(BREAKOUT_TALK_TAG)), Set.of(RECORDED_TAG)),
                 new Room("R2", "Room B", 240, Set.of(getTalkType(BREAKOUT_TALK_TAG)), emptySet()),
                 new Room("R3", "Room C", 630, Set.of(getTalkType(BREAKOUT_TALK_TAG)), Set.of(RECORDED_TAG, LARGE_TAG)),
@@ -85,7 +92,7 @@ public class DemoDataGenerator {
     }
 
     private Set<Speaker> generateSpeakers() {
-        return new LinkedHashSet<>(Set.of(
+        return buildSet(List.of(
                 new Speaker("1", "Amy Cole"),
                 new Speaker("2", "Beth Fox"),
                 new Speaker("3", "Chad Green"),
@@ -192,4 +199,9 @@ public class DemoDataGenerator {
         return SECTOR_TAGS.get(random.nextInt(SECTOR_TAGS.size()));
     }
 
+    private static <T> Set<T> buildSet(List<T> values) {
+        var newSet = new LinkedHashSet<>(values.size());
+        newSet.addAll(values);
+        return (Set<T>) Collections.unmodifiableSet(newSet);
+    }
 }
