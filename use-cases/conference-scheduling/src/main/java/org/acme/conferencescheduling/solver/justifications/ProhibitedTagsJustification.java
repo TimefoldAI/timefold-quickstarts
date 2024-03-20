@@ -11,16 +11,15 @@ import org.acme.conferencescheduling.domain.Talk;
 
 public record ProhibitedTagsJustification(String description) implements ConstraintJustification {
 
-    public ProhibitedTagsJustification(Talk talk, Collection<String> expectedTags, Collection<String> actualTags) {
-        this("Prohibited tags for talk %s. Prohibited [%s]; Actual[%s]".formatted(talk.getTitle(),
-                String.join(", ", expectedTags),
-                String.join(", ", actualTags)));
+    public ProhibitedTagsJustification(String type, Talk talk, Collection<String> prohibitedTags,
+            Collection<String> actualTags) {
+        this("Talk %s has prohibited %s tags [%s]".formatted(talk.getCode(), type,
+                prohibitedTags.stream().filter(actualTags::contains).collect(joining(", "))));
     }
 
-    public ProhibitedTagsJustification(Collection<Speaker> speakers, Collection<String> expectedTags,
+    public ProhibitedTagsJustification(String type, Collection<Speaker> speakers, Collection<String> prohibitedTags,
             Collection<String> actualTags) {
-        this("Prohibited tags for speakers: %s. Prohibited [%s]; Actual[%s]".formatted(
-                speakers.stream().map(Speaker::getName).collect(joining(", ")), String.join(", ", expectedTags),
-                String.join(", ", actualTags)));
+        this("Speakers [%s] have prohibited %s tags [%s]".formatted(speakers.stream().map(Speaker::getName).collect(joining(", ")),
+                type, prohibitedTags.stream().filter(actualTags::contains).collect(joining(", "))));
     }
 }
