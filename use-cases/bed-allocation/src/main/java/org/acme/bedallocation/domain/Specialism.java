@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 
-
 @JsonIdentityInfo(scope = Specialism.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Specialism  {
 

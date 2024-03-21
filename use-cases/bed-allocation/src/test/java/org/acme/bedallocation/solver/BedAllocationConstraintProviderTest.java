@@ -1,25 +1,30 @@
 package org.acme.bedallocation.solver;
 
+import static org.acme.bedallocation.domain.Equipment.TELEMETRY;
+import static org.acme.bedallocation.domain.Equipment.TELEVISION;
+
 import java.time.LocalDate;
 import java.util.List;
 
-import org.acme.bedallocation.domain.GenderLimitation;
-import org.acme.bedallocation.domain.Stay;
+import jakarta.inject.Inject;
+
+import ai.timefold.solver.test.api.score.stream.ConstraintVerifier;
+
 import org.acme.bedallocation.domain.Bed;
-import org.acme.bedallocation.domain.Schedule;
-import org.acme.bedallocation.domain.Patient;
 import org.acme.bedallocation.domain.BedDesignation;
 import org.acme.bedallocation.domain.Department;
 import org.acme.bedallocation.domain.DepartmentSpecialism;
 import org.acme.bedallocation.domain.Gender;
+import org.acme.bedallocation.domain.GenderLimitation;
+import org.acme.bedallocation.domain.Patient;
 import org.acme.bedallocation.domain.Room;
 import org.acme.bedallocation.domain.RoomSpecialism;
+import org.acme.bedallocation.domain.Schedule;
 import org.acme.bedallocation.domain.Specialism;
+import org.acme.bedallocation.domain.Stay;
 import org.junit.jupiter.api.Test;
 
-import ai.timefold.solver.test.api.score.stream.ConstraintVerifier;
 import io.quarkus.test.junit.QuarkusTest;
-import jakarta.inject.Inject;
 
 @QuarkusTest
 class BedAllocationConstraintProviderTest {
@@ -133,13 +138,13 @@ class BedAllocationConstraintProviderTest {
     @Test
     void requiredPatientEquipment() {
         Room room = new Room();
-        room.setEquipmentList(List.of("equipment2"));
+        room.setEquipments(List.of(TELEMETRY));
 
         Bed bed = new Bed();
         bed.setRoom(room);
 
         Patient patient = new Patient();
-        patient.setRequiredEquipmentList(List.of("equipment1", "equipment2"));
+        patient.setRequiredEquipments(List.of(TELEVISION, TELEMETRY));
         Stay admission = new Stay("0", patient, ZERO_NIGHT, FIVE_NIGHT, DEFAULT_SPECIALISM);
         BedDesignation designation = new BedDesignation("0", admission, bed);
 
@@ -219,13 +224,13 @@ class BedAllocationConstraintProviderTest {
     @Test
     void preferredPatientEquipment() {
         Room room = new Room();
-        room.setEquipmentList(List.of("equipment2"));
+        room.setEquipments(List.of(TELEMETRY));
 
         Bed bed = new Bed();
         bed.setRoom(room);
 
         Patient patient = new Patient();
-        patient.setPreferredEquipmentList(List.of("equipment1", "equipment2"));
+        patient.setPreferredEquipments(List.of(TELEVISION, TELEMETRY));
         Stay stay = new Stay("0", patient, ZERO_NIGHT, FIVE_NIGHT, DEFAULT_SPECIALISM);
         BedDesignation bedDesignation = new BedDesignation("0", stay, bed);
 

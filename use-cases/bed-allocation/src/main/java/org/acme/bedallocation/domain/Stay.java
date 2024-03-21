@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 
-
 @JsonIdentityInfo(scope = Stay.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Stay {
 
@@ -23,6 +22,11 @@ public class Stay {
     private Specialism specialism;
 
     public Stay() {
+    }
+
+    public Stay(String id, Patient patient) {
+        this.id = id;
+        this.patient = patient;
     }
 
     public Stay(String id, Patient patient, LocalDate arrivalDate, LocalDate departureDate, Specialism specialism) {

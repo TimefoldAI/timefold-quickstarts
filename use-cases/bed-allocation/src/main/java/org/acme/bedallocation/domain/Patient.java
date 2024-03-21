@@ -1,12 +1,12 @@
 package org.acme.bedallocation.domain;
 
+import java.util.LinkedList;
 import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 @JsonIdentityInfo(scope = Patient.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Patient {
@@ -19,10 +19,20 @@ public class Patient {
     private int age;
     private Integer preferredMaximumRoomCapacity;
 
-    private List<String> requiredEquipmentList;
-    private List<String> preferredEquipmentList;
+    private List<Equipment> requiredEquipments;
+    private List<Equipment> preferredEquipments;
 
     public Patient() {
+        this.requiredEquipments = new LinkedList<>();
+        this.preferredEquipments = new LinkedList<>();
+    }
+
+    public Patient(String id, String name) {
+        this.id = id;
+        this.name = name;
+        this.age = -1;
+        this.requiredEquipments = new LinkedList<>();
+        this.preferredEquipments = new LinkedList<>();
     }
 
     public Patient(String id, String name, Gender gender, int age, Integer preferredMaximumRoomCapacity) {
@@ -31,6 +41,20 @@ public class Patient {
         this.gender = gender;
         this.age = age;
         this.preferredMaximumRoomCapacity = preferredMaximumRoomCapacity;
+        this.requiredEquipments = new LinkedList<>();
+        this.preferredEquipments = new LinkedList<>();
+    }
+
+    public void addRequiredEquipment(Equipment equipment) {
+        if (!requiredEquipments.contains(equipment)) {
+            this.requiredEquipments.add(equipment);
+        }
+    }
+
+    public void addPreferredEquipment(Equipment equipment) {
+        if (!preferredEquipments.contains(equipment)) {
+            this.preferredEquipments.add(equipment);
+        }
     }
 
     @Override
@@ -78,20 +102,20 @@ public class Patient {
         this.preferredMaximumRoomCapacity = preferredMaximumRoomCapacity;
     }
 
-    public List<String> getRequiredEquipmentList() {
-        return requiredEquipmentList;
+    public List<Equipment> getRequiredEquipments() {
+        return requiredEquipments;
     }
 
-    public void setRequiredEquipmentList(List<String> requiredEquipmentList) {
-        this.requiredEquipmentList = requiredEquipmentList;
+    public void setRequiredEquipments(List<Equipment> requiredEquipments) {
+        this.requiredEquipments = requiredEquipments;
     }
 
-    public List<String> getPreferredEquipmentList() {
-        return preferredEquipmentList;
+    public List<Equipment> getPreferredEquipments() {
+        return preferredEquipments;
     }
 
-    public void setPreferredEquipmentList(List<String> preferredEquipmentList) {
-        this.preferredEquipmentList = preferredEquipmentList;
+    public void setPreferredEquipments(List<Equipment> preferredEquipments) {
+        this.preferredEquipments = preferredEquipments;
     }
 
 }

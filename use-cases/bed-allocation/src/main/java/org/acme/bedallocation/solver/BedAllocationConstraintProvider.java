@@ -106,13 +106,13 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
     public Constraint requiredPatientEquipment(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(BedDesignation.class)
             .filter(bedDesignation ->
-                    !bedDesignation.getRoom().getEquipmentList().containsAll(
-                        bedDesignation.getPatient().getRequiredEquipmentList())
+                    !bedDesignation.getRoom().getEquipments().containsAll(
+                        bedDesignation.getPatient().getRequiredEquipments())
             )
             .penalize(HardMediumSoftScore.ofHard(50),
                 (bedDesignation) -> bedDesignation.getNightCount() * (int)
-                    bedDesignation.getPatient().getRequiredEquipmentList().stream()
-                        .filter(equipment -> bedDesignation.getRoom().getEquipmentList().contains(equipment)).count())
+                    bedDesignation.getPatient().getRequiredEquipments().stream()
+                        .filter(equipment -> bedDesignation.getRoom().getEquipments().contains(equipment)).count())
             .asConstraint("requiredPatientEquipment");
     }
 
@@ -167,13 +167,13 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
     public Constraint preferredPatientEquipment(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(BedDesignation.class)
             .filter(bedDesignation ->
-                !bedDesignation.getRoom().getEquipmentList().containsAll(
-                    bedDesignation.getPatient().getPreferredEquipmentList())
+                !bedDesignation.getRoom().getEquipments().containsAll(
+                    bedDesignation.getPatient().getPreferredEquipments())
             )
             .penalize(HardMediumSoftScore.ofHard(50),
                 (bedDesignation) -> bedDesignation.getNightCount() * (int)
-                    bedDesignation.getPatient().getPreferredEquipmentList().stream()
-                        .filter(equipment -> bedDesignation.getRoom().getEquipmentList().contains(equipment)).count())
+                    bedDesignation.getPatient().getPreferredEquipments().stream()
+                        .filter(equipment -> bedDesignation.getRoom().getEquipments().contains(equipment)).count())
             .asConstraint("preferredPatientEquipment");
     }
 }

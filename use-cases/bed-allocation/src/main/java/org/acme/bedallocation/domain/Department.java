@@ -1,5 +1,6 @@
 package org.acme.bedallocation.domain;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
@@ -17,7 +18,7 @@ public class Department {
     private Integer minimumAge = null;
     private Integer maximumAge = null;
 
-    private List<Room> roomList;
+    private List<Room> rooms;
 
     public Department() {
     }
@@ -25,6 +26,15 @@ public class Department {
     public Department(String id, String name) {
         this.id = id;
         this.name = name;
+    }
+
+    public void addRoom(Room room) {
+        if (rooms == null) {
+            rooms = new LinkedList<>();
+        }
+        if (!rooms.contains(room)) {
+            rooms.add(room);
+        }
     }
 
     public int countHardDisallowedStay(Stay stay) {
@@ -79,12 +89,12 @@ public class Department {
         this.maximumAge = maximumAge;
     }
 
-    public List<Room> getRoomList() {
-        return roomList;
+    public List<Room> getRooms() {
+        return rooms;
     }
 
-    public void setRoomList(List<Room> roomList) {
-        this.roomList = roomList;
+    public void setRooms(List<Room> rooms) {
+        this.rooms = rooms;
     }
 
 }

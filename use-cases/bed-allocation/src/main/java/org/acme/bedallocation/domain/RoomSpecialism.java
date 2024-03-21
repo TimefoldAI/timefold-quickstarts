@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 
-
 @JsonIdentityInfo(scope = RoomSpecialism.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class RoomSpecialism {
 
@@ -19,11 +18,10 @@ public class RoomSpecialism {
     public RoomSpecialism() {
     }
 
-    public RoomSpecialism(String id, Room room, Specialism specialism, int priority) {
+    public RoomSpecialism(String id, Room room, Specialism specialism) {
         this.id = id;
         this.room = room;
         this.specialism = specialism;
-        this.priority = priority;
     }
 
     @Override

@@ -14,25 +14,25 @@ import ai.timefold.solver.core.api.solver.SolverStatus;
 public class Schedule {
 
     @ProblemFactCollectionProperty
-    private List<Specialism> specialismList;
+    private List<Specialism> specialisms;
     @ProblemFactCollectionProperty
-    private List<Department> departmentList;
+    private List<Department> departments;
     @ProblemFactCollectionProperty
-    private List<DepartmentSpecialism> departmentSpecialismList;
+    private List<DepartmentSpecialism> departmentSpecialisms;
     @ProblemFactCollectionProperty
-    private List<Room> roomList;
+    private List<Room> rooms;
     @ProblemFactCollectionProperty
-    private List<RoomSpecialism> roomSpecialismList;
+    private List<RoomSpecialism> roomSpecialisms;
     @ProblemFactCollectionProperty
     @ValueRangeProvider
-    private List<Bed> bedList;
+    private List<Bed> beds;
     @ProblemFactCollectionProperty
-    private List<Patient> patientList;
+    private List<Patient> patients;
     @ProblemFactCollectionProperty
-    private List<Stay> stayList;
+    private List<Stay> stays;
 
     @PlanningEntityCollectionProperty
-    private List<BedDesignation> bedDesignationList;
+    private List<BedDesignation> bedDesignations;
 
     @PlanningScore
     private HardMediumSoftScore score;
@@ -52,76 +52,76 @@ public class Schedule {
     // Getters and setters
     // ************************************************************************
 
-    public List<Specialism> getSpecialismList() {
-        return specialismList;
+    public List<Specialism> getSpecialisms() {
+        return specialisms;
     }
 
-    public void setSpecialismList(List<Specialism> specialismList) {
-        this.specialismList = specialismList;
+    public void setSpecialisms(List<Specialism> specialisms) {
+        this.specialisms = specialisms;
     }
 
-    public List<Department> getDepartmentList() {
-        return departmentList;
+    public List<Department> getDepartments() {
+        return departments;
     }
 
-    public void setDepartmentList(List<Department> departmentList) {
-        this.departmentList = departmentList;
+    public void setDepartments(List<Department> departments) {
+        this.departments = departments;
     }
 
-    public List<DepartmentSpecialism> getDepartmentSpecialismList() {
-        return departmentSpecialismList;
+    public List<DepartmentSpecialism> getDepartmentSpecialisms() {
+        return departmentSpecialisms;
     }
 
-    public void setDepartmentSpecialismList(List<DepartmentSpecialism> departmentSpecialismList) {
-        this.departmentSpecialismList = departmentSpecialismList;
+    public void setDepartmentSpecialisms(List<DepartmentSpecialism> departmentSpecialisms) {
+        this.departmentSpecialisms = departmentSpecialisms;
     }
 
-    public List<Room> getRoomList() {
-        return roomList;
+    public List<Room> getRooms() {
+        return rooms;
     }
 
-    public void setRoomList(List<Room> roomList) {
-        this.roomList = roomList;
+    public void setRooms(List<Room> rooms) {
+        this.rooms = rooms;
     }
 
-    public List<RoomSpecialism> getRoomSpecialismList() {
-        return roomSpecialismList;
+    public List<RoomSpecialism> getRoomSpecialisms() {
+        return roomSpecialisms;
     }
 
-    public void setRoomSpecialismList(List<RoomSpecialism> roomSpecialismList) {
-        this.roomSpecialismList = roomSpecialismList;
+    public void setRoomSpecialisms(List<RoomSpecialism> roomSpecialisms) {
+        this.roomSpecialisms = roomSpecialisms;
     }
 
-    public List<Bed> getBedList() {
-        return bedList;
+    public List<Bed> getBeds() {
+        return beds;
     }
 
-    public void setBedList(List<Bed> bedList) {
-        this.bedList = bedList;
+    public void setBeds(List<Bed> beds) {
+        this.beds = beds;
     }
 
-    public List<Patient> getPatientList() {
-        return patientList;
+    public List<Patient> getPatients() {
+        return patients;
     }
 
-    public void setPatientList(List<Patient> patientList) {
-        this.patientList = patientList;
+    public void setPatients(List<Patient> patients) {
+        this.patients = patients;
     }
 
-    public List<Stay> getStayList() {
-        return stayList;
+    public List<Stay> getStays() {
+        return stays;
     }
 
-    public void setStayList(List<Stay> stayList) {
-        this.stayList = stayList;
+    public void setStays(List<Stay> stays) {
+        this.stays = stays;
     }
 
-    public List<BedDesignation> getBedDesignationList() {
-        return bedDesignationList;
+    public List<BedDesignation> getBedDesignations() {
+        return bedDesignations;
     }
 
-    public void setBedDesignationList(List<BedDesignation> bedDesignationList) {
-        this.bedDesignationList = bedDesignationList;
+    public void setBedDesignations(List<BedDesignation> bedDesignations) {
+        this.bedDesignations = bedDesignations;
     }
 
     public HardMediumSoftScore getScore() {

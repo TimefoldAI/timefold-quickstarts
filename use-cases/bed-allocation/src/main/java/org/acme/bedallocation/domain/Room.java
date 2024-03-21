@@ -1,13 +1,13 @@
 package org.acme.bedallocation.domain;
 
+import java.util.LinkedList;
 import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import java.util.Objects;
 
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 
-
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 @JsonIdentityInfo(scope = Room.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Room {
@@ -21,19 +21,36 @@ public class Room {
     private int capacity;
     private GenderLimitation genderLimitation;
 
-    private List<RoomSpecialism> roomSpecialismList;
-    private List<String> equipmentList;
-    private List<Bed> bedList;
+    private List<RoomSpecialism> roomSpecialisms;
+    private List<Equipment> equipments;
+    private List<Bed> beds;
 
     public Room() {
+        this.roomSpecialisms = new LinkedList<>();
+        this.equipments = new LinkedList<>();
+        this.beds = new LinkedList<>();
     }
 
-    public Room(String id, String name, Department department, int capacity, GenderLimitation genderLimitation) {
+    public Room(String id, String name, Department department) {
         this.id = id;
         this.name = name;
         this.department = department;
-        this.capacity = capacity;
-        this.genderLimitation = genderLimitation;
+        this.department.addRoom(this);
+        this.roomSpecialisms = new LinkedList<>();
+        this.equipments = new LinkedList<>();
+        this.beds = new LinkedList<>();
+    }
+
+    public void addSpecialism(Specialism specialism) {
+        if (this.roomSpecialisms.stream().noneMatch(rs -> rs.getSpecialism().equals(specialism))) {
+            this.roomSpecialisms.add(new RoomSpecialism("%s-%s".formatted(id, specialism.getId()), this, specialism));
+        }
+    }
+
+    public void addBed(Bed bed) {
+        if (!beds.contains(bed)) {
+            beds.add(bed);
+        }
     }
 
     @Override
@@ -81,28 +98,41 @@ public class Room {
         this.genderLimitation = genderLimitation;
     }
 
-    public List<RoomSpecialism> getRoomSpecialismList() {
-        return roomSpecialismList;
+    public List<RoomSpecialism> getRoomSpecialisms() {
+        return roomSpecialisms;
     }
 
-    public void setRoomSpecialismList(List<RoomSpecialism> roomSpecialismList) {
-        this.roomSpecialismList = roomSpecialismList;
+    public void setRoomSpecialisms(List<RoomSpecialism> roomSpecialisms) {
+        this.roomSpecialisms = roomSpecialisms;
     }
 
-    public List<String> getEquipmentList() {
-        return equipmentList;
+    public List<Equipment> getEquipments() {
+        return equipments;
     }
 
-    public void setEquipmentList(List<String> equipmentList) {
-        this.equipmentList = equipmentList;
+    public void setEquipments(List<Equipment> equipments) {
+        this.equipments = equipments;
     }
 
-    public List<Bed> getBedList() {
-        return bedList;
+    public List<Bed> getBeds() {
+        return beds;
     }
 
-    public void setBedList(List<Bed> bedList) {
-        this.bedList = bedList;
+    public void setBeds(List<Bed> beds) {
+        this.beds = beds;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof Room room))
+            return false;
+        return Objects.equals(getId(), room.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getId().hashCode();
+    }
 }
