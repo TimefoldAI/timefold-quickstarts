@@ -1,18 +1,24 @@
-name: Gradle
+name: GraalVM Native
 
 on:
   pull_request:
     branches: [stable, development, '*.x']
+    paths-ignore:
+      - 'LICENSE*'
+      - '.gitignore'
+      - '**.md'
+      - '**.adoc'
+      - '*.txt'
 
 jobs:
   build:
     concurrency:
-      group: pull_request_gradle-${{ github.event_name }}-${{ github.head_ref }}-${{ matrix.quickstartDir }}
+      group: pull_request_native-${{ github.event_name }}-${{ github.head_ref }}-${{ matrix.module }}-${{ matrix.java-version }}
       cancel-in-progress: true
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        quickstartDir: ['hello-world', 'use-cases/school-timetabling', 'technology/java-spring-boot']
+        java-version: [ 17, 21, 22 ] #Latest two LTS + latest non-LTS.
     timeout-minutes: 120
     steps:
       # Clone timefold-solver
@@ -54,32 +60,19 @@ jobs:
         with:
           path: './timefold-quickstarts'
 
-      # Build the solver
-      - name: "Setup Java and Maven"
-        uses: actions/setup-java@v3
+      # Build and test
+      - name: "Setup GraalVM native image"
+        uses: graalvm/setup-graalvm@v1
         with:
-          java-version: 17
-          distribution: 'temurin'
+          java-version: ${{matrix.java-version}}
+          distribution: 'graalvm-community'
+          components: 'native-image'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           cache: 'maven'
+
       - name: Quickly build timefold-solver
         working-directory: ./timefold-solver
         run: mvn -B -Dquickly clean install
-
-        # Build and test the Gradle-enabled quickstarts
-      - name: Cache Gradle packages
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: gradle-
-      - name: Build and test timefold-quickstarts
-        working-directory: ./timefold-quickstarts/${{ matrix.quickstartDir }}
-        run: gradle build
-      - name: Cleanup Gradle Cache
-        # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
-        # Restoring these files from a GitHub Actions cache might cause problems for future builds.
-        run: |
-          rm -f ~/.gradle/caches/modules-2/modules-2.lock
-          rm -f ~/.gradle/caches/modules-2/gc.properties
+      - name: Test timefold-quickstarts in Native mode
+        working-directory: ./timefold-quickstarts
+        run: mvn -B -Dnative verify
