@@ -7,7 +7,6 @@ import org.acme.bedallocation.domain.GenderLimitation;
 import org.acme.bedallocation.domain.Stay;
 import org.acme.bedallocation.domain.Bed;
 import org.acme.bedallocation.domain.Schedule;
-import org.acme.bedallocation.domain.Equipment;
 import org.acme.bedallocation.domain.Patient;
 import org.acme.bedallocation.domain.BedDesignation;
 import org.acme.bedallocation.domain.Department;
