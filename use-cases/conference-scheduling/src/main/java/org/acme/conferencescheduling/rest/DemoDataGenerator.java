@@ -40,7 +40,7 @@ public class DemoDataGenerator {
     private static final List<String> AUDIENCE_TAGS = List.of("Programmers", "Analysts", "Managers");
     // Content tags
     private static final List<String> CONTENT_TAGS = List.of("Timefold", "Constraints", "Metaheuristics", "Kubernetes");
-    private static final Random random = new Random(0);
+    private final Random random = new Random(0);
 
     private static final Set<TalkType> TALK_TYPES = buildSet(List.of(
             new TalkType(LAB_TALK_TAG),
