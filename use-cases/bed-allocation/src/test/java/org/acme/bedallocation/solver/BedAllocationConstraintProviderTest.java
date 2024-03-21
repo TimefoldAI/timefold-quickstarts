@@ -3,10 +3,10 @@ package org.acme.bedallocation.solver;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.acme.bedallocation.domain.GenderRoomLimitation;
+import org.acme.bedallocation.domain.GenderLimitation;
 import org.acme.bedallocation.domain.Stay;
 import org.acme.bedallocation.domain.Bed;
-import org.acme.bedallocation.domain.BedAllocationSchedule;
+import org.acme.bedallocation.domain.Schedule;
 import org.acme.bedallocation.domain.Equipment;
 import org.acme.bedallocation.domain.Patient;
 import org.acme.bedallocation.domain.BedDesignation;
@@ -31,12 +31,12 @@ class BedAllocationConstraintProviderTest {
     private static final Specialism DEFAULT_SPECIALISM = new Specialism();
 
     @Inject
-    ConstraintVerifier<BedAllocationConstraintProvider, BedAllocationSchedule> constraintVerifier;
+    ConstraintVerifier<BedAllocationConstraintProvider, Schedule> constraintVerifier;
 
     @Test
     void femaleInMaleRoom() {
         Room room = new Room();
-        room.setGenderRoomLimitation(GenderRoomLimitation.MALE_ONLY);
+        room.setGenderLimitation(GenderLimitation.MALE_ONLY);
 
         Bed bed = new Bed();
         bed.setRoom(room);
@@ -45,17 +45,17 @@ class BedAllocationConstraintProviderTest {
         patient.setGender(Gender.FEMALE);
 
         Stay genderAdmission = new Stay("0", patient, ZERO_NIGHT, FIVE_NIGHT, DEFAULT_SPECIALISM);
-        BedDesignation genderRoomLimitationDesignation = new BedDesignation("0", genderAdmission, bed);
+        BedDesignation GenderLimitationDesignation = new BedDesignation("0", genderAdmission, bed);
 
         constraintVerifier.verifyThat(BedAllocationConstraintProvider::femaleInMaleRoom)
-                .given(genderRoomLimitationDesignation)
+                .given(GenderLimitationDesignation)
                 .penalizesBy(6);
     }
 
     @Test
     void maleInFemaleRoom() {
         Room room = new Room();
-        room.setGenderRoomLimitation(GenderRoomLimitation.FEMALE_ONLY);
+        room.setGenderLimitation(GenderLimitation.FEMALE_ONLY);
 
         Bed bed = new Bed();
         bed.setRoom(room);
@@ -64,10 +64,10 @@ class BedAllocationConstraintProviderTest {
         patient.setGender(Gender.MALE);
 
         Stay genderAdmission = new Stay("0", patient, ZERO_NIGHT, FIVE_NIGHT, DEFAULT_SPECIALISM);
-        BedDesignation genderRoomLimitationDesignation = new BedDesignation("0", genderAdmission, bed);
+        BedDesignation GenderLimitationDesignation = new BedDesignation("0", genderAdmission, bed);
 
         constraintVerifier.verifyThat(BedAllocationConstraintProvider::maleInFemaleRoom)
-                .given(genderRoomLimitationDesignation)
+                .given(GenderLimitationDesignation)
                 .penalizesBy(6);
     }
 
@@ -133,17 +133,14 @@ class BedAllocationConstraintProviderTest {
 
     @Test
     void requiredPatientEquipment() {
-        Equipment equipment1 = new Equipment();
-        Equipment equipment2 = new Equipment();
-
         Room room = new Room();
-        room.setEquipmentList(List.of(equipment2));
+        room.setEquipmentList(List.of("equipment2"));
 
         Bed bed = new Bed();
         bed.setRoom(room);
 
         Patient patient = new Patient();
-        patient.setRequiredEquipments(List.of(equipment1, equipment2));
+        patient.setRequiredEquipmentList(List.of("equipment1", "equipment2"));
         Stay admission = new Stay("0", patient, ZERO_NIGHT, FIVE_NIGHT, DEFAULT_SPECIALISM);
         BedDesignation designation = new BedDesignation("0", admission, bed);
 
@@ -156,7 +153,7 @@ class BedAllocationConstraintProviderTest {
     void differentGenderInSameGenderRoomInSameNight() {
 
         Room room = new Room();
-        room.setGenderRoomLimitation(GenderRoomLimitation.SAME_GENDER);
+        room.setGenderLimitation(GenderLimitation.SAME_GENDER);
 
         //Assign female
         Patient female = new Patient();
@@ -222,17 +219,14 @@ class BedAllocationConstraintProviderTest {
 
     @Test
     void preferredPatientEquipment() {
-        Equipment equipment1 = new Equipment();
-        Equipment equipment2 = new Equipment();
-
         Room room = new Room();
-        room.setEquipmentList(List.of(equipment2));
+        room.setEquipmentList(List.of("equipment2"));
 
         Bed bed = new Bed();
         bed.setRoom(room);
 
         Patient patient = new Patient();
-        patient.setPreferredEquipments(List.of(equipment1, equipment2));
+        patient.setPreferredEquipmentList(List.of("equipment1", "equipment2"));
         Stay stay = new Stay("0", patient, ZERO_NIGHT, FIVE_NIGHT, DEFAULT_SPECIALISM);
         BedDesignation bedDesignation = new BedDesignation("0", stay, bed);
 

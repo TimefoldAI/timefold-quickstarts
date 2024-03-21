@@ -22,7 +22,7 @@ public class Room {
     private GenderLimitation genderLimitation;
 
     private List<RoomSpecialism> roomSpecialismList;
-    private List<RoomEquipment> roomEquipmentList;
+    private List<String> equipmentList;
     private List<Bed> bedList;
 
     public Room() {
@@ -34,68 +34,6 @@ public class Room {
         this.department = department;
         this.capacity = capacity;
         this.genderLimitation = genderLimitation;
-    }
-
-    public int countHardDisallowedAdmissionPart(AdmissionPart admissionPart) {
-        return countMissingRequiredRoomProperties(admissionPart.getPatient())
-            + department.countHardDisallowedAdmissionPart(admissionPart)
-            + countDisallowedPatientGender(admissionPart.getPatient());
-        // TODO preferredMaximumRoomCapacity and specialism
-    }
-
-    public int countMissingRequiredRoomProperties(Patient patient) {
-        int count = 0;
-        for (RequiredPatientEquipment requiredPatientEquipment : patient.getRequiredPatientEquipmentList()) {
-            Equipment requiredEquipment = requiredPatientEquipment.getEquipment();
-            boolean hasRequiredEquipment = false;
-            for (RoomEquipment roomEquipment : roomEquipmentList) {
-                if (roomEquipment.getEquipment().equals(requiredEquipment)) {
-                    hasRequiredEquipment = true;
-                }
-            }
-            if (!hasRequiredEquipment) {
-                count += 100000;
-            }
-        }
-        return count;
-    }
-
-    public int countDisallowedPatientGender(Patient patient) {
-        switch (genderLimitation) {
-            case ANY_GENDER:
-                return 0;
-            case MALE_ONLY:
-                return patient.getGender() == Gender.MALE ? 0 : 4;
-            case FEMALE_ONLY:
-                return patient.getGender() == Gender.FEMALE ? 0 : 4;
-            case SAME_GENDER:
-                // Constraints check this
-                return 1;
-            default:
-                throw new IllegalStateException("The genderLimitation (" + genderLimitation + ") is not implemented.");
-        }
-    }
-
-    public int countSoftDisallowedAdmissionPart(AdmissionPart admissionPart) {
-        return countMissingPreferredRoomProperties(admissionPart.getPatient());
-        // TODO preferredMaximumRoomCapacity and specialism
-    }
-
-    public int countMissingPreferredRoomProperties(Patient patient) {
-        int count = 0;
-        for (PreferredPatientEquipment preferredPatientEquipment : patient.getPreferredPatientEquipmentList()) {
-            Equipment preferredEquipment = preferredPatientEquipment.getEquipment();
-            boolean hasPreferredEquipment = false;
-            for (RoomEquipment roomEquipment : roomEquipmentList) {
-                if (roomEquipment.getEquipment().equals(preferredEquipment)) {
-                    hasPreferredEquipment = true;
-                }
-            }
-            if (!hasPreferredEquipment) {
-                count += 20;
-            }
-        }
-        return count;
     }
 
     @Override
@@ -151,12 +89,12 @@ public class Room {
         this.roomSpecialismList = roomSpecialismList;
     }
 
-    public List<RoomEquipment> getRoomEquipmentList() {
-        return roomEquipmentList;
+    public List<String> getEquipmentList() {
+        return equipmentList;
     }
 
-    public void setRoomEquipmentList(List<RoomEquipment> roomEquipmentList) {
-        this.roomEquipmentList = roomEquipmentList;
+    public void setEquipmentList(List<String> equipmentList) {
+        this.equipmentList = equipmentList;
     }
 
     public List<Bed> getBedList() {

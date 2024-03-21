@@ -19,8 +19,8 @@ public class Patient {
     private int age;
     private Integer preferredMaximumRoomCapacity;
 
-    private List<RequiredPatientEquipment> requiredPatientEquipmentList;
-    private List<PreferredPatientEquipment> preferredPatientEquipmentList;
+    private List<String> requiredEquipmentList;
+    private List<String> preferredEquipmentList;
 
     public Patient() {
     }
@@ -78,20 +78,20 @@ public class Patient {
         this.preferredMaximumRoomCapacity = preferredMaximumRoomCapacity;
     }
 
-    public List<RequiredPatientEquipment> getRequiredPatientEquipmentList() {
-        return requiredPatientEquipmentList;
+    public List<String> getRequiredEquipmentList() {
+        return requiredEquipmentList;
     }
 
-    public void setRequiredPatientEquipmentList(List<RequiredPatientEquipment> requiredPatientEquipmentList) {
-        this.requiredPatientEquipmentList = requiredPatientEquipmentList;
+    public void setRequiredEquipmentList(List<String> requiredEquipmentList) {
+        this.requiredEquipmentList = requiredEquipmentList;
     }
 
-    public List<PreferredPatientEquipment> getPreferredPatientEquipmentList() {
-        return preferredPatientEquipmentList;
+    public List<String> getPreferredEquipmentList() {
+        return preferredEquipmentList;
     }
 
-    public void setPreferredPatientEquipmentList(List<PreferredPatientEquipment> preferredPatientEquipmentList) {
-        this.preferredPatientEquipmentList = preferredPatientEquipmentList;
+    public void setPreferredEquipmentList(List<String> preferredEquipmentList) {
+        this.preferredEquipmentList = preferredEquipmentList;
     }
 
 }

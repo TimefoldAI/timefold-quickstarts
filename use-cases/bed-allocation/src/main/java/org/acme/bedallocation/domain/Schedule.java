@@ -8,15 +8,13 @@ import ai.timefold.solver.core.api.domain.solution.PlanningSolution;
 import ai.timefold.solver.core.api.domain.solution.ProblemFactCollectionProperty;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
 import ai.timefold.solver.core.api.score.buildin.hardmediumsoft.HardMediumSoftScore;
-
+import ai.timefold.solver.core.api.solver.SolverStatus;
 
 @PlanningSolution
-public class PatientAdmissionSchedule {
+public class Schedule {
 
     @ProblemFactCollectionProperty
     private List<Specialism> specialismList;
-    @ProblemFactCollectionProperty
-    private List<Equipment> equipmentList;
     @ProblemFactCollectionProperty
     private List<Department> departmentList;
     @ProblemFactCollectionProperty
@@ -26,20 +24,12 @@ public class PatientAdmissionSchedule {
     @ProblemFactCollectionProperty
     private List<RoomSpecialism> roomSpecialismList;
     @ProblemFactCollectionProperty
-    private List<RoomEquipment> roomEquipmentList;
-    @ProblemFactCollectionProperty
     @ValueRangeProvider
     private List<Bed> bedList;
     @ProblemFactCollectionProperty
-    private List<Night> nightList;
-    @ProblemFactCollectionProperty
     private List<Patient> patientList;
     @ProblemFactCollectionProperty
-    private List<AdmissionPart> admissionPartList;
-    @ProblemFactCollectionProperty
-    private List<RequiredPatientEquipment> requiredPatientEquipmentList;
-    @ProblemFactCollectionProperty
-    private List<PreferredPatientEquipment> preferredPatientEquipmentList;
+    private List<Stay> stayList;
 
     @PlanningEntityCollectionProperty
     private List<BedDesignation> bedDesignationList;
@@ -47,8 +37,15 @@ public class PatientAdmissionSchedule {
     @PlanningScore
     private HardMediumSoftScore score;
 
+    private SolverStatus solverStatus;
+
     // No-arg constructor required for Timefold
-    public PatientAdmissionSchedule() {
+    public Schedule() {
+    }
+
+    public Schedule(HardMediumSoftScore score, SolverStatus solverStatus) {
+        this.score = score;
+        this.solverStatus = solverStatus;
     }
 
     // ************************************************************************
@@ -61,14 +58,6 @@ public class PatientAdmissionSchedule {
 
     public void setSpecialismList(List<Specialism> specialismList) {
         this.specialismList = specialismList;
-    }
-
-    public List<Equipment> getEquipmentList() {
-        return equipmentList;
-    }
-
-    public void setEquipmentList(List<Equipment> equipmentList) {
-        this.equipmentList = equipmentList;
     }
 
     public List<Department> getDepartmentList() {
@@ -103,28 +92,12 @@ public class PatientAdmissionSchedule {
         this.roomSpecialismList = roomSpecialismList;
     }
 
-    public List<RoomEquipment> getRoomEquipmentList() {
-        return roomEquipmentList;
-    }
-
-    public void setRoomEquipmentList(List<RoomEquipment> roomEquipmentList) {
-        this.roomEquipmentList = roomEquipmentList;
-    }
-
     public List<Bed> getBedList() {
         return bedList;
     }
 
     public void setBedList(List<Bed> bedList) {
         this.bedList = bedList;
-    }
-
-    public List<Night> getNightList() {
-        return nightList;
-    }
-
-    public void setNightList(List<Night> nightList) {
-        this.nightList = nightList;
     }
 
     public List<Patient> getPatientList() {
@@ -135,28 +108,12 @@ public class PatientAdmissionSchedule {
         this.patientList = patientList;
     }
 
-    public List<AdmissionPart> getAdmissionPartList() {
-        return admissionPartList;
+    public List<Stay> getStayList() {
+        return stayList;
     }
 
-    public void setAdmissionPartList(List<AdmissionPart> admissionPartList) {
-        this.admissionPartList = admissionPartList;
-    }
-
-    public List<RequiredPatientEquipment> getRequiredPatientEquipmentList() {
-        return requiredPatientEquipmentList;
-    }
-
-    public void setRequiredPatientEquipmentList(List<RequiredPatientEquipment> requiredPatientEquipmentList) {
-        this.requiredPatientEquipmentList = requiredPatientEquipmentList;
-    }
-
-    public List<PreferredPatientEquipment> getPreferredPatientEquipmentList() {
-        return preferredPatientEquipmentList;
-    }
-
-    public void setPreferredPatientEquipmentList(List<PreferredPatientEquipment> preferredPatientEquipmentList) {
-        this.preferredPatientEquipmentList = preferredPatientEquipmentList;
+    public void setStayList(List<Stay> stayList) {
+        this.stayList = stayList;
     }
 
     public List<BedDesignation> getBedDesignationList() {
@@ -173,6 +130,14 @@ public class PatientAdmissionSchedule {
 
     public void setScore(HardMediumSoftScore score) {
         this.score = score;
+    }
+
+    public SolverStatus getSolverStatus() {
+        return solverStatus;
+    }
+
+    public void setSolverStatus(SolverStatus solverStatus) {
+        this.solverStatus = solverStatus;
     }
 
 }
