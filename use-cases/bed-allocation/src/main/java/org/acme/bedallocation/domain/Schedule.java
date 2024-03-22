@@ -1,7 +1,5 @@
 package org.acme.bedallocation.domain;
 
-import static java.util.Collections.emptyList;
-
 import java.util.List;
 
 import ai.timefold.solver.core.api.domain.solution.PlanningEntityCollectionProperty;
@@ -17,14 +15,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @PlanningSolution
 public class Schedule {
 
-    private List<String> specialisms = emptyList();
     private List<Department> departments;
-    private List<DepartmentSpecialism> departmentSpecialisms = emptyList();
-    private List<Room> rooms = emptyList();
-    private List<RoomSpecialism> roomSpecialisms = emptyList();
-    private List<Bed> beds = emptyList();
-    private List<Patient> patients = emptyList();
-    private List<Stay> stays = emptyList();
 
     @PlanningEntityCollectionProperty
     private List<BedDesignation> bedDesignations;
@@ -47,14 +38,10 @@ public class Schedule {
     // Getters and setters
     // ************************************************************************
 
-    public void setSpecialisms(List<String> specialisms) {
-        this.specialisms = specialisms;
-    }
-
     @JsonIgnore
     @ProblemFactCollectionProperty
     public List<String> getSpecialisms() {
-        return this.specialisms;
+        return this.departments.stream().flatMap(d -> d.getSpecialismsToPriority().keySet().stream()).distinct().toList();
     }
 
     @ProblemFactCollectionProperty
@@ -66,65 +53,57 @@ public class Schedule {
         this.departments = departments;
     }
 
-    public void setDepartmentSpecialisms(List<DepartmentSpecialism> departmentSpecialisms) {
-        this.departmentSpecialisms = departmentSpecialisms;
-    }
-
     @JsonIgnore
     @ProblemFactCollectionProperty
     public List<DepartmentSpecialism> getDepartmentSpecialisms() {
-        return this.departmentSpecialisms;
-    }
-
-    public void setRooms(List<Room> rooms) {
-        this.rooms = rooms;
+        return departments.stream()
+                .flatMap(d -> d.getSpecialismsToPriority().entrySet().stream()
+                        .map(e -> new DepartmentSpecialism("%s-%s".formatted(d.getId(), e.getKey()), d, e.getKey(),
+                                e.getValue()))
+                        .toList()
+                        .stream())
+                .toList();
     }
 
     @JsonIgnore
     @ProblemFactCollectionProperty
     public List<Room> getRooms() {
-        return this.rooms;
-    }
-
-    public void setRoomSpecialisms(List<RoomSpecialism> roomSpecialisms) {
-        this.roomSpecialisms = roomSpecialisms;
+        return departments.stream().flatMap(d -> d.getRooms().stream()).toList();
     }
 
     @JsonIgnore
     @ProblemFactCollectionProperty
     public List<RoomSpecialism> getRoomSpecialisms() {
-        return roomSpecialisms;
-    }
-
-    public void setBeds(List<Bed> beds) {
-        this.beds = beds;
+        return departments.stream().flatMap(d -> d.getRooms().stream())
+                .flatMap(r -> r.getSpecialismsToPriority().entrySet().stream()
+                        .map(e -> new RoomSpecialism("%s-%s".formatted(r.getId(), e.getKey()), r, e.getKey(), e.getValue()))
+                        .toList()
+                        .stream())
+                .toList();
     }
 
     @JsonIgnore
     @ProblemFactCollectionProperty
     @ValueRangeProvider
     public List<Bed> getBeds() {
-        return this.beds;
-    }
-
-    public void setPatients(List<Patient> patients) {
-        this.patients = patients;
+        return departments.stream()
+                .flatMap(d -> d.getRooms().stream())
+                .flatMap(r -> r.getBeds().stream())
+                .toList();
     }
 
     @JsonIgnore
     @ProblemFactCollectionProperty
     public List<Patient> getPatients() {
-        return this.patients;
-    }
-
-    public void setStays(List<Stay> stays) {
-        this.stays = stays;
+        return getBedDesignations().stream()
+                .map(BedDesignation::getPatient)
+                .toList();
     }
 
     @JsonIgnore
     @ProblemFactCollectionProperty
     public List<Stay> getStays() {
-        return this.stays;
+        return getBedDesignations().stream().map(BedDesignation::getStay).toList();
     }
 
     public List<BedDesignation> getBedDesignations() {
