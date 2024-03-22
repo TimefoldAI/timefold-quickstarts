@@ -28,6 +28,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import ai.timefold.solver.core.impl.util.Pair;
 
 import org.acme.bedallocation.domain.Bed;
+import org.acme.bedallocation.domain.BedDesignation;
 import org.acme.bedallocation.domain.Department;
 import org.acme.bedallocation.domain.DepartmentSpecialism;
 import org.acme.bedallocation.domain.Equipment;
@@ -42,8 +43,8 @@ import org.acme.bedallocation.domain.Stay;
 @ApplicationScoped
 public class DemoDataGenerator {
 
-    private final List<Equipment> EQUIPMENTS = List.of(TELEMETRY, TELEVISION, OXYGEN, NITROGEN);
-    private final List<LocalDate> DATES = List.of(
+    private static final List<Equipment> EQUIPMENTS = List.of(TELEMETRY, TELEVISION, OXYGEN, NITROGEN);
+    private static final List<LocalDate> DATES = List.of(
             LocalDate.now().with(firstInMonth(DayOfWeek.MONDAY)), // First Monday of the month
             LocalDate.now().with(firstInMonth(DayOfWeek.MONDAY)).plusDays(1),
             LocalDate.now().with(firstInMonth(DayOfWeek.MONDAY)).plusDays(2),
@@ -79,6 +80,8 @@ public class DemoDataGenerator {
         schedule.setPatients(generatePatients(519));
         // Stays
         schedule.setStays(generateStays(schedule.getPatients(), specialisms));
+        // Bed designations
+        schedule.setBedDesignations(generateBedDesignations(schedule.getStays()));
 
         return schedule;
     }
@@ -90,7 +93,7 @@ public class DemoDataGenerator {
 
         // Room gender limitation
         List<Pair<Float, GenderLimitation>> genderValues = List.of(
-                new Pair<>(0.08f, SAME_GENDER),
+                new Pair<>(0.08f, SAME_GENDER), // 8% for SAME_GENDER
                 new Pair<>(0.24f, MALE_ONLY),
                 new Pair<>(0.32f, FEMALE_ONLY),
                 new Pair<>(0.36f, ANY_GENDER));
@@ -103,7 +106,7 @@ public class DemoDataGenerator {
 
         // Room capacity
         List<Pair<Float, Integer>> capacityValues = List.of(
-                new Pair<>(0.2f, 1),
+                new Pair<>(0.2f, 1), // 20% for capacity 1
                 new Pair<>(0.32f, 2),
                 new Pair<>(0.48f, 4));
         capacityValues.forEach(c -> applyRandomValue((int) (size * c.key()), rooms, r -> r.getCapacity() == 0,
@@ -118,7 +121,7 @@ public class DemoDataGenerator {
             specialisms.forEach(room::addSpecialism);
         }
         List<Pair<Float, Integer>> priorityValues = List.of(
-                new Pair<>(0.72f, 1),
+                new Pair<>(0.72f, 1), // 72% for priority 1
                 new Pair<>(0.24f, 2),
                 new Pair<>(0.06f, 4));
         List<RoomSpecialism> roomSpecialisms = rooms.stream()
@@ -143,7 +146,6 @@ public class DemoDataGenerator {
                     .getAsInt() + 1;
             List<Equipment> roomEquipments = new LinkedList<>(EQUIPMENTS);
             Collections.shuffle(roomEquipments, random);
-            // Three equipments per room
             room.setEquipments(roomEquipments.subList(0, numEquipments));
         };
         // Only 76% of rooms have equipment
@@ -178,7 +180,7 @@ public class DemoDataGenerator {
 
         // Age group
         List<Pair<Float, Integer[]>> ageValues = List.of(
-                new Pair<>(0.1f, new Integer[] { 0, 10 }),
+                new Pair<>(0.1f, new Integer[] { 0, 10 }), // 10% for age group [0, 10]
                 new Pair<>(0.09f, new Integer[] { 11, 20 }),
                 new Pair<>(0.06f, new Integer[] { 21, 30 }),
                 new Pair<>(0.1f, new Integer[] { 31, 40 }),
@@ -200,7 +202,7 @@ public class DemoDataGenerator {
 
         // Preferred maximum capacity
         List<Pair<Float, Integer>> capacityValues = List.of(
-                new Pair<>(0.34f, 1),
+                new Pair<>(0.34f, 1), // 34% for capacity 1
                 new Pair<>(0.68f, 2),
                 new Pair<>(1f, 4));
         for (Patient patient : patients) {
@@ -213,8 +215,9 @@ public class DemoDataGenerator {
         }
 
         // Required equipments - 12% no equipments; 47% one equipment; 41% two equipments
+        // one required equipment
         List<Pair<Float, Equipment>> oneEquipmentValues = List.of(
-                new Pair<>(0.22f, NITROGEN),
+                new Pair<>(0.22f, NITROGEN), // 22% for nitrogen
                 new Pair<>(0.47f, TELEVISION),
                 new Pair<>(0.72f, OXYGEN),
                 new Pair<>(1f, TELEMETRY));
@@ -228,8 +231,9 @@ public class DemoDataGenerator {
         };
         applyRandomValue((int) (size * 0.47), patients, oneEquipmentValues, p -> p.getRequiredEquipments().isEmpty(),
                 oneEquipmentConsumer);
+        // Two required equipments
         List<Pair<Float, Equipment>> twoEquipmentValues = List.of(
-                new Pair<>(0.13f, NITROGEN),
+                new Pair<>(0.13f, NITROGEN), // 13% for nitrogen
                 new Pair<>(0.29f, TELEVISION),
                 new Pair<>(0.49f, OXYGEN),
                 new Pair<>(1f, TELEMETRY));
@@ -241,8 +245,9 @@ public class DemoDataGenerator {
         applyRandomValue((int) (size * 0.41), patients, p -> p.getRequiredEquipments().isEmpty(), twoEquipmentsConsumer);
 
         // Preferred equipments - 29% one equipment; 53% two equipments; 16% three equipments; 2% four equipments
+        // one preferred equipment
         List<Pair<Float, Equipment>> onePreferredEquipmentValues = List.of(
-                new Pair<>(0.34f, NITROGEN),
+                new Pair<>(0.34f, NITROGEN), // 34% for nitrogen
                 new Pair<>(0.63f, TELEVISION),
                 new Pair<>(1f, OXYGEN));
         BiConsumer<Patient, List<Pair<Float, Equipment>>> onePreferredEquipmentConsumer = (patient, values) -> {
@@ -255,8 +260,9 @@ public class DemoDataGenerator {
         };
         applyRandomValue((int) (size * 0.29), patients, onePreferredEquipmentValues, p -> p.getPreferredEquipments().isEmpty(),
                 onePreferredEquipmentConsumer);
+        // two preferred equipments
         List<Pair<Float, Equipment>> twoPreferredEquipmentValues = List.of(
-                new Pair<>(0.32f, NITROGEN),
+                new Pair<>(0.32f, NITROGEN), // 32% for nitrogen
                 new Pair<>(0.62f, TELEVISION),
                 new Pair<>(0.90f, OXYGEN),
                 new Pair<>(1f, TELEMETRY));
@@ -267,8 +273,9 @@ public class DemoDataGenerator {
         };
         applyRandomValue((int) (size * 0.53), patients, p -> p.getPreferredEquipments().isEmpty(),
                 twoPreferredEquipmentsConsumer);
+        // three preferred equipments
         List<Pair<Float, Equipment>> threePreferredEquipmentValues = List.of(
-                new Pair<>(0.26f, NITROGEN),
+                new Pair<>(0.26f, NITROGEN), // 26% for nitrogen
                 new Pair<>(0.50f, TELEVISION),
                 new Pair<>(0.77f, OXYGEN),
                 new Pair<>(1f, TELEMETRY));
@@ -279,8 +286,9 @@ public class DemoDataGenerator {
         };
         applyRandomValue((int) (size * 0.16), patients, p -> p.getPreferredEquipments().isEmpty(),
                 threePreferredEquipmentsConsumer);
+        // four preferred equipments
         List<Pair<Float, Equipment>> fourPreferredEquipmentValues = List.of(
-                new Pair<>(0.25f, NITROGEN),
+                new Pair<>(0.25f, NITROGEN), // 25% for nitrogen
                 new Pair<>(0.50f, TELEVISION),
                 new Pair<>(0.75f, OXYGEN),
                 new Pair<>(1f, TELEMETRY));
@@ -318,8 +326,34 @@ public class DemoDataGenerator {
                 .forEach(s -> s.setSpecialism(specialisms.get(0)));
 
         // Start date - 18% Mon/Fri and 5% Sat/Sun
-
+        // Stay period
+        List<Pair<Float, Integer>> periodCount = List.of(
+                new Pair<>(0.16f, 0), // 16% for 0 days
+                new Pair<>(0.17f, 1), // 17% one day, etc
+                new Pair<>(0.06f, 2),
+                new Pair<>(0.12f, 3),
+                new Pair<>(0.21f, 4),
+                new Pair<>(0.18f, 5),
+                new Pair<>(0.02f, 6),
+                new Pair<>(0.04f, 7));
+        BiConsumer<Stay, Integer> dateConsumer = (stay, count) -> {
+            int start = random.nextInt(DATES.size() - count);
+            stay.setArrivalDate(DATES.get(start));
+            stay.setDepartureDate(DATES.get(start + count - 1));
+        };
+        periodCount.forEach(p -> applyRandomValue((int) (p.key() * stays.size()), stays, p.value(),
+                s -> s.getArrivalDate() == null, dateConsumer));
+        stays.stream()
+                .filter(s -> s.getArrivalDate() == null)
+                .toList()
+                .forEach(s -> dateConsumer.accept(s, 0));
         return stays;
+    }
+
+    private List<BedDesignation> generateBedDesignations(List<Stay> stays) {
+        return IntStream.range(0, stays.size())
+                .mapToObj(i -> new BedDesignation("designation%d".formatted(i), stays.get(i)))
+                .toList();
     }
 
     private <T> void applyRandomValue(int count, List<T> values, Predicate<T> filter, Consumer<T> consumer) {
@@ -333,14 +367,14 @@ public class DemoDataGenerator {
         }
     }
 
-    private <T, L> void applyRandomValue(int count, List<T> values, List<L> secondValues, Predicate<T> filter,
-            BiConsumer<T, List<L>> consumer) {
+    private <T, L> void applyRandomValue(int count, List<T> values, L secondParam, Predicate<T> filter,
+            BiConsumer<T, L> consumer) {
         int size = (int) values.stream().filter(filter).count();
         for (int i = 0; i < count; i++) {
             values.stream()
                     .filter(filter)
                     .skip(random.nextInt(size)).findFirst()
-                    .ifPresent(v -> consumer.accept(v, secondValues));
+                    .ifPresent(v -> consumer.accept(v, secondParam));
             size--;
         }
     }
