@@ -12,7 +12,6 @@ public class Bed {
 
     @PlanningId
     private String id;
-
     private Room room;
     private int indexInRoom;
 

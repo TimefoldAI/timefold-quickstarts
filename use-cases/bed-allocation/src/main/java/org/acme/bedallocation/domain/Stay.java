@@ -4,11 +4,11 @@ import static java.time.temporal.ChronoUnit.DAYS;
 
 import java.time.LocalDate;
 
+import ai.timefold.solver.core.api.domain.lookup.PlanningId;
+
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
-import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 
 @JsonIdentityInfo(scope = Stay.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Stay {
@@ -19,7 +19,7 @@ public class Stay {
     private Patient patient;
     private LocalDate arrivalDate;
     private LocalDate departureDate;
-    private Specialism specialism;
+    private String specialism;
 
     public Stay() {
     }
@@ -29,7 +29,7 @@ public class Stay {
         this.patient = patient;
     }
 
-    public Stay(String id, Patient patient, LocalDate arrivalDate, LocalDate departureDate, Specialism specialism) {
+    public Stay(String id, Patient patient, LocalDate arrivalDate, LocalDate departureDate, String specialism) {
         this.id = id;
         this.patient = patient;
         this.arrivalDate = arrivalDate;
@@ -85,11 +85,11 @@ public class Stay {
         this.departureDate = departureDate;
     }
 
-    public Specialism getSpecialism() {
+    public String getSpecialism() {
         return specialism;
     }
 
-    public void setSpecialism(Specialism specialism) {
+    public void setSpecialism(String specialism) {
         this.specialism = specialism;
     }
 

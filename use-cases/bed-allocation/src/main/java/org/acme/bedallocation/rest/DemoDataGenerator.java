@@ -1,10 +1,6 @@
 package org.acme.bedallocation.rest;
 
 import static java.time.temporal.TemporalAdjusters.firstInMonth;
-import static org.acme.bedallocation.domain.Equipment.NITROGEN;
-import static org.acme.bedallocation.domain.Equipment.OXYGEN;
-import static org.acme.bedallocation.domain.Equipment.TELEMETRY;
-import static org.acme.bedallocation.domain.Equipment.TELEVISION;
 import static org.acme.bedallocation.domain.Gender.FEMALE;
 import static org.acme.bedallocation.domain.Gender.MALE;
 import static org.acme.bedallocation.domain.GenderLimitation.ANY_GENDER;
@@ -30,20 +26,21 @@ import ai.timefold.solver.core.impl.util.Pair;
 import org.acme.bedallocation.domain.Bed;
 import org.acme.bedallocation.domain.BedDesignation;
 import org.acme.bedallocation.domain.Department;
-import org.acme.bedallocation.domain.DepartmentSpecialism;
-import org.acme.bedallocation.domain.Equipment;
 import org.acme.bedallocation.domain.GenderLimitation;
 import org.acme.bedallocation.domain.Patient;
 import org.acme.bedallocation.domain.Room;
-import org.acme.bedallocation.domain.RoomSpecialism;
 import org.acme.bedallocation.domain.Schedule;
-import org.acme.bedallocation.domain.Specialism;
 import org.acme.bedallocation.domain.Stay;
 
 @ApplicationScoped
 public class DemoDataGenerator {
 
-    private static final List<Equipment> EQUIPMENTS = List.of(TELEMETRY, TELEVISION, OXYGEN, NITROGEN);
+    private static final List<String> SPECIALISMS = List.of("Specialism1", "Specialism2", "Specialism3");
+    private static final String TELEMETRY = "telemetry";
+    private static final String TELEVISION = "television";
+    private static final String OXYGEN = "oxygen";
+    private static final String NITROGEN = "nitrogen";
+    private static final List<String> EQUIPMENTS = List.of(TELEMETRY, TELEVISION, OXYGEN, NITROGEN);
     private static final List<LocalDate> DATES = List.of(
             LocalDate.now().with(firstInMonth(DayOfWeek.MONDAY)), // First Monday of the month
             LocalDate.now().with(firstInMonth(DayOfWeek.MONDAY)).plusDays(1),
@@ -52,7 +49,6 @@ public class DemoDataGenerator {
             LocalDate.now().with(firstInMonth(DayOfWeek.MONDAY)).plusDays(4),
             LocalDate.now().with(firstInMonth(DayOfWeek.MONDAY)).plusDays(5),
             LocalDate.now().with(firstInMonth(DayOfWeek.MONDAY)).plusDays(6));
-
     private final Random random = new Random(0);
 
     /**
@@ -61,37 +57,27 @@ public class DemoDataGenerator {
      */
     public Schedule generateDemoData() {
         Schedule schedule = new Schedule();
-        // Specialism
-        List<Specialism> specialisms = List.of(
-                new Specialism("1", "Specialism1"),
-                new Specialism("2", "Specialism2"),
-                new Specialism("3", "Specialism3"));
-        schedule.setSpecialisms(specialisms);
         // Department
         List<Department> departments = List.of(new Department("1", "Department"));
         schedule.setDepartments(departments);
-        // DepartmentSpecialism
-        List<DepartmentSpecialism> departmentSpecialisms = List.of(
-                new DepartmentSpecialism("1", departments.get(0), specialisms.get(0), 1),
-                new DepartmentSpecialism("2", departments.get(0), specialisms.get(1), 2),
-                new DepartmentSpecialism("3", departments.get(0), specialisms.get(2), 2));
-        schedule.setDepartmentSpecialisms(departmentSpecialisms);
+        schedule.getDepartments().get(0).getSpecialismsToPriority().put(SPECIALISMS.get(0), 1);
+        schedule.getDepartments().get(0).getSpecialismsToPriority().put(SPECIALISMS.get(1), 2);
+        schedule.getDepartments().get(0).getSpecialismsToPriority().put(SPECIALISMS.get(2), 2);
         // Rooms
-        schedule.setRooms(generateRooms(25, departments, specialisms));
-        schedule.setRoomSpecialisms(schedule.getRooms().stream().flatMap(r -> r.getRoomSpecialisms().stream()).toList());
+        schedule.getDepartments().get(0).setRooms(generateRooms(25, departments));
         // Beds
-        schedule.setBeds(generateBeds(schedule.getRooms()));
+        generateBeds(schedule.getRooms());
         // Patients
-        schedule.setPatients(generatePatients(40));
+        List<Patient> patients = generatePatients(40);
         // Stays
-        schedule.setStays(generateStays(schedule.getPatients(), specialisms));
+        List<Stay> statys = generateStays(patients, SPECIALISMS);
         // Bed designations
-        schedule.setBedDesignations(generateBedDesignations(schedule.getStays()));
+        schedule.setBedDesignations(generateBedDesignations(statys));
 
         return schedule;
     }
 
-    private List<Room> generateRooms(int size, List<Department> departments, List<Specialism> specialisms) {
+    private List<Room> generateRooms(int size, List<Department> departments) {
         List<Room> rooms = IntStream.range(0, size)
                 .mapToObj(i -> new Room(String.valueOf(i), "%s%d".formatted("Room", i), departments.get(0)))
                 .toList();
@@ -122,23 +108,19 @@ public class DemoDataGenerator {
                 .forEach(r -> r.setCapacity(1));
 
         // Room specialism priority
+        List<Pair<Double, Integer>> priorityValues = List.of(
+                new Pair<>(0.72, 1), // 72% for priority 1
+                new Pair<>(0.96, 2),
+                new Pair<>(1d, 4));
         for (Room room : rooms) {
-            specialisms.forEach(room::addSpecialism);
+            SPECIALISMS.forEach(s -> {
+                double index = random.nextDouble();
+                priorityValues.stream()
+                        .filter(p -> index <= p.key())
+                        .findFirst()
+                        .ifPresent(p -> room.addSpecialism(s, p.value()));
+            });
         }
-        List<Pair<Float, Integer>> priorityValues = List.of(
-                new Pair<>(0.72f, 1), // 72% for priority 1
-                new Pair<>(0.24f, 2),
-                new Pair<>(0.06f, 4));
-        List<RoomSpecialism> roomSpecialisms = rooms.stream()
-                .flatMap(r -> r.getRoomSpecialisms().stream())
-                .toList();
-        priorityValues.forEach(
-                p -> applyRandomValue((int) (p.key() * roomSpecialisms.size()), roomSpecialisms, r -> r.getPriority() == 0,
-                        r -> r.setPriority(p.value())));
-        roomSpecialisms.stream()
-                .filter(r -> r.getPriority() == 0)
-                .toList()
-                .forEach(r -> r.setPriority(1));
 
         // Room equipments
         // 11% - 1 equipment; 16% 2 equipments; 42% 3 equipments; 31% 4 equipments
@@ -149,7 +131,7 @@ public class DemoDataGenerator {
                     .filter(i -> count <= countEquipments.get(i))
                     .findFirst()
                     .getAsInt() + 1;
-            List<Equipment> roomEquipments = new LinkedList<>(EQUIPMENTS);
+            List<String> roomEquipments = new LinkedList<>(EQUIPMENTS);
             Collections.shuffle(roomEquipments, random);
             room.setEquipments(roomEquipments.subList(0, numEquipments));
         };
@@ -159,7 +141,7 @@ public class DemoDataGenerator {
         return rooms;
     }
 
-    private List<Bed> generateBeds(List<Room> rooms) {
+    private void generateBeds(List<Room> rooms) {
         // 20% - 1 bed; 32% 2 beds; 48% 4 beds
         List<Double> countBeds = List.of(0.2, 0.52, 1d);
         for (Room room : rooms) {
@@ -171,7 +153,6 @@ public class DemoDataGenerator {
             IntStream.range(0, numBeds)
                     .forEach(i -> room.addBed(new Bed("%s-bed%d".formatted(room.getId(), i), room, i)));
         }
-        return rooms.stream().flatMap(r -> r.getBeds().stream()).toList();
     }
 
     private List<Patient> generatePatients(int size) {
@@ -220,12 +201,12 @@ public class DemoDataGenerator {
 
         // Required equipments - 12% no equipments; 47% one equipment; 41% two equipments
         // one required equipment
-        List<Pair<Float, Equipment>> oneEquipmentValues = List.of(
+        List<Pair<Float, String>> oneEquipmentValues = List.of(
                 new Pair<>(0.22f, NITROGEN), // 22% for nitrogen
                 new Pair<>(0.47f, TELEVISION),
                 new Pair<>(0.72f, OXYGEN),
                 new Pair<>(1f, TELEMETRY));
-        BiConsumer<Patient, List<Pair<Float, Equipment>>> oneEquipmentConsumer = (patient, values) -> {
+        BiConsumer<Patient, List<Pair<Float, String>>> oneEquipmentConsumer = (patient, values) -> {
             double count = random.nextDouble();
             IntStream.range(0, values.size())
                     .filter(i -> count <= values.get(i).key())
@@ -236,7 +217,7 @@ public class DemoDataGenerator {
         applyRandomValue((int) (size * 0.47), patients, oneEquipmentValues, p -> p.getRequiredEquipments().isEmpty(),
                 oneEquipmentConsumer);
         // Two required equipments
-        List<Pair<Float, Equipment>> twoEquipmentValues = List.of(
+        List<Pair<Float, String>> twoEquipmentValues = List.of(
                 new Pair<>(0.13f, NITROGEN), // 13% for nitrogen
                 new Pair<>(0.29f, TELEVISION),
                 new Pair<>(0.49f, OXYGEN),
@@ -250,11 +231,11 @@ public class DemoDataGenerator {
 
         // Preferred equipments - 29% one equipment; 53% two equipments; 16% three equipments; 2% four equipments
         // one preferred equipment
-        List<Pair<Float, Equipment>> onePreferredEquipmentValues = List.of(
+        List<Pair<Float, String>> onePreferredEquipmentValues = List.of(
                 new Pair<>(0.34f, NITROGEN), // 34% for nitrogen
                 new Pair<>(0.63f, TELEVISION),
                 new Pair<>(1f, OXYGEN));
-        BiConsumer<Patient, List<Pair<Float, Equipment>>> onePreferredEquipmentConsumer = (patient, values) -> {
+        BiConsumer<Patient, List<Pair<Float, String>>> onePreferredEquipmentConsumer = (patient, values) -> {
             double count = random.nextDouble();
             IntStream.range(0, values.size())
                     .filter(i -> count <= values.get(i).key())
@@ -265,7 +246,7 @@ public class DemoDataGenerator {
         applyRandomValue((int) (size * 0.29), patients, onePreferredEquipmentValues, p -> p.getPreferredEquipments().isEmpty(),
                 onePreferredEquipmentConsumer);
         // two preferred equipments
-        List<Pair<Float, Equipment>> twoPreferredEquipmentValues = List.of(
+        List<Pair<Float, String>> twoPreferredEquipmentValues = List.of(
                 new Pair<>(0.32f, NITROGEN), // 32% for nitrogen
                 new Pair<>(0.62f, TELEVISION),
                 new Pair<>(0.90f, OXYGEN),
@@ -278,7 +259,7 @@ public class DemoDataGenerator {
         applyRandomValue((int) (size * 0.53), patients, p -> p.getPreferredEquipments().isEmpty(),
                 twoPreferredEquipmentsConsumer);
         // three preferred equipments
-        List<Pair<Float, Equipment>> threePreferredEquipmentValues = List.of(
+        List<Pair<Float, String>> threePreferredEquipmentValues = List.of(
                 new Pair<>(0.26f, NITROGEN), // 26% for nitrogen
                 new Pair<>(0.50f, TELEVISION),
                 new Pair<>(0.77f, OXYGEN),
@@ -308,7 +289,7 @@ public class DemoDataGenerator {
         return patients;
     }
 
-    private List<Stay> generateStays(List<Patient> patients, List<Specialism> specialisms) {
+    private List<Stay> generateStays(List<Patient> patients, List<String> specialisms) {
         List<Stay> stays = IntStream.range(0, patients.size())
                 .mapToObj(i -> new Stay("stay-%s".formatted(patients.get(i).getId()), patients.get(i)))
                 .toList();

@@ -1,7 +1,9 @@
 package org.acme.bedallocation.domain;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -13,19 +15,20 @@ public class Department {
 
     @PlanningId
     private String id;
-
+    private Map<String, Integer> specialismsToPriority;
     private String name;
     private Integer minimumAge = null;
     private Integer maximumAge = null;
-
     private List<Room> rooms;
 
     public Department() {
+        this.specialismsToPriority = new HashMap<>();
     }
 
     public Department(String id, String name) {
         this.id = id;
         this.name = name;
+        this.specialismsToPriority = new HashMap<>();
     }
 
     public void addRoom(Room room) {
@@ -60,6 +63,14 @@ public class Department {
     // ************************************************************************
     // Getters and setters
     // ************************************************************************
+
+    public Map<String, Integer> getSpecialismsToPriority() {
+        return specialismsToPriority;
+    }
+
+    public void setSpecialismsToPriority(Map<String, Integer> specialismsToPriority) {
+        this.specialismsToPriority = specialismsToPriority;
+    }
 
     public String getId() {
         return id;

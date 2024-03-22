@@ -8,14 +8,14 @@ public class DepartmentSpecialism {
     private String id;
 
     private Department department;
-    private Specialism specialism;
+    private String specialism;
 
     private int priority; // AKA choice
 
     public DepartmentSpecialism() {
     }
 
-    public DepartmentSpecialism(String id, Department department, Specialism specialism, int priority) {
+    public DepartmentSpecialism(String id, Department department, String specialism, int priority) {
         this.id = id;
         this.department = department;
         this.specialism = specialism;
@@ -43,11 +43,11 @@ public class DepartmentSpecialism {
         this.department = department;
     }
 
-    public Specialism getSpecialism() {
+    public String getSpecialism() {
         return specialism;
     }
 
-    public void setSpecialism(Specialism specialism) {
+    public void setSpecialism(String specialism) {
         this.specialism = specialism;
     }
 

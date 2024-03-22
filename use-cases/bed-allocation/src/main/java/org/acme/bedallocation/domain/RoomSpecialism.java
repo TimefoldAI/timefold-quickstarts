@@ -1,9 +1,9 @@
 package org.acme.bedallocation.domain;
 
+import ai.timefold.solver.core.api.domain.lookup.PlanningId;
+
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
-import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 
 @JsonIdentityInfo(scope = RoomSpecialism.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class RoomSpecialism {
@@ -12,16 +12,17 @@ public class RoomSpecialism {
     private String id;
 
     private Room room;
-    private Specialism specialism;
+    private String specialism;
     private int priority; // AKA choice
 
     public RoomSpecialism() {
     }
 
-    public RoomSpecialism(String id, Room room, Specialism specialism) {
+    public RoomSpecialism(String id, Room room, String specialism, int priority) {
         this.id = id;
         this.room = room;
         this.specialism = specialism;
+        this.priority = priority;
     }
 
     @Override
@@ -45,11 +46,11 @@ public class RoomSpecialism {
         this.room = room;
     }
 
-    public Specialism getSpecialism() {
+    public String getSpecialism() {
         return specialism;
     }
 
-    public void setSpecialism(Specialism specialism) {
+    public void setSpecialism(String specialism) {
         this.specialism = specialism;
     }
 

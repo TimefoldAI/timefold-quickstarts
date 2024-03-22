@@ -1,8 +1,5 @@
 package org.acme.bedallocation.solver;
 
-import static org.acme.bedallocation.domain.Equipment.TELEMETRY;
-import static org.acme.bedallocation.domain.Equipment.TELEVISION;
-
 import java.time.LocalDate;
 import java.util.List;
 
@@ -20,7 +17,6 @@ import org.acme.bedallocation.domain.Patient;
 import org.acme.bedallocation.domain.Room;
 import org.acme.bedallocation.domain.RoomSpecialism;
 import org.acme.bedallocation.domain.Schedule;
-import org.acme.bedallocation.domain.Specialism;
 import org.acme.bedallocation.domain.Stay;
 import org.junit.jupiter.api.Test;
 
@@ -32,7 +28,7 @@ class BedAllocationConstraintProviderTest {
     private static final LocalDate ZERO_NIGHT = LocalDate.of(2021, 2, 1);
     private static final LocalDate FIVE_NIGHT = ZERO_NIGHT.plusDays(5);
 
-    private static final Specialism DEFAULT_SPECIALISM = new Specialism();
+    private static final String DEFAULT_SPECIALISM = "default";
 
     @Inject
     ConstraintVerifier<BedAllocationConstraintProvider, Schedule> constraintVerifier;
@@ -138,13 +134,13 @@ class BedAllocationConstraintProviderTest {
     @Test
     void requiredPatientEquipment() {
         Room room = new Room();
-        room.setEquipments(List.of(TELEMETRY));
+        room.setEquipments(List.of("TELEMETRY"));
 
         Bed bed = new Bed();
         bed.setRoom(room);
 
         Patient patient = new Patient();
-        patient.setRequiredEquipments(List.of(TELEVISION, TELEMETRY));
+        patient.setRequiredEquipments(List.of("TELEVISION", "TELEMETRY"));
         Stay admission = new Stay("0", patient, ZERO_NIGHT, FIVE_NIGHT, DEFAULT_SPECIALISM);
         BedDesignation designation = new BedDesignation("0", admission, bed);
 
@@ -224,13 +220,13 @@ class BedAllocationConstraintProviderTest {
     @Test
     void preferredPatientEquipment() {
         Room room = new Room();
-        room.setEquipments(List.of(TELEMETRY));
+        room.setEquipments(List.of("TELEMETRY"));
 
         Bed bed = new Bed();
         bed.setRoom(room);
 
         Patient patient = new Patient();
-        patient.setPreferredEquipments(List.of(TELEVISION, TELEMETRY));
+        patient.setPreferredEquipments(List.of("TELEVISION", "TELEMETRY"));
         Stay stay = new Stay("0", patient, ZERO_NIGHT, FIVE_NIGHT, DEFAULT_SPECIALISM);
         BedDesignation bedDesignation = new BedDesignation("0", stay, bed);
 
@@ -253,13 +249,13 @@ class BedAllocationConstraintProviderTest {
         bedInRoomInDep.setRoom(roomInDep);
 
         //Designation with 1st spec
-        Specialism spec1 = new Specialism();
+        String spec1 = "spec1";
 
         Stay staySpec1 = new Stay("0", patient, ZERO_NIGHT, FIVE_NIGHT, spec1);
         BedDesignation designationWithDepartmentSpecialism1 = new BedDesignation("0", staySpec1, bedInRoomInDep);
 
         //Designation with 2nd spec
-        Specialism spec2 = new Specialism();
+        String spec2 = "spec2";
 
         Stay staySpec2 = new Stay("1", patient, ZERO_NIGHT, FIVE_NIGHT, spec2);
         BedDesignation designationWithDepartmentSpecialism2 = new BedDesignation("1", staySpec2, bedInRoomInDep);
@@ -284,12 +280,12 @@ class BedAllocationConstraintProviderTest {
         bedInDep.setRoom(roomInDep);
 
         //Designation with 1st spec
-        Specialism spec1 = new Specialism();
+        String spec1 = "spec1";
         Stay stay = new Stay("0", patient, ZERO_NIGHT, FIVE_NIGHT, spec1);
         BedDesignation designationWithRoomSpecialism1 = new BedDesignation("0", stay, bedInDep);
 
         //Designation with 2nd spec
-        Specialism spec2 = new Specialism();
+        String spec2 = "spec2";
         Stay stay2 = new Stay("1", patient, ZERO_NIGHT, FIVE_NIGHT, spec2);
         BedDesignation designationWithRoomSpecialism2 = new BedDesignation("1", stay2, bedInDep);
 
@@ -312,12 +308,12 @@ class BedAllocationConstraintProviderTest {
 
         bedInDep.setRoom(roomInDep);
         //Designation with 1st spec
-        Specialism spec1 = new Specialism();
+        String spec1 = "spec1";
         Stay stay1 = new Stay("0", patient, ZERO_NIGHT, FIVE_NIGHT, spec1);
         BedDesignation designationWithRoomSpecialism1 = new BedDesignation("0", stay1, bedInDep);
 
         //Designation with 2nd spec
-        Specialism spec2 = new Specialism();
+        String spec2 = "spec2";
         Stay stay2 = new Stay("1", patient, ZERO_NIGHT, FIVE_NIGHT, spec2);
         BedDesignation designationWithRoomSpecialism2 = new BedDesignation("1", stay2, bedInDep);
 

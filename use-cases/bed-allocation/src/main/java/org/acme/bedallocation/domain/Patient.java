@@ -19,8 +19,8 @@ public class Patient {
     private int age;
     private Integer preferredMaximumRoomCapacity;
 
-    private List<Equipment> requiredEquipments;
-    private List<Equipment> preferredEquipments;
+    private List<String> requiredEquipments;
+    private List<String> preferredEquipments;
 
     public Patient() {
         this.requiredEquipments = new LinkedList<>();
@@ -45,13 +45,13 @@ public class Patient {
         this.preferredEquipments = new LinkedList<>();
     }
 
-    public void addRequiredEquipment(Equipment equipment) {
+    public void addRequiredEquipment(String equipment) {
         if (!requiredEquipments.contains(equipment)) {
             this.requiredEquipments.add(equipment);
         }
     }
 
-    public void addPreferredEquipment(Equipment equipment) {
+    public void addPreferredEquipment(String equipment) {
         if (!preferredEquipments.contains(equipment)) {
             this.preferredEquipments.add(equipment);
         }
@@ -102,19 +102,19 @@ public class Patient {
         this.preferredMaximumRoomCapacity = preferredMaximumRoomCapacity;
     }
 
-    public List<Equipment> getRequiredEquipments() {
+    public List<String> getRequiredEquipments() {
         return requiredEquipments;
     }
 
-    public void setRequiredEquipments(List<Equipment> requiredEquipments) {
+    public void setRequiredEquipments(List<String> requiredEquipments) {
         this.requiredEquipments = requiredEquipments;
     }
 
-    public List<Equipment> getPreferredEquipments() {
+    public List<String> getPreferredEquipments() {
         return preferredEquipments;
     }
 
-    public void setPreferredEquipments(List<Equipment> preferredEquipments) {
+    public void setPreferredEquipments(List<String> preferredEquipments) {
         this.preferredEquipments = preferredEquipments;
     }
 
