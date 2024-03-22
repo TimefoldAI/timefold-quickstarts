@@ -26,9 +26,11 @@ import ai.timefold.solver.core.impl.util.Pair;
 import org.acme.bedallocation.domain.Bed;
 import org.acme.bedallocation.domain.BedDesignation;
 import org.acme.bedallocation.domain.Department;
+import org.acme.bedallocation.domain.DepartmentSpecialism;
 import org.acme.bedallocation.domain.GenderLimitation;
 import org.acme.bedallocation.domain.Patient;
 import org.acme.bedallocation.domain.Room;
+import org.acme.bedallocation.domain.RoomSpecialism;
 import org.acme.bedallocation.domain.Schedule;
 import org.acme.bedallocation.domain.Stay;
 
@@ -57,22 +59,45 @@ public class DemoDataGenerator {
      */
     public Schedule generateDemoData() {
         Schedule schedule = new Schedule();
+        schedule.setSpecialisms(SPECIALISMS);
         // Department
         List<Department> departments = List.of(new Department("1", "Department"));
         schedule.setDepartments(departments);
         schedule.getDepartments().get(0).getSpecialismsToPriority().put(SPECIALISMS.get(0), 1);
         schedule.getDepartments().get(0).getSpecialismsToPriority().put(SPECIALISMS.get(1), 2);
         schedule.getDepartments().get(0).getSpecialismsToPriority().put(SPECIALISMS.get(2), 2);
+        schedule.setDepartmentSpecialisms(departments.stream()
+                .flatMap(d -> d.getSpecialismsToPriority().entrySet().stream()
+                        .map(e -> new DepartmentSpecialism("%s-%s".formatted(d.getId(), e.getKey()), d, e.getKey(),
+                                e.getValue()))
+                        .toList()
+                        .stream())
+                .toList());
         // Rooms
         schedule.getDepartments().get(0).setRooms(generateRooms(25, departments));
+        schedule.setRooms(departments.stream().flatMap(d -> d.getRooms().stream()).toList());
+        schedule.setRoomSpecialisms(departments.stream().flatMap(d -> d.getRooms().stream())
+                .flatMap(r -> r.getSpecialismsToPriority().entrySet().stream()
+                        .map(e -> new RoomSpecialism("%s-%s".formatted(r.getId(), e.getKey()), r, e.getKey(), e.getValue()))
+                        .toList()
+                        .stream())
+                .toList());
         // Beds
         generateBeds(schedule.getRooms());
+        schedule.setBeds(departments.stream()
+                .flatMap(d -> d.getRooms().stream())
+                .flatMap(r -> r.getBeds().stream())
+                .toList());
         // Patients
         List<Patient> patients = generatePatients(40);
         // Stays
-        List<Stay> statys = generateStays(patients, SPECIALISMS);
+        List<Stay> stays = generateStays(patients, SPECIALISMS);
         // Bed designations
-        schedule.setBedDesignations(generateBedDesignations(statys));
+        schedule.setBedDesignations(generateBedDesignations(stays));
+        schedule.setPatients(schedule.getBedDesignations().stream()
+                .map(BedDesignation::getPatient)
+                .toList());
+        schedule.setStays(schedule.getBedDesignations().stream().map(BedDesignation::getStay).toList());
 
         return schedule;
     }
