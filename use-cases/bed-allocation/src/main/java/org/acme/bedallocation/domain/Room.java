@@ -31,6 +31,14 @@ public class Room {
         this.beds = new LinkedList<>();
     }
 
+    public Room(String id) {
+        this.id = id;
+        this.name = id;
+        this.roomSpecialisms = new LinkedList<>();
+        this.equipments = new LinkedList<>();
+        this.beds = new LinkedList<>();
+    }
+
     public Room(String id, String name, Department department) {
         this.id = id;
         this.name = name;

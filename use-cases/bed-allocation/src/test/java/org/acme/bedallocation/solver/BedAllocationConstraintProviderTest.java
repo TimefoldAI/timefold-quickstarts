@@ -79,7 +79,7 @@ class BedAllocationConstraintProviderTest {
     void sameBedInSameNight() {
 
         Patient patient = new Patient();
-        Bed bed = new Bed();
+        Bed bed = new Bed("1");
 
         Stay stay = new Stay("0", patient, ZERO_NIGHT, FIVE_NIGHT, DEFAULT_SPECIALISM);
         BedDesignation designation = new BedDesignation("1", stay, bed);
@@ -156,7 +156,7 @@ class BedAllocationConstraintProviderTest {
     @Test
     void differentGenderInSameGenderRoomInSameNight() {
 
-        Room room = new Room();
+        Room room = new Room("1");
         room.setGenderLimitation(GenderLimitation.SAME_GENDER);
 
         //Assign female
@@ -279,7 +279,7 @@ class BedAllocationConstraintProviderTest {
 
         Patient patient = new Patient();
 
-        Room roomInDep = new Room();
+        Room roomInDep = new Room("1");
         Bed bedInDep = new Bed();
         bedInDep.setRoom(roomInDep);
 
@@ -307,7 +307,7 @@ class BedAllocationConstraintProviderTest {
 
         Patient patient = new Patient();
 
-        Room roomInDep = new Room();
+        Room roomInDep = new Room("1");
         Bed bedInDep = new Bed();
 
         bedInDep.setRoom(roomInDep);

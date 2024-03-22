@@ -55,6 +55,10 @@ public class DemoDataGenerator {
 
     private final Random random = new Random(0);
 
+    /**
+     * The dataset was generated based on the probability distributions found in the test dataset file overconstrained01.txt.
+     * However, the number of patients was reduced to 40 to simplify the quickstart process.
+     */
     public Schedule generateDemoData() {
         Schedule schedule = new Schedule();
         // Specialism
@@ -74,10 +78,11 @@ public class DemoDataGenerator {
         schedule.setDepartmentSpecialisms(departmentSpecialisms);
         // Rooms
         schedule.setRooms(generateRooms(25, departments, specialisms));
+        schedule.setRoomSpecialisms(schedule.getRooms().stream().flatMap(r -> r.getRoomSpecialisms().stream()).toList());
         // Beds
         schedule.setBeds(generateBeds(schedule.getRooms()));
         // Patients
-        schedule.setPatients(generatePatients(519));
+        schedule.setPatients(generatePatients(40));
         // Stays
         schedule.setStays(generateStays(schedule.getPatients(), specialisms));
         // Bed designations
@@ -127,8 +132,8 @@ public class DemoDataGenerator {
         List<RoomSpecialism> roomSpecialisms = rooms.stream()
                 .flatMap(r -> r.getRoomSpecialisms().stream())
                 .toList();
-        capacityValues.forEach(
-                p -> applyRandomValue((int) (priorityValues.size() * p.key()), roomSpecialisms, r -> r.getPriority() == 0,
+        priorityValues.forEach(
+                p -> applyRandomValue((int) (p.key() * roomSpecialisms.size()), roomSpecialisms, r -> r.getPriority() == 0,
                         r -> r.setPriority(p.value())));
         roomSpecialisms.stream()
                 .filter(r -> r.getPriority() == 0)
@@ -182,16 +187,15 @@ public class DemoDataGenerator {
         List<Pair<Float, Integer[]>> ageValues = List.of(
                 new Pair<>(0.1f, new Integer[] { 0, 10 }), // 10% for age group [0, 10]
                 new Pair<>(0.09f, new Integer[] { 11, 20 }),
-                new Pair<>(0.06f, new Integer[] { 21, 30 }),
+                new Pair<>(0.07f, new Integer[] { 21, 30 }),
                 new Pair<>(0.1f, new Integer[] { 31, 40 }),
                 new Pair<>(0.09f, new Integer[] { 41, 50 }),
-                new Pair<>(0.09f, new Integer[] { 51, 60 }),
                 new Pair<>(0.08f, new Integer[] { 51, 60 }),
-                new Pair<>(0.07f, new Integer[] { 61, 70 }),
-                new Pair<>(0.11f, new Integer[] { 71, 80 }),
+                new Pair<>(0.08f, new Integer[] { 61, 70 }),
+                new Pair<>(0.13f, new Integer[] { 71, 80 }),
                 new Pair<>(0.08f, new Integer[] { 81, 90 }),
                 new Pair<>(0.09f, new Integer[] { 91, 100 }),
-                new Pair<>(0.06f, new Integer[] { 101, 109 }));
+                new Pair<>(0.09f, new Integer[] { 101, 109 }));
 
         ageValues.forEach(ag -> applyRandomValue((int) (ag.key() * size), patients, a -> a.getAge() == -1,
                 p -> p.setAge(random.nextInt(ag.value()[0], ag.value()[1] + 1))));
@@ -256,7 +260,7 @@ public class DemoDataGenerator {
                     .filter(i -> count <= values.get(i).key())
                     .mapToObj(i -> values.get(i).value())
                     .findFirst()
-                    .ifPresent(patient::addRequiredEquipment);
+                    .ifPresent(patient::addPreferredEquipment);
         };
         applyRandomValue((int) (size * 0.29), patients, onePreferredEquipmentValues, p -> p.getPreferredEquipments().isEmpty(),
                 onePreferredEquipmentConsumer);
@@ -267,8 +271,8 @@ public class DemoDataGenerator {
                 new Pair<>(0.90f, OXYGEN),
                 new Pair<>(1f, TELEMETRY));
         Consumer<Patient> twoPreferredEquipmentsConsumer = patient -> {
-            while (patient.getRequiredEquipments().size() < 2) {
-                oneEquipmentConsumer.accept(patient, twoPreferredEquipmentValues);
+            while (patient.getPreferredEquipments().size() < 2) {
+                onePreferredEquipmentConsumer.accept(patient, twoPreferredEquipmentValues);
             }
         };
         applyRandomValue((int) (size * 0.53), patients, p -> p.getPreferredEquipments().isEmpty(),
@@ -280,30 +284,26 @@ public class DemoDataGenerator {
                 new Pair<>(0.77f, OXYGEN),
                 new Pair<>(1f, TELEMETRY));
         Consumer<Patient> threePreferredEquipmentsConsumer = patient -> {
-            while (patient.getRequiredEquipments().size() < 3) {
-                oneEquipmentConsumer.accept(patient, threePreferredEquipmentValues);
+            while (patient.getPreferredEquipments().size() < 3) {
+                onePreferredEquipmentConsumer.accept(patient, threePreferredEquipmentValues);
             }
         };
         applyRandomValue((int) (size * 0.16), patients, p -> p.getPreferredEquipments().isEmpty(),
                 threePreferredEquipmentsConsumer);
         // four preferred equipments
-        List<Pair<Float, Equipment>> fourPreferredEquipmentValues = List.of(
-                new Pair<>(0.25f, NITROGEN), // 25% for nitrogen
-                new Pair<>(0.50f, TELEVISION),
-                new Pair<>(0.75f, OXYGEN),
-                new Pair<>(1f, TELEMETRY));
         Consumer<Patient> fourPreferredEquipmentsConsumer = patient -> {
-            while (patient.getRequiredEquipments().size() < 4) {
-                oneEquipmentConsumer.accept(patient, fourPreferredEquipmentValues);
-            }
+            patient.addPreferredEquipment(NITROGEN);
+            patient.addPreferredEquipment(TELEVISION);
+            patient.addPreferredEquipment(OXYGEN);
+            patient.addPreferredEquipment(TELEMETRY);
         };
-        applyRandomValue((int) (size * 0.16), patients, p -> p.getPreferredEquipments().isEmpty(),
+        applyRandomValue((int) (size * 0.02), patients, p -> p.getPreferredEquipments().isEmpty(),
                 fourPreferredEquipmentsConsumer);
 
         patients.stream()
                 .filter(p -> p.getPreferredEquipments().isEmpty())
                 .toList()
-                .forEach(p -> oneEquipmentConsumer.accept(p, onePreferredEquipmentValues));
+                .forEach(p -> onePreferredEquipmentConsumer.accept(p, onePreferredEquipmentValues));
 
         return patients;
     }
@@ -329,17 +329,16 @@ public class DemoDataGenerator {
         // Stay period
         List<Pair<Float, Integer>> periodCount = List.of(
                 new Pair<>(0.16f, 0), // 16% for 0 days
-                new Pair<>(0.17f, 1), // 17% one day, etc
+                new Pair<>(0.18f, 1), // 18% one day, etc
                 new Pair<>(0.06f, 2),
-                new Pair<>(0.12f, 3),
-                new Pair<>(0.21f, 4),
-                new Pair<>(0.18f, 5),
-                new Pair<>(0.02f, 6),
-                new Pair<>(0.04f, 7));
+                new Pair<>(0.13f, 3),
+                new Pair<>(0.22f, 4),
+                new Pair<>(0.19f, 5),
+                new Pair<>(0.06f, 6));
         BiConsumer<Stay, Integer> dateConsumer = (stay, count) -> {
             int start = random.nextInt(DATES.size() - count);
             stay.setArrivalDate(DATES.get(start));
-            stay.setDepartureDate(DATES.get(start + count - 1));
+            stay.setDepartureDate(DATES.get(start + count));
         };
         periodCount.forEach(p -> applyRandomValue((int) (p.key() * stays.size()), stays, p.value(),
                 s -> s.getArrivalDate() == null, dateConsumer));
@@ -361,9 +360,12 @@ public class DemoDataGenerator {
         for (int i = 0; i < count; i++) {
             values.stream()
                     .filter(filter)
-                    .skip(random.nextInt(size)).findFirst()
+                    .skip(size > 0 ? random.nextInt(size) : 0).findFirst()
                     .ifPresent(consumer::accept);
             size--;
+            if (size < 0) {
+                break;
+            }
         }
     }
 
@@ -373,9 +375,12 @@ public class DemoDataGenerator {
         for (int i = 0; i < count; i++) {
             values.stream()
                     .filter(filter)
-                    .skip(random.nextInt(size)).findFirst()
+                    .skip(size > 0 ? random.nextInt(size) : 0).findFirst()
                     .ifPresent(v -> consumer.accept(v, secondParam));
             size--;
+            if (size < 0) {
+                break;
+            }
         }
     }
 }

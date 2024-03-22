@@ -1,10 +1,32 @@
 package org.acme.bedallocation.rest;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import jakarta.inject.Inject;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+
+import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
+import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
+import ai.timefold.solver.core.api.solver.ScoreAnalysisFetchPolicy;
+import ai.timefold.solver.core.api.solver.SolutionManager;
+import ai.timefold.solver.core.api.solver.SolverManager;
+import ai.timefold.solver.core.api.solver.SolverStatus;
 
 import org.acme.bedallocation.domain.Schedule;
 import org.acme.bedallocation.rest.exception.ErrorInfo;
@@ -20,38 +42,27 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
-import ai.timefold.solver.core.api.solver.SolutionManager;
-import ai.timefold.solver.core.api.solver.SolverManager;
-import ai.timefold.solver.core.api.solver.SolverStatus;
-import jakarta.inject.Inject;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-
-@Tag(name = "Bed Schedules", description = "Bed Schedules service for assigning stays to beds.")
+@Tag(name = "Bed Scheduling",
+        description = "Bed Scheduling service assigning beds for patient stays.")
 @Path("schedules")
-public class BedScheduleResource {
+public class BedSchedulingResource {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BedScheduleResource.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BedSchedulingResource.class);
+    private static final int MAX_JOBS_CACHE_SIZE = 2;
 
-    public static final String SINGLETON_SCHEDULE_ID = "1";
-
-    SolverManager<Schedule, String> solverManager;
-    SolutionManager<Schedule, HardSoftScore> solutionManager;
-
-    // TODO: Without any "time to live", the map may eventually grow out of memory.
+    private final SolverManager<Schedule, String> solverManager;
+    private final SolutionManager<Schedule, HardSoftScore> solutionManager;
     private final ConcurrentMap<String, Job> jobIdToJob = new ConcurrentHashMap<>();
 
+    // Workaround to make Quarkus CDI happy. Do not use.
+    public BedSchedulingResource() {
+        this.solverManager = null;
+        this.solutionManager = null;
+    }
+
     @Inject
-    public BedScheduleResource(SolverManager<Schedule, String> solverManager,
-            SolutionManager<Schedule, HardSoftScore> solutionManager) {
+    public BedSchedulingResource(SolverManager<Schedule, String> solverManager,
+                                 SolutionManager<Schedule, HardSoftScore> solutionManager) {
         this.solverManager = solverManager;
         this.solutionManager = solutionManager;
     }
@@ -80,14 +91,30 @@ public class BedScheduleResource {
         jobIdToJob.put(jobId, Job.ofSchedule(problem));
         solverManager.solveBuilder()
                 .withProblemId(jobId)
-                .withProblemFinder(jobId_ -> jobIdToJob.get(jobId).schedule)
+                .withProblemFinder(id -> jobIdToJob.get(jobId).schedule)
                 .withBestSolutionConsumer(solution -> jobIdToJob.put(jobId, Job.ofSchedule(solution)))
-                .withExceptionHandler((jobId_, exception) -> {
-                    jobIdToJob.put(jobId, Job.ofException(exception));
-                    LOGGER.error("Failed solving jobId ({}).", jobId, exception);
+                .withExceptionHandler((id, exception) -> {
+                    jobIdToJob.put(id, Job.ofException(exception));
+                    LOGGER.error("Failed solving jobId ({}).", id, exception);
                 })
                 .run();
+        cleanJobs();
         return jobId;
+    }
+
+    @Operation(summary = "Submit a schedule to analyze its score.")
+    @APIResponses(value = {
+            @APIResponse(responseCode = "202",
+                    description = "Resulting score analysis, optionally without constraint matches.",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = ScoreAnalysis.class))) })
+    @PUT
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("analyze")
+    public ScoreAnalysis<HardSoftScore> analyze(Schedule problem,
+            @QueryParam("fetchPolicy") ScoreAnalysisFetchPolicy fetchPolicy) {
+        return fetchPolicy == null ? solutionManager.analyze(problem) : solutionManager.analyze(problem, fetchPolicy);
     }
 
     @Operation(
@@ -114,38 +141,28 @@ public class BedScheduleResource {
         return schedule;
     }
 
-    private Schedule getScheduleAndCheckForExceptions(String jobId) {
-        Job job = jobIdToJob.get(jobId);
-        if (job == null) {
-            throw new ScheduleSolverException(jobId, Response.Status.NOT_FOUND, "No schedule found.");
-        }
-        if (job.exception != null) {
-            throw new ScheduleSolverException(jobId, job.exception);
-        }
-        return job.schedule;
-    }
-
     @Operation(
-            summary = "Terminate solving for a given job ID. Returns the best solution of the schedule so far, as it might still be running or not even started.")
+            summary = "Publish a schedule.")
     @APIResponses(value = {
-            @APIResponse(responseCode = "200", description = "The best solution of the schedule so far.",
+            @APIResponse(responseCode = "200", description = "The schedule updated.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
                             schema = @Schema(implementation = Schedule.class))),
             @APIResponse(responseCode = "404", description = "No schedule found.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
                             schema = @Schema(implementation = ErrorInfo.class))),
-            @APIResponse(responseCode = "500", description = "Exception during solving a schedule.",
+            @APIResponse(responseCode = "500", description = "Exception while trying to publish the schedule.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
                             schema = @Schema(implementation = ErrorInfo.class)))
     })
-    @DELETE
+    @POST
+    @Path("{jobId}/publish")
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("{jobId}")
-    public Schedule terminateSolving(
-            @Parameter(description = "The job ID returned by the POST method.") @PathParam("jobId") String jobId) {
-        // TODO: Replace with .terminateEarlyAndWait(... [, timeout]); see https://github.com/TimefoldAI/timefold-solver/issues/77
-        solverManager.terminateEarly(jobId);
-        return getSchedule(jobId);
+    public void publish(@Parameter(description = "The job ID returned by the POST method.") @PathParam("jobId") String jobId) {
+        if (!getStatus(jobId).getSolverStatus().equals(SolverStatus.NOT_SOLVING)) {
+            throw new IllegalStateException("Cannot publish a schedule while solving is in progress.");
+        }
+        Schedule schedule = getScheduleAndCheckForExceptions(jobId);
+        jobIdToJob.put(jobId, Job.ofSchedule(schedule));
     }
 
     @Operation(
@@ -172,37 +189,66 @@ public class BedScheduleResource {
     }
 
     @Operation(
-            summary = "Publish a schedule.")
+            summary = "Terminate solving for a given job ID. Returns the best solution of the schedule so far, as it might still be running or not even started.")
     @APIResponses(value = {
-            @APIResponse(responseCode = "200", description = "The schedule updated.",
+            @APIResponse(responseCode = "200", description = "The best solution of the schedule so far.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
                             schema = @Schema(implementation = Schedule.class))),
             @APIResponse(responseCode = "404", description = "No schedule found.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
                             schema = @Schema(implementation = ErrorInfo.class))),
-            @APIResponse(responseCode = "500", description = "Exception while trying to publish the schedule.",
+            @APIResponse(responseCode = "500", description = "Exception during solving a schedule.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
                             schema = @Schema(implementation = ErrorInfo.class)))
     })
-    @POST
-    @Path("{jobId}/publish")
+    @DELETE
     @Produces(MediaType.APPLICATION_JSON)
-    public void publish(@Parameter(description = "The job ID returned by the POST method.") @PathParam("jobId") String jobId) {
-        if (!getStatus(jobId).getSolverStatus().equals(SolverStatus.NOT_SOLVING)) {
-            throw new IllegalStateException("Cannot publish a schedule while solving is in progress.");
-        }
-        Schedule schedule = getScheduleAndCheckForExceptions(jobId);
-        jobIdToJob.put(jobId, Job.ofSchedule(schedule));
+    @Path("{jobId}")
+    public Schedule terminateSolving(
+            @Parameter(description = "The job ID returned by the POST method.") @PathParam("jobId") String jobId) {
+        solverManager.terminateEarly(jobId);
+        return getSchedule(jobId);
     }
 
-    private record Job(Schedule schedule, Throwable exception) {
+    private Schedule getScheduleAndCheckForExceptions(String jobId) {
+        Job job = jobIdToJob.get(jobId);
+        if (job == null) {
+            throw new ScheduleSolverException(jobId, Response.Status.NOT_FOUND, "No schedule found.");
+        }
+        if (job.exception != null) {
+            throw new ScheduleSolverException(jobId, job.exception);
+        }
+        return job.schedule;
+    }
+
+    /**
+     * The method retains only the records of the last MAX_JOBS_CACHE_SIZE completed jobs by removing the oldest ones.
+     */
+    private void cleanJobs() {
+        if (jobIdToJob.size() <= MAX_JOBS_CACHE_SIZE) {
+            return;
+        }
+        List<String> jobsToRemove = jobIdToJob.entrySet().stream()
+                .filter(e -> getStatus(e.getKey()).getSolverStatus() != SolverStatus.NOT_SOLVING)
+                .filter(e -> jobIdToJob.get(e.getKey()).schedule() != null)
+                .sorted((j1, j2) -> jobIdToJob.get(j1.getKey()).createdAt().compareTo(jobIdToJob.get(j2.getKey()).createdAt()))
+                .map(Entry::getKey)
+                .toList();
+        if (jobsToRemove.size() > MAX_JOBS_CACHE_SIZE) {
+            for (int i = 0; i < jobsToRemove.size() - MAX_JOBS_CACHE_SIZE; i++) {
+                jobIdToJob.remove(jobsToRemove.get(i));
+            }
+        }
+    }
+
+    private record Job(Schedule schedule, LocalDateTime createdAt, Throwable exception) {
 
         static Job ofSchedule(Schedule schedule) {
-            return new Job(schedule, null);
+            return new Job(schedule, LocalDateTime.now(), null);
         }
 
         static Job ofException(Throwable error) {
-            return new Job(null, error);
+            return new Job(null, LocalDateTime.now(), error);
         }
     }
 }

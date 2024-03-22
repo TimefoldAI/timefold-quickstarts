@@ -2,11 +2,10 @@ package org.acme.bedallocation.domain;
 
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
+
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 @JsonIdentityInfo(scope = Bed.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Bed {
@@ -18,6 +17,10 @@ public class Bed {
     private int indexInRoom;
 
     public Bed() {
+    }
+
+    public Bed(String id) {
+        this.id = id;
     }
 
     public Bed(String id, Room room, int indexInRoom) {
