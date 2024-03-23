@@ -142,30 +142,6 @@ public class BedSchedulingResource {
     }
 
     @Operation(
-            summary = "Publish a schedule.")
-    @APIResponses(value = {
-            @APIResponse(responseCode = "200", description = "The schedule updated.",
-                    content = @Content(mediaType = MediaType.APPLICATION_JSON,
-                            schema = @Schema(implementation = Schedule.class))),
-            @APIResponse(responseCode = "404", description = "No schedule found.",
-                    content = @Content(mediaType = MediaType.APPLICATION_JSON,
-                            schema = @Schema(implementation = ErrorInfo.class))),
-            @APIResponse(responseCode = "500", description = "Exception while trying to publish the schedule.",
-                    content = @Content(mediaType = MediaType.APPLICATION_JSON,
-                            schema = @Schema(implementation = ErrorInfo.class)))
-    })
-    @POST
-    @Path("{jobId}/publish")
-    @Produces(MediaType.APPLICATION_JSON)
-    public void publish(@Parameter(description = "The job ID returned by the POST method.") @PathParam("jobId") String jobId) {
-        if (!getStatus(jobId).getSolverStatus().equals(SolverStatus.NOT_SOLVING)) {
-            throw new IllegalStateException("Cannot publish a schedule while solving is in progress.");
-        }
-        Schedule schedule = getScheduleAndCheckForExceptions(jobId);
-        jobIdToJob.put(jobId, Job.ofSchedule(schedule));
-    }
-
-    @Operation(
             summary = "Get the schedule status and score for a given job ID.")
     @APIResponses(value = {
             @APIResponse(responseCode = "200", description = "The schedule status and the best score so far.",
