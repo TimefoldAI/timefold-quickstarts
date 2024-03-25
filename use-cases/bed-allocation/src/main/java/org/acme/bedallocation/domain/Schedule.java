@@ -37,13 +37,6 @@ public class Schedule {
     // ************************************************************************
     // Getters and setters
     // ************************************************************************
-
-    @JsonIgnore
-    @ProblemFactCollectionProperty
-    public List<String> getSpecialisms() {
-        return this.departments.stream().flatMap(d -> d.getSpecialismsToPriority().keySet().stream()).distinct().toList();
-    }
-
     @ProblemFactCollectionProperty
     public List<Department> getDepartments() {
         return departments;
