@@ -28,7 +28,7 @@ import ai.timefold.solver.core.api.solver.SolutionManager;
 import ai.timefold.solver.core.api.solver.SolverManager;
 import ai.timefold.solver.core.api.solver.SolverStatus;
 
-import org.acme.bedallocation.domain.Schedule;
+import org.acme.bedallocation.domain.BedSchedule;
 import org.acme.bedallocation.rest.exception.ErrorInfo;
 import org.acme.bedallocation.rest.exception.ScheduleSolverException;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -50,8 +50,8 @@ public class BedSchedulingResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(BedSchedulingResource.class);
     private static final int MAX_JOBS_CACHE_SIZE = 2;
 
-    private final SolverManager<Schedule, String> solverManager;
-    private final SolutionManager<Schedule, HardSoftScore> solutionManager;
+    private final SolverManager<BedSchedule, String> solverManager;
+    private final SolutionManager<BedSchedule, HardSoftScore> solutionManager;
     private final ConcurrentMap<String, Job> jobIdToJob = new ConcurrentHashMap<>();
 
     // Workaround to make Quarkus CDI happy. Do not use.
@@ -61,8 +61,8 @@ public class BedSchedulingResource {
     }
 
     @Inject
-    public BedSchedulingResource(SolverManager<Schedule, String> solverManager,
-                                 SolutionManager<Schedule, HardSoftScore> solutionManager) {
+    public BedSchedulingResource(SolverManager<BedSchedule, String> solverManager,
+                                 SolutionManager<BedSchedule, HardSoftScore> solutionManager) {
         this.solverManager = solverManager;
         this.solutionManager = solutionManager;
     }
@@ -86,7 +86,7 @@ public class BedSchedulingResource {
     @POST
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces(MediaType.TEXT_PLAIN)
-    public String solve(Schedule problem) {
+    public String solve(BedSchedule problem) {
         String jobId = UUID.randomUUID().toString();
         jobIdToJob.put(jobId, Job.ofSchedule(problem));
         solverManager.solveBuilder()
@@ -112,8 +112,8 @@ public class BedSchedulingResource {
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces(MediaType.APPLICATION_JSON)
     @Path("analyze")
-    public ScoreAnalysis<HardSoftScore> analyze(Schedule problem,
-            @QueryParam("fetchPolicy") ScoreAnalysisFetchPolicy fetchPolicy) {
+    public ScoreAnalysis<HardSoftScore> analyze(BedSchedule problem,
+                                                @QueryParam("fetchPolicy") ScoreAnalysisFetchPolicy fetchPolicy) {
         return fetchPolicy == null ? solutionManager.analyze(problem) : solutionManager.analyze(problem, fetchPolicy);
     }
 
@@ -122,7 +122,7 @@ public class BedSchedulingResource {
     @APIResponses(value = {
             @APIResponse(responseCode = "200", description = "The best solution of the schedule so far.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
-                            schema = @Schema(implementation = Schedule.class))),
+                            schema = @Schema(implementation = BedSchedule.class))),
             @APIResponse(responseCode = "404", description = "No schedule found.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
                             schema = @Schema(implementation = ErrorInfo.class))),
@@ -133,9 +133,9 @@ public class BedSchedulingResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{jobId}")
-    public Schedule getSchedule(
+    public BedSchedule getSchedule(
             @Parameter(description = "The job ID returned by the POST method.") @PathParam("jobId") String jobId) {
-        Schedule schedule = getScheduleAndCheckForExceptions(jobId);
+        BedSchedule schedule = getScheduleAndCheckForExceptions(jobId);
         SolverStatus solverStatus = solverManager.getSolverStatus(jobId);
         schedule.setSolverStatus(solverStatus);
         return schedule;
@@ -146,7 +146,7 @@ public class BedSchedulingResource {
     @APIResponses(value = {
             @APIResponse(responseCode = "200", description = "The schedule status and the best score so far.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
-                            schema = @Schema(implementation = Schedule.class))),
+                            schema = @Schema(implementation = BedSchedule.class))),
             @APIResponse(responseCode = "404", description = "No schedule found.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
                             schema = @Schema(implementation = ErrorInfo.class))),
@@ -157,11 +157,11 @@ public class BedSchedulingResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{jobId}/status")
-    public Schedule getStatus(
+    public BedSchedule getStatus(
             @Parameter(description = "The job ID returned by the POST method.") @PathParam("jobId") String jobId) {
-        Schedule schedule = getScheduleAndCheckForExceptions(jobId);
+        BedSchedule schedule = getScheduleAndCheckForExceptions(jobId);
         SolverStatus solverStatus = solverManager.getSolverStatus(jobId);
-        return new Schedule(schedule.getScore(), solverStatus);
+        return new BedSchedule(schedule.getScore(), solverStatus);
     }
 
     @Operation(
@@ -169,7 +169,7 @@ public class BedSchedulingResource {
     @APIResponses(value = {
             @APIResponse(responseCode = "200", description = "The best solution of the schedule so far.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
-                            schema = @Schema(implementation = Schedule.class))),
+                            schema = @Schema(implementation = BedSchedule.class))),
             @APIResponse(responseCode = "404", description = "No schedule found.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
                             schema = @Schema(implementation = ErrorInfo.class))),
@@ -180,13 +180,13 @@ public class BedSchedulingResource {
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{jobId}")
-    public Schedule terminateSolving(
+    public BedSchedule terminateSolving(
             @Parameter(description = "The job ID returned by the POST method.") @PathParam("jobId") String jobId) {
         solverManager.terminateEarly(jobId);
         return getSchedule(jobId);
     }
 
-    private Schedule getScheduleAndCheckForExceptions(String jobId) {
+    private BedSchedule getScheduleAndCheckForExceptions(String jobId) {
         Job job = jobIdToJob.get(jobId);
         if (job == null) {
             throw new ScheduleSolverException(jobId, Response.Status.NOT_FOUND, "No schedule found.");
@@ -217,9 +217,9 @@ public class BedSchedulingResource {
         }
     }
 
-    private record Job(Schedule schedule, LocalDateTime createdAt, Throwable exception) {
+    private record Job(BedSchedule schedule, LocalDateTime createdAt, Throwable exception) {
 
-        static Job ofSchedule(Schedule schedule) {
+        static Job ofSchedule(BedSchedule schedule) {
             return new Job(schedule, LocalDateTime.now(), null);
         }
 

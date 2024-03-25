@@ -122,14 +122,12 @@ function renderScheduleByRoom(schedule) {
             content += `<div class="d-flex">`;
             equipments.forEach(e => content += `<div><span class="badge m-1" style="background-color: ${pickColor(e)}">${e}</span></div>`);
             content += "</div>";
-            console.log(content)
             if (room.equipments.length > 2) {
                 let equipments = room.equipments.sort().slice(2, Math.min(4, room.equipments.length));
                 content += `<div class="d-flex">`;
                 equipments.forEach(e => content += `<div><span class="badge m-1" style="background-color: ${pickColor(e)}">${e}</span></div>`);
                 content += "</div>";
             }
-            console.log(content)
         }
 
         const roomData = {
@@ -149,74 +147,74 @@ function renderScheduleByRoom(schedule) {
     const bedMap = new Map();
     schedule.departments.flatMap(d => d.rooms).flatMap(r => r.beds).forEach(b => bedMap.set(b.id, b));
 
-    $.each(schedule.bedDesignations, (_, designation) => {
-        if (designation.bed == null) {
+    $.each(schedule.stays, (_, stay) => {
+        if (stay.bed == null) {
             unassignedJobsCount++;
             const unassignedPatientElement = $(`<div class="card-body p-2"/>`)
-                .append($(`<h5 class="card-title mb-1"/>`).text(`${designation.stay.patient.name} (${designation.stay.patient.gender.substring(0, 1)})`))
-                .append($(`<p class="card-text ms-2 mb-0"/>`).text(`${JSJoda.LocalDate.parse(designation.stay.arrivalDate)
-                    .until(JSJoda.LocalDate.parse(designation.stay.departureDate), JSJoda.ChronoUnit.DAYS)} day(s)`))
-                .append($(`<p class="card-text ms-2 mb-0"/>`).text(`Arrival: ${designation.stay.arrivalDate}`))
-                .append($(`<p class="card-text ms-2 mb-0"/>`).text(`Departure: ${designation.stay.departureDate}`));
+                .append($(`<h5 class="card-title mb-1"/>`).text(`${stay.patient.name} (${stay.patient.gender.substring(0, 1)})`))
+                .append($(`<p class="card-text ms-2 mb-0"/>`).text(`${JSJoda.LocalDate.parse(stay.arrivalDate)
+                    .until(JSJoda.LocalDate.parse(stay.departureDate), JSJoda.ChronoUnit.DAYS)} day(s)`))
+                .append($(`<p class="card-text ms-2 mb-0"/>`).text(`Arrival: ${stay.arrivalDate}`))
+                .append($(`<p class="card-text ms-2 mb-0"/>`).text(`Departure: ${stay.departureDate}`));
 
-            const color = pickColor(designation.stay.specialism);
+            const color = pickColor(stay.specialism);
             unassignedPatientElement
                 .append($(`<p class="card-text mb-0"/>`).append($(`<span class="badge m-1" style="background-color: ${color}"/>`)
-                    .text(designation.stay.specialism)));
+                    .text(stay.specialism)));
 
             const equipmentDiv = $("<div />").prop("class", "col");
             unassignedPatientElement.append(equipmentDiv);
-            designation.stay.patient.requiredEquipments.sort().forEach(e => {
+            stay.patient.requiredEquipments.sort().forEach(e => {
                 equipmentDiv.append($(`<span class="badge m-1" style="background-color: ${pickColor(e)}"/>`).text(e))
             });
-            if (designation.stay.patient.preferredEquipments && designation.stay.patient.preferredEquipments.length > 0) {
+            if (stay.patient.preferredEquipments && stay.patient.preferredEquipments.length > 0) {
                 equipmentDiv.append($(`<span />`).prop("class", "m-2").text("|"));
-                designation.stay.patient.preferredEquipments
-                    .filter(e => designation.stay.patient.requiredEquipments.indexOf(e) == -1)
+                stay.patient.preferredEquipments
+                    .filter(e => stay.patient.requiredEquipments.indexOf(e) == -1)
                     .sort()
                     .forEach(e => equipmentDiv.append($(`<span class="badge m-1" style="background-color: ${pickColor(e)}"/>`).text(e)));
             }
             unassignedPatientElement.append($("<div />").prop("class", "d-flex justify-content-end").append($(`<small class="ms-2 mt-1 card-text text-muted"/>`)
-                .text(designation.stay.patient.preferredMaximumRoomCapacity)));
+                .text(stay.patient.preferredMaximumRoomCapacity)));
 
             unassignedPatients.append($(`<div class="col"/>`).append($(`<div class="card"/>`).append(unassignedPatientElement)));
             byRoomItemData.add({
-                id: designation.id,
-                group: designation.id,
-                start: designation.stay.arrivalDate,
-                end: designation.stay.departureDate,
+                id: stay.id,
+                group: stay.id,
+                start: stay.arrivalDate,
+                end: stay.departureDate,
                 style: "background-color: #EF292999"
             });
         } else {
             const byPatientElement = $(`<div />`)
-                .append($(`<h5 class="card-title mb-1"/>`).text(`${designation.stay.patient.name} (${designation.stay.patient.gender.substring(0, 1)})`));
+                .append($(`<h5 class="card-title mb-1"/>`).text(`${stay.patient.name} (${stay.patient.gender.substring(0, 1)})`));
 
-            const color = pickColor(designation.stay.specialism);
+            const color = pickColor(stay.specialism);
             byPatientElement
                 .append($(`<p class="card-text mb-0"/>`).append($(`<span class="badge m-1" style="background-color: ${color}"/>`)
-                    .text(designation.stay.specialism)));
+                    .text(stay.specialism)));
 
             const equipmentDiv = $("<div />").prop("class", "col");
             byPatientElement.append(equipmentDiv);
-            designation.stay.patient.requiredEquipments.sort().forEach(e => {
+            stay.patient.requiredEquipments.sort().forEach(e => {
                 equipmentDiv.append($(`<span class="badge m-1" style="background-color: ${pickColor(e)}"/>`).text(e))
             });
-            if (designation.stay.patient.preferredEquipments && designation.stay.patient.preferredEquipments.length > 0) {
+            if (stay.patient.preferredEquipments && stay.patient.preferredEquipments.length > 0) {
                 equipmentDiv.append($(`<span />`).prop("class", "m-2").text("|"));
-                designation.stay.patient.preferredEquipments
-                    .filter(e => designation.stay.patient.requiredEquipments.indexOf(e) == -1)
+                stay.patient.preferredEquipments
+                    .filter(e => stay.patient.requiredEquipments.indexOf(e) == -1)
                     .sort()
                     .forEach(e => equipmentDiv.append($(`<span class="badge m-1" style="background-color: ${pickColor(e)}"/>`).text(e)));
             }
             byPatientElement.append($("<div />").prop("class", "d-flex justify-content-end").append($(`<small class="ms-2 mt-1 card-text text-muted"/>`)
-                .text(designation.stay.patient.preferredMaximumRoomCapacity)));
+                .text(stay.patient.preferredMaximumRoomCapacity)));
 
             byRoomItemData.add({
-                id: designation.id,
-                group: designation.bed,
+                id: stay.id,
+                group: stay.bed,
                 content: byPatientElement.html(),
-                start: designation.stay.arrivalDate,
-                end: designation.stay.departureDate
+                start: stay.arrivalDate,
+                end: stay.departureDate
             });
         }
     });
@@ -224,8 +222,8 @@ function renderScheduleByRoom(schedule) {
         unassignedPatients.append($(`<p/>`).text(`There are no unassigned stays.`));
     }
 
-    const arrivalDates = schedule.bedDesignations.map(d => d.stay.arrivalDate);
-    const departureDates = schedule.bedDesignations.map(d => d.stay.departureDate);
+    const arrivalDates = schedule.stays.map(s => s.arrivalDate);
+    const departureDates = schedule.stays.map(s => s.departureDate);
     const allDates = [...new Set([...arrivalDates, ...departureDates])]
         .sort((a, b) => JSJoda.LocalDate.parse(a).compareTo(JSJoda.LocalDate.parse(b)));
     byRoomTimeline.setWindow(allDates[0], allDates[allDates.length - 1]);

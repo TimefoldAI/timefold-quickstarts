@@ -1,9 +1,7 @@
 package org.acme.bedallocation.domain;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
@@ -20,12 +18,10 @@ public class Room {
     private Department department;
     private int capacity;
     private GenderLimitation genderLimitation;
-    private Map<String, Integer> specialismsToPriority;
     private List<String> equipments;
     private List<Bed> beds;
 
     public Room() {
-        this.specialismsToPriority = new HashMap<>();
         this.equipments = new LinkedList<>();
         this.beds = new LinkedList<>();
     }
@@ -33,7 +29,6 @@ public class Room {
     public Room(String id) {
         this.id = id;
         this.name = id;
-        this.specialismsToPriority = new HashMap<>();
         this.equipments = new LinkedList<>();
         this.beds = new LinkedList<>();
     }
@@ -43,13 +38,8 @@ public class Room {
         this.name = name;
         this.department = department;
         this.department.addRoom(this);
-        this.specialismsToPriority = new HashMap<>();
         this.equipments = new LinkedList<>();
         this.beds = new LinkedList<>();
-    }
-
-    public void addSpecialism(String specialism, Integer priority) {
-        this.specialismsToPriority.computeIfAbsent(specialism, s -> priority);
     }
 
     public void addBed(Bed bed) {
@@ -101,14 +91,6 @@ public class Room {
 
     public void setGenderLimitation(GenderLimitation genderLimitation) {
         this.genderLimitation = genderLimitation;
-    }
-
-    public Map<String, Integer> getSpecialismsToPriority() {
-        return specialismsToPriority;
-    }
-
-    public void setSpecialismsToPriority(Map<String, Integer> specialismsToPriority) {
-        this.specialismsToPriority = specialismsToPriority;
     }
 
     public List<String> getEquipments() {

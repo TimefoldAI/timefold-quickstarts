@@ -4,13 +4,13 @@ import static java.time.temporal.ChronoUnit.DAYS;
 
 import java.time.LocalDate;
 
+import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
+import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
-@JsonIdentityInfo(scope = Stay.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@PlanningEntity
 public class Stay {
 
     @PlanningId
@@ -20,6 +20,8 @@ public class Stay {
     private LocalDate arrivalDate;
     private LocalDate departureDate;
     private String specialism;
+    @PlanningVariable(allowsUnassigned = true)
+    private Bed bed;
 
     public Stay() {
     }
@@ -29,12 +31,13 @@ public class Stay {
         this.patient = patient;
     }
 
-    public Stay(String id, Patient patient, LocalDate arrivalDate, LocalDate departureDate, String specialism) {
+    public Stay(String id, Patient patient, LocalDate arrivalDate, LocalDate departureDate, String specialism, Bed bed) {
         this.id = id;
         this.patient = patient;
         this.arrivalDate = arrivalDate;
         this.departureDate = departureDate;
         this.specialism = specialism;
+        this.bed = bed;
     }
 
     @JsonIgnore
@@ -48,11 +51,58 @@ public class Stay {
         return Math.max(0, (int) DAYS.between(maxArrivalDate, minDepartureDate) + 1); // TODO is + 1 still desired?
     }
 
+    @JsonIgnore
+    public Gender getPatientGender() {
+        return getPatient().getGender();
+    }
+
+    @JsonIgnore
+    public int getPatientAge() {
+        return getPatient().getAge();
+    }
+
+    @JsonIgnore
+    public Integer getPatientPreferredMaximumRoomCapacity() {
+        return getPatient().getPreferredMaximumRoomCapacity();
+    }
+
+    @JsonIgnore
+    public Room getRoom() {
+        if (bed == null) {
+            return null;
+        }
+        return bed.getRoom();
+    }
+
+    @JsonIgnore
+    public int getRoomCapacity() {
+        if (bed == null) {
+            return Integer.MIN_VALUE;
+        }
+        return bed.getRoom().getCapacity();
+    }
+
+    @JsonIgnore
+    public Department getDepartment() {
+        if (bed == null) {
+            return null;
+        }
+        return bed.getRoom().getDepartment();
+    }
+
+    @JsonIgnore
+    public GenderLimitation getRoomGenderLimitation() {
+        if (bed == null) {
+            return null;
+        }
+        return bed.getRoom().getGenderLimitation();
+    }
+
     @Override
     public String toString() {
         return patient + "(" + arrivalDate + "-" + departureDate + ")";
     }
-    
+
     // ************************************************************************
     // Getters and setters
     // ************************************************************************
@@ -93,4 +143,11 @@ public class Stay {
         this.specialism = specialism;
     }
 
+    public Bed getBed() {
+        return bed;
+    }
+
+    public void setBed(Bed bed) {
+        this.bed = bed;
+    }
 }

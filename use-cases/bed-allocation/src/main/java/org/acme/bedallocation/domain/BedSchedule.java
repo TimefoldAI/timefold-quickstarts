@@ -13,12 +13,12 @@ import ai.timefold.solver.core.api.solver.SolverStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @PlanningSolution
-public class Schedule {
+public class BedSchedule {
 
     private List<Department> departments;
 
     @PlanningEntityCollectionProperty
-    private List<BedDesignation> bedDesignations;
+    private List<Stay> stays;
 
     @PlanningScore
     private HardMediumSoftScore score;
@@ -26,10 +26,10 @@ public class Schedule {
     private SolverStatus solverStatus;
 
     // No-arg constructor required for Timefold
-    public Schedule() {
+    public BedSchedule() {
     }
 
-    public Schedule(HardMediumSoftScore score, SolverStatus solverStatus) {
+    public BedSchedule(HardMediumSoftScore score, SolverStatus solverStatus) {
         this.score = score;
         this.solverStatus = solverStatus;
     }
@@ -66,17 +66,6 @@ public class Schedule {
 
     @JsonIgnore
     @ProblemFactCollectionProperty
-    public List<RoomSpecialism> getRoomSpecialisms() {
-        return departments.stream().flatMap(d -> d.getRooms().stream())
-                .flatMap(r -> r.getSpecialismsToPriority().entrySet().stream()
-                        .map(e -> new RoomSpecialism("%s-%s".formatted(r.getId(), e.getKey()), r, e.getKey(), e.getValue()))
-                        .toList()
-                        .stream())
-                .toList();
-    }
-
-    @JsonIgnore
-    @ProblemFactCollectionProperty
     @ValueRangeProvider
     public List<Bed> getBeds() {
         return departments.stream()
@@ -88,23 +77,17 @@ public class Schedule {
     @JsonIgnore
     @ProblemFactCollectionProperty
     public List<Patient> getPatients() {
-        return getBedDesignations().stream()
-                .map(BedDesignation::getPatient)
+        return getStays().stream()
+                .map(Stay::getPatient)
                 .toList();
     }
 
-    @JsonIgnore
-    @ProblemFactCollectionProperty
     public List<Stay> getStays() {
-        return getBedDesignations().stream().map(BedDesignation::getStay).toList();
+        return stays;
     }
 
-    public List<BedDesignation> getBedDesignations() {
-        return bedDesignations;
-    }
-
-    public void setBedDesignations(List<BedDesignation> bedDesignations) {
-        this.bedDesignations = bedDesignations;
+    public void setStays(List<Stay> stays) {
+        this.stays = stays;
     }
 
     public HardMediumSoftScore getScore() {

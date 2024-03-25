@@ -2,21 +2,20 @@ package org.acme.bedallocation.solver;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 import jakarta.inject.Inject;
 
 import ai.timefold.solver.test.api.score.stream.ConstraintVerifier;
 
 import org.acme.bedallocation.domain.Bed;
-import org.acme.bedallocation.domain.BedDesignation;
+import org.acme.bedallocation.domain.BedSchedule;
 import org.acme.bedallocation.domain.Department;
 import org.acme.bedallocation.domain.DepartmentSpecialism;
 import org.acme.bedallocation.domain.Gender;
 import org.acme.bedallocation.domain.GenderLimitation;
 import org.acme.bedallocation.domain.Patient;
 import org.acme.bedallocation.domain.Room;
-import org.acme.bedallocation.domain.RoomSpecialism;
-import org.acme.bedallocation.domain.Schedule;
 import org.acme.bedallocation.domain.Stay;
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +30,7 @@ class BedAllocationConstraintProviderTest {
     private static final String DEFAULT_SPECIALISM = "default";
 
     @Inject
-    ConstraintVerifier<BedAllocationConstraintProvider, Schedule> constraintVerifier;
+    ConstraintVerifier<BedAllocationConstraintProvider, BedSchedule> constraintVerifier;
 
     @Test
     void femaleInMaleRoom() {
@@ -44,11 +43,10 @@ class BedAllocationConstraintProviderTest {
         Patient patient = new Patient();
         patient.setGender(Gender.FEMALE);
 
-        Stay genderAdmission = new Stay("0", patient, ZERO_NIGHT, FIVE_NIGHT, DEFAULT_SPECIALISM);
-        BedDesignation GenderLimitationDesignation = new BedDesignation("0", genderAdmission, bed);
+        Stay genderAdmission = new Stay("0", patient, ZERO_NIGHT, FIVE_NIGHT, DEFAULT_SPECIALISM, bed);
 
         constraintVerifier.verifyThat(BedAllocationConstraintProvider::femaleInMaleRoom)
-                .given(GenderLimitationDesignation)
+                .given(genderAdmission)
                 .penalizesBy(6);
     }
 
@@ -63,11 +61,10 @@ class BedAllocationConstraintProviderTest {
         Patient patient = new Patient();
         patient.setGender(Gender.MALE);
 
-        Stay genderAdmission = new Stay("0", patient, ZERO_NIGHT, FIVE_NIGHT, DEFAULT_SPECIALISM);
-        BedDesignation GenderLimitationDesignation = new BedDesignation("0", genderAdmission, bed);
+        Stay genderAdmission = new Stay("0", patient, ZERO_NIGHT, FIVE_NIGHT, DEFAULT_SPECIALISM, bed);
 
         constraintVerifier.verifyThat(BedAllocationConstraintProvider::maleInFemaleRoom)
-                .given(GenderLimitationDesignation)
+                .given(genderAdmission)
                 .penalizesBy(6);
     }
 
@@ -77,13 +74,12 @@ class BedAllocationConstraintProviderTest {
         Patient patient = new Patient();
         Bed bed = new Bed("1");
 
-        Stay stay = new Stay("0", patient, ZERO_NIGHT, FIVE_NIGHT, DEFAULT_SPECIALISM);
-        BedDesignation designation = new BedDesignation("1", stay, bed);
+        Stay stay = new Stay("0", patient, ZERO_NIGHT, FIVE_NIGHT, DEFAULT_SPECIALISM, bed);
 
-        BedDesignation sameBedAndNightsDesignation = new BedDesignation("2", stay, bed);
+        Stay sameBedAndNightsStay = new Stay("2", patient, ZERO_NIGHT, FIVE_NIGHT, DEFAULT_SPECIALISM, bed);
 
         constraintVerifier.verifyThat(BedAllocationConstraintProvider::sameBedInSameNight)
-                .given(designation, sameBedAndNightsDesignation)
+                .given(stay, sameBedAndNightsStay)
                 .penalizesBy(6);
     }
 
@@ -101,11 +97,10 @@ class BedAllocationConstraintProviderTest {
         Bed bed = new Bed();
         bed.setRoom(room);
 
-        Stay admission = new Stay("0", patient, ZERO_NIGHT, FIVE_NIGHT, DEFAULT_SPECIALISM);
-        BedDesignation designation = new BedDesignation("0", admission, bed);
+        Stay admission = new Stay("0", patient, ZERO_NIGHT, FIVE_NIGHT, DEFAULT_SPECIALISM, bed);
 
         constraintVerifier.verifyThat(BedAllocationConstraintProvider::departmentMinimumAge)
-                .given(designation, department)
+                .given(admission, department)
                 .penalizesBy(6);
     }
 
@@ -123,11 +118,10 @@ class BedAllocationConstraintProviderTest {
         Bed bed = new Bed();
         bed.setRoom(room);
 
-        Stay admission = new Stay("0", patient, ZERO_NIGHT, FIVE_NIGHT, DEFAULT_SPECIALISM);
-        BedDesignation designation = new BedDesignation("0", admission, bed);
+        Stay admission = new Stay("0", patient, ZERO_NIGHT, FIVE_NIGHT, DEFAULT_SPECIALISM, bed);
 
         constraintVerifier.verifyThat(BedAllocationConstraintProvider::departmentMaximumAge)
-                .given(designation, department)
+                .given(admission, department)
                 .penalizesBy(6);
     }
 
@@ -141,11 +135,10 @@ class BedAllocationConstraintProviderTest {
 
         Patient patient = new Patient();
         patient.setRequiredEquipments(List.of("TELEVISION", "TELEMETRY"));
-        Stay admission = new Stay("0", patient, ZERO_NIGHT, FIVE_NIGHT, DEFAULT_SPECIALISM);
-        BedDesignation designation = new BedDesignation("0", admission, bed);
+        Stay admission = new Stay("0", patient, ZERO_NIGHT, FIVE_NIGHT, DEFAULT_SPECIALISM, bed);
 
         constraintVerifier.verifyThat(BedAllocationConstraintProvider::requiredPatientEquipment)
-                .given(designation)
+                .given(admission)
                 .penalizesBy(6);
     }
 
@@ -162,8 +155,7 @@ class BedAllocationConstraintProviderTest {
         Bed bed1 = new Bed();
         bed1.setRoom(room);
 
-        Stay stayFemale = new Stay("0", female, ZERO_NIGHT, FIVE_NIGHT, DEFAULT_SPECIALISM);
-        BedDesignation bedDesignationFemale = new BedDesignation("1", stayFemale, bed1);
+        Stay stayFemale = new Stay("0", female, ZERO_NIGHT, FIVE_NIGHT, DEFAULT_SPECIALISM, bed1);
 
         //Assign male
         Patient male = new Patient();
@@ -172,12 +164,11 @@ class BedAllocationConstraintProviderTest {
         Bed bed2 = new Bed();
         bed2.setRoom(room);
 
-        Stay stayMale = new Stay("1", male, ZERO_NIGHT, FIVE_NIGHT, DEFAULT_SPECIALISM);
-        BedDesignation bedDesignationMale = new BedDesignation("2", stayMale, bed2);
+        Stay stayMale = new Stay("1", male, ZERO_NIGHT, FIVE_NIGHT, DEFAULT_SPECIALISM, bed2);
 
         constraintVerifier
                 .verifyThat(BedAllocationConstraintProvider::differentGenderInSameGenderRoomInSameNight)
-                .given(bedDesignationFemale, bedDesignationMale)
+                .given(stayFemale, stayMale)
                 .penalizesBy(6);
     }
 
@@ -186,12 +177,11 @@ class BedAllocationConstraintProviderTest {
 
         Patient patient = new Patient();
 
-        Stay stay = new Stay("0", patient, ZERO_NIGHT, FIVE_NIGHT, DEFAULT_SPECIALISM);
-        BedDesignation bedUnassignedDesignation = new BedDesignation("2", stay, null);
+        Stay stay = new Stay("0", patient, ZERO_NIGHT, FIVE_NIGHT, DEFAULT_SPECIALISM, null);
 
         constraintVerifier
                 .verifyThat(BedAllocationConstraintProvider::assignEveryPatientToABed)
-                .given(bedUnassignedDesignation)
+                .given(stay)
                 .penalizesBy(6);
     }
 
@@ -207,13 +197,12 @@ class BedAllocationConstraintProviderTest {
         Bed assignedBedInExceedCapacity = new Bed();
         assignedBedInExceedCapacity.setRoom(room);
 
-        Stay stay =
-                new Stay("0", patientWithRoomPreferences, ZERO_NIGHT, FIVE_NIGHT, DEFAULT_SPECIALISM);
-        BedDesignation bedDesignation = new BedDesignation("0", stay, assignedBedInExceedCapacity);
+        Stay stay = new Stay("0", patientWithRoomPreferences, ZERO_NIGHT, FIVE_NIGHT, DEFAULT_SPECIALISM,
+                assignedBedInExceedCapacity);
 
         constraintVerifier
                 .verifyThat(BedAllocationConstraintProvider::preferredMaximumRoomCapacity)
-                .given(bedDesignation)
+                .given(stay)
                 .penalizesBy(6);
     }
 
@@ -227,11 +216,10 @@ class BedAllocationConstraintProviderTest {
 
         Patient patient = new Patient();
         patient.setPreferredEquipments(List.of("TELEVISION", "TELEMETRY"));
-        Stay stay = new Stay("0", patient, ZERO_NIGHT, FIVE_NIGHT, DEFAULT_SPECIALISM);
-        BedDesignation bedDesignation = new BedDesignation("0", stay, bed);
+        Stay stay = new Stay("0", patient, ZERO_NIGHT, FIVE_NIGHT, DEFAULT_SPECIALISM, bed);
 
         constraintVerifier.verifyThat(BedAllocationConstraintProvider::preferredPatientEquipment)
-                .given(bedDesignation)
+                .given(stay)
                 .penalizesBy(6);
     }
 
@@ -240,7 +228,7 @@ class BedAllocationConstraintProviderTest {
 
         Patient patient = new Patient();
 
-        Department department = new Department();
+        Department department = new Department("0", "0");
 
         Room roomInDep = new Room();
         roomInDep.setDepartment(department);
@@ -251,79 +239,52 @@ class BedAllocationConstraintProviderTest {
         //Designation with 1st spec
         String spec1 = "spec1";
 
-        Stay staySpec1 = new Stay("0", patient, ZERO_NIGHT, FIVE_NIGHT, spec1);
-        BedDesignation designationWithDepartmentSpecialism1 = new BedDesignation("0", staySpec1, bedInRoomInDep);
+        Stay staySpec1 = new Stay("0", patient, ZERO_NIGHT, FIVE_NIGHT, spec1, bedInRoomInDep);
 
         //Designation with 2nd spec
         String spec2 = "spec2";
 
-        Stay staySpec2 = new Stay("1", patient, ZERO_NIGHT, FIVE_NIGHT, spec2);
-        BedDesignation designationWithDepartmentSpecialism2 = new BedDesignation("1", staySpec2, bedInRoomInDep);
+        Stay staySpec2 = new Stay("1", patient, ZERO_NIGHT, FIVE_NIGHT, spec2, bedInRoomInDep);
 
         DepartmentSpecialism departmentSpecialismWithOneSpec = new DepartmentSpecialism();
         departmentSpecialismWithOneSpec.setDepartment(department);
         departmentSpecialismWithOneSpec.setSpecialism(spec1);
 
         constraintVerifier.verifyThat(BedAllocationConstraintProvider::departmentSpecialism)
-                .given(designationWithDepartmentSpecialism1, designationWithDepartmentSpecialism2,
-                        departmentSpecialismWithOneSpec)
+                .given(staySpec1, staySpec2, departmentSpecialismWithOneSpec)
                 .penalizesBy(6);
     }
 
     @Test
-    void roomSpecialism() {
+    void departmentSpecialismNotFirstPriorityConstraint() {
+
+        Department department = new Department("0", "0");
+        department.setSpecialismsToPriority(Map.of("spec1", 2));
 
         Patient patient = new Patient();
 
         Room roomInDep = new Room("1");
+        roomInDep.setDepartment(department);
+        department.addRoom(roomInDep);
+
         Bed bedInDep = new Bed();
         bedInDep.setRoom(roomInDep);
 
         //Designation with 1st spec
         String spec1 = "spec1";
-        Stay stay = new Stay("0", patient, ZERO_NIGHT, FIVE_NIGHT, spec1);
-        BedDesignation designationWithRoomSpecialism1 = new BedDesignation("0", stay, bedInDep);
+        Stay stay1 = new Stay("0", patient, ZERO_NIGHT, FIVE_NIGHT, spec1, bedInDep);
 
         //Designation with 2nd spec
         String spec2 = "spec2";
-        Stay stay2 = new Stay("1", patient, ZERO_NIGHT, FIVE_NIGHT, spec2);
-        BedDesignation designationWithRoomSpecialism2 = new BedDesignation("1", stay2, bedInDep);
+        Stay stay2 = new Stay("1", patient, ZERO_NIGHT, FIVE_NIGHT, spec2, bedInDep);
 
-        RoomSpecialism roomSpecialism = new RoomSpecialism();
-        roomSpecialism.setRoom(roomInDep);
-        roomSpecialism.setSpecialism(spec1);
+        DepartmentSpecialism departmentSpecialism = new DepartmentSpecialism();
+        departmentSpecialism.setDepartment(department);
+        departmentSpecialism.setSpecialism(spec1);
+        departmentSpecialism.setPriority(2);
 
-        constraintVerifier.verifyThat(BedAllocationConstraintProvider::roomSpecialismNotExists)
-                .given(designationWithRoomSpecialism1, designationWithRoomSpecialism2, roomSpecialism)
-                .penalizesBy(6);
-    }
-
-    @Test
-    void roomSpecialismNotFirstPriorityConstraint() {
-
-        Patient patient = new Patient();
-
-        Room roomInDep = new Room("1");
-        Bed bedInDep = new Bed();
-
-        bedInDep.setRoom(roomInDep);
-        //Designation with 1st spec
-        String spec1 = "spec1";
-        Stay stay1 = new Stay("0", patient, ZERO_NIGHT, FIVE_NIGHT, spec1);
-        BedDesignation designationWithRoomSpecialism1 = new BedDesignation("0", stay1, bedInDep);
-
-        //Designation with 2nd spec
-        String spec2 = "spec2";
-        Stay stay2 = new Stay("1", patient, ZERO_NIGHT, FIVE_NIGHT, spec2);
-        BedDesignation designationWithRoomSpecialism2 = new BedDesignation("1", stay2, bedInDep);
-
-        RoomSpecialism roomSpecialism = new RoomSpecialism();
-        roomSpecialism.setRoom(roomInDep);
-        roomSpecialism.setSpecialism(spec1);
-        roomSpecialism.setPriority(2);
-
-        constraintVerifier.verifyThat(BedAllocationConstraintProvider::roomSpecialismNotFirstPriority)
-                .given(designationWithRoomSpecialism1, designationWithRoomSpecialism2, roomSpecialism)
+        constraintVerifier.verifyThat(BedAllocationConstraintProvider::departmentSpecialismNotFirstPriority)
+                .given(stay1, stay2, departmentSpecialism)
                 .penalizesBy(6);
     }
 

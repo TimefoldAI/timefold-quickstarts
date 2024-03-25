@@ -24,12 +24,11 @@ import jakarta.enterprise.context.ApplicationScoped;
 import ai.timefold.solver.core.impl.util.Pair;
 
 import org.acme.bedallocation.domain.Bed;
-import org.acme.bedallocation.domain.BedDesignation;
+import org.acme.bedallocation.domain.BedSchedule;
 import org.acme.bedallocation.domain.Department;
 import org.acme.bedallocation.domain.GenderLimitation;
 import org.acme.bedallocation.domain.Patient;
 import org.acme.bedallocation.domain.Room;
-import org.acme.bedallocation.domain.Schedule;
 import org.acme.bedallocation.domain.Stay;
 
 @ApplicationScoped
@@ -51,8 +50,8 @@ public class DemoDataGenerator {
             LocalDate.now().with(firstInMonth(DayOfWeek.MONDAY)).plusDays(6));
     private final Random random = new Random(0);
 
-    public Schedule generateDemoData() {
-        Schedule schedule = new Schedule();
+    public BedSchedule generateDemoData() {
+        BedSchedule schedule = new BedSchedule();
         // Department
         List<Department> departments = List.of(new Department("1", "Department"));
         schedule.setDepartments(departments);
@@ -66,9 +65,7 @@ public class DemoDataGenerator {
         // Patients
         List<Patient> patients = generatePatients(40);
         // Stays
-        List<Stay> stays = generateStays(patients, SPECIALISMS);
-        // Bed designations
-        schedule.setBedDesignations(generateBedDesignations(stays));
+        schedule.setStays(generateStays(patients, SPECIALISMS));
 
         return schedule;
     }
@@ -102,21 +99,6 @@ public class DemoDataGenerator {
                 .filter(r -> r.getCapacity() == 0)
                 .toList()
                 .forEach(r -> r.setCapacity(1));
-
-        // Room specialism priority
-        List<Pair<Double, Integer>> priorityValues = List.of(
-                new Pair<>(0.72, 1), // 72% for priority 1
-                new Pair<>(0.96, 2),
-                new Pair<>(1d, 4));
-        for (Room room : rooms) {
-            SPECIALISMS.forEach(s -> {
-                double index = random.nextDouble();
-                priorityValues.stream()
-                        .filter(p -> index <= p.key())
-                        .findFirst()
-                        .ifPresent(p -> room.addSpecialism(s, p.value()));
-            });
-        }
 
         // Room equipments
         // 11% - 1 equipment; 16% 2 equipments; 42% 3 equipments; 31% 4 equipments
@@ -325,12 +307,6 @@ public class DemoDataGenerator {
                 .toList()
                 .forEach(s -> dateConsumer.accept(s, 2));
         return stays;
-    }
-
-    private List<BedDesignation> generateBedDesignations(List<Stay> stays) {
-        return IntStream.range(0, stays.size())
-                .mapToObj(i -> new BedDesignation("designation%d".formatted(i), stays.get(i)))
-                .toList();
     }
 
     private <T> void applyRandomValue(int count, List<T> values, Predicate<T> filter, Consumer<T> consumer) {
