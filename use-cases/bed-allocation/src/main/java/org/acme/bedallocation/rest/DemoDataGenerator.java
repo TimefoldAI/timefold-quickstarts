@@ -51,10 +51,6 @@ public class DemoDataGenerator {
             LocalDate.now().with(firstInMonth(DayOfWeek.MONDAY)).plusDays(6));
     private final Random random = new Random(0);
 
-    /**
-     * The dataset was generated based on the probability distributions found in the test dataset file.
-     * However, the number of patients was reduced to 40 to simplify the quickstart process.
-     */
     public Schedule generateDemoData() {
         Schedule schedule = new Schedule();
         // Department
