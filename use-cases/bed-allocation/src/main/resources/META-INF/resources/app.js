@@ -1,5 +1,18 @@
 var autoRefreshIntervalId = null;
 const dateFormatter = JSJoda.DateTimeFormatter.ofPattern('MM-dd');
+const roomDateFormatter = JSJoda.DateTimeFormatter.ofPattern('d MMM').withLocale(JSJodaLocale.Locale.ENGLISH);
+
+const byRoomPanel = document.getElementById("byRoomPanel");
+const byRoomTimelineOptions = {
+    timeAxis: {scale: "day"},
+    orientation: {axis: "top"},
+    stack: false,
+    xss: {disabled: true}, // Items are XSS safe through JQuery
+    zoomMin: 3 * 1000 * 60 * 60 * 24 // Three day in milliseconds
+};
+var byRoomGroupData = new vis.DataSet();
+var byRoomItemData = new vis.DataSet();
+var byRoomTimeline = new vis.Timeline(byRoomPanel, byRoomItemData, byRoomGroupData, byRoomTimelineOptions);
 
 let scheduleId = null;
 let loadedSchedule = null;
@@ -19,6 +32,7 @@ $(document).ready(function () {
     });
     $("#byRoomTab").click(function () {
         viewType = "R";
+        byRoomTimeline.redraw();
         refreshSchedule();
     });
 
@@ -95,79 +109,126 @@ function renderSchedule(schedule) {
 }
 
 function renderScheduleByRoom(schedule) {
-    const scheduleByRoom = $("#scheduleByRoom");
-    scheduleByRoom.children().remove();
-
     const unassignedPatients = $("#unassignedPatients");
     unassignedPatients.children().remove();
+    let unassignedJobsCount = 0;
+    byRoomGroupData.clear();
+    byRoomItemData.clear();
 
-    const theadByRoom = $("<thead>").appendTo(scheduleByRoom);
-    const headerRowByRoom = $("<tr>").appendTo(theadByRoom);
-    headerRowByRoom.append($("<th>Room</th>"));
-
-    const LocalDate = JSJoda.LocalDate;
-
-    const arrivalDates = schedule.bedDesignations.map(d => d.stay.arrivalDate);
-    const departureDates = schedule.bedDesignations.map(d => d.stay.departureDate);
-    const allDates = [...new Set([...arrivalDates, ...departureDates])];
-
-    $.each(allDates.sort((a, b) => LocalDate.parse(a).compareTo(LocalDate.parse(b))), (index, date) => {
-        headerRowByRoom
-            .append($("<th/>").prop("style", "text-align: center")
-                .append($("<span/>").text(`${LocalDate.parse(date).format(dateFormatter)}`))
-                .append($(`<button type="button" class="ms-2 mb-1 btn btn-light btn-sm p-1"/>`))
-            );
-    });
-
-    const tbodyByRow = $("<tbody>").appendTo(scheduleByRoom);
-    const maxBeds = Math.max(...schedule.departments.flatMap(d => d.rooms).map(r => r.beds.length));
-    const addMinHeight = schedule.bedDesignations.find(d => d.bed != null);
-
-    $.each(schedule.departments.flatMap(d => d.rooms), (index, room) => {
-        const rowByRoom = $("<tr>").appendTo(tbodyByRow);
-        rowByRoom
-            .append($(`<th class="align-middle"/>`)
-                .append($("<span/>").text(room.name)));
-        $.each(allDates.sort((a, b) => LocalDate.parse(a).compareTo(LocalDate.parse(b))), (index, date) => {
-            const columnByRow = $("<td/>");
-            const containerByBed = $("<div/>").prop("class", "d-flex flex-column");
-            columnByRow.append(containerByBed);
-            for (let i = 0; i < maxBeds; i++) {
-                const rowByBed = $("<div/>")
-                    .prop("id", `room${room.id}date${LocalDate.parse(date).format(dateFormatter)}bed${i}`);
-                if (addMinHeight) {
-                    rowByBed.prop("style", "min-height: 100");
-                }
-                containerByBed.append(rowByBed);
+    $.each(schedule.departments.flatMap(d => d.rooms), (_, room) => {
+        let content = `<div class="d-flex flex-column"><div><h5 class="card-title mb-1">${room.name}</h5></div>`;
+        if (room.equipments.length > 0) {
+            let equipments = room.equipments.sort().slice(0, Math.min(2, room.equipments.length));
+            content += `<div class="d-flex">`;
+            equipments.forEach(e => content += `<div><span class="badge m-1" style="background-color: ${pickColor(e)}">${e}</span></div>`);
+            content += "</div>";
+            console.log(content)
+            if (room.equipments.length > 2) {
+                let equipments = room.equipments.sort().slice(2, Math.min(4, room.equipments.length));
+                content += `<div class="d-flex">`;
+                equipments.forEach(e => content += `<div><span class="badge m-1" style="background-color: ${pickColor(e)}">${e}</span></div>`);
+                content += "</div>";
             }
-            rowByRoom.append(columnByRow);
-        });
+            console.log(content)
+        }
+
+        const roomData = {
+            id: room.id,
+            content: content,
+            treeLevel: 1,
+            nestedLevels: [...room.beds.map(b => b.id)]
+        };
+        byRoomGroupData.add(roomData);
+        room.beds.forEach(bed => byRoomGroupData.add({
+            id: bed.id,
+            content: `Bed ${bed.indexInRoom + 1}`,
+            treeLevel: 2
+        }));
     });
 
     const bedMap = new Map();
     schedule.departments.flatMap(d => d.rooms).flatMap(r => r.beds).forEach(b => bedMap.set(b.id, b));
 
-    $.each(schedule.bedDesignations, (index, designation) => {
-        let currentDate = designation?.stay?.arrivalDate;
-        do {
-            const color = pickColor(designation.stay.patient.id);
-            const bed = designation.bed != null ? bedMap.get(designation.bed) : {};
-            const talkElement = $(`<div class="card mb-2" style="background-color: ${color}"/>`)
-                .append($(`<div class="card-body p-2"/>`)
-                    .append($(`<h5 class="card-title mb-1 text-truncate"/>`).text(`${designation.stay.patient.name}`))
-                    .append($(`<p class="card-text ms-2 mb-1"/>`)
-                        .append($(`<em/>`).text(`${designation.stay.specialism}`)))
-                    .append($(`<p class="card-text ms-2 mb-1"/>`)
-                        .append($(`<em/>`).text(`Bed ${bed?.indexInRoom ?? 'not scheduled'}`))));
-            if (designation.bed != null) {
-                $(`#room${bed.room}date${LocalDate.parse(currentDate).format(dateFormatter)}bed${bed.indexInRoom}`).append(talkElement.clone());
-                currentDate = LocalDate.parse(currentDate).plusDays(1).toString();
-            } else {
-                unassignedPatients.append($(`<div class="col"/>`).append(talkElement));
-                currentDate = null;
+    $.each(schedule.bedDesignations, (_, designation) => {
+        if (designation.bed == null) {
+            unassignedJobsCount++;
+            const unassignedPatientElement = $(`<div class="card-body p-2"/>`)
+                .append($(`<h5 class="card-title mb-1"/>`).text(`${designation.stay.patient.name} (${designation.stay.patient.gender.substring(0, 1)})`))
+                .append($(`<p class="card-text ms-2 mb-0"/>`).text(`${JSJoda.LocalDate.parse(designation.stay.arrivalDate)
+                    .until(JSJoda.LocalDate.parse(designation.stay.departureDate), JSJoda.ChronoUnit.DAYS)} day(s)`))
+                .append($(`<p class="card-text ms-2 mb-0"/>`).text(`Arrival: ${designation.stay.arrivalDate}`))
+                .append($(`<p class="card-text ms-2 mb-0"/>`).text(`Departure: ${designation.stay.departureDate}`));
+
+            const color = pickColor(designation.stay.specialism);
+            unassignedPatientElement
+                .append($(`<p class="card-text mb-0"/>`).append($(`<span class="badge m-1" style="background-color: ${color}"/>`)
+                    .text(designation.stay.specialism)));
+
+            const equipmentDiv = $("<div />").prop("class", "col");
+            unassignedPatientElement.append(equipmentDiv);
+            designation.stay.patient.requiredEquipments.sort().forEach(e => {
+                equipmentDiv.append($(`<span class="badge m-1" style="background-color: ${pickColor(e)}"/>`).text(e))
+            });
+            if (designation.stay.patient.preferredEquipments && designation.stay.patient.preferredEquipments.length > 0) {
+                equipmentDiv.append($(`<span />`).prop("class", "m-2").text("|"));
+                designation.stay.patient.preferredEquipments
+                    .filter(e => designation.stay.patient.requiredEquipments.indexOf(e) == -1)
+                    .sort()
+                    .forEach(e => equipmentDiv.append($(`<span class="badge m-1" style="background-color: ${pickColor(e)}"/>`).text(e)));
             }
-        } while (currentDate != null && !LocalDate.parse(currentDate).isAfter(LocalDate.parse(designation.stay.departureDate)));
+            unassignedPatientElement.append($("<div />").prop("class", "d-flex justify-content-end").append($(`<small class="ms-2 mt-1 card-text text-muted"/>`)
+                .text(designation.stay.patient.preferredMaximumRoomCapacity)));
+
+            unassignedPatients.append($(`<div class="col"/>`).append($(`<div class="card"/>`).append(unassignedPatientElement)));
+            byRoomItemData.add({
+                id: designation.id,
+                group: designation.id,
+                start: designation.stay.arrivalDate,
+                end: designation.stay.departureDate,
+                style: "background-color: #EF292999"
+            });
+        } else {
+            const byPatientElement = $(`<div />`)
+                .append($(`<h5 class="card-title mb-1"/>`).text(`${designation.stay.patient.name} (${designation.stay.patient.gender.substring(0, 1)})`));
+
+            const color = pickColor(designation.stay.specialism);
+            byPatientElement
+                .append($(`<p class="card-text mb-0"/>`).append($(`<span class="badge m-1" style="background-color: ${color}"/>`)
+                    .text(designation.stay.specialism)));
+
+            const equipmentDiv = $("<div />").prop("class", "col");
+            byPatientElement.append(equipmentDiv);
+            designation.stay.patient.requiredEquipments.sort().forEach(e => {
+                equipmentDiv.append($(`<span class="badge m-1" style="background-color: ${pickColor(e)}"/>`).text(e))
+            });
+            if (designation.stay.patient.preferredEquipments && designation.stay.patient.preferredEquipments.length > 0) {
+                equipmentDiv.append($(`<span />`).prop("class", "m-2").text("|"));
+                designation.stay.patient.preferredEquipments
+                    .filter(e => designation.stay.patient.requiredEquipments.indexOf(e) == -1)
+                    .sort()
+                    .forEach(e => equipmentDiv.append($(`<span class="badge m-1" style="background-color: ${pickColor(e)}"/>`).text(e)));
+            }
+            byPatientElement.append($("<div />").prop("class", "d-flex justify-content-end").append($(`<small class="ms-2 mt-1 card-text text-muted"/>`)
+                .text(designation.stay.patient.preferredMaximumRoomCapacity)));
+
+            byRoomItemData.add({
+                id: designation.id,
+                group: designation.bed,
+                content: byPatientElement.html(),
+                start: designation.stay.arrivalDate,
+                end: designation.stay.departureDate
+            });
+        }
     });
+    if (unassignedJobsCount === 0) {
+        unassignedPatients.append($(`<p/>`).text(`There are no unassigned stays.`));
+    }
+
+    const arrivalDates = schedule.bedDesignations.map(d => d.stay.arrivalDate);
+    const departureDates = schedule.bedDesignations.map(d => d.stay.departureDate);
+    const allDates = [...new Set([...arrivalDates, ...departureDates])]
+        .sort((a, b) => JSJoda.LocalDate.parse(a).compareTo(JSJoda.LocalDate.parse(b)));
+    byRoomTimeline.setWindow(allDates[0], allDates[allDates.length - 1]);
 }
 
 function solve() {

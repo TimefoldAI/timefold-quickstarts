@@ -7,6 +7,15 @@
     <link rel="stylesheet" href="/webjars/font-awesome/css/all.css"/>
     <link rel="stylesheet" href="/webjars/timefold/css/timefold-webui.css"/>
     <link rel="icon" href="/webjars/timefold/img/timefold-favicon.svg" type="image/svg+xml">
+    <style>
+        .vis-time-axis .vis-grid.vis-saturday,
+        .vis-time-axis .vis-grid.vis-sunday {
+            background: #D3D7CFFF;
+        }
+        .vis-item-content {
+            width: 100%;
+        }
+    </style>
 </head>
 <body>
 <header id="timefold-auto-header">
@@ -33,7 +42,8 @@
             </button>
 
             <div class="btn-group dropstart float-end ms-2">
-                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Data
                 </button>
                 <div id="testDataButton" class="dropdown-menu" aria-labelledby="dropdownMenuButton"></div>
@@ -51,13 +61,10 @@
         </div>
         <div class="tab-content">
             <div class="tab-pane fade show active" id="byRoomPanel" role="tabpanel" aria-labelledby="byRoomTab">
-                <table class="table table-borderless table-striped" id="scheduleByRoom">
-                    <!-- Filled in by app.js -->
-                </table>
             </div>
         </div>
 
-        <h2>Unassigned patients</h2>
+        <h2>Unassigned stays</h2>
         <div id="unassignedPatients" class="row row-cols-3 g-3 mb-4"></div>
     </div>
 
@@ -139,7 +146,8 @@
     </div>
 </div>
 
-<div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -151,7 +159,8 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close</button>
-                <button id="uploadModalImportButton" type="button" class="btn btn-outline-primary btn-sm">Import</button>
+                <button id="uploadModalImportButton" type="button" class="btn btn-outline-primary btn-sm">Import
+                </button>
             </div>
         </div>
     </div>
@@ -161,7 +170,10 @@
 <script src="/webjars/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="/webjars/jquery/jquery.min.js"></script>
 <script src="/webjars/js-joda/dist/js-joda.min.js"></script>
+<script src="/webjars/js-joda__locale_en-us/dist/index.js"></script>
 <script src="/webjars/timefold/js/timefold-webui.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vis-timeline@7.7.2/standalone/umd/vis-timeline-graph2d.min.js"
+        integrity="sha256-Jy2+UO7rZ2Dgik50z3XrrNpnc5+2PAx9MhL2CicodME=" crossorigin="anonymous"></script>
 <script src="/app.js"></script>
 </body>
 </html>

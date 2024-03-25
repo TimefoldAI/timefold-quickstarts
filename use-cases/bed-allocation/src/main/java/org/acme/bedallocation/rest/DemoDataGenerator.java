@@ -80,7 +80,7 @@ public class DemoDataGenerator {
 
         // Room gender limitation
         List<Pair<Float, GenderLimitation>> genderValues = List.of(
-                new Pair<>(0.08f, SAME_GENDER), // 8% for SAME_GENDER
+                new Pair<>(1f, SAME_GENDER), // 100% for SAME_GENDER
                 new Pair<>(0.24f, MALE_ONLY),
                 new Pair<>(0.32f, FEMALE_ONLY),
                 new Pair<>(0.36f, ANY_GENDER));
@@ -157,8 +157,9 @@ public class DemoDataGenerator {
                 .toList();
 
         // 50% MALE - 50% FEMALE
-        applyRandomValue(50, patients, p -> p.getGender() == null, p -> p.setGender(MALE));
-        applyRandomValue(50, patients, p -> p.getGender() == null, p -> p.setGender(FEMALE));
+        applyRandomValue((int) (size * 0.5), patients, p -> p.getGender() == null, p -> p.setGender(MALE));
+        applyRandomValue((int) (size * 0.5), patients, p -> p.getGender() == null, p -> p.setGender(FEMALE));
+        patients.stream().filter(p -> p.getGender() == null).forEach(p -> p.setGender(MALE));
 
         // Age group
         List<Pair<Float, Integer[]>> ageValues = List.of(
@@ -305,7 +306,7 @@ public class DemoDataGenerator {
         // Start date - 18% Mon/Fri and 5% Sat/Sun
         // Stay period
         List<Pair<Float, Integer>> periodCount = List.of(
-                new Pair<>(0.16f, 0), // 16% for 0 days
+                new Pair<>(0f, 0), // 16% for 0 days - workaround: using 0% to force the UI show the card information
                 new Pair<>(0.18f, 1), // 18% one day, etc
                 new Pair<>(0.06f, 2),
                 new Pair<>(0.13f, 3),
@@ -322,7 +323,7 @@ public class DemoDataGenerator {
         stays.stream()
                 .filter(s -> s.getArrivalDate() == null)
                 .toList()
-                .forEach(s -> dateConsumer.accept(s, 0));
+                .forEach(s -> dateConsumer.accept(s, 2));
         return stays;
     }
 
