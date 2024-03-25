@@ -22,9 +22,29 @@ $(document).ready(function () {
         refreshSchedule();
     });
 
+    addImportDropdownItem();
+    addExportDropdownItem();
+
     setupAjax();
     refreshSchedule();
 });
+
+function addImportDropdownItem() {
+    $("#testDataButton")
+        .append($('<hr class="dropdown-divider">'))
+        .append($('<a id="importTestData" class="dropdown-item" href="#">Import</a>'));
+    $("#uploadModalImportButton").click(importLocalFile);
+    $("#importTestData").click(function () {
+        scheduleId = null;
+        demoDataId = null;
+        $('#uploadModal').modal('show');
+    });
+}
+
+function addExportDropdownItem() {
+    $("#testDataButton")
+        .append($('<a id="exportData" class="dropdown-item" href="#" download="result.json">Export</a>'));
+}
 
 function setupAjax() {
     $.ajaxSetup({
@@ -56,6 +76,7 @@ function refreshSchedule() {
 
     $.getJSON(path, function (schedule) {
         loadedSchedule = schedule;
+        $('#exportData').attr('href', 'data:text/plain;charset=utf-8,' + JSON.stringify(loadedSchedule));
         renderSchedule(schedule);
     })
         .fail(function (xhr, ajaxOptions, thrownError) {
@@ -77,8 +98,8 @@ function renderScheduleByRoom(schedule) {
     const scheduleByRoom = $("#scheduleByRoom");
     scheduleByRoom.children().remove();
 
-    const unassignedTalks = $("#unassignedTalks");
-    unassignedTalks.children().remove();
+    const unassignedPatients = $("#unassignedPatients");
+    unassignedPatients.children().remove();
 
     const theadByRoom = $("<thead>").appendTo(scheduleByRoom);
     const headerRowByRoom = $("<tr>").appendTo(theadByRoom);
@@ -142,7 +163,7 @@ function renderScheduleByRoom(schedule) {
                 $(`#room${bed.room}date${LocalDate.parse(currentDate).format(dateFormatter)}bed${bed.indexInRoom}`).append(talkElement.clone());
                 currentDate = LocalDate.parse(currentDate).plusDays(1).toString();
             } else {
-                unassignedTalks.append($(`<div class="col"/>`).append(talkElement));
+                unassignedPatients.append($(`<div class="col"/>`).append(talkElement));
                 currentDate = null;
             }
         } while (currentDate != null && !LocalDate.parse(currentDate).isAfter(LocalDate.parse(designation.stay.departureDate)));
@@ -280,6 +301,29 @@ function stopSolving() {
     }).fail(function (xhr, ajaxOptions, thrownError) {
         showError("Stop solving failed.", xhr);
     });
+}
+
+function importLocalFile() {
+    var file = document.querySelector('input[type=file]').files[0];
+    var reader = new FileReader();
+
+    reader.addEventListener("load", function () {
+        // convert image file to base64 string
+        var data = atob(reader.result.toString().replace(/^data:(.*,)?/, ''));
+        $("#importedFile").val('');
+
+        try {
+            loadedSchedule = JSON.parse(data);
+            renderSchedule(loadedSchedule);
+            $('#exportData').attr('href', 'data:text/plain;charset=utf-8,' + JSON.stringify(loadedSchedule));
+        } catch (error) {
+            console.error(error);
+            showSimpleError("Failed loading a bed plan.\nCheck if the content of the file represents a valid bed plan.");
+        }
+        $('#uploadModal').modal('hide');
+    }, false);
+
+    reader.readAsDataURL(file);
 }
 
 function copyTextToClipboard(id) {
