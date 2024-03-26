@@ -177,7 +177,9 @@ function renderScheduleByRoom(schedule) {
             unassignedPatientElement.append($("<div />").prop("class", "d-flex justify-content-end").append($(`<small class="ms-2 mt-1 card-text text-muted"/>`)
                 .text(stay.patientPreferredMaximumRoomCapacity)));
 
-            unassignedPatients.append($(`<div class="col"/>`).append($(`<div class="card"/>`).append(unassignedPatientElement)));
+            const color = stay.patientGender == 'MALE' ? '#729FCF' : '#FCE94F';
+            unassignedPatients.append($(`<div class="col"/>`).append($(`<div class="card" style="background-color: ${color}"/>`).append(unassignedPatientElement)));
+            console.log(stay)
             byRoomItemData.add({
                 id: stay.id,
                 group: stay.id,
@@ -208,13 +210,15 @@ function renderScheduleByRoom(schedule) {
             }
             byPatientElement.append($("<div />").prop("class", "d-flex justify-content-end").append($(`<small class="ms-2 mt-1 card-text text-muted"/>`)
                 .text(stay.patientPreferredMaximumRoomCapacity)));
+            const color = stay.patientGender == 'MALE' ? '#729FCF' : '#FCE94F';
 
             byRoomItemData.add({
                 id: stay.id,
                 group: stay.bed,
                 content: byPatientElement.html(),
                 start: stay.arrivalDate,
-                end: stay.departureDate
+                end: stay.departureDate,
+                style: `background-color: ${color}`
             });
         }
     });
