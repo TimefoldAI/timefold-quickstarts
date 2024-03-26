@@ -74,14 +74,6 @@ public class BedSchedule {
                 .toList();
     }
 
-    @JsonIgnore
-    @ProblemFactCollectionProperty
-    public List<Patient> getPatients() {
-        return getStays().stream()
-                .map(Stay::getPatient)
-                .toList();
-    }
-
     public List<Stay> getStays() {
         return stays;
     }

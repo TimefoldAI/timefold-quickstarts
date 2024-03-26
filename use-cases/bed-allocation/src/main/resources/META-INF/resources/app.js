@@ -151,7 +151,7 @@ function renderScheduleByRoom(schedule) {
         if (stay.bed == null) {
             unassignedJobsCount++;
             const unassignedPatientElement = $(`<div class="card-body p-2"/>`)
-                .append($(`<h5 class="card-title mb-1"/>`).text(`${stay.patient.name} (${stay.patient.gender.substring(0, 1)})`))
+                .append($(`<h5 class="card-title mb-1"/>`).text(`${stay.patientName} (${stay.patientGender.substring(0, 1)})`))
                 .append($(`<p class="card-text ms-2 mb-0"/>`).text(`${JSJoda.LocalDate.parse(stay.arrivalDate)
                     .until(JSJoda.LocalDate.parse(stay.departureDate), JSJoda.ChronoUnit.DAYS)} day(s)`))
                 .append($(`<p class="card-text ms-2 mb-0"/>`).text(`Arrival: ${stay.arrivalDate}`))
@@ -164,18 +164,18 @@ function renderScheduleByRoom(schedule) {
 
             const equipmentDiv = $("<div />").prop("class", "col");
             unassignedPatientElement.append(equipmentDiv);
-            stay.patient.requiredEquipments.sort().forEach(e => {
+            stay.patientRequiredEquipments.sort().forEach(e => {
                 equipmentDiv.append($(`<span class="badge m-1" style="background-color: ${pickColor(e)}"/>`).text(e))
             });
-            if (stay.patient.preferredEquipments && stay.patient.preferredEquipments.length > 0) {
+            if (stay.patientPreferredEquipments && stay.patientPreferredEquipments.length > 0) {
                 equipmentDiv.append($(`<span />`).prop("class", "m-2").text("|"));
-                stay.patient.preferredEquipments
-                    .filter(e => stay.patient.requiredEquipments.indexOf(e) == -1)
+                stay.patientPreferredEquipments
+                    .filter(e => stay.patientRequiredEquipments.indexOf(e) == -1)
                     .sort()
                     .forEach(e => equipmentDiv.append($(`<span class="badge m-1" style="background-color: ${pickColor(e)}"/>`).text(e)));
             }
             unassignedPatientElement.append($("<div />").prop("class", "d-flex justify-content-end").append($(`<small class="ms-2 mt-1 card-text text-muted"/>`)
-                .text(stay.patient.preferredMaximumRoomCapacity)));
+                .text(stay.patientPreferredMaximumRoomCapacity)));
 
             unassignedPatients.append($(`<div class="col"/>`).append($(`<div class="card"/>`).append(unassignedPatientElement)));
             byRoomItemData.add({
@@ -187,7 +187,7 @@ function renderScheduleByRoom(schedule) {
             });
         } else {
             const byPatientElement = $(`<div />`)
-                .append($(`<h5 class="card-title mb-1"/>`).text(`${stay.patient.name} (${stay.patient.gender.substring(0, 1)})`));
+                .append($(`<h5 class="card-title mb-1"/>`).text(`${stay.patientName} (${stay.patientGender.substring(0, 1)})`));
 
             const color = pickColor(stay.specialism);
             byPatientElement
@@ -196,18 +196,18 @@ function renderScheduleByRoom(schedule) {
 
             const equipmentDiv = $("<div />").prop("class", "col");
             byPatientElement.append(equipmentDiv);
-            stay.patient.requiredEquipments.sort().forEach(e => {
+            stay.patientRequiredEquipments.sort().forEach(e => {
                 equipmentDiv.append($(`<span class="badge m-1" style="background-color: ${pickColor(e)}"/>`).text(e))
             });
-            if (stay.patient.preferredEquipments && stay.patient.preferredEquipments.length > 0) {
+            if (stay.patientPreferredEquipments && stay.patientPreferredEquipments.length > 0) {
                 equipmentDiv.append($(`<span />`).prop("class", "m-2").text("|"));
-                stay.patient.preferredEquipments
-                    .filter(e => stay.patient.requiredEquipments.indexOf(e) == -1)
+                stay.patientPreferredEquipments
+                    .filter(e => stay.patientRequiredEquipments.indexOf(e) == -1)
                     .sort()
                     .forEach(e => equipmentDiv.append($(`<span class="badge m-1" style="background-color: ${pickColor(e)}"/>`).text(e)));
             }
             byPatientElement.append($("<div />").prop("class", "d-flex justify-content-end").append($(`<small class="ms-2 mt-1 card-text text-muted"/>`)
-                .text(stay.patient.preferredMaximumRoomCapacity)));
+                .text(stay.patientPreferredMaximumRoomCapacity)));
 
             byRoomItemData.add({
                 id: stay.id,

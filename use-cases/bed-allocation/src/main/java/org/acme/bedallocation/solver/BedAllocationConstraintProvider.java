@@ -73,7 +73,7 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
                         .filter(st -> st.getRoomGenderLimitation() == GenderLimitation.SAME_GENDER),
                         equal(Stay::getRoom),
                         lessThan(Stay::getId),
-                        filtering((left, right) -> left.getPatient().getGender() != right.getPatient().getGender()
+                        filtering((left, right) -> left.getPatientGender() != right.getPatientGender()
                                 && left.calculateSameNightCount(right) > 0))
                 .penalize(HardMediumSoftScore.ofHard(1000),
                         Stay::calculateSameNightCount)
@@ -104,10 +104,9 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
 
     public Constraint requiredPatientEquipment(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(Stay.class)
-                .filter(st -> !st.getRoom().getEquipments().containsAll(st.getPatient().getRequiredEquipments()))
+                .filter(st -> !st.getRoom().getEquipments().containsAll(st.getPatientRequiredEquipments()))
                 .penalize(HardMediumSoftScore.ofHard(50),
-                        (st) -> st.getNightCount() * (int) st.getPatient()
-                                .getRequiredEquipments().stream()
+                        st -> st.getNightCount() * (int) st.getPatientRequiredEquipments().stream()
                                 .filter(equipment -> st.getRoom().getEquipments().contains(equipment)).count())
                 .asConstraint("requiredPatientEquipment");
     }
@@ -123,8 +122,8 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
     //Soft
     public Constraint preferredMaximumRoomCapacity(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(Stay.class)
-                .filter(st -> st.getPatient().getPreferredMaximumRoomCapacity() != null
-                        && st.getPatient().getPreferredMaximumRoomCapacity() < st.getRoom().getCapacity())
+                .filter(st -> st.getPatientPreferredMaximumRoomCapacity() != null
+                        && st.getPatientPreferredMaximumRoomCapacity() < st.getRoom().getCapacity())
                 .penalize(HardMediumSoftScore.ofSoft(8), Stay::getNightCount)
                 .asConstraint("preferredMaximumRoomCapacity");
     }
@@ -153,10 +152,9 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
     public Constraint preferredPatientEquipment(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(Stay.class)
                 .filter(bedDesignation -> !bedDesignation.getRoom().getEquipments().containsAll(
-                        bedDesignation.getPatient().getPreferredEquipments()))
+                        bedDesignation.getPatientPreferredEquipments()))
                 .penalize(HardMediumSoftScore.ofHard(50),
-                        (st) -> st.getNightCount() * (int) st.getPatient()
-                                .getPreferredEquipments().stream()
+                        st -> st.getNightCount() * (int) st.getPatientPreferredEquipments().stream()
                                 .filter(equipment -> st.getRoom().getEquipments().contains(equipment)).count())
                 .asConstraint("preferredPatientEquipment");
     }

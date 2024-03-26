@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import ai.timefold.solver.core.api.domain.lookup.PlanningId;
+
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
-import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 
 @JsonIdentityInfo(scope = Department.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Department {
@@ -42,15 +42,15 @@ public class Department {
     }
 
     public int countHardDisallowedStay(Stay stay) {
-        return countDisallowedPatientAge(stay.getPatient());
+        return countDisallowedPatientAge(stay.getPatientAge());
     }
 
-    public int countDisallowedPatientAge(Patient patient) {
+    public int countDisallowedPatientAge(int patientAge) {
         int count = 0;
-        if (minimumAge != null && patient.getAge() < minimumAge) {
+        if (minimumAge != null && patientAge < minimumAge) {
             count += 100;
         }
-        if (maximumAge != null && patient.getAge() > maximumAge) {
+        if (maximumAge != null && patientAge > maximumAge) {
             count += 100;
         }
         return count;
