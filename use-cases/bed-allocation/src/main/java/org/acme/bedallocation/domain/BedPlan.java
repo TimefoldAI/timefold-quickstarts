@@ -10,8 +10,6 @@ import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
 import ai.timefold.solver.core.api.score.buildin.hardmediumsoft.HardMediumSoftScore;
 import ai.timefold.solver.core.api.solver.SolverStatus;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 @PlanningSolution
 public class BedPlan {
 
