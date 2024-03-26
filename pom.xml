@@ -31,6 +31,7 @@
     <module>use-cases/employee-scheduling</module>
     <module>use-cases/food-packaging</module>
     <module>use-cases/conference-scheduling</module>
+    <module>use-cases/bed-allocation</module>
   </modules>
 
 </project>
