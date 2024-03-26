@@ -47,18 +47,6 @@ public class BedPlan {
 
     @JsonIgnore
     @ProblemFactCollectionProperty
-    public List<DepartmentSpecialty> extractDepartmentSpecialties() {
-        return departments.stream()
-                .flatMap(d -> d.getSpecialtyToPriority().entrySet().stream()
-                        .map(e -> new DepartmentSpecialty("%s-%s".formatted(d.getId(), e.getKey()), d, e.getKey(),
-                                e.getValue()))
-                        .toList()
-                        .stream())
-                .toList();
-    }
-
-    @JsonIgnore
-    @ProblemFactCollectionProperty
     public List<Room> extractRooms() {
         return departments.stream().filter(d -> d.getRooms() != null).flatMap(d -> d.getRooms().stream()).toList();
     }
