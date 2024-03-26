@@ -2,29 +2,29 @@ package org.acme.bedallocation.domain;
 
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 
-public class DepartmentSpecialism {
+public class DepartmentSpecialty {
 
     @PlanningId
     private String id;
 
     private Department department;
-    private String specialism;
+    private String specialty;
 
     private int priority; // AKA choice
 
-    public DepartmentSpecialism() {
+    public DepartmentSpecialty() {
     }
 
-    public DepartmentSpecialism(String id, Department department, String specialism, int priority) {
+    public DepartmentSpecialty(String id, Department department, String specialty, int priority) {
         this.id = id;
         this.department = department;
-        this.specialism = specialism;
+        this.specialty = specialty;
         this.priority = priority;
     }
 
     @Override
     public String toString() {
-        return department + "-" + specialism;
+        return department + "-" + specialty;
     }
 
     // ************************************************************************
@@ -43,12 +43,12 @@ public class DepartmentSpecialism {
         this.department = department;
     }
 
-    public String getSpecialism() {
-        return specialism;
+    public String getSpecialty() {
+        return specialty;
     }
 
-    public void setSpecialism(String specialism) {
-        this.specialism = specialism;
+    public void setSpecialty(String specialty) {
+        this.specialty = specialty;
     }
 
     public int getPriority() {

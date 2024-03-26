@@ -157,10 +157,10 @@ function renderScheduleByRoom(schedule) {
                 .append($(`<p class="card-text ms-2 mb-0"/>`).text(`Arrival: ${stay.arrivalDate}`))
                 .append($(`<p class="card-text ms-2 mb-0"/>`).text(`Departure: ${stay.departureDate}`));
 
-            const color = pickColor(stay.specialism);
+            const color = pickColor(stay.specialty);
             unassignedPatientElement
                 .append($(`<p class="card-text mb-0"/>`).append($(`<span class="badge m-1" style="background-color: ${color}"/>`)
-                    .text(stay.specialism)));
+                    .text(stay.specialty)));
 
             const equipmentDiv = $("<div />").prop("class", "col");
             unassignedPatientElement.append(equipmentDiv);
@@ -189,10 +189,10 @@ function renderScheduleByRoom(schedule) {
             const byPatientElement = $(`<div />`)
                 .append($(`<h5 class="card-title mb-1"/>`).text(`${stay.patientName} (${stay.patientGender.substring(0, 1)})`));
 
-            const color = pickColor(stay.specialism);
+            const color = pickColor(stay.specialty);
             byPatientElement
                 .append($(`<p class="card-text mb-0"/>`).append($(`<span class="badge m-1" style="background-color: ${color}"/>`)
-                    .text(stay.specialism)));
+                    .text(stay.specialty)));
 
             const equipmentDiv = $("<div />").prop("class", "col");
             byPatientElement.append(equipmentDiv);

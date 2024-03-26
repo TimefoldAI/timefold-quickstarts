@@ -6,7 +6,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import org.acme.bedallocation.domain.BedSchedule;
+import org.acme.bedallocation.domain.BedPlan;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -28,7 +28,7 @@ public class BedSchedulingDemoResource {
     @APIResponses(value = {
             @APIResponse(responseCode = "200", description = "Unsolved demo schedule.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
-                            schema = @Schema(implementation = BedSchedule.class))) })
+                            schema = @Schema(implementation = BedPlan.class))) })
     @Operation(summary = "Find an unsolved demo schedule by ID.")
     @GET
     public Response generate() {

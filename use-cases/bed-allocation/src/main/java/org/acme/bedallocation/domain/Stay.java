@@ -25,7 +25,7 @@ public class Stay {
     private List<String> patientPreferredEquipments;
     private LocalDate arrivalDate;
     private LocalDate departureDate;
-    private String specialism;
+    private String specialty;
     @PlanningVariable(allowsUnassigned = true)
     private Bed bed;
 
@@ -39,11 +39,11 @@ public class Stay {
         this.patientPreferredEquipments = new LinkedList<>();
     }
 
-    public Stay(String id, LocalDate arrivalDate, LocalDate departureDate, String specialism, Bed bed) {
+    public Stay(String id, LocalDate arrivalDate, LocalDate departureDate, String specialty, Bed bed) {
         this.id = id;
         this.arrivalDate = arrivalDate;
         this.departureDate = departureDate;
-        this.specialism = specialism;
+        this.specialty = specialty;
         this.bed = bed;
         this.patientRequiredEquipments = new LinkedList<>();
         this.patientPreferredEquipments = new LinkedList<>();
@@ -181,12 +181,12 @@ public class Stay {
         this.departureDate = departureDate;
     }
 
-    public String getSpecialism() {
-        return specialism;
+    public String getSpecialty() {
+        return specialty;
     }
 
-    public void setSpecialism(String specialism) {
-        this.specialism = specialism;
+    public void setSpecialty(String specialty) {
+        this.specialty = specialty;
     }
 
     public Bed getBed() {

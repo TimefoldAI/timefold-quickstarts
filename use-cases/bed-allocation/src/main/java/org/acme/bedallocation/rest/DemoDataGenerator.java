@@ -21,7 +21,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import ai.timefold.solver.core.impl.util.Pair;
 
 import org.acme.bedallocation.domain.Bed;
-import org.acme.bedallocation.domain.BedSchedule;
+import org.acme.bedallocation.domain.BedPlan;
 import org.acme.bedallocation.domain.Department;
 import org.acme.bedallocation.domain.Room;
 import org.acme.bedallocation.domain.Stay;
@@ -29,7 +29,7 @@ import org.acme.bedallocation.domain.Stay;
 @ApplicationScoped
 public class DemoDataGenerator {
 
-    private static final List<String> SPECIALISMS = List.of("Specialism1", "Specialism2", "Specialism3");
+    private static final List<String> SPECIALTIES = List.of("Specialty1", "Specialty2", "Specialty3");
     private static final String TELEMETRY = "telemetry";
     private static final String TELEVISION = "television";
     private static final String OXYGEN = "oxygen";
@@ -45,20 +45,20 @@ public class DemoDataGenerator {
             LocalDate.now().with(firstInMonth(DayOfWeek.MONDAY)).plusDays(6));
     private final Random random = new Random(0);
 
-    public BedSchedule generateDemoData() {
-        BedSchedule schedule = new BedSchedule();
+    public BedPlan generateDemoData() {
+        BedPlan schedule = new BedPlan();
         // Department
         List<Department> departments = List.of(new Department("1", "Department"));
         schedule.setDepartments(departments);
-        schedule.getDepartments().get(0).getSpecialismsToPriority().put(SPECIALISMS.get(0), 1);
-        schedule.getDepartments().get(0).getSpecialismsToPriority().put(SPECIALISMS.get(1), 2);
-        schedule.getDepartments().get(0).getSpecialismsToPriority().put(SPECIALISMS.get(2), 2);
+        schedule.getDepartments().get(0).getSpecialtyToPriority().put(SPECIALTIES.get(0), 1);
+        schedule.getDepartments().get(0).getSpecialtyToPriority().put(SPECIALTIES.get(1), 2);
+        schedule.getDepartments().get(0).getSpecialtyToPriority().put(SPECIALTIES.get(2), 2);
         // Rooms
         schedule.getDepartments().get(0).setRooms(generateRooms(25, departments));
         // Beds
         generateBeds(schedule.getRooms());
         // Stays
-        schedule.setStays(generateStays(40, SPECIALISMS));
+        schedule.setStays(generateStays(40, SPECIALTIES));
         // Patients
         generatePatients(schedule.getStays());
 
@@ -119,22 +119,22 @@ public class DemoDataGenerator {
         }
     }
 
-    private List<Stay> generateStays(int size, List<String> specialisms) {
+    private List<Stay> generateStays(int size, List<String> specialties) {
         List<Stay> stays = IntStream.range(0, size)
                 .mapToObj(i -> new Stay("stay-%s".formatted(i), "patient%d".formatted(i)))
                 .toList();
 
-        // Specialism - 27% Specialism1; 36% Specialism2; 37% Specialism3
-        applyRandomValue((int) (0.27 * size), stays, s -> s.getSpecialism() == null,
-                s -> s.setSpecialism(specialisms.get(0)));
-        applyRandomValue((int) (0.36 * size), stays, s -> s.getSpecialism() == null,
-                s -> s.setSpecialism(specialisms.get(1)));
-        applyRandomValue((int) (0.37 * size), stays, s -> s.getSpecialism() == null,
-                s -> s.setSpecialism(specialisms.get(2)));
+        // specialty - 27% Specialty1; 36% Specialty2; 37% Specialty3
+        applyRandomValue((int) (0.27 * size), stays, s -> s.getSpecialty() == null,
+                s -> s.setSpecialty(specialties.get(0)));
+        applyRandomValue((int) (0.36 * size), stays, s -> s.getSpecialty() == null,
+                s -> s.setSpecialty(specialties.get(1)));
+        applyRandomValue((int) (0.37 * size), stays, s -> s.getSpecialty() == null,
+                s -> s.setSpecialty(specialties.get(2)));
         stays.stream()
-                .filter(s -> s.getSpecialism() == null)
+                .filter(s -> s.getSpecialty() == null)
                 .toList()
-                .forEach(s -> s.setSpecialism(specialisms.get(0)));
+                .forEach(s -> s.setSpecialty(specialties.get(0)));
 
         // Start date - 18% Mon/Fri and 5% Sat/Sun
         // Stay period

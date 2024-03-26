@@ -16,20 +16,20 @@ public class Department {
 
     @PlanningId
     private String id;
-    private Map<String, Integer> specialismsToPriority;
+    private Map<String, Integer> specialtyToPriority;
     private String name;
     private Integer minimumAge = null;
     private Integer maximumAge = null;
     private List<Room> rooms;
 
     public Department() {
-        this.specialismsToPriority = new HashMap<>();
+        this.specialtyToPriority = new HashMap<>();
     }
 
     public Department(String id, String name) {
         this.id = id;
         this.name = name;
-        this.specialismsToPriority = new HashMap<>();
+        this.specialtyToPriority = new HashMap<>();
     }
 
     public void addRoom(Room room) {
@@ -65,12 +65,12 @@ public class Department {
     // Getters and setters
     // ************************************************************************
 
-    public Map<String, Integer> getSpecialismsToPriority() {
-        return specialismsToPriority;
+    public Map<String, Integer> getSpecialtyToPriority() {
+        return specialtyToPriority;
     }
 
-    public void setSpecialismsToPriority(Map<String, Integer> specialismsToPriority) {
-        this.specialismsToPriority = specialismsToPriority;
+    public void setSpecialtyToPriority(Map<String, Integer> specialtyToPriority) {
+        this.specialtyToPriority = specialtyToPriority;
     }
 
     public String getId() {

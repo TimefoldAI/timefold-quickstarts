@@ -13,7 +13,7 @@ import ai.timefold.solver.core.api.solver.SolverStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @PlanningSolution
-public class BedSchedule {
+public class BedPlan {
 
     private List<Department> departments;
 
@@ -26,10 +26,10 @@ public class BedSchedule {
     private SolverStatus solverStatus;
 
     // No-arg constructor required for Timefold
-    public BedSchedule() {
+    public BedPlan() {
     }
 
-    public BedSchedule(HardMediumSoftScore score, SolverStatus solverStatus) {
+    public BedPlan(HardMediumSoftScore score, SolverStatus solverStatus) {
         this.score = score;
         this.solverStatus = solverStatus;
     }
@@ -48,10 +48,10 @@ public class BedSchedule {
 
     @JsonIgnore
     @ProblemFactCollectionProperty
-    public List<DepartmentSpecialism> getDepartmentSpecialisms() {
+    public List<DepartmentSpecialty> getDepartmentSpecialties() {
         return departments.stream()
-                .flatMap(d -> d.getSpecialismsToPriority().entrySet().stream()
-                        .map(e -> new DepartmentSpecialism("%s-%s".formatted(d.getId(), e.getKey()), d, e.getKey(),
+                .flatMap(d -> d.getSpecialtyToPriority().entrySet().stream()
+                        .map(e -> new DepartmentSpecialty("%s-%s".formatted(d.getId(), e.getKey()), d, e.getKey(),
                                 e.getValue()))
                         .toList()
                         .stream())

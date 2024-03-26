@@ -9,7 +9,7 @@ import java.time.Duration;
 
 import ai.timefold.solver.core.api.solver.SolverStatus;
 
-import org.acme.bedallocation.domain.BedSchedule;
+import org.acme.bedallocation.domain.BedPlan;
 import org.junit.jupiter.api.Test;
 
 import io.quarkus.test.junit.QuarkusTest;
@@ -20,12 +20,12 @@ class BedSchedulingResourceTest {
 
     @Test
     void solveDemoDataUntilFeasible() {
-        BedSchedule schedule = given()
+        BedPlan schedule = given()
                 .when().get("/demo-data")
                 .then()
                 .statusCode(200)
                 .extract()
-                .as(BedSchedule.class);
+                .as(BedPlan.class);
 
         String jobId = given()
                 .contentType(ContentType.JSON)
@@ -44,7 +44,7 @@ class BedSchedulingResourceTest {
                         get("/schedules/" + jobId + "/status")
                                 .jsonPath().get("solverStatus")));
 
-        BedSchedule solution = get("/schedules/" + jobId).then().extract().as(BedSchedule.class);
+        BedPlan solution = get("/schedules/" + jobId).then().extract().as(BedPlan.class);
         assertThat(solution.getSolverStatus()).isEqualTo(SolverStatus.NOT_SOLVING);
         assertThat(solution.getStays().stream().allMatch(bedDesignation -> bedDesignation.getBed() != null)).isTrue();
         assertThat(solution.getScore().isFeasible()).isTrue();
@@ -52,12 +52,12 @@ class BedSchedulingResourceTest {
 
     @Test
     void analyze() {
-        BedSchedule schedule = given()
+        BedPlan schedule = given()
                 .when().get("/demo-data")
                 .then()
                 .statusCode(200)
                 .extract()
-                .as(BedSchedule.class);
+                .as(BedPlan.class);
 
         String jobId = given()
                 .contentType(ContentType.JSON)
@@ -76,7 +76,7 @@ class BedSchedulingResourceTest {
                         get("/schedules/" + jobId + "/status")
                                 .jsonPath().get("solverStatus")));
 
-        BedSchedule solution = get("/schedules/" + jobId).then().extract().as(BedSchedule.class);
+        BedPlan solution = get("/schedules/" + jobId).then().extract().as(BedPlan.class);
 
         String analysis = given()
                 .contentType(ContentType.JSON)

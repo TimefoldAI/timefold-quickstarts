@@ -13,7 +13,7 @@ import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
 import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
 
 import org.acme.bedallocation.domain.Department;
-import org.acme.bedallocation.domain.DepartmentSpecialism;
+import org.acme.bedallocation.domain.DepartmentSpecialty;
 import org.acme.bedallocation.domain.Gender;
 import org.acme.bedallocation.domain.GenderLimitation;
 import org.acme.bedallocation.domain.Stay;
@@ -35,8 +35,8 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
                 assignEveryPatientToABed(constraintFactory),
                 // Soft constraints
                 preferredMaximumRoomCapacity(constraintFactory),
-                departmentSpecialism(constraintFactory),
-                departmentSpecialismNotFirstPriority(constraintFactory),
+                departmentSpecialty(constraintFactory),
+                departmentSpecialtyNotFirstPriority(constraintFactory),
                 preferredPatientEquipment(constraintFactory)
         };
     }
@@ -128,25 +128,25 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
                 .asConstraint("preferredMaximumRoomCapacity");
     }
 
-    public Constraint departmentSpecialism(ConstraintFactory constraintFactory) {
+    public Constraint departmentSpecialty(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(Stay.class)
-                .ifNotExists(DepartmentSpecialism.class,
-                        equal(Stay::getDepartment, DepartmentSpecialism::getDepartment),
-                        equal(Stay::getSpecialism, DepartmentSpecialism::getSpecialism))
+                .ifNotExists(DepartmentSpecialty.class,
+                        equal(Stay::getDepartment, DepartmentSpecialty::getDepartment),
+                        equal(Stay::getSpecialty, DepartmentSpecialty::getSpecialty))
                 .penalize(HardMediumSoftScore.ofSoft(10), Stay::getNightCount)
-                .asConstraint("departmentSpecialism");
+                .asConstraint("departmentSpecialty");
     }
 
-    public Constraint departmentSpecialismNotFirstPriority(ConstraintFactory constraintFactory) {
+    public Constraint departmentSpecialtyNotFirstPriority(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(Stay.class)
-                .filter(st -> st.getSpecialism() != null)
-                .join(constraintFactory.forEach(DepartmentSpecialism.class)
+                .filter(st -> st.getSpecialty() != null)
+                .join(constraintFactory.forEach(DepartmentSpecialty.class)
                         .filter(ds -> ds.getPriority() > 1),
-                        equal(Stay::getDepartment, DepartmentSpecialism::getDepartment),
-                        equal(Stay::getSpecialism, DepartmentSpecialism::getSpecialism))
+                        equal(Stay::getDepartment, DepartmentSpecialty::getDepartment),
+                        equal(Stay::getSpecialty, DepartmentSpecialty::getSpecialty))
                 .penalize(HardMediumSoftScore.ofSoft(10),
                         (bd, rs) -> (rs.getPriority() - 1) * bd.getNightCount())
-                .asConstraint("departmentSpecialismNotFirstPriority");
+                .asConstraint("departmentSpecialtyNotFirstPriority");
     }
 
     public Constraint preferredPatientEquipment(ConstraintFactory constraintFactory) {
