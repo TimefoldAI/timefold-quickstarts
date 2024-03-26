@@ -7,6 +7,7 @@ import static org.acme.bedallocation.domain.GenderLimitation.SAME_GENDER;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.stream.IntStream;
 
 import jakarta.enterprise.context.ApplicationScoped;
 
+import ai.timefold.solver.core.impl.util.MutableReference;
 import ai.timefold.solver.core.impl.util.Pair;
 
 import org.acme.bedallocation.domain.Bed;
@@ -36,14 +38,6 @@ public class DemoDataGenerator {
     private static final String OXYGEN = "oxygen";
     private static final String NITROGEN = "nitrogen";
     private static final List<String> EQUIPMENTS = List.of(TELEMETRY, TELEVISION, OXYGEN, NITROGEN);
-    private static final List<LocalDate> DATES = List.of(
-            LocalDate.now().with(firstInMonth(DayOfWeek.MONDAY)), // First Monday of the month
-            LocalDate.now().with(firstInMonth(DayOfWeek.MONDAY)).plusDays(1),
-            LocalDate.now().with(firstInMonth(DayOfWeek.MONDAY)).plusDays(2),
-            LocalDate.now().with(firstInMonth(DayOfWeek.MONDAY)).plusDays(3),
-            LocalDate.now().with(firstInMonth(DayOfWeek.MONDAY)).plusDays(4),
-            LocalDate.now().with(firstInMonth(DayOfWeek.MONDAY)).plusDays(5),
-            LocalDate.now().with(firstInMonth(DayOfWeek.MONDAY)).plusDays(6));
     private final Random random = new Random(0);
 
     public BedPlan generateDemoData() {
@@ -63,7 +57,8 @@ public class DemoDataGenerator {
                 .toList());
 
         // Rooms
-        schedule.getDepartments().get(0).setRooms(generateRooms(25, departments));
+        int countRooms = 10;
+        schedule.getDepartments().get(0).setRooms(generateRooms(countRooms, departments));
         schedule.setRooms(departments.stream().flatMap(d -> d.getRooms().stream()).toList());
         // Beds
         generateBeds(schedule.getRooms());
@@ -72,10 +67,18 @@ public class DemoDataGenerator {
                 .flatMap(r -> r.getBeds().stream())
                 .toList());
         // Stays
-        schedule.setStays(generateStays(40, SPECIALTIES));
+        LocalDate firstMonthMonday = LocalDate.now().with(firstInMonth(DayOfWeek.MONDAY)); // First Monday of the month
+        List<LocalDate> dates = new ArrayList<>(7);
+        dates.add(firstMonthMonday);
+        int countDays = 28;
+        for (int i = 1; i < countDays; i++) {
+            dates.add(firstMonthMonday.with(firstInMonth(DayOfWeek.MONDAY)).plusDays(i));
+        }
+        List<Stay> stays = generateStays(countDays, schedule.getBeds(), SPECIALTIES);
         // Patients
-        generatePatients(schedule.getStays());
-
+        generatePatients(stays);
+        // Dates
+        schedule.setStays(generateStayDates(stays, schedule.getRooms(), dates));
         return schedule;
     }
 
@@ -90,9 +93,9 @@ public class DemoDataGenerator {
 
         // Room capacity
         List<Pair<Float, Integer>> capacityValues = List.of(
-                new Pair<>(0.2f, 1), // 20% for capacity 1
-                new Pair<>(0.32f, 2),
-                new Pair<>(0.48f, 4));
+                new Pair<>(0.8f, 1), // 20% for capacity 1
+                new Pair<>(0.1f, 2),
+                new Pair<>(0.1f, 3));
         capacityValues.forEach(c -> applyRandomValue((int) (size * c.key()), rooms, r -> r.getCapacity() == 0,
                 r -> r.setCapacity(c.value())));
         rooms.stream()
@@ -120,58 +123,61 @@ public class DemoDataGenerator {
     }
 
     private void generateBeds(List<Room> rooms) {
-        // 20% - 1 bed; 32% 2 beds; 48% 4 beds
-        List<Double> countBeds = List.of(0.2, 0.52, 1d);
         for (Room room : rooms) {
-            double count = random.nextDouble();
-            int numBeds = IntStream.range(0, countBeds.size())
-                    .filter(i -> count <= countBeds.get(i))
-                    .findFirst()
-                    .getAsInt() + 1;
-            IntStream.range(0, numBeds)
+            IntStream.range(0, room.getCapacity())
                     .forEach(i -> room.addBed(new Bed("%s-bed%d".formatted(room.getId(), i), room, i)));
         }
     }
 
-    private List<Stay> generateStays(int size, List<String> specialties) {
-        List<Stay> stays = IntStream.range(0, size)
-                .mapToObj(i -> new Stay("stay-%s".formatted(i), "patient%d".formatted(i)))
+    private List<Stay> generateStays(int countDays, List<Bed> beds, List<String> specialties) {
+        List<Stay> stays = IntStream.range(0, countDays * beds.size())
+                .mapToObj(i -> new Stay("stay-%d".formatted(i), "patient-%d".formatted(i)))
                 .toList();
 
         // specialty - 27% Specialty1; 36% Specialty2; 37% Specialty3
-        applyRandomValue((int) (0.27 * size), stays, s -> s.getSpecialty() == null,
+        applyRandomValue((int) (0.27 * stays.size()), stays, s -> s.getSpecialty() == null,
                 s -> s.setSpecialty(specialties.get(0)));
-        applyRandomValue((int) (0.36 * size), stays, s -> s.getSpecialty() == null,
+        applyRandomValue((int) (0.36 * stays.size()), stays, s -> s.getSpecialty() == null,
                 s -> s.setSpecialty(specialties.get(1)));
-        applyRandomValue((int) (0.37 * size), stays, s -> s.getSpecialty() == null,
+        applyRandomValue((int) (0.37 * stays.size()), stays, s -> s.getSpecialty() == null,
                 s -> s.setSpecialty(specialties.get(2)));
         stays.stream()
                 .filter(s -> s.getSpecialty() == null)
                 .toList()
                 .forEach(s -> s.setSpecialty(specialties.get(0)));
-
-        // Start date - 18% Mon/Fri and 5% Sat/Sun
-        // Stay period
-        List<Pair<Float, Integer>> periodCount = List.of(
-                new Pair<>(0f, 0), // 16% for 0 days - workaround: using 0% to force the UI show the card information
-                new Pair<>(0.18f, 1), // 18% one day, etc
-                new Pair<>(0.06f, 2),
-                new Pair<>(0.13f, 3),
-                new Pair<>(0.22f, 4),
-                new Pair<>(0.19f, 5),
-                new Pair<>(0.06f, 6));
-        BiConsumer<Stay, Integer> dateConsumer = (stay, count) -> {
-            int start = random.nextInt(DATES.size() - count);
-            stay.setArrivalDate(DATES.get(start));
-            stay.setDepartureDate(DATES.get(start + count));
-        };
-        periodCount.forEach(p -> applyRandomValue((int) (p.key() * stays.size()), stays, p.value(),
-                s -> s.getArrivalDate() == null, dateConsumer));
-        stays.stream()
-                .filter(s -> s.getArrivalDate() == null)
-                .toList()
-                .forEach(s -> dateConsumer.accept(s, 2));
         return stays;
+    }
+
+    private List<Stay> generateStayDates(List<Stay> stays, List<Room> rooms, List<LocalDate> dates) {
+        List<Stay> updatedStays = new ArrayList<>(stays);
+        LocalDate initialDate = dates.get(0);
+        LocalDate maxDate = dates.get(dates.size() - 1);
+        List<Pair<Float, Integer>> periodCount = List.of(
+                new Pair<>(0.05f, 1), // 5% one day
+                new Pair<>(0.30f, 2), // 25% two days, etc
+                new Pair<>(0.95f, 3),
+                new Pair<>(1f, 4));
+        for (int i = 0; i < rooms.size(); i++) {
+            MutableReference<LocalDate> currentDate = new MutableReference<>(LocalDate.from(initialDate));
+            while (currentDate.getValue().isBefore(maxDate)) {
+                double countDays = random.nextDouble();
+                int numDays = periodCount.stream()
+                        .filter(p -> countDays <= p.key())
+                        .mapToInt(Pair::value)
+                        .findFirst()
+                        .getAsInt();
+                MutableReference<LocalDate> nextDate = new MutableReference<>(currentDate.getValue().plusDays(numDays));
+                if (nextDate.getValue().isAfter(maxDate)) {
+                    nextDate.setValue(maxDate);
+                }
+                applyRandomValue(1, updatedStays, stay -> stay.getArrivalDate() == null, stay -> {
+                    stay.setArrivalDate(currentDate.getValue());
+                    stay.setDepartureDate(nextDate.getValue());
+                });
+                currentDate.setValue(nextDate.getValue().plusDays(1));
+            }
+        }
+        return updatedStays.stream().filter(s -> s.getArrivalDate() != null).toList();
     }
 
     private void generatePatients(List<Stay> stays) {
@@ -205,7 +211,7 @@ public class DemoDataGenerator {
         List<Pair<Float, Integer>> capacityValues = List.of(
                 new Pair<>(0.34f, 1), // 34% for capacity 1
                 new Pair<>(0.68f, 2),
-                new Pair<>(1f, 4));
+                new Pair<>(1f, 3));
         for (Stay stay : stays) {
             double count = random.nextDouble();
             IntStream.range(0, capacityValues.size())
