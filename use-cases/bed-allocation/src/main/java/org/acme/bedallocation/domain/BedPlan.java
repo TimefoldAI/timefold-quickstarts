@@ -15,8 +15,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @PlanningSolution
 public class BedPlan {
 
+    @ProblemFactCollectionProperty
     private List<Department> departments;
-
+    @ProblemFactCollectionProperty
+    private List<DepartmentSpecialty> departmentSpecialties;
+    @ProblemFactCollectionProperty
+    private List<Room> rooms;
+    @ProblemFactCollectionProperty
+    @ValueRangeProvider
+    private List<Bed> beds;
     @PlanningEntityCollectionProperty
     private List<Stay> stays;
 
@@ -37,7 +44,6 @@ public class BedPlan {
     // ************************************************************************
     // Getters and setters
     // ************************************************************************
-    @ProblemFactCollectionProperty
     public List<Department> getDepartments() {
         return departments;
     }
@@ -46,32 +52,28 @@ public class BedPlan {
         this.departments = departments;
     }
 
-    @JsonIgnore
-    @ProblemFactCollectionProperty
+    public void setDepartmentSpecialties(List<DepartmentSpecialty> departmentSpecialties) {
+        this.departmentSpecialties = departmentSpecialties;
+    }
+
     public List<DepartmentSpecialty> getDepartmentSpecialties() {
-        return departments.stream()
-                .flatMap(d -> d.getSpecialtyToPriority().entrySet().stream()
-                        .map(e -> new DepartmentSpecialty("%s-%s".formatted(d.getId(), e.getKey()), d, e.getKey(),
-                                e.getValue()))
-                        .toList()
-                        .stream())
-                .toList();
+        return departmentSpecialties;
     }
 
-    @JsonIgnore
-    @ProblemFactCollectionProperty
     public List<Room> getRooms() {
-        return departments.stream().flatMap(d -> d.getRooms().stream()).toList();
+        return rooms;
     }
 
-    @JsonIgnore
-    @ProblemFactCollectionProperty
-    @ValueRangeProvider
+    public void setRooms(List<Room> rooms) {
+        this.rooms = rooms;
+    }
+
     public List<Bed> getBeds() {
-        return departments.stream()
-                .flatMap(d -> d.getRooms().stream())
-                .flatMap(r -> r.getBeds().stream())
-                .toList();
+        return beds;
+    }
+
+    public void setBeds(List<Bed> beds) {
+        this.beds = beds;
     }
 
     public List<Stay> getStays() {

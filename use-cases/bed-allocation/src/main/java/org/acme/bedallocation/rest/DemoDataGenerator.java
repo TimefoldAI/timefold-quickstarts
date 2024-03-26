@@ -23,6 +23,7 @@ import ai.timefold.solver.core.impl.util.Pair;
 import org.acme.bedallocation.domain.Bed;
 import org.acme.bedallocation.domain.BedPlan;
 import org.acme.bedallocation.domain.Department;
+import org.acme.bedallocation.domain.DepartmentSpecialty;
 import org.acme.bedallocation.domain.Room;
 import org.acme.bedallocation.domain.Stay;
 
@@ -53,10 +54,23 @@ public class DemoDataGenerator {
         schedule.getDepartments().get(0).getSpecialtyToPriority().put(SPECIALTIES.get(0), 1);
         schedule.getDepartments().get(0).getSpecialtyToPriority().put(SPECIALTIES.get(1), 2);
         schedule.getDepartments().get(0).getSpecialtyToPriority().put(SPECIALTIES.get(2), 2);
+        schedule.setDepartmentSpecialties(departments.stream()
+                .flatMap(d -> d.getSpecialtyToPriority().entrySet().stream()
+                        .map(e -> new DepartmentSpecialty("%s-%s".formatted(d.getId(), e.getKey()), d, e.getKey(),
+                                e.getValue()))
+                        .toList()
+                        .stream())
+                .toList());
+
         // Rooms
         schedule.getDepartments().get(0).setRooms(generateRooms(25, departments));
+        schedule.setRooms(departments.stream().flatMap(d -> d.getRooms().stream()).toList());
         // Beds
         generateBeds(schedule.getRooms());
+        schedule.setBeds(departments.stream()
+                .flatMap(d -> d.getRooms().stream())
+                .flatMap(r -> r.getBeds().stream())
+                .toList());
         // Stays
         schedule.setStays(generateStays(40, SPECIALTIES));
         // Patients
