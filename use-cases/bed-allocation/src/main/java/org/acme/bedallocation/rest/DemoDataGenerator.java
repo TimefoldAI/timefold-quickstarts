@@ -25,7 +25,6 @@ import ai.timefold.solver.core.impl.util.Pair;
 import org.acme.bedallocation.domain.Bed;
 import org.acme.bedallocation.domain.BedPlan;
 import org.acme.bedallocation.domain.Department;
-import org.acme.bedallocation.domain.DepartmentSpecialty;
 import org.acme.bedallocation.domain.Room;
 import org.acme.bedallocation.domain.Stay;
 
@@ -48,24 +47,11 @@ public class DemoDataGenerator {
         schedule.getDepartments().get(0).getSpecialtyToPriority().put(SPECIALTIES.get(0), 1);
         schedule.getDepartments().get(0).getSpecialtyToPriority().put(SPECIALTIES.get(1), 2);
         schedule.getDepartments().get(0).getSpecialtyToPriority().put(SPECIALTIES.get(2), 2);
-        schedule.setDepartmentSpecialties(departments.stream()
-                .flatMap(d -> d.getSpecialtyToPriority().entrySet().stream()
-                        .map(e -> new DepartmentSpecialty("%s-%s".formatted(d.getId(), e.getKey()), d, e.getKey(),
-                                e.getValue()))
-                        .toList()
-                        .stream())
-                .toList());
-
         // Rooms
         int countRooms = 10;
         schedule.getDepartments().get(0).setRooms(generateRooms(countRooms, departments));
-        schedule.setRooms(departments.stream().flatMap(d -> d.getRooms().stream()).toList());
         // Beds
-        generateBeds(schedule.getRooms());
-        schedule.setBeds(departments.stream()
-                .flatMap(d -> d.getRooms().stream())
-                .flatMap(r -> r.getBeds().stream())
-                .toList());
+        generateBeds(schedule.extractRooms());
         // Stays
         LocalDate firstMonthMonday = LocalDate.now().with(firstInMonth(DayOfWeek.MONDAY)); // First Monday of the month
         List<LocalDate> dates = new ArrayList<>(7);
@@ -74,11 +60,11 @@ public class DemoDataGenerator {
         for (int i = 1; i < countDays; i++) {
             dates.add(firstMonthMonday.with(firstInMonth(DayOfWeek.MONDAY)).plusDays(i));
         }
-        List<Stay> stays = generateStays(countDays, schedule.getBeds(), SPECIALTIES);
+        List<Stay> stays = generateStays(countDays, schedule.extractBeds(), SPECIALTIES);
         // Patients
         generatePatients(stays);
         // Dates
-        schedule.setStays(generateStayDates(stays, schedule.getRooms(), dates));
+        schedule.setStays(generateStayDates(stays, schedule.extractRooms(), dates));
         return schedule;
     }
 
