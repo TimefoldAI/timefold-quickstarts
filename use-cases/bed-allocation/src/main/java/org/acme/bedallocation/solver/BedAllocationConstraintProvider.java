@@ -13,7 +13,6 @@ import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
 import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
 
 import org.acme.bedallocation.domain.Department;
-import org.acme.bedallocation.domain.DepartmentSpecialty;
 import org.acme.bedallocation.domain.Gender;
 import org.acme.bedallocation.domain.GenderLimitation;
 import org.acme.bedallocation.domain.Stay;
@@ -130,22 +129,15 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
 
     public Constraint departmentSpecialty(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(Stay.class)
-                .ifNotExists(DepartmentSpecialty.class,
-                        equal(Stay::getDepartment, DepartmentSpecialty::getDepartment),
-                        equal(Stay::getSpecialty, DepartmentSpecialty::getSpecialty))
+                .filter(st -> !st.hasDepartmentSpecialty())
                 .penalize(HardMediumSoftScore.ofSoft(10), Stay::getNightCount)
                 .asConstraint("departmentSpecialty");
     }
 
     public Constraint departmentSpecialtyNotFirstPriority(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(Stay.class)
-                .filter(st -> st.getSpecialty() != null)
-                .join(constraintFactory.forEach(DepartmentSpecialty.class)
-                        .filter(ds -> ds.getPriority() > 1),
-                        equal(Stay::getDepartment, DepartmentSpecialty::getDepartment),
-                        equal(Stay::getSpecialty, DepartmentSpecialty::getSpecialty))
-                .penalize(HardMediumSoftScore.ofSoft(10),
-                        (bd, rs) -> (rs.getPriority() - 1) * bd.getNightCount())
+                .filter(st -> st.getSpecialtyPriority() > 1)
+                .penalize(HardMediumSoftScore.ofSoft(10), stay -> (stay.getSpecialtyPriority() - 1) * stay.getNightCount())
                 .asConstraint("departmentSpecialtyNotFirstPriority");
     }
 

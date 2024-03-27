@@ -11,7 +11,6 @@ import ai.timefold.solver.test.api.score.stream.ConstraintVerifier;
 import org.acme.bedallocation.domain.Bed;
 import org.acme.bedallocation.domain.BedPlan;
 import org.acme.bedallocation.domain.Department;
-import org.acme.bedallocation.domain.DepartmentSpecialty;
 import org.acme.bedallocation.domain.Gender;
 import org.acme.bedallocation.domain.GenderLimitation;
 import org.acme.bedallocation.domain.Room;
@@ -171,7 +170,6 @@ class BedAllocationConstraintProviderTest {
     @Test
     void preferredMaximumRoomCapacity() {
 
-
         Room room = new Room();
         room.setCapacity(6);
 
@@ -205,9 +203,10 @@ class BedAllocationConstraintProviderTest {
     }
 
     @Test
-    void departmentSpecialtY() {
+    void departmentSpecialty() {
 
         Department department = new Department("0", "0");
+        department.setSpecialtyToPriority(Map.of("spec1", 1));
 
         Room roomInDep = new Room();
         roomInDep.setDepartment(department);
@@ -225,20 +224,16 @@ class BedAllocationConstraintProviderTest {
 
         Stay staySpec2 = new Stay("1", ZERO_NIGHT, FIVE_NIGHT, spec2, bedInRoomInDep);
 
-        DepartmentSpecialty departmentSpecialtyWithOneSpec = new DepartmentSpecialty();
-        departmentSpecialtyWithOneSpec.setDepartment(department);
-        departmentSpecialtyWithOneSpec.setSpecialty(spec1);
-
         constraintVerifier.verifyThat(BedAllocationConstraintProvider::departmentSpecialty)
-                .given(staySpec1, staySpec2, departmentSpecialtyWithOneSpec)
+                .given(staySpec1, staySpec2)
                 .penalizesBy(6);
     }
 
     @Test
-    void departmentSpecialtYNotFirstPriorityConstraint() {
+    void departmentSpecialtyNotFirstPriorityConstraint() {
 
         Department department = new Department("0", "0");
-        department.setSpecialtyToPriority(Map.of("spec1", 2));
+        department.setSpecialtyToPriority(Map.of("spec1", 2, "spec2", 1));
 
         Room roomInDep = new Room("1");
         roomInDep.setDepartment(department);
@@ -255,13 +250,8 @@ class BedAllocationConstraintProviderTest {
         String spec2 = "spec2";
         Stay stay2 = new Stay("1", ZERO_NIGHT, FIVE_NIGHT, spec2, bedInDep);
 
-        DepartmentSpecialty departmentSpecialty = new DepartmentSpecialty();
-        departmentSpecialty.setDepartment(department);
-        departmentSpecialty.setSpecialty(spec1);
-        departmentSpecialty.setPriority(2);
-
         constraintVerifier.verifyThat(BedAllocationConstraintProvider::departmentSpecialtyNotFirstPriority)
-                .given(stay1, stay2, departmentSpecialty)
+                .given(stay1, stay2)
                 .penalizesBy(6);
     }
 

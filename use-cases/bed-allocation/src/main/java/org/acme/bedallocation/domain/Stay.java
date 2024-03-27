@@ -61,6 +61,16 @@ public class Stay {
     }
 
     @JsonIgnore
+    public boolean hasDepartmentSpecialty() {
+        return getDepartment().getSpecialtyToPriority().containsKey(specialty);
+    }
+
+    @JsonIgnore
+    public int getSpecialtyPriority() {
+        return getDepartment().getSpecialtyToPriority().get(specialty);
+    }
+
+    @JsonIgnore
     public Room getRoom() {
         if (bed == null) {
             return null;

@@ -10,20 +10,21 @@ import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
 import ai.timefold.solver.core.api.score.buildin.hardmediumsoft.HardMediumSoftScore;
 import ai.timefold.solver.core.api.solver.SolverStatus;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 @PlanningSolution
 public class BedPlan {
 
     @ProblemFactCollectionProperty
     private List<Department> departments;
-    @ProblemFactCollectionProperty
-    private List<DepartmentSpecialty> departmentSpecialties;
-    @ProblemFactCollectionProperty
-    private List<Room> rooms;
-    @ProblemFactCollectionProperty
-    @ValueRangeProvider
-    private List<Bed> beds;
     @PlanningEntityCollectionProperty
     private List<Stay> stays;
+    @JsonIgnore
+    private List<Room> rooms;
+    @JsonIgnore
+    private List<Bed> beds;
 
     @PlanningScore
     private HardMediumSoftScore score;
@@ -32,6 +33,21 @@ public class BedPlan {
 
     // No-arg constructor required for Timefold
     public BedPlan() {
+    }
+
+    @JsonCreator
+    public BedPlan(@JsonProperty("departments") List<Department> departments, @JsonProperty("stays") List<Stay> stays) {
+        this.departments = departments;
+        this.stays = stays;
+        this.rooms = departments.stream()
+                .filter(d -> d.getRooms() != null)
+                .flatMap(d -> d.getRooms().stream())
+                .toList();
+        this.beds = departments.stream()
+                .filter(d -> d.getRooms() != null)
+                .flatMap(d -> d.getRooms().stream())
+                .flatMap(r -> r.getBeds().stream())
+                .toList();
     }
 
     public BedPlan(HardMediumSoftScore score, SolverStatus solverStatus) {
@@ -50,14 +66,7 @@ public class BedPlan {
         this.departments = departments;
     }
 
-    public void setDepartmentSpecialties(List<DepartmentSpecialty> departmentSpecialties) {
-        this.departmentSpecialties = departmentSpecialties;
-    }
-
-    public List<DepartmentSpecialty> getDepartmentSpecialties() {
-        return departmentSpecialties;
-    }
-
+    @ProblemFactCollectionProperty
     public List<Room> getRooms() {
         return rooms;
     }
@@ -66,6 +75,8 @@ public class BedPlan {
         this.rooms = rooms;
     }
 
+    @ProblemFactCollectionProperty
+    @ValueRangeProvider
     public List<Bed> getBeds() {
         return beds;
     }
