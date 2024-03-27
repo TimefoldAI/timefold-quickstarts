@@ -10,7 +10,9 @@ import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
 import ai.timefold.solver.core.api.score.buildin.hardmediumsoft.HardMediumSoftScore;
 import ai.timefold.solver.core.api.solver.SolverStatus;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @PlanningSolution
 public class BedPlan {
@@ -19,6 +21,10 @@ public class BedPlan {
     private List<Department> departments;
     @PlanningEntityCollectionProperty
     private List<Stay> stays;
+    @JsonIgnore
+    private List<Room> rooms;
+    @JsonIgnore
+    private List<Bed> beds;
 
     @PlanningScore
     private HardMediumSoftScore score;
@@ -27,6 +33,21 @@ public class BedPlan {
 
     // No-arg constructor required for Timefold
     public BedPlan() {
+    }
+
+    @JsonCreator
+    public BedPlan(@JsonProperty("departments") List<Department> departments, @JsonProperty("stays") List<Stay> stays) {
+        this.departments = departments;
+        this.stays = stays;
+        this.rooms = departments.stream()
+                .filter(d -> d.getRooms() != null)
+                .flatMap(d -> d.getRooms().stream())
+                .toList();
+        this.beds = departments.stream()
+                .filter(d -> d.getRooms() != null)
+                .flatMap(d -> d.getRooms().stream())
+                .flatMap(r -> r.getBeds().stream())
+                .toList();
     }
 
     public BedPlan(HardMediumSoftScore score, SolverStatus solverStatus) {
@@ -45,21 +66,23 @@ public class BedPlan {
         this.departments = departments;
     }
 
-    @JsonIgnore
     @ProblemFactCollectionProperty
-    public List<Room> extractRooms() {
-        return departments.stream().filter(d -> d.getRooms() != null).flatMap(d -> d.getRooms().stream()).toList();
+    public List<Room> getRooms() {
+        return rooms;
     }
 
-    @JsonIgnore
+    public void setRooms(List<Room> rooms) {
+        this.rooms = rooms;
+    }
+
     @ProblemFactCollectionProperty
     @ValueRangeProvider
-    public List<Bed> extractBeds() {
-        return departments.stream()
-                .filter(d -> d.getRooms() != null)
-                .flatMap(d -> d.getRooms().stream())
-                .flatMap(r -> r.getBeds().stream())
-                .toList();
+    public List<Bed> getBeds() {
+        return beds;
+    }
+
+    public void setBeds(List<Bed> beds) {
+        this.beds = beds;
     }
 
     public List<Stay> getStays() {

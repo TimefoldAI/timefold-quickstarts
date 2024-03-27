@@ -49,9 +49,16 @@ public class DemoDataGenerator {
         schedule.getDepartments().get(0).getSpecialtyToPriority().put(SPECIALTIES.get(2), 2);
         // Rooms
         int countRooms = 10;
-        schedule.getDepartments().get(0).setRooms(generateRooms(countRooms, departments));
+        List<Room> rooms = generateRooms(countRooms, departments);
+        schedule.getDepartments().get(0).setRooms(rooms);
+        schedule.setRooms(rooms);
         // Beds
-        generateBeds(schedule.extractRooms());
+        generateBeds(rooms);
+        schedule.setBeds(departments.stream()
+                .filter(d -> d.getRooms() != null)
+                .flatMap(d -> d.getRooms().stream())
+                .flatMap(r -> r.getBeds().stream())
+                .toList());
         // Stays
         LocalDate firstMonthMonday = LocalDate.now().with(firstInMonth(DayOfWeek.MONDAY)); // First Monday of the month
         List<LocalDate> dates = new ArrayList<>(7);
@@ -60,11 +67,11 @@ public class DemoDataGenerator {
         for (int i = 1; i < countDays; i++) {
             dates.add(firstMonthMonday.with(firstInMonth(DayOfWeek.MONDAY)).plusDays(i));
         }
-        List<Stay> stays = generateStays(countDays, schedule.extractBeds(), SPECIALTIES);
+        List<Stay> stays = generateStays(countDays, schedule.getBeds(), SPECIALTIES);
         // Patients
         generatePatients(stays);
         // Dates
-        schedule.setStays(generateStayDates(stays, schedule.extractRooms(), dates));
+        schedule.setStays(generateStayDates(stays, schedule.getRooms(), dates));
         return schedule;
     }
 
