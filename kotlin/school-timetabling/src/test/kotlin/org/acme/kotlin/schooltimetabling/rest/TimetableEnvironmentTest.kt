@@ -30,7 +30,7 @@ class TimetableEnvironmentTest {
         solve(EnvironmentMode.FAST_ASSERT)
     }
 
-    fun solve(environmentMode: EnvironmentMode?) {
+    fun solve(environmentMode: EnvironmentMode) {
         // Load the problem
         val problem: Timetable = given()
             .`when`()["/demo-data/SMALL"]
@@ -40,11 +40,9 @@ class TimetableEnvironmentTest {
             .`as`(Timetable::class.java)
 
         // Update the environment
-        // Update the environment
         val updatedConfig = solverConfig!!.copyConfig()
-        updatedConfig.withEnvironmentMode(environmentMode)
             .withTerminationSpentLimit(Duration.ofSeconds(30))
-            .terminationConfig.withBestScoreLimit(null)
+            .withEnvironmentMode(environmentMode)
         val solverFactory: SolverFactory<Timetable> = SolverFactory.create(updatedConfig)
 
         // Solve the problem
