@@ -1,11 +1,11 @@
 plugins {
-    id "org.springframework.boot" version "3.3.4"
+    id "org.springframework.boot" version "3.3.5"
     id "io.spring.dependency-management" version "1.1.6"
     id 'org.graalvm.buildtools.native' version '0.10.3'
     id "java"
 }
 
-def timefoldVersion = "1.15.0"
+def timefoldVersion = "1.16.0"
 def profile = System.properties['profile'] ?: ''
 def enterprise = System.properties['enterprise'] ?: ''
 

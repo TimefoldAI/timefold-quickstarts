@@ -43,7 +43,7 @@ class TimeTableConstraintProvider : ConstraintProvider {
             // ... and penalize each pair with a hard weight.
             .penalize(HardSoftScore.ONE_HARD)
             .justifyWith { lesson1: Lesson, lesson2: Lesson, _ ->
-                RoomConflictJustification(lesson1.room, lesson1,lesson2)
+                RoomConflictJustification(lesson1.room!!, lesson1, lesson2)
             }
             .asConstraint("Room conflict")
     }

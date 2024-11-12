@@ -25,7 +25,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
-        java-version: [ 17, 21, 22 ] #Latest two LTS + latest non-LTS.
+        java-version: [ 17, 21, 23 ] #Latest two LTS + latest non-LTS.
     timeout-minutes: 120
     steps:
       - name: Checkout timefold-quickstarts

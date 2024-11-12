@@ -6,7 +6,7 @@ import org.acme.kotlin.schooltimetabling.domain.Room
 
 
 data class RoomConflictJustification(
-    val room: Room?,
+    val room: Room,
     val lesson1: Lesson,
     val lesson2: Lesson,
     val description: String
@@ -14,7 +14,7 @@ data class RoomConflictJustification(
     ConstraintJustification {
 
     constructor(
-        room: Room?,
+        room: Room,
         lesson1: Lesson,
         lesson2: Lesson
     ) : this(

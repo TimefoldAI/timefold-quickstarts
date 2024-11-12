@@ -43,7 +43,7 @@ public class FlightAssignment {
 
     @JsonIgnore
     public boolean isUnavailableEmployee() {
-        return !getEmployee().isAvailable(getFlight().getDepartureUTCDate());
+        return !getEmployee().isAvailable(getFlight().getDepartureUTCDate(), getFlight().getArrivalUTCDateTime().toLocalDate());
     }
 
     @JsonIgnore

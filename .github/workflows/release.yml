@@ -112,6 +112,7 @@ jobs:
           gh pr create --reviewer triceo --base ${{ github.event.inputs.stableBranch }} --head $RELEASE_BRANCH_NAME-bump --title "build: release version ${{ github.event.inputs.javaVersion }}" --body-file .github/workflows/release-pr-body.md
 
       - name: Put back the 999-SNAPSHOT version on the release branch
+        working-directory: ./timefold-quickstarts
         run: |
           git checkout $RELEASE_BRANCH_NAME
           export OLD_JAVA_VERSION="$(find . -name pom.xml -exec grep '<version.ai.timefold.solver>' {} \;|tail -n 1|cut -d\> -f1 --complement|cut -d\< -f1)"

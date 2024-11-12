@@ -50,8 +50,13 @@ public class Employee {
     }
 
     @JsonIgnore
-    public boolean isAvailable(LocalDate date) {
-        return unavailableDays == null || !unavailableDays.contains(date);
+    public boolean isAvailable(LocalDate fromDateInclusive, LocalDate toDateInclusive) {
+        if (unavailableDays == null) {
+            return true;
+        }
+        return fromDateInclusive
+                .datesUntil(toDateInclusive.plusDays(1))
+                .noneMatch(unavailableDays::contains);
     }
 
     @Override

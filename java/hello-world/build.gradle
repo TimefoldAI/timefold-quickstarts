@@ -3,9 +3,9 @@ plugins {
     id "application"
 }
 
-def timefoldVersion = "1.15.0"
-def logbackVersion = "1.5.8"
-def junitJupiterVersion = "5.11.2"
+def timefoldVersion = "1.16.0"
+def logbackVersion = "1.5.12"
+def junitJupiterVersion = "5.11.3"
 def assertjVersion = "3.26.3"
 def profile = System.properties['profile'] ?: ''
 

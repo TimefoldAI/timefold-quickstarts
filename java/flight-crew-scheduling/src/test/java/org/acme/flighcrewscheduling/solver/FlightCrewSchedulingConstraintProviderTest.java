@@ -89,17 +89,30 @@ class FlightCrewSchedulingConstraintProviderTest {
 
     @Test
     void employeeUnavailability() {
-        Employee employee = new Employee("1");
-        employee.setUnavailableDays(List.of(LocalDate.now()));
+        var date = LocalDate.now();
+        var employee = new Employee("1");
+        employee.setUnavailableDays(List.of(date));
 
-        Flight flight =
-                new Flight("1", null, LocalDateTime.now(), null, LocalDateTime.now().plusMinutes(10));
-        FlightAssignment assignment = new FlightAssignment("1", flight);
+        var flight =
+                new Flight("1", null, date.atStartOfDay(), null, date.atStartOfDay().plusMinutes(10));
+        var assignment = new FlightAssignment("1", flight);
         assignment.setEmployee(employee);
 
         constraintVerifier.verifyThat(FlightCrewSchedulingConstraintProvider::employeeUnavailability)
                 .given(assignment)
-                .penalizesBy(1); // one unavailable date
+                .penalizesBy(1); // unavailable at departure
+
+        flight.setDepartureUTCDateTime(date.minusDays(1).atStartOfDay());
+        constraintVerifier.verifyThat(FlightCrewSchedulingConstraintProvider::employeeUnavailability)
+                .given(assignment)
+                .penalizesBy(1); // unavailable during flight
+
+        flight.setDepartureUTCDateTime(date.plusDays(1).atStartOfDay());
+        flight.setArrivalUTCDateTime(date.plusDays(1).atStartOfDay().plusMinutes(10));
+
+        constraintVerifier.verifyThat(FlightCrewSchedulingConstraintProvider::employeeUnavailability)
+                .given(assignment)
+                .penalizesBy(0); // employee available
     }
 
     @Test

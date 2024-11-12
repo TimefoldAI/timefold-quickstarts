@@ -8,7 +8,7 @@ name = "vehicle_routing"
 version = "1.0.0"
 requires-python = ">=3.10"
 dependencies = [
-    'timefold == 1.15.0b0',
+    'timefold == 1.16.0b0',
     'fastapi == 0.111.0',
     'pydantic == 2.7.3',
     'uvicorn == 0.30.1',
