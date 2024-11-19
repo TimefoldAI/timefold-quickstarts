@@ -1,4 +1,4 @@
-name: Release
+'name: Release
 on:
   workflow_dispatch:
     inputs:
@@ -39,6 +39,10 @@ jobs:
           path: ./timefold-solver
           fetch-depth: 0
           ref: v${{ github.event.inputs.javaVersion }}
+
+      - name: Delete release branch (if exists)
+        continue-on-error: true
+        run: git push -d origin $RELEASE_BRANCH_NAME
 
       - uses: actions/setup-java@v3
         with:
@@ -122,21 +126,22 @@ jobs:
           git commit -am "build: move back to version $NEW_VERSION"
           git push origin $RELEASE_BRANCH_NAME
 
+      - name: Delete version branch (if exists)
+        continue-on-error: true
+        run: |
+          java_version=${{ github.event.inputs.javaVersion }}
+          version="${java_version%.*}.x"
+          git push -d origin $version  
+
       - name: Update release branch
         working-directory: ./timefold-quickstarts
         shell: bash
         run: |
           java_version=${{ github.event.inputs.javaVersion }}
           version="${java_version%.*}.x"
-          echo $version
-          exists="$(git branch -a | grep -w $version || true)"
-          echo "branch $exists"
           git config user.name "Timefold Release Bot"
           git config user.email "release@timefold.ai"
-          if [ -n "$exists" ]; then
-            git push -d origin $version
-          fi
           git checkout $RELEASE_BRANCH_NAME
           git branch -m $RELEASE_BRANCH_NAME $version
           git push origin -u $version
-          git push -d origin $RELEASE_BRANCH_NAME
+          git push -d origin $RELEASE_BRANCH_NAME'
