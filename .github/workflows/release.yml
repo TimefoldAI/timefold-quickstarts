@@ -1,4 +1,4 @@
-'name: Release
+name: Release
 on:
   workflow_dispatch:
     inputs:
@@ -144,4 +144,4 @@ jobs:
           git checkout $RELEASE_BRANCH_NAME
           git branch -m $RELEASE_BRANCH_NAME $version
           git push origin -u $version
-          git push -d origin $RELEASE_BRANCH_NAME'
+          git push -d origin $RELEASE_BRANCH_NAME
