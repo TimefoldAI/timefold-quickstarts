@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Depends, Request
 from fastapi.staticfiles import StaticFiles
+from uuid import uuid4
 
 from .domain import *
 from .score_analysis import *
@@ -74,10 +75,11 @@ async def setup_context(request: Request) -> VehicleRoutePlan:
 
 @app.post("/route-plans")
 async def solve_route(route: Annotated[VehicleRoutePlan, Depends(setup_context)]) -> str:
-    data_sets['ID'] = route
-    solver_manager.solve_and_listen('ID', route,
-                                    lambda solution: update_route('ID', solution))
-    return 'ID'
+    job_id = str(uuid4())
+    data_sets[job_id] = route
+    solver_manager.solve_and_listen(job_id, route,
+                                    lambda solution: update_route(job_id, solution))
+    return job_id
 
 
 @app.put("/route-plans/analyze")

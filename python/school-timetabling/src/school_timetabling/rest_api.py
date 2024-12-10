@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Depends, Request
 from fastapi.staticfiles import StaticFiles
 from typing import Annotated
+from uuid import uuid4
 
 from .domain import *
 from .score_analysis import *
@@ -41,10 +42,11 @@ def update_timetable(problem_id: str, timetable: Timetable):
 
 @app.post("/timetables")
 async def solve_timetable(timetable: Timetable) -> str:
-    data_sets['ID'] = timetable
-    solver_manager.solve_and_listen('ID', timetable,
-                                    lambda solution: update_timetable('ID', solution))
-    return 'ID'
+    job_id = str(uuid4())
+    data_sets[job_id] = timetable
+    solver_manager.solve_and_listen(job_id, timetable,
+                                    lambda solution: update_timetable(job_id, solution))
+    return job_id
 
 
 async def setup_context(request: Request) -> Timetable:

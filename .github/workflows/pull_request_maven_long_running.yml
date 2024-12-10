@@ -63,7 +63,11 @@ jobs:
           "java/school-timetabling", "java/sports-league-scheduling", "java/task-assigning",
           "java/tournament-scheduling", "java/vehicle-routing"
         ]
-        java-version: [ 17 ] # Only the first supported LTS; already too many jobs here.
+        # Only one supported LTS; already too many jobs here.
+        # We choose 21 as Quarkus 3.17.2 has weird issues with Java 17 GraalVM,
+        # with Java 21+ GraalVM being recommended even for Java 17 projects.
+        # https://github.com/quarkusio/quarkus/issues/44877
+        java-version: [ 21 ]
     timeout-minutes: 120
     steps:
       - name: Checkout timefold-quickstarts
@@ -118,7 +122,11 @@ jobs:
     strategy:
       matrix:
         module: [ "java/bed-allocation", "java/vehicle-routing"]
-        java-version: [ 17 ] # Only the first supported LTS; already too many jobs here.
+        # Only one supported LTS; already too many jobs here.
+        # We choose 21 as Quarkus 3.17.2 has weird issues with Java 17 GraalVM,
+        # with Java 21+ GraalVM being recommended even for Java 17 projects.
+        # https://github.com/quarkusio/quarkus/issues/44877
+        java-version: [ 21 ]
     timeout-minutes: 120
     steps:
       - name: Checkout timefold-quickstarts
@@ -195,7 +203,11 @@ jobs:
         module: [
           "java/spring-boot-integration"
         ]
-        java-version: [ 17 ] # Only the first supported LTS; already too many jobs here.
+        # Only one supported LTS; already too many jobs here.
+        # We choose 21 as Quarkus 3.17.2 has weird issues with Java 17 GraalVM,
+        # with Java 21+ GraalVM being recommended even for Java 17 projects.
+        # https://github.com/quarkusio/quarkus/issues/44877
+        java-version: [ 21 ]
     timeout-minutes: 120
     steps:
       - name: Checkout timefold-quickstarts
@@ -226,8 +238,8 @@ jobs:
         uses: graalvm/setup-graalvm@v1
         with:
           java-version: ${{matrix.java-version}}
-          version: 23.0.4
-          distribution: 'liberica'
+          distribution: 'graalvm-community'
+          components: 'native-image'
           github-token: ${{ secrets.GITHUB_TOKEN }}
           cache: 'maven'
 

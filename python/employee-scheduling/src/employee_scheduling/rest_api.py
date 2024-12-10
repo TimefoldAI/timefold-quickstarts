@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
+from uuid import uuid4
 
 from .domain import EmployeeSchedule
 from .demo_data import DemoData, generate_demo_data
@@ -36,10 +37,11 @@ def update_schedule(problem_id: str, schedule: EmployeeSchedule):
 
 @app.post("/schedules")
 async def solve_timetable(schedule: EmployeeSchedule) -> str:
-    data_sets['ID'] = schedule
-    solver_manager.solve_and_listen('ID', schedule,
-                                    lambda solution: update_schedule('ID', solution))
-    return 'ID'
+    job_id = str(uuid4())
+    data_sets[job_id] = schedule
+    solver_manager.solve_and_listen(job_id, schedule,
+                                    lambda solution: update_schedule(job_id, solution))
+    return job_id
 
 
 @app.delete("/schedules/{problem_id}")

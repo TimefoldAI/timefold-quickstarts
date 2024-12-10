@@ -40,6 +40,10 @@ jobs:
           fetch-depth: 0
           ref: v${{ github.event.inputs.javaVersion }}
 
+      - name: Delete release branch (if exists)
+        continue-on-error: true
+        run: git push -d origin $RELEASE_BRANCH_NAME
+
       - uses: actions/setup-java@v3
         with:
           java-version: '17'
@@ -108,7 +112,6 @@ jobs:
           git merge --squash $RELEASE_BRANCH_NAME
           git commit -m "build: release version ${{ github.event.inputs.javaVersion }}"
           git push origin $RELEASE_BRANCH_NAME-bump
-          git branch -D $RELEASE_BRANCH_NAME
           gh pr create --reviewer triceo --base ${{ github.event.inputs.stableBranch }} --head $RELEASE_BRANCH_NAME-bump --title "build: release version ${{ github.event.inputs.javaVersion }}" --body-file .github/workflows/release-pr-body.md
 
       - name: Put back the 999-SNAPSHOT version on the release branch
@@ -122,3 +125,23 @@ jobs:
           .github/scripts/change_versions.sh
           git commit -am "build: move back to version $NEW_VERSION"
           git push origin $RELEASE_BRANCH_NAME
+
+      - name: Delete version branch (if exists)
+        continue-on-error: true
+        run: |
+          java_version=${{ github.event.inputs.javaVersion }}
+          version="${java_version%.*}.x"
+          git push -d origin $version  
+
+      - name: Update release branch
+        working-directory: ./timefold-quickstarts
+        shell: bash
+        run: |
+          java_version=${{ github.event.inputs.javaVersion }}
+          version="${java_version%.*}.x"
+          git config user.name "Timefold Release Bot"
+          git config user.email "release@timefold.ai"
+          git checkout $RELEASE_BRANCH_NAME
+          git branch -m $RELEASE_BRANCH_NAME $version
+          git push origin -u $version
+          git push -d origin $RELEASE_BRANCH_NAME

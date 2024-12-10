@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -18,8 +19,6 @@ import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 import jakarta.enterprise.context.ApplicationScoped;
-
-import ai.timefold.solver.core.impl.util.MutableInt;
 
 import org.acme.flighcrewscheduling.domain.Airport;
 import org.acme.flighcrewscheduling.domain.Employee;
@@ -132,18 +131,18 @@ public class DemoDataGenerator {
         // two pilots and three attendants per airport
         List<Employee> employees = new ArrayList<>(flightAirports.size() * 5);
 
-        MutableInt count = new MutableInt();
+        AtomicInteger count = new AtomicInteger();
         // Two teams per airport
         flightAirports.forEach(airport -> IntStream.range(0, 2).forEach(i -> {
-            employees.add(new Employee(String.valueOf(count.increment()), nameSupplier.get(), airport, List.of(PILOT_SKILL)));
-            employees.add(new Employee(String.valueOf(count.increment()), nameSupplier.get(), airport, List.of(PILOT_SKILL)));
+            employees.add(new Employee(String.valueOf(count.incrementAndGet()), nameSupplier.get(), airport, List.of(PILOT_SKILL)));
+            employees.add(new Employee(String.valueOf(count.incrementAndGet()), nameSupplier.get(), airport, List.of(PILOT_SKILL)));
             employees.add(
-                    new Employee(String.valueOf(count.increment()), nameSupplier.get(), airport, List.of(ATTENDANT_SKILL)));
+                    new Employee(String.valueOf(count.incrementAndGet()), nameSupplier.get(), airport, List.of(ATTENDANT_SKILL)));
             employees.add(
-                    new Employee(String.valueOf(count.increment()), nameSupplier.get(), airport, List.of(ATTENDANT_SKILL)));
+                    new Employee(String.valueOf(count.incrementAndGet()), nameSupplier.get(), airport, List.of(ATTENDANT_SKILL)));
             if (airport.getCode().equals("CNF")) {
                 employees.add(
-                        new Employee(String.valueOf(count.increment()), nameSupplier.get(), airport, List.of(ATTENDANT_SKILL)));
+                        new Employee(String.valueOf(count.incrementAndGet()), nameSupplier.get(), airport, List.of(ATTENDANT_SKILL)));
             }
         }));
 
@@ -247,22 +246,22 @@ public class DemoDataGenerator {
     private List<FlightAssignment> generateFlightAssignments(List<Flight> flights) {
         // 2 pilots and 2 or 3 attendants
         List<FlightAssignment> flightAssignments = new ArrayList<>(flights.size() * 5);
-        MutableInt count = new MutableInt();
+        AtomicInteger count = new AtomicInteger();
         flights.forEach(flight -> {
-            MutableInt indexSkill = new MutableInt();
+            AtomicInteger indexSkill = new AtomicInteger();
             flightAssignments
-                    .add(new FlightAssignment(String.valueOf(count.increment()), flight, indexSkill.increment(), PILOT_SKILL));
+                    .add(new FlightAssignment(String.valueOf(count.incrementAndGet()), flight, indexSkill.incrementAndGet(), PILOT_SKILL));
             flightAssignments
-                    .add(new FlightAssignment(String.valueOf(count.increment()), flight, indexSkill.increment(), PILOT_SKILL));
+                    .add(new FlightAssignment(String.valueOf(count.incrementAndGet()), flight, indexSkill.incrementAndGet(), PILOT_SKILL));
             flightAssignments
-                    .add(new FlightAssignment(String.valueOf(count.increment()), flight, indexSkill.increment(),
+                    .add(new FlightAssignment(String.valueOf(count.incrementAndGet()), flight, indexSkill.incrementAndGet(),
                             ATTENDANT_SKILL));
             flightAssignments
-                    .add(new FlightAssignment(String.valueOf(count.increment()), flight, indexSkill.increment(),
+                    .add(new FlightAssignment(String.valueOf(count.incrementAndGet()), flight, indexSkill.incrementAndGet(),
                             ATTENDANT_SKILL));
             if (flight.getDepartureAirport().getCode().equals("CNF") || flight.getArrivalAirport().getCode().equals("CNF")) {
                 flightAssignments
-                        .add(new FlightAssignment(String.valueOf(count.increment()), flight, indexSkill.increment(),
+                        .add(new FlightAssignment(String.valueOf(count.incrementAndGet()), flight, indexSkill.incrementAndGet(),
                                 ATTENDANT_SKILL));
             }
         });

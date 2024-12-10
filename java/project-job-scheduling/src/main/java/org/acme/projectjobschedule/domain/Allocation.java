@@ -14,7 +14,6 @@ import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
 import ai.timefold.solver.core.api.domain.variable.ShadowVariable;
 
 import org.acme.projectjobschedule.domain.solver.DelayStrengthComparator;
-import org.acme.projectjobschedule.domain.solver.ExecutionModeStrengthWeightFactory;
 import org.acme.projectjobschedule.domain.solver.NotSourceOrSinkAllocationFilter;
 import org.acme.projectjobschedule.domain.solver.PredecessorsDoneDateUpdatingVariableListener;
 
@@ -41,7 +40,7 @@ public class Allocation {
     private List<Allocation> successorAllocations;
 
     // Planning variables: changes during planning, between score calculations.
-    @PlanningVariable(strengthWeightFactoryClass = ExecutionModeStrengthWeightFactory.class)
+    @PlanningVariable
     private ExecutionMode executionMode;
     @PlanningVariable(strengthComparatorClass = DelayStrengthComparator.class)
     private Integer delay; // In days
