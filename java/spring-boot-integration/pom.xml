@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.4.0</version>
+    <version>3.4.1</version>
   </parent>
 
   <groupId>org.acme</groupId>
@@ -17,7 +17,7 @@
     <maven.compiler.release>17</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <version.ai.timefold.solver>1.17.0</version.ai.timefold.solver>
+    <version.ai.timefold.solver>1.18.0</version.ai.timefold.solver>
     <version.org.springframework.boot>${project.parent.version}</version.org.springframework.boot>
 
     <version.compiler.plugin>3.13.0</version.compiler.plugin>
@@ -58,7 +58,7 @@
     <dependency>
       <groupId>org.springdoc</groupId>
       <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-      <version>2.7.0</version>
+      <version>2.8.3</version>
     </dependency>
 
     <!-- Testing -->
