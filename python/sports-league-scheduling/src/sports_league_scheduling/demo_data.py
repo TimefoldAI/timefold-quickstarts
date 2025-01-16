@@ -1,11 +1,11 @@
 import json
-import random
+from random import Random
 from datetime import datetime, time, timedelta
 from typing import List, Callable
 
 from .domain import *
 
-
+random = Random(0)
 DISTANCE_IN_KM = [
     [0, 2163, 2163, 2160, 2156, 2156, 2163, 340, 1342, 512, 3038, 1526, 2054, 2054],
     [2163, 0, 11, 50, 813, 813, 11, 1967, 842, 1661, 1139, 1037, 202, 202],

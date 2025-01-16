@@ -17,12 +17,20 @@ class Team(JsonDomainBase):
                                 Field(default_factory=dict)]
 
 
+    def get_distance(self, other_team: "Team") -> int:
+        """
+        Get the distance to another team.
+        """
+        if not isinstance(other_team, Team):
+            raise TypeError(f"Expected a Team, got {type(other_team)}")
+        return self.distance_to_team.get(other_team.id, 0)
+
     def __eq__(self, other):
-        if self is other:  # Check if both references are the same
+        if self is other:
             return True
-        if not isinstance(other, Team):  # Ensure the other object is a Team instance
+        if not isinstance(other, Team):
             return False
-        return self.id == other.id  # Compare IDs for equality
+        return self.id == other.id
 
     def __hash__(self):
         return hash(self.id)
@@ -37,7 +45,7 @@ class Team(JsonDomainBase):
 class Round(JsonDomainBase):
     index: Annotated[int, PlanningId]
     # Rounds scheduled on weekends and holidays. It's common for classic matches to be scheduled on weekends or holidays.
-    weekend_or_holiday: bool
+    weekend_or_holiday: Annotated[bool, Field(default=False)]
 
 
     def __eq__(self, other):
@@ -65,9 +73,9 @@ class Match(JsonDomainBase):
                         TeamDeserializer,
                         Field(default=None)]
     away_team: Annotated[Team | None,
-                IdStrSerializer,
-                TeamDeserializer,
-                Field(default=None)]
+                        IdStrSerializer,
+                        TeamDeserializer,
+                        Field(default=None)]
     # A classic/important match can impact aspects like revenue (e.g., derby)
     classic_match: Annotated[bool, Field(default=False)]
     round: Annotated[Round | None,
@@ -104,7 +112,7 @@ class LeagueSchedule(JsonDomainBase):
                     ProblemFactCollectionProperty,
                     ValueRangeProvider]
     matches: Annotated[list[Match],
-                        PlanningEntityCollectionProperty]
+                      PlanningEntityCollectionProperty]
     score: Annotated[HardSoftScore | None,
                     PlanningScore,
                     ScoreSerializer,

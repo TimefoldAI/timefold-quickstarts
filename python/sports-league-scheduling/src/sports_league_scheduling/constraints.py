@@ -81,7 +81,7 @@ def start_to_away_hop(constraint_factory: ConstraintFactory) -> Constraint:
             .for_each(Match)
             .if_not_exists(Round, Joiners.equal(lambda match: match.round.index - 1,
                                                 lambda match_round: match_round.index))
-            .penalize(HardSoftScore.ONE_SOFT, away_home_match_distance_lambda)
+            .penalize(HardSoftScore.ONE_SOFT, lambda match: (match.away_team.get_distance(match.home_team)))
             .as_constraint("Start to away hop"))
 
 
@@ -91,7 +91,7 @@ def home_to_away_hop(constraint_factory: ConstraintFactory) -> Constraint:
             .join(Match,
                   Joiners.equal(lambda match: match.home_team, lambda match: match.away_team),
                   Joiners.equal(lambda match: match.round.index + 1, lambda match: match.round.index))
-            .penalize(HardSoftScore.ONE_SOFT, home_matches_distance_lambda)
+            .penalize(HardSoftScore.ONE_SOFT, lambda match, other_match: (match.home_team.get_distance(other_match.home_team)))
             .as_constraint("Home to away hop"))
 
 
@@ -101,7 +101,7 @@ def away_to_away_hop(constraint_factory: ConstraintFactory) -> Constraint:
             .join(Match,
                   Joiners.equal(lambda match: match.away_team, lambda match: match.away_team),
                   Joiners.equal(lambda match: match.round.index + 1, lambda match: match.round.index))
-            .penalize(HardSoftScore.ONE_SOFT, home_matches_distance_lambda)
+            .penalize(HardSoftScore.ONE_SOFT, lambda match, other_match: (match.home_team.get_distance(other_match.home_team)))
             .as_constraint("Away to away hop"))
 
 
@@ -111,45 +111,22 @@ def away_to_home_hop(constraint_factory: ConstraintFactory) -> Constraint:
             .join(Match,
                   Joiners.equal(lambda match: match.away_team, lambda match: match.home_team),
                   Joiners.equal(lambda match: match.round.index + 1, lambda match: match.round.index))
-            .penalize(HardSoftScore.ONE_SOFT, home_away_matches_distance_lambda)
+            .penalize(HardSoftScore.ONE_SOFT, lambda match, other_match: (match.home_team.get_distance(match.away_team)))
             .as_constraint("Away to home hop"))
 
-home_away_match_distance_lambda = lambda match: (
-    match.home_team.distance_to_team.get(match.away_team.id, 0)
-    if isinstance(match.home_team, Team) and isinstance(match.away_team, Team) else 0
-)
-
-
-away_home_match_distance_lambda = lambda match: (
-    match.away_team.distance_to_team.get(match.home_team.id, 0)
-    if isinstance(match.away_team, Team) and isinstance(match.home_team, Team) else 0
-)
-
-home_away_matches_distance_lambda = lambda match, other_match: (
-    match.home_team.distance_to_team.get(match.away_team.id, 0)
-    if isinstance(match.home_team, Team) and isinstance(match.away_team, Team) else 0
-)
-
-home_matches_distance_lambda = lambda match, other_match: (
-    match.home_team.distance_to_team.get(other_match.home_team.id, 0)
-    if isinstance(match.home_team, Team) and isinstance(other_match.home_team, Team) else 0
-)
 
 def away_to_end_hop(constraint_factory: ConstraintFactory) -> Constraint:
     return (constraint_factory
             .for_each(Match)
             .if_not_exists(Round, Joiners.equal(lambda match: match.round.index + 1,
                                                 lambda match_round: match_round.index))
-            .penalize(HardSoftScore.ONE_SOFT, home_away_match_distance_lambda)
+            .penalize(HardSoftScore.ONE_SOFT, lambda match: (match.home_team.get_distance(match.away_team)))
             .as_constraint("Away to end hop"))
 
 
 def classic_matches(constraint_factory: ConstraintFactory) -> Constraint:
     return (constraint_factory
             .for_each(Match)
-            .filter(is_invalid_classic_match)
+            .filter(lambda match: match.classic_match and not match.round.weekend_or_holiday)
             .penalize(HardSoftScore.of_soft(1000))
             .as_constraint("Classic matches played on weekends or holidays"))
-
-def is_invalid_classic_match(match: Match) -> bool:
-    return match.classic_match and not match.round.weekend_or_holiday
