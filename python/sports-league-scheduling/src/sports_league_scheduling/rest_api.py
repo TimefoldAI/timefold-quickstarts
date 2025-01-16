@@ -5,7 +5,7 @@ from uuid import uuid4
 from datetime import datetime
 from .domain import *
 from .score_analysis import *
-from .demo_data import generate_demo_data_test
+from .demo_data import generate_demo_data
 from .solver import solver_manager, solution_manager
 
 app = FastAPI(docs_url='/q/swagger-ui')
@@ -15,7 +15,7 @@ data_sets: Dict[str, dict] = {}
 
 @app.get("/demo-data")
 async def get_demo_data():
-    return generate_demo_data_test()
+    return generate_demo_data()
 
 
 async def setup_context(request: Request) -> LeagueSchedule:

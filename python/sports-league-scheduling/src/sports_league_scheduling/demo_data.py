@@ -104,7 +104,7 @@ def apply_random_value(count: int, values: List, filter_func: Callable, consumer
             break
 
 
-def generate_demo_data_test() -> LeagueSchedule:
+def generate_demo_data() -> LeagueSchedule:
     count_rounds = 32
     # Rounds
     rounds = generate_rounds(count_rounds)

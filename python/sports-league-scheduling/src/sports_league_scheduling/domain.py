@@ -68,14 +68,12 @@ class Round(JsonDomainBase):
 @planning_entity
 class Match(JsonDomainBase):
     id: Annotated[str, PlanningId]
-    home_team: Annotated[Team | None,
+    home_team: Annotated[Team,
                         IdStrSerializer,
-                        TeamDeserializer,
-                        Field(default=None)]
-    away_team: Annotated[Team | None,
+                        TeamDeserializer]
+    away_team: Annotated[Team,
                         IdStrSerializer,
-                        TeamDeserializer,
-                        Field(default=None)]
+                        TeamDeserializer]
     # A classic/important match can impact aspects like revenue (e.g., derby)
     classic_match: Annotated[bool, Field(default=False)]
     round: Annotated[Round | None,
