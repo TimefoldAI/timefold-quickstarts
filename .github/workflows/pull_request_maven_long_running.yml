@@ -187,7 +187,7 @@ jobs:
         run: mvn -B -Dquickly -DskipTests clean install
 
       - name: Update timefold-solver-enterprise version (Release PR only)
-        if: ${{ startsWith(github.event.pull_request.title, 'build:') && contains(github.event.pull_request.title, 'release version') && github.event.pull_request.user.login == 'zepfred' }}
+        if: ${{ startsWith(github.event.pull_request.title, 'build:') && contains(github.event.pull_request.title, 'release version') && github.event.pull_request.user.login == 'timefold-release' }}
         shell: bash
         working-directory: ./timefold-solver-enterprise
         run: |
