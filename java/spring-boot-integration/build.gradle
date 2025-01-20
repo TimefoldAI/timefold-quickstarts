@@ -48,7 +48,7 @@ dependencies {
     testImplementation("ai.timefold.solver:timefold-solver-test")
     testImplementation("org.springframework:spring-webflux")
     testImplementation "org.awaitility:awaitility"
-    testImplementation "org.assertj:assertj-core:3.27.2"
+    testImplementation "org.assertj:assertj-core:3.27.3"
 
     // UI
     // No webjar locator; incompatible in native mode;

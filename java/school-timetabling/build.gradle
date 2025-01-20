@@ -37,7 +37,7 @@ dependencies {
     testImplementation "io.rest-assured:rest-assured"
     testImplementation "ai.timefold.solver:timefold-solver-test"
     testImplementation "org.awaitility:awaitility"
-    testImplementation "org.assertj:assertj-core:3.27.2"
+    testImplementation "org.assertj:assertj-core:3.27.3"
 
     // UI
     implementation "io.quarkus:quarkus-webjars-locator"
