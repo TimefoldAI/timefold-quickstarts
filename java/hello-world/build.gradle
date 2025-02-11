@@ -3,10 +3,10 @@ plugins {
     id "application"
 }
 
-def timefoldVersion = "1.18.0"
+def timefoldVersion = "1.19.0"
 def logbackVersion = "1.5.16"
 def junitJupiterVersion = "5.11.4"
-def assertjVersion = "3.27.2"
+def assertjVersion = "3.27.3"
 def profile = System.properties['profile'] ?: ''
 
 group = "org.acme"

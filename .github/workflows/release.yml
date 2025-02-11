@@ -22,7 +22,7 @@ jobs:
     env:
       MAVEN_ARGS: "--no-transfer-progress --batch-mode"
       RELEASE_BRANCH_NAME: "release_branch_${{ github.event.inputs.javaVersion }}"
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Checkout timefold-quickstarts
         uses: actions/checkout@v4

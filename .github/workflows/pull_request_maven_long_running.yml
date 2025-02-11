@@ -185,9 +185,24 @@ jobs:
       - name: Quickly build timefold-solver
         working-directory: ./timefold-solver
         run: mvn -B -Dquickly -DskipTests clean install
+
+      - name: Update timefold-solver-enterprise version (Release PR only)
+        if: ${{ startsWith(github.event.pull_request.title, 'build:') && contains(github.event.pull_request.title, 'release version') && github.event.pull_request.user.login == 'timefold-release' }}
+        shell: bash
+        working-directory: ./timefold-solver-enterprise
+        run: |
+          git config user.name "Timefold Release Bot"
+          git config user.email "release@timefold.ai"
+          NEW_VERSION=`echo '${{ github.event.pull_request.title }}' | grep -oE '[^ ]+$'`
+          export NEW_VERSION
+          export NEW_VERSION_PYTHON="${NEW_VERSION}"b0
+          echo $NEW_VERSION
+          echo $NEW_VERSION_PYTHON
+          .github/scripts/change_versions.sh
       - name: Quickly build timefold-solver-enterprise
         working-directory: ./timefold-solver-enterprise
         run: mvn -B -Dquickly -DskipTests clean install
+
       - name: Test timefold-enterprise-quickstarts (enterprise native tests)
         working-directory: ./timefold-quickstarts/${{matrix.module}}
         run: mvn -B -Dnative -Denterprise -Pnative verify

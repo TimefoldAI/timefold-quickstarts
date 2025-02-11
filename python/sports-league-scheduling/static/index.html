@@ -1,0 +1,159 @@
+<!DOCTYPE>
+<html lang="en">
+<head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <title>Sports League Scheduling - Timefold Solver for Python</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vis-timeline@7.7.2/styles/vis-timeline-graph2d.min.css"
+          integrity="sha256-svzNasPg1yR5gvEaRei2jg+n4Pc3sVyMUWeS6xRAh6U=" crossorigin="anonymous">
+    <link rel="stylesheet" href="/webjars/timefold/css/timefold-webui.css"/>
+    <link rel="icon" href="/webjars/timefold/img/timefold-favicon.svg" type="image/svg+xml">
+    <style>
+        .vis-time-axis .vis-grid.vis-saturday,
+        .vis-time-axis .vis-grid.vis-sunday {
+            background: #D3D7CFFF;
+        }
+
+        .vis-item-content {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+<header id="timefold-auto-header">
+    <!-- Filled in by app.js -->
+</header>
+<div class="tab-content">
+    <div id="demo" class="tab-pane fade show active container">
+        <div class="sticky-top d-flex justify-content-center align-items-center" aria-live="polite" aria-atomic="true">
+            <div id="notificationPanel" style="position: absolute; top: .5rem;"></div>
+        </div>
+        <h1>Sports League Scheduling Solver</h1>
+        <p>Generate the optimal schedule for your sports league matches.</p>
+
+        <div class="mb-2">
+            <button id="solveButton" type="button" class="btn btn-success">
+                <span class="fas fa-play"></span> Solve
+            </button>
+            <button id="stopSolvingButton" type="button" class="btn btn-danger">
+                <span class="fas fa-stop"></span> Stop solving
+            </button>
+            <span id="score" class="score ms-2 align-middle fw-bold">Score: ?</span>
+            <button id="analyzeButton" type="button" class="ms-2 btn btn-secondary">
+                <span class="fas fa-question"></span>
+            </button>
+
+            <div class="float-end">
+                <ul class="nav nav-pills" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="byTeamTab" data-bs-toggle="tab"
+                                data-bs-target="#byTeamPanel" type="button" role="tab" aria-controls="byTeamPanel"
+                                aria-selected="true">By Team
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="byTeamPanel" role="tabpanel" aria-labelledby="byTeamTab">
+                <div id="teamVisualization"></div>
+            </div>
+        </div>
+
+        <h2>Unassigned</h2>
+        <div id="unassigned" class="row row-cols-4 g-3 mb-4"></div>
+    </div>
+
+    <div id="rest" class="tab-pane fade  container-fluid">
+        <h1>REST API Guide</h1>
+
+        <h2>Sports League Scheduling solver integration via cURL</h2>
+
+        <h3>1. Download demo data</h3>
+        <pre>
+            <button class="btn btn-outline-dark btn-sm float-end"
+                    onclick="copyTextToClipboard('curl1')">Copy</button>
+            <code id="curl1">curl -X GET -H 'Accept:application/json' http://localhost:8080/demo-data -o sample.json</code>
+    </pre>
+
+        <h3>2. Post the sample data for solving</h3>
+        <p>The POST operation returns a <code>jobId</code> that should be used in subsequent commands.</p>
+        <pre>
+            <button class="btn btn-outline-dark btn-sm float-end"
+                    onclick="copyTextToClipboard('curl2')">Copy</button>
+            <code id="curl2">curl -X POST -H 'Content-Type:application/json' http://localhost:8080/schedules -d@sample.json</code>
+    </pre>
+
+        <h3>3. Get the current status and score</h3>
+        <pre>
+            <button class="btn btn-outline-dark btn-sm float-end"
+                    onclick="copyTextToClipboard('curl3')">Copy</button>
+            <code id="curl3">curl -X GET -H 'Accept:application/json' http://localhost:8080/schedules/{jobId}/status</code>
+    </pre>
+
+        <h3>4. Get the complete solution</h3>
+        <pre>
+            <button class="btn btn-outline-dark btn-sm float-end"
+                    onclick="copyTextToClipboard('curl4')">Copy</button>
+            <code id="curl4">curl -X GET -H 'Accept:application/json' http://localhost:8080/schedules/{jobId} -o solution.json</code>
+    </pre>
+
+        <h3>5. Fetch the analysis of the solution</h3>
+        <pre>
+            <button class="btn btn-outline-dark btn-sm float-end"
+                    onclick="copyTextToClipboard('curl5')">Copy</button>
+            <code id="curl5">curl -X PUT -H 'Content-Type:application/json' http://localhost:8080/schedules/analyze -d@solution.json</code>
+    </pre>
+
+        <h3>6. Terminate solving early</h3>
+        <pre>
+            <button class="btn btn-outline-dark btn-sm float-end"
+                    onclick="copyTextToClipboard('curl6')">Copy</button>
+            <code id="curl6">curl -X DELETE -H 'Accept:application/json' http://localhost:8080/schedules/{jobId}</code>
+    </pre>
+    </div>
+
+    <div id="openapi" class="tab-pane fade container-fluid">
+        <h1>REST API Reference</h1>
+        <div class="ratio ratio-1x1">
+            <!-- "scrolling" attribute is obsolete, but e.g. Chrome does not support "overflow:hidden" -->
+            <iframe src="/q/swagger-ui" style="overflow:hidden;" scrolling="no"></iframe>
+        </div>
+    </div>
+</div>
+<footer id="timefold-auto-footer"></footer>
+<div class="modal fadebd-example-modal-lg" id="scoreAnalysisModal" tabindex="-1"
+     aria-labelledby="scoreAnalysisModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="scoreAnalysisModalLabel">Score analysis <span
+                        id="scoreAnalysisScoreLabel"></span></h1>
+
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="scoreAnalysisModalContent">
+                <!-- Filled in by app.js -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.8/umd/popper.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-joda/1.11.0/js-joda.min.js"></script>
+<script src="
+https://cdn.jsdelivr.net/npm/@js-joda/locale@4.15.1/dist/prebuilt/en/index.min.js
+"></script>
+<script src="/webjars/timefold/js/timefold-webui.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vis-timeline@7.7.2/standalone/umd/vis-timeline-graph2d.min.js"
+        integrity="sha256-Jy2+UO7rZ2Dgik50z3XrrNpnc5+2PAx9MhL2CicodME=" crossorigin="anonymous"></script>
+<script src="/app.js"></script>
+</body>
+</html>

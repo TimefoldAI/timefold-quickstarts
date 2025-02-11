@@ -1,0 +1,79 @@
+= Sports League Scheduling (Python)
+
+Assign rounds to matches to produce a better schedule for league matches.
+
+image::./sports-league-scheduling-screenshot.png[]
+
+* <<prerequisites,Prerequisites>>
+* <<run,Run the application>>
+* <<test,Test the application>>
+
+[[prerequisites]]
+== Prerequisites
+
+. Install https://www.python.org/downloads/[Python 3.11+]
+
+. Install JDK 17+, for example with https://sdkman.io[Sdkman]:
++
+----
+$ sdk install java
+----
+
+[[run]]
+== Run the application
+
+. Git clone the timefold-quickstarts repo and navigate to this directory:
++
+[source, shell]
+----
+$ git clone https://github.com/TimefoldAI/timefold-quickstarts.git
+...
+$ cd timefold-quickstarts/python/sports-league-scheduling
+----
+
+. Create a virtual environment
++
+[source, shell]
+----
+$ python -m venv .venv
+----
+
+. Activate the virtual environment
++
+[source, shell]
+----
+$ . .venv/bin/activate
+----
+
+. Install the application
++
+[source, shell]
+----
+$ pip install -e .
+----
+
+. Run the application
++
+[source, shell]
+----
+$ run-app
+----
+
+. Visit http://localhost:8080 in your browser.
+
+. Click on the *Solve* button.
+
+
+[[test]]
+== Test the application
+
+. Run tests
++
+[source, shell]
+----
+$ pytest
+----
+
+== More information
+
+Visit https://timefold.ai[timefold.ai].
