@@ -319,7 +319,7 @@ function analyze() {
         scoreAnalysisModalContent.text("No score to analyze yet, please first press the 'solve' button.");
     } else {
         $('#scoreAnalysisScoreLabel').text(`(${loadedSchedule.score})`);
-        $.put("/schedules/analyze", JSON.stringify(loadedSchedule), function (scoreAnalysis) {
+        $.post("/schedules/score-analysis", JSON.stringify(loadedSchedule), function (scoreAnalysis) {
             let constraints = scoreAnalysis.constraints;
             constraints.sort((a, b) => {
                 let aComponents = getScoreComponents(a.score), bComponents = getScoreComponents(b.score);
@@ -393,23 +393,6 @@ function getScoreComponents(score) {
     });
 
     return components;
-}
-
-function refreshSolvingButtons(solving) {
-    if (solving) {
-        $("#solveButton").hide();
-        $("#stopSolvingButton").show();
-        if (autoRefreshIntervalId == null) {
-            autoRefreshIntervalId = setInterval(refreshSchedule, 2000);
-        }
-    } else {
-        $("#solveButton").show();
-        $("#stopSolvingButton").hide();
-        if (autoRefreshIntervalId != null) {
-            clearInterval(autoRefreshIntervalId);
-            autoRefreshIntervalId = null;
-        }
-    }
 }
 
 function refreshSolvingButtons(solving) {

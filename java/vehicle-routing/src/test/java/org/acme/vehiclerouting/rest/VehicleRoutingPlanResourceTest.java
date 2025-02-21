@@ -64,7 +64,7 @@ class VehicleRoutingPlanResourceTest {
                 .body(solution)
                 .expect().contentType(ContentType.JSON)
                 .when()
-                .put("/route-plans/analyze")
+                .post("/route-plans/score-analysis")
                 .then()
                 .extract()
                 .asString();
@@ -90,7 +90,7 @@ class VehicleRoutingPlanResourceTest {
                 .body(solution)
                 .expect().contentType(ContentType.JSON)
                 .when()
-                .put("/route-plans/analyze")
+                .post("/route-plans/score-analysis")
                 .then()
                 .extract()
                 .asString();

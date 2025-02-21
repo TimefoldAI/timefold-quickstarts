@@ -2,6 +2,7 @@ package org.acme.foodpackaging.rest;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
@@ -60,17 +61,16 @@ public class PackagingScheduleResource {
                 .run();
     }
 
-    @PUT
+    @POST
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("analyze")
+    @Path("score-analysis")
     public ScoreAnalysis<HardMediumSoftLongScore> analyze(@QueryParam("fetchPolicy") ScoreAnalysisFetchPolicy fetchPolicy) {
         PackagingSchedule problem = repository.read();
         return fetchPolicy == null ? solutionManager.analyze(problem) : solutionManager.analyze(problem, fetchPolicy);
     }
 
-    @POST
-    @Path("stopSolving")
+    @DELETE
     public void stopSolving() {
         solverManager.terminateEarly(SINGLETON_SOLUTION_ID);
     }

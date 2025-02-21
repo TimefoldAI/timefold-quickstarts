@@ -78,7 +78,7 @@ class TimetableResourceTest {
                 .body(testTimetable)
                 .expect().contentType(ContentType.JSON)
                 .when()
-                .put("/timetables/analyze")
+                .post("/timetables/score-analysis")
                 .then()
                 .extract()
                 .asString();
@@ -90,7 +90,7 @@ class TimetableResourceTest {
                 .body(testTimetable)
                 .expect().contentType(ContentType.JSON)
                 .when()
-                .put("/timetables/analyze")
+                .post("/timetables/score-analysis")
                 .then()
                 .extract()
                 .asString();

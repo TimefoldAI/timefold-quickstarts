@@ -95,16 +95,16 @@ class TimetableControllerTest {
             i += 1;
         }
 
-        client.put()
-                .uri("/timetables/analyze")
+        client.post()
+                .uri("/timetables/score-analysis")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(testTimetable)
                 .exchange()
                 .expectBody()
                 .jsonPath("score").isNotEmpty();
 
-        client.put()
-                .uri("/timetables/analyze?fetchPolicy=FETCH_SHALLOW")
+        client.post()
+                .uri("/timetables/score-analysis?fetchPolicy=FETCH_SHALLOW")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(testTimetable)
                 .exchange()

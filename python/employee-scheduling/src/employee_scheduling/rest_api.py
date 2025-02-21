@@ -29,6 +29,22 @@ async def get_timetable(problem_id: str) -> EmployeeSchedule:
         'solver_status': solver_manager.get_solver_status(problem_id)
     })
 
+@app.post("/schedules/score-analysis")
+async def analyze_timetable(employee_schedule: Annotated[EmployeeSchedule, Depends(setup_context)]) -> dict:
+    return {'constraints': [ConstraintAnalysisDTO(
+        name=constraint.constraint_name,
+        weight=constraint.weight,
+        score=constraint.score,
+        matches=[
+            MatchAnalysisDTO(
+                name=match.constraint_ref.constraint_name,
+                score=match.score,
+                justification=match.justification
+            )
+            for match in constraint.matches
+        ]
+    ) for constraint in solution_manager.analyze(employee_schedule).constraint_analyses]}
+
 
 def update_schedule(problem_id: str, schedule: EmployeeSchedule):
     global data_sets

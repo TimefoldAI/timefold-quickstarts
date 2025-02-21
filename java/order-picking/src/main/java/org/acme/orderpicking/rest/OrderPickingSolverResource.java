@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
@@ -52,7 +53,6 @@ public class OrderPickingSolverResource {
     }
 
     @POST
-    @Path("solve")
     public void solve() {
         solverWasNeverStarted.set(false);
         solverManager.solveBuilder()
@@ -62,17 +62,16 @@ public class OrderPickingSolverResource {
                 .run();
     }
 
-    @PUT
+    @POST
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("analyze")
+    @Path("score-analysis")
     public ScoreAnalysis<HardSoftLongScore> analyze(@QueryParam("fetchPolicy") ScoreAnalysisFetchPolicy fetchPolicy) {
         OrderPickingSolution problem = orderPickingRepository.find();
         return fetchPolicy == null ? solutionManager.analyze(problem) : solutionManager.analyze(problem, fetchPolicy);
     }
 
-    @POST
-    @Path("stopSolving")
+    @DELETE
     public void stopSolving() {
         solverManager.terminateEarly(PROBLEM_ID);
     }

@@ -83,7 +83,7 @@ class BedSchedulingResourceTest {
                 .body(solution)
                 .expect().contentType(ContentType.JSON)
                 .when()
-                .put("/schedules/analyze")
+                .post("/schedules/score-analysis")
                 .then()
                 .extract()
                 .asString();
@@ -96,7 +96,7 @@ class BedSchedulingResourceTest {
                 .body(solution)
                 .expect().contentType(ContentType.JSON)
                 .when()
-                .put("/schedules/analyze")
+                .post("/schedules/score-analysis")
                 .then()
                 .extract()
                 .asString();

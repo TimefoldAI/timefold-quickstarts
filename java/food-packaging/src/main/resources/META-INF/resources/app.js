@@ -199,7 +199,7 @@ function analyze() {
     scoreAnalysisModalContent.text("No score to analyze yet, please first press the 'solve' button.");
   } else {
     $('#scoreAnalysisScoreLabel').text(`(${loadedSchedule.score})`);
-    $.put("/schedule/analyze", function (scoreAnalysis) {
+    $.post("/schedule/score-analysis", function (scoreAnalysis) {
       let constraints = scoreAnalysis.constraints;
       constraints.sort((a, b) => {
         let aComponents = getScoreComponents(a.score), bComponents = getScoreComponents(b.score);
@@ -293,7 +293,7 @@ function refreshSolvingButtons(solving) {
 }
 
 function stopSolving() {
-  $.post("/schedule/stopSolving", function () {
+  $.delete("/schedule", function () {
     refreshSolvingButtons(false);
     refreshSchedule();
   }).fail(function (xhr, ajaxOptions, thrownError) {

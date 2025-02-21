@@ -88,7 +88,7 @@ async def get_tournament_schedule_status(job_id: str) -> dict:
     return {"solver_status": tournament_schedule.solver_status}
 
 
-@app.put("/schedules/analyze")
+@app.post("/schedules/score-analysis")
 async def analyze_timetable(tournament_schedule: Annotated[TournamentSchedule, Depends(setup_context)]) -> dict:
     return {'constraints': [ConstraintAnalysisDTO(
         name=constraint.constraint_name,

@@ -18,7 +18,7 @@ class OrderPickingResourceIT {
 
     @Test
     void solveNative() {
-        post("/orderPicking/solve")
+        post("/orderPicking")
                 .then()
                 .statusCode(204)
                 .extract();

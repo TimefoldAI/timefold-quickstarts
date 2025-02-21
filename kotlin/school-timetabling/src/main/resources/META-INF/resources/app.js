@@ -230,7 +230,7 @@ function analyze() {
     scoreAnalysisModalContent.text("No score to analyze yet, please first press the 'solve' button.");
   } else {
     $('#scoreAnalysisScoreLabel').text(`(${loadedSchedule.score})`);
-    $.put("/timetables/analyze", JSON.stringify(loadedSchedule), function (scoreAnalysis) {
+    $.post("/timetables/score-analysis", JSON.stringify(loadedSchedule), function (scoreAnalysis) {
       let constraints = scoreAnalysis.constraints;
       constraints.sort((a, b) => {
         let aComponents = getScoreComponents(a.score), bComponents = getScoreComponents(b.score);

@@ -326,7 +326,7 @@ function renderTimelines(routePlan) {
 
 function analyze() {
     // see score-analysis.js
-    analyzeScore(loadedRoutePlan, "/route-plans/analyze")
+    analyzeScore(loadedRoutePlan, "/route-plans/score-analysis")
 }
 
 // TODO: move the general functionality to the webjar.

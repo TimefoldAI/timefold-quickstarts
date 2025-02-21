@@ -67,10 +67,10 @@ public class SolverResource {
                 .run());
     }
 
-    @PUT
+    @POST
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("analyze")
+    @Path("score-analysis")
     public ScoreAnalysis<HardSoftLongScore> analyze(@QueryParam("fetchPolicy") ScoreAnalysisFetchPolicy fetchPolicy) {
         FacilityLocationProblem problem = repository.solution().get();
         return fetchPolicy == null ? solutionManager.analyze(problem) : solutionManager.analyze(problem, fetchPolicy);

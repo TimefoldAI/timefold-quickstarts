@@ -519,7 +519,7 @@ function refreshSolvingButtons(solving) {
 }
 
 function solve() {
-    $.post("/orderPicking/solve", function () {
+    $.post("/orderPicking", function () {
         refreshSolvingButtons(true);
     }).fail(function (xhr, ajaxOptions, thrownError) {
         showError("Start solving failed.", xhr);
@@ -534,7 +534,7 @@ function analyze() {
         scoreAnalysisModalContent.text("No score to analyze yet, please first press the 'solve' button.");
     } else {
         $('#scoreAnalysisScoreLabel').text(`(${loadedSchedule.score})`);
-        $.put("/orderPicking/analyze", function (scoreAnalysis) {
+        $.post("/orderPicking/score-analysis", function (scoreAnalysis) {
             let constraints = Object.values(scoreAnalysis.constraintMap);
             constraints.sort((a, b) => {
                 let aComponents = getScoreComponents(a.score), bComponents = getScoreComponents(b.score);
@@ -607,7 +607,7 @@ function getScoreComponents(score) {
 }
 
 function stopSolving() {
-    $.post("/orderPicking/stopSolving", function () {
+    $.delete("/orderPicking", function () {
         refreshSolvingButtons(false);
         refreshSolution();
     }).fail(function (xhr, ajaxOptions, thrownError) {

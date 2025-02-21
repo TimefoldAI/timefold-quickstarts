@@ -98,10 +98,10 @@ public class EmployeeScheduleResource {
                     description = "Resulting score analysis, optionally without constraint matches.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
                             schema = @Schema(implementation = ScoreAnalysis.class))) })
-    @PUT
+    @POST
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("analyze")
+    @Path("score-analysis")
     public ScoreAnalysis<HardSoftBigDecimalScore> analyze(EmployeeSchedule problem,
             @QueryParam("fetchPolicy") ScoreAnalysisFetchPolicy fetchPolicy) {
         return fetchPolicy == null ? solutionManager.analyze(problem) : solutionManager.analyze(problem, fetchPolicy);

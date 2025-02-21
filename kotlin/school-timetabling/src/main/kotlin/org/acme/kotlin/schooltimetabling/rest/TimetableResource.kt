@@ -123,12 +123,12 @@ class TimetableResource {
             )]
         )]
     )
-    @PUT
+    @POST
     @Consumes(
         MediaType.APPLICATION_JSON
     )
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("analyze")
+    @Path("score-analysis")
     fun analyze(
         problem: Timetable, @QueryParam("fetchPolicy") fetchPolicy: ScoreAnalysisFetchPolicy?
     ): ScoreAnalysis<HardSoftScore> {

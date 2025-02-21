@@ -101,7 +101,7 @@ public class TimetableController {
                     description = "Resulting score analysis, optionally without constraint matches.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = ScoreAnalysis.class))) })
-    @PutMapping(value = "/analyze", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/score-analysis", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @RegisterReflectionForBinding({
             RoomConflictJustification.class,
             StudentGroupConflictJustification.class,

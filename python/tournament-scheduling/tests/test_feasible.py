@@ -47,7 +47,7 @@ def test_feasible():
     fail('solution is not feasible')
 
     # Analyze the Timetable
-    analyze_response = client.put("/schedules/analyze", json=demo_data)
+    analyze_response = client.post("/schedules/score-analysis", json=demo_data)
     assert analyze_response.status_code == 200
     analyze_data = analyze_response.json()
     assert "constraints" in analyze_data

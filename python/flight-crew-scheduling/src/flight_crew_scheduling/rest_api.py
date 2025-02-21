@@ -105,7 +105,7 @@ async def get_schedule_status(job_id: str) -> dict:
     return {"solver_status": flight_crew_schedule.solver_status}
 
 
-@app.put("/schedules/analyze")
+@app.post("/schedules/score-analysis")
 async def analyze_timetable(flight_crew_schedule: Annotated[FlightCrewSchedule, Depends(setup_context)]) -> dict:
     return {'constraints': [ConstraintAnalysisDTO(
         name=constraint.constraint_name,

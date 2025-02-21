@@ -63,7 +63,7 @@ async def setup_context(request: Request) -> Timetable:
                                     })
 
 
-@app.put("/timetables/analyze")
+@app.post("/timetables/score-analysis")
 async def analyze_timetable(timetable: Annotated[Timetable, Depends(setup_context)]) -> dict:
     return {'constraints': [ConstraintAnalysisDTO(
         name=constraint.constraint_name,

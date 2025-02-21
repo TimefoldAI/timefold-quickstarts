@@ -159,7 +159,7 @@ function analyze() {
         scoreAnalysisModalContent.text("No score to analyze yet, please first press the 'solve' button.");
     } else {
         $('#scoreAnalysisScoreLabel').text(`(${loadedSchedule.score})`);
-        $.put("/schedules/analyze", JSON.stringify(loadedSchedule), function (scoreAnalysis) {
+        $.post("/schedules/score-analysis", JSON.stringify(loadedSchedule), function (scoreAnalysis) {
             let constraints = scoreAnalysis.constraints;
             constraints.sort((a, b) => {
                 let aComponents = getScoreComponents(a.score), bComponents = getScoreComponents(b.score);

@@ -84,7 +84,7 @@ class TaskAssigningResourceTest {
                 .body(solution)
                 .expect().contentType(ContentType.JSON)
                 .when()
-                .put("/schedules/analyze")
+                .post("/schedules/score-analysis")
                 .then()
                 .extract()
                 .asString();
@@ -97,7 +97,7 @@ class TaskAssigningResourceTest {
                 .body(solution)
                 .expect().contentType(ContentType.JSON)
                 .when()
-                .put("/schedules/analyze")
+                .post("/schedules/score-analysis")
                 .then()
                 .extract()
                 .asString();

@@ -82,7 +82,7 @@ async def solve_route(route: Annotated[VehicleRoutePlan, Depends(setup_context)]
     return job_id
 
 
-@app.put("/route-plans/analyze")
+@app.post("/route-plans/score-analysis")
 async def analyze_route(route: Annotated[VehicleRoutePlan, Depends(setup_context)]) \
         -> dict['str', list[ConstraintAnalysisDTO]]:
     return {'constraints': [ConstraintAnalysisDTO(
