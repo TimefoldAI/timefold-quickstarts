@@ -33,8 +33,8 @@ class TimetableEnvironmentTest {
     }
 
     @Test
-    void solveFastAssert() {
-        solve(EnvironmentMode.FAST_ASSERT);
+    void solveStepAssert() {
+        solve(EnvironmentMode.STEP_ASSERT);
     }
 
     void solve(EnvironmentMode environmentMode) {
