@@ -17,7 +17,7 @@
     <version.org.junit.jupiter>5.11.4</version.org.junit.jupiter>
     <version.ch.qos.logback>1.5.16</version.ch.qos.logback>
 
-    <version.compiler.plugin>3.13.0</version.compiler.plugin>
+    <version.compiler.plugin>3.14.0</version.compiler.plugin>
     <version.surefire.plugin>3.5.2</version.surefire.plugin>
     <version.assembly.plugin>3.7.1</version.assembly.plugin>
   </properties>
