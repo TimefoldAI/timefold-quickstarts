@@ -3,9 +3,9 @@ plugins {
     id "application"
 }
 
-def timefoldVersion = "1.19.0"
-def logbackVersion = "1.5.16"
-def junitJupiterVersion = "5.11.4"
+def timefoldVersion = "1.20.0"
+def logbackVersion = "1.5.17"
+def junitVersion = "5.12.0"
 def assertjVersion = "3.27.3"
 def profile = System.properties['profile'] ?: ''
 
@@ -19,14 +19,15 @@ repositories {
 
 dependencies {
     implementation platform("ai.timefold.solver:timefold-solver-bom:${timefoldVersion}")
-
     implementation "ai.timefold.solver:timefold-solver-core"
     runtimeOnly "ch.qos.logback:logback-classic:${logbackVersion}"
 
     // Testing
+    testImplementation platform("org.junit:junit-bom:${junitVersion}")
     testImplementation "ai.timefold.solver:timefold-solver-test"
-    testImplementation "org.junit.jupiter:junit-jupiter:${junitJupiterVersion}"
+    testImplementation "org.junit.jupiter:junit-jupiter"
     testImplementation "org.assertj:assertj-core:${assertjVersion}"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
 
 }
 

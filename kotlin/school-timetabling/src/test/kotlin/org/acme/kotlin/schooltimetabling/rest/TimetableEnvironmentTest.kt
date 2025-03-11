@@ -26,8 +26,8 @@ class TimetableEnvironmentTest {
     }
 
     @Test
-    fun solveFastAssert() {
-        solve(EnvironmentMode.FAST_ASSERT)
+    fun solveStepAssert() {
+        solve(EnvironmentMode.STEP_ASSERT)
     }
 
     fun solve(environmentMode: EnvironmentMode) {
