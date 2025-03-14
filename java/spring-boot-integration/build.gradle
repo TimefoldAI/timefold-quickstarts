@@ -5,7 +5,7 @@ plugins {
     id "java"
 }
 
-def timefoldVersion = "1.20.0"
+def timefoldVersion = "1.20.1"
 def profile = System.properties['profile'] ?: ''
 def enterprise = System.properties['enterprise'] ?: ''
 
