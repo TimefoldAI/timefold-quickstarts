@@ -29,9 +29,8 @@ It shows different use cases and basic implementations to get you started on you
 | 🏆 <a href="#-sports-league-scheduling">Sports League Scheduling</a>   | Consecutive Sequences                                    |
 | 🏅 <a href="#-tournament-scheduling">Tournament Scheduling</a>         | Pinning, Load Balancing                                  |
 
-> [!IMPORTANT]
-> The implementations in this repository are not production ready.
-> They serve as a starting point and/or inspiration when creating your own application.
+> [!NOTE]
+> The implementations in this repository serve as a starting point and/or inspiration when creating your own application.
 > Timefold Solver is a library and does not include a UI. To illustrate these use cases a rudimentary UI is included in these quickstarts.
 
 ## Use cases
