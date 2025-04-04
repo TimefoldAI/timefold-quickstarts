@@ -4,7 +4,7 @@ function analyzeScore(solution, endpointPath) {
     scoreAnalysisModalContent.children().remove();
     scoreAnalysisModalContent.text("");
 
-    if (solution.score == null || solution.score.indexOf('init') != -1) {
+    if (solution.score == null) {
         scoreAnalysisModalContent.text("Score not ready for analysis, try to run the solver first or wait until it advances.");
     } else {
         visualizeScoreAnalysis(scoreAnalysisModalContent, solution, endpointPath)
