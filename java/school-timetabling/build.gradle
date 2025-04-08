@@ -1,10 +1,10 @@
 plugins {
     id "java"
-    id "io.quarkus" version "3.19.2"
+    id "io.quarkus" version "3.21.1"
 }
 
-def quarkusVersion = "3.19.2"
-def timefoldVersion = "1.20.1"
+def quarkusVersion = "3.21.1"
+def timefoldVersion = "1.21.0"
 def profile = System.properties['profile'] ?: ''
 def enterprise = System.properties['enterprise'] ?: ''
 
@@ -25,8 +25,8 @@ dependencies {
         implementation "ai.timefold.solver.enterprise:timefold-solver-enterprise-quarkus"
     }
 
-    implementation "io.quarkus:quarkus-resteasy"
-    implementation "io.quarkus:quarkus-resteasy-jackson"
+    implementation "io.quarkus:quarkus-rest"
+    implementation "io.quarkus:quarkus-rest-jackson"
     implementation "io.quarkus:quarkus-smallrye-openapi"
     implementation "ai.timefold.solver:timefold-solver-quarkus"
     implementation "ai.timefold.solver:timefold-solver-quarkus-jackson"
