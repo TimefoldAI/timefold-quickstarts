@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Objects;
 
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
+import ai.timefold.solver.core.api.domain.entity.PlanningPin;
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 import ai.timefold.solver.core.api.domain.valuerange.CountableValueRange;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeFactory;
@@ -14,7 +15,6 @@ import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
 import ai.timefold.solver.core.api.domain.variable.ShadowVariable;
 
 import org.acme.projectjobschedule.domain.solver.DelayStrengthComparator;
-import org.acme.projectjobschedule.domain.solver.NotSourceOrSinkAllocationFilter;
 import org.acme.projectjobschedule.domain.solver.PredecessorsDoneDateUpdatingVariableListener;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
@@ -22,12 +22,16 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
-@PlanningEntity(pinningFilter = NotSourceOrSinkAllocationFilter.class)
+@PlanningEntity
 @JsonIdentityInfo(scope = Allocation.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Allocation {
 
     @PlanningId
     private String id;
+
+    @PlanningPin
+    private boolean pinned = false;
+
     private Job job;
 
     @JsonIdentityReference(alwaysAsId = true)
@@ -65,7 +69,7 @@ public class Allocation {
 
     public Allocation(String id, Job job) {
         this(id);
-        this.job = job;
+        setJob(job);
         this.predecessorsDoneDate = 0;
     }
 
@@ -97,12 +101,40 @@ public class Allocation {
         this.id = id;
     }
 
+    public boolean isPinned() {
+        return pinned;
+    }
+
+    /**
+     * Sources and sinks will always be pinned.
+     * 
+     * @param pinned Ignored unless {@link #getJob()}'s {@link JobType} is {@link JobType#STANDARD}.
+     */
+    public void setPinned(boolean pinned) {
+        if (job == null) {
+            this.pinned = false;
+            return;
+        }
+        var jobType = getJobType();
+        if (jobType == JobType.STANDARD) {
+            this.pinned = pinned;
+        } else {
+            this.pinned = true;
+        }
+    }
+
     public Job getJob() {
         return job;
     }
 
+    /**
+     * Resets {@link #isPinned()}.
+     * 
+     * @param job never null
+     */
     public void setJob(Job job) {
         this.job = job;
+        setPinned(false);
     }
 
     public Allocation getSourceAllocation() {
