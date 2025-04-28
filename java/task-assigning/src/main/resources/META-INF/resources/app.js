@@ -220,7 +220,7 @@ function analyze() {
     new bootstrap.Modal("#scoreAnalysisModal").show()
     const scoreAnalysisModalContent = $("#scoreAnalysisModalContent");
     scoreAnalysisModalContent.children().remove();
-    if (loadedPlan.score == null || loadedPlan.score.indexOf('init') != -1) {
+    if (loadedPlan.score == null) {
         scoreAnalysisModalContent.text("No score to analyze yet, please first press the 'solve' button.");
     } else {
         $('#scoreAnalysisScoreLabel').text(`(${loadedPlan.score})`);

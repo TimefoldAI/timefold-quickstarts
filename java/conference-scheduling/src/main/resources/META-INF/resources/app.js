@@ -328,7 +328,7 @@ function analyze() {
     new bootstrap.Modal("#scoreAnalysisModal").show()
     const scoreAnalysisModalContent = $("#scoreAnalysisModalContent");
     scoreAnalysisModalContent.children().remove();
-    if (loadedSchedule.score == null || loadedSchedule.score.indexOf('init') != -1) {
+    if (loadedSchedule.score == null) {
         scoreAnalysisModalContent.text("No score to analyze yet, please first press the 'solve' button.");
     } else {
         $('#scoreAnalysisScoreLabel').text(`(${loadedSchedule.score})`);
