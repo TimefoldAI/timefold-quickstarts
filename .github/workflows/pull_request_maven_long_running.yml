@@ -50,11 +50,12 @@ jobs:
   build-quarkus:
     needs: approval_required
     concurrency:
-      group: pull_request_long_running-${{ github.event_name }}-${{ github.head_ref }}-${{ matrix.module }}-${{ matrix.java-version }}
+      group: pull_request_long_running-${{ github.event_name }}-${{ github.head_ref }}-${{ matrix.os }}-${{ matrix.module }}-${{ matrix.java-version }}
       cancel-in-progress: true
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        os: [ ubuntu-latest, ubuntu-24.04-arm ]
         module: [
           "kotlin/school-timetabling", "java/bed-allocation",
           "java/conference-scheduling", "java/employee-scheduling", "java/facility-location",
