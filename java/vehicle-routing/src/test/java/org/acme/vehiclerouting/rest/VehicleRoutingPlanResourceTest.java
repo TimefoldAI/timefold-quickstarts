@@ -18,6 +18,7 @@ import java.util.Map;
 
 import ai.timefold.solver.core.api.score.analysis.ConstraintAnalysis;
 import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
+import ai.timefold.solver.core.api.score.constraint.ConstraintRef;
 import ai.timefold.solver.core.api.solver.SolverStatus;
 
 import org.acme.vehiclerouting.domain.Location;
@@ -73,7 +74,7 @@ class VehicleRoutingPlanResourceTest {
 
         assertNotNull(analysis.score());
         ConstraintAnalysis<?> minimizeTravelTimeAnalysis =
-                analysis.getConstraintAnalysis(VehicleRoutePlan.class.getPackageName(), "minimizeTravelTime");
+                analysis.getConstraintAnalysis(ConstraintRef.of(VehicleRoutePlan.class.getPackageName(), "minimizeTravelTime"));
         assertNotNull(minimizeTravelTimeAnalysis);
         assertNotNull(minimizeTravelTimeAnalysis.matches());
         assertFalse(minimizeTravelTimeAnalysis.matches().isEmpty());
@@ -99,7 +100,7 @@ class VehicleRoutingPlanResourceTest {
 
         assertNotNull(analysis.score());
         ConstraintAnalysis<?> minimizeTravelTimeAnalysis =
-                analysis.getConstraintAnalysis(VehicleRoutePlan.class.getPackageName(), "minimizeTravelTime");
+                analysis.getConstraintAnalysis(ConstraintRef.of(VehicleRoutePlan.class.getPackageName(), "minimizeTravelTime"));
         assertNotNull(minimizeTravelTimeAnalysis);
         assertNull(minimizeTravelTimeAnalysis.matches());
     }
@@ -148,7 +149,7 @@ class VehicleRoutingPlanResourceTest {
 
     private List<Pair<VehicleRecommendation, ScoreAnalysis>> getRecommendations(VehicleRoutePlan solution, Visit newVisit) {
         RecommendationRequest request = new RecommendationRequest(solution, newVisit.getId());
-        return parseRecommendedFitList(given()
+        return parseRecommendedAssignmentList(given()
                 .contentType(ContentType.JSON)
                 .body(request)
                 .expect().contentType(ContentType.JSON)
@@ -160,9 +161,9 @@ class VehicleRoutingPlanResourceTest {
     }
 
     private VehicleRoutePlan applyBestRecommendation(VehicleRoutePlan solution, Visit newVisit,
-            List<Pair<VehicleRecommendation, ScoreAnalysis>> recommendedFitList) {
+            List<Pair<VehicleRecommendation, ScoreAnalysis>> recommendedAssignmentsList) {
         // Selects the best recommendation
-        VehicleRecommendation recommendation = recommendedFitList.get(0).getLeft();
+        VehicleRecommendation recommendation = recommendedAssignmentsList.get(0).getLeft();
         ApplyRecommendationRequest applyRequest = new ApplyRecommendationRequest(solution, newVisit.getId(),
                 recommendation.vehicleId(), recommendation.index());
 
@@ -179,7 +180,7 @@ class VehicleRoutingPlanResourceTest {
     }
 
     @Test
-    void recommendedFit() {
+    void recommendedAssignment() {
         // Generate an initial solution
         VehicleRoutePlan solution = generateInitialSolution();
         assertNotNull(solution);
@@ -189,12 +190,12 @@ class VehicleRoutingPlanResourceTest {
         Visit newVisit = generateNewVisit(solution);
 
         // Request recommendation
-        List<Pair<VehicleRecommendation, ScoreAnalysis>> recommendedFitList = getRecommendations(solution, newVisit);
-        assertNotNull(recommendedFitList);
-        assertEquals(5, recommendedFitList.size());
+        List<Pair<VehicleRecommendation, ScoreAnalysis>> recommendations = getRecommendations(solution, newVisit);
+        assertNotNull(recommendations);
+        assertEquals(5, recommendations.size());
 
         // Apply the best recommendation
-        VehicleRoutePlan updatedSolution = applyBestRecommendation(solution, newVisit, recommendedFitList);
+        VehicleRoutePlan updatedSolution = applyBestRecommendation(solution, newVisit, recommendations);
         assertNotNull(updatedSolution);
         assertNotEquals(updatedSolution.getScore().toString(), solution.getScore().toString());
     }
@@ -238,12 +239,12 @@ class VehicleRoutingPlanResourceTest {
     }
 
     private List<Pair<VehicleRecommendation, ScoreAnalysis>>
-            parseRecommendedFitList(List<Map<String, Object>> recommendedFitMap) {
-        assertNotNull(recommendedFitMap);
-        List<Pair<VehicleRecommendation, ScoreAnalysis>> recommendedFitList = new ArrayList<>(recommendedFitMap.size());
-        recommendedFitMap.forEach(record -> recommendedFitList.add(Pair.of(
+    parseRecommendedAssignmentList(List<Map<String, Object>> recommendedAssignmentMap) {
+        assertNotNull(recommendedAssignmentMap);
+        List<Pair<VehicleRecommendation, ScoreAnalysis>> recommendedAssignmentList = new ArrayList<>(recommendedAssignmentMap.size());
+        recommendedAssignmentMap.forEach(record -> recommendedAssignmentList.add(Pair.of(
                 OBJECT_MAPPER.convertValue(record.get("proposition"), VehicleRecommendation.class),
                 OBJECT_MAPPER.convertValue(record.get("scoreDiff"), ScoreAnalysis.class))));
-        return recommendedFitList;
+        return recommendedAssignmentList;
     }
 }
