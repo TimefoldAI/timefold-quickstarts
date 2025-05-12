@@ -1,6 +1,6 @@
 plugins {
     id "java"
-    id "io.quarkus" version "3.22.1"
+    id "io.quarkus" version "3.22.2"
 }
 
 def quarkusVersion = "3.22.1"
