@@ -190,10 +190,12 @@ jobs:
         if: ${{ startsWith(github.event.pull_request.title, 'build:') && contains(github.event.pull_request.title, 'release version') && github.event.pull_request.user.login == 'timefold-release' }}
         shell: bash
         working-directory: ./timefold-solver-enterprise
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
           git config user.name "Timefold Release Bot"
           git config user.email "release@timefold.ai"
-          NEW_VERSION=`echo '${{ github.event.pull_request.title }}' | grep -oE '[^ ]+$'`
+          NEW_VERSION=$(echo "$PR_TITLE" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
           export NEW_VERSION
           export NEW_VERSION_PYTHON="${NEW_VERSION}"b0
           echo $NEW_VERSION
