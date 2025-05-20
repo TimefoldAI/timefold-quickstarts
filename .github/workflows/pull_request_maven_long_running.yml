@@ -191,6 +191,8 @@ jobs:
         shell: bash
         working-directory: ./timefold-solver-enterprise
         env:
+          # PR titles are user-controlled and can contain malicious payloads.
+          # Avoid direct shell interpolation.
           PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
           git config user.name "Timefold Release Bot"
