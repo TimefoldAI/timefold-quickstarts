@@ -6,6 +6,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import ai.timefold.solver.core.api.solver.RecommendedAssignment;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -21,7 +22,6 @@ import jakarta.ws.rs.core.Response;
 
 import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
 import ai.timefold.solver.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
-import ai.timefold.solver.core.api.solver.RecommendedFit;
 import ai.timefold.solver.core.api.solver.ScoreAnalysisFetchPolicy;
 import ai.timefold.solver.core.api.solver.SolutionManager;
 import ai.timefold.solver.core.api.solver.SolverManager;
@@ -52,7 +52,7 @@ import org.slf4j.LoggerFactory;
 public class VehicleRoutePlanResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VehicleRoutePlanResource.class);
-    private static final int MAX_RECOMMENDED_FIT_LIST_SIZE = 5;
+    private static final int MAX_RECOMMENDED_ASSIGNMENT_LIST_SIZE = 5;
 
     private final SolverManager<VehicleRoutePlan, String> solverManager;
 
@@ -108,7 +108,7 @@ public class VehicleRoutePlanResource {
         return jobId;
     }
 
-    @Operation(summary = "Request recommendations to the RecommendedFit API for a new visit.")
+    @Operation(summary = "Request recommendations to the RecommendedAssignment API for a new visit.")
     @APIResponses(value = {
             @APIResponse(responseCode = "200",
                     description = "The list of fits for the given visit.",
@@ -118,18 +118,18 @@ public class VehicleRoutePlanResource {
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces(MediaType.APPLICATION_JSON)
     @Path("recommendation")
-    public List<RecommendedFit<VehicleRecommendation, HardSoftLongScore>> recommendedFit(RecommendationRequest request) {
+    public List<RecommendedAssignment<VehicleRecommendation, HardSoftLongScore>> recommendedAssignment(RecommendationRequest request) {
         Visit visit = request.solution().getVisits().stream()
                 .filter(v -> v.getId().equals(request.visitId()))
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("Visit %s not found".formatted(request.visitId())));
-        List<RecommendedFit<VehicleRecommendation, HardSoftLongScore>> recommendedFitList = solutionManager
-                .recommendFit(request.solution(), visit, v -> new VehicleRecommendation(v.getVehicle().getId(),
+        List<RecommendedAssignment<VehicleRecommendation, HardSoftLongScore>> recommendedAssignments = solutionManager
+                .recommendAssignment(request.solution(), visit, v -> new VehicleRecommendation(v.getVehicle().getId(),
                         v.getVehicle().getVisits().indexOf(v)));
-        if (!recommendedFitList.isEmpty()) {
-            return recommendedFitList.subList(0, Math.min(MAX_RECOMMENDED_FIT_LIST_SIZE, recommendedFitList.size()));
+        if (!recommendedAssignments.isEmpty()) {
+            return recommendedAssignments.subList(0, Math.min(MAX_RECOMMENDED_ASSIGNMENT_LIST_SIZE, recommendedAssignments.size()));
         }
-        return recommendedFitList;
+        return recommendedAssignments;
     }
 
     @Operation(summary = "Applies a given recommendation.")
@@ -142,7 +142,7 @@ public class VehicleRoutePlanResource {
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces(MediaType.APPLICATION_JSON)
     @Path("recommendation/apply")
-    public VehicleRoutePlan applyRecommendedFit(ApplyRecommendationRequest request) {
+    public VehicleRoutePlan applyRecommendation(ApplyRecommendationRequest request) {
         VehicleRoutePlan updatedSolution = request.solution();
         String vehicleId = request.vehicleId();
         Vehicle vehicleTarget = updatedSolution.getVehicles().stream()
