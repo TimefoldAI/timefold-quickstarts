@@ -9,12 +9,13 @@ import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
 import ai.timefold.solver.core.api.score.stream.Joiners;
 
 import org.acme.foodpackaging.domain.Job;
+import org.acme.foodpackaging.domain.Line;
 
 public class FoodPackagingConstraintProvider implements ConstraintProvider {
 
     @Override
     public Constraint[] defineConstraints(ConstraintFactory factory) {
-        return new Constraint[] {
+        return new Constraint[]{
                 // Hard constraints
                 maxEndDateTime(factory),
                 // Medium constraints
@@ -55,18 +56,14 @@ public class FoodPackagingConstraintProvider implements ConstraintProvider {
 
     // TODO Currently dwarfed by minimizeAndLoadBalanceMakeSpan in the same score level, because that squares
     protected Constraint operatorCleaningConflict(ConstraintFactory factory) {
-        return factory.forEach(Job.class)
-                .filter(job ->job.getLine() != null)
-                .join(factory.forEach(Job.class).filter(job ->job.getLine() != null),
-                        Joiners.equal(job -> job.getLine().getOperator()),
+        return factory.forEach(Line.class)
+                .flattenLast(Line::getJobs)
+                .join(factory.forEach(Line.class).flattenLast(Line::getJobs),
+                        Joiners.equal(Job::getLineOperator),
                         Joiners.overlapping(Job::getStartCleaningDateTime, Job::getStartProductionDateTime),
                         Joiners.lessThan(Job::getId))
-                .penalizeLong(HardMediumSoftLongScore.ONE_SOFT, (job1, job2) -> Duration.between(
-                        (job1.getStartCleaningDateTime().compareTo(job2.getStartCleaningDateTime()) > 0)
-                               ? job1.getStartCleaningDateTime() : job2.getStartCleaningDateTime(),
-                        (job1.getStartProductionDateTime().compareTo(job2.getStartProductionDateTime()) < 0)
-                                ? job1.getStartProductionDateTime() : job2.getStartProductionDateTime()
-                ).toMinutes())
+                .penalizeLong(HardMediumSoftLongScore.ONE_SOFT, (job1, job2) ->
+                        job1.getCleanupProductionDurationDiff(job2).toMinutes())
                 .asConstraint("Operator cleaning conflict");
     }
 

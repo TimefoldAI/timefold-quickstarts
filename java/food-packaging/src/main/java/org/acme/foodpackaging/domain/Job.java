@@ -1,8 +1,5 @@
 package org.acme.foodpackaging.domain;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
-
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.entity.PlanningPin;
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
@@ -10,8 +7,10 @@ import ai.timefold.solver.core.api.domain.variable.CascadingUpdateShadowVariable
 import ai.timefold.solver.core.api.domain.variable.InverseRelationShadowVariable;
 import ai.timefold.solver.core.api.domain.variable.NextElementShadowVariable;
 import ai.timefold.solver.core.api.domain.variable.PreviousElementShadowVariable;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 @PlanningEntity
 public class Job {
@@ -129,6 +128,10 @@ public class Job {
         this.line = line;
     }
 
+    public Operator getLineOperator() {
+        return line != null ? line.getOperator() : null;
+    }
+
     public Job getPreviousJob() {
         return previousJob;
     }
@@ -199,4 +202,11 @@ public class Job {
         setEndDateTime(endTime);
     }
 
+    public Duration getCleanupProductionDurationDiff(Job otherJob) {
+        var start = startCleaningDateTime.isAfter(otherJob.getStartCleaningDateTime()) ?
+                startCleaningDateTime : otherJob.getStartCleaningDateTime();
+        var end = startProductionDateTime.isBefore(otherJob.getStartProductionDateTime()) ?
+                startProductionDateTime : otherJob.getStartProductionDateTime();
+        return Duration.between(start, end);
+    }
 }

@@ -85,19 +85,33 @@ function refreshSchedule() {
     refreshSolvingButtons(schedule.solverStatus != null && schedule.solverStatus !== "NOT_SOLVING");
     $("#score").text("Score: " + (schedule.score == null ? "?" : schedule.score));
     loadedSchedule = schedule;
+    const unassignedOperators = $("#unassignedOperators");
     const unassignedJobs = $("#unassignedJobs");
+    unassignedOperators.children().remove();
     unassignedJobs.children().remove();
+    var unassignedOperatorsCount = 0;
     var unassignedJobsCount = 0;
     byLineGroupDataSet.clear();
     byJobGroupDataSet.clear();
     byLineItemDataSet.clear();
     byJobItemDataSet.clear();
+    const linesMap = new Map();
 
     $.each(schedule.lines, (index, line) => {
+      linesMap.set(line.id, line);
       const lineGroupElement = $(`<div/>`)
         .append($(`<h5 class="card-title mb-1"/>`).text(line.name))
         .append($(`<p class="card-text ms-2 mb-0"/>`).text(line.operator));
       byLineGroupDataSet.add({id : line.id, content: lineGroupElement.html()});
+    });
+
+    $.each(schedule.operators, (index, operator) => {
+      if (operator.lines == null || operator.lines.length === 0) {
+        unassignedOperatorsCount++;
+        const unassignedOperatorElement = $(`<div class="card-body p-2"/>`)
+            .append($(`<h5 class="card-title mb-1"/>`).text(operator.id));
+        unassignedOperators.append($(`<div class="col"/>`).append($(`<div class="card"/>`).append(unassignedOperatorElement)));
+      }
     });
 
     $.each(schedule.jobs, (index, job) => {
@@ -138,10 +152,11 @@ function refreshSchedule() {
       } else {
         const beforeReady = JSJoda.LocalDateTime.parse(job.startProductionDateTime).isBefore(JSJoda.LocalDateTime.parse(job.minStartTime));
         const afterDue = JSJoda.LocalDateTime.parse(job.endDateTime).isAfter(JSJoda.LocalDateTime.parse(job.maxEndTime));
+        const line = linesMap.get(job.line);
         const byLineJobElement = $(`<div/>`)
           .append($(`<p class="card-text"/>`).text(job.name));
         const byJobJobElement = $(`<div/>`)
-          .append($(`<p class="card-text"/>`).text(job.line.name));
+          .append($(`<p class="card-text"/>`).text(line.name));
         if (beforeReady) {
           byLineJobElement.append($(`<p class="badge badge-danger mb-0"/>`).text(`Before ready (too early)`));
           byJobJobElement.append($(`<p class="badge badge-danger mb-0"/>`).text(`Before ready (too early)`));
@@ -151,13 +166,13 @@ function refreshSchedule() {
           byJobJobElement.append($(`<p class="badge badge-danger mb-0"/>`).text(`After due (too late)`));
         }
         byLineItemDataSet.add({
-          id : job.id + "_cleaning", group: job.line.id,
+          id : job.id + "_cleaning", group: job.line,
           content: "Cleaning",
           start: job.startCleaningDateTime, end: job.startProductionDateTime,
           style: "background-color: #FCAF3E99"
         });
         byLineItemDataSet.add({
-          id : job.id, group: job.line.id,
+          id : job.id, group: job.line,
           content: byLineJobElement.html(),
           start: job.startProductionDateTime, end: job.endDateTime
         });
@@ -174,6 +189,9 @@ function refreshSchedule() {
         });
       }
     });
+    if (unassignedOperatorsCount === 0) {
+      unassignedOperators.append($(`<p/>`).text(`There are no unassigned operators.`));
+    }
     if (unassignedJobsCount === 0) {
       unassignedJobs.append($(`<p/>`).text(`There are no unassigned jobs.`));
     }

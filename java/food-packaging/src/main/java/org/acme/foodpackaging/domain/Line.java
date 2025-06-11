@@ -1,22 +1,30 @@
 package org.acme.foodpackaging.domain;
 
+import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
+import ai.timefold.solver.core.api.domain.lookup.PlanningId;
+import ai.timefold.solver.core.api.domain.variable.PlanningListVariable;
+import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import ai.timefold.solver.core.api.domain.lookup.PlanningId;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
-import ai.timefold.solver.core.api.domain.variable.PlanningListVariable;
-
+@JsonIdentityInfo(scope = Line.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @PlanningEntity
 public class Line {
 
     @PlanningId
     private String id;
     private String name;
-    private String operator;
     private LocalDateTime startDateTime;
+
+    @JsonIdentityReference(alwaysAsId = true)
+    @PlanningVariable
+    private Operator operator;
 
     @JsonIgnore
     @PlanningListVariable
@@ -26,7 +34,11 @@ public class Line {
     public Line() {
     }
 
-    public Line(String id, String name, String operator, LocalDateTime startDateTime) {
+    public Line(String id, String name, LocalDateTime startDateTime) {
+        this(id, name, null, startDateTime);
+    }
+
+    public Line(String id, String name, Operator operator, LocalDateTime startDateTime) {
         this.id = id;
         this.name = name;
         this.operator = operator;
@@ -51,7 +63,11 @@ public class Line {
         return name;
     }
 
-    public String getOperator() {
+    public void setOperator(Operator operator) {
+        this.operator = operator;
+    }
+
+    public Operator getOperator() {
         return operator;
     }
 
@@ -62,5 +78,4 @@ public class Line {
     public List<Job> getJobs() {
         return jobs;
     }
-
 }

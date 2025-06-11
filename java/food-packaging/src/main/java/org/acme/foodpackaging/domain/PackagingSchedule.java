@@ -20,6 +20,10 @@ public class PackagingSchedule {
     @ProblemFactCollectionProperty
     private List<Product> products;
 
+    @ProblemFactCollectionProperty
+    @ValueRangeProvider
+    private List<Operator> operators;
+
     @PlanningEntityCollectionProperty
     private List<Line> lines;
 
@@ -33,8 +37,8 @@ public class PackagingSchedule {
     // Ignored by Timefold, used by the UI to display solve or stop solving button
     private SolverStatus solverStatus;
 
-    // No-arg constructor required for Timefold
     public PackagingSchedule() {
+        // No-arg constructor required for Timefold
     }
 
     // ************************************************************************
@@ -55,6 +59,14 @@ public class PackagingSchedule {
 
     public void setProducts(List<Product> products) {
         this.products = products;
+    }
+
+    public List<Operator> getOperators() {
+        return operators;
+    }
+
+    public void setOperators(List<Operator> operators) {
+        this.operators = operators;
     }
 
     public List<Line> getLines() {
