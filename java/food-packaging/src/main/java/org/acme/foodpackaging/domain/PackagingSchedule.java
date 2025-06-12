@@ -20,7 +20,7 @@ public class PackagingSchedule {
     @ProblemFactCollectionProperty
     private List<Product> products;
 
-    @ProblemFactCollectionProperty
+    @PlanningEntityCollectionProperty
     @ValueRangeProvider
     private List<Operator> operators;
 
