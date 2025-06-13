@@ -7,6 +7,7 @@ import ai.timefold.solver.core.api.domain.variable.CascadingUpdateShadowVariable
 import ai.timefold.solver.core.api.domain.variable.InverseRelationShadowVariable;
 import ai.timefold.solver.core.api.domain.variable.NextElementShadowVariable;
 import ai.timefold.solver.core.api.domain.variable.PreviousElementShadowVariable;
+import ai.timefold.solver.core.api.domain.variable.ShadowVariable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.time.Duration;
@@ -33,6 +34,14 @@ public class Job {
 
     @InverseRelationShadowVariable(sourceVariableName = "jobs")
     private Line line;
+    @ShadowVariable(
+            variableListenerClass = LineOperatorUpdatingVariableListener.class,
+            sourceEntityClass = Line.class,
+            sourceVariableName = "operator")
+    @ShadowVariable(
+            variableListenerClass = JobOperatorUpdatingVariableListener.class,
+            sourceVariableName = "line")
+    private Operator lineOperator;
     @JsonIgnore
     @PreviousElementShadowVariable(sourceVariableName = "jobs")
     private Job previousJob;
@@ -129,7 +138,11 @@ public class Job {
     }
 
     public Operator getLineOperator() {
-        return line != null ? line.getOperator() : null;
+        return lineOperator;
+    }
+
+    public void setLineOperator(Operator lineOperator) {
+        this.lineOperator = lineOperator;
     }
 
     public Job getPreviousJob() {
@@ -200,13 +213,5 @@ public class Job {
         setStartProductionDateTime(startProduction);
         var endTime = startProduction == null ? null : startProduction.plus(getDuration());
         setEndDateTime(endTime);
-    }
-
-    public Duration getCleanupProductionDurationDiff(Job otherJob) {
-        var start = startCleaningDateTime.isAfter(otherJob.getStartCleaningDateTime()) ?
-                startCleaningDateTime : otherJob.getStartCleaningDateTime();
-        var end = startProductionDateTime.isBefore(otherJob.getStartProductionDateTime()) ?
-                startProductionDateTime : otherJob.getStartProductionDateTime();
-        return Duration.between(start, end);
     }
 }

@@ -8,7 +8,6 @@ import org.acme.foodpackaging.domain.Line;
 import org.acme.foodpackaging.domain.Operator;
 import org.acme.foodpackaging.domain.PackagingSchedule;
 import org.acme.foodpackaging.domain.Product;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
@@ -120,20 +119,6 @@ class FoodPackagingConstraintProviderTest {
         constraintVerifier.verifyThat(FoodPackagingConstraintProvider::minimizeMakespan)
                 .given(line1, line2, job1, job2, job3, job4)
                 .penalizesBy(100L * 100L + 1250L * 1250L);
-    }
-
-    @Test
-    @Disabled("The constraint is currently commented out.")
-    void minimizeCleaningDuration() {
-        Job job1 = new Job("1", "job1", PRODUCT_A_SMALL, Duration.ofMinutes(6000), DAY_START_TIME, null, null, 1, false);
-        Job job2 = new Job("2", "job2", PRODUCT_A_SMALL, Duration.ofMinutes(200), DAY_START_TIME, null, null, 1, false,
-                DAY_START_TIME, DAY_START_TIME);
-        Job job3 = new Job("3", "job3", PRODUCT_A_SMALL, Duration.ofMinutes(150), DAY_START_TIME, null, null, 1, false,
-                DAY_START_TIME.plusMinutes(30), DAY_START_TIME.plusMinutes(40));
-
-        constraintVerifier.verifyThat(FoodPackagingConstraintProvider::minimizeCleaningDuration)
-                .given(job1, job2, job3)
-                .penalizesBy(10L);
     }
 
     // ************************************************************************
