@@ -1,0 +1,16 @@
+README.MD
+pyproject.toml
+src/meeting_scheduling/__init__.py
+src/meeting_scheduling/constraints.py
+src/meeting_scheduling/demo_data.py
+src/meeting_scheduling/domain.py
+src/meeting_scheduling/json_serialization.py
+src/meeting_scheduling/rest_api.py
+src/meeting_scheduling/score_analysis.py
+src/meeting_scheduling/solver.py
+src/meeting_scheduling.egg-info/PKG-INFO
+src/meeting_scheduling.egg-info/SOURCES.txt
+src/meeting_scheduling.egg-info/dependency_links.txt
+src/meeting_scheduling.egg-info/requires.txt
+src/meeting_scheduling.egg-info/top_level.txt
+tests/test_constraints.py

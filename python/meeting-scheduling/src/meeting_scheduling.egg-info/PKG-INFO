@@ -1,0 +1,81 @@
+Metadata-Version: 2.4
+Name: meeting-scheduling
+Version: 1.0.0
+Summary: Meeting Scheduling with Timefold
+Author-email: Timefold Team <info@timefold.ai>
+Project-URL: Homepage, https://timefold.ai
+Project-URL: Bug Tracker, https://github.com/TimefoldAI/timefold-quickstarts/issues
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+Requires-Dist: timefold==1.23.0b0
+Requires-Dist: fastapi==0.111.0
+Requires-Dist: pydantic==2.7.3
+Requires-Dist: uvicorn==0.30.1
+Requires-Dist: pytest==8.2.2
+Provides-Extra: dev
+Requires-Dist: pytest>=7.4.3; extra == "dev"
+
+# Meeting Scheduling (Python, Timefold, FastAPI)
+
+## Problem Description
+
+Schedule meetings between employees, where:
+* Each meeting has a topic, duration, required and preferred attendees.
+* Each meeting needs a room with sufficient capacity.
+* Meetings should not overlap with other meetings if they share resources (room or attendees).
+* Meetings should be scheduled as soon as possible.
+* Preferred attendees should be able to attend if possible.
+
+## Problem Size
+
+* 24 meetings
+* 20 people
+* 3 rooms
+* 4 days of time grains (15-minute intervals)
+
+## Running the Application
+
+```shell
+cd python/meeting-scheduling
+python -m uvicorn meeting_scheduling.rest_api:app --reload
+```
+
+Then open http://localhost:8000 in your web browser.
+
+## REST API
+
+The application exposes a REST API with the following endpoints:
+
+* `GET /demo-data`: List all available demo data sets
+* `GET /demo-data/{dataset_id}`: Get a specific demo data set
+* `GET /schedules`: List all job IDs of submitted schedules
+* `GET /schedules/{problem_id}`: Get the solution and score for a given job ID
+* `GET /schedules/{problem_id}/status`: Get the schedule status and score for a given job ID
+* `DELETE /schedules/{problem_id}`: Terminate solving for a given job ID
+* `POST /schedules`: Submit a schedule to start solving
+* `PUT /schedules/analyze`: Submit a schedule to analyze its score
+
+## Solution Strategy
+
+The solver uses a constraint provider to define the constraints:
+
+* Hard constraints:
+  * Room conflict: A room can accommodate at most one meeting at the same time
+  * Avoid overtime: Don't schedule meetings outside of working hours
+  * Required attendance conflict: A person cannot attend two meetings at the same time
+  * Required room capacity: A room must have sufficient capacity for all attendees
+  * Start and end on same day: A meeting must start and end on the same day
+
+* Medium constraints:
+  * Required and preferred attendance conflict: Avoid scheduling meetings with required and preferred attendees at the same time
+  * Preferred attendance conflict: Avoid scheduling meetings with preferred attendees at the same time
+
+* Soft constraints:
+  * Do meetings as soon as possible: Schedule meetings earlier rather than later
+  * One break between consecutive meetings: Allow a break between meetings
+  * Overlapping meetings: Minimize the number of overlapping meetings
+  * Assign larger rooms first: Prefer larger rooms for earlier meetings
+  * Room stability: Prefer to keep meetings in the same room
