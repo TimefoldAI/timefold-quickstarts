@@ -98,7 +98,7 @@ class FoodPackagingConstraintProviderTest {
         addJobs(line3, job3);
 
         constraintVerifier.verifyThat(FoodPackagingConstraintProvider::operatorCleaningConflict)
-                .given(line1, line2, line3)
+                .given(job1, job2, job3)
                 .penalizesBy(20L);
     }
 
