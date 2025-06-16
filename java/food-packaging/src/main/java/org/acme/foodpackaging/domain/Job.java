@@ -1,8 +1,5 @@
 package org.acme.foodpackaging.domain;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
-
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.entity.PlanningPin;
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
@@ -10,8 +7,11 @@ import ai.timefold.solver.core.api.domain.variable.CascadingUpdateShadowVariable
 import ai.timefold.solver.core.api.domain.variable.InverseRelationShadowVariable;
 import ai.timefold.solver.core.api.domain.variable.NextElementShadowVariable;
 import ai.timefold.solver.core.api.domain.variable.PreviousElementShadowVariable;
-
+import ai.timefold.solver.core.api.domain.variable.ShadowVariable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 @PlanningEntity
 public class Job {
@@ -34,6 +34,14 @@ public class Job {
 
     @InverseRelationShadowVariable(sourceVariableName = "jobs")
     private Line line;
+    @ShadowVariable(
+            variableListenerClass = LineOperatorUpdatingVariableListener.class,
+            sourceEntityClass = Line.class,
+            sourceVariableName = "operator")
+    @ShadowVariable(
+            variableListenerClass = JobOperatorUpdatingVariableListener.class,
+            sourceVariableName = "line")
+    private Operator lineOperator;
     @JsonIgnore
     @PreviousElementShadowVariable(sourceVariableName = "jobs")
     private Job previousJob;
@@ -129,6 +137,14 @@ public class Job {
         this.line = line;
     }
 
+    public Operator getLineOperator() {
+        return lineOperator;
+    }
+
+    public void setLineOperator(Operator lineOperator) {
+        this.lineOperator = lineOperator;
+    }
+
     public Job getPreviousJob() {
         return previousJob;
     }
@@ -198,5 +214,4 @@ public class Job {
         var endTime = startProduction == null ? null : startProduction.plus(getDuration());
         setEndDateTime(endTime);
     }
-
 }
