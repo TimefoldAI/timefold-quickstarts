@@ -9,7 +9,7 @@ import java.util.Objects;
 public class LineOperatorUpdatingVariableListener implements VariableListener<PackagingSchedule, Line> {
     @Override
     public void beforeVariableChanged(@NonNull ScoreDirector<PackagingSchedule> scoreDirector, @NonNull Line line) {
-        // Empty method
+        // No need to do anything.
     }
 
     @Override
@@ -25,21 +25,21 @@ public class LineOperatorUpdatingVariableListener implements VariableListener<Pa
 
     @Override
     public void beforeEntityAdded(@NonNull ScoreDirector<PackagingSchedule> scoreDirector, @NonNull Line line) {
-        // Empty method
+        // No need to do anything.
     }
 
     @Override
     public void afterEntityAdded(@NonNull ScoreDirector<PackagingSchedule> scoreDirector, @NonNull Line line) {
-        // Empty method
+        // No need to do anything.
     }
 
     @Override
     public void beforeEntityRemoved(@NonNull ScoreDirector<PackagingSchedule> scoreDirector, @NonNull Line line) {
-        // Empty method
+        // No need to do anything.
     }
 
     @Override
     public void afterEntityRemoved(@NonNull ScoreDirector<PackagingSchedule> scoreDirector, @NonNull Line line) {
-        // Empty method
+        // No need to do anything.
     }
 }

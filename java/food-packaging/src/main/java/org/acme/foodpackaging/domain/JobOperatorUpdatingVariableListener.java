@@ -12,39 +12,42 @@ public class JobOperatorUpdatingVariableListener implements VariableListener<Pac
 
     @Override
     public void beforeVariableChanged(@NonNull ScoreDirector<PackagingSchedule> scoreDirector, @NonNull Job job) {
-        // Empty method
+        // No need to do anything.
     }
 
     @Override
     public void afterVariableChanged(@NonNull ScoreDirector<PackagingSchedule> scoreDirector, @NonNull Job job) {
-        if (job.getLine() == null && job.getLineOperator() != null) {
+        var line = job.getLine();
+        var operator = line != null ? line.getOperator() : null;
+        var lineOperator = job.getLineOperator();
+        if (line == null && lineOperator != null) {
             scoreDirector.beforeVariableChanged(job, LINE_OPERATOR_FIELD);
             job.setLineOperator(null);
             scoreDirector.afterVariableChanged(job, LINE_OPERATOR_FIELD);
-        } else if (!Objects.equals(job.getLineOperator(), job.getLine().getOperator())) {
+        } else if (!Objects.equals(operator, lineOperator)) {
             scoreDirector.beforeVariableChanged(job, LINE_OPERATOR_FIELD);
-            job.setLineOperator(job.getLine().getOperator());
+            job.setLineOperator(operator);
             scoreDirector.afterVariableChanged(job, LINE_OPERATOR_FIELD);
         }
     }
 
     @Override
     public void beforeEntityAdded(@NonNull ScoreDirector<PackagingSchedule> scoreDirector, @NonNull Job job) {
-        // Empty method
+        // No need to do anything.
     }
 
     @Override
     public void afterEntityAdded(@NonNull ScoreDirector<PackagingSchedule> scoreDirector, @NonNull Job job) {
-        // Empty method
+        // No need to do anything.
     }
 
     @Override
     public void beforeEntityRemoved(@NonNull ScoreDirector<PackagingSchedule> scoreDirector, @NonNull Job job) {
-        // Empty method
+        // No need to do anything.
     }
 
     @Override
     public void afterEntityRemoved(@NonNull ScoreDirector<PackagingSchedule> scoreDirector, @NonNull Job job) {
-        // Empty method
+        // No need to do anything.
     }
 }
