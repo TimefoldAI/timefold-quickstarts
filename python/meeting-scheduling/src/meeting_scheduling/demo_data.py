@@ -188,13 +188,9 @@ def generate_meetings(people: List[Person], rnd: Random) -> List[Meeting]:
     )
 
     def add_preferred_attendees(meeting: Meeting, count: int) -> None:
-        while len(meeting.preferred_attendances) < count:
-            person = rnd.choice(people)
-            try:
-                if not any(ra.person.id == person.id for ra in meeting.required_attendances):
-                    meeting.add_preferred_attendant(person)
-            except ValueError:
-                pass
+        unused_people = list(set(people) - set(meeting.required_attendance))
+        sorted_unused_people = sorted(unused_people, key=lambda person: person.id)
+        random.sample(sorted_unused_people, count)
             
     for meeting in meetings:
         count, = rnd.choices(population=counts(preferred_attendees_distribution),
