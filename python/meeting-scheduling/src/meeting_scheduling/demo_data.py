@@ -166,12 +166,7 @@ def generate_meetings(people: List[Person], rnd: Random) -> List[Meeting]:
     )
 
     def add_required_attendees(meeting: Meeting, count: int) -> None:
-        while len(meeting.required_attendances) < count:
-            person = rnd.choice(people)
-            try:
-                meeting.add_required_attendant(person)
-            except ValueError:
-                pass
+        meeting.required_attendances = rnd.sample(people, k=count)
 
     for meeting in meetings:
         count, = rnd.choices(population=counts(required_attendees_distribution),
