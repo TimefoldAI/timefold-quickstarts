@@ -18,24 +18,9 @@ async def get_demo_data() -> MeetingScheduleModel:
     """Get the demo data set (always the same)."""
     schedule = generate_demo_data()
 
-    # Rebuild meetings with correct attendances
-    new_meetings = []
-    for m in schedule.meetings:
-        new_meetings.append(
-            type(m)(
-                id=m.id,
-                topic=m.topic,
-                duration_in_grains=m.duration_in_grains,
-                speakers=m.speakers,
-                content=m.content,
-                entire_group_meeting=m.entire_group_meeting,
-                required_attendances=[a for a in schedule.required_attendances if str(a.meeting_id) == str(m.id)],
-                preferred_attendances=[a for a in schedule.preferred_attendances if str(a.meeting_id) == str(m.id)],
-            )
-        )
-    schedule.meetings = new_meetings
     # Convert dataclass to Pydantic model for camelCase serialization
     model = MeetingScheduleModel.model_validate(schedule)
+
     # Fix meetingAssignments to use only IDs for meeting, room, and startingTimeGrain
     for ma in model.meeting_assignments:
         if hasattr(ma, 'meeting') and hasattr(ma.meeting, 'id'):

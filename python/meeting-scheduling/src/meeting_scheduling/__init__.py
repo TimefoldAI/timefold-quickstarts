@@ -1,13 +1,13 @@
-import logging.config
-import os
 import uvicorn
+from .rest_api import app
 
 def main():
-    logging_conf_path = os.path.join(os.path.dirname(__file__), '..', '..', 'logging.conf')
-    if os.path.exists(logging_conf_path):
-        logging.config.fileConfig(logging_conf_path)
-    
-    uvicorn.run("meeting_scheduling.rest_api:app", host="0.0.0.0", port=8000, reload=True)
+    config = uvicorn.Config("meeting_scheduling:app",
+                            port=8080,
+                            log_config="logging.conf",
+                            use_colors=True)
+    server = uvicorn.Server(config)
+    server.run()
 
 if __name__ == "__main__":
     main()
