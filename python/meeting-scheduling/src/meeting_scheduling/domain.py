@@ -1,5 +1,4 @@
-from dataclasses import dataclass, field
-from typing import List, Optional, Annotated, Union
+from typing import List, Optional, Annotated, Any
 from timefold.solver.domain import (
     planning_entity, planning_solution, PlanningId, PlanningVariable,
     PlanningEntityCollectionProperty, ProblemFactCollectionProperty, ValueRangeProvider,
@@ -7,53 +6,109 @@ from timefold.solver.domain import (
 )
 from timefold.solver import SolverStatus
 from timefold.solver.score import HardMediumSoftScore
-from .json_serialization import JsonDomainBase
-from pydantic import Field
+from pydantic import BaseModel, Field, ConfigDict, PlainSerializer, BeforeValidator, ValidationInfo
+from pydantic.alias_generators import to_camel
+
 
 # Time granularity is 15 minutes (which is often recommended when dealing with humans for practical purposes).
 GRAIN_LENGTH_IN_MINUTES = 15
 
-@dataclass
-class Person:
+# Serializers and validators for Pydantic
+def make_id_item_validator(key: str):
+    def validator(v: Any, info: ValidationInfo) -> Any:
+        if v is None:
+            return None
+        if not isinstance(v, str) or not info.context:
+            return v
+        return info.context.get(key, {}).get(v, v)
+    return BeforeValidator(validator)
+
+IdSerializer = PlainSerializer(lambda item: item.id if item is not None else None, return_type=str | None)
+ScoreSerializer = PlainSerializer(lambda score: str(score) if score is not None else None, return_type=str | None)
+
+def validate_score(v: Any, info: ValidationInfo) -> Any:
+    if isinstance(v, HardMediumSoftScore) or v is None:
+        return v
+    if isinstance(v, str):
+        return HardMediumSoftScore.parse(v)
+    raise ValueError('"score" should be a string')
+
+ScoreValidator = BeforeValidator(validate_score)
+
+# Validators for foreign key references
+MeetingValidator = make_id_item_validator('meetings')
+RoomValidator = make_id_item_validator('rooms')
+TimeGrainValidator = make_id_item_validator('timeGrains')
+
+class JsonDomainBase(BaseModel):
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True,
+        from_attributes=True,
+    )
+
+class Person(JsonDomainBase):
     id: Annotated[str, PlanningId]
     full_name: str
+    
+    def __hash__(self) -> int:
+        return hash(self.id)
+    
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, Person):
+            return False
+        return self.id == other.id
 
-@dataclass
-class TimeGrain:
+class TimeGrain(JsonDomainBase):
     id: Annotated[str, PlanningId]
     grain_index: int
     day_of_year: int
     starting_minute_of_day: int
+    
+    def __hash__(self) -> int:
+        return hash(self.id)
+    
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, TimeGrain):
+            return False
+        return self.id == other.id
 
-@dataclass
-class Room:
+class Room(JsonDomainBase):
     id: Annotated[str, PlanningId]
     name: str
     capacity: int
+    
+    def __hash__(self) -> int:
+        return hash(self.id)
+    
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, Room):
+            return False
+        return self.id == other.id
 
-# Define RequiredAttendance and PreferredAttendance before Meeting to avoid forward references
-@dataclass
-class RequiredAttendance:
+
+class Attendance(JsonDomainBase):
+    """Abstract base class for attendance"""
     id: Annotated[str, PlanningId]
     person: Person
-    meeting_id: str
+    meeting_id: str = Field(..., alias="meeting")
 
-@dataclass
-class PreferredAttendance:
-    id: Annotated[str, PlanningId]
-    person: Person
-    meeting_id: str
+class RequiredAttendance(Attendance):
+    pass
 
-@dataclass
-class Meeting:
+class PreferredAttendance(Attendance):
+    pass
+
+
+class Meeting(JsonDomainBase):
     id: Annotated[str, PlanningId]
     topic: str
     duration_in_grains: int
-    speakers: Optional[List[Person]] = None
-    content: Optional[str] = None
+    speakers: List[Person] = Field(default_factory=list)
+    content: str = ""
     entire_group_meeting: bool = False
-    required_attendances: List[RequiredAttendance] = field(default_factory=list)
-    preferred_attendances: List[PreferredAttendance] = field(default_factory=list)
+    required_attendances: List[RequiredAttendance] = Field(default_factory=list)
+    preferred_attendances: List[PreferredAttendance] = Field(default_factory=list)
 
     def get_required_capacity(self) -> int:
         return len(self.required_attendances) + len(self.preferred_attendances)
@@ -74,14 +129,14 @@ class Meeting:
                                meeting_id=self.id, 
                                person=person))
 
+
 @planning_entity
-@dataclass
-class MeetingAssignment:
+class MeetingAssignment(JsonDomainBase):
     id: Annotated[str, PlanningId]
-    meeting: Meeting
+    meeting: Annotated[Meeting, MeetingValidator, IdSerializer]
     pinned: Annotated[bool, PlanningPin] = False
-    starting_time_grain: Annotated[Optional[TimeGrain], PlanningVariable] = None
-    room: Annotated[Optional[Room], PlanningVariable] = None
+    starting_time_grain: Annotated[Optional[TimeGrain], PlanningVariable, TimeGrainValidator, IdSerializer] = None
+    room: Annotated[Optional[Room], PlanningVariable, RoomValidator, IdSerializer] = None
 
     def get_grain_index(self) -> Optional[int]:
         if self.starting_time_grain is None:
@@ -91,6 +146,7 @@ class MeetingAssignment:
     def calculate_overlap(self, other: "MeetingAssignment") -> int:
         if self.starting_time_grain is None or other.starting_time_grain is None:
             return 0
+        
         # start is inclusive, end is exclusive
         start = self.starting_time_grain.grain_index
         end = self.get_last_time_grain_index() + 1
@@ -115,69 +171,15 @@ class MeetingAssignment:
     def get_required_capacity(self) -> int:
         return self.meeting.get_required_capacity()
 
+
 @planning_solution
-@dataclass
-class MeetingSchedule:
+class MeetingSchedule(JsonDomainBase):
     people: Annotated[List[Person], ProblemFactCollectionProperty]
     time_grains: Annotated[List[TimeGrain], ProblemFactCollectionProperty, ValueRangeProvider]
     rooms: Annotated[List[Room], ProblemFactCollectionProperty, ValueRangeProvider]
     meetings: Annotated[List[Meeting], ProblemFactCollectionProperty]
-    required_attendances: Annotated[List[RequiredAttendance], ProblemFactCollectionProperty] = field(default_factory=list)
-    preferred_attendances: Annotated[List[PreferredAttendance], ProblemFactCollectionProperty] = field(default_factory=list)
-    meeting_assignments: Annotated[List[MeetingAssignment], PlanningEntityCollectionProperty] = field(default_factory=list)
-    score: Annotated[Optional[HardMediumSoftScore], PlanningScore] = None
+    required_attendances: Annotated[List[RequiredAttendance], ProblemFactCollectionProperty] = Field(default_factory=list)
+    preferred_attendances: Annotated[List[PreferredAttendance], ProblemFactCollectionProperty] = Field(default_factory=list)
+    meeting_assignments: Annotated[List[MeetingAssignment], PlanningEntityCollectionProperty] = Field(default_factory=list)
+    score: Annotated[Optional[HardMediumSoftScore], PlanningScore, ScoreSerializer, ScoreValidator] = None
     solver_status: SolverStatus = SolverStatus.NOT_SOLVING
-
-# Pydantic REST models for API (used for deserialization and context)
-class PersonModel(JsonDomainBase):
-    id: str
-    full_name: str
-
-class TimeGrainModel(JsonDomainBase):
-    id: str
-    grain_index: int
-    day_of_year: int
-    starting_minute_of_day: int
-
-class RoomModel(JsonDomainBase):
-    id: str
-    name: str
-    capacity: int
-
-class RequiredAttendanceModel(JsonDomainBase):
-    id: str
-    person: PersonModel
-    meeting_id: str = Field(..., alias="meeting")
-
-class PreferredAttendanceModel(JsonDomainBase):
-    id: str
-    person: PersonModel
-    meeting_id: str = Field(..., alias="meeting")
-
-class MeetingModel(JsonDomainBase):
-    id: str
-    topic: str
-    duration_in_grains: int
-    speakers: Optional[List[PersonModel]] = None
-    content: Optional[str] = None
-    entire_group_meeting: bool = False
-    required_attendances: List[RequiredAttendanceModel] = Field(default_factory=list, alias="requiredAttendances")
-    preferred_attendances: List[PreferredAttendanceModel] = Field(default_factory=list, alias="preferredAttendances")
-
-class MeetingAssignmentModel(JsonDomainBase):
-    id: str
-    meeting: Union[str, MeetingModel]
-    pinned: bool = False
-    starting_time_grain: Union[str, TimeGrainModel, None] = None
-    room: Union[str, RoomModel, None] = None
-
-class MeetingScheduleModel(JsonDomainBase):
-    people: List[PersonModel]
-    time_grains: List[TimeGrainModel]
-    rooms: List[RoomModel]
-    meetings: List[MeetingModel]
-    required_attendances: List[RequiredAttendanceModel] = Field(default_factory=list, alias="requiredAttendances")
-    preferred_attendances: List[PreferredAttendanceModel] = Field(default_factory=list, alias="preferredAttendances")
-    meeting_assignments: List[MeetingAssignmentModel] = Field(default_factory=list)
-    score: Optional[str] = None
-    solver_status: Optional[str] = None

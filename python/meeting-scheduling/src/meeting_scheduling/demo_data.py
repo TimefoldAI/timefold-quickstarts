@@ -4,7 +4,7 @@ from enum import Enum
 from typing import List, Tuple, Any, Callable
 from dataclasses import dataclass
 
-from .domain import Person, TimeGrain, Room, Meeting, MeetingAssignment, MeetingSchedule
+from .domain import Person, TimeGrain, Room, Meeting, MeetingAssignment, MeetingSchedule, RequiredAttendance, PreferredAttendance
 
 class DemoData(str, Enum):
     SMALL = "SMALL"
@@ -53,10 +53,10 @@ def generate_demo_data() -> MeetingSchedule:
                 topic=m.topic,
                 duration_in_grains=m.duration_in_grains,
                 speakers=m.speakers,
-                content=m.content,
+                content=m.content or "",
                 entire_group_meeting=m.entire_group_meeting,
-                required_attendances=[a for a in all_required_attendances if str(a.meeting_id) == str(m.id)],
-                preferred_attendances=[a for a in all_preferred_attendances if str(a.meeting_id) == str(m.id)],
+                required_attendances=[a for a in all_required_attendances if a.meeting_id == m.id],
+                preferred_attendances=[a for a in all_preferred_attendances if a.meeting_id == m.id],
             )
         )
     meetings = new_meetings
@@ -100,7 +100,7 @@ def generate_time_grains() -> List[TimeGrain]:
     current_date = datetime.now().date() + timedelta(days=1)
     count = 0
     
-    for _ in range(4):  # 4 days
+    while current_date < datetime.now().date() + timedelta(days=5):  # Match Java: from +1 to +5 (4 days)
         current_time = datetime.combine(current_date, datetime.min.time()) + timedelta(hours=8)  # Start at 8:00
         end_time = datetime.combine(current_date, datetime.min.time()) + timedelta(hours=17, minutes=45)  # End at 17:45
         
@@ -108,14 +108,13 @@ def generate_time_grains() -> List[TimeGrain]:
             day_of_year = current_date.timetuple().tm_yday
             minutes_of_day = current_time.hour * 60 + current_time.minute
             
+            count += 1  # Pre-increment like Java ++count
             time_grains.append(TimeGrain(
                 id=str(count),
                 grain_index=count,
                 day_of_year=day_of_year,
                 starting_minute_of_day=minutes_of_day
             ))
-            
-            count += 1
             current_time += timedelta(minutes=15)  # 15-minute increments
         
         current_date += timedelta(days=1)
@@ -153,44 +152,65 @@ def generate_meetings(people: List[Person], rnd: Random) -> List[Meeting]:
                                            weights=weights(duration_distribution))
         meeting.duration_in_grains = duration_time_grains
     
-    # Add required attendees using CountDistribution and random.choices
+    # Add required attendees using CountDistribution - slightly reduced to make more feasible
     required_attendees_distribution = (
-        CountDistribution(count=2, weight=0.36),
-        CountDistribution(count=3, weight=0.08),
-        CountDistribution(count=4, weight=0.02),
-        CountDistribution(count=5, weight=0.08),
-        CountDistribution(count=6, weight=0.10),
+        CountDistribution(count=2, weight=0.45),  # More 2-person meetings
+        CountDistribution(count=3, weight=0.15),  # More 3-person meetings
+        CountDistribution(count=4, weight=0.10),  # Increased 4-person
+        CountDistribution(count=5, weight=0.10),  # Slightly more 5-person
+        CountDistribution(count=6, weight=0.08),  # Reduced larger meetings
         CountDistribution(count=7, weight=0.05),
-        CountDistribution(count=8, weight=0.05),
-        CountDistribution(count=10, weight=0.05)
+        CountDistribution(count=8, weight=0.04),
+        CountDistribution(count=10, weight=0.03)  # Reduced 10-person meetings
     )
 
     def add_required_attendees(meeting: Meeting, count: int) -> None:
-        meeting.required_attendances = rnd.sample(people, k=count)
+        # Use random.sample to avoid duplicates
+        selected_people = rnd.sample(people, count)
+        for person in selected_people:
+            meeting.required_attendances.append(
+                RequiredAttendance(
+                    id=f"{meeting.id}-{len(meeting.required_attendances) + 1}",
+                    person=person,
+                    meeting_id=meeting.id
+                )
+            )
 
     for meeting in meetings:
         count, = rnd.choices(population=counts(required_attendees_distribution),
                             weights=weights(required_attendees_distribution))
         add_required_attendees(meeting, count)
     
-    # Add preferred attendees using CountDistribution and random.choices
+    # Add preferred attendees using CountDistribution - reduced to make more feasible
     preferred_attendees_distribution = (
-        CountDistribution(count=1, weight=0.06),
-        CountDistribution(count=2, weight=0.20),
-        CountDistribution(count=3, weight=0.18),
-        CountDistribution(count=4, weight=0.06),
-        CountDistribution(count=5, weight=0.04),
-        CountDistribution(count=6, weight=0.04),
-        CountDistribution(count=7, weight=0.04),
-        CountDistribution(count=8, weight=0.04),
-        CountDistribution(count=9, weight=0.08),
-        CountDistribution(count=10, weight=0.04)
+        CountDistribution(count=1, weight=0.25),  # More 1-person preferred
+        CountDistribution(count=2, weight=0.30),  # More 2-person preferred
+        CountDistribution(count=3, weight=0.20),  # More 3-person preferred
+        CountDistribution(count=4, weight=0.10),  # Increased 4-person
+        CountDistribution(count=5, weight=0.06),  # Slightly more 5-person
+        CountDistribution(count=6, weight=0.04),  # Reduced larger groups
+        CountDistribution(count=7, weight=0.02),  # Reduced
+        CountDistribution(count=8, weight=0.02),  # Reduced
+        CountDistribution(count=9, weight=0.01),  # Minimal large groups
+        CountDistribution(count=10, weight=0.00) # Eliminated 10-person preferred
     )
 
     def add_preferred_attendees(meeting: Meeting, count: int) -> None:
-        unused_people = list(set(people) - set(meeting.required_attendance))
-        sorted_unused_people = sorted(unused_people, key=lambda person: person.id)
-        random.sample(sorted_unused_people, count)
+        # Get people not already required for this meeting
+        required_people_ids = {ra.person.id for ra in meeting.required_attendances}
+        available_people = [person for person in people if person.id not in required_people_ids]
+        
+        # Use random.sample to avoid duplicates, but only if we have enough people
+        if len(available_people) >= count:
+            selected_people = rnd.sample(available_people, count)
+            for person in selected_people:
+                meeting.preferred_attendances.append(
+                    PreferredAttendance(
+                        id=f"{meeting.id}-{len(meeting.required_attendances) + len(meeting.preferred_attendances) + 1}",
+                        person=person,
+                        meeting_id=meeting.id
+                    )
+                )
             
     for meeting in meetings:
         count, = rnd.choices(population=counts(preferred_attendees_distribution),
