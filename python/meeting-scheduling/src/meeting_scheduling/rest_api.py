@@ -53,9 +53,9 @@ async def get_status(problem_id: str) -> Dict:
     
     return {
         "score": {
-            "hardScore": schedule.score.hard_score() if schedule.score else 0,
-            "mediumScore": schedule.score.medium_score() if schedule.score else 0,
-            "softScore": schedule.score.soft_score() if schedule.score else 0
+            "hardScore": schedule.score.hard_score if schedule.score else 0,
+            "mediumScore": schedule.score.medium_score if schedule.score else 0,
+            "softScore": schedule.score.soft_score if schedule.score else 0
         },
         "solverStatus": solver_status.name
     }
