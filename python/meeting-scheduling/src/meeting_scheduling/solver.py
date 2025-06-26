@@ -12,8 +12,7 @@ solver_config = SolverConfig(
         constraint_provider_function=define_constraints
     ),
     termination_config=TerminationConfig(
-        spent_limit=Duration(seconds=30),
-        best_score_limit="0hard/0medium/*soft"
+        spent_limit=Duration(seconds=30)
     )
 )
 
