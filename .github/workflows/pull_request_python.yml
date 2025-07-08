@@ -26,6 +26,8 @@ jobs:
         python-version: ['3.11', '3.12']
     timeout-minutes: 120
     steps:
+      - name: Support long paths
+        run: git config --global core.longpaths true
       - name: Checkout timefold-quickstarts
         uses: actions/checkout@v4
         with:
