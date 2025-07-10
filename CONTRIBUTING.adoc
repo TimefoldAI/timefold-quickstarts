@@ -14,35 +14,3 @@ This is an open source project, and you are more than welcome to contribute!
 
 The CI checks against your PR to ensure that it doesn't introduce errors.
 If the CI identifies a potential problem, our friendly PR maintainers will help you resolve it.
-
-
-=== Developing Python quickstarts
-
-The Python quickstarts on the `development` branch uses the
-development `999-dev0` build of `timefold-solver`.
-This needs to be built locally:
-
-. Clone https://github.com/TimefoldAI/timefold-solver-python[timefold-solver-python].
-
-. Install `build`
-+
-[source,base]
-----
-$ pip install build
-----
-
-. Build the main branch of `timefold-solver-python`
-+
-[source,base]
-----
-$ python -m build
-----
-
-. Reference the `timefold-solver-python` build directory in your `~/.config/pip/pip.conf`:
-+
-[source,ini]
-----
-[global]
-find-links =
-    /path/to/timefold-solver-python/dist
-----

@@ -200,9 +200,7 @@ jobs:
           git config user.email "release@timefold.ai"
           NEW_VERSION=$(echo "$PR_TITLE" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
           export NEW_VERSION
-          export NEW_VERSION_PYTHON="${NEW_VERSION}"b0
           echo "$NEW_VERSION"
-          echo "$NEW_VERSION_PYTHON"
           .github/scripts/change_versions.sh
       - name: Quickly build timefold-solver-enterprise
         working-directory: ./timefold-solver-enterprise

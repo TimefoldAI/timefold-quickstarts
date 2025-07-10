@@ -5,10 +5,6 @@ on:
       javaVersion:
         description: 'Community Edition version (e.g. 1.0.0)'
         required: true
-      pythonVersionSuffix:
-        description: 'What suffix to append to the Python version (ex: b0 for beta release)'
-        required: true
-        default: b0
       developmentBranch:
         description: 'Development branch to cut the release from'
         default: development
@@ -55,20 +51,6 @@ jobs:
         with:
           maven-version: 3.9.3
 
-      - name: Python 3.12 Setup
-        uses: actions/setup-python@v5
-        with:
-          python-version: 3.12
-
-      - name: Install Pip and build
-        working-directory: ./timefold-solver
-        run: |
-          mvn -Dfull versions:set -DnewVersion=${{ github.event.inputs.javaVersion }}
-          sed -i "s/^timefold_solver_python_version.*=.*/timefold_solver_python_version = '${{ github.event.inputs.javaVersion }}${{ github.event.inputs.pythonVersionSuffix }}'/" setup.py
-          python -m pip install --upgrade pip
-          pip install build
-          python -m build
-
       - name: Update version
         working-directory: ./timefold-quickstarts
         run: |
@@ -77,15 +59,7 @@ jobs:
           git checkout -B $RELEASE_BRANCH_NAME
           export OLD_JAVA_VERSION="$(find . -name pom.xml -exec grep '<version.ai.timefold.solver>' {} \;|tail -n 1|cut -d\> -f1 --complement|cut -d\< -f1)"
           export NEW_JAVA_VERSION="${{ github.event.inputs.javaVersion }}"
-          export OLD_PYTHON_VERSION="$(find . -name pyproject.toml -exec grep 'timefold ==' {} \;|tail -n 1|cut -d\' -f1 --complement|cut -d\= -f3|cut -d\' -f1|xargs)"
-          export NEW_PYTHON_VERSION="${{ github.event.inputs.javaVersion }}${{ github.event.inputs.pythonVersionSuffix }}"
           .github/scripts/change_versions.sh
-
-      - name: Build and test Python
-        working-directory: ./timefold-quickstarts
-        env:
-          TIMEFOLD_SOLVER_PYTHON_DIST: "${{ github.workspace }}/timefold-solver/dist"
-        run: .github/scripts/run_python_tests.sh
 
       # This step will fail if the Solver binaries aren't already on Maven Central.
       - name: Create release branch and build release
@@ -120,8 +94,6 @@ jobs:
           git checkout $RELEASE_BRANCH_NAME
           export OLD_JAVA_VERSION="$(find . -name pom.xml -exec grep '<version.ai.timefold.solver>' {} \;|tail -n 1|cut -d\> -f1 --complement|cut -d\< -f1)"
           export NEW_JAVA_VERSION="999-SNAPSHOT"
-          export OLD_PYTHON_VERSION="$(find . -name pyproject.toml -exec grep 'timefold ==' {} \;|tail -n 1|cut -d\' -f1 --complement|cut -d\= -f3|cut -d\' -f1|xargs)"
-          export NEW_PYTHON_VERSION="999-dev0"
           .github/scripts/change_versions.sh
           git commit -am "build: move back to version $NEW_VERSION"
           git push origin $RELEASE_BRANCH_NAME
