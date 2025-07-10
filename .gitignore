@@ -14,10 +14,5 @@ build
 *.iws
 *.iml
 
-# Python files
-__pycache__
-.venv
-venv*
-
 # Repository wide ignore mac DS_Store files
 .DS_Store

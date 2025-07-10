@@ -6,7 +6,7 @@
 
 [![GitHub Discussions](https://img.shields.io/github/discussions/TimefoldAI/timefold-solver?style=for-the-badge&logo=github)](https://github.com/TimefoldAI/timefold-solver/discussions)
 
-This repository contains quickstarts for [Timefold Solver](https://github.com/TimefoldAI/timefold-solver), an AI constraint solver for Java, Python, and Kotlin. 
+This repository contains quickstarts for [Timefold Solver](https://github.com/TimefoldAI/timefold-solver), an AI constraint solver for Java and Kotlin. 
 It shows different use cases and basic implementations to get you started on your PlanningAI journey.
 
 ## Overview
@@ -42,7 +42,6 @@ Find the most efficient routes for vehicles to reach visits, considering vehicle
 ![Vehicle Routing Screenshot](java/vehicle-routing/vehicle-routing-screenshot.png)
 
 - [Run quarkus-vehicle-routing](java/vehicle-routing/README.MD) (Java, Maven, Quarkus)
-- [Run python-vehicle-routing](python/vehicle-routing/README.MD) (Python, FastAPI)
 
 > [!TIP]
 >  <img src="https://docs.timefold.ai/_/img/models/field-service-routing.svg" align="right" width="50px" /> [Check out our off-the-shelf model for Field Service Routing](https://app.timefold.ai/models/field-service-routing). This model goes beyond basic Vehicle Routing and supports additional constraints such as priorities, skills, fairness and more.
@@ -56,7 +55,6 @@ Schedule shifts to employees, accounting for employee availability and shift ski
 ![Employee Scheduling Screenshot](java/employee-scheduling/employee-scheduling-screenshot.png)
 
 - [Run quarkus-employee-scheduling](java/employee-scheduling/README.MD) (Java, Maven, Quarkus)
-- [Run python-employee-scheduling](python/employee-scheduling/README.MD) (Python, FastAPI)
 
 > [!TIP]
 >  <img src="https://docs.timefold.ai/_/img/models/employee-shift-scheduling.svg" align="right" width="50px" /> [Check out our off-the-shelf model for Employee Shift Scheduling](https://app.timefold.ai/models/employee-scheduling). This model supports many additional constraints such as skills, pairing employees, fairness and more.
@@ -102,7 +100,6 @@ Assign lessons to timeslots and rooms to produce a better schedule for teachers 
 - [Run quarkus-school-timetabling](java/school-timetabling/README.adoc) (Java, Maven or Gradle, Quarkus)
 - [Run spring-boot-school-timetabling](java/spring-boot-integration/README.adoc) (Java, Maven or Gradle, Spring Boot)
 - [Run kotlin-quarkus-school-timetabling](kotlin/school-timetabling/README.adoc) (Kotlin, Maven, Quarkus)
-- [Run python-school-timetabling](python/school-timetabling/README.adoc) (Python, FastAPI)
 
 Without a UI:
 
@@ -147,7 +144,6 @@ Assign crew to flights to produce a better schedule for flight assignments.
 ![Flight Crew Scheduling Screenshot](java/flight-crew-scheduling/flight-crew-scheduling-screenshot.png)
 
 - [Run quarkus-flight-crew-scheduling](java/flight-crew-scheduling/README.adoc) (Java, Maven, Quarkus)
-- [Run python-flight-crew-scheduling](python/flight-crew-scheduling/README.adoc) (Python, FastAPI)
 
 ---
 
@@ -188,7 +184,6 @@ Assign rounds to matches to produce a better schedule for league matches.
 ![Sports League Scheduling Screenshot](java/sports-league-scheduling/sports-league-scheduling-screenshot.png)
 
 - [Run quarkus-sports-league-scheduling](java/sports-league-scheduling/README.adoc) (Java, Maven, Quarkus)
-- [Run python-sports-league-scheduling](python/sports-league-scheduling/README.adoc) (Python, FastAPI)
 
 ---
 
@@ -199,7 +194,6 @@ Tournament Scheduling service assigning teams to tournament matches.
 ![Tournament Scheduling Screenshot](java/tournament-scheduling/tournament-scheduling-screenshot.png)
 
 - [Run quarkus-tournament-scheduling](java/tournament-scheduling/README.adoc) (Java, Maven, Quarkus)
-- [Run python-tournament-scheduling](python/tournament-scheduling/README.adoc) (Python, FastAPI)
 
 ---
 
