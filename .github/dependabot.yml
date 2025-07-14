@@ -17,12 +17,15 @@ multi-ecosystem-groups:
       prefix: "deps: "
       
 updates:
-  - package-ecosystem: maven
+  - package-ecosystem: "maven"
+    directory: "/"
     patterns: [ "*" ]
     multi-ecosystem-group: "quickstarts"
-  - package-ecosystem: gradle
+  - package-ecosystem: "gradle"
+    directory: "/"
     patterns: [ "*" ]
     multi-ecosystem-group: "quickstarts"
-  - package-ecosystem: github-actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
     patterns: [ "*" ]
     multi-ecosystem-group: "quickstarts" 
