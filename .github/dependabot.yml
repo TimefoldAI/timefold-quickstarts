@@ -3,7 +3,7 @@ version: 2
 registries:
   enterprise:
     type: maven-repository
-    url: timefold.jfrog.io/artifactory/releases/
+    url: https://timefold.jfrog.io/artifactory/releases/
     username: ${{ vars.JFROG_ENTERPRISE_READ_ONLY_ACCESS_USERNAME }}
     password: ${{ secrets.JFROG_ENTERPRISE_READ_ONLY_ACCESS_TOKEN }}
 
