@@ -1,46 +1,33 @@
 version: 2
+
+registries:
+  maven-artifactory:
+    type: maven-repository
+    url: https://timefold.jfrog.io/artifactory/releases/
+    username: ${{ secrets.JRELEASER_JFROG_USERNAME }}
+    password: ${{ secrets.JRELEASER_JFROG_TOKEN }}
+
+multi-ecosystem-groups:
+  quickstarts:
+    schedule:
+      interval: weekly
+      time: '03:00' # Otherwise it picks a random time.
+    target-branch: "development"
+    commit-message:
+      prefix: "deps: "
+
 updates:
-  - package-ecosystem: maven
-    target-branch: "development"
+  - package-ecosystem: "maven"
+    registries: "*"
     directory: "/"
-    schedule:
-      interval: weekly
-      time: '03:00' # Otherwise it picks a random time.
-    open-pull-requests-limit: 10
-    commit-message:
-      prefix: "deps: "
-    groups:
-      all: # Group all updates together.
-        patterns:
-          - "*"
-        update-types:
-          - "*"
-  - package-ecosystem: gradle
-    target-branch: "development"
+    patterns: [ "*" ]
+    multi-ecosystem-group: "quickstarts"
+  - package-ecosystem: "gradle"
+    registries: "*"
     directory: "/"
-    schedule:
-      interval: weekly
-      time: '03:00' # Otherwise it picks a random time.
-    open-pull-requests-limit: 10
-    commit-message:
-      prefix: "deps: "
-    groups:
-      all: # Group all updates together.
-        patterns:
-          - "*"
-        update-types:
-          - "*"
+    patterns: [ "*" ]
+    multi-ecosystem-group: "quickstarts"
   - package-ecosystem: "github-actions"
-    target-branch: "development"
     directory: "/"
-    schedule:
-      interval: weekly
-      time: '03:00' # Otherwise it picks a random time.
-    commit-message:
-      prefix: "deps: "
-    groups:
-      all: # Group all updates together.
-        patterns:
-          - "*"
-        update-types:
-          - "*"
+    patterns: [ "*" ]
+    multi-ecosystem-group: "quickstarts"
