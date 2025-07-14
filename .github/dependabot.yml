@@ -18,8 +18,11 @@ multi-ecosystem-groups:
       
 updates:
   - package-ecosystem: maven
+    patterns: [ "*" ]
     multi-ecosystem-group: "quickstarts"
   - package-ecosystem: gradle
+    patterns: [ "*" ]
     multi-ecosystem-group: "quickstarts"
   - package-ecosystem: github-actions
+    patterns: [ "*" ]
     multi-ecosystem-group: "quickstarts" 
