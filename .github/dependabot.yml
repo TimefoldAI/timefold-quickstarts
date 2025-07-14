@@ -1,12 +1,13 @@
 version: 2
 
 registries:
-  maven-artifactory:
+  enterprise:
     type: maven-repository
     url: https://timefold.jfrog.io/artifactory/releases/
-    username: ${{ secrets.JRELEASER_JFROG_USERNAME }}
-    password: ${{ secrets.JRELEASER_JFROG_TOKEN }}
-    
+    # Username is technically a variable, not a secret; but Dependabot quietly ignores variables.
+    username: ${{ secrets.JFROG_ENTERPRISE_READ_ONLY_ACCESS_USERNAME }}
+    password: ${{ secrets.JFROG_ENTERPRISE_READ_ONLY_ACCESS_TOKEN }}
+
 multi-ecosystem-groups:
   quickstarts:
     schedule:
@@ -15,19 +16,21 @@ multi-ecosystem-groups:
     target-branch: "development"
     commit-message:
       prefix: "deps: "
-      
+
 updates:
   - package-ecosystem: "maven"
-    registries: "*"
+    registries:
+      - enterprise
     directory: "/"
     patterns: [ "*" ]
     multi-ecosystem-group: "quickstarts"
   - package-ecosystem: "gradle"
-    registries: "*"
+    registries:
+      - enterprise
     directory: "/"
     patterns: [ "*" ]
     multi-ecosystem-group: "quickstarts"
   - package-ecosystem: "github-actions"
     directory: "/"
     patterns: [ "*" ]
-    multi-ecosystem-group: "quickstarts" 
+    multi-ecosystem-group: "quickstarts"
