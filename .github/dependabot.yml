@@ -18,10 +18,12 @@ multi-ecosystem-groups:
       
 updates:
   - package-ecosystem: "maven"
+    registries: "*"
     directory: "/"
     patterns: [ "*" ]
     multi-ecosystem-group: "quickstarts"
   - package-ecosystem: "gradle"
+    registries: "*"
     directory: "/"
     patterns: [ "*" ]
     multi-ecosystem-group: "quickstarts"
