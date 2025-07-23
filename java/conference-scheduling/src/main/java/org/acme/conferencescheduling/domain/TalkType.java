@@ -1,6 +1,7 @@
 package org.acme.conferencescheduling.domain;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -44,7 +45,7 @@ public class TalkType {
     }
 
     public void setCompatibleTimeslots(Set<Timeslot> compatibleTimeslots) {
-        this.compatibleTimeslots = compatibleTimeslots;
+        this.compatibleTimeslots = new LinkedHashSet<>(compatibleTimeslots); // Guarantee consistent iteration order.
     }
 
     public Set<Room> getCompatibleRooms() {
@@ -52,7 +53,7 @@ public class TalkType {
     }
 
     public void setCompatibleRooms(Set<Room> compatibleRooms) {
-        this.compatibleRooms = compatibleRooms;
+        this.compatibleRooms = new LinkedHashSet<>(compatibleRooms); // Guarantee consistent iteration order.
     }
 
     @Override
