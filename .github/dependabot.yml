@@ -8,6 +8,7 @@ registries:
     username: ${{ secrets.JFROG_ENTERPRISE_READ_ONLY_ACCESS_USERNAME }}
     password: ${{ secrets.JFROG_ENTERPRISE_READ_ONLY_ACCESS_TOKEN }}
 
+# Webjars are skipped entirely; we cannot retest the UI of every quickstarts every time a dependency bumps.
 multi-ecosystem-groups:
   quickstarts:
     schedule:
@@ -31,14 +32,14 @@ updates:
       - enterprise
     directory: "/"
     patterns: [ "*" ]
-    exclude-patterns: [ "*quarkus*", "*spring*" ]
+    exclude-patterns: [ "*quarkus*", "*spring*", "*webjar*" ]
     multi-ecosystem-group: "quickstarts"
   - package-ecosystem: "gradle"
     registries:
       - enterprise
     directory: "/"
     patterns: [ "*" ]
-    exclude-patterns: [ "*quarkus*", "*spring*" ]
+    exclude-patterns: [ "*quarkus*", "*spring*", "*webjar*" ]
     multi-ecosystem-group: "quickstarts"
   - package-ecosystem: "github-actions"
     directory: "/"
