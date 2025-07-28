@@ -16,6 +16,14 @@ multi-ecosystem-groups:
     target-branch: "development"
     commit-message:
       prefix: "deps: "
+  # Big dependencies (Quarkus, Spring) are treated separately, so that we can decide to merge or not.
+  quickstarts-big:
+    schedule:
+      interval: weekly
+      time: '03:00' # Otherwise it picks a random time.
+    target-branch: "development"
+    commit-message:
+      prefix: "deps: "
 
 updates:
   - package-ecosystem: "maven"
@@ -23,14 +31,29 @@ updates:
       - enterprise
     directory: "/"
     patterns: [ "*" ]
+    exclude-patterns: [ "*quarkus*", "*spring*" ]
     multi-ecosystem-group: "quickstarts"
   - package-ecosystem: "gradle"
     registries:
       - enterprise
     directory: "/"
     patterns: [ "*" ]
+    exclude-patterns: [ "*quarkus*", "*spring*" ]
     multi-ecosystem-group: "quickstarts"
   - package-ecosystem: "github-actions"
     directory: "/"
     patterns: [ "*" ]
     multi-ecosystem-group: "quickstarts"
+
+  - package-ecosystem: "maven"
+    registries:
+      - enterprise
+    directory: "/"
+    patterns: [ "*quarkus*", "*spring*" ]
+    multi-ecosystem-group: "quickstarts-big"
+  - package-ecosystem: "gradle"
+    registries:
+      - enterprise
+    directory: "/"
+    patterns: [ "*quarkus*", "*spring*" ]
+    multi-ecosystem-group: "quickstarts-big"
