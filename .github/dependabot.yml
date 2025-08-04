@@ -26,7 +26,6 @@ multi-ecosystem-groups:
       prefix: "deps: "
 
 # Webjars are skipped entirely; we cannot retest the UI of every quickstarts every time a dependency bumps.
-# Quarkus and Spring are updated separately, so that we can decide to merge or not.
 updates:
   - package-ecosystem: "maven"
     directory: "/"
