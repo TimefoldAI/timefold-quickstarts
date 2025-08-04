@@ -30,20 +30,20 @@ updates:
   - package-ecosystem: "maven"
     directory: "/"
     patterns: [ "*" ]
-    ignore:
-      - dependency-name: "org.webjars:*"
-      - dependency-name: "io.quarkus:*"
-      - dependency-name: "org.springframework:*"
-      - dependency-name: "org.springframework.boot:*"
+    exclude-patterns:
+      - "org.webjars:*"
+      - "io.quarkus:*"
+      - "org.springframework:*"
+      - "org.springframework.boot:*"
     multi-ecosystem-group: "quickstarts"
   - package-ecosystem: "gradle"
     directory: "/"
     patterns: [ "*" ]
-    ignore:
-      - dependency-name: "org.webjars:*"
-      - dependency-name: "io.quarkus:*"
-      - dependency-name: "org.springframework:*"
-      - dependency-name: "org.springframework.boot:*"
+    exclude-patterns:
+      - "org.webjars:*"
+      - "io.quarkus:*"
+      - "org.springframework:*"
+      - "org.springframework.boot:*"
     multi-ecosystem-group: "quickstarts"
   - package-ecosystem: "github-actions"
     directory: "/"
