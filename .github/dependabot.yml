@@ -1,14 +1,6 @@
 version: 2
 
-registries:
-  enterprise:
-    type: maven-repository
-    url: https://timefold.jfrog.io/artifactory/releases/
-    # Username is technically a variable, not a secret; but Dependabot quietly ignores variables.
-    username: ${{ secrets.JFROG_ENTERPRISE_READ_ONLY_ACCESS_USERNAME }}
-    password: ${{ secrets.JFROG_ENTERPRISE_READ_ONLY_ACCESS_TOKEN }}
-
-# Webjars are skipped entirely; we cannot retest the UI of every quickstarts every time a dependency bumps.
+# Registries are defined in the organization settings.
 multi-ecosystem-groups:
   quickstarts:
     schedule:
@@ -18,7 +10,14 @@ multi-ecosystem-groups:
     commit-message:
       prefix: "deps: "
   # Big dependencies (Quarkus, Spring) are treated separately, so that we can decide to merge or not.
-  quickstarts-big:
+  quickstarts-quarkus:
+    schedule:
+      interval: weekly
+      time: '03:00' # Otherwise it picks a random time.
+    target-branch: "development"
+    commit-message:
+      prefix: "deps: "
+  quickstarts-spring:
     schedule:
       interval: weekly
       time: '03:00' # Otherwise it picks a random time.
@@ -26,20 +25,25 @@ multi-ecosystem-groups:
     commit-message:
       prefix: "deps: "
 
+# Webjars are skipped entirely; we cannot retest the UI of every quickstarts every time a dependency bumps.
 updates:
   - package-ecosystem: "maven"
-    registries:
-      - enterprise
     directory: "/"
     patterns: [ "*" ]
-    exclude-patterns: [ "*quarkus*", "*spring*", "*webjar*" ]
+    ignore:
+      - dependency-name: "org.webjars:*"
+      - dependency-name: "io.quarkus:*"
+      - dependency-name: "org.springframework:*"
+      - dependency-name: "org.springframework.boot:*"
     multi-ecosystem-group: "quickstarts"
   - package-ecosystem: "gradle"
-    registries:
-      - enterprise
     directory: "/"
     patterns: [ "*" ]
-    exclude-patterns: [ "*quarkus*", "*spring*", "*webjar*" ]
+    ignore:
+      - dependency-name: "org.webjars:*"
+      - dependency-name: "io.quarkus:*"
+      - dependency-name: "org.springframework:*"
+      - dependency-name: "org.springframework.boot:*"
     multi-ecosystem-group: "quickstarts"
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -47,14 +51,25 @@ updates:
     multi-ecosystem-group: "quickstarts"
 
   - package-ecosystem: "maven"
-    registries:
-      - enterprise
     directory: "/"
-    patterns: [ "*quarkus*", "*spring*" ]
-    multi-ecosystem-group: "quickstarts-big"
+    patterns:
+      - "io.quarkus:*"
+    multi-ecosystem-group: "quickstarts-quarkus"
   - package-ecosystem: "gradle"
-    registries:
-      - enterprise
     directory: "/"
-    patterns: [ "*quarkus*", "*spring*" ]
-    multi-ecosystem-group: "quickstarts-big"
+    patterns:
+      - "io.quarkus:*"
+    multi-ecosystem-group: "quickstarts-quarkus"
+
+  - package-ecosystem: "maven"
+    directory: "/"
+    patterns:
+      - "org.springframework:*"
+      - "org.springframework.boot:*"
+    multi-ecosystem-group: "quickstarts-spring"
+  - package-ecosystem: "gradle"
+    directory: "/"
+    patterns:
+      - "org.springframework:*"
+      - "org.springframework.boot:*"
+    multi-ecosystem-group: "quickstarts-spring"
