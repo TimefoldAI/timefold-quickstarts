@@ -29,8 +29,6 @@ multi-ecosystem-groups:
 # Quarkus and Spring are updated separately, so that we can decide to merge or not.
 updates:
   - package-ecosystem: "maven"
-    registries:
-      - enterprise
     directory: "/"
     patterns: [ "*" ]
     ignore:
@@ -40,8 +38,6 @@ updates:
       - dependency-name: "org.springframework.boot:*"
     multi-ecosystem-group: "quickstarts"
   - package-ecosystem: "gradle"
-    registries:
-      - enterprise
     directory: "/"
     patterns: [ "*" ]
     ignore:
@@ -56,31 +52,23 @@ updates:
     multi-ecosystem-group: "quickstarts"
 
   - package-ecosystem: "maven"
-    registries:
-      - enterprise
     directory: "/"
     patterns:
       - "io.quarkus:*"
     multi-ecosystem-group: "quickstarts-quarkus"
   - package-ecosystem: "gradle"
-    registries:
-      - enterprise
     directory: "/"
     patterns:
       - "io.quarkus:*"
     multi-ecosystem-group: "quickstarts-quarkus"
 
   - package-ecosystem: "maven"
-    registries:
-      - enterprise
     directory: "/"
     patterns:
       - "org.springframework:*"
       - "org.springframework.boot:*"
     multi-ecosystem-group: "quickstarts-spring"
   - package-ecosystem: "gradle"
-    registries:
-      - enterprise
     directory: "/"
     patterns:
       - "org.springframework:*"
