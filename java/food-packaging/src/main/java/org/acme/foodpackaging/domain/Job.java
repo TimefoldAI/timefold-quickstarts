@@ -8,9 +8,12 @@ import ai.timefold.solver.core.api.domain.variable.InverseRelationShadowVariable
 import ai.timefold.solver.core.api.domain.variable.NextElementShadowVariable;
 import ai.timefold.solver.core.api.domain.variable.PreviousElementShadowVariable;
 import ai.timefold.solver.core.api.domain.variable.ShadowVariable;
+import ai.timefold.solver.core.preview.api.domain.variable.declarative.ShadowSources;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @PlanningEntity
@@ -34,6 +37,9 @@ public class Job {
 
     @InverseRelationShadowVariable(sourceVariableName = "jobs")
     private Line line;
+
+    // TODO: Replace me when declarative shadow variables support
+    //       non-declarative shadow on non-declarative shadow sources
     @ShadowVariable(
             variableListenerClass = LineOperatorUpdatingVariableListener.class,
             sourceEntityClass = Line.class,
@@ -52,11 +58,11 @@ public class Job {
     /**
      * Start is after cleanup.
      */
-    @CascadingUpdateShadowVariable(targetMethodName = "updateStartCleaningDateTime")
+    @ShadowVariable(supplierName = "startCleaningDateTimeSupplier")
     private LocalDateTime startCleaningDateTime;
-    @CascadingUpdateShadowVariable(targetMethodName = "updateStartCleaningDateTime")
+    @ShadowVariable(supplierName = "startProductionDateTimeSupplier")
     private LocalDateTime startProductionDateTime;
-    @CascadingUpdateShadowVariable(targetMethodName = "updateStartCleaningDateTime")
+    @ShadowVariable(supplierName = "endDateTimeSupplier")
     private LocalDateTime endDateTime;
 
     // No-arg constructor required for Timefold
@@ -190,28 +196,34 @@ public class Job {
     // ************************************************************************
 
     @SuppressWarnings("unused")
-    private void updateStartCleaningDateTime() {
-        if (getLine() == null) {
-            if (getStartCleaningDateTime() != null) {
-                setStartCleaningDateTime(null);
-                setStartProductionDateTime(null);
-                setEndDateTime(null);
-            }
-            return;
+    @ShadowSources({"line", "previousJob.endDateTime"})
+    private LocalDateTime startCleaningDateTimeSupplier() {
+        if (line == null) {
+            return null;
         }
-        Job previous = getPreviousJob();
-        LocalDateTime startCleaning;
-        LocalDateTime startProduction;
-        if (previous == null) {
-            startCleaning = line.getStartDateTime();
-            startProduction = line.getStartDateTime();
+        if (previousJob == null) {
+            return line.getStartDateTime();
         } else {
-            startCleaning = previous.getEndDateTime();
-            startProduction = startCleaning == null ? null : startCleaning.plus(getProduct().getCleanupDuration(previous.getProduct()));
+            return previousJob.getEndDateTime();
         }
-        setStartCleaningDateTime(startCleaning);
-        setStartProductionDateTime(startProduction);
-        var endTime = startProduction == null ? null : startProduction.plus(getDuration());
-        setEndDateTime(endTime);
+    }
+
+    @SuppressWarnings("unused")
+    @ShadowSources({"line", "startCleaningDateTime"})
+    private LocalDateTime startProductionDateTimeSupplier() {
+        if (line == null) {
+            return null;
+        }
+        if (previousJob == null) {
+            return line.getStartDateTime();
+        } else {
+            return startCleaningDateTime == null ? null : startCleaningDateTime.plus(getProduct().getCleanupDuration(previousJob.getProduct()));
+        }
+    }
+
+    @SuppressWarnings("unused")
+    @ShadowSources({"startProductionDateTime"})
+    private LocalDateTime endDateTimeSupplier() {
+        return startProductionDateTime == null ? null : startProductionDateTime.plus(getDuration());
     }
 }

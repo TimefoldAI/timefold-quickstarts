@@ -13,9 +13,9 @@ import ai.timefold.solver.core.api.domain.valuerange.ValueRangeFactory;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
 import ai.timefold.solver.core.api.domain.variable.ShadowVariable;
+import ai.timefold.solver.core.preview.api.domain.variable.declarative.ShadowSources;
 
 import org.acme.projectjobschedule.domain.solver.DelayStrengthComparator;
-import org.acme.projectjobschedule.domain.solver.PredecessorsDoneDateUpdatingVariableListener;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
@@ -50,9 +50,7 @@ public class Allocation {
     private Integer delay; // In days
 
     // Shadow variables
-    @ShadowVariable(variableListenerClass = PredecessorsDoneDateUpdatingVariableListener.class,
-            sourceVariableName = "executionMode")
-    @ShadowVariable(variableListenerClass = PredecessorsDoneDateUpdatingVariableListener.class, sourceVariableName = "delay")
+    @ShadowVariable(supplierName = "predecessorsDoneDateSupplier")
     private Integer predecessorsDoneDate;
 
     // Filled from shadow variables
@@ -199,6 +197,17 @@ public class Allocation {
     // ************************************************************************
     // Complex methods
     // ************************************************************************
+    @SuppressWarnings("unused")
+    @ShadowSources({"executionMode", "delay", "predecessorAllocations[].predecessorsDoneDate"})
+    public Integer predecessorsDoneDateSupplier() {
+        // For the source the doneDate must be 0.
+        Integer doneDate = 0;
+        for (Allocation predecessorAllocation : predecessorAllocations) {
+            int endDate = predecessorAllocation.getEndDate();
+            doneDate = Math.max(doneDate, endDate);
+        }
+        return doneDate;
+    }
 
     public void invalidateComputedVariables() {
         this.startDate = null;

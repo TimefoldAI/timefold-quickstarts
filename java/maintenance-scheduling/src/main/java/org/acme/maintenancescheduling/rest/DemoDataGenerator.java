@@ -14,7 +14,6 @@ import org.acme.maintenancescheduling.domain.Crew;
 import org.acme.maintenancescheduling.domain.Job;
 import org.acme.maintenancescheduling.domain.MaintenanceSchedule;
 import org.acme.maintenancescheduling.domain.WorkCalendar;
-import org.acme.maintenancescheduling.solver.EndDateUpdatingVariableListener;
 
 @ApplicationScoped
 public class DemoDataGenerator {
@@ -63,9 +62,9 @@ public class DemoDataGenerator {
                     + random.nextInt(workdayTotal - (durationInDays + 5));
             int minWorkdayOffset = random.nextInt(workdayTotal - minMaxBetweenWorkdays + 1);
             int minIdealEndBetweenWorkdays = minMaxBetweenWorkdays - 1 - random.nextInt(4);
-            LocalDate minStartDate = EndDateUpdatingVariableListener.calculateEndDate(fromDate, minWorkdayOffset);
-            LocalDate maxEndDate = EndDateUpdatingVariableListener.calculateEndDate(minStartDate, minMaxBetweenWorkdays);
-            LocalDate idealEndDate = EndDateUpdatingVariableListener.calculateEndDate(minStartDate, minIdealEndBetweenWorkdays);
+            LocalDate minStartDate = Job.calculateEndDate(fromDate, minWorkdayOffset);
+            LocalDate maxEndDate = Job.calculateEndDate(minStartDate, minMaxBetweenWorkdays);
+            LocalDate idealEndDate = Job.calculateEndDate(minStartDate, minIdealEndBetweenWorkdays);
             Set<String> tags = random.nextDouble() < 0.1 ? Set.of(jobArea, "Subway") : Set.of(jobArea);
             jobs.add(new Job(Integer.toString(i), jobArea + " " + jobTarget, durationInDays, minStartDate, maxEndDate, idealEndDate,
                     tags));
