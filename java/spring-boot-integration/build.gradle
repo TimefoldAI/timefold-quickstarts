@@ -10,8 +10,11 @@ def profile = System.properties['profile'] ?: ''
 def enterprise = System.properties['enterprise'] ?: ''
 
 group = "org.acme"
-archivesName = "spring-boot-school-timetabling"
 version = "1.0-SNAPSHOT"
+
+base {
+    archivesName = "spring-boot-school-timetabling"
+}
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
