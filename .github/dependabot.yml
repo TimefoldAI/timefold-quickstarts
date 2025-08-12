@@ -1,5 +1,22 @@
 version: 2
 
+# The desired behavior is:
+# - All dependencies are updated in the same PR, regardless of the package ecosystem. 
+#   (Quarkus together, Spring together etc.)
+# - Quarkus and Spring dependencies are updated in separate PRs, so that we can decide to not merge them.
+#   (Helps when these large projects sometimes bring breaking changes.)
+# - All three update groups are completely mutually exclusive.
+#   (Dependencies from one group are never part of another group, the PRs do not overlap.)
+# - Webjars are skipped entirely.
+#   (We cannot retest the UI of every quickstarts every time a dependency bumps.)
+
+# To achieve this, we use the following configuration:
+# - Patterns are used to match all dependencies, so that we can use allow and ignore.
+# - Ignore only seems to work if allow is also defined.
+
+# This was the only way to get the desired behavior, established through trial and error; 
+# Dependabot does not really document this complex use case.
+
 # Registries are defined in the organization settings.
 multi-ecosystem-groups:
   base:
@@ -9,7 +26,6 @@ multi-ecosystem-groups:
     target-branch: "development"
     commit-message:
       prefix: "deps: "
-  # Big dependencies (Quarkus, Spring) are treated separately, so that we can decide to merge or not.
   quarkus:
     schedule:
       interval: weekly
@@ -25,21 +41,6 @@ multi-ecosystem-groups:
     commit-message:
       prefix: "deps: "
 
-# The desired behavior is:
-# - All dependencies are updated in the same PR, regardless of the package ecosystem. 
-#   (Quarkus together, Spring together etc.)
-# - Quarkus and Spring dependencies are updated in separate PRs, so that we can decide to not merge them.
-#   (Help when these large projects sometimes bring breaking changes.)
-# - All three update groups are completely mutually exclusive.
-#   (Dependencies from one group are never updated in another group.)
-# - Webjars are skipped entirely.
-#   (We cannot retest the UI of every quickstarts every time a dependency bumps.)
-
-# To achieve this, we use the following configuration:
-# - Patterns are used to match all dependencies, so that we can use allow and ignore.
-# - Ignore only seems to work if allow is also defined.
-# - This was the only way to get the desired behavior, established through trial and error; 
-#   Dependabot does not really document this complex use case.
 updates:
   - package-ecosystem: "maven"
     directory: "/"

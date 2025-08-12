@@ -1,17 +1,20 @@
 plugins {
-    id "org.springframework.boot" version "3.5.3"
+    id "org.springframework.boot" version "3.5.4"
     id "io.spring.dependency-management" version "1.1.7"
-    id 'org.graalvm.buildtools.native' version '0.10.6'
+    id 'org.graalvm.buildtools.native' version '0.11.0'
     id "java"
 }
 
-def timefoldVersion = "1.24.0"
+def timefoldVersion = "1.25.0"
 def profile = System.properties['profile'] ?: ''
 def enterprise = System.properties['enterprise'] ?: ''
 
 group = "org.acme"
-archivesBaseName = "spring-boot-school-timetabling"
 version = "1.0-SNAPSHOT"
+
+base {
+    archivesName = "spring-boot-school-timetabling"
+}
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -48,7 +51,7 @@ dependencies {
     testImplementation("ai.timefold.solver:timefold-solver-test")
     testImplementation("org.springframework:spring-webflux")
     testImplementation "org.awaitility:awaitility"
-    testImplementation "org.assertj:assertj-core:3.27.3"
+    testImplementation "org.assertj:assertj-core:3.27.4"
 
     // UI
     // No webjar locator; incompatible in native mode;
