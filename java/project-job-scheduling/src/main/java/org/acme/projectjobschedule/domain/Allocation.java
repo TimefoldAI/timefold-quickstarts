@@ -54,8 +54,11 @@ public class Allocation {
     private Integer predecessorsDoneDate;
 
     // Filled from shadow variables
+    @ShadowVariable(supplierName = "startDateSupplier")
     private Integer startDate;
+    @ShadowVariable(supplierName = "endDateSupplier")
     private Integer endDate;
+    @ShadowVariable(supplierName = "busyDatesSupplier")
     private List<Integer> busyDates;
 
     public Allocation() {
@@ -173,7 +176,6 @@ public class Allocation {
 
     public void setExecutionMode(ExecutionMode executionMode) {
         this.executionMode = executionMode;
-        invalidateComputedVariables();
     }
 
     public Integer getDelay() {
@@ -182,7 +184,6 @@ public class Allocation {
 
     public void setDelay(Integer delay) {
         this.delay = delay;
-        invalidateComputedVariables();
     }
 
     public Integer getPredecessorsDoneDate() {
@@ -191,17 +192,32 @@ public class Allocation {
 
     public void setPredecessorsDoneDate(Integer predecessorsDoneDate) {
         this.predecessorsDoneDate = predecessorsDoneDate;
-        invalidateComputedVariables();
+    }
+
+    public Integer getStartDate() {
+        return startDate;
+    }
+
+    public Integer getEndDate() {
+        return endDate;
+    }
+
+    @JsonIgnore
+    public List<Integer> getBusyDates() {
+        return busyDates;
     }
 
     // ************************************************************************
     // Complex methods
     // ************************************************************************
     @SuppressWarnings("unused")
-    @ShadowSources({"executionMode", "delay", "predecessorAllocations[].predecessorsDoneDate"})
+    @ShadowSources("predecessorAllocations[].endDate")
     public Integer predecessorsDoneDateSupplier() {
         // For the source the doneDate must be 0.
-        Integer doneDate = 0;
+        int doneDate = 0;
+        if (predecessorAllocations == null) {
+            return doneDate;
+        }
         for (Allocation predecessorAllocation : predecessorAllocations) {
             int endDate = predecessorAllocation.getEndDate();
             doneDate = Math.max(doneDate, endDate);
@@ -209,42 +225,34 @@ public class Allocation {
         return doneDate;
     }
 
-    public void invalidateComputedVariables() {
-        this.startDate = null;
-        this.endDate = null;
-        this.busyDates = null;
+    @SuppressWarnings("unused")
+    @ShadowSources({"predecessorsDoneDate", "delay"})
+    public Integer startDateSupplier() {
+        return predecessorsDoneDate + Objects.requireNonNullElse(delay, 0);
     }
 
-    public Integer getStartDate() {
-        if (predecessorsDoneDate != null) {
-            startDate = predecessorsDoneDate + Objects.requireNonNullElse(delay, 0);
-        }
-        return startDate;
+    @SuppressWarnings("unused")
+    @ShadowSources({"startDate", "executionMode"})
+    public Integer endDateSupplier() {
+        return getStartDate() + (executionMode == null ? 0 : executionMode.getDuration());
     }
 
-    public Integer getEndDate() {
-        if (predecessorsDoneDate != null) {
-            endDate = getStartDate() + (executionMode == null ? 0 : executionMode.getDuration());
+    @SuppressWarnings("unused")
+    @ShadowSources({"startDate", "endDate"})
+    public List<Integer> busyDatesSupplier() {
+        var start = getStartDate();
+        var end = getEndDate();
+        var dates = new Integer[end - start];
+        for (int i = 0; i < dates.length; i++) {
+            dates[i] = start + i;
         }
-        return endDate;
+        return Arrays.asList(dates);
     }
 
-    @JsonIgnore
-    public List<Integer> getBusyDates() {
-        if (busyDates == null) {
-            if (predecessorsDoneDate == null) {
-                busyDates = Collections.emptyList();
-            } else {
-                var start = getStartDate();
-                var end = getEndDate();
-                var dates = new Integer[end - start];
-                for (int i = 0; i < dates.length; i++) {
-                    dates[i] = start + i;
-                }
-                busyDates = Arrays.asList(dates);
-            }
-        }
-        return busyDates;
+    public void updateShadowsAfterPredecessorDoneDate() {
+        startDate = startDateSupplier();
+        endDate = endDateSupplier();
+        busyDates = busyDatesSupplier();
     }
 
     @JsonIgnore

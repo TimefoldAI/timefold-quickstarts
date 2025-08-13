@@ -88,6 +88,8 @@ public class ProjectJobSchedulingResource {
     @Produces(MediaType.TEXT_PLAIN)
     public String solve(ProjectJobSchedule problem) {
         String jobId = UUID.randomUUID().toString();
+        // Need to update the shadow variables since their default is not null
+        SolutionManager.updateShadowVariables(problem);
         jobIdToJob.put(jobId, Job.ofSchedule(problem));
         solverManager.solveBuilder()
                 .withProblemId(jobId)

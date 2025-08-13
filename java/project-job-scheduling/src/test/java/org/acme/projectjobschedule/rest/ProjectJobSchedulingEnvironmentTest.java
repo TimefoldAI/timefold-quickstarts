@@ -7,6 +7,7 @@ import java.time.Duration;
 
 import jakarta.inject.Inject;
 
+import ai.timefold.solver.core.api.solver.SolutionManager;
 import ai.timefold.solver.core.api.solver.Solver;
 import ai.timefold.solver.core.api.solver.SolverFactory;
 import ai.timefold.solver.core.config.solver.EnvironmentMode;
@@ -52,6 +53,8 @@ class ProjectJobSchedulingEnvironmentTest {
         SolverFactory<ProjectJobSchedule> solverFactory = SolverFactory.create(updatedConfig);
 
         // Solve the problem
+        // Need to update the shadow variables since their default is not null
+        SolutionManager.updateShadowVariables(problem);
         Solver<ProjectJobSchedule> solver = solverFactory.buildSolver();
         ProjectJobSchedule solution = solver.solve(problem);
         assertThat(solution.getScore()).isNotNull();
