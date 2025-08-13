@@ -38,15 +38,7 @@ public class Job {
     @InverseRelationShadowVariable(sourceVariableName = "jobs")
     private Line line;
 
-    // TODO: Replace me when declarative shadow variables support
-    //       non-declarative shadow on non-declarative shadow sources
-    @ShadowVariable(
-            variableListenerClass = LineOperatorUpdatingVariableListener.class,
-            sourceEntityClass = Line.class,
-            sourceVariableName = "operator")
-    @ShadowVariable(
-            variableListenerClass = JobOperatorUpdatingVariableListener.class,
-            sourceVariableName = "line")
+    @ShadowVariable(supplierName = "lineOperatorSupplier")
     private Operator lineOperator;
     @JsonIgnore
     @PreviousElementShadowVariable(sourceVariableName = "jobs")
@@ -194,6 +186,14 @@ public class Job {
     // ************************************************************************
     // Complex methods
     // ************************************************************************
+    @SuppressWarnings("unused")
+    @ShadowSources({"line", "line.operator"})
+    private Operator lineOperatorSupplier() {
+        if (line == null) {
+            return null;
+        }
+        return line.getOperator();
+    }
 
     @SuppressWarnings("unused")
     @ShadowSources({"line", "previousJob.endDateTime"})
