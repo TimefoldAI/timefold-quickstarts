@@ -134,7 +134,7 @@ public class Task {
     // ************************************************************************
 
     @SuppressWarnings("unused")
-    @ShadowSources("previousTask.startTime")
+    @ShadowSources({"employee", "previousTask.startTime"})
     private Integer startTimeSupplier() {
         if (employee == null) {
             return null;
