@@ -1,7 +1,6 @@
 package org.acme.projectjobschedule.domain;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -12,8 +11,9 @@ import ai.timefold.solver.core.api.domain.valuerange.CountableValueRange;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeFactory;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
+import ai.timefold.solver.core.api.domain.variable.ShadowSources;
 import ai.timefold.solver.core.api.domain.variable.ShadowVariable;
-import ai.timefold.solver.core.preview.api.domain.variable.declarative.ShadowSources;
+import ai.timefold.solver.core.api.domain.variable.ShadowVariablesInconsistent;
 
 import org.acme.projectjobschedule.domain.solver.DelayStrengthComparator;
 
@@ -50,6 +50,11 @@ public class Allocation {
     private Integer delay; // In days
 
     // Shadow variables
+    // TODO: Remove me when solver has supplier
+    @JsonIgnore
+    @ShadowVariablesInconsistent
+    private boolean isInconsistent;
+
     @ShadowVariable(supplierName = "predecessorsDoneDateSupplier")
     private Integer predecessorsDoneDate;
 

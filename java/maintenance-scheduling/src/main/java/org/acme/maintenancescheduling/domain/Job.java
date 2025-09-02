@@ -6,8 +6,11 @@ import java.util.Set;
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
+import ai.timefold.solver.core.api.domain.variable.ShadowSources;
 import ai.timefold.solver.core.api.domain.variable.ShadowVariable;
-import ai.timefold.solver.core.preview.api.domain.variable.declarative.ShadowSources;
+import ai.timefold.solver.core.api.domain.variable.ShadowVariablesInconsistent;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @PlanningEntity
 public class Job {
@@ -30,6 +33,11 @@ public class Job {
     private LocalDate startDate; // Inclusive
     @ShadowVariable(supplierName = "endDateSupplier")
     private LocalDate endDate; // Exclusive
+
+    // TODO: Remove me when solver has supplier
+    @JsonIgnore
+    @ShadowVariablesInconsistent
+    private boolean isInconsistent;
 
     public Job() {
     }

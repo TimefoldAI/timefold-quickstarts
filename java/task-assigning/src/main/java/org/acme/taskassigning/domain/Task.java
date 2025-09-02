@@ -2,11 +2,11 @@ package org.acme.taskassigning.domain;
 
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
-import ai.timefold.solver.core.api.domain.variable.CascadingUpdateShadowVariable;
 import ai.timefold.solver.core.api.domain.variable.InverseRelationShadowVariable;
 import ai.timefold.solver.core.api.domain.variable.PreviousElementShadowVariable;
+import ai.timefold.solver.core.api.domain.variable.ShadowSources;
 import ai.timefold.solver.core.api.domain.variable.ShadowVariable;
-import ai.timefold.solver.core.preview.api.domain.variable.declarative.ShadowSources;
+import ai.timefold.solver.core.api.domain.variable.ShadowVariablesInconsistent;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -25,6 +25,11 @@ public class Task {
     private Priority priority;
 
     // Shadow variables
+    // TODO: Remove me when solver has supplier
+    @JsonIgnore
+    @ShadowVariablesInconsistent
+    private boolean isInconsistent;
+
     @JsonIgnore
     @InverseRelationShadowVariable(sourceVariableName = "tasks")
     private Employee employee;
