@@ -50,7 +50,7 @@ public class MaintenanceSchedule {
     public List<LocalDate> createStartDateList() {
         return workCalendar.getFromDate().datesUntil(workCalendar.getToDate())
                 // Skip weekends. Does not work for holidays.
-                // Keep in sync with EndDateUpdatingVariableListener.updateEndDate().
+                // Keep in sync with Job.calculateEndDate().
                 // To skip holidays too, cache all working days in WorkCalendar.
                 .filter(date -> date.getDayOfWeek() != DayOfWeek.SATURDAY
                         && date.getDayOfWeek() != DayOfWeek.SUNDAY)

@@ -12,6 +12,8 @@ import java.util.Random;
 
 import jakarta.enterprise.context.ApplicationScoped;
 
+import ai.timefold.solver.core.api.solver.SolutionManager;
+
 import org.acme.projectjobschedule.domain.Allocation;
 import org.acme.projectjobschedule.domain.ExecutionMode;
 import org.acme.projectjobschedule.domain.Job;
@@ -56,6 +58,7 @@ public class DemoDataGenerator {
         projectJobSchedule.setResourceRequirements(
                 projectJobSchedule.getExecutionModes().stream().flatMap(e -> e.getResourceRequirements().stream()).toList());
 
+        SolutionManager.updateShadowVariables(projectJobSchedule);
         return projectJobSchedule;
     }
 
