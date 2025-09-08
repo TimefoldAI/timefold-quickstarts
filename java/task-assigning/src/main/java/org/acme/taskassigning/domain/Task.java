@@ -25,11 +25,6 @@ public class Task {
     private Priority priority;
 
     // Shadow variables
-    // TODO: Remove me when solver has supplier
-    @JsonIgnore
-    @ShadowVariablesInconsistent
-    private boolean isInconsistent;
-
     @JsonIgnore
     @InverseRelationShadowVariable(sourceVariableName = "tasks")
     private Employee employee;

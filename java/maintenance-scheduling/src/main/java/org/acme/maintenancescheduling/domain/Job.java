@@ -34,11 +34,6 @@ public class Job {
     @ShadowVariable(supplierName = "endDateSupplier")
     private LocalDate endDate; // Exclusive
 
-    // TODO: Remove me when solver has supplier
-    @JsonIgnore
-    @ShadowVariablesInconsistent
-    private boolean isInconsistent;
-
     public Job() {
     }
 

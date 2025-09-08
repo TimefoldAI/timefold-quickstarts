@@ -50,10 +50,6 @@ public class Allocation {
     private Integer delay; // In days
 
     // Shadow variables
-    // TODO: Remove me when solver has supplier
-    @JsonIgnore
-    @ShadowVariablesInconsistent
-    private boolean isInconsistent;
 
     @ShadowVariable(supplierName = "predecessorsDoneDateSupplier")
     private Integer predecessorsDoneDate;
