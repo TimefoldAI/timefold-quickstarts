@@ -38,11 +38,6 @@ public class Job {
     @InverseRelationShadowVariable(sourceVariableName = "jobs")
     private Line line;
 
-    // TODO: Remove me when solver has supplier
-    @JsonIgnore
-    @ShadowVariablesInconsistent
-    private boolean isInconsistent;
-
     @ShadowVariable(supplierName = "lineOperatorSupplier")
     private Operator lineOperator;
     @JsonIgnore

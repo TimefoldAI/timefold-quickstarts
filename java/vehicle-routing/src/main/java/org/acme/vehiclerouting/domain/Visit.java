@@ -31,11 +31,6 @@ public class Visit implements LocationAware {
     private LocalDateTime maxEndTime;
     private Duration serviceDuration;
 
-    // TODO: Remove me when solver has supplier
-    @JsonIgnore
-    @ShadowVariablesInconsistent
-    private boolean isInconsistent;
-
     @JsonIdentityReference(alwaysAsId = true)
     @InverseRelationShadowVariable(sourceVariableName = "visits")
     private Vehicle vehicle;
