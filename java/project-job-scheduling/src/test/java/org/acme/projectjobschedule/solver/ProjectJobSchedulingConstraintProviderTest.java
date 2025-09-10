@@ -7,6 +7,7 @@ import java.util.List;
 
 import jakarta.inject.Inject;
 
+import ai.timefold.solver.core.api.solver.SolutionManager;
 import ai.timefold.solver.test.api.score.stream.ConstraintVerifier;
 
 import org.acme.projectjobschedule.domain.Allocation;
@@ -52,6 +53,11 @@ class ProjectJobSchedulingConstraintProviderTest {
         secondAllocation.setExecutionMode(secondExecutionMode);
         secondAllocation.setDelay(100);
 
+        // Cannot use SolutionManager.updateShadows since that would set
+        // predecessorDoneDate to 0 (since the two allocations have no predecessors)
+        firstAllocation.updateShadowsAfterPredecessorDoneDate();
+        secondAllocation.updateShadowsAfterPredecessorDoneDate();
+
         constraintVerifier.verifyThat(ProjectJobSchedulingConstraintProvider::nonRenewableResourceCapacity)
                 .given(firstResourceRequirement, secondResourceRequirement, firstAllocation, secondAllocation)
                 .penalizesBy(3);
@@ -79,6 +85,11 @@ class ProjectJobSchedulingConstraintProviderTest {
         secondAllocation.setExecutionMode(secondExecutionMode);
         secondAllocation.setDelay(100);
         secondAllocation.setPredecessorsDoneDate(2);
+
+        // Cannot use SolutionManager.updateShadows since that would set
+        // predecessorDoneDate to 0 (since the two allocations have no predecessors)
+        firstAllocation.updateShadowsAfterPredecessorDoneDate();
+        secondAllocation.updateShadowsAfterPredecessorDoneDate();
 
         constraintVerifier.verifyThat(ProjectJobSchedulingConstraintProvider::renewableResourceCapacity)
                 .given(firstResourceRequirement, secondResourceRequirement, firstAllocation, secondAllocation)
@@ -109,6 +120,11 @@ class ProjectJobSchedulingConstraintProviderTest {
         secondAllocation.setDelay(100);
         secondAllocation.setPredecessorsDoneDate(2);
 
+        // Cannot use SolutionManager.updateShadows since that would set
+        // predecessorDoneDate to 0 (since the two allocations have no predecessors)
+        firstAllocation.updateShadowsAfterPredecessorDoneDate();
+        secondAllocation.updateShadowsAfterPredecessorDoneDate();
+
         constraintVerifier.verifyThat(ProjectJobSchedulingConstraintProvider::totalProjectDelay)
                 .given(firstAllocation, secondAllocation)
                 .penalizesBy(23);
@@ -137,6 +153,11 @@ class ProjectJobSchedulingConstraintProviderTest {
         secondAllocation.setExecutionMode(secondExecutionMode);
         secondAllocation.setDelay(100);
         secondAllocation.setPredecessorsDoneDate(2);
+
+        // Cannot use SolutionManager.updateShadows since that would set
+        // predecessorDoneDate to 0 (since the two allocations have no predecessors)
+        firstAllocation.updateShadowsAfterPredecessorDoneDate();
+        secondAllocation.updateShadowsAfterPredecessorDoneDate();
 
         constraintVerifier.verifyThat(ProjectJobSchedulingConstraintProvider::totalMakespan)
                 .given(firstAllocation, secondAllocation)

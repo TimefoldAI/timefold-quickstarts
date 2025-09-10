@@ -6,9 +6,11 @@ import java.time.temporal.ChronoUnit;
 
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
-import ai.timefold.solver.core.api.domain.variable.CascadingUpdateShadowVariable;
 import ai.timefold.solver.core.api.domain.variable.InverseRelationShadowVariable;
 import ai.timefold.solver.core.api.domain.variable.PreviousElementShadowVariable;
+import ai.timefold.solver.core.api.domain.variable.ShadowSources;
+import ai.timefold.solver.core.api.domain.variable.ShadowVariable;
+import ai.timefold.solver.core.api.domain.variable.ShadowVariablesInconsistent;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
@@ -35,7 +37,7 @@ public class Visit implements LocationAware {
     @JsonIdentityReference(alwaysAsId = true)
     @PreviousElementShadowVariable(sourceVariableName = "visits")
     private Visit previousVisit;
-    @CascadingUpdateShadowVariable(targetMethodName = "updateArrivalTime")
+    @ShadowVariable(supplierName = "arrivalTimeSupplier")
     private LocalDateTime arrivalTime;
 
     public Visit() {
@@ -122,13 +124,13 @@ public class Visit implements LocationAware {
     // ************************************************************************
 
     @SuppressWarnings("unused")
-    private void updateArrivalTime() {
+    @ShadowSources({"vehicle", "previousVisit.arrivalTime"})
+    private LocalDateTime arrivalTimeSupplier() {
         if (previousVisit == null && vehicle == null) {
-            arrivalTime = null;
-            return;
+            return null;
         }
         LocalDateTime departureTime = previousVisit == null ? vehicle.getDepartureTime() : previousVisit.getDepartureTime();
-        arrivalTime = departureTime != null ? departureTime.plusSeconds(getDrivingTimeSecondsFromPreviousStandstill()) : null;
+        return departureTime != null ? departureTime.plusSeconds(getDrivingTimeSecondsFromPreviousStandstill()) : null;
     }
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)

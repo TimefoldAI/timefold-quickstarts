@@ -6,9 +6,11 @@ import java.util.Set;
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
+import ai.timefold.solver.core.api.domain.variable.ShadowSources;
 import ai.timefold.solver.core.api.domain.variable.ShadowVariable;
+import ai.timefold.solver.core.api.domain.variable.ShadowVariablesInconsistent;
 
-import org.acme.maintenancescheduling.solver.EndDateUpdatingVariableListener;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @PlanningEntity
 public class Job {
@@ -29,7 +31,7 @@ public class Job {
     // Follows the TimeGrain Design Pattern
     @PlanningVariable
     private LocalDate startDate; // Inclusive
-    @ShadowVariable(variableListenerClass = EndDateUpdatingVariableListener.class, sourceVariableName = "startDate")
+    @ShadowVariable(supplierName = "endDateSupplier")
     private LocalDate endDate; // Exclusive
 
     public Job() {
@@ -56,7 +58,7 @@ public class Job {
         this.tags = tags;
         this.crew = crew;
         this.startDate = startDate;
-        this.endDate = EndDateUpdatingVariableListener.calculateEndDate(startDate, durationInDays);
+        this.endDate = calculateEndDate(startDate, durationInDays);
     }
 
     @Override
@@ -118,5 +120,26 @@ public class Job {
 
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
+    }
+
+    // ************************************************************************
+    // Complex methods
+    // ************************************************************************
+    @SuppressWarnings("unused")
+    @ShadowSources("startDate")
+    public LocalDate endDateSupplier() {
+        return calculateEndDate(startDate, durationInDays);
+    }
+
+    public static LocalDate calculateEndDate(LocalDate startDate, int durationInDays) {
+        if (startDate == null) {
+            return null;
+        } else {
+            // Skip weekends. Does not work for holidays.
+            // To skip holidays too, cache all working days in WorkCalendar.
+            // Keep in sync with MaintenanceSchedule.createStartDateList().
+            int weekendPadding = 2 * ((durationInDays + (startDate.getDayOfWeek().getValue() - 1)) / 5);
+            return startDate.plusDays(durationInDays + weekendPadding);
+        }
     }
 }
