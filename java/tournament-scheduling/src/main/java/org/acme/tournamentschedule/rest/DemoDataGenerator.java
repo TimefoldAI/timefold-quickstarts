@@ -16,9 +16,8 @@ import org.acme.tournamentschedule.domain.UnavailabilityPenalty;
 @ApplicationScoped
 public class DemoDataGenerator {
 
-    private final Random random = new Random(0);
-
     public TournamentSchedule generateDemoData() {
+        Random random = new Random(0);
         TournamentSchedule schedule = new TournamentSchedule();
         // Teams
         List<Team> teams = generateTeams();
@@ -30,7 +29,7 @@ public class DemoDataGenerator {
         // Unavailability penalty
         int countUnavailabilityPenalties = 12;
         List<UnavailabilityPenalty> unavailabilityPenalties =
-                generateUnavailabilityPenalties(countUnavailabilityPenalties, teams, days);
+                generateUnavailabilityPenalties(countUnavailabilityPenalties, teams, days, random);
         // Assignments
         int countAssignmentsPerDay = 4;
         List<TeamAssignment> teamAssignments = generateTeamAssignments(countAssignmentsPerDay, days);
@@ -54,7 +53,7 @@ public class DemoDataGenerator {
     }
 
     private List<UnavailabilityPenalty> generateUnavailabilityPenalties(int countUnavailabilityPenalities, List<Team> teams,
-            List<Day> days) {
+                                                                        List<Day> days, Random random) {
         List<UnavailabilityPenalty> unavailabilityPenalties = new ArrayList<>(countUnavailabilityPenalities);
         while (unavailabilityPenalties.size() < countUnavailabilityPenalities) {
             Team team = teams.get(random.nextInt(teams.size()));

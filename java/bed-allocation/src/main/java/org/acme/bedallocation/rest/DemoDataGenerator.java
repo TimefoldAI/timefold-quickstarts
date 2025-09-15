@@ -34,9 +34,9 @@ public class DemoDataGenerator {
     private static final String OXYGEN = "oxygen";
     private static final String NITROGEN = "nitrogen";
     private static final List<String> EQUIPMENTS = List.of(TELEMETRY, TELEVISION, OXYGEN, NITROGEN);
-    private final Random random = new Random(0);
 
     public BedPlan generateDemoData() {
+        Random random = new Random(0);
         BedPlan schedule = new BedPlan();
         // Department
         List<Department> departments = List.of(new Department("1", "Department"));
@@ -46,7 +46,7 @@ public class DemoDataGenerator {
         schedule.getDepartments().get(0).getSpecialtyToPriority().put(SPECIALTIES.get(2), 2);
         // Rooms
         int countRooms = 10;
-        List<Room> rooms = generateRooms(countRooms, departments);
+        List<Room> rooms = generateRooms(countRooms, departments, random);
         schedule.getDepartments().get(0).setRooms(rooms);
         schedule.setRooms(rooms);
         // Beds
@@ -64,22 +64,22 @@ public class DemoDataGenerator {
         for (int i = 1; i < countDays; i++) {
             dates.add(firstMonthMonday.with(firstInMonth(DayOfWeek.MONDAY)).plusDays(i));
         }
-        List<Stay> stays = generateStays(countDays, schedule.getBeds(), SPECIALTIES);
+        List<Stay> stays = generateStays(countDays, schedule.getBeds(), SPECIALTIES, random);
         // Patients
-        generatePatients(stays);
+        generatePatients(stays, random);
         // Dates
-        schedule.setStays(generateStayDates(stays, schedule.getRooms(), dates));
+        schedule.setStays(generateStayDates(stays, schedule.getRooms(), dates, random));
         return schedule;
     }
 
-    private List<Room> generateRooms(int size, List<Department> departments) {
+    private List<Room> generateRooms(int size, List<Department> departments, Random random) {
         List<Room> rooms = IntStream.range(0, size)
                 .mapToObj(i -> new Room(String.valueOf(i), "%s%d".formatted("Room", i), departments.get(0)))
                 .toList();
 
         // Room gender limitation
         applyRandomValue(size, rooms, r -> r.getGenderLimitation() == null,
-                r -> r.setGenderLimitation(SAME_GENDER));
+                r -> r.setGenderLimitation(SAME_GENDER), random);
 
         // Room capacity
         List<Pair<Float, Integer>> capacityValues = List.of(
@@ -87,7 +87,7 @@ public class DemoDataGenerator {
                 new Pair<>(0.1f, 2),
                 new Pair<>(0.1f, 3));
         capacityValues.forEach(c -> applyRandomValue((int) (size * c.key()), rooms, r -> r.getCapacity() == 0,
-                r -> r.setCapacity(c.value())));
+                r -> r.setCapacity(c.value()), random));
         rooms.stream()
                 .filter(r -> r.getCapacity() == 0)
                 .toList()
@@ -107,7 +107,7 @@ public class DemoDataGenerator {
             room.setEquipments(roomEquipments.subList(0, numEquipments));
         };
         // Only 76% of rooms have equipment
-        applyRandomValue((int) (0.76 * size), rooms, r -> r.getEquipments().isEmpty(), equipmentConsumer);
+        applyRandomValue((int) (0.76 * size), rooms, r -> r.getEquipments().isEmpty(), equipmentConsumer, random);
 
         return rooms;
     }
@@ -119,18 +119,18 @@ public class DemoDataGenerator {
         }
     }
 
-    private List<Stay> generateStays(int countDays, List<Bed> beds, List<String> specialties) {
+    private List<Stay> generateStays(int countDays, List<Bed> beds, List<String> specialties, Random random) {
         List<Stay> stays = IntStream.range(0, countDays * beds.size())
                 .mapToObj(i -> new Stay("stay-%d".formatted(i), "patient-%d".formatted(i)))
                 .toList();
 
         // specialty - 27% Specialty1; 36% Specialty2; 37% Specialty3
         applyRandomValue((int) (0.27 * stays.size()), stays, s -> s.getSpecialty() == null,
-                s -> s.setSpecialty(specialties.get(0)));
+                s -> s.setSpecialty(specialties.get(0)), random);
         applyRandomValue((int) (0.36 * stays.size()), stays, s -> s.getSpecialty() == null,
-                s -> s.setSpecialty(specialties.get(1)));
+                s -> s.setSpecialty(specialties.get(1)), random);
         applyRandomValue((int) (0.37 * stays.size()), stays, s -> s.getSpecialty() == null,
-                s -> s.setSpecialty(specialties.get(2)));
+                s -> s.setSpecialty(specialties.get(2)), random);
         stays.stream()
                 .filter(s -> s.getSpecialty() == null)
                 .toList()
@@ -138,7 +138,7 @@ public class DemoDataGenerator {
         return stays;
     }
 
-    private List<Stay> generateStayDates(List<Stay> stays, List<Room> rooms, List<LocalDate> dates) {
+    private List<Stay> generateStayDates(List<Stay> stays, List<Room> rooms, List<LocalDate> dates, Random random) {
         List<Stay> updatedStays = new ArrayList<>(stays);
         LocalDate initialDate = dates.get(0);
         LocalDate maxDate = dates.get(dates.size() - 1);
@@ -165,35 +165,35 @@ public class DemoDataGenerator {
                 applyRandomValue(1, updatedStays, stay -> stay.getArrivalDate() == null, stay -> {
                     stay.setArrivalDate(finalCurrentDate);
                     stay.setDepartureDate(finalNexDate);
-                });
+                }, random);
                 currentDate = nextDate.plusDays(1);
             }
         }
         return updatedStays.stream().filter(s -> s.getArrivalDate() != null).toList();
     }
 
-    private void generatePatients(List<Stay> stays) {
+    private void generatePatients(List<Stay> stays, Random random) {
         // 50% MALE - 50% FEMALE
-        applyRandomValue((int) (stays.size() * 0.5), stays, p -> p.getPatientGender() == null, p -> p.setPatientGender(MALE));
-        applyRandomValue((int) (stays.size() * 0.5), stays, p -> p.getPatientGender() == null, p -> p.setPatientGender(FEMALE));
+        applyRandomValue((int) (stays.size() * 0.5), stays, p -> p.getPatientGender() == null, p -> p.setPatientGender(MALE), random);
+        applyRandomValue((int) (stays.size() * 0.5), stays, p -> p.getPatientGender() == null, p -> p.setPatientGender(FEMALE), random);
         stays.stream().filter(p -> p.getPatientGender() == null).forEach(p -> p.setPatientGender(MALE));
 
         // Age group
         List<Pair<Float, Integer[]>> ageValues = List.of(
-                new Pair<>(0.1f, new Integer[] { 0, 10 }), // 10% for age group [0, 10]
-                new Pair<>(0.09f, new Integer[] { 11, 20 }),
-                new Pair<>(0.07f, new Integer[] { 21, 30 }),
-                new Pair<>(0.1f, new Integer[] { 31, 40 }),
-                new Pair<>(0.09f, new Integer[] { 41, 50 }),
-                new Pair<>(0.08f, new Integer[] { 51, 60 }),
-                new Pair<>(0.08f, new Integer[] { 61, 70 }),
-                new Pair<>(0.13f, new Integer[] { 71, 80 }),
-                new Pair<>(0.08f, new Integer[] { 81, 90 }),
-                new Pair<>(0.09f, new Integer[] { 91, 100 }),
-                new Pair<>(0.09f, new Integer[] { 101, 109 }));
+                new Pair<>(0.1f, new Integer[]{0, 10}), // 10% for age group [0, 10]
+                new Pair<>(0.09f, new Integer[]{11, 20}),
+                new Pair<>(0.07f, new Integer[]{21, 30}),
+                new Pair<>(0.1f, new Integer[]{31, 40}),
+                new Pair<>(0.09f, new Integer[]{41, 50}),
+                new Pair<>(0.08f, new Integer[]{51, 60}),
+                new Pair<>(0.08f, new Integer[]{61, 70}),
+                new Pair<>(0.13f, new Integer[]{71, 80}),
+                new Pair<>(0.08f, new Integer[]{81, 90}),
+                new Pair<>(0.09f, new Integer[]{91, 100}),
+                new Pair<>(0.09f, new Integer[]{101, 109}));
 
         ageValues.forEach(ag -> applyRandomValue((int) (ag.key() * stays.size()), stays, a -> a.getPatientAge() == -1,
-                p -> p.setPatientAge(random.nextInt(ag.value()[0], ag.value()[1] + 1))));
+                p -> p.setPatientAge(random.nextInt(ag.value()[0], ag.value()[1] + 1)), random));
         stays.stream()
                 .filter(p -> p.getPatientAge() == -1)
                 .toList()
@@ -230,7 +230,7 @@ public class DemoDataGenerator {
         };
         applyRandomValue((int) (stays.size() * 0.47), stays, oneEquipmentValues,
                 p -> p.getPatientRequiredEquipments().isEmpty(),
-                oneEquipmentConsumer);
+                oneEquipmentConsumer, random);
         // Two required equipments
         List<Pair<Float, String>> twoEquipmentValues = List.of(
                 new Pair<>(0.13f, NITROGEN), // 13% for nitrogen
@@ -243,7 +243,7 @@ public class DemoDataGenerator {
             }
         };
         applyRandomValue((int) (stays.size() * 0.41), stays, p -> p.getPatientRequiredEquipments().isEmpty(),
-                twoEquipmentsConsumer);
+                twoEquipmentsConsumer, random);
 
         // Preferred equipments - 29% one equipment; 53% two equipments; 16% three equipments; 2% four equipments
         // one preferred equipment
@@ -261,7 +261,7 @@ public class DemoDataGenerator {
         };
         applyRandomValue((int) (stays.size() * 0.29), stays, onePreferredEquipmentValues,
                 p -> p.getPatientPreferredEquipments().isEmpty(),
-                onePreferredEquipmentConsumer);
+                onePreferredEquipmentConsumer, random);
         // two preferred equipments
         List<Pair<Float, String>> twoPreferredEquipmentValues = List.of(
                 new Pair<>(0.32f, NITROGEN), // 32% for nitrogen
@@ -274,7 +274,7 @@ public class DemoDataGenerator {
             }
         };
         applyRandomValue((int) (stays.size() * 0.53), stays, p -> p.getPatientPreferredEquipments().isEmpty(),
-                twoPreferredEquipmentsConsumer);
+                twoPreferredEquipmentsConsumer, random);
         // three preferred equipments
         List<Pair<Float, String>> threePreferredEquipmentValues = List.of(
                 new Pair<>(0.26f, NITROGEN), // 26% for nitrogen
@@ -287,7 +287,7 @@ public class DemoDataGenerator {
             }
         };
         applyRandomValue((int) (stays.size() * 0.16), stays, p -> p.getPatientPreferredEquipments().isEmpty(),
-                threePreferredEquipmentsConsumer);
+                threePreferredEquipmentsConsumer, random);
         // four preferred equipments
         Consumer<Stay> fourPreferredEquipmentsConsumer = patient -> {
             patient.addPreferredEquipment(NITROGEN);
@@ -296,7 +296,7 @@ public class DemoDataGenerator {
             patient.addPreferredEquipment(TELEMETRY);
         };
         applyRandomValue((int) (stays.size() * 0.02), stays, p -> p.getPatientPreferredEquipments().isEmpty(),
-                fourPreferredEquipmentsConsumer);
+                fourPreferredEquipmentsConsumer, random);
 
         stays.stream()
                 .filter(p -> p.getPatientPreferredEquipments().isEmpty())
@@ -304,7 +304,7 @@ public class DemoDataGenerator {
                 .forEach(p -> onePreferredEquipmentConsumer.accept(p, onePreferredEquipmentValues));
     }
 
-    private <T> void applyRandomValue(int count, List<T> values, Predicate<T> filter, Consumer<T> consumer) {
+    private <T> void applyRandomValue(int count, List<T> values, Predicate<T> filter, Consumer<T> consumer, Random random) {
         int size = (int) values.stream().filter(filter).count();
         for (int i = 0; i < count; i++) {
             values.stream()
@@ -319,7 +319,7 @@ public class DemoDataGenerator {
     }
 
     private <T, L> void applyRandomValue(int count, List<T> values, L secondParam, Predicate<T> filter,
-            BiConsumer<T, L> consumer) {
+                                         BiConsumer<T, L> consumer, Random random) {
         int size = (int) values.stream().filter(filter).count();
         for (int i = 0; i < count; i++) {
             values.stream()

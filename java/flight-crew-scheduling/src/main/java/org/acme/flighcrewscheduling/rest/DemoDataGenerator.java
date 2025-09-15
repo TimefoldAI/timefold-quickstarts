@@ -29,17 +29,17 @@ import org.acme.flighcrewscheduling.domain.FlightCrewSchedule;
 @ApplicationScoped
 public class DemoDataGenerator {
 
-    private static final String[] FIRST_NAMES = { "Amy", "Beth", "Carl", "Dan", "Elsa", "Flo", "Gus", "Hugo", "Ivy", "Jay",
+    private static final String[] FIRST_NAMES = {"Amy", "Beth", "Carl", "Dan", "Elsa", "Flo", "Gus", "Hugo", "Ivy", "Jay",
             "Jeri", "Hope", "Avis", "Lino", "Lyle", "Nick", "Dino", "Otha", "Gwen", "Jose", "Dena", "Jana", "Dave",
-            "Russ", "Josh", "Dana", "Katy" };
+            "Russ", "Josh", "Dana", "Katy"};
     private static final String[] LAST_NAMES =
-            { "Cole", "Fox", "Green", "Jones", "King", "Li", "Poe", "Rye", "Smith", "Watt", "Howe", "Lowe", "Wise", "Clay",
-                    "Carr", "Hood", "Long", "Horn", "Haas", "Meza" };
+            {"Cole", "Fox", "Green", "Jones", "King", "Li", "Poe", "Rye", "Smith", "Watt", "Howe", "Lowe", "Wise", "Clay",
+                    "Carr", "Hood", "Long", "Horn", "Haas", "Meza"};
     private static final String ATTENDANT_SKILL = "Flight attendant";
     private static final String PILOT_SKILL = "Pilot";
-    private final Random random = new Random(0);
 
     public FlightCrewSchedule generateDemoData() {
+        Random random = new Random(0);
         FlightCrewSchedule schedule = new FlightCrewSchedule();
         // Airports
         List<Airport> airports = List.of(
@@ -90,21 +90,21 @@ public class DemoDataGenerator {
             dates.add(firstDate.plusDays(i));
         }
         List<Airport> homeAirports = new ArrayList<>(2);
-        homeAirports.add(pickRandomAirport(airports, ""));
-        homeAirports.add(pickRandomAirport(airports, homeAirports.get(0).getCode()));
+        homeAirports.add(pickRandomAirport(airports, "", random));
+        homeAirports.add(pickRandomAirport(airports, homeAirports.get(0).getCode(), random));
         List<LocalTime> times = IntStream.range(0, 23)
                 .mapToObj(i -> LocalTime.of(i, 0))
                 .toList();
         int countFlights = 14;
         List<Flight> flights =
                 generateFlights(countFlights, LocalDateTime.now().plusMinutes(1), airports, homeAirports, dates, times,
-                        distances);
+                        distances, random);
 
         // Flight assignments
         List<FlightAssignment> flightAssignments = generateFlightAssignments(flights);
 
         // Employees
-        List<Employee> employees = generateEmployees(flights, dates);
+        List<Employee> employees = generateEmployees(flights, dates, random);
 
         // Update problem facts
         schedule.setAirports(airports);
@@ -115,7 +115,7 @@ public class DemoDataGenerator {
         return schedule;
     }
 
-    private List<Employee> generateEmployees(List<Flight> flights, List<LocalDate> dates) {
+    private List<Employee> generateEmployees(List<Flight> flights, List<LocalDate> dates, Random random) {
         Supplier<String> nameSupplier = () -> {
             Function<String[], String> randomStringSelector = strings -> strings[random.nextInt(strings.length)];
             String firstName = randomStringSelector.apply(FIRST_NAMES);
@@ -148,7 +148,7 @@ public class DemoDataGenerator {
 
         // Unavailable dates - 28% one date; 4% two dates
         applyRandomValue((int) (0.28 * employees.size()), employees, e -> e.getUnavailableDays() == null,
-                e -> e.setUnavailableDays(List.of(dates.get(random.nextInt(dates.size())))));
+                e -> e.setUnavailableDays(List.of(dates.get(random.nextInt(dates.size())))), random);
         applyRandomValue((int) (0.04 * employees.size()), employees, e -> e.getUnavailableDays() == null,
                 e -> {
                     List<LocalDate> unavailableDates = new ArrayList<>(2);
@@ -159,13 +159,13 @@ public class DemoDataGenerator {
                         }
                     }
                     e.setUnavailableDays(unmodifiableList(unavailableDates));
-                });
+                }, random);
 
         return employees;
     }
 
     private List<Flight> generateFlights(int size, LocalDateTime startDatetime, List<Airport> airports,
-            List<Airport> homeAirports, List<LocalDate> dates, List<LocalTime> timeGroups, Map<String, Integer> distances) {
+                                         List<Airport> homeAirports, List<LocalDate> dates, List<LocalTime> timeGroups, Map<String, Integer> distances, Random random) {
         if (size % 2 != 0) {
             throw new IllegalArgumentException("The size of flights must be even");
         }
@@ -177,7 +177,7 @@ public class DemoDataGenerator {
                 .toList();
         int countFlights = 0;
         while (countFlights < size) {
-            int routeSize = pickRandomRouteSize(countFlights, size);
+            int routeSize = pickRandomRouteSize(countFlights, size, random);
             Airport homeAirport = homeAirports.get(random.nextInt(homeAirports.size()));
             Flight homeFlight = new Flight(String.valueOf(countFlights++), homeAirport,
                     remainingAirports.get(random.nextInt(remainingAirports.size())));
@@ -185,7 +185,7 @@ public class DemoDataGenerator {
             Flight nextFlight = homeFlight;
             for (int i = 0; i < routeSize - 2; i++) {
                 nextFlight = new Flight(String.valueOf(countFlights++), nextFlight.getArrivalAirport(),
-                        pickRandomAirport(remainingAirports, nextFlight.getArrivalAirport().getCode()));
+                        pickRandomAirport(remainingAirports, nextFlight.getArrivalAirport().getCode(), random));
                 flights.add(nextFlight);
             }
             flights.add(new Flight(String.valueOf(countFlights++), nextFlight.getArrivalAirport(),
@@ -211,7 +211,7 @@ public class DemoDataGenerator {
             flight.setArrivalUTCDateTime(arrivalDateTime);
         };
         dates.forEach(startDate -> applyRandomValue(countDates, flights, startDate,
-                flight -> flight.getDepartureUTCDateTime() == null, flightConsumer));
+                flight -> flight.getDepartureUTCDateTime() == null, flightConsumer, random));
         // Ensure there are no empty dates
         flights.stream()
                 .filter(flight -> flight.getDepartureUTCDateTime() == null)
@@ -219,7 +219,7 @@ public class DemoDataGenerator {
         return unmodifiableList(flights);
     }
 
-    private Airport pickRandomAirport(List<Airport> airports, String excludeCode) {
+    private Airport pickRandomAirport(List<Airport> airports, String excludeCode, Random random) {
         Airport airport = null;
         while (airport == null || airport.getCode().equals(excludeCode)) {
             airport = airports.stream()
@@ -230,7 +230,7 @@ public class DemoDataGenerator {
         return airport;
     }
 
-    private int pickRandomRouteSize(int countFlights, int maxCountFlights) {
+    private int pickRandomRouteSize(int countFlights, int maxCountFlights, Random random) {
         List<Integer> allowedSizes = List.of(2, 4, 6);
         int limit = maxCountFlights - countFlights;
         int routeSize = 0;
@@ -268,7 +268,7 @@ public class DemoDataGenerator {
         return unmodifiableList(flightAssignments);
     }
 
-    private <T> void applyRandomValue(int count, List<T> values, Predicate<T> filter, Consumer<T> consumer) {
+    private <T> void applyRandomValue(int count, List<T> values, Predicate<T> filter, Consumer<T> consumer, Random random) {
         int size = (int) values.stream().filter(filter).count();
         for (int i = 0; i < count; i++) {
             values.stream()
@@ -283,7 +283,7 @@ public class DemoDataGenerator {
     }
 
     private <T, L> void applyRandomValue(int count, List<T> values, L secondParam, Predicate<T> filter,
-            BiConsumer<T, L> consumer) {
+                                         BiConsumer<T, L> consumer, Random random) {
         int size = (int) values.stream().filter(filter).count();
         for (int i = 0; i < count; i++) {
             values.stream()

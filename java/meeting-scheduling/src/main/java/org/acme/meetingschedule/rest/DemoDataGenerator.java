@@ -26,19 +26,19 @@ import org.acme.meetingschedule.domain.TimeGrain;
 @ApplicationScoped
 public class DemoDataGenerator {
 
-    private static final String[] FIRST_NAMES = { "Amy", "Beth", "Carl", "Dan", "Elsa", "Flo", "Gus", "Hugo", "Ivy", "Jay",
+    private static final String[] FIRST_NAMES = {"Amy", "Beth", "Carl", "Dan", "Elsa", "Flo", "Gus", "Hugo", "Ivy", "Jay",
             "Jeri", "Hope", "Avis", "Lino", "Lyle", "Nick", "Dino", "Otha", "Gwen", "Jose", "Dena", "Jana", "Dave",
-            "Russ", "Josh", "Dana", "Katy" };
+            "Russ", "Josh", "Dana", "Katy"};
     private static final String[] LAST_NAMES =
-            { "Cole", "Fox", "Green", "Jones", "King", "Li", "Poe", "Rye", "Smith", "Watt", "Howe", "Lowe", "Wise", "Clay",
-                    "Carr", "Hood", "Long", "Horn", "Haas", "Meza" };
-    private final Random random = new Random(0);
+            {"Cole", "Fox", "Green", "Jones", "King", "Li", "Poe", "Rye", "Smith", "Watt", "Howe", "Lowe", "Wise", "Clay",
+                    "Carr", "Hood", "Long", "Horn", "Haas", "Meza"};
 
     public MeetingSchedule generateDemoData() {
+        Random random = new Random(0);
         MeetingSchedule schedule = new MeetingSchedule();
         // People
         int countPeople = 20;
-        List<Person> people = generatePeople(countPeople);
+        List<Person> people = generatePeople(countPeople, random);
         // Time grain
         List<TimeGrain> timeGrains = generateTimeGrain();
         // Rooms
@@ -47,7 +47,7 @@ public class DemoDataGenerator {
                 new Room("R2", "Room 2", 20),
                 new Room("R3", "Room 3", 16));
         // Meetings
-        List<Meeting> meetings = generateMeetings(people);
+        List<Meeting> meetings = generateMeetings(people, random);
         // Meeting assignments
         List<MeetingAssignment> meetingAssignments = generateMeetingAssignments(meetings);
         // Update schedule
@@ -57,13 +57,13 @@ public class DemoDataGenerator {
         schedule.setMeetings(meetings);
         schedule.setMeetingAssignments(meetingAssignments);
         schedule.setAttendances(Stream.concat(
-                schedule.getMeetings().stream().flatMap(m -> m.getRequiredAttendances().stream()),
-                schedule.getMeetings().stream().flatMap(m -> m.getPreferredAttendances().stream()))
+                        schedule.getMeetings().stream().flatMap(m -> m.getRequiredAttendances().stream()),
+                        schedule.getMeetings().stream().flatMap(m -> m.getPreferredAttendances().stream()))
                 .toList());
         return schedule;
     }
 
-    private List<Person> generatePeople(int countPeople) {
+    private List<Person> generatePeople(int countPeople, Random random) {
         Supplier<String> nameSupplier = () -> {
             Function<String[], String> randomStringSelector = strings -> strings[random.nextInt(strings.length)];
             String firstName = randomStringSelector.apply(FIRST_NAMES);
@@ -96,7 +96,7 @@ public class DemoDataGenerator {
         return timeGrains;
     }
 
-    private List<Meeting> generateMeetings(List<Person> people) {
+    private List<Meeting> generateMeetings(List<Person> people, Random random) {
         int count = 0;
         List<Meeting> meetings = List.of(
                 new Meeting(String.valueOf(count++), "Strategize B2B"),
@@ -129,7 +129,7 @@ public class DemoDataGenerator {
                 new Pair<>(0.33f, 12),
                 new Pair<>(0.33f, 16));
         durationGrainsCount.forEach(p -> applyRandomValue((int) (p.key() * meetings.size()), meetings,
-                m -> m.getDurationInGrains() == 0, m -> m.setDurationInGrains(p.value())));
+                m -> m.getDurationInGrains() == 0, m -> m.setDurationInGrains(p.value()), random));
         // Ensure there are no empty duration
         meetings.stream()
                 .filter(m -> m.getDurationInGrains() == 0)
@@ -156,7 +156,7 @@ public class DemoDataGenerator {
                 new Pair<>(0.05f, 8),
                 new Pair<>(0.05f, 10));
         requiredAttendantsCount.forEach(p -> applyRandomValue((int) (p.key() * meetings.size()), meetings, p.value(),
-                m -> m.getRequiredAttendances().isEmpty(), requiredAttendantConsumer));
+                m -> m.getRequiredAttendances().isEmpty(), requiredAttendantConsumer, random));
         // Ensure there are no empty required attendants
         meetings.stream()
                 .filter(m -> m.getRequiredAttendances() == null)
@@ -186,7 +186,7 @@ public class DemoDataGenerator {
                 new Pair<>(0.08f, 9),
                 new Pair<>(0.04f, 10));
         preferredAttendantsCount.forEach(p -> applyRandomValue((int) (p.key() * meetings.size()), meetings, p.value(),
-                m -> m.getPreferredAttendances().isEmpty(), preferredAttendantConsumer));
+                m -> m.getPreferredAttendances().isEmpty(), preferredAttendantConsumer, random));
         return meetings;
     }
 
@@ -196,7 +196,7 @@ public class DemoDataGenerator {
                 .toList();
     }
 
-    private <T> void applyRandomValue(int count, List<T> values, Predicate<T> filter, Consumer<T> consumer) {
+    private <T> void applyRandomValue(int count, List<T> values, Predicate<T> filter, Consumer<T> consumer, Random random) {
         int size = (int) values.stream().filter(filter).count();
         for (int i = 0; i < count; i++) {
             values.stream()
@@ -211,7 +211,7 @@ public class DemoDataGenerator {
     }
 
     private <T, L> void applyRandomValue(int count, List<T> values, L secondParam, Predicate<T> filter,
-            BiConsumer<T, L> consumer) {
+                                         BiConsumer<T, L> consumer, Random random) {
         int size = (int) values.stream().filter(filter).count();
         for (int i = 0; i < count; i++) {
             values.stream()
