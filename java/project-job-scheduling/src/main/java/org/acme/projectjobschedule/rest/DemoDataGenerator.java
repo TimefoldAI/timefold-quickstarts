@@ -29,9 +29,9 @@ public class DemoDataGenerator {
 
     private static final Project FIRST_PROJECT = new Project("0", 0, 10);
     private static final Project SECOND_PROJECT = new Project("1", 4, 19);
-    private final Random RANDOM = new Random(0);
 
     public ProjectJobSchedule generateDemoData() {
+        Random random = new Random(0);
         ProjectJobSchedule projectJobSchedule = new ProjectJobSchedule();
 
         // Projects
@@ -46,7 +46,7 @@ public class DemoDataGenerator {
                 new LocalResource("5", SECOND_PROJECT, 66, false),
                 new LocalResource("6", SECOND_PROJECT, 56, false));
         // Jobs
-        List<Job> jobs = generateJobs(24, projects, resources);
+        List<Job> jobs = generateJobs(24, projects, resources, random);
         // Allocations
         List<Allocation> allocations = generateAllocations(jobs);
         // Update schedule
@@ -62,7 +62,7 @@ public class DemoDataGenerator {
         return projectJobSchedule;
     }
 
-    private List<Job> generateJobs(int jobsSize, List<Project> projects, List<Resource> resources) {
+    private List<Job> generateJobs(int jobsSize, List<Project> projects, List<Resource> resources, Random random) {
         List<Job> jobs = new ArrayList<>(jobsSize);
         int jobsCountPerProject = jobsSize / 2;
         int countJob = 0;
@@ -80,7 +80,7 @@ public class DemoDataGenerator {
             jobsPerProject.forEach(job -> generateExecutionModes(jobs, job,
                     resources.stream()
                             .filter(r -> r.getId().equals("0") || ((LocalResource) r).getProject().equals(project))
-                            .toList()));
+                            .toList(), random));
             // Add the successor jobs
             List<Pair<Float, Integer>> successorJobsProb = List.of(
                     new Pair<>(0.54f, 1), // 54% - one job
@@ -95,7 +95,7 @@ public class DemoDataGenerator {
                     .toList()
                     .subList(0, 3));
             for (int i = 1; i < jobsCountPerProject; i++) {
-                double jProb = RANDOM.nextDouble();
+                double jProb = random.nextDouble();
                 int countSuccessorJobs = successorJobsProb.stream()
                         .filter(rs -> jProb <= rs.key())
                         .map(Pair::value)
@@ -106,7 +106,7 @@ public class DemoDataGenerator {
                 }
                 List<Job> successorJobs = new ArrayList<>(countSuccessorJobs);
                 while (successorJobs.size() < countSuccessorJobs) {
-                    int jobIdx = RANDOM.nextInt(i + 1, jobsCountPerProject);
+                    int jobIdx = random.nextInt(i + 1, jobsCountPerProject);
                     if (!successorJobs.contains(jobsPerProject.get(jobIdx))) {
                         successorJobs.add(jobsPerProject.get(jobIdx));
                     }
@@ -120,7 +120,7 @@ public class DemoDataGenerator {
         return jobs;
     }
 
-    private void generateExecutionModes(List<Job> jobs, Job job, List<Resource> resources) {
+    private void generateExecutionModes(List<Job> jobs, Job job, List<Resource> resources, Random random) {
         int countExecutionMode = (int) jobs.stream()
                 .filter(j -> j.getExecutionModes() != null)
                 .mapToLong(j -> j.getExecutionModes().size())
@@ -142,14 +142,14 @@ public class DemoDataGenerator {
                     new Pair<>(1f, 3));
             List<ExecutionMode> executionModes = new ArrayList<>(3);
             // Three execution modes
-            int requirementsSize = RANDOM.nextInt(1, 4);
+            int requirementsSize = random.nextInt(1, 4);
             for (int i = 0; i < 3; i++) {
                 // [1, 5] duration
                 ExecutionMode executionMode =
-                        new ExecutionMode(String.valueOf(countExecutionMode++), job, RANDOM.nextInt(1, 6));
+                        new ExecutionMode(String.valueOf(countExecutionMode++), job, random.nextInt(1, 6));
                 List<ResourceRequirement> requirements = new ArrayList<>(requirementsSize);
                 while (requirements.size() < requirementsSize) {
-                    double rProb = RANDOM.nextDouble();
+                    double rProb = random.nextDouble();
                     Resource resource = resourcesProb.stream()
                             .filter(rs -> rProb <= rs.key())
                             .map(Pair::value)
@@ -159,7 +159,7 @@ public class DemoDataGenerator {
                     if (requirements.stream().noneMatch(r -> r.getResource().equals(resource))) {
                         // [1, 5] requirement
                         requirements.add(new ResourceRequirement(String.valueOf(countRequirements++), executionMode,
-                                resource, RANDOM.nextInt(1, 6)));
+                                resource, random.nextInt(1, 6)));
                     }
                 }
                 executionMode.setResourceRequirements(requirements);

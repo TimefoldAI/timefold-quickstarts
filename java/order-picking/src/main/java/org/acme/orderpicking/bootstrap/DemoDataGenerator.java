@@ -195,20 +195,19 @@ public class DemoDataGenerator {
     @Inject
     OrderPickingRepository orderPickingRepository;
 
-    private final Random random = new Random(37);
-
     public void startup(@Observes StartupEvent startupEvent) {
         // Generate the random solution to work with.
+        Random random = new Random(37);
         validateBucketCapacity(BUCKET_CAPACITY);
         List<Trolley> trolleys = buildTrolleys(TROLLEYS_COUNT, BUCKET_COUNT, BUCKET_CAPACITY, START_LOCATION);
-        List<Order> orders = buildOrders(ORDERS_COUNT);
+        List<Order> orders = buildOrders(ORDERS_COUNT, random);
         List<TrolleyStep> trolleySteps = buildTrolleySteps(orders);
         orderPickingRepository.save(new OrderPickingSolution(trolleys, trolleySteps));
     }
 
-    public List<Order> buildOrders(int size) {
-        List<Product> products = buildProducts();
-        return buildOrders(size, products);
+    public List<Order> buildOrders(int size, Random random) {
+        List<Product> products = buildProducts(random);
+        return buildOrders(size, products, random);
     }
 
     public List<Trolley> buildTrolleys(int size, int bucketCount, int bucketCapacity, WarehouseLocation startLocation) {
@@ -247,7 +246,7 @@ public class DemoDataGenerator {
         }
     }
 
-    private List<Order> buildOrders(int size, List<Product> products) {
+    private List<Order> buildOrders(int size, List<Product> products, Random random) {
         List<Order> orders = new ArrayList<>();
         Order order;
         for (int orderNumber = 1; orderNumber <= size; orderNumber++) {
@@ -269,7 +268,7 @@ public class DemoDataGenerator {
         return orders;
     }
 
-    private List<Product> buildProducts() {
+    private List<Product> buildProducts(Random random) {
         return PRODUCTS.stream()
                 .map(productFamilyPair -> {
                     List<String> shelvingIds = SHELVINGS_PER_FAMILY.get(productFamilyPair.getFamily());
