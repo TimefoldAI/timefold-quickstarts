@@ -96,7 +96,7 @@ jobs:
 
       # Build and test
       - name: "Setup GraalVM native image"
-        uses: graalvm/setup-graalvm@e140024fdc2d95d3c7e10a636887a91090d29990 # v1
+        uses: graalvm/setup-graalvm@2a2412009026a83f51d179f92dc2b3fd4c8142df # v1
         with:
           java-version: ${{matrix.java-version}}
           distribution: 'graalvm-community'
@@ -175,7 +175,7 @@ jobs:
 
       # Build and test
       - name: "Setup GraalVM native image"
-        uses: graalvm/setup-graalvm@e140024fdc2d95d3c7e10a636887a91090d29990 # v1
+        uses: graalvm/setup-graalvm@2a2412009026a83f51d179f92dc2b3fd4c8142df # v1
         with:
           java-version: ${{matrix.java-version}}
           distribution: 'graalvm-community'
@@ -253,7 +253,7 @@ jobs:
 
       # Build and test
       - name: "Setup GraalVM native image"
-        uses: graalvm/setup-graalvm@e140024fdc2d95d3c7e10a636887a91090d29990 # v1
+        uses: graalvm/setup-graalvm@2a2412009026a83f51d179f92dc2b3fd4c8142df # v1
         with:
           java-version: ${{matrix.java-version}}
           distribution: 'graalvm-community'
