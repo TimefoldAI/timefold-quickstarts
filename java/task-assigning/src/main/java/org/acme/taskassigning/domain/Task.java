@@ -31,7 +31,7 @@ public class Task {
     @JsonIgnore
     @PreviousElementShadowVariable(sourceVariableName = "tasks")
     private Task previousTask;
-    @JsonIgnore
+    // Not ignored, because used in UI.
     @ShadowVariable(supplierName = "startTimeSupplier")
     private Integer startTime; // In minutes
 
