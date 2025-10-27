@@ -37,8 +37,6 @@ let loadedSchedule = null;
 let viewType = "R";
 
 $(document).ready(function () {
-    replaceQuickstartTimefoldAutoHeaderFooter();
-
     $("#solveButton").click(function () {
         solve();
     });
@@ -104,6 +102,8 @@ function refreshSchedule() {
 function renderSchedule(schedule) {
     refreshSolvingButtons(schedule.solverStatus != null && schedule.solverStatus !== "NOT_SOLVING");
     $("#score").text("Score: " + (schedule.score == null ? "?" : schedule.score));
+    $("#info").text(`This dataset has ${schedule.meetings.length} meetings which need to be assigned to ${schedule.people.length} people in ${schedule.rooms.length} rooms.`);
+
 
     if (viewType === "R") {
         renderScheduleByRoom(schedule);
@@ -196,9 +196,9 @@ function renderScheduleByPerson(schedule) {
             const endDateTime = startTime.plusMinutes(meet.durationInGrains * 15);
             meet.requiredAttendances.forEach(attendance => {
                 const byPersonElement = $("<div />").append($("<div class='d-flex justify-content-center' />").append($(`<h5 class="card-title mb-1"/>`).text(meet.topic)));
-                byPersonElement.append($("<div class='d-flex justify-content-center' />").append($(`<span class="badge text-bg-success m-1" style="background-color: ${pickColor(meet.id)}" />`).text("Required")));
+                byPersonElement.append($("<div class='d-flex justify-content-center' />").append($(`<span class="badge text-bg-success m-1" style="background-color: ${color.bg};color: ${color.fg}" />`).text("Required")));
                 if (meet.preferredAttendances.map(a => a.person).indexOf(attendance.person) >= 0) {
-                    byPersonElement.append($("<div class='d-flex justify-content-center' />").append($(`<span class="badge text-bg-info m-1" style="background-color: ${pickColor(meet.id)}" />`).text("Preferred")));
+                    byPersonElement.append($("<div class='d-flex justify-content-center' />").append($(`<span class="badge text-bg-info m-1" style="background-color: ${color.bg};color: ${color.fg}" />`).text("Preferred")));
                 }
                 byPersonItemData.add({
                     id: `${assignment.id}-${attendance.person}`,
@@ -212,7 +212,7 @@ function renderScheduleByPerson(schedule) {
             meet.preferredAttendances.forEach(attendance => {
                 if (meet.requiredAttendances.map(a => a.person).indexOf(attendance.person) === -1) {
                     const byPersonElement = $("<div />").append($("<div class='d-flex justify-content-center' />").append($(`<h5 class="card-title mb-1"/>`).text(meet.topic)));
-                    byPersonElement.append($("<div class='d-flex justify-content-center' />").append($(`<span class="badge text-bg-info m-1" style="background-color: ${pickColor(meet.id)}" />`).text("Preferred")));
+                    byPersonElement.append($("<div class='d-flex justify-content-center' />").append($(`<span class="badge text-bg-info m-1" style="background-color: ${color.bg};color: ${color.fg}" />`).text("Preferred")));
                     byPersonItemData.add({
                         id: `${assignment.id}-${attendance.person}`,
                         group: attendance.person,
@@ -374,7 +374,7 @@ function replaceQuickstartTimefoldAutoHeaderFooter() {
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
-          <div class="collapse navbar-collapse" id="navbarNav">
+          <div class="collapse d-flex align-items-center" id="navbarNav">
             <ul class="nav nav-pills">
               <li class="nav-item active" id="navUIItem">
                 <button class="nav-link active" id="navUI" data-bs-toggle="pill" data-bs-target="#demo" type="button">Demo UI</button>

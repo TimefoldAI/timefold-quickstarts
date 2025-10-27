@@ -5,9 +5,34 @@ let scheduleId = null;
 let loadedSchedule = null;
 let viewType = "R";
 
-$(document).ready(function () {
-    replaceQuickstartTimefoldAutoHeaderFooter();
+// Color Picker: Based on https://venngage.com/blog/color-blind-friendly-palette/
+const BG_COLORS = [ "#009E73","#0072B2", "#D55E00", "#000000", "#CC79A7", "#E69F00","#F0E442","#0072B2","#F6768E","#C10020","#A6BDD7","#803E75","#007D34"];
+const FG_COLORS = [ "#FFFFFF","#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF","#000000","#FFFFFF","#FFFFFF","#FFFFFF","#000000","#FFFFFF","#FFFFFF"];
+let COLOR_MAP = null;
+let nextColorIndex = 0
 
+function resetColorMap() {
+    COLOR_MAP = new Map()
+        .set("Blue", {bg:"#0072B2", fg: "#FFFFFF"})
+        .set("Green", {bg:"#009E73", fg: "#FFFFFF"})
+        .set("Orange", {bg:"#D55E00", fg: "#FFFFFF"});
+    nextColorIndex = 0
+}
+
+resetColorMap();
+
+function pickColor(object) {
+    let color = COLOR_MAP.get(object);
+    if (color !== undefined) {
+        return color;
+    }
+    let index = nextColorIndex++;
+    color = {bg : BG_COLORS[index], fg: FG_COLORS[index]};
+    COLOR_MAP.set(object,color);
+    return color;
+}
+
+$(document).ready(function () {
     $("#solveButton").click(function () {
         solve();
     });
@@ -87,6 +112,10 @@ function refreshSchedule() {
 function renderSchedule(schedule) {
     refreshSolvingButtons(schedule.solverStatus != null && schedule.solverStatus !== "NOT_SOLVING");
     $("#score").text("Score: " + (schedule.score == null ? "?" : schedule.score));
+    $("#info").text(`This dataset has ${schedule.talks.length} talks by ${schedule.speakers.length} speakers which need to be scheduled in ${schedule.timeslots.length} timeslots and ${schedule.rooms.length} rooms.`);
+
+    //reset color map
+    resetColorMap();
 
     if (viewType === "R") {
         renderScheduleByRoom(schedule);
@@ -142,7 +171,7 @@ function renderScheduleByRoom(schedule) {
 
     $.each(schedule.talks.sort((a, b) => a.code > b.code ? 1 : (a.code < b.code ? -1 : 0)), (index, talk) => {
         const color = pickColor(talk.talkType);
-        const talkElement = $(`<div class="card" style="background-color: ${color}"/>`)
+        const talkElement = $(`<div class="card" style="background-color: ${color.bg};color:${color.fg}"/>`)
             .append($(`<div class="card-body p-2"/>`)
                 .append($(`<h5 class="card-title mb-1 text-truncate"/>`).text(`${talk.code}: ${talk.title}`))
                 .append($(`<p class="card-text ms-2 mb-1"/>`)
@@ -177,7 +206,7 @@ function renderScheduleBySpeaker(schedule) {
 
     const LocalDateTime = JSJoda.LocalDateTime;
 
-    $.each(schedule.timeslots.sort((a, b) => a.id > b.id ? 1 : (a.id < b.id ? -1 : 0)), (index, timeslot) => {
+    $.each(schedule.timeslots.sort((a, b) => compareTimeslots(a, b)), (index, timeslot) => {
         headerRowBySpeaker
             .append($("<th/>")
                 .append($("<span/>").text(`   
@@ -206,7 +235,7 @@ function renderScheduleBySpeaker(schedule) {
     $.each(schedule.talks.sort((a, b) => a.code > b.code ? 1 : (a.code < b.code ? -1 : 0)), (index, talk) => {
         $.each(talk.speakers, (_, speaker) => {
             const color = pickColor(speaker.name);
-            const talkElement = $(`<div class="card" style="background-color: ${color}"/>`)
+            const talkElement = $(`<div class="card" style="background-color: ${color.bg};color:${color.fg}"/>`)
                 .append($(`<div class="card-body p-2"/>`)
                     .append($(`<h5 class="card-title mb-1 text-truncate"/>`).text(`${talk.code}: ${talk.title}`))
                     .append($(`<p class="card-text ms-2 mb-1"/>`)
@@ -257,7 +286,7 @@ function renderScheduleByValues(schedule, tableKey, rowTitle, rowKey, key, value
 
     const LocalDateTime = JSJoda.LocalDateTime;
 
-    $.each(schedule.timeslots.sort((a, b) => a.id > b.id ? 1 : (a.id < b.id ? -1 : 0)), (index, timeslot) => {
+    $.each(schedule.timeslots.sort((a, b) => compareTimeslots(a, b)), (index, timeslot) => {
         headerRowByValue
             .append($("<th/>")
                 .append($("<span/>").text(`   
@@ -286,7 +315,7 @@ function renderScheduleByValues(schedule, tableKey, rowTitle, rowKey, key, value
         if (singleValue) {
             const value = talk[key];
             const color = pickColor(value);
-            const talkElement = $(`<div class="card" style="background-color: ${color}"/>`)
+            const talkElement = $(`<div class="card" style="background-color: ${color.bg};color:${color.fg}"/>`)
                 .append($(`<div class="card-body p-2"/>`)
                     .append($(`<h5 class="card-title mb-1 text-truncate"/>`).text(`${talk.code}: ${talk.title}`))
                     .append($(`<p class="card-text ms-2 mb-1"/>`)
@@ -299,7 +328,7 @@ function renderScheduleByValues(schedule, tableKey, rowTitle, rowKey, key, value
         } else {
             $.each(talk[key], (_, value) => {
                 const color = pickColor(value);
-                const talkElement = $(`<div class="card" style="background-color: ${color}"/>`)
+                const talkElement = $(`<div class="card" style="background-color: ${color.bg};color:${color.fg}"/>`)
                     .append($(`<div class="card-body p-2"/>`)
                         .append($(`<h5 class="card-title mb-1 text-truncate"/>`).text(`${talk.code}: ${talk.title}`))
                         .append($(`<p class="card-text ms-2 mb-1"/>`)
@@ -480,50 +509,4 @@ function compareTimeslots(t1, t2) {
     return diff;
 }
 
-// TODO: move to the webjar
-function replaceQuickstartTimefoldAutoHeaderFooter() {
-    const timefoldHeader = $("header#timefold-auto-header");
-    if (timefoldHeader != null) {
-        timefoldHeader.addClass("bg-black")
-        timefoldHeader.append($(`<div class="container-fluid">
-        <nav class="navbar sticky-top navbar-expand-lg navbar-dark shadow mb-3">
-          <a class="navbar-brand" href="https://timefold.ai">
-            <img src="/webjars/timefold/img/timefold-logo-horizontal-negative.svg" alt="Timefold logo" width="200">
-          </a>
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="nav nav-pills">
-              <li class="nav-item active" id="navUIItem">
-                <button class="nav-link active" id="navUI" data-bs-toggle="pill" data-bs-target="#demo" type="button">Demo UI</button>
-              </li>
-              <li class="nav-item" id="navRestItem">
-                <button class="nav-link" id="navRest" data-bs-toggle="pill" data-bs-target="#rest" type="button">Guide</button>
-              </li>
-              <li class="nav-item" id="navOpenApiItem">
-                <button class="nav-link" id="navOpenApi" data-bs-toggle="pill" data-bs-target="#openapi" type="button">REST API</button>
-              </li>
-            </ul>
-          </div>
-        </nav>
-      </div>`));
-    }
 
-    const timefoldFooter = $("footer#timefold-auto-footer");
-    if (timefoldFooter != null) {
-        timefoldFooter.append($(`<footer class="bg-black text-white-50">
-               <div class="container">
-                 <div class="hstack gap-3 p-4">
-                   <div class="ms-auto"><a class="text-white" href="https://timefold.ai">Timefold</a></div>
-                   <div class="vr"></div>
-                   <div><a class="text-white" href="https://timefold.ai/docs">Documentation</a></div>
-                   <div class="vr"></div>
-                   <div><a class="text-white" href="https://github.com/TimefoldAI/timefold-quickstarts">Code</a></div>
-                   <div class="vr"></div>
-                   <div class="me-auto"><a class="text-white" href="https://timefold.ai/product/support/">Support</a></div>
-                 </div>
-               </div>
-             </footer>`));
-    }
-}

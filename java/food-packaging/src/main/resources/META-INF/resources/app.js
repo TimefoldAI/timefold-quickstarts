@@ -27,11 +27,7 @@ var byJobItemDataSet = new vis.DataSet();
 var byJobTimeline = new vis.Timeline(byJobPanel, byJobItemDataSet, byJobGroupDataSet, byJobTimelineOptions);
 
 $(document).ready(function () {
-  replaceTimefoldAutoHeaderFooter();
 
-  $("#refreshButton").click(function () {
-    refreshSchedule();
-  });
   $("#solveButton").click(function () {
     solve();
   });
@@ -84,6 +80,8 @@ function refreshSchedule() {
   $.getJSON("/schedule", function (schedule) {
     refreshSolvingButtons(schedule.solverStatus != null && schedule.solverStatus !== "NOT_SOLVING");
     $("#score").text("Score: " + (schedule.score == null ? "?" : schedule.score));
+    $("#info").text(`This dataset has ${schedule.products.length} products, ${schedule.jobs.length} jobs, to be produced on ${schedule.lines.length} lines by ${schedule.operators.length} operators.`);
+
     loadedSchedule = schedule;
     const unassignedOperators = $("#unassignedOperators");
     const unassignedJobs = $("#unassignedJobs");

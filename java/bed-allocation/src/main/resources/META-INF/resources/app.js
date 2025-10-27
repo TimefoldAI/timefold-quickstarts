@@ -1,6 +1,4 @@
 var autoRefreshIntervalId = null;
-const dateFormatter = JSJoda.DateTimeFormatter.ofPattern('MM-dd');
-const roomDateFormatter = JSJoda.DateTimeFormatter.ofPattern('d MMM').withLocale(JSJodaLocale.Locale.ENGLISH);
 
 const byRoomPanel = document.getElementById("byRoomPanel");
 const byRoomTimelineOptions = {
@@ -19,8 +17,6 @@ let loadedSchedule = null;
 let viewType = "R";
 
 $(document).ready(function () {
-    replaceQuickstartTimefoldAutoHeaderFooter();
-
     $("#solveButton").click(function () {
         solve();
     });
@@ -102,6 +98,7 @@ function refreshSchedule() {
 function renderSchedule(schedule) {
     refreshSolvingButtons(schedule.solverStatus != null && schedule.solverStatus !== "NOT_SOLVING");
     $("#score").text("Score: " + (schedule.score == null ? "?" : schedule.score));
+    $("#info").text(`This dataset has ${schedule.stays.length} stays and ${schedule.departments.flatMap(d => d.rooms).length} beds across ${schedule.departments.length} departments.`);
 
     if (viewType === "R") {
         renderScheduleByRoom(schedule);
@@ -120,12 +117,12 @@ function renderScheduleByRoom(schedule) {
         if (room.equipments.length > 0) {
             let equipments = room.equipments.sort().slice(0, Math.min(2, room.equipments.length));
             content += `<div class="d-flex">`;
-            equipments.forEach(e => content += `<div><span class="badge text-bg-success m-1" style="background-color: ${pickColor(e)}">${e}</span></div>`);
+            equipments.forEach(e => content += `<div><span class="badge text-bg-success m-1">${e}</span></div>`);
             content += "</div>";
             if (room.equipments.length > 2) {
                 let equipments = room.equipments.sort().slice(2, Math.min(4, room.equipments.length));
                 content += `<div class="d-flex">`;
-                equipments.forEach(e => content += `<div><span class="badge text-bg-success m-1" style="background-color: ${pickColor(e)}">${e}</span></div>`);
+                equipments.forEach(e => content += `<div><span class="badge text-bg-success m-1">${e}</span></div>`);
                 content += "</div>";
             }
         }
@@ -148,6 +145,9 @@ function renderScheduleByRoom(schedule) {
     schedule.departments.flatMap(d => d.rooms).flatMap(r => r.beds).forEach(b => bedMap.set(b.id, b));
 
     $.each(schedule.stays, (_, stay) => {
+        const bgcolor = stay.patientGender === 'MALE' ? '#729FCF' : '#FCE94F';
+        const color = stay.patientGender === 'MALE' ? 'white' : 'black';
+
         if (stay.bed == null) {
             unassignedJobsCount++;
             const unassignedPatientElement = $(`<div class="card-body p-2"/>`)
@@ -177,8 +177,7 @@ function renderScheduleByRoom(schedule) {
             unassignedPatientElement.append($("<div />").prop("class", "d-flex justify-content-end").append($(`<small class="ms-2 mt-1 card-text text-muted"/>`)
                 .text(stay.patientPreferredMaximumRoomCapacity)));
 
-            const color = stay.patientGender == 'MALE' ? '#729FCF' : '#FCE94F';
-            unassignedPatients.append($(`<div class="col"/>`).append($(`<div class="card" style="background-color: ${color}"/>`).append(unassignedPatientElement)));
+            unassignedPatients.append($(`<div class="col"/>`).append($(`<div class="card" style="background-color: ${bgcolor};color:${color}"/>`).append(unassignedPatientElement)));
             byRoomItemData.add({
                 id: stay.id,
                 group: stay.id,
@@ -209,7 +208,6 @@ function renderScheduleByRoom(schedule) {
             }
             byPatientElement.append($("<div />").prop("class", "d-flex justify-content-end").append($(`<small class="ms-2 mt-1 card-text text-muted"/>`)
                 .text(stay.patientPreferredMaximumRoomCapacity)));
-            const color = stay.patientGender == 'MALE' ? '#729FCF' : '#FCE94F';
 
             byRoomItemData.add({
                 id: stay.id,
@@ -217,7 +215,7 @@ function renderScheduleByRoom(schedule) {
                 content: byPatientElement.html(),
                 start: stay.arrivalDate,
                 end: stay.departureDate,
-                style: `background-color: ${color}`
+                style: `background-color: ${bgcolor}; color: ${color}`
             });
         }
     });
@@ -406,52 +404,4 @@ function compareTimeslots(t1, t2) {
         diff = LocalDateTime.parse(t1.endDateTime).compareTo(LocalDateTime.parse(t2.endDateTime));
     }
     return diff;
-}
-
-// TODO: move to the webjar
-function replaceQuickstartTimefoldAutoHeaderFooter() {
-    const timefoldHeader = $("header#timefold-auto-header");
-    if (timefoldHeader != null) {
-        timefoldHeader.addClass("bg-black")
-        timefoldHeader.append($(`<div class="container-fluid">
-        <nav class="navbar sticky-top navbar-expand-lg navbar-dark shadow mb-3">
-          <a class="navbar-brand" href="https://timefold.ai">
-            <img src="/webjars/timefold/img/timefold-logo-horizontal-negative.svg" alt="Timefold logo" width="200">
-          </a>
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="nav nav-pills">
-              <li class="nav-item active" id="navUIItem">
-                <button class="nav-link active" id="navUI" data-bs-toggle="pill" data-bs-target="#demo" type="button">Demo UI</button>
-              </li>
-              <li class="nav-item" id="navRestItem">
-                <button class="nav-link" id="navRest" data-bs-toggle="pill" data-bs-target="#rest" type="button">Guide</button>
-              </li>
-              <li class="nav-item" id="navOpenApiItem">
-                <button class="nav-link" id="navOpenApi" data-bs-toggle="pill" data-bs-target="#openapi" type="button">REST API</button>
-              </li>
-            </ul>
-          </div>
-        </nav>
-      </div>`));
-    }
-
-    const timefoldFooter = $("footer#timefold-auto-footer");
-    if (timefoldFooter != null) {
-        timefoldFooter.append($(`<footer class="bg-black text-white-50">
-               <div class="container">
-                 <div class="hstack gap-3 p-4">
-                   <div class="ms-auto"><a class="text-white" href="https://timefold.ai">Timefold</a></div>
-                   <div class="vr"></div>
-                   <div><a class="text-white" href="https://timefold.ai/docs">Documentation</a></div>
-                   <div class="vr"></div>
-                   <div><a class="text-white" href="https://github.com/TimefoldAI/timefold-quickstarts">Code</a></div>
-                   <div class="vr"></div>
-                   <div class="me-auto"><a class="text-white" href="https://timefold.ai/product/support/">Support</a></div>
-                 </div>
-               </div>
-             </footer>`));
-    }
 }

@@ -19,16 +19,30 @@ let byTeamGroupData = new vis.DataSet();
 let byTeamItemData = new vis.DataSet();
 let byTeamTimeline = new vis.Timeline(byTeamPanel, byTeamItemData, byTeamGroupData, byTimelineOptions);
 
-const byConfrontationPanel = document.getElementById("byConfrontationPanel");
-
 const teamsTable = $('#teams');
 
 let scheduleId = null;
 let loadedSchedule = null;
 let viewType = "T";
 
+// Color Picker: Based on https://venngage.com/blog/color-blind-friendly-palette/
+const BG_COLORS = [ "#009E73","#0072B2", "#D55E00", "#000000", "#CC79A7", "#E69F00","#F0E442","#0072B2","#F6768E","#C10020","#A6BDD7","#803E75","#007D34"];
+const FG_COLORS = [ "#FFFFFF","#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF","#000000","#FFFFFF","#FFFFFF","#FFFFFF","#000000","#FFFFFF","#FFFFFF"];
+let COLOR_MAP = new Map()
+let nextColorIndex = 0
+
+function pickColor(object) {
+    let color = COLOR_MAP.get(object);
+    if (color !== undefined) {
+        return color;
+    }
+    let index = nextColorIndex++;
+    color = {bg : BG_COLORS[index], fg: FG_COLORS[index]};
+    COLOR_MAP.set(object,color);
+    return color;
+}
+
 $(document).ready(function () {
-    replaceQuickstartTimefoldAutoHeaderFooter();
 
     $("#solveButton").click(function () {
         solve();
@@ -94,6 +108,7 @@ function refreshSchedule() {
 function renderSchedule(schedule) {
     refreshSolvingButtons(schedule.solverStatus != null && schedule.solverStatus !== "NOT_SOLVING");
     $("#score").text("Score: " + (schedule.score == null ? "?" : schedule.score));
+    $("#info").text(`This dataset has ${schedule.teams.length} teams who play eachother over ${schedule.days.length} days.`);
 
     if (viewType === "T") {
         renderScheduleByTeam(schedule);
@@ -141,13 +156,14 @@ function renderScheduleByTeam(schedule) {
         } else {
             const matchDateTime = currentDate.plusDays(assignment.day);
             const element = $(`<div />`).append($(`<div class="d-flex justify-content-center"/>`).append($(`<h5 class="card-title mb-1"/>`).text(`Match ${assignment.indexInDay + 1}`)));
+            const teamColor = pickColor(assignment.team);
             byTeamItemData.add({
                 id: `a${assignment.team}-${assignment.day}`,
                 group: assignment.team,
                 content: element.html(),
                 start: matchDateTime.atStartOfDay().toString(),
                 end: matchDateTime.atStartOfDay().withHour(23).withMinute(59).toString(),
-                style: `background-color: ${pickColor(assignment.team)}; min-height: 50px`
+                style: `background-color: ${teamColor.bg};color:${teamColor.fg}; min-height: 50px`
             });
         }
     });
@@ -392,7 +408,7 @@ function replaceQuickstartTimefoldAutoHeaderFooter() {
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
-          <div class="collapse navbar-collapse" id="navbarNav">
+          <div class="collapse d-flex align-items-center" id="navbarNav">
             <ul class="nav nav-pills">
               <li class="nav-item active" id="navUIItem">
                 <button class="nav-link active" id="navUI" data-bs-toggle="pill" data-bs-target="#demo" type="button">Demo UI</button>
