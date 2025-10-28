@@ -12,8 +12,8 @@ public class Lesson {
     private String id;
 
     private String subject;
-    private String teacher;
-    private String studentGroup;
+    private Teacher teacher; // CHANGED from String to Teacher
+    private StudentGroup studentGroup;
 
     @JsonIdentityReference
     @PlanningVariable
@@ -26,14 +26,16 @@ public class Lesson {
     public Lesson() {
     }
 
-    public Lesson(String id, String subject, String teacher, String studentGroup) {
+    // UPDATED CONSTRUCTOR - Teacher parameter changed to Teacher object
+    public Lesson(String id, String subject, Teacher teacher, StudentGroup studentGroup) {
         this.id = id;
         this.subject = subject;
         this.teacher = teacher;
         this.studentGroup = studentGroup;
     }
 
-    public Lesson(String id, String subject, String teacher, String studentGroup, Timeslot timeslot, Room room) {
+    // UPDATED CONSTRUCTOR - Teacher parameter changed to Teacher object
+    public Lesson(String id, String subject, Teacher teacher, StudentGroup studentGroup, Timeslot timeslot, Room room) {
         this(id, subject, teacher, studentGroup);
         this.timeslot = timeslot;
         this.room = room;
@@ -56,11 +58,12 @@ public class Lesson {
         return subject;
     }
 
-    public String getTeacher() {
+    // UPDATED GETTER - returns Teacher object instead of String
+    public Teacher getTeacher() {
         return teacher;
     }
 
-    public String getStudentGroup() {
+    public StudentGroup getStudentGroup() {
         return studentGroup;
     }
 

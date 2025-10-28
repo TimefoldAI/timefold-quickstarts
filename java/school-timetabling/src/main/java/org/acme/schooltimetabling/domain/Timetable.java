@@ -18,9 +18,18 @@ public class Timetable {
     @ProblemFactCollectionProperty
     @ValueRangeProvider
     private List<Timeslot> timeslots;
+    
     @ProblemFactCollectionProperty
     @ValueRangeProvider
     private List<Room> rooms;
+
+    @ProblemFactCollectionProperty
+    private List<StudentGroup> studentGroups;
+
+    // NEW FIELD - Teachers list
+    @ProblemFactCollectionProperty
+    private List<Teacher> teachers;
+
     @PlanningEntityCollectionProperty
     private List<Lesson> lessons;
 
@@ -40,10 +49,14 @@ public class Timetable {
         this.solverStatus = solverStatus;
     }
 
-    public Timetable(String name, List<Timeslot> timeslots, List<Room> rooms, List<Lesson> lessons) {
+    // UPDATED CONSTRUCTOR - Added teachers parameter
+    public Timetable(String name, List<Timeslot> timeslots, List<Room> rooms, 
+                    List<StudentGroup> studentGroups, List<Teacher> teachers, List<Lesson> lessons) {
         this.name = name;
         this.timeslots = timeslots;
         this.rooms = rooms;
+        this.studentGroups = studentGroups;
+        this.teachers = teachers;
         this.lessons = lessons;
     }
 
@@ -63,6 +76,15 @@ public class Timetable {
         return rooms;
     }
 
+    public List<StudentGroup> getStudentGroups() {
+        return studentGroups;
+    }
+
+    // NEW GETTER
+    public List<Teacher> getTeachers() {
+        return teachers;
+    }
+
     public List<Lesson> getLessons() {
         return lessons;
     }
@@ -78,5 +100,4 @@ public class Timetable {
     public void setSolverStatus(SolverStatus solverStatus) {
         this.solverStatus = solverStatus;
     }
-
 }
