@@ -139,6 +139,11 @@ function renderScheduleByRoom(schedule) {
     const unassignedTalks = $("#unassignedTalks");
     unassignedTalks.children().remove();
 
+    const colgroup = $("<colgroup>").appendTo(scheduleByRoom)
+    colgroup.append('<col style="width: 250px">'); //speaker columns
+    $.each(schedule.rooms, item => {
+        colgroup.append('<col style="width: 250px">');
+    })
     const theadByRoom = $("<thead>").appendTo(scheduleByRoom);
     const headerRowByRoom = $("<tr>").appendTo(theadByRoom);
     headerRowByRoom.append($("<th>Timeslot</th>"));
@@ -200,6 +205,11 @@ function renderScheduleBySpeaker(schedule) {
     const unassignedTalks = $("#unassignedTalks");
     unassignedTalks.children().remove();
 
+    const colgroup = $("<colgroup>").appendTo(scheduleBySpeaker)
+    colgroup.append('<col style="width: 250px">'); //speaker columns
+    $.each(schedule.timeslots, item => {
+        colgroup.append('<col style="width: 250px">');
+    })
     const theadBySpeaker = $("<thead>").appendTo(scheduleBySpeaker);
     const headerRowBySpeaker = $("<tr>").appendTo(theadBySpeaker);
     headerRowBySpeaker.append($("<th>Speaker</th>"));
@@ -211,35 +221,29 @@ function renderScheduleBySpeaker(schedule) {
             .append($("<th/>")
                 .append($("<span/>").text(`   
                     ${LocalDateTime.parse(timeslot.startDateTime).dayOfWeek().name().charAt(0) + LocalDateTime.parse(timeslot.startDateTime).dayOfWeek().name().slice(1).toLowerCase()}                 
-                    ${LocalDateTime.parse(timeslot.startDateTime).format(timeFormatter)}
-                    -
-                    ${LocalDateTime.parse(timeslot.endDateTime).format(timeFormatter)}
-                `))
-                .append($(`<button type="button" class="ms-2 mb-1 btn btn-light btn-sm p-1"/>`))
+                    ${LocalDateTime.parse(timeslot.startDateTime).format(timeFormatter)} - ${LocalDateTime.parse(timeslot.endDateTime).format(timeFormatter)}`))
             );
     });
 
     const tbodyBySpeaker = $("<tbody>").appendTo(scheduleBySpeaker);
 
-
-    $.each(schedule.speakers, (index, speaker) => {
+    $.each(schedule.speakers.sort((a, b) => a.name > b.name ? 1 : (a.name < b.name ? -1 : 0)), (index, speaker) => {
         const rowBySpeaker = $("<tr>").appendTo(tbodyBySpeaker);
         rowBySpeaker
             .append($(`<th class="align-middle"/>`)
                 .append($("<span/>").text(speaker.name)));
         $.each(schedule.timeslots.sort((a, b) => compareTimeslots(a, b)), (index, timeslot) => {
-            rowBySpeaker.append($("<td/>").prop("id", `speaker${speaker.id}timeslot${timeslot.id}`));
+            rowBySpeaker.append($("<td style=\"white-space: normal; word-wrap: break-word; overflow-wrap: break-word;\"/>").prop("id", `speaker${speaker.id}timeslot${timeslot.id}`));
         });
     });
 
     $.each(schedule.talks.sort((a, b) => a.code > b.code ? 1 : (a.code < b.code ? -1 : 0)), (index, talk) => {
         $.each(talk.speakers, (_, speaker) => {
-            const color = pickColor(speaker.name);
-            const talkElement = $(`<div class="card" style="background-color: ${color.bg};color:${color.fg}"/>`)
+            const talkElement = $(`<div class="card"/>`)
                 .append($(`<div class="card-body p-2"/>`)
-                    .append($(`<h5 class="card-title mb-1 text-truncate"/>`).text(`${talk.code}: ${talk.title}`))
+                    .append($(`<h5 class="card-title mb-1"/>`).text(`${talk.title}`))
                     .append($(`<p class="card-text ms-2 mb-1"/>`)
-                        .append($(`<em/>`).text(`by ${speaker.name}`))));
+                        .append($(`<em/>`).text(`code ${talk.code}`))));
             if (talk.timeslot != null && talk.room != null) {
                 $(`#speaker${speaker.id}timeslot${talk.timeslot.id}`).append(talkElement.clone());
             } else {
@@ -280,6 +284,12 @@ function renderScheduleByValues(schedule, tableKey, rowTitle, rowKey, key, value
     const unassignedTalks = $("#unassignedTalks");
     unassignedTalks.children().remove();
 
+    const colgroup = $("<colgroup>").appendTo(scheduleByValue)
+    colgroup.append('<col style="width: 250px">');
+    $.each(schedule.timeslots, item => {
+        colgroup.append('<col style="width: 250px">');
+    })
+
     const theadByValue = $("<thead>").appendTo(scheduleByValue);
     const headerRowByValue = $("<tr>").appendTo(theadByValue);
     headerRowByValue.append($(`<th>${rowTitle}</th>`));
@@ -319,7 +329,7 @@ function renderScheduleByValues(schedule, tableKey, rowTitle, rowKey, key, value
                 .append($(`<div class="card-body p-2"/>`)
                     .append($(`<h5 class="card-title mb-1 text-truncate"/>`).text(`${talk.code}: ${talk.title}`))
                     .append($(`<p class="card-text ms-2 mb-1"/>`)
-                        .append($(`<em/>`).text(`at ${talk.room?.name ?? 'not scheduled'}`))));
+                        .append($(`<em/>`).text(`by ${talk.speakers?.map(s=>s.name).join(",") ?? 'speakers unknown'} ${talk.room?.name ?? 'not scheduled'}`))));
             if (talk.timeslot != null && talk.room != null) {
                 $(`#${rowKey}${value}timeslot${talk.timeslot.id}`).append(talkElement.clone());
             } else {
@@ -332,7 +342,7 @@ function renderScheduleByValues(schedule, tableKey, rowTitle, rowKey, key, value
                     .append($(`<div class="card-body p-2"/>`)
                         .append($(`<h5 class="card-title mb-1 text-truncate"/>`).text(`${talk.code}: ${talk.title}`))
                         .append($(`<p class="card-text ms-2 mb-1"/>`)
-                            .append($(`<em/>`).text(`at ${talk.room?.name ?? 'not scheduled'}`))));
+                            .append($(`<em/>`).text(`by ${talk.speakers?.map(s=>s.name).join(",") ?? 'speakers unknown'} at ${talk.room?.name ?? 'not scheduled'}`))));
                 if (talk.timeslot != null && talk.room != null) {
                     $(`#${rowKey}${value}timeslot${talk.timeslot.id}`).append(talkElement.clone());
                 } else {
