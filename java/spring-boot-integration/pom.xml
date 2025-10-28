@@ -177,7 +177,7 @@
       <dependencies>
         <dependency>
           <groupId>ai.timefold.solver.enterprise</groupId>
-          <artifactId>timefold-solver-enterprise-quarkus</artifactId>
+          <artifactId>timefold-solver-enterprise-spring-boot-starter</artifactId>
         </dependency>
       </dependencies>
       <properties>
