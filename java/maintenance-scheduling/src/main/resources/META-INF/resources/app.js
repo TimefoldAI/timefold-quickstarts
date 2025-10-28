@@ -27,10 +27,29 @@ var byJobGroupData = new vis.DataSet();
 var byJobItemData = new vis.DataSet();
 var byJobTimeline = new vis.Timeline(byJobPanel, byJobItemData, byJobGroupData, byJobTimelineOptions);
 
+// Color Picker: Based on https://venngage.com/blog/color-blind-friendly-palette/
+const BG_COLORS = ["#009E73","#0072B2","#D55E00","#000000","#CC79A7","#E69F00","#F0E442","#F6768E","#C10020","#A6BDD7","#803E75","#007D34","#56B4E9","#999999","#8DD3C7","#FFD92F","#B3DE69","#FB8072","#80B1D3","#B15928","#CAB2D6","#1B9E77","#E7298A","#6A3D9A"];
+const FG_COLORS = ["#FFFFFF","#FFFFFF","#FFFFFF","#FFFFFF","#FFFFFF","#000000","#000000","#FFFFFF","#FFFFFF","#000000","#FFFFFF","#FFFFFF","#FFFFFF","#000000","#000000","#000000","#000000","#FFFFFF","#000000","#FFFFFF","#000000","#FFFFFF","#FFFFFF","#FFFFFF"];
+let COLOR_MAP = new Map()
+let nextColorIndex = 0
+
+function resetColorMap() {
+    COLOR_MAP = new Map()
+    nextColorIndex = 0
+}
+
+function pickColor(object) {
+    let color = COLOR_MAP.get(object);
+    if (color !== undefined) {
+        return color;
+    }
+    let index = nextColorIndex++;
+    color = {bg : BG_COLORS[index], fg: FG_COLORS[index]};
+    COLOR_MAP.set(object,color);
+    return color;
+}
 
 $(document).ready(function () {
-    replaceQuickstartTimefoldAutoHeaderFooter();
-
     $("#solveButton").click(function () {
         solve();
     });
@@ -135,6 +154,7 @@ function refreshSchedule() {
 function renderSchedule(schedule) {
     refreshSolvingButtons(schedule.solverStatus != null && schedule.solverStatus !== "NOT_SOLVING");
     $("#score").text("Score: " + (schedule.score == null ? "?" : schedule.score));
+    $("#info").text(`This dataset has ${schedule.jobs.length} jobs which need to be assigned to ${schedule.crews.length} crews.`);
 
     const unassignedJobs = $("#unassignedJobs");
     unassignedJobs.children().remove();
@@ -180,8 +200,8 @@ function renderSchedule(schedule) {
                 .append($(`<h5 class="card-title mb-1"/>`).text(`Unassigned`));
             $.each(job.tags, (index, tag) => {
                 const color = pickColor(tag);
-                unassignedJobElement.append($(`<span class="badge me-1" style="background-color: ${color}"/>`).text(tag));
-                byJobJobElement.append($(`<span class="badge me-1" style="background-color: ${color}"/>`).text(tag));
+                unassignedJobElement.append($(`<span class="badge me-1" style="background-color: ${color.bg};color: ${color.fg}"/>`).text(tag));
+                byJobJobElement.append($(`<span class="badge me-1" style="background-color: ${color.bg};color: ${color.fg}"/>`).text(tag));
             });
             unassignedJobs.append($(`<div class="col"/>`).append($(`<div class="card"/>`).append(unassignedJobElement)));
             byJobItemData.add({
@@ -210,8 +230,8 @@ function renderSchedule(schedule) {
             }
             $.each(job.tags, (index, tag) => {
                 const color = pickColor(tag);
-                byCrewJobElement.append($(`<span class="badge me-1" style="background-color: ${color}"/>`).text(tag));
-                byJobJobElement.append($(`<span class="badge me-1" style="background-color: ${color}"/>`).text(tag));
+                byCrewJobElement.append($(`<span class="badge me-1" style="background-color: ${color.bg};color: ${color.fg}"/>`).text(tag));
+                byJobJobElement.append($(`<span class="badge me-1" style="background-color: ${color.bg};color: ${color.fg}"/>`).text(tag));
             });
             byCrewItemData.add({
                 id: job.id, group: job.crew.id,
@@ -350,61 +370,4 @@ function stopSolving() {
     }).fail(function (xhr, ajaxOptions, thrownError) {
         showError("Stop solving failed.", xhr);
     });
-}
-
-function replaceQuickstartTimefoldAutoHeaderFooter() {
-    const timefoldHeader = $("header#timefold-auto-header");
-    if (timefoldHeader != null) {
-        timefoldHeader.addClass("bg-black")
-        timefoldHeader.append(
-            $(`<div class="container-fluid">
-        <nav class="navbar sticky-top navbar-expand-lg navbar-dark shadow mb-3">
-          <a class="navbar-brand" href="https://timefold.ai">
-            <img src="/webjars/timefold/img/timefold-logo-horizontal-negative.svg" alt="Timefold logo" width="200">
-          </a>
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="nav nav-pills">
-              <li class="nav-item active" id="navUIItem">
-                <button class="nav-link active" id="navUI" data-bs-toggle="pill" data-bs-target="#demo" type="button">Demo UI</button>
-              </li>
-              <li class="nav-item" id="navRestItem">
-                <button class="nav-link" id="navRest" data-bs-toggle="pill" data-bs-target="#rest" type="button">Guide</button>
-              </li>
-              <li class="nav-item" id="navOpenApiItem">
-                <button class="nav-link" id="navOpenApi" data-bs-toggle="pill" data-bs-target="#openapi" type="button">REST API</button>
-              </li>
-            </ul>
-          </div>
-          <div class="ms-auto">
-              <div class="dropdown">
-                  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      Data
-                  </button>
-                  <div id="testDataButton" class="dropdown-menu" aria-labelledby="dropdownMenuButton"></div>
-              </div>
-          </div>
-        </nav>
-      </div>`));
-    }
-
-    const timefoldFooter = $("footer#timefold-auto-footer");
-    if (timefoldFooter != null) {
-        timefoldFooter.append(
-            $(`<footer class="bg-black text-white-50">
-               <div class="container">
-                 <div class="hstack gap-3 p-4">
-                   <div class="ms-auto"><a class="text-white" href="https://timefold.ai">Timefold</a></div>
-                   <div class="vr"></div>
-                   <div><a class="text-white" href="https://timefold.ai/docs">Documentation</a></div>
-                   <div class="vr"></div>
-                   <div><a class="text-white" href="https://github.com/TimefoldAI/timefold-quickstarts">Code</a></div>
-                   <div class="vr"></div>
-                   <div class="me-auto"><a class="text-white" href="https://timefold.ai/product/support/">Support</a></div>
-                 </div>
-               </div>
-             </footer>`));
-    }
 }

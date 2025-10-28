@@ -23,8 +23,6 @@ let loadedSchedule = null;
 let viewType = "T";
 
 $(document).ready(function () {
-    replaceQuickstartTimefoldAutoHeaderFooter();
-
     $("#solveButton").click(function () {
         solve();
     });
@@ -85,6 +83,7 @@ function refreshSchedule() {
 function renderSchedule(schedule) {
     refreshSolvingButtons(schedule.solverStatus != null && schedule.solverStatus !== "NOT_SOLVING");
     $("#score").text("Score: " + (schedule.score == null ? "?" : schedule.score));
+    $("#info").text(`This dataset has ${schedule.matches.length} matches (${schedule.rounds.length} rounds) for ${schedule.teams.length} teams.`);
 
     if (viewType === "T") {
         renderScheduleByTeam(schedule);
@@ -112,20 +111,20 @@ function renderScheduleByTeam(schedule) {
         const homeTeam = teamMap.get(match.homeTeam);
         const awayTeam = teamMap.get(match.awayTeam);
         if (match.round == null) {
-            const unassignedElement = $(`<div class="card-body" style="background-color: ${match.classicMatch ? '#198754' : '#97b0f8'}"/>`)
+            const unassignedElement = $(`<div class="card-body" style="background-color: ${match.classicMatch ? '#009E73' : '#0072B2'}; color: white"/>`)
                 .append($(`<h5 class="card-title mb-1"/>`).text(`${homeTeam.name} x ${awayTeam.name}`));
 
             unassigned.append($(`<div class="pl-1"/>`).append($(`<div class="card"/>`).append(unassignedElement)));
         } else {
-            const byHomeTeamElement = $("<div />").append($("<div class='d-flex justify-content-center' />").append($(`<h5 class="card-title mb-1"/>`).text(awayTeam.name))).append($(`<small class="ms-2 mt-1 card-text text-muted align-bottom float-end"/>`).append("<span class='fas fa-solid fa-home' title='Home Match' />"));
-            const byAwayTeamElement = $("<div />").append($("<div class='d-flex justify-content-center' />").append($(`<h5 class="card-title mb-1"/>`).text(homeTeam.name))).append($(`<small class="ms-2 mt-1 card-text text-muted align-bottom float-end"/>`).append("<span class='fas fa-plane-departure' title='Away Match' />"));
+            const byHomeTeamElement = $("<div />").append($("<div class='d-flex justify-content-center align-items-center' />").append($(`<h5 class="card-title mb-1"/>`).text(awayTeam.name)).append($(`<small class="ms-2 card-text "/>`).append("<span class='fas fa-solid fa-home text-white' title='Home Match' />")));
+            const byAwayTeamElement = $("<div />").append($("<div class='d-flex justify-content-center align-items-center' />").append($(`<h5 class="card-title mb-1"/>`).text(homeTeam.name)).append($(`<small class="ms-2 card-text "/>`).append("<span class='fas fa-plane-departure text-white' title='Away Match' />")));
             byTeamItemData.add({
                 id: `${match.id}-1`,
                 group: homeTeam.id,
                 content: byHomeTeamElement.html(),
                 start: currentDate.plusDays(match.round).toString(),
                 end: currentDate.plusDays(match.round + 1).toString(),
-                style: `background-color: ${match.classicMatch ? '#198754CF' : '#97b0f8'}`
+                style: `background-color: ${match.classicMatch ? '#009E73' : '#0072B2'}; color: white`
             });
             byTeamItemData.add({
                 id: `${match.id}-2`,
@@ -133,7 +132,7 @@ function renderScheduleByTeam(schedule) {
                 content: byAwayTeamElement.html(),
                 start: currentDate.plusDays(match.round).toString(),
                 end: currentDate.plusDays(match.round + 1).toString(),
-                style: `background-color: ${match.classicMatch ? '#198754CF' : '#97b0f8'}`
+                style: `background-color: ${match.classicMatch ? '#009E73' : '#0072B2'}; color: white`
             });
         }
     });
@@ -270,52 +269,4 @@ function copyTextToClipboard(id) {
     dummy.select();
     document.execCommand("copy");
     document.body.removeChild(dummy);
-}
-
-// TODO: move to the webjar
-function replaceQuickstartTimefoldAutoHeaderFooter() {
-    const timefoldHeader = $("header#timefold-auto-header");
-    if (timefoldHeader != null) {
-        timefoldHeader.addClass("bg-black")
-        timefoldHeader.append($(`<div class="container-fluid">
-        <nav class="navbar sticky-top navbar-expand-lg navbar-dark shadow mb-3">
-          <a class="navbar-brand" href="https://timefold.ai">
-            <img src="/webjars/timefold/img/timefold-logo-horizontal-negative.svg" alt="Timefold logo" width="200">
-          </a>
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="nav nav-pills">
-              <li class="nav-item active" id="navUIItem">
-                <button class="nav-link active" id="navUI" data-bs-toggle="pill" data-bs-target="#demo" type="button">Demo UI</button>
-              </li>
-              <li class="nav-item" id="navRestItem">
-                <button class="nav-link" id="navRest" data-bs-toggle="pill" data-bs-target="#rest" type="button">Guide</button>
-              </li>
-              <li class="nav-item" id="navOpenApiItem">
-                <button class="nav-link" id="navOpenApi" data-bs-toggle="pill" data-bs-target="#openapi" type="button">REST API</button>
-              </li>
-            </ul>
-          </div>
-        </nav>
-      </div>`));
-    }
-
-    const timefoldFooter = $("footer#timefold-auto-footer");
-    if (timefoldFooter != null) {
-        timefoldFooter.append($(`<footer class="bg-black text-white-50">
-               <div class="container">
-                 <div class="hstack gap-3 p-4">
-                   <div class="ms-auto"><a class="text-white" href="https://timefold.ai">Timefold</a></div>
-                   <div class="vr"></div>
-                   <div><a class="text-white" href="https://timefold.ai/docs">Documentation</a></div>
-                   <div class="vr"></div>
-                   <div><a class="text-white" href="https://github.com/TimefoldAI/timefold-quickstarts">Code</a></div>
-                   <div class="vr"></div>
-                   <div class="me-auto"><a class="text-white" href="https://timefold.ai/product/support/">Support</a></div>
-                 </div>
-               </div>
-             </footer>`));
-    }
 }

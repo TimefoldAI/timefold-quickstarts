@@ -88,7 +88,7 @@ public class DemoDataGenerator {
                 new Room("R2", "Room B", 240, Set.of(getTalkType(BREAKOUT_TALK_TAG)), emptySet()),
                 new Room("R3", "Room C", 630, Set.of(getTalkType(BREAKOUT_TALK_TAG)), Set.of(RECORDED_TAG, LARGE_TAG)),
                 new Room("R4", "Room D", 70, Set.of(getTalkType(BREAKOUT_TALK_TAG)), Set.of(RECORDED_TAG)),
-                new Room("R5", "Room E", 490, Set.of(getTalkType(LAB_TALK_TAG)), Set.of(RECORDED_TAG))));
+                new Room("R5", "Room E (LAB)", 490, Set.of(getTalkType(LAB_TALK_TAG)), Set.of(RECORDED_TAG))));
     }
 
     private Set<Speaker> generateSpeakers() {

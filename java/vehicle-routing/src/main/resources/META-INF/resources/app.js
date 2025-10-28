@@ -52,11 +52,25 @@ const byVisitGroupData = new vis.DataSet();
 const byVisitItemData = new vis.DataSet();
 const byVisitTimeline = new vis.Timeline(byVisitPanel, byVisitItemData, byVisitGroupData, byVisitTimelineOptions);
 
+const BG_COLORS = ["#009E73","#0072B2","#D55E00","#000000","#CC79A7","#E69F00","#F0E442","#F6768E","#C10020","#A6BDD7","#803E75","#007D34","#56B4E9","#999999","#8DD3C7","#FFD92F","#B3DE69","#FB8072","#80B1D3","#B15928","#CAB2D6","#1B9E77","#E7298A","#6A3D9A"];
+const FG_COLORS = ["#FFFFFF","#FFFFFF","#FFFFFF","#FFFFFF","#FFFFFF","#000000","#000000","#FFFFFF","#FFFFFF","#000000","#FFFFFF","#FFFFFF","#FFFFFF","#000000","#000000","#000000","#000000","#FFFFFF","#000000","#FFFFFF","#000000","#FFFFFF","#FFFFFF","#FFFFFF"];
+let COLOR_MAP = new Map()
+let nextColorIndex = 0
+
+function pickColor(object) {
+    let color = COLOR_MAP.get(object);
+    if (color !== undefined) {
+        return color;
+    }
+    let index = nextColorIndex++;
+    color = {bg : BG_COLORS[index], fg: FG_COLORS[index]};
+    COLOR_MAP.set(object,color);
+    return color;
+}
+
 /************************************ Initialize ************************************/
 
 $(document).ready(function () {
-    replaceQuickstartTimefoldAutoHeaderFooter();
-
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
@@ -119,7 +133,7 @@ function getHomeLocationMarker(vehicle) {
     if (marker) {
         return marker;
     }
-    marker = L.circleMarker(vehicle.homeLocation, { color: colorByVehicle(vehicle), fillOpacity: 0.8 });
+    marker = L.circleMarker(vehicle.homeLocation, { color: colorByVehicle(vehicle).bg, fillOpacity: 0.8 });
     marker.addTo(homeLocationGroup).bindPopup();
     homeLocationMarkerByIdMap.set(vehicle.id, marker);
     return marker;
@@ -152,7 +166,7 @@ function renderRoutes(solution) {
       <tr>
         <td>
           <i class="fas fa-crosshairs" id="crosshairs-${id}"
-            style="background-color: ${color}; display: inline-block; width: 1rem; height: 1rem; text-align: center">
+            style="background-color: ${color.bg}; display: inline-block; width: 1rem; height: 1rem; text-align: center">
           </i>
         </td>
         <td>Vehicle ${id}</td>
@@ -175,11 +189,12 @@ function renderRoutes(solution) {
     for (let vehicle of solution.vehicles) {
         const homeLocation = vehicle.homeLocation;
         const locations = vehicle.visits.map(visitId => visitByIdMap.get(visitId).location);
-        L.polyline([homeLocation, ...locations, homeLocation], {color: colorByVehicle(vehicle)}).addTo(routeGroup);
+        L.polyline([homeLocation, ...locations, homeLocation], {color: colorByVehicle(vehicle).bg}).addTo(routeGroup);
     }
 
     // Summary
     $('#score').text(solution.score);
+    $("#info").text(`This dataset has ${solution.visits.length} visits who need to be assigned to ${solution.vehicles.length} vehicles.`);
     $('#drivingTime').text(formatDrivingTime(solution.totalDrivingTimeSeconds));
 }
 
@@ -303,7 +318,7 @@ function renderTimelines(routePlan) {
 
     $.each(routePlan.vehicles, function (index, vehicle) {
         if (vehicle.visits.length > 0) {
-            let lastVisit = routePlan.visits.filter((visit) => visit.id == vehicle.visits[vehicle.visits.length -1]).pop();
+            let lastVisit = routePlan.visits.filter((visit) => visit.id === vehicle.visits[vehicle.visits.length -1]).pop();
             if (lastVisit) {
                 byVehicleItemData.add({
                     id: vehicle.id + '_travelBackToHomeLocation',
@@ -537,61 +552,4 @@ function copyTextToClipboard(id) {
     dummy.select();
     document.execCommand("copy");
     document.body.removeChild(dummy);
-}
-
-function replaceQuickstartTimefoldAutoHeaderFooter() {
-    const timefoldHeader = $("header#timefold-auto-header");
-    if (timefoldHeader != null) {
-        timefoldHeader.addClass("bg-black")
-        timefoldHeader.append(
-            $(`<div class="container-fluid">
-        <nav class="navbar sticky-top navbar-expand-lg navbar-dark shadow mb-3">
-          <a class="navbar-brand" href="https://timefold.ai">
-            <img src="/webjars/timefold/img/timefold-logo-horizontal-negative.svg" alt="Timefold logo" width="200">
-          </a>
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="nav nav-pills">
-              <li class="nav-item active" id="navUIItem">
-                <button class="nav-link active" id="navUI" data-bs-toggle="pill" data-bs-target="#demo" type="button">Demo UI</button>
-              </li>
-              <li class="nav-item" id="navRestItem">
-                <button class="nav-link" id="navRest" data-bs-toggle="pill" data-bs-target="#rest" type="button">Guide</button>
-              </li>
-              <li class="nav-item" id="navOpenApiItem">
-                <button class="nav-link" id="navOpenApi" data-bs-toggle="pill" data-bs-target="#openapi" type="button">REST API</button>
-              </li>
-            </ul>
-          </div>
-          <div class="ms-auto">
-              <div class="btn-group dropstart">
-                  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      Data
-                  </button>
-                  <div id="testDataButton" class="dropdown-menu" aria-labelledby="dropdownMenuButton"></div>
-              </div>
-          </div>
-        </nav>
-      </div>`));
-    }
-
-    const timefoldFooter = $("footer#timefold-auto-footer");
-    if (timefoldFooter != null) {
-        timefoldFooter.append(
-            $(`<footer class="bg-black text-white-50">
-               <div class="container">
-                 <div class="hstack gap-3 p-4">
-                   <div class="ms-auto"><a class="text-white" href="https://timefold.ai">Timefold</a></div>
-                   <div class="vr"></div>
-                   <div><a class="text-white" href="https://timefold.ai/docs">Documentation</a></div>
-                   <div class="vr"></div>
-                   <div><a class="text-white" href="https://github.com/TimefoldAI/timefold-quickstarts">Code</a></div>
-                   <div class="vr"></div>
-                   <div class="me-auto"><a class="text-white" href="https://timefold.ai/product/support/">Support</a></div>
-                 </div>
-               </div>
-             </footer>`));
-    }
 }

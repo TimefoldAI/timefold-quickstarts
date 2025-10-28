@@ -3,6 +3,23 @@ let TROLLEY_TRAVEL_DISTANCE = new Map();
 let autoRefreshIntervalId = null;
 let loadedSchedule = null;
 
+// Color Picker: Based on https://venngage.com/blog/color-blind-friendly-palette/
+const BG_COLORS = ["#009E73","#0072B2","#D55E00","#000000","#CC79A7","#E69F00","#F0E442","#F6768E","#C10020","#A6BDD7","#803E75","#007D34","#56B4E9","#999999","#8DD3C7","#FFD92F","#B3DE69","#FB8072","#80B1D3","#B15928","#CAB2D6","#1B9E77","#E7298A","#6A3D9A"];
+const FG_COLORS = ["#FFFFFF","#FFFFFF","#FFFFFF","#FFFFFF","#FFFFFF","#000000","#000000","#FFFFFF","#FFFFFF","#000000","#FFFFFF","#FFFFFF","#FFFFFF","#000000","#000000","#000000","#000000","#FFFFFF","#000000","#FFFFFF","#000000","#FFFFFF","#FFFFFF","#FFFFFF"];
+let COLOR_MAP = new Map()
+let nextColorIndex = 0
+
+function pickColor(object) {
+    let color = COLOR_MAP.get(object);
+    if (color !== undefined) {
+        return color;
+    }
+    let index = nextColorIndex++;
+    color = {bg : BG_COLORS[index], fg: FG_COLORS[index]};
+    COLOR_MAP.set(object,color);
+    return color;
+}
+
 function refreshSolution() {
     $.getJSON("/orderPicking", (orderPickingPlanning) => {
         TROLLEY_TRAVEL_DISTANCE = new Map(Object.entries(orderPickingPlanning.distanceToTravelByTrolley));
@@ -23,8 +40,10 @@ function refreshSolution() {
 window.addEventListener('resize', e => refreshSolution());
 refreshSolution();
 
-function printSolutionScore(orderPickingSolution) {
-    const score = orderPickingSolution.score;
+function printSolutionScore(schedule) {
+    const score = schedule.score;
+    $("#info").text(`This dataset has ${schedule.trolleys.length} trolleys which need to execute ${schedule.trolleySteps.length} steps.`);
+
     if (score == null) {
         $("#score").text("Score: ?");
     } else {
@@ -321,7 +340,7 @@ function printOrdersDetailTableHeader(ordersDetailTable) {
 
 function printOrdersDetailRow(ordersDetailTableBody, orderNumber, bucketColor, orderTotalVolume, orderRequiredBuckets) {
     const orderDetailRow = $('<tr>').appendTo(ordersDetailTableBody);
-    orderDetailRow.append($(`<th scope="row"><div style="background-color: ${bucketColor}">${orderNumber}</div></th>`));
+    orderDetailRow.append($(`<th scope="row"><div style="background-color: ${bucketColor.bg};color:${bucketColor.fg}">${orderNumber}</div></th>`));
     orderDetailRow.append($(`<td>${orderTotalVolume}</td>`));
     orderDetailRow.append($(`<td>${orderRequiredBuckets}</td>`));
 }
@@ -434,9 +453,9 @@ function printTrolleyPath(trolley, trolleyIndex, trolleyCount, writeText) {
     let trolleyCheckboxEnabled = false;
     if (trolleyPath.length > 2) {
         if (writeText) {
-            drawTrolleyText(color, trolleyPath, trolleyIndex, trolleyCount);
+            drawTrolleyText(color.bg, trolleyPath, trolleyIndex, trolleyCount);
         } else {
-            drawTrolleyPath(color, trolleyPath, trolleyIndex, trolleyCount);
+            drawTrolleyPath(color.bg, trolleyPath, trolleyIndex, trolleyCount);
             trolleyCheckboxEnabled = true;
             const travelDistance = TROLLEY_TRAVEL_DISTANCE.get(trolley.id);
             printTrolleyCheckbox(trolley, trolleySteps.length, travelDistance, color, trolleyCheckboxEnabled);
@@ -449,7 +468,7 @@ function printTrolleyCheckbox(trolley, stepsLength, travelDistance, color, enabl
     const disabledValue = enabled ? '' : 'disabled';
     const checkedValue = enabled ? 'true' : 'false';
     mapActionsContainer.append($(`<div style="display: inline-block; padding-left: 15px;">
-        <div class="trolley-checkbox-rectangle" style="background-color: ${color}; display: inline-block;"></div>
+        <div class="trolley-checkbox-rectangle" style="background-color: ${color.bg};color: ${color.fg}; display: inline-block;"></div>
         <div style="display: inline-block;">
             <label title="${stepsLength} order items assigned to this Trolley, with a travel distance of ${travelDistance} meters.">
             <input type="checkbox" id="trolleyPath_${trolley.id}" onChange="printSelectedTrolleys()" checked="${checkedValue}" ${disabledValue}/>
@@ -616,7 +635,6 @@ function stopSolving() {
 }
 
 $(document).ready(function () {
-    replaceTimefoldAutoHeaderFooter();
 
     //Initialize button listeners
     $('#refreshButton').click(function () {

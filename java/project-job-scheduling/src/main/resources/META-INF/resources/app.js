@@ -10,6 +10,7 @@ const byTimelineOptions = {
     stack: false,
     xss: {disabled: true}, // Items are XSS safe through JQuery
     zoomMin: zoomMin,
+    zoomMax: zoomMax,
     showCurrentTime: false,
 };
 
@@ -36,8 +37,24 @@ let scheduleId = null;
 let loadedSchedule = null;
 let viewType = "J";
 
+// Color Picker: Based on https://venngage.com/blog/color-blind-friendly-palette/
+const BG_COLORS = ["#009E73","#0072B2","#D55E00","#000000","#CC79A7","#E69F00","#F0E442","#F6768E","#C10020","#A6BDD7","#803E75","#007D34","#56B4E9","#999999","#8DD3C7","#FFD92F","#B3DE69","#FB8072","#80B1D3","#B15928","#CAB2D6","#1B9E77","#E7298A","#6A3D9A"];
+const FG_COLORS = ["#FFFFFF","#FFFFFF","#FFFFFF","#FFFFFF","#FFFFFF","#000000","#000000","#FFFFFF","#FFFFFF","#000000","#FFFFFF","#FFFFFF","#FFFFFF","#000000","#000000","#000000","#000000","#FFFFFF","#000000","#FFFFFF","#000000","#FFFFFF","#FFFFFF","#FFFFFF"];
+let COLOR_MAP = new Map()
+let nextColorIndex = 0
+
+function pickColor(object) {
+    let color = COLOR_MAP.get(object);
+    if (color !== undefined) {
+        return color;
+    }
+    let index = nextColorIndex++;
+    color = {bg : BG_COLORS[index], fg: FG_COLORS[index]};
+    COLOR_MAP.set(object,color);
+    return color;
+}
+
 $(document).ready(function () {
-    replaceQuickstartTimefoldAutoHeaderFooter();
 
     $("#solveButton").click(function () {
         solve();
@@ -103,6 +120,7 @@ function refreshSchedule() {
 function renderSchedule(schedule) {
     refreshSolvingButtons(schedule.solverStatus != null && schedule.solverStatus !== "NOT_SOLVING");
     $("#score").text("Score: " + (schedule.score == null ? "?" : schedule.score));
+    $("#info").text(`This dataset has ${schedule.jobs.length} jobs which need to be allocated to ${schedule.resources.length} resources.`);
 
     if (viewType === "J") {
         renderScheduleByJob(schedule);
@@ -136,11 +154,14 @@ function renderScheduleByJob(schedule) {
         const isSource = job.jobType === 'SOURCE';
         const isSink = job.jobType === 'SINK';
 
+        const jobColor = pickColor(job.jobType);
+        const projectColor = pickColor(job.project);
+
         if (allocation.executionMode == null || allocation.delay == null) {
             const unassignedElement = $(`<div class="card-body"/>`)
                 .append($(`<h5 class="card-title mb-1"/>`).text(`Job ${job.id}`))
-                .append($("<div class='d-flex justify-content-start' />").append($(`<span class="badge" style="background-color: ${pickColor(job.jobType)}"/>`).text(job.jobType)))
-                .append($("<div class='d-flex justify-content-start mt-2' />").append($(`<span class="badge" style="background-color: ${pickColor(job.project)}"/>`).text(`Project ${job.project}`)));
+                .append($("<div class='d-flex justify-content-start' />").append($(`<span class="badge" style="background-color: ${jobColor.bg};color:${jobColor.fg}"/>`).text(job.jobType)))
+                .append($("<div class='d-flex justify-content-start mt-2' />").append($(`<span class="badge" style="background-color: ${projectColor.bg};color:${projectColor.fg}"/>`).text(`Project ${job.project}`)));
 
             unassigned.append($(`<div class="pl-1"/>`).append($(`<div class="card"/>`).append(unassignedElement)));
         } else {
@@ -149,22 +170,22 @@ function renderScheduleByJob(schedule) {
             if (isSource || isSink) {
                 const unassignedElement = $(`<div class="card-body" />`)
                     .append($(`<h5 class="card-title mb-1"/>`).text(`Job ${job.id}`))
-                    .append($("<div class='d-flex justify-content-start' />").append($(`<span class="badge" style="background-color: ${pickColor(job.jobType)}"/>`).text(job.jobType)))
-                    .append($("<div class='d-flex justify-content-start mt-2' />").append($(`<span class="badge" style="background-color: ${pickColor(job.project)}"/>`).text(`Project ${job.project}`)));
+                    .append($("<div class='d-flex justify-content-start' />").append($(`<span class="badge" style="background-color: ${jobColor.bg};color:${jobColor.fg}"/>`).text(job.jobType)))
+                    .append($("<div class='d-flex justify-content-start mt-2' />").append($(`<span class="badge" style="background-color: ${projectColor.bg};color:${projectColor.fg}"/>`).text(`Project ${job.project}`)));
 
                 unassigned.append($(`<div class="pl-1"/>`).append($(`<div class="card"/>`).append(unassignedElement)));
             }
 
             let jobElement = $(`<div class="card-body"/>`)
-                .append($("<div class='d-flex justify-content-start' />").append($(`<span class="badge" style="background-color: ${pickColor(job.jobType)}"/>`).text(job.jobType)))
-                .append($("<div class='d-flex justify-content-start mt-2' />").append($(`<span class="badge" style="background-color: ${pickColor(job.project)}"/>`).text(`Project ${job.project}`)));
+                .append($("<div class='d-flex justify-content-start' />").append($(`<span class="badge" style="background-color: ${jobColor.bg};color:${jobColor.fg}""/>`).text(job.jobType)))
+                .append($("<div class='d-flex justify-content-start mt-2' />").append($(`<span class="badge" style="background-color: ${projectColor.bg};color:${projectColor.fg}"/>`).text(`Project ${job.project}`)));
             if (!isSource && !isSink) {
                 const executionMode = job.executionModes.filter(e => e.id === allocation.executionMode)[0];
                 const successorJobs = job.successorJobs.sort().map(j => `Job ${j}`).join(", ");
                 jobElement = $(`<div class="card-body"/>`)
                     .append($(`<p class="card-text mt-2 mb-2"/>`).text(`Successor(s): ${successorJobs}`))
-                    .append($("<div class='d-flex justify-content-start' />").append($(`<span class="badge" style="background-color: ${pickColor(job.jobType)}"/>`).text(job.jobType)))
-                    .append($("<div class='d-flex justify-content-start mt-2' />").append($(`<span class="badge" style="background-color: ${pickColor(job.project)}"/>`).text(`Project ${job.project}`)));
+                    .append($("<div class='d-flex justify-content-start' />").append($(`<span class="badge" style="background-color: ${jobColor.bg};color:${jobColor.fg}"/>`).text(job.jobType)))
+                    .append($("<div class='d-flex justify-content-start mt-2' />").append($(`<span class="badge" style="background-color: ${projectColor.bg};color:${projectColor.fg}"/>`).text(`Project ${job.project}`)));
                 const resourcesElement = $("<div class='d-flex justify-content-start mt-2' />");
                 executionMode.resourceRequirements.sort((r1, r2) => r1.resource.localeCompare(r2.resource)).forEach(r => {
                     const resourceType = resourceMap.get(r.resource)['@type'];
@@ -181,7 +202,7 @@ function renderScheduleByJob(schedule) {
                 content: jobElement.html(),
                 start: startDate.toString(),
                 end: endDate.toString(),
-                style: `border-color: ${isSource || isSink ? pickColor(job.jobType) : '#97b0f8'}`
+                style: `border-color: ${isSource || isSink ? pickColor(job.jobType).bg : '#97b0f8'}`
             });
         }
     });
@@ -221,11 +242,14 @@ function renderScheduleByResource(schedule) {
             return;
         }
 
+        const jobColor = pickColor(job.jobType);
+        const projectColor = pickColor(job.project);
+
         if (allocation.executionMode == null || allocation.delay == null) {
             const unassignedElement = $(`<div class="card-body"/>`)
                 .append($(`<h5 class="card-title mb-1"/>`).text(`Job ${job.id}`))
-                .append($("<div class='d-flex justify-content-start' />").append($(`<span class="badge" style="background-color: ${pickColor(job.jobType)}"/>`).text(job.jobType)))
-                .append($("<div class='d-flex justify-content-start mt-2' />").append($(`<span class="badge" style="background-color: ${pickColor(job.project)}"/>`).text(`Project ${job.project}`)));
+                .append($("<div class='d-flex justify-content-start' />").append($(`<span class="badge" style="background-color: ${jobColor.bg};color:${jobColor.fg}"/>`).text(job.jobType)))
+                .append($("<div class='d-flex justify-content-start mt-2' />").append($(`<span class="badge" style="background-color: ${projectColor.bg};color:${projectColor.fg}"/>`).text(`Project ${job.project}`)));
 
             unassigned.append($(`<div class="pl-1"/>`).append($(`<div class="card"/>`).append(unassignedElement)));
         } else {
@@ -237,8 +261,8 @@ function renderScheduleByResource(schedule) {
                 const jobElement = $(`<div class="card-body"/>`)
                     .append($(`<h5 class="card-title mb-1"/>`).text(`Job ${job.id}`))
                     .append($(`<p class="card-text mt-2 mb-2"/>`).text(`Successor(s): ${successorJobs}`))
-                    .append($("<div class='d-flex justify-content-start' />").append($(`<span class="badge" style="background-color: ${pickColor(job.jobType)}"/>`).text(job.jobType)))
-                    .append($("<div class='d-flex justify-content-start mt-2' />").append($(`<span class="badge" style="background-color: ${pickColor(job.project)}"/>`).text(`Project ${job.project}`)));
+                    .append($("<div class='d-flex justify-content-start' />").append($(`<span class="badge" style="background-color: ${jobColor.bg};color:${jobColor.fg}"/>`).text(job.jobType)))
+                    .append($("<div class='d-flex justify-content-start mt-2' />").append($(`<span class="badge" style="background-color: ${projectColor.bg};color:${projectColor.fg}"/>`).text(`Project ${job.project}`)));
                 byResourceItemData.add({
                     id: `${allocation.id}-${r.resource}`,
                     group: r.resource,
@@ -382,52 +406,4 @@ function copyTextToClipboard(id) {
     dummy.select();
     document.execCommand("copy");
     document.body.removeChild(dummy);
-}
-
-// TODO: move to the webjar
-function replaceQuickstartTimefoldAutoHeaderFooter() {
-    const timefoldHeader = $("header#timefold-auto-header");
-    if (timefoldHeader != null) {
-        timefoldHeader.addClass("bg-black")
-        timefoldHeader.append($(`<div class="container-fluid">
-        <nav class="navbar sticky-top navbar-expand-lg navbar-dark shadow mb-3">
-          <a class="navbar-brand" href="https://timefold.ai">
-            <img src="/webjars/timefold/img/timefold-logo-horizontal-negative.svg" alt="Timefold logo" width="200">
-          </a>
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="nav nav-pills">
-              <li class="nav-item active" id="navUIItem">
-                <button class="nav-link active" id="navUI" data-bs-toggle="pill" data-bs-target="#demo" type="button">Demo UI</button>
-              </li>
-              <li class="nav-item" id="navRestItem">
-                <button class="nav-link" id="navRest" data-bs-toggle="pill" data-bs-target="#rest" type="button">Guide</button>
-              </li>
-              <li class="nav-item" id="navOpenApiItem">
-                <button class="nav-link" id="navOpenApi" data-bs-toggle="pill" data-bs-target="#openapi" type="button">REST API</button>
-              </li>
-            </ul>
-          </div>
-        </nav>
-      </div>`));
-    }
-
-    const timefoldFooter = $("footer#timefold-auto-footer");
-    if (timefoldFooter != null) {
-        timefoldFooter.append($(`<footer class="bg-black text-white-50">
-               <div class="container">
-                 <div class="hstack gap-3 p-4">
-                   <div class="ms-auto"><a class="text-white" href="https://timefold.ai">Timefold</a></div>
-                   <div class="vr"></div>
-                   <div><a class="text-white" href="https://timefold.ai/docs">Documentation</a></div>
-                   <div class="vr"></div>
-                   <div><a class="text-white" href="https://github.com/TimefoldAI/timefold-quickstarts">Code</a></div>
-                   <div class="vr"></div>
-                   <div class="me-auto"><a class="text-white" href="https://timefold.ai/product/support/">Support</a></div>
-                 </div>
-               </div>
-             </footer>`));
-    }
 }

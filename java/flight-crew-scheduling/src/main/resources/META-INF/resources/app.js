@@ -28,7 +28,6 @@ let loadedSchedule = null;
 let viewType = "R";
 
 $(document).ready(function () {
-    replaceQuickstartTimefoldAutoHeaderFooter();
 
     $("#solveButton").click(function () {
         solve();
@@ -101,6 +100,7 @@ function refreshSchedule() {
 function renderSchedule(schedule) {
     refreshSolvingButtons(schedule.solverStatus != null && schedule.solverStatus !== "NOT_SOLVING");
     $("#score").text("Score: " + (schedule.score == null ? "?" : schedule.score));
+    $("#info").text(`This dataset has ${schedule.employees.length} employees which need to be assigned ${schedule.flightAssignments.length} tasks on ${schedule.flights.length} flights.`);
 
     if (viewType === "R") {
         renderScheduleByCrew(schedule);
@@ -108,6 +108,12 @@ function renderSchedule(schedule) {
     if (viewType === "F") {
         renderScheduleByFlight(schedule);
     }
+}
+
+function getCrewIcon(employee) {
+    return employee.skills.indexOf("Pilot") >= 0 ? '<span class="fas fa-solid fa-plane-departure" title="Pilot"></span>' :
+        '<span class="fas fa-solid fa-glass-martini" title="Flight Attendant"></span>';
+
 }
 
 function renderScheduleByCrew(schedule) {
@@ -118,8 +124,7 @@ function renderScheduleByCrew(schedule) {
     byCrewItemData.clear();
 
     $.each(schedule.employees.sort((e1, e2) => e1.name.localeCompare(e2.name)), (_, employee) => {
-        const crewIcon = employee.skills.indexOf("Pilot") >= 0 ? '<span class="fas fa-solid fa-plane-departure" title="Pilot"></span>' :
-            '<span class="fas fa-solid fa-glass-martini" title="Flight Attendant"></span>';
+        const crewIcon = getCrewIcon(employee);
         let content = `<div class="d-flex flex-column"><div><h5 class="card-title mb-1">${employee.name} (${employee.homeAirport}) ${crewIcon}</h5></div>`;
 
         byCrewGroupData.add({
@@ -380,52 +385,4 @@ function copyTextToClipboard(id) {
     dummy.select();
     document.execCommand("copy");
     document.body.removeChild(dummy);
-}
-
-// TODO: move to the webjar
-function replaceQuickstartTimefoldAutoHeaderFooter() {
-    const timefoldHeader = $("header#timefold-auto-header");
-    if (timefoldHeader != null) {
-        timefoldHeader.addClass("bg-black")
-        timefoldHeader.append($(`<div class="container-fluid">
-        <nav class="navbar sticky-top navbar-expand-lg navbar-dark shadow mb-3">
-          <a class="navbar-brand" href="https://timefold.ai">
-            <img src="/webjars/timefold/img/timefold-logo-horizontal-negative.svg" alt="Timefold logo" width="200">
-          </a>
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="nav nav-pills">
-              <li class="nav-item active" id="navUIItem">
-                <button class="nav-link active" id="navUI" data-bs-toggle="pill" data-bs-target="#demo" type="button">Demo UI</button>
-              </li>
-              <li class="nav-item" id="navRestItem">
-                <button class="nav-link" id="navRest" data-bs-toggle="pill" data-bs-target="#rest" type="button">Guide</button>
-              </li>
-              <li class="nav-item" id="navOpenApiItem">
-                <button class="nav-link" id="navOpenApi" data-bs-toggle="pill" data-bs-target="#openapi" type="button">REST API</button>
-              </li>
-            </ul>
-          </div>
-        </nav>
-      </div>`));
-    }
-
-    const timefoldFooter = $("footer#timefold-auto-footer");
-    if (timefoldFooter != null) {
-        timefoldFooter.append($(`<footer class="bg-black text-white-50">
-               <div class="container">
-                 <div class="hstack gap-3 p-4">
-                   <div class="ms-auto"><a class="text-white" href="https://timefold.ai">Timefold</a></div>
-                   <div class="vr"></div>
-                   <div><a class="text-white" href="https://timefold.ai/docs">Documentation</a></div>
-                   <div class="vr"></div>
-                   <div><a class="text-white" href="https://github.com/TimefoldAI/timefold-quickstarts">Code</a></div>
-                   <div class="vr"></div>
-                   <div class="me-auto"><a class="text-white" href="https://timefold.ai/product/support/">Support</a></div>
-                 </div>
-               </div>
-             </footer>`));
-    }
 }

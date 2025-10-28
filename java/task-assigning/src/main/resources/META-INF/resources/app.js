@@ -17,8 +17,24 @@ let planId = null;
 let loadedPlan = null;
 let viewType = "E";
 
+// Color Picker: Based on https://venngage.com/blog/color-blind-friendly-palette/
+const BG_COLORS = ["#009E73","#0072B2","#D55E00","#000000","#CC79A7","#E69F00","#F0E442","#F6768E","#C10020","#A6BDD7","#803E75","#007D34","#56B4E9","#999999","#8DD3C7","#FFD92F","#B3DE69","#FB8072","#80B1D3","#B15928","#CAB2D6","#1B9E77","#E7298A","#6A3D9A"];
+const FG_COLORS = ["#FFFFFF","#FFFFFF","#FFFFFF","#FFFFFF","#FFFFFF","#000000","#000000","#FFFFFF","#FFFFFF","#000000","#FFFFFF","#FFFFFF","#FFFFFF","#000000","#000000","#000000","#000000","#FFFFFF","#000000","#FFFFFF","#000000","#FFFFFF","#FFFFFF","#FFFFFF"];
+let COLOR_MAP = new Map()
+let nextColorIndex = 0
+
+function pickColor(object) {
+    let color = COLOR_MAP.get(object);
+    if (color !== undefined) {
+        return color;
+    }
+    let index = nextColorIndex++;
+    color = {bg : BG_COLORS[index], fg: FG_COLORS[index]};
+    COLOR_MAP.set(object,color);
+    return color;
+}
+
 $(document).ready(function () {
-    replaceQuickstartTimefoldAutoHeaderFooter();
 
     $("#solveButton").click(function () {
         solve();
@@ -81,6 +97,7 @@ function refreshSchedule() {
 function renderSchedule(plan) {
     refreshSolvingButtons(plan.solverStatus != null && plan.solverStatus !== "NOT_SOLVING");
     $("#score").text("Score: " + (plan.score == null ? "?" : plan.score));
+    $("#info").text(`This dataset has ${plan.tasks.length} tasks and ${plan.employees.length} employees.`);
 
     if (viewType === "E") {
         renderScheduleByEmployee(plan);
@@ -94,18 +111,17 @@ function renderScheduleByEmployee(plan) {
     byEmployeeGroupData.clear();
     byEmployeeItemData.clear();
 
-
     $.each(plan.employees.sort((e1, e2) => e1.fullName.localeCompare(e2.fullName)), (_, employee) => {
         let content = `<div class="d-flex flex-column"><div><h5 class="card-title mb-1">${employee.fullName}</h5></div>`;
         if (employee.skills.length > 0) {
             let skills = employee.skills.sort().slice(0, Math.min(2, employee.skills.length));
             content += `<div class="d-flex">`;
-            skills.forEach(s => content += `<div><span class="badge text-bg-primary m-1" style="background-color: ${pickColor(s)}">${s}</span></div>`);
+            skills.forEach(s => content += `<div><span class="badge text-bg-primary m-1" style="background-color: ${pickColor(s.bg)};color:${pickColor(s.fg)}">${s}</span></div>`);
             content += "</div>";
             if (employee.skills.length > 2) {
                 let skills = employee.skills.sort().slice(2, Math.min(4, employee.skills.length));
                 content += `<div class="d-flex">`;
-                skills.forEach(s => content += `<div><span class="badge text-bg-primary m-1" style="background-color: ${pickColor(s)}">${s}</span></div>`);
+                skills.forEach(s => content += `<div><span class="badge text-bg-primary m-1" style="background-color: ${pickColor(s.bg)};color:${pickColor(s.fg)}">${s}</span></div>`);
                 content += "</div>";
             }
         }
@@ -145,7 +161,8 @@ function renderScheduleByEmployee(plan) {
 
 
         const customerDiv = $("<div />").prop("class", "col");
-        customerDiv.append($(`<span class="badge m-1" style="background-color: ${pickColor(customer.id)}" />`).text(customer.name));
+        const customerColor = pickColor(customer.id);
+        customerDiv.append($(`<span class="badge m-1" style="background-color: ${customerColor.bg};color:${customerColor.fg}" />`).text(customer.name));
 
         let priorityElement = $("<small class='ms-2 mt-1 card-text text-muted align-bottom float-end' />");
         if (task.priority === "MINOR") {
@@ -199,7 +216,7 @@ function renderScheduleByEmployee(plan) {
         }
     });
     if (unassignedCount === 0) {
-        unassigned.append($(`<p /> `).text(`There are no unassigned stays.`));
+        unassigned.append($(`<p /> `).text(`There are no unassigned tasks.`));
     }
 
     byEmployeeTimeline.setWindow(JSJoda.LocalDateTime.now().withHour(8).withMinute(0).toString(),
@@ -335,61 +352,4 @@ function copyTextToClipboard(id) {
     dummy.select();
     document.execCommand("copy");
     document.body.removeChild(dummy);
-}
-
-function compareTimeslots(t1, t2) {
-    const LocalDateTime = JSJoda.LocalDateTime;
-    let diff = LocalDateTime.parse(t1.startDateTime).compareTo(LocalDateTime.parse(t2.startDateTime));
-    if (diff === 0) {
-        diff = LocalDateTime.parse(t1.endDateTime).compareTo(LocalDateTime.parse(t2.endDateTime));
-    }
-    return diff;
-}
-
-// TODO: move to the webjar
-function replaceQuickstartTimefoldAutoHeaderFooter() {
-    const timefoldHeader = $("header#timefold-auto-header");
-    if (timefoldHeader != null) {
-        timefoldHeader.addClass("bg-black")
-        timefoldHeader.append($(`<div class="container-fluid">
-        <nav class="navbar sticky-top navbar-expand-lg navbar-dark shadow mb-3">
-          <a class="navbar-brand" href="https://timefold.ai">
-            <img src="/webjars/timefold/img/timefold-logo-horizontal-negative.svg" alt="Timefold logo" width="200">
-          </a>
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="nav nav-pills">
-              <li class="nav-item active" id="navUIItem">
-                <button class="nav-link active" id="navUI" data-bs-toggle="pill" data-bs-target="#demo" type="button">Demo UI</button>
-              </li>
-              <li class="nav-item" id="navRestItem">
-                <button class="nav-link" id="navRest" data-bs-toggle="pill" data-bs-target="#rest" type="button">Guide</button>
-              </li>
-              <li class="nav-item" id="navOpenApiItem">
-                <button class="nav-link" id="navOpenApi" data-bs-toggle="pill" data-bs-target="#openapi" type="button">REST API</button>
-              </li>
-            </ul>
-          </div>
-        </nav>
-      </div>`));
-    }
-
-    const timefoldFooter = $("footer#timefold-auto-footer");
-    if (timefoldFooter != null) {
-        timefoldFooter.append($(`<footer class="bg-black text-white-50">
-               <div class="container">
-                 <div class="hstack gap-3 p-4">
-                   <div class="ms-auto"><a class="text-white" href="https://timefold.ai">Timefold</a></div>
-                   <div class="vr"></div>
-                   <div><a class="text-white" href="https://timefold.ai/docs">Documentation</a></div>
-                   <div class="vr"></div>
-                   <div><a class="text-white" href="https://github.com/TimefoldAI/timefold-quickstarts">Code</a></div>
-                   <div class="vr"></div>
-                   <div class="me-auto"><a class="text-white" href="https://timefold.ai/product/support/">Support</a></div>
-                 </div>
-               </div>
-             </footer>`));
-    }
 }
