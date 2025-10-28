@@ -2,7 +2,7 @@
 
 Assign beds to patient stays to produce a better schedule for hospitals.
 
-image::./bed-scheduling-screenshot.png[]
+image::./bed-allocation-screenshot.png[]
 
 * <<run,Run the application>>
 * <<enterprise,Run the application with Timefold Solver Enterprise Edition>>

@@ -131,7 +131,7 @@ Assign conference talks to timeslots and rooms to produce a better schedule for 
 
 Assign beds to patient stays to produce a better schedule for hospitals.
 
-![Bed Scheduling Screenshot](java/bed-allocation/bed-scheduling-screenshot.png)
+![Bed Scheduling Screenshot](java/bed-allocation/bed-allocation-screenshot.png)
 
 - [Run quarkus-bed-allocation-scheduling](java/bed-allocation/README.adoc) (Java, Maven, Quarkus)
 
