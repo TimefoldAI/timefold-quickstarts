@@ -1,13 +1,11 @@
 package org.acme.meetingschedule.rest;
 
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
+import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
+import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
+import ai.timefold.solver.core.api.solver.ScoreAnalysisFetchPolicy;
+import ai.timefold.solver.core.api.solver.SolutionManager;
+import ai.timefold.solver.core.api.solver.SolverManager;
+import ai.timefold.solver.core.api.solver.SolverStatus;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -20,14 +18,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-
-import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
-import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
-import ai.timefold.solver.core.api.solver.ScoreAnalysisFetchPolicy;
-import ai.timefold.solver.core.api.solver.SolutionManager;
-import ai.timefold.solver.core.api.solver.SolverManager;
-import ai.timefold.solver.core.api.solver.SolverStatus;
-
 import org.acme.meetingschedule.domain.MeetingSchedule;
 import org.acme.meetingschedule.rest.exception.ErrorInfo;
 import org.acme.meetingschedule.rest.exception.ScheduleSolverException;
@@ -41,6 +31,14 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 @Tag(name = "Meeting Scheduling",
         description = "Meetings Scheduling service assigning timeslots and rooms for meetings.")
@@ -92,7 +90,7 @@ public class MeetingSchedulingResource {
         solverManager.solveBuilder()
                 .withProblemId(jobId)
                 .withProblemFinder(id -> jobIdToJob.get(jobId).schedule)
-                .withBestSolutionConsumer(solution -> jobIdToJob.put(jobId, Job.ofSchedule(solution)))
+                .withBestSolutionEventConsumer(event -> jobIdToJob.put(jobId, Job.ofSchedule(event.solution())))
                 .withExceptionHandler((id, exception) -> {
                     jobIdToJob.put(id, Job.ofException(exception));
                     LOGGER.error("Failed solving jobId ({}).", id, exception);

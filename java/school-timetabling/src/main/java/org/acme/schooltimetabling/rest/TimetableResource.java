@@ -1,10 +1,11 @@
 package org.acme.schooltimetabling.rest;
 
-import java.util.Collection;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
+import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
+import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
+import ai.timefold.solver.core.api.solver.ScoreAnalysisFetchPolicy;
+import ai.timefold.solver.core.api.solver.SolutionManager;
+import ai.timefold.solver.core.api.solver.SolverManager;
+import ai.timefold.solver.core.api.solver.SolverStatus;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -17,14 +18,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-
-import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
-import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
-import ai.timefold.solver.core.api.solver.ScoreAnalysisFetchPolicy;
-import ai.timefold.solver.core.api.solver.SolutionManager;
-import ai.timefold.solver.core.api.solver.SolverManager;
-import ai.timefold.solver.core.api.solver.SolverStatus;
-
 import org.acme.schooltimetabling.domain.Timetable;
 import org.acme.schooltimetabling.rest.exception.ErrorInfo;
 import org.acme.schooltimetabling.rest.exception.TimetableSolverException;
@@ -38,6 +31,11 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Collection;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 @Tag(name = "School Timetables", description = "School timetable service assigning lessons to rooms and timeslots.")
 @Path("timetables")
@@ -89,7 +87,7 @@ public class TimetableResource {
         solverManager.solveBuilder()
                 .withProblemId(jobId)
                 .withProblemFinder(jobId_ -> jobIdToJob.get(jobId).timetable)
-                .withBestSolutionConsumer(solution -> jobIdToJob.put(jobId, Job.ofTimetable(solution)))
+                .withBestSolutionEventConsumer(event -> jobIdToJob.put(jobId, Job.ofTimetable(event.solution())))
                 .withExceptionHandler((jobId_, exception) -> {
                     jobIdToJob.put(jobId, Job.ofException(exception));
                     LOGGER.error("Failed solving jobId ({}).", jobId, exception);

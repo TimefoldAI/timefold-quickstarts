@@ -56,7 +56,7 @@ public class PackagingScheduleResource {
         solverManager.solveBuilder()
                 .withProblemId(SINGLETON_SOLUTION_ID)
                 .withProblemFinder(id -> repository.read())
-                .withBestSolutionConsumer(schedule -> repository.write(schedule))
+                .withBestSolutionEventConsumer(event -> repository.write(event.solution()))
                 .run();
     }
 
