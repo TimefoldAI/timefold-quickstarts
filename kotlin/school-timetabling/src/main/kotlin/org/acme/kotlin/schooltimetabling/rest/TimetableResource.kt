@@ -5,6 +5,7 @@ import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore
 import ai.timefold.solver.core.api.solver.ScoreAnalysisFetchPolicy
 import ai.timefold.solver.core.api.solver.SolutionManager
 import ai.timefold.solver.core.api.solver.SolverManager
+import ai.timefold.solver.core.api.solver.event.NewBestSolutionEvent
 import jakarta.inject.Inject
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.DELETE
@@ -30,11 +31,10 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponses
 import org.eclipse.microprofile.openapi.annotations.tags.Tag
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.util.*
+import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 import java.util.function.BiConsumer
-import java.util.function.Consumer
 import java.util.function.Function
 
 @Tag(name = "School Timetables", description = "School timetable service assigning lessons to rooms and timeslots.")
@@ -99,13 +99,13 @@ class TimetableResource {
         jobIdToJob[jobId] = Job.ofTimetable(problem)
         solverManager!!.solveBuilder()
             .withProblemId(jobId)
-            .withProblemFinder(Function<String, Timetable?> { jobId_: String? ->
+            .withProblemFinder(Function<String, Timetable?> { _: String? ->
                 jobIdToJob[jobId]!!.timetable
             })
-            .withBestSolutionConsumer(Consumer { solution: Timetable? ->
-                jobIdToJob[jobId] = Job.ofTimetable(solution)
-            })
-            .withExceptionHandler(BiConsumer { jobId_: String?, exception: Throwable? ->
+            .withBestSolutionEventConsumer { event: NewBestSolutionEvent<Timetable> ->
+                jobIdToJob[jobId] = Job.ofTimetable(event.solution())
+            }
+            .withExceptionHandler(BiConsumer { _: String?, exception: Throwable? ->
                 jobIdToJob[jobId] = Job.ofException(exception)
                 LOGGER.error("Failed solving jobId ({}).", jobId, exception)
             })
