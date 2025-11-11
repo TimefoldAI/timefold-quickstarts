@@ -1,11 +1,11 @@
 plugins {
-    id "org.springframework.boot" version "3.5.6"
+    id "org.springframework.boot" version "3.5.7"
     id "io.spring.dependency-management" version "1.1.7"
-    id 'org.graalvm.buildtools.native' version '0.11.1'
+    id 'org.graalvm.buildtools.native' version '0.11.2'
     id "java"
 }
 
-def timefoldVersion = "1.27.0"
+def timefoldVersion = "1.28.0"
 def profile = System.properties['profile'] ?: ''
 def enterprise = System.properties['enterprise'] ?: ''
 
@@ -44,7 +44,7 @@ dependencies {
     implementation "ai.timefold.solver:timefold-solver-spring-boot-starter"
 
     // Swagger
-    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.13"
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.14"
 
     // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -58,7 +58,6 @@ dependencies {
     // see https://github.com/spring-projects/spring-framework/issues/27619
     // and https://github.com/webjars/webjars-locator-core/issues/96
     // runtimeOnly "org.webjars:webjars-locator:0.50"
-    runtimeOnly "ai.timefold.solver:timefold-solver-webui"
     runtimeOnly "org.webjars:bootstrap:5.2.3"
     runtimeOnly "org.webjars:jquery:3.6.4"
     runtimeOnly "org.webjars:font-awesome:5.15.1"

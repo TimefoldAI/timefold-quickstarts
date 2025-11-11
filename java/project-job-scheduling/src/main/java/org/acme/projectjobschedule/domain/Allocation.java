@@ -1,26 +1,22 @@
 package org.acme.projectjobschedule.domain;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.entity.PlanningPin;
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
-import ai.timefold.solver.core.api.domain.valuerange.CountableValueRange;
-import ai.timefold.solver.core.api.domain.valuerange.ValueRangeFactory;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
 import ai.timefold.solver.core.api.domain.variable.ShadowSources;
 import ai.timefold.solver.core.api.domain.variable.ShadowVariable;
-import ai.timefold.solver.core.api.domain.variable.ShadowVariablesInconsistent;
-
-import org.acme.projectjobschedule.domain.solver.DelayStrengthComparator;
-
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import org.acme.projectjobschedule.domain.solver.DelayStrengthComparator;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.IntStream;
 
 @PlanningEntity
 @JsonIdentityInfo(scope = Allocation.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
@@ -87,8 +83,8 @@ public class Allocation {
 
     @ValueRangeProvider
     @JsonIgnore
-    public CountableValueRange<Integer> getDelayRange() {
-        return ValueRangeFactory.createIntValueRange(0, 500);
+    public List<Integer> getDelayRange() {
+        return IntStream.range(0, 500).boxed().toList();
     }
 
     // ************************************************************************
@@ -109,7 +105,7 @@ public class Allocation {
 
     /**
      * Sources and sinks will always be pinned.
-     * 
+     *
      * @param pinned Ignored unless {@link #getJob()}'s {@link JobType} is {@link JobType#STANDARD}.
      */
     public void setPinned(boolean pinned) {
@@ -131,7 +127,7 @@ public class Allocation {
 
     /**
      * Resets {@link #isPinned()}.
-     * 
+     *
      * @param job never null
      */
     public void setJob(Job job) {

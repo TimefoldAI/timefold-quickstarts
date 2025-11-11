@@ -1,17 +1,18 @@
 package org.acme.schooltimetabling.rest;
 
-import java.util.Collection;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
 import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
 import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
 import ai.timefold.solver.core.api.solver.ScoreAnalysisFetchPolicy;
 import ai.timefold.solver.core.api.solver.SolutionManager;
 import ai.timefold.solver.core.api.solver.SolverManager;
 import ai.timefold.solver.core.api.solver.SolverStatus;
-
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.acme.schooltimetabling.domain.Timetable;
 import org.acme.schooltimetabling.rest.exception.ErrorInfo;
 import org.acme.schooltimetabling.rest.exception.TimetableSolverException;
@@ -36,13 +37,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.Collection;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 @Tag(name = "School Timetables", description = "School timetable service assigning lessons to rooms and timeslots.")
 @RestController
@@ -86,7 +84,7 @@ public class TimetableController {
         solverManager.solveBuilder()
                 .withProblemId(jobId)
                 .withProblemFinder(jobId_ -> jobIdToJob.get(jobId).timetable)
-                .withBestSolutionConsumer(solution -> jobIdToJob.put(jobId, Job.ofTimetable(solution)))
+                .withBestSolutionEventConsumer(event -> jobIdToJob.put(jobId, Job.ofTimetable(event.solution())))
                 .withExceptionHandler((jobId_, exception) -> {
                     jobIdToJob.put(jobId, Job.ofException(exception));
                     LOGGER.error("Failed solving jobId ({}).", jobId, exception);

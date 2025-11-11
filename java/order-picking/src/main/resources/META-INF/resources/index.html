@@ -5,18 +5,37 @@
     <title>Order Picking - Timefold Solver on Quarkus</title>
     <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="/webjars/font-awesome/css/all.css"/>
-    <link rel="stylesheet" href="/webjars/timefold/css/timefold-webui.css" />
     <link rel="stylesheet" href="/style.css"/>
-    <link rel="icon" href="/webjars/timefold/img/timefold-favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="https://timefold.ai/uploads/images/Brand-Assets/timefold-solver-logomark.png" type="image/png">
+    <style>
+        :root {
+            --ts-violet-1-rgb: #3E00FF;
+            --ts-violet-2-rgb: #3423A6;
+
+            --bs-link-color: var(--ts-violet-1-rgb);
+            --bs-link-hover-color: var(--ts-violet-2-rgb);
+        }
+        .nav-pills {
+            --bs-nav-pills-link-active-bg: var(--ts-violet-1-rgb);
+        }
+    </style>
 </head>
 <body>
-<header id="timefold-auto-header"></header>
+<header class="bg-white shadow">
+    <div class="container-fluid">
+        <nav class="navbar navbar-expand-lg mb-3">
+            <a class="navbar-brand" style="width: 200px;overflow: hidden;">
+                <img src="https://timefold.ai/uploads/images/Brand-Assets/timefold-solver-logo.png" alt="Timefold Solver logo" width="200px" style="margin-top:-20px;margin-bottom:-20px">
+            </a>
+            <a class="navbar-brand d-none d-lg-block">Order Picking Quickstart</a>
+        </nav>
+    </div>
+</header>
 <div class="container-fluid">
     <div class="sticky-top d-flex justify-content-center align-items-center" aria-live="polite" aria-atomic="true">
         <div id="notificationPanel" style="position: absolute; top: .5rem;"></div>
     </div>
-    <h1>Order Picking</h1>
-    <p>Generate an optimal picking plan for completing a set of orders.</p>
+    <blockquote>Generate an optimal picking plan for completing a set of orders. <span id="info" class="fw-bold"></span></blockquote>
 
     <div class="mb-2">
         <button id="refreshButton" type="button" class="btn btn-success">
@@ -90,7 +109,20 @@
         </div>
     </div>
 </div>
-<footer id="timefold-auto-footer"></footer>
+<footer class="bg-white">
+  <div class="container">
+    <div class="hstack gap-3 p-4">
+      <div class="ms-auto"><a class="text-black" href="https://solver.timefold.ai?utm_source=github&utm_medium=quickstart&utm_campaign=timefold-quickstarts&utm_content=order-picking-java">Website</a></div>
+      <div class="vr"></div>
+      <div><a class="text-black" href="https://docs.timefold.ai/timefold-solver/latest?utm_source=github&utm_medium=quickstart&utm_campaign=timefold-quickstarts&utm_content=order-picking-java">Documentation</a></div>
+      <div class="vr"></div>
+      <div><a class="text-black" href="https://github.com/TimefoldAI/timefold-quickstarts">Code</a></div>
+      <div class="vr"></div>
+      <div class="me-auto"><a class="text-black" href="https://github.com/TimefoldAI/timefold-solver/discussions">GitHub Discussions</a></div>
+    </div>
+  </div>
+  <div id="applicationInfo" class="container text-center"></div>
+</footer>
 <div class="modal fadebd-example-modal-lg" id="scoreAnalysisModal" tabindex="-1"
      aria-labelledby="scoreAnalysisModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
@@ -114,7 +146,6 @@
 <script src="/webjars/jquery/jquery.min.js"></script>
 <script src="/webjars/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="/webjars/js-joda/dist/js-joda.min.js"></script>
-<script src="/webjars/timefold/js/timefold-webui.js"></script>
 <script src="/warehouse-api.js"></script>
 <script src="/app.js"></script>
 

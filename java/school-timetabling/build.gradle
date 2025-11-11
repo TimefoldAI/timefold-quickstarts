@@ -1,10 +1,10 @@
 plugins {
     id "java"
-    id "io.quarkus" version "3.28.3"
+    id "io.quarkus" version "3.28.5"
 }
 
-def quarkusVersion = "3.28.3"
-def timefoldVersion = "1.27.0"
+def quarkusVersion = "3.28.5"
+def timefoldVersion = "1.28.0"
 def profile = System.properties['profile'] ?: ''
 def enterprise = System.properties['enterprise'] ?: ''
 
@@ -41,7 +41,6 @@ dependencies {
 
     // UI
     implementation "io.quarkus:quarkus-web-dependency-locator"
-    runtimeOnly "ai.timefold.solver:timefold-solver-webui"
     runtimeOnly "org.webjars:bootstrap:5.2.3"
     runtimeOnly "org.webjars:jquery:3.6.4"
     runtimeOnly "org.webjars:font-awesome:5.15.1"

@@ -5,8 +5,24 @@ let demoDataId = null;
 let scheduleId = null;
 let loadedSchedule = null;
 
+// Color Picker: Based on https://venngage.com/blog/color-blind-friendly-palette/
+const BG_COLORS = ["#009E73","#0072B2","#D55E00","#000000","#CC79A7","#E69F00","#F0E442","#F6768E","#C10020","#A6BDD7","#803E75","#007D34","#56B4E9","#999999","#8DD3C7","#FFD92F","#B3DE69","#FB8072","#80B1D3","#B15928","#CAB2D6","#1B9E77","#E7298A","#6A3D9A"];
+const FG_COLORS = ["#FFFFFF","#FFFFFF","#FFFFFF","#FFFFFF","#FFFFFF","#000000","#000000","#FFFFFF","#FFFFFF","#000000","#FFFFFF","#FFFFFF","#FFFFFF","#000000","#000000","#000000","#000000","#FFFFFF","#000000","#FFFFFF","#000000","#FFFFFF","#FFFFFF","#FFFFFF"];
+let COLOR_MAP = new Map()
+let nextColorIndex = 0
+
+function pickColor(object) {
+  let color = COLOR_MAP.get(object);
+  if (color !== undefined) {
+    return color;
+  }
+  let index = nextColorIndex++;
+  color = {bg : BG_COLORS[index], fg: FG_COLORS[index]};
+  COLOR_MAP.set(object,color);
+  return color;
+}
+
 $(document).ready(function () {
-  replaceQuickstartTimefoldAutoHeaderFooter();
 
   $("#solveButton").click(function () {
     solve();
@@ -105,6 +121,7 @@ function refreshSchedule() {
 function renderSchedule(timetable) {
   refreshSolvingButtons(timetable.solverStatus != null && timetable.solverStatus !== "NOT_SOLVING");
   $("#score").text("Score: " + (timetable.score == null ? "?" : timetable.score));
+  $("#info").text(`This dataset has ${timetable.lessons.length} lessons and ${timetable.rooms.length} rooms which need to be allocated to ${timetable.timeslots.length} timeslots.`);
 
   const timetableByRoom = $("#timetableByRoom");
   timetableByRoom.children().remove();
@@ -128,8 +145,8 @@ function renderSchedule(timetable) {
   const theadByTeacher = $("<thead>").appendTo(timetableByTeacher);
   const headerRowByTeacher = $("<tr>").appendTo(theadByTeacher);
   headerRowByTeacher.append($("<th>Timeslot</th>"));
-  const teacherList = [...new Set(timetable.lessons.map(lesson => lesson.teacher))];
-  $.each(teacherList, (index, teacher) => {
+  const teachers = [...new Set(timetable.lessons.map(lesson => lesson.teacher))];
+  $.each(teachers, (index, teacher) => {
     headerRowByTeacher
       .append($("<th/>")
         .append($("<span/>").text(teacher)));
@@ -137,8 +154,8 @@ function renderSchedule(timetable) {
   const theadByStudentGroup = $("<thead>").appendTo(timetableByStudentGroup);
   const headerRowByStudentGroup = $("<tr>").appendTo(theadByStudentGroup);
   headerRowByStudentGroup.append($("<th>Timeslot</th>"));
-  const studentGroupList = [...new Set(timetable.lessons.map(lesson => lesson.studentGroup))];
-  $.each(studentGroupList, (index, studentGroup) => {
+  const studentGroups = [...new Set(timetable.lessons.map(lesson => lesson.studentGroup))];
+  $.each(studentGroups, (index, studentGroup) => {
     headerRowByStudentGroup
       .append($("<th/>")
         .append($("<span/>").text(studentGroup)));
@@ -173,7 +190,7 @@ function renderSchedule(timetable) {
                     -
                     ${LocalTime.parse(timeslot.endTime).format(dateTimeFormatter)}
                 `)));
-    $.each(teacherList, (index, teacher) => {
+    $.each(teachers, (index, teacher) => {
       rowByTeacher.append($("<td/>").prop("id", `timeslot${timeslot.id}teacher${convertToId(teacher)}`));
     });
 
@@ -186,19 +203,19 @@ function renderSchedule(timetable) {
                     -
                     ${LocalTime.parse(timeslot.endTime).format(dateTimeFormatter)}
                 `)));
-    $.each(studentGroupList, (index, studentGroup) => {
+    $.each(studentGroups, (index, studentGroup) => {
       rowByStudentGroup.append($("<td/>").prop("id", `timeslot${timeslot.id}studentGroup${convertToId(studentGroup)}`));
     });
   });
 
   $.each(timetable.lessons, (index, lesson) => {
     const color = pickColor(lesson.subject);
-    const lessonElement = $(`<div class="card" style="background-color: ${color}"/>`)
+    const lessonElement = $(`<div class="card" style="background-color: ${color.bg};color: ${color.fg}"/>`)
       .append($(`<div class="card-body p-2"/>`)
         .append($(`<h5 class="card-title mb-1"/>`).text(lesson.subject))
         .append($(`<p class="card-text ms-2 mb-1"/>`)
           .append($(`<em/>`).text(`by ${lesson.teacher}`)))
-        .append($(`<small class="ms-2 mt-1 card-text text-muted align-bottom float-end"/>`).text(lesson.id))
+        .append($(`<small class="ms-2 mt-1 card-text align-bottom float-end"/>`).text(lesson.id))
         .append($(`<p class="card-text ms-2"/>`).text(lesson.studentGroup)));
     if (lesson.timeslot == null || lesson.room == null) {
       unassignedLessons.append($(`<div class="col"/>`).append(lessonElement));
@@ -287,32 +304,7 @@ function analyze() {
           .append($(`<td/>`).text(constraintAnalysis.implicitScore));
 
         analysisTBody.append(row);
-
-        if (constraintAnalysis.matches.length > 0) {
-          let matchesRow = $(`<tr/>`).addClass("collapse").attr("id", "row" + index + "Collapse");
-          let matchesListGroup = $(`<ul/>`).addClass('list-group').addClass('list-group-flush').css({textAlign: 'left'});
-
-          $.each(constraintAnalysis.matches, (index2, match) => {
-            matchesListGroup.append($(`<li/>`).addClass('list-group-item').addClass('list-group-item-light').text(match.justification.description));
-          });
-
-          matchesRow.append($(`<td/>`));
-          matchesRow.append($(`<td/>`).attr('colspan', '6').append(matchesListGroup));
-          analysisTBody.append(matchesRow);
-
-          row.append($(`<td/>`).append($(`<a/>`).attr("data-toggle", "collapse").attr('href', "#row" + index + "Collapse").append($(`<span/>`).addClass('fas').addClass('fa-chevron-down')).click(e => {
-            matchesRow.collapse('toggle');
-            let target = $(e.target);
-            if (target.hasClass('fa-chevron-down')) {
-              target.removeClass('fa-chevron-down').addClass('fa-chevron-up');
-            } else {
-              target.removeClass('fa-chevron-up').addClass('fa-chevron-down');
-            }
-          })));
-        } else {
-          row.append($(`<td/>`));
-        }
-
+        row.append($(`<td/>`));
       });
       analysisTable.append(analysisTBody);
       scoreAnalysisModalContent.append(analysisTable);
@@ -374,62 +366,4 @@ function copyTextToClipboard(id) {
   dummy.select();
   document.execCommand("copy");
   document.body.removeChild(dummy);
-}
-
-// TODO: move to the webjar
-function replaceQuickstartTimefoldAutoHeaderFooter() {
-  const timefoldHeader = $("header#timefold-auto-header");
-  if (timefoldHeader != null) {
-    timefoldHeader.addClass("bg-black")
-    timefoldHeader.append(
-      $(`<div class="container-fluid">
-        <nav class="navbar sticky-top navbar-expand-lg navbar-dark shadow mb-3">
-          <a class="navbar-brand" href="https://timefold.ai">
-            <img src="/webjars/timefold/img/timefold-logo-horizontal-negative.svg" alt="Timefold logo" width="200">
-          </a>
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="nav nav-pills">
-              <li class="nav-item active" id="navUIItem">
-                <button class="nav-link active" id="navUI" data-bs-toggle="pill" data-bs-target="#demo" type="button">Demo UI</button>
-              </li>
-              <li class="nav-item" id="navRestItem">
-                <button class="nav-link" id="navRest" data-bs-toggle="pill" data-bs-target="#rest" type="button">Guide</button>
-              </li>
-              <li class="nav-item" id="navOpenApiItem">
-                <button class="nav-link" id="navOpenApi" data-bs-toggle="pill" data-bs-target="#openapi" type="button">REST API</button>
-              </li>
-            </ul>
-          </div>
-          <div class="ms-auto">
-              <div class="dropdown">
-                  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      Data
-                  </button>
-                  <div id="testDataButton" class="dropdown-menu" aria-labelledby="dropdownMenuButton"></div>
-              </div>
-          </div>
-        </nav>
-      </div>`));
-  }
-
-  const timefoldFooter = $("footer#timefold-auto-footer");
-  if (timefoldFooter != null) {
-    timefoldFooter.append(
-      $(`<footer class="bg-black text-white-50">
-               <div class="container">
-                 <div class="hstack gap-3 p-4">
-                   <div class="ms-auto"><a class="text-white" href="https://timefold.ai">Timefold</a></div>
-                   <div class="vr"></div>
-                   <div><a class="text-white" href="https://timefold.ai/docs">Documentation</a></div>
-                   <div class="vr"></div>
-                   <div><a class="text-white" href="https://github.com/TimefoldAI/timefold-quickstarts">Code</a></div>
-                   <div class="vr"></div>
-                   <div class="me-auto"><a class="text-white" href="https://timefold.ai/product/support/">Support</a></div>
-                 </div>
-               </div>
-             </footer>`));
-  }
 }

@@ -36,9 +36,27 @@ let scheduleId = null;
 let loadedSchedule = null;
 let viewType = "R";
 
-$(document).ready(function () {
-    replaceQuickstartTimefoldAutoHeaderFooter();
+// Color Picker: Based on https://venngage.com/blog/color-blind-friendly-palette/
+const BG_COLORS = ["#009E73","#0072B2","#D55E00","#000000","#CC79A7","#E69F00","#F0E442","#F6768E","#C10020","#A6BDD7","#803E75","#007D34","#56B4E9","#999999","#8DD3C7","#FFD92F","#B3DE69","#FB8072","#80B1D3","#B15928","#CAB2D6","#1B9E77","#E7298A","#6A3D9A"];
+const FG_COLORS = ["#FFFFFF","#FFFFFF","#FFFFFF","#FFFFFF","#FFFFFF","#000000","#000000","#FFFFFF","#FFFFFF","#000000","#FFFFFF","#FFFFFF","#FFFFFF","#000000","#000000","#000000","#000000","#FFFFFF","#000000","#FFFFFF","#000000","#FFFFFF","#FFFFFF","#FFFFFF"];
+let COLOR_MAP = new Map()
+    .set("R1", {bg: "#009E73", fg: "#FFFFFF"})
+    .set("R2", {bg: "#0072B2", fg: "#FFFFFF"})
+    .set("R3", {bg: "#E69F00", fg: "#FFFFFF"});
+let nextColorIndex = 0
 
+function pickColor(object) {
+    let color = COLOR_MAP.get(object);
+    if (color !== undefined) {
+        return color;
+    }
+    let index = nextColorIndex++;
+    color = {bg : BG_COLORS[index], fg: FG_COLORS[index]};
+    COLOR_MAP.set(object,color);
+    return color;
+}
+
+$(document).ready(function () {
     $("#solveButton").click(function () {
         solve();
     });
@@ -104,6 +122,8 @@ function refreshSchedule() {
 function renderSchedule(schedule) {
     refreshSolvingButtons(schedule.solverStatus != null && schedule.solverStatus !== "NOT_SOLVING");
     $("#score").text("Score: " + (schedule.score == null ? "?" : schedule.score));
+    $("#info").text(`This dataset has ${schedule.meetings.length} meetings which need to be assigned to ${schedule.people.length} people in ${schedule.rooms.length} rooms.`);
+
 
     if (viewType === "R") {
         renderScheduleByRoom(schedule);
@@ -140,6 +160,7 @@ function renderScheduleByRoom(schedule) {
 
             unassigned.append($(`<div class="pl-1"/>`).append($(`<div class="card"/>`).append(unassignedElement)));
         } else {
+            const color = pickColor(assignment.room);
             const byRoomElement = $("<div />").append($("<div class='d-flex justify-content-center' />").append($(`<h5 class="card-title mb-1"/>`).text(meet.topic)));
             const timeGrain = timeGrainMap.get(assignment.startingTimeGrain);
             const startDate = JSJoda.LocalDate.now().withDayOfYear(timeGrain.dayOfYear);
@@ -153,7 +174,7 @@ function renderScheduleByRoom(schedule) {
                 content: byRoomElement.html(),
                 start: startDateTime.toString(),
                 end: endDateTime.toString(),
-                style: "min-height: 50px"
+                style: `min-height: 50px;background-color: ${color.bg};color:${color.fg} !important"`
             });
         }
     });
@@ -188,6 +209,7 @@ function renderScheduleByPerson(schedule) {
 
             unassigned.append($(`<div class="pl-1"/>`).append($(`<div class="card"/>`).append(unassignedElement)));
         } else {
+            const color = pickColor(assignment.room);
             const timeGrain = timeGrainMap.get(assignment.startingTimeGrain);
             const startDate = JSJoda.LocalDate.now().withDayOfYear(timeGrain.dayOfYear);
             const startTime = JSJoda.LocalTime.of(0, 0, 0, 0)
@@ -196,9 +218,9 @@ function renderScheduleByPerson(schedule) {
             const endDateTime = startTime.plusMinutes(meet.durationInGrains * 15);
             meet.requiredAttendances.forEach(attendance => {
                 const byPersonElement = $("<div />").append($("<div class='d-flex justify-content-center' />").append($(`<h5 class="card-title mb-1"/>`).text(meet.topic)));
-                byPersonElement.append($("<div class='d-flex justify-content-center' />").append($(`<span class="badge text-bg-success m-1" style="background-color: ${pickColor(meet.id)}" />`).text("Required")));
+                byPersonElement.append($("<div class='d-flex justify-content-center' />").append($(`<span class="badge bg-primary m-1"/>`).text("Required")));
                 if (meet.preferredAttendances.map(a => a.person).indexOf(attendance.person) >= 0) {
-                    byPersonElement.append($("<div class='d-flex justify-content-center' />").append($(`<span class="badge text-bg-info m-1" style="background-color: ${pickColor(meet.id)}" />`).text("Preferred")));
+                    byPersonElement.append($("<div class='d-flex justify-content-center' />").append($(`<span class="badge bg-secondary m-1"/>`).text("Preferred")));
                 }
                 byPersonItemData.add({
                     id: `${assignment.id}-${attendance.person}`,
@@ -206,20 +228,20 @@ function renderScheduleByPerson(schedule) {
                     content: byPersonElement.html(),
                     start: startDateTime.toString(),
                     end: endDateTime.toString(),
-                    style: "min-height: 50px"
+                    style: `min-height: 50px;background-color: ${color.bg};color:${color.fg} !important"`
                 });
             });
             meet.preferredAttendances.forEach(attendance => {
                 if (meet.requiredAttendances.map(a => a.person).indexOf(attendance.person) === -1) {
                     const byPersonElement = $("<div />").append($("<div class='d-flex justify-content-center' />").append($(`<h5 class="card-title mb-1"/>`).text(meet.topic)));
-                    byPersonElement.append($("<div class='d-flex justify-content-center' />").append($(`<span class="badge text-bg-info m-1" style="background-color: ${pickColor(meet.id)}" />`).text("Preferred")));
+                    byPersonElement.append($("<div class='d-flex justify-content-center' />").append($(`<span class="badge bg-secondary m-1" />`).text("Preferred")));
                     byPersonItemData.add({
                         id: `${assignment.id}-${attendance.person}`,
                         group: attendance.person,
                         content: byPersonElement.html(),
                         start: startDateTime.toString(),
                         end: endDateTime.toString(),
-                        style: "min-height: 50px"
+                        style: `min-height: 50px;background-color: ${color.bg};color:${color.fg} !important"`
                     });
                 }
             });
@@ -359,52 +381,4 @@ function copyTextToClipboard(id) {
     dummy.select();
     document.execCommand("copy");
     document.body.removeChild(dummy);
-}
-
-// TODO: move to the webjar
-function replaceQuickstartTimefoldAutoHeaderFooter() {
-    const timefoldHeader = $("header#timefold-auto-header");
-    if (timefoldHeader != null) {
-        timefoldHeader.addClass("bg-black")
-        timefoldHeader.append($(`<div class="container-fluid">
-        <nav class="navbar sticky-top navbar-expand-lg navbar-dark shadow mb-3">
-          <a class="navbar-brand" href="https://timefold.ai">
-            <img src="/webjars/timefold/img/timefold-logo-horizontal-negative.svg" alt="Timefold logo" width="200">
-          </a>
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="nav nav-pills">
-              <li class="nav-item active" id="navUIItem">
-                <button class="nav-link active" id="navUI" data-bs-toggle="pill" data-bs-target="#demo" type="button">Demo UI</button>
-              </li>
-              <li class="nav-item" id="navRestItem">
-                <button class="nav-link" id="navRest" data-bs-toggle="pill" data-bs-target="#rest" type="button">Guide</button>
-              </li>
-              <li class="nav-item" id="navOpenApiItem">
-                <button class="nav-link" id="navOpenApi" data-bs-toggle="pill" data-bs-target="#openapi" type="button">REST API</button>
-              </li>
-            </ul>
-          </div>
-        </nav>
-      </div>`));
-    }
-
-    const timefoldFooter = $("footer#timefold-auto-footer");
-    if (timefoldFooter != null) {
-        timefoldFooter.append($(`<footer class="bg-black text-white-50">
-               <div class="container">
-                 <div class="hstack gap-3 p-4">
-                   <div class="ms-auto"><a class="text-white" href="https://timefold.ai">Timefold</a></div>
-                   <div class="vr"></div>
-                   <div><a class="text-white" href="https://timefold.ai/docs">Documentation</a></div>
-                   <div class="vr"></div>
-                   <div><a class="text-white" href="https://github.com/TimefoldAI/timefold-quickstarts">Code</a></div>
-                   <div class="vr"></div>
-                   <div class="me-auto"><a class="text-white" href="https://timefold.ai/product/support/">Support</a></div>
-                 </div>
-               </div>
-             </footer>`));
-    }
 }

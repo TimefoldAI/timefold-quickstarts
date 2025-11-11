@@ -10,21 +10,66 @@
   <link rel="stylesheet" href="/webjars/font-awesome/css/all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vis-timeline@7.7.2/styles/vis-timeline-graph2d.min.css"
         integrity="sha256-svzNasPg1yR5gvEaRei2jg+n4Pc3sVyMUWeS6xRAh6U=" crossorigin="anonymous">
-  <link rel="stylesheet" href="/webjars/timefold/css/timefold-webui.css"/>
-  <link rel="icon" href="/webjars/timefold/img/timefold-favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="https://timefold.ai/uploads/images/Brand-Assets/timefold-solver-logomark.png" type="image/png">
+  <style>
+    :root {
+      --ts-violet-1-rgb: #3E00FF;
+      --ts-violet-2-rgb: #3423A6;
+
+      --bs-link-color: var(--ts-violet-1-rgb);
+      --bs-link-hover-color: var(--ts-violet-2-rgb);
+    }
+    .nav-pills {
+      --bs-nav-pills-link-active-bg: var(--ts-violet-1-rgb);
+    }
+  </style>
 </head>
 <body>
 
-<header id="timefold-auto-header">
-  <!-- Filled in by app.js -->
+<header class="bg-white shadow">
+  <div class="container-fluid">
+    <nav class="navbar navbar-expand-lg mb-3">
+      <a class="navbar-brand" style="width: 200px;overflow: hidden;">
+        <img src="https://timefold.ai/uploads/images/Brand-Assets/timefold-solver-logo.png" alt="Timefold Solver logo" width="200px" style="margin-top:-20px;margin-bottom:-20px">
+      </a>
+      <a class="navbar-brand d-none d-lg-block">Vehicle Routing Quickstart</a>
+      <div class="ms-auto">
+        <div class="d-flex align-items-center" id="navbarNav">
+          <ul class="nav nav-pills">
+            <li class="nav-item active" id="navUIItem">
+              <button class="nav-link active" id="navUI" data-bs-toggle="pill" data-bs-target="#demo" type="button">Demo UI</button>
+            </li>
+            <li class="nav-item" id="navRestItem">
+              <button class="nav-link" id="navRest" data-bs-toggle="pill" data-bs-target="#rest" type="button">Guide</button>
+            </li>
+            <li class="nav-item" id="navOpenApiItem">
+              <button class="nav-link" id="navOpenApi" data-bs-toggle="pill" data-bs-target="#openapi" type="button">REST API</button>
+            </li>
+            <li class="nav-item" id="navNextStepsItem">
+              <a style="text-decoration: none; font-weight: 600;" href="https://solver.timefold.ai/quickstart-next-steps?utm_source=github&utm_medium=quickstart&utm_campaign=timefold-quickstarts&utm_content=vehicle-routing-java">
+                <button class="nav-link" id="nextStepsItem" data-bs-toggle="pill" type="button">Next Steps</button>
+              </a>
+            </li>
+          </ul>
+          <div class="vr mx-2"></div>
+          <div class="dropdown me-5">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" data-bs-offset="50,50" aria-haspopup="true" aria-expanded="false">
+              Data
+            </button>
+            <div id="testDataButton" class="dropdown-menu" aria-labelledby="dropdownMenuButton"></div>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </div>
 </header>
+
 <div class="tab-content">
   <div id="demo" class="tab-pane fade show active container-fluid">
     <div class="sticky-top d-flex justify-content-center align-items-center">
       <div id="notificationPanel" style="position: absolute; top: .5rem;"></div>
     </div>
-    <h1>Vehicle routing with capacity and time windows</h1>
-    <p>Generate optimal route plan of a vehicle fleet with limited vehicle capacity and time windows. New visits may be added by clicking anywhere inside the map.</p>
+    <blockquote>Generate optimal route plan of a vehicle fleet with limited vehicle capacity and time windows. <span id="info" class="fw-bold"></span><br/>New visits may be added by clicking anywhere inside the map. </blockquote>
     <div class="container-fluid mb-2">
       <div class="row justify-content-start">
         <div class="col-9">
@@ -63,7 +108,6 @@
     </div>
 
     <div class="tab-content">
-
       <div class="tab-pane fade show active" id="mapPanel" role="tabpanel" aria-labelledby="mapTab">
         <div class="row">
           <div class="col-7 col-lg-8 col-xl-9">
@@ -157,7 +201,7 @@
   </div>
 
   <div id="openapi" class="tab-pane fade container-fluid">
-    <h1>REST API Reference</h1>
+
     <div class="ratio ratio-1x1">
       <!-- "scrolling" attribute is obsolete, but e.g. Chrome does not support "overflow:hidden" -->
       <iframe src="/q/swagger-ui" style="overflow:hidden;" scrolling="no"></iframe>
@@ -200,7 +244,20 @@
         </div>
     </div>
 </form>
-<footer id="timefold-auto-footer"></footer>
+<footer class="bg-white">
+  <div class="container">
+    <div class="hstack gap-3 p-4">
+      <div class="ms-auto"><a class="text-black" href="https://solver.timefold.ai?utm_source=github&utm_medium=quickstart&utm_campaign=timefold-quickstarts&utm_content=vehicle-routing-java">Website</a></div>
+      <div class="vr"></div>
+      <div><a class="text-black" href="https://docs.timefold.ai/timefold-solver/latest?utm_source=github&utm_medium=quickstart&utm_campaign=timefold-quickstarts&utm_content=vehicle-routing-java">Documentation</a></div>
+      <div class="vr"></div>
+      <div><a class="text-black" href="https://github.com/TimefoldAI/timefold-quickstarts">Code</a></div>
+      <div class="vr"></div>
+      <div class="me-auto"><a class="text-black" href="https://github.com/TimefoldAI/timefold-solver/discussions">GitHub Discussions</a></div>
+    </div>
+  </div>
+  <div id="applicationInfo" class="container text-center"></div>
+</footer>
 
 <script src="/webjars/flatpickr/dist/flatpickr.min.js"></script>
 <link rel="stylesheet" href="/webjars/flatpickr/dist/flatpickr.min.css">
@@ -210,7 +267,6 @@
 <script src="/webjars/js-joda/dist/js-joda.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vis-timeline@7.7.2/standalone/umd/vis-timeline-graph2d.min.js"
         integrity="sha256-Jy2+UO7rZ2Dgik50z3XrrNpnc5+2PAx9MhL2CicodME=" crossorigin="anonymous"></script>
-<script src="/webjars/timefold/js/timefold-webui.js"></script>
 <script src="/score-analysis.js"></script>
 <script src="/recommended-fit.js"></script>
 <script src="/app.js"></script>

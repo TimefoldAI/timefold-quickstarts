@@ -1,7 +1,11 @@
 package org.acme.orderpicking.rest;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
+import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
+import ai.timefold.solver.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
+import ai.timefold.solver.core.api.solver.ScoreAnalysisFetchPolicy;
+import ai.timefold.solver.core.api.solver.SolutionManager;
+import ai.timefold.solver.core.api.solver.SolverManager;
+import ai.timefold.solver.core.api.solver.SolverStatus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -12,17 +16,11 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
-
-import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
-import ai.timefold.solver.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
-import ai.timefold.solver.core.api.solver.ScoreAnalysisFetchPolicy;
-import ai.timefold.solver.core.api.solver.SolutionManager;
-import ai.timefold.solver.core.api.solver.SolverManager;
-import ai.timefold.solver.core.api.solver.SolverStatus;
-
 import org.acme.orderpicking.domain.OrderPickingPlanning;
 import org.acme.orderpicking.domain.OrderPickingSolution;
 import org.acme.orderpicking.persistence.OrderPickingRepository;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Path("orderPicking")
 @ApplicationScoped
@@ -58,7 +56,7 @@ public class OrderPickingSolverResource {
         solverManager.solveBuilder()
                 .withProblemId(PROBLEM_ID)
                 .withProblemFinder((problemId) -> orderPickingRepository.find())
-                .withBestSolutionConsumer(orderPickingRepository::save)
+                .withBestSolutionEventConsumer(event -> orderPickingRepository.save(event.solution()))
                 .run();
     }
 

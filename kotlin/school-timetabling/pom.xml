@@ -11,9 +11,9 @@
     <maven.compiler.release>17</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <version.io.quarkus>3.28.3</version.io.quarkus>
-    <version.kotlin>2.2.20</version.kotlin>
-    <version.ai.timefold.solver>1.27.0</version.ai.timefold.solver>
+    <version.io.quarkus>3.28.5</version.io.quarkus>
+    <version.kotlin>2.2.21</version.kotlin>
+    <version.ai.timefold.solver>1.28.0</version.ai.timefold.solver>
 
     <version.surefire.plugin>3.5.4</version.surefire.plugin>
   </properties>
@@ -106,11 +106,6 @@
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-web-dependency-locator</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>ai.timefold.solver</groupId>
-      <artifactId>timefold-solver-webui</artifactId>
-      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.webjars</groupId>
