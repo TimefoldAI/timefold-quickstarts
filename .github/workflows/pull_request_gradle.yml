@@ -29,14 +29,14 @@ jobs:
     timeout-minutes: 120
     steps:
       - name: Checkout timefold-quickstarts
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           path: './timefold-quickstarts'
 
       - name: Checkout timefold-solver (PR) # Checkout the PR branch first, if it exists
         if: github.head_ref # Only true if this is a PR.
         id: checkout-solver-pr
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         continue-on-error: true
         with:
           repository: ${{ github.actor }}/timefold-solver
@@ -45,7 +45,7 @@ jobs:
           fetch-depth: 0 # Otherwise merge will fail on account of not having history.
       - name: Checkout timefold-solver (main) # Checkout the main branch if the PR branch does not exist
         if: ${{ steps.checkout-solver-pr.outcome != 'success' }}
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           repository: TimefoldAI/timefold-solver
           ref: main
