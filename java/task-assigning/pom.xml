@@ -16,7 +16,7 @@
         <version.org.apache.commons.text>1.14.0</version.org.apache.commons.text>
 
         <version.compiler.plugin>3.14.1</version.compiler.plugin>
-        <version.resources.plugin>3.3.1</version.resources.plugin>
+        <version.resources.plugin>3.4.0</version.resources.plugin>
         <version.surefire.plugin>3.5.4</version.surefire.plugin>
     </properties>
 
