@@ -19,7 +19,7 @@
 
     <version.compiler.plugin>3.14.1</version.compiler.plugin>
     <version.surefire.plugin>3.5.4</version.surefire.plugin>
-    <version.assembly.plugin>3.7.1</version.assembly.plugin>
+    <version.assembly.plugin>3.8.0</version.assembly.plugin>
   </properties>
 
   <dependencyManagement>
