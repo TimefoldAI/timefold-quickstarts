@@ -72,13 +72,13 @@ jobs:
     timeout-minutes: 120
     steps:
       - name: Checkout timefold-quickstarts
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           path: ./timefold-quickstarts
           ref: ${{ github.event.pull_request.head.sha }} # The GHA event will pull the main branch by default, and we must specify the PR reference version
       - name: Checkout timefold-solver (PR) # Checkout the PR branch first, if it exists
         id: checkout-solver
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         continue-on-error: true
         with:
           repository: ${{ github.actor }}/timefold-solver
@@ -87,7 +87,7 @@ jobs:
           fetch-depth: 0 # Otherwise merge will fail on account of not having history.
       - name: Checkout timefold-solver (main) # Checkout the main branch if the PR branch does not exist
         if: steps.checkout-solver.outcome != 'success'
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           repository: TimefoldAI/timefold-solver
           ref: main
@@ -96,7 +96,7 @@ jobs:
 
       # Build and test
       - name: "Setup GraalVM native image"
-        uses: graalvm/setup-graalvm@eec48106e0bf45f2976c2ff0c3e22395cced8243 # v1
+        uses: graalvm/setup-graalvm@790e28947b79a9c09c3391c0f18bf8d0f102ed69 # v1
         with:
           java-version: ${{matrix.java-version}}
           distribution: 'graalvm-community'
@@ -131,13 +131,13 @@ jobs:
     timeout-minutes: 120
     steps:
       - name: Checkout timefold-quickstarts
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           path: ./timefold-quickstarts
           ref: ${{ github.event.pull_request.head.sha }} # The GHA event will pull the main branch by default, and we must specify the PR reference version
       - name: Checkout timefold-solver (PR) # Checkout the PR branch first, if it exists
         id: checkout-solver
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         continue-on-error: true
         with:
           repository: ${{ github.actor }}/timefold-solver
@@ -146,7 +146,7 @@ jobs:
           fetch-depth: 0 # Otherwise merge will fail on account of not having history.
       - name: Checkout timefold-solver (main) # Checkout the main branch if the PR branch does not exist
         if: steps.checkout-solver.outcome != 'success'
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           repository: TimefoldAI/timefold-solver
           ref: main
@@ -155,7 +155,7 @@ jobs:
 
       - name: Checkout timefold-solver-enterprise (PR) # Checkout the PR branch first, if it exists
         id: checkout-solver-enterprise
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         continue-on-error: true
         with:
           repository: TimefoldAI/timefold-solver-enterprise
@@ -165,7 +165,7 @@ jobs:
           fetch-depth: 0 # Otherwise merge will fail on account of not having history.
       - name: Checkout timefold-solver-enterprise (main) # Checkout the main branch if the PR branch does not exist
         if: steps.checkout-solver-enterprise.outcome != 'success'
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           repository: TimefoldAI/timefold-solver-enterprise
           ref: main
@@ -175,7 +175,7 @@ jobs:
 
       # Build and test
       - name: "Setup GraalVM native image"
-        uses: graalvm/setup-graalvm@eec48106e0bf45f2976c2ff0c3e22395cced8243 # v1
+        uses: graalvm/setup-graalvm@790e28947b79a9c09c3391c0f18bf8d0f102ed69 # v1
         with:
           java-version: ${{matrix.java-version}}
           distribution: 'graalvm-community'
@@ -229,13 +229,13 @@ jobs:
     timeout-minutes: 120
     steps:
       - name: Checkout timefold-quickstarts
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           path: ./timefold-quickstarts
           ref: ${{ github.event.pull_request.head.sha }} # The GHA event will pull the main branch by default, and we must specify the PR reference version
       - name: Checkout timefold-solver (PR) # Checkout the PR branch first, if it exists
         id: checkout-solver
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         continue-on-error: true
         with:
           repository: ${{ github.actor }}/timefold-solver
@@ -244,7 +244,7 @@ jobs:
           fetch-depth: 0 # Otherwise merge will fail on account of not having history.
       - name: Checkout timefold-solver (main) # Checkout the main branch if the PR branch does not exist
         if: steps.checkout-solver.outcome != 'success'
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           repository: TimefoldAI/timefold-solver
           ref: main
@@ -253,7 +253,7 @@ jobs:
 
       # Build and test
       - name: "Setup GraalVM native image"
-        uses: graalvm/setup-graalvm@eec48106e0bf45f2976c2ff0c3e22395cced8243 # v1
+        uses: graalvm/setup-graalvm@790e28947b79a9c09c3391c0f18bf8d0f102ed69 # v1
         with:
           java-version: ${{matrix.java-version}}
           distribution: 'graalvm-community'
