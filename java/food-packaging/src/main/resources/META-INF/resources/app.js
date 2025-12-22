@@ -188,10 +188,18 @@ function refreshSchedule() {
       }
     });
     if (unassignedOperatorsCount === 0) {
-      unassignedOperators.append($(`<p/>`).text(`There are no unassigned operators.`));
+      const banner = $(`<div class="col-12"/>`)
+          .append($(`<div class="alert alert-success d-flex align-items-center justify-content-center" role="alert"/>`)
+              .append($(`<i class="fas fa-check-circle me-2"/>`))
+              .append($(`<span/>`).text("There are no unassigned operators.")));
+      unassignedOperators.append(banner);
     }
     if (unassignedJobsCount === 0) {
-      unassignedJobs.append($(`<p/>`).text(`There are no unassigned jobs.`));
+      const banner = $(`<div class="col-12"/>`)
+          .append($(`<div class="alert alert-success d-flex align-items-center justify-content-center" role="alert"/>`)
+              .append($(`<i class="fas fa-check-circle me-2"/>`))
+              .append($(`<span/>`).text("There are no unassigned jobs.")));
+      unassignedJobs.append(banner);
     }
     const nextDate = JSJoda.LocalDate.parse(schedule.workCalendar.fromDate).plusDays(1);
     byLineTimeline.setWindow(schedule.workCalendar.fromDate, nextDate.toString());

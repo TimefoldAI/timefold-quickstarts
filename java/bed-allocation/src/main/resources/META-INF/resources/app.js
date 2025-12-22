@@ -219,8 +219,13 @@ function renderScheduleByRoom(schedule) {
             });
         }
     });
-    if (unassignedJobsCount === 0) {
-        unassignedPatients.append($(`<p/>`).text(`There are no unassigned stays.`));
+    // Show banner if no unassigned items
+    if (unassignedPatients.children().length === 0) {
+        const banner = $(`<div class="col-12"/>`)
+            .append($(`<div class="alert alert-success d-flex align-items-center justify-content-center" role="alert"/>`)
+                .append($(`<i class="fas fa-check-circle me-2"/>`))
+                .append($(`<span/>`).text("All stays have been assigned!")));
+        unassignedPatients.append(banner);
     }
 
     const arrivalDates = schedule.stays.map(s => s.arrivalDate);

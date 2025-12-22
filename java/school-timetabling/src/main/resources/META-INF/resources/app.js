@@ -226,6 +226,14 @@ function renderSchedule(timetable) {
       $(`#timeslot${lesson.timeslot}studentGroup${convertToId(lesson.studentGroup)}`).append(lessonElement.clone());
     }
   });
+
+  if (unassignedLessons.children().length === 0) {
+    const banner = $(`<div class="col-12"/>`)
+        .append($(`<div class="alert alert-success d-flex align-items-center justify-content-center" role="alert"/>`)
+            .append($(`<i class="fas fa-check-circle me-2"/>`))
+            .append($(`<span/>`).text("All lessons have been assigned!")));
+    unassignedLessons.append(banner);
+  }
 }
 
 function solve() {

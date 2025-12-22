@@ -287,7 +287,7 @@ function renderTimelines(routePlan) {
                     id: visit.id + '_wait',
                     group: visit.vehicle, // visit.vehicle is the vehicle.id due to Jackson serialization
                     subgroup: visit.vehicle,
-                    content: byVehicleWaitElement.html(),
+                    content: byVehicleWaitElement.ahtml(),
                     start: visit.arrivalTime,
                     end: visit.minStartTime
                 });

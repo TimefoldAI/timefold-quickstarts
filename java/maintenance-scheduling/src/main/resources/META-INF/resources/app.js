@@ -246,7 +246,11 @@ function renderSchedule(schedule) {
         }
     });
     if (unassignedJobsCount === 0) {
-        unassignedJobs.append($(`<p/>`).text(`There are no unassigned jobs.`));
+        const banner = $(`<div class="col-12"/>`)
+            .append($(`<div class="alert alert-success d-flex align-items-center justify-content-center" role="alert"/>`)
+                .append($(`<i class="fas fa-check-circle me-2"/>`))
+                .append($(`<span/>`).text("There are no unassigned jobs.")));
+        unassignedJobs.append(banner);
     }
     byCrewTimeline.setWindow(schedule.workCalendar.fromDate, schedule.workCalendar.toDate);
     byJobTimeline.setWindow(schedule.workCalendar.fromDate, schedule.workCalendar.toDate);

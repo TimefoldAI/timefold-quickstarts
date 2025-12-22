@@ -179,6 +179,15 @@ function renderScheduleByRoom(schedule) {
         }
     });
 
+    // Show banner if no unassigned items
+    if (unassigned.children().length === 0) {
+        const banner = $(`<div class="col-12"/>`)
+            .append($(`<div class="alert alert-success d-flex align-items-center justify-content-center" role="alert"/>`)
+                .append($(`<i class="fas fa-check-circle me-2"/>`))
+                .append($(`<span/>`).text("All meetings have been assigned!")));
+        unassigned.append(banner);
+    }
+
     byRoomTimeline.setWindow(JSJoda.LocalDateTime.now().plusDays(1).withHour(8).toString(),
         JSJoda.LocalDateTime.now().plusDays(1).withHour(17).withMinute(45).toString());
 }
@@ -247,6 +256,15 @@ function renderScheduleByPerson(schedule) {
             });
         }
     });
+
+    // Show banner if no unassigned items
+    if (unassigned.children().length === 0) {
+        const banner = $(`<div class="col-12"/>`)
+            .append($(`<div class="alert alert-success d-flex align-items-center justify-content-center" role="alert"/>`)
+                .append($(`<i class="fas fa-check-circle me-2"/>`))
+                .append($(`<span/>`).text("All meetings have been assigned!")));
+        unassigned.append(banner);
+    }
 
     byPersonTimeline.setWindow(JSJoda.LocalDateTime.now().plusDays(1).withHour(8).toString(),
         JSJoda.LocalDateTime.now().plusDays(1).withHour(17).withMinute(45).toString());

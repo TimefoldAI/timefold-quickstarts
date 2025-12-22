@@ -168,7 +168,11 @@ function renderScheduleByTeam(schedule) {
         }
     });
     if (unassignedCount === 0) {
-        unassigned.append($(`<p/>`).text(`There are no unassigned team.`));
+        const banner = $(`<div class="col-12"/>`)
+            .append($(`<div class="alert alert-success d-flex align-items-center justify-content-center" role="alert"/>`)
+                .append($(`<i class="fas fa-check-circle me-2"/>`))
+                .append($(`<span/>`).text("All matches have been assigned!")));
+        unassigned.append(banner);
     }
     byTeamTimeline.setWindow(JSJoda.LocalDateTime.now().minusDays(1).toString(),
         JSJoda.LocalDateTime.now().plusDays(7).withHour(23).withMinute(59).toString());
@@ -260,7 +264,11 @@ function renderScheduleByConfrontation(schedule) {
     }
 
     if (unassignedCount === 0) {
-        unassigned.append($(`<p/>`).text(`There are no unassigned team.`));
+        const banner = $(`<div class="col-12"/>`)
+            .append($(`<div class="alert alert-success d-flex align-items-center justify-content-center" role="alert"/>`)
+                .append($(`<i class="fas fa-check-circle me-2"/>`))
+                .append($(`<span/>`).text("All matches have been assigned!")));
+        unassigned.append(banner);
     }
 }
 
