@@ -212,6 +212,14 @@ function renderScheduleByJob(schedule) {
     }
 
     byJobTimeline.setWindow(currentDate.minusDays(1).toString(), currentDate.plusDays(7).toString());
+
+    if (unassigned.children().length === 0) {
+        const banner = $(`<div class="col-12"/>`)
+            .append($(`<div class="alert alert-success d-flex align-items-center justify-content-center" role="alert"/>`)
+                .append($(`<i class="fas fa-check-circle me-2"/>`))
+                .append($(`<span/>`).text("All jobs have been assigned!")));
+        unassigned.append(banner);
+    }
 }
 
 function renderScheduleByResource(schedule) {
@@ -270,11 +278,18 @@ function renderScheduleByResource(schedule) {
                     start: startDate.toString(),
                     end: endDate.toString(),
                 });
-
             });
         }
     });
     byResourceTimeline.setWindow(currentDate.minusDays(1).toString(), currentDate.plusDays(7).toString());
+
+    if (unassigned.children().length === 0) {
+        const banner = $(`<div class="col-12"/>`)
+            .append($(`<div class="alert alert-success d-flex align-items-center justify-content-center" role="alert"/>`)
+                .append($(`<i class="fas fa-check-circle me-2"/>`))
+                .append($(`<span/>`).text("All jobs have been assigned!")));
+        unassigned.append(banner);
+    }
 }
 
 function solve() {

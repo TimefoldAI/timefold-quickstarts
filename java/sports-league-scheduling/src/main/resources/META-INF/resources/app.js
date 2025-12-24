@@ -138,6 +138,14 @@ function renderScheduleByTeam(schedule) {
     });
 
     byTeamTimeline.setWindow(JSJoda.LocalDate.now().toString(), JSJoda.LocalDate.now().plusDays(7).toString());
+
+    if (unassigned.children().length === 0) {
+        const banner = $(`<div class="col-12"/>`)
+            .append($(`<div class="alert alert-success d-flex align-items-center justify-content-center" role="alert"/>`)
+                .append($(`<i class="fas fa-check-circle me-2"/>`))
+                .append($(`<span/>`).text("All matches have been assigned!")));
+        unassigned.append(banner);
+    }
 }
 
 function solve() {

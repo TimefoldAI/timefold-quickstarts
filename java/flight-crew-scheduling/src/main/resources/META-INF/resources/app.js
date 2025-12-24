@@ -183,8 +183,12 @@ function renderScheduleByCrew(schedule) {
             });
         }
     });
-    if (unassignedCrewCount === 0) {
-        unassignedCrew.append($(`<p/>`).text(`There are no unassigned crew.`));
+    if (unassignedCrew.children().length === 0) {
+        const banner = $(`<div class="col-12"/>`)
+            .append($(`<div class="alert alert-success d-flex align-items-center justify-content-center" role="alert"/>`)
+                .append($(`<i class="fas fa-check-circle me-2"/>`))
+                .append($(`<span/>`).text("All crew members have been assigned!")));
+        unassignedCrew.append(banner);
     }
     byCrewTimeline.setWindow(JSJoda.LocalDateTime.now().minusMinutes(1).toString(),
         JSJoda.LocalDateTime.now().plusDays(4).withHour(23).withMinute(59).toString());
@@ -245,9 +249,12 @@ function renderScheduleByFlight(schedule) {
                 end: flight.arrivalUTCDateTime,
             });
         }
-        if (countUnassigned > 0) {
-            unassignedElement.append($(`<p class="card-text ms-2 mb-0"/>`).text(`Unassigned skill(s): ${missingSkills.sort().join(", ")}`));
-            unassignedCrew.append($(`<div class="pl-1"/>`).append($(`<div class="card"/>`).append(unassignedElement)));
+        if (unassignedCrew.children().length === 0) {
+            const banner = $(`<div class="col-12"/>`)
+                .append($(`<div class="alert alert-success d-flex align-items-center justify-content-center" role="alert"/>`)
+                    .append($(`<i class="fas fa-check-circle me-2"/>`))
+                    .append($(`<span/>`).text("All crew members have been assigned!")));
+            unassignedCrew.append(banner);
         }
     });
 

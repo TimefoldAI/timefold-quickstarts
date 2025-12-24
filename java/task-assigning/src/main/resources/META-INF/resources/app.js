@@ -216,7 +216,11 @@ function renderScheduleByEmployee(plan) {
         }
     });
     if (unassignedCount === 0) {
-        unassigned.append($(`<p /> `).text(`There are no unassigned tasks.`));
+        const banner = $(`<div class="col-12"/>`)
+            .append($(`<div class="alert alert-success d-flex align-items-center justify-content-center" role="alert"/>`)
+                .append($(`<i class="fas fa-check-circle me-2"/>`))
+                .append($(`<span/>`).text("All tasks have been assigned!")));
+        unassigned.append(banner);
     }
 
     byEmployeeTimeline.setWindow(JSJoda.LocalDateTime.now().withHour(8).withMinute(0).toString(),
