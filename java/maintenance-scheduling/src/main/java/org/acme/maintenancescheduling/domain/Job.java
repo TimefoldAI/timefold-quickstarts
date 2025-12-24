@@ -1,16 +1,15 @@
 package org.acme.maintenancescheduling.domain;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
 import ai.timefold.solver.core.api.domain.variable.ShadowSources;
 import ai.timefold.solver.core.api.domain.variable.ShadowVariable;
-import ai.timefold.solver.core.api.domain.variable.ShadowVariablesInconsistent;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @PlanningEntity
 public class Job {
@@ -138,8 +137,22 @@ public class Job {
             // Skip weekends. Does not work for holidays.
             // To skip holidays too, cache all working days in WorkCalendar.
             // Keep in sync with MaintenanceSchedule.createStartDateList().
-            int weekendPadding = 2 * ((durationInDays + (startDate.getDayOfWeek().getValue() - 1)) / 5);
-            return startDate.plusDays(durationInDays + weekendPadding);
+            Predicate<LocalDate> exclude = test ->
+                    test.getDayOfWeek() == DayOfWeek.SATURDAY
+                    || test.getDayOfWeek() == DayOfWeek.SUNDAY;
+            return plusBusinessDays(startDate, durationInDays, exclude);
         }
+    }
+
+    private static LocalDate plusBusinessDays(LocalDate startDate, int businessDays, Predicate<LocalDate> exclude) {
+        LocalDate result = startDate;
+        int addedDays = 0;
+        while (addedDays < businessDays) {
+            if (!exclude.test(result)) {
+                addedDays++;
+            }
+            result = result.plusDays(1);
+        }
+        return result;
     }
 }
