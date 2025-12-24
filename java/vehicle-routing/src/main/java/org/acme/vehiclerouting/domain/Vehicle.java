@@ -27,7 +27,7 @@ public class Vehicle implements LocationAware {
     private LocalDateTime departureTime;
 
     @JsonIdentityReference(alwaysAsId = true)
-    @PlanningListVariable
+    @PlanningListVariable(allowsUnassignedValues = true)
     private List<Visit> visits;
 
     public Vehicle() {

@@ -33,6 +33,11 @@ class VehicleRoutingConstraintProviderTest {
     private static final Location LOCATION_3 = new Location(49.1767533245638, 16.50422914190477);
 
     private static final LocalDate TOMORROW = LocalDate.now().plusDays(1);
+    private static final LocalDateTime TOMORROW_07_00 = LocalDateTime.of(TOMORROW, LocalTime.of(7, 0));
+    private static final LocalDateTime TOMORROW_08_00 = LocalDateTime.of(TOMORROW, LocalTime.of(8, 0));
+    private static final LocalDateTime TOMORROW_09_00 = LocalDateTime.of(TOMORROW, LocalTime.of(9, 0));
+    private static final LocalDateTime TOMORROW_10_00 = LocalDateTime.of(TOMORROW, LocalTime.of(10, 0));
+
     @Inject
     ConstraintVerifier<VehicleRoutingConstraintProvider, VehicleRoutePlan> constraintVerifier;
 
@@ -43,11 +48,8 @@ class VehicleRoutingConstraintProviderTest {
 
     @Test
     void vehicleCapacityUnpenalized() {
-        LocalDateTime tomorrow_07_00 = LocalDateTime.of(TOMORROW, LocalTime.of(7, 0));
-        LocalDateTime tomorrow_08_00 = LocalDateTime.of(TOMORROW, LocalTime.of(8, 0));
-        LocalDateTime tomorrow_10_00 = LocalDateTime.of(TOMORROW, LocalTime.of(10, 0));
-        Vehicle vehicleA = new Vehicle("1", 100, LOCATION_1, tomorrow_07_00);
-        Visit visit1 = new Visit("2", "John", LOCATION_2, 80, tomorrow_08_00, tomorrow_10_00, Duration.ofMinutes(30L));
+        Vehicle vehicleA = new Vehicle("1", 100, LOCATION_1, TOMORROW_07_00);
+        Visit visit1 = new Visit("2", "John", LOCATION_2, 80, TOMORROW_08_00, TOMORROW_10_00, Duration.ofMinutes(30L));
         vehicleA.getVisits().add(visit1);
 
         constraintVerifier.verifyThat(VehicleRoutingConstraintProvider::vehicleCapacity)
@@ -56,14 +58,20 @@ class VehicleRoutingConstraintProviderTest {
     }
 
     @Test
+    void unassignedPenalizedByDuration() {
+        Visit visit = new Visit("2", "John", LOCATION_2, 80, TOMORROW_08_00, TOMORROW_10_00, Duration.ofMinutes(30L));
+
+        constraintVerifier.verifyThat(VehicleRoutingConstraintProvider::maximizeVisitsAssigned)
+                .given(visit)
+                .penalizesBy(30L);
+    }
+
+    @Test
     void vehicleCapacityPenalized() {
-        LocalDateTime tomorrow_07_00 = LocalDateTime.of(TOMORROW, LocalTime.of(7, 0));
-        LocalDateTime tomorrow_08_00 = LocalDateTime.of(TOMORROW, LocalTime.of(8, 0));
-        LocalDateTime tomorrow_10_00 = LocalDateTime.of(TOMORROW, LocalTime.of(10, 0));
-        Vehicle vehicleA = new Vehicle("1", 100, LOCATION_1, tomorrow_07_00);
-        Visit visit1 = new Visit("2", "John", LOCATION_2, 80, tomorrow_08_00, tomorrow_10_00, Duration.ofMinutes(30L));
+        Vehicle vehicleA = new Vehicle("1", 100, LOCATION_1, TOMORROW_07_00);
+        Visit visit1 = new Visit("2", "John", LOCATION_2, 80, TOMORROW_08_00, TOMORROW_10_00, Duration.ofMinutes(30L));
         vehicleA.getVisits().add(visit1);
-        Visit visit2 = new Visit("3", "Paul", LOCATION_3, 40, tomorrow_08_00, tomorrow_10_00, Duration.ofMinutes(30L));
+        Visit visit2 = new Visit("3", "Paul", LOCATION_3, 40, TOMORROW_08_00, TOMORROW_10_00, Duration.ofMinutes(30L));
         vehicleA.getVisits().add(visit2);
 
         constraintVerifier.verifyThat(VehicleRoutingConstraintProvider::vehicleCapacity)
@@ -73,13 +81,10 @@ class VehicleRoutingConstraintProviderTest {
 
     @Test
     void totalDrivingTime() {
-        LocalDateTime tomorrow_07_00 = LocalDateTime.of(TOMORROW, LocalTime.of(7, 0));
-        LocalDateTime tomorrow_08_00 = LocalDateTime.of(TOMORROW, LocalTime.of(8, 0));
-        LocalDateTime tomorrow_10_00 = LocalDateTime.of(TOMORROW, LocalTime.of(10, 0));
-        Vehicle vehicleA = new Vehicle("1", 100, LOCATION_1, tomorrow_07_00);
-        Visit visit1 = new Visit("2", "John", LOCATION_2, 80, tomorrow_08_00, tomorrow_10_00, Duration.ofMinutes(30L));
+        Vehicle vehicleA = new Vehicle("1", 100, LOCATION_1, TOMORROW_07_00);
+        Visit visit1 = new Visit("2", "John", LOCATION_2, 80, TOMORROW_08_00, TOMORROW_10_00, Duration.ofMinutes(30L));
         vehicleA.getVisits().add(visit1);
-        Visit visit2 = new Visit("3", "Paul", LOCATION_3, 40, tomorrow_08_00, tomorrow_10_00, Duration.ofMinutes(30L));
+        Visit visit2 = new Visit("3", "Paul", LOCATION_3, 40, TOMORROW_08_00, TOMORROW_10_00, Duration.ofMinutes(30L));
         vehicleA.getVisits().add(visit2);
 
         constraintVerifier.verifyThat(VehicleRoutingConstraintProvider::minimizeTravelTime)
@@ -89,19 +94,16 @@ class VehicleRoutingConstraintProviderTest {
 
     @Test
     void serviceFinishedAfterMaxEndTime() {
-        LocalDateTime tomorrow_07_00 = LocalDateTime.of(TOMORROW, LocalTime.of(7, 0));
-        LocalDateTime tomorrow_08_00 = LocalDateTime.of(TOMORROW, LocalTime.of(8, 0));
         LocalDateTime tomorrow_08_00_01 = LocalDateTime.of(TOMORROW, LocalTime.of(8, 0, 1));
         LocalDateTime tomorrow_08_40 = LocalDateTime.of(TOMORROW, LocalTime.of(8, 40));
-        LocalDateTime tomorrow_09_00 = LocalDateTime.of(TOMORROW, LocalTime.of(9, 0));
         LocalDateTime tomorrow_10_30 = LocalDateTime.of(TOMORROW, LocalTime.of(10, 30));
         LocalDateTime tomorrow_18_00 = LocalDateTime.of(TOMORROW, LocalTime.of(18, 0));
 
-        Visit visit1 = new Visit("2", "John", LOCATION_2, 80, tomorrow_08_00, tomorrow_18_00, Duration.ofHours(1L));
+        Visit visit1 = new Visit("2", "John", LOCATION_2, 80, TOMORROW_08_00, tomorrow_18_00, Duration.ofHours(1L));
         visit1.setArrivalTime(tomorrow_08_40);
-        Visit visit2 = new Visit("3", "Paul", LOCATION_3, 40, tomorrow_08_00, tomorrow_09_00, Duration.ofHours(1L));
+        Visit visit2 = new Visit("3", "Paul", LOCATION_3, 40, TOMORROW_08_00, TOMORROW_09_00, Duration.ofHours(1L));
         visit2.setArrivalTime(tomorrow_10_30);
-        Vehicle vehicleA = new Vehicle("1", 100, LOCATION_1, tomorrow_07_00);
+        Vehicle vehicleA = new Vehicle("1", 100, LOCATION_1, TOMORROW_07_00);
 
         connect(vehicleA, visit1, visit2);
 
