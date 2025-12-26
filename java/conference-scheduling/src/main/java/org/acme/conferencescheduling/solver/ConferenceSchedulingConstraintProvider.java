@@ -4,11 +4,7 @@ import static ai.timefold.solver.core.api.score.stream.ConstraintCollectors.comp
 import static ai.timefold.solver.core.api.score.stream.ConstraintCollectors.countBi;
 import static ai.timefold.solver.core.api.score.stream.ConstraintCollectors.max;
 import static ai.timefold.solver.core.api.score.stream.ConstraintCollectors.min;
-import static ai.timefold.solver.core.api.score.stream.Joiners.equal;
-import static ai.timefold.solver.core.api.score.stream.Joiners.filtering;
-import static ai.timefold.solver.core.api.score.stream.Joiners.greaterThan;
-import static ai.timefold.solver.core.api.score.stream.Joiners.lessThan;
-import static ai.timefold.solver.core.api.score.stream.Joiners.overlapping;
+import static ai.timefold.solver.core.api.score.stream.Joiners.*;
 import static java.util.stream.Collectors.joining;
 import static org.acme.conferencescheduling.domain.ConferenceConstraintProperties.AUDIENCE_LEVEL_DIVERSITY;
 import static org.acme.conferencescheduling.domain.ConferenceConstraintProperties.AUDIENCE_TYPE_DIVERSITY;
@@ -151,8 +147,8 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
         return factory.forEachIncludingUnassigned(Talk.class)
                 .filter(talk -> talk.getTimeslot() != null)
                 .join(Speaker.class,
-                        filtering((talk, speaker) -> talk.hasSpeaker(speaker)
-                                && speaker.getUnavailableTimeslots().contains(talk.getTimeslot())))
+                        contain(Talk::getSpeakers, speaker -> speaker),
+                        containedIn(Talk::getTimeslot, Speaker::getUnavailableTimeslots))
                 .penalize(HardSoftScore.ofHard(100), (talk, speaker) -> talk.getDurationInMinutes())
                 .justifyWith(
                         (talk, speaker, score) -> new UnavailableTimeslotJustification(talk, speaker))
