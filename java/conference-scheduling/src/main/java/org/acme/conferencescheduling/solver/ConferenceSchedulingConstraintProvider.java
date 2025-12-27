@@ -169,7 +169,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
         return factory.forEach(Talk.class)
                 .join(Talk.class,
                         greaterThan(t -> t.getTimeslot().getEndDateTime(), t -> t.getTimeslot().getStartDateTime()),
-                        filtering((talk1, talk2) -> talk2.getPrerequisiteTalks().contains(talk1)))
+                        containedIn(talk -> talk, Talk::getPrerequisiteTalks))
                 .penalize(HardSoftScore.ofHard(10), Talk::combinedDurationInMinutes)
                 .justifyWith(
                         (talk, talk2, score) -> new ConferenceSchedulingJustification(
