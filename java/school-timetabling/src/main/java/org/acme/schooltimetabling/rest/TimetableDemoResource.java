@@ -4,6 +4,7 @@ import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -29,8 +30,8 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 public class TimetableDemoResource {
 
     public enum DemoData {
-        SMALL,
-        LARGE
+        LARGE,
+        SMALL
     }
 
     @APIResponses(value = {
@@ -52,6 +53,21 @@ public class TimetableDemoResource {
     @Path("/{demoDataId}")
     public Response generate(@Parameter(description = "Unique identifier of the demo data.",
             required = true) @PathParam("demoDataId") DemoData demoData) {
+        List<String> reqTagOptions = List.of("A", "B", "C", "D", "E");
+        List<List<String>> tagsOptions = List.of(
+              List.of("A", "B", "C"),  
+              List.of("A", "B", "D"),  
+              List.of("A", "B", "E"),  
+              List.of("A", "C", "D"),  
+              List.of("A", "C", "E"),  
+              List.of("A", "D", "E"),  
+              List.of("B", "C", "D"),  
+              List.of("B", "C", "E"),  
+              List.of("B", "D", "E"),  
+              List.of("C", "D", "E")
+        );
+        Random random = new Random(7);
+        
         List<Timeslot> timeslots = new ArrayList<>(10);
         long nextTimeslotId = 0L;
         timeslots.add(new Timeslot(Long.toString(nextTimeslotId++), DayOfWeek.MONDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)));
@@ -96,112 +112,112 @@ public class TimetableDemoResource {
 
         List<Lesson> lessons = new ArrayList<>();
         long nextLessonId = 0L;
-        lessons.add(new Lesson(Long.toString(nextLessonId++), "Math", "A. Turing", "9th grade"));
-        lessons.add(new Lesson(Long.toString(nextLessonId++), "Math", "A. Turing", "9th grade"));
-        lessons.add(new Lesson(Long.toString(nextLessonId++), "Physics", "M. Curie", "9th grade"));
-        lessons.add(new Lesson(Long.toString(nextLessonId++), "Chemistry", "M. Curie", "9th grade"));
-        lessons.add(new Lesson(Long.toString(nextLessonId++), "Biology", "C. Darwin", "9th grade"));
-        lessons.add(new Lesson(Long.toString(nextLessonId++), "History", "I. Jones", "9th grade"));
-        lessons.add(new Lesson(Long.toString(nextLessonId++), "English", "I. Jones", "9th grade"));
-        lessons.add(new Lesson(Long.toString(nextLessonId++), "English", "I. Jones", "9th grade"));
-        lessons.add(new Lesson(Long.toString(nextLessonId++), "Spanish", "P. Cruz", "9th grade"));
-        lessons.add(new Lesson(Long.toString(nextLessonId++), "Spanish", "P. Cruz", "9th grade"));
+        lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Math", "A. Turing", "9th grade"));
+        lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Math", "A. Turing", "9th grade"));
+        lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Physics", "M. Curie", "9th grade"));
+        lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Chemistry", "M. Curie", "9th grade"));
+        lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Biology", "C. Darwin", "9th grade"));
+        lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "History", "I. Jones", "9th grade"));
+        lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "English", "I. Jones", "9th grade"));
+        lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "English", "I. Jones", "9th grade"));
+        lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Spanish", "P. Cruz", "9th grade"));
+        lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Spanish", "P. Cruz", "9th grade"));
         if (demoData == DemoData.LARGE) {
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Math", "A. Turing", "9th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Math", "A. Turing", "9th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Math", "A. Turing", "9th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "ICT", "A. Turing", "9th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Physics", "M. Curie", "9th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Geography", "C. Darwin", "9th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Geology", "C. Darwin", "9th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "History", "I. Jones", "9th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "English", "I. Jones", "9th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Drama", "I. Jones", "9th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Art", "S. Dali", "9th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Art", "S. Dali", "9th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Physical education", "C. Lewis", "9th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Physical education", "C. Lewis", "9th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Physical education", "C. Lewis", "9th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Math", "A. Turing", "9th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Math", "A. Turing", "9th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Math", "A. Turing", "9th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "ICT", "A. Turing", "9th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Physics", "M. Curie", "9th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Geography", "C. Darwin", "9th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Geology", "C. Darwin", "9th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "History", "I. Jones", "9th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "English", "I. Jones", "9th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Drama", "I. Jones", "9th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Art", "S. Dali", "9th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Art", "S. Dali", "9th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Physical education", "C. Lewis", "9th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Physical education", "C. Lewis", "9th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Physical education", "C. Lewis", "9th grade"));
         }
 
-        lessons.add(new Lesson(Long.toString(nextLessonId++), "Math", "A. Turing", "10th grade"));
-        lessons.add(new Lesson(Long.toString(nextLessonId++), "Math", "A. Turing", "10th grade"));
-        lessons.add(new Lesson(Long.toString(nextLessonId++), "Math", "A. Turing", "10th grade"));
-        lessons.add(new Lesson(Long.toString(nextLessonId++), "Physics", "M. Curie", "10th grade"));
-        lessons.add(new Lesson(Long.toString(nextLessonId++), "Chemistry", "M. Curie", "10th grade"));
-        lessons.add(new Lesson(Long.toString(nextLessonId++), "French", "M. Curie", "10th grade"));
-        lessons.add(new Lesson(Long.toString(nextLessonId++), "Geography", "C. Darwin", "10th grade"));
-        lessons.add(new Lesson(Long.toString(nextLessonId++), "History", "I. Jones", "10th grade"));
-        lessons.add(new Lesson(Long.toString(nextLessonId++), "English", "P. Cruz", "10th grade"));
-        lessons.add(new Lesson(Long.toString(nextLessonId++), "Spanish", "P. Cruz", "10th grade"));
+        lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Math", "A. Turing", "10th grade"));
+        lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Math", "A. Turing", "10th grade"));
+        lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Math", "A. Turing", "10th grade"));
+        lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Physics", "M. Curie", "10th grade"));
+        lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Chemistry", "M. Curie", "10th grade"));
+        lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "French", "M. Curie", "10th grade"));
+        lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Geography", "C. Darwin", "10th grade"));
+        lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "History", "I. Jones", "10th grade"));
+        lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "English", "P. Cruz", "10th grade"));
+        lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Spanish", "P. Cruz", "10th grade"));
         if (demoData == DemoData.LARGE) {
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Math", "A. Turing", "10th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Math", "A. Turing", "10th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "ICT", "A. Turing", "10th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Physics", "M. Curie", "10th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Biology", "C. Darwin", "10th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Geology", "C. Darwin", "10th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "History", "I. Jones", "10th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "English", "P. Cruz", "10th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "English", "P. Cruz", "10th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Drama", "I. Jones", "10th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Art", "S. Dali", "10th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Art", "S. Dali", "10th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Physical education", "C. Lewis", "10th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Physical education", "C. Lewis", "10th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Physical education", "C. Lewis", "10th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Math", "A. Turing", "10th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Math", "A. Turing", "10th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "ICT", "A. Turing", "10th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Physics", "M. Curie", "10th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Biology", "C. Darwin", "10th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Geology", "C. Darwin", "10th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "History", "I. Jones", "10th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "English", "P. Cruz", "10th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "English", "P. Cruz", "10th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Drama", "I. Jones", "10th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Art", "S. Dali", "10th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Art", "S. Dali", "10th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Physical education", "C. Lewis", "10th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Physical education", "C. Lewis", "10th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Physical education", "C. Lewis", "10th grade"));
 
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Math", "A. Turing", "11th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Math", "A. Turing", "11th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Math", "A. Turing", "11th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Math", "A. Turing", "11th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Math", "A. Turing", "11th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "ICT", "A. Turing", "11th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Physics", "M. Curie", "11th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Chemistry", "M. Curie", "11th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "French", "M. Curie", "11th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Physics", "M. Curie", "11th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Geography", "C. Darwin", "11th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Biology", "C. Darwin", "11th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Geology", "C. Darwin", "11th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "History", "I. Jones", "11th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "History", "I. Jones", "11th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "English", "P. Cruz", "11th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "English", "P. Cruz", "11th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "English", "P. Cruz", "11th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Spanish", "P. Cruz", "11th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Drama", "P. Cruz", "11th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Art", "S. Dali", "11th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Art", "S. Dali", "11th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Physical education", "C. Lewis", "11th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Physical education", "C. Lewis", "11th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Physical education", "C. Lewis", "11th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Math", "A. Turing", "11th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Math", "A. Turing", "11th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Math", "A. Turing", "11th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Math", "A. Turing", "11th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Math", "A. Turing", "11th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "ICT", "A. Turing", "11th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Physics", "M. Curie", "11th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Chemistry", "M. Curie", "11th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "French", "M. Curie", "11th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Physics", "M. Curie", "11th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Geography", "C. Darwin", "11th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Biology", "C. Darwin", "11th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Geology", "C. Darwin", "11th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "History", "I. Jones", "11th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "History", "I. Jones", "11th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "English", "P. Cruz", "11th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "English", "P. Cruz", "11th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "English", "P. Cruz", "11th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Spanish", "P. Cruz", "11th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Drama", "P. Cruz", "11th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Art", "S. Dali", "11th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Art", "S. Dali", "11th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Physical education", "C. Lewis", "11th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Physical education", "C. Lewis", "11th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Physical education", "C. Lewis", "11th grade"));
 
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Math", "A. Turing", "12th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Math", "A. Turing", "12th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Math", "A. Turing", "12th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Math", "A. Turing", "12th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Math", "A. Turing", "12th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "ICT", "A. Turing", "12th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Physics", "M. Curie", "12th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Chemistry", "M. Curie", "12th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "French", "M. Curie", "12th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Physics", "M. Curie", "12th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Geography", "C. Darwin", "12th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Biology", "C. Darwin", "12th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Geology", "C. Darwin", "12th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "History", "I. Jones", "12th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "History", "I. Jones", "12th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "English", "P. Cruz", "12th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "English", "P. Cruz", "12th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "English", "P. Cruz", "12th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Spanish", "P. Cruz", "12th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Drama", "P. Cruz", "12th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Art", "S. Dali", "12th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Art", "S. Dali", "12th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Physical education", "C. Lewis", "12th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Physical education", "C. Lewis", "12th grade"));
-            lessons.add(new Lesson(Long.toString(nextLessonId++), "Physical education", "C. Lewis", "12th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Math", "A. Turing", "12th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Math", "A. Turing", "12th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Math", "A. Turing", "12th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Math", "A. Turing", "12th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Math", "A. Turing", "12th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "ICT", "A. Turing", "12th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Physics", "M. Curie", "12th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Chemistry", "M. Curie", "12th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "French", "M. Curie", "12th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Physics", "M. Curie", "12th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Geography", "C. Darwin", "12th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Biology", "C. Darwin", "12th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Geology", "C. Darwin", "12th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "History", "I. Jones", "12th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "History", "I. Jones", "12th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "English", "P. Cruz", "12th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "English", "P. Cruz", "12th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "English", "P. Cruz", "12th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Spanish", "P. Cruz", "12th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Drama", "P. Cruz", "12th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Art", "S. Dali", "12th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Art", "S. Dali", "12th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Physical education", "C. Lewis", "12th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Physical education", "C. Lewis", "12th grade"));
+            lessons.add(new Lesson(reqTagOptions.get(random.nextInt(reqTagOptions.size())), tagsOptions.get(random.nextInt(tagsOptions.size())), Long.toString(nextLessonId++), "Physical education", "C. Lewis", "12th grade"));
         }
         return Response.ok(new Timetable(demoData.name(), timeslots, rooms, lessons)).build();
     }

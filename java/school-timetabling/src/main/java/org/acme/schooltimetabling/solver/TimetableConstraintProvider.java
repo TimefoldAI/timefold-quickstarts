@@ -20,10 +20,26 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                 teacherConflict(constraintFactory),
                 studentGroupConflict(constraintFactory),
                 // Soft constraints
-                teacherRoomStability(constraintFactory),
-                teacherTimeEfficiency(constraintFactory),
-                studentGroupSubjectVariety(constraintFactory)
+                softTagNew(constraintFactory)
         };
+    }
+
+    Constraint softTagOld(ConstraintFactory constraintFactory) {
+        // A teacher prefers to teach sequential lessons and dislikes gaps between lessons.
+        return constraintFactory
+                .forEach(Lesson.class)
+                .join(Lesson.class, Joiners.filtering((a, b) -> a.getTags().contains(b.getReqTag())))
+                .reward(HardSoftScore.ONE_SOFT)
+                .asConstraint("Soft tag");
+    }
+
+    Constraint softTagNew(ConstraintFactory constraintFactory) {
+        // A teacher prefers to teach sequential lessons and dislikes gaps between lessons.
+        return constraintFactory
+                .forEach(Lesson.class)
+                .join(Lesson.class, Joiners.contain(Lesson::getTags, Lesson::getReqTag))
+                .reward(HardSoftScore.ONE_SOFT)
+                .asConstraint("Soft tag");
     }
 
     Constraint roomConflict(ConstraintFactory constraintFactory) {

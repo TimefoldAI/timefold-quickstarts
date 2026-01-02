@@ -5,6 +5,8 @@ import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 
+import java.util.List;
+
 @PlanningEntity
 public class Lesson {
 
@@ -14,6 +16,9 @@ public class Lesson {
     private String subject;
     private String teacher;
     private String studentGroup;
+
+    private String reqTag;
+    private List<String> tags;
 
     @JsonIdentityReference
     @PlanningVariable
@@ -26,15 +31,17 @@ public class Lesson {
     public Lesson() {
     }
 
-    public Lesson(String id, String subject, String teacher, String studentGroup) {
+    public Lesson(String reqTag, List<String> tags, String id, String subject, String teacher, String studentGroup) {
         this.id = id;
         this.subject = subject;
         this.teacher = teacher;
         this.studentGroup = studentGroup;
+        this.reqTag = reqTag;
+        this.tags = tags;
     }
 
     public Lesson(String id, String subject, String teacher, String studentGroup, Timeslot timeslot, Room room) {
-        this(id, subject, teacher, studentGroup);
+        this(null, List.of(), id, subject, teacher, studentGroup);
         this.timeslot = timeslot;
         this.room = room;
     }
@@ -78,5 +85,21 @@ public class Lesson {
 
     public void setRoom(Room room) {
         this.room = room;
+    }
+
+    public String getReqTag() {
+        return reqTag;
+    }
+
+    public void setReqTag(String reqTag) {
+        this.reqTag = reqTag;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
     }
 }
