@@ -103,8 +103,13 @@ function requestRecommendations(visitId, solution, endpointPath) {
             analysisTable.append(analysisTBody);
             visitOptions += "<div class='form-check'>" +
                 `  <input class='form-check-input' type='radio' name='recommendationOptions' id='option${index}' value='option${index}' ${index === 0 ? 'checked=true' : ''}>` +
-                `  <label class='form-check-label' for='option${index}'>` +
-                `    Add <b>${visit.name}</b> to the vehicle <b>${recommendation.proposition.vehicleId}</b> at the position <b> ${recommendation.proposition.index + 1} (${recommendation.scoreDiff.score})</b>${index === 0 ? ' - <b>Best Solution</b>': ''}` +
+                `  <label class='form-check-label' for='option${index}'>` ;
+                    if(recommendation.proposition == null) {
+                        visitOptions += `Leave <b>${visit.name}</b> unassigned`
+                    } else {
+                        visitOptions += `Add <b>${visit.name}</b> to the vehicle <b>${recommendation.proposition?.vehicleId}</b> at the position <b> ${recommendation.proposition?.index + 1}`
+                    }
+            visitOptions += `(${recommendation.scoreDiff.score})</b>${index === 0 ? ' - <b>Best Solution</b>': ''}` +
                 "  </label>" +
                 `  <a id="analyzeRecommendationButton${index}" class="float-justify" href="#" role="button">` +
                 "    <i class='fas fa-chevron-down'></i>" +

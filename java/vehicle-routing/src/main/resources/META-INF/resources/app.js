@@ -133,7 +133,14 @@ function getHomeLocationMarker(vehicle) {
     if (marker) {
         return marker;
     }
-    marker = L.circleMarker(vehicle.homeLocation, { color: colorByVehicle(vehicle).bg, fillOpacity: 0.8 });
+    const color = colorByVehicle(vehicle);
+    const homeIcon = L.divIcon({
+        html: `<i class="fas fa-home" style="color: ${color.bg}; font-size: 20px; text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;"></i>`,
+        className: 'home-location-icon',
+        iconSize: [20, 20],
+        iconAnchor: [10, 10]
+    });
+    marker = L.marker(vehicle.homeLocation, { icon: homeIcon });
     marker.addTo(homeLocationGroup).bindPopup();
     homeLocationMarkerByIdMap.set(vehicle.id, marker);
     return marker;
@@ -165,8 +172,8 @@ function renderRoutes(solution) {
         vehiclesTable.append(`
       <tr>
         <td>
-          <i class="fas fa-crosshairs" id="crosshairs-${id}"
-            style="background-color: ${color.bg}; display: inline-block; width: 1rem; height: 1rem; text-align: center">
+          <i class="fas fa-home" id="home-${id}"
+            style="color: ${color.bg}; font-size: 1.2rem; display: inline-block; width: 1rem; text-align: center">
           </i>
         </td>
         <td>Vehicle ${id}</td>
@@ -181,7 +188,16 @@ function renderRoutes(solution) {
     });
     // Visits
     solution.visits.forEach(function (visit) {
-        getVisitMarker(visit).setPopupContent(visitPopupContent(visit));
+        const marker = getVisitMarker(visit);
+        marker.setPopupContent(visitPopupContent(visit));
+        if (visit.vehicle != null) {
+            const vehicle = solution.vehicles.find(v => v.id === visit.vehicle);
+            if (vehicle) {
+                marker.setStyle({color: colorByVehicle(vehicle).bg, fillOpacity: 0.8});
+            }
+        } else {
+            marker.setStyle({color: '#999999', fillOpacity: 0.5});
+        }
     });
     // Route
     routeGroup.clearLayers();

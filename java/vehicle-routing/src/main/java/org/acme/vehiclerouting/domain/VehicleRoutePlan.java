@@ -9,7 +9,7 @@ import ai.timefold.solver.core.api.domain.solution.PlanningScore;
 import ai.timefold.solver.core.api.domain.solution.PlanningSolution;
 import ai.timefold.solver.core.api.domain.solution.ProblemFactCollectionProperty;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
-import ai.timefold.solver.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
+import ai.timefold.solver.core.api.score.buildin.hardmediumsoftlong.HardMediumSoftLongScore;
 import ai.timefold.solver.core.api.solver.SolverStatus;
 
 import org.acme.vehiclerouting.domain.geo.DrivingTimeCalculator;
@@ -52,7 +52,7 @@ public class VehicleRoutePlan {
     private List<Visit> visits;
 
     @PlanningScore
-    private HardSoftLongScore score;
+    private HardMediumSoftLongScore score;
 
     private SolverStatus solverStatus;
 
@@ -62,7 +62,7 @@ public class VehicleRoutePlan {
     public VehicleRoutePlan() {
     }
 
-    public VehicleRoutePlan(String name, HardSoftLongScore score, SolverStatus solverStatus) {
+    public VehicleRoutePlan(String name, HardMediumSoftLongScore score, SolverStatus solverStatus) {
         this.name = name;
         this.score = score;
         this.solverStatus = solverStatus;
@@ -119,11 +119,11 @@ public class VehicleRoutePlan {
         return visits;
     }
 
-    public HardSoftLongScore getScore() {
+    public HardMediumSoftLongScore getScore() {
         return score;
     }
 
-    public void setScore(HardSoftLongScore score) {
+    public void setScore(HardMediumSoftLongScore score) {
         this.score = score;
     }
 
