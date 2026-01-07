@@ -7,6 +7,7 @@ import java.time.temporal.ChronoUnit;
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 import ai.timefold.solver.core.api.domain.variable.InverseRelationShadowVariable;
+import ai.timefold.solver.core.api.domain.variable.NextElementShadowVariable;
 import ai.timefold.solver.core.api.domain.variable.PreviousElementShadowVariable;
 import ai.timefold.solver.core.api.domain.variable.ShadowSources;
 import ai.timefold.solver.core.api.domain.variable.ShadowVariable;
@@ -37,6 +38,8 @@ public class Visit implements LocationAware {
     @JsonIdentityReference(alwaysAsId = true)
     @PreviousElementShadowVariable(sourceVariableName = "visits")
     private Visit previousVisit;
+    @NextElementShadowVariable(sourceVariableName = "visits")
+    private Visit nextVisit;
     @ShadowVariable(supplierName = "arrivalTimeSupplier")
     private LocalDateTime arrivalTime;
 
@@ -109,6 +112,14 @@ public class Visit implements LocationAware {
 
     public void setPreviousVisit(Visit previousVisit) {
         this.previousVisit = previousVisit;
+    }
+
+    public Visit getNextVisit() {
+        return nextVisit;
+    }
+
+    public void setNextVisit(Visit nextVisit) {
+        this.nextVisit = nextVisit;
     }
 
     public LocalDateTime getArrivalTime() {
@@ -191,6 +202,11 @@ public class Visit implements LocationAware {
             return null;
         }
         return getDrivingTimeSecondsFromPreviousStandstill();
+    }
+
+    @JsonIgnore
+    public boolean isAssignedAsLast() {
+        return vehicle != null && nextVisit == null;
     }
 
     @Override
