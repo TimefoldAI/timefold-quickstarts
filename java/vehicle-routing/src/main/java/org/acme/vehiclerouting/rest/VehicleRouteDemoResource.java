@@ -165,7 +165,7 @@ public class VehicleRouteDemoResource {
                 String.valueOf(vehicleSequence.incrementAndGet()),
                 vehicleCapacity.nextInt(),
                 new Location(latitudes.nextDouble(), longitudes.nextDouble()),
-                tomorrowAt(demoData.vehicleStartTime));
+                tomorrowAt(demoData.vehicleStartTime)).withMaxEndTime(tomorrowAt(demoData.vehicleStartTime).plusHours(4));
 
         List<Vehicle> vehicles = Stream.generate(vehicleSupplier)
                 .limit(demoData.vehicleCount)

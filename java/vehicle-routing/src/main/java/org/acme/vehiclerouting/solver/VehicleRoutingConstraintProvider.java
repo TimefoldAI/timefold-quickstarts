@@ -12,6 +12,7 @@ public class VehicleRoutingConstraintProvider implements ConstraintProvider {
 
     public static final String VEHICLE_CAPACITY = "vehicleCapacity";
     public static final String SERVICE_FINISHED_AFTER_MAX_END_TIME = "serviceFinishedAfterMaxEndTime";
+    public static final String SHIFT_FINISHED_AFTER_MAX_END_TIME = "shiftFinishedAfterMaxEndTime";
     public static final String MINIMIZE_TRAVEL_TIME = "minimizeTravelTime";
 
     @Override
@@ -19,6 +20,7 @@ public class VehicleRoutingConstraintProvider implements ConstraintProvider {
         return new Constraint[] {
                 vehicleCapacity(factory),
                 serviceFinishedAfterMaxEndTime(factory),
+                shiftFinishedAfterMaxEndTime(factory),
                 minimizeTravelTime(factory)
         };
     }
@@ -41,6 +43,14 @@ public class VehicleRoutingConstraintProvider implements ConstraintProvider {
                 .penalizeLong(HardSoftLongScore.ONE_HARD,
                         Visit::getServiceFinishedDelayInMinutes)
                 .asConstraint(SERVICE_FINISHED_AFTER_MAX_END_TIME);
+    }
+
+    protected Constraint shiftFinishedAfterMaxEndTime(ConstraintFactory factory) {
+        return factory.forEach(Vehicle.class)
+                .filter(Vehicle::isShiftFinishedAfterMaxEndTime)
+                .penalizeLong(HardSoftLongScore.ONE_HARD,
+                        Vehicle::getShiftFinishedDelayInMinutes)
+                .asConstraint(SHIFT_FINISHED_AFTER_MAX_END_TIME);
     }
 
     // ************************************************************************

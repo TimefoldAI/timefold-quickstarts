@@ -1,6 +1,8 @@
 package org.acme.vehiclerouting.domain;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,6 +10,8 @@ import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 import ai.timefold.solver.core.api.domain.variable.PlanningListVariable;
 
+import ai.timefold.solver.core.api.domain.variable.ShadowSources;
+import ai.timefold.solver.core.api.domain.variable.ShadowVariable;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -26,9 +30,14 @@ public class Vehicle implements LocationAware {
 
     private LocalDateTime departureTime;
 
+    private LocalDateTime maxEndTime;
+
     @JsonIdentityReference(alwaysAsId = true)
     @PlanningListVariable
     private List<Visit> visits;
+
+    @ShadowVariable(supplierName = "updateArrivalTime")
+    private LocalDateTime arrivalTime;
 
     public Vehicle() {
     }
@@ -69,12 +78,25 @@ public class Vehicle implements LocationAware {
         return departureTime;
     }
 
+    public LocalDateTime getMaxEndTime() {
+        return maxEndTime;
+    }
+
+    public void setMaxEndTime(LocalDateTime maxEndTime) {
+        this.maxEndTime = maxEndTime;
+    }
+
     public List<Visit> getVisits() {
         return visits;
     }
 
     public void setVisits(List<Visit> visits) {
         this.visits = visits;
+    }
+
+    public Vehicle withMaxEndTime(LocalDateTime maxEndTime) {
+        setMaxEndTime(maxEndTime);
+        return this;
     }
 
     // ************************************************************************
@@ -115,13 +137,40 @@ public class Vehicle implements LocationAware {
     }
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    public LocalDateTime arrivalTime() {
+    public LocalDateTime getArrivalTime() {
+        return arrivalTime;
+    }
+
+    @ShadowSources({"visits", "visits[].arrivalTime"})
+    private LocalDateTime updateArrivalTime() {
         if (visits.isEmpty()) {
             return departureTime;
         }
 
         Visit lastVisit = visits.get(visits.size() - 1);
         return lastVisit.getDepartureTime().plusSeconds(lastVisit.getLocation().getDrivingTimeTo(homeLocation));
+    }
+
+    @JsonIgnore
+    public boolean isShiftFinishedAfterMaxEndTime() {
+        return maxEndTime != null && arrivalTime != null && arrivalTime.isAfter(maxEndTime);
+    }
+
+    @JsonIgnore
+    public long getShiftFinishedDelayInMinutes() {
+        if (maxEndTime == null || arrivalTime == null) {
+            return 0;
+        }
+        return roundDurationToNextOrEqualMinutes(Duration.between(maxEndTime, arrivalTime));
+    }
+
+    private static long roundDurationToNextOrEqualMinutes(Duration duration) {
+        var remainder = duration.minus(duration.truncatedTo(ChronoUnit.MINUTES));
+        var minutes = duration.toMinutes();
+        if (remainder.equals(Duration.ZERO)) {
+            return minutes;
+        }
+        return minutes + 1;
     }
 
     @Override
