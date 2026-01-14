@@ -179,6 +179,15 @@ function renderScheduleByRoom(schedule) {
         }
     });
 
+    // Show banner if no unassigned items
+    if (unassigned.children().length === 0) {
+        const banner = $(`<div class="col-12"/>`)
+            .append($(`<div class="alert alert-success d-flex align-items-center justify-content-center" role="alert"/>`)
+                .append($(`<i class="fas fa-check-circle me-2"/>`))
+                .append($(`<span/>`).text("All meetings have been assigned!")));
+        unassigned.append(banner);
+    }
+
     byRoomTimeline.setWindow(JSJoda.LocalDateTime.now().plusDays(1).withHour(8).toString(),
         JSJoda.LocalDateTime.now().plusDays(1).withHour(17).withMinute(45).toString());
 }
@@ -247,6 +256,15 @@ function renderScheduleByPerson(schedule) {
             });
         }
     });
+
+    // Show banner if no unassigned items
+    if (unassigned.children().length === 0) {
+        const banner = $(`<div class="col-12"/>`)
+            .append($(`<div class="alert alert-success d-flex align-items-center justify-content-center" role="alert"/>`)
+                .append($(`<i class="fas fa-check-circle me-2"/>`))
+                .append($(`<span/>`).text("All meetings have been assigned!")));
+        unassigned.append(banner);
+    }
 
     byPersonTimeline.setWindow(JSJoda.LocalDateTime.now().plusDays(1).withHour(8).toString(),
         JSJoda.LocalDateTime.now().plusDays(1).withHour(17).withMinute(45).toString());
@@ -381,4 +399,33 @@ function copyTextToClipboard(id) {
     dummy.select();
     document.execCommand("copy");
     document.body.removeChild(dummy);
+}
+
+function showError(title, xhr) {
+    let serverErrorMessage = !xhr.responseJSON ? `${xhr.status}: ${xhr.statusText}` : xhr.responseJSON.message;
+    let serverErrorCode = !xhr.responseJSON ? `unknown` : xhr.responseJSON.code;
+    let serverErrorId = !xhr.responseJSON ? `----` : xhr.responseJSON.id;
+    let serverErrorDetails = !xhr.responseJSON ? `no details provided` : xhr.responseJSON.details;
+
+    if (xhr.responseJSON && !serverErrorMessage) {
+        serverErrorMessage = JSON.stringify(xhr.responseJSON);
+        serverErrorCode = xhr.statusText + '(' + xhr.status + ')';
+        serverErrorId = `----`;
+    }
+
+    console.error(title + "\n" + serverErrorMessage + " : " + serverErrorDetails);
+    const notification = $(`<div class="toast" role="alert" aria-live="assertive" aria-atomic="true" style="min-width: 50rem"/>`)
+        .append($(`<div class="toast-header bg-danger">
+                 <strong class="me-auto text-dark">Error</strong>
+                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+               </div>`))
+        .append($(`<div class="toast-body"/>`)
+            .append($(`<p/>`).text(title))
+            .append($(`<pre/>`)
+                .append($(`<code/>`).text(serverErrorMessage + "\n\nCode: " + serverErrorCode + "\nError id: " + serverErrorId))
+            )
+        );
+    $("#notificationPanel").append(notification);
+    notification.toast({delay: 30000});
+    notification.toast('show');
 }

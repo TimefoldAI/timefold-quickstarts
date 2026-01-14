@@ -183,8 +183,12 @@ function renderScheduleByCrew(schedule) {
             });
         }
     });
-    if (unassignedCrewCount === 0) {
-        unassignedCrew.append($(`<p/>`).text(`There are no unassigned crew.`));
+    if (unassignedCrew.children().length === 0) {
+        const banner = $(`<div class="col-12"/>`)
+            .append($(`<div class="alert alert-success d-flex align-items-center justify-content-center" role="alert"/>`)
+                .append($(`<i class="fas fa-check-circle me-2"/>`))
+                .append($(`<span/>`).text("All crew members have been assigned!")));
+        unassignedCrew.append(banner);
     }
     byCrewTimeline.setWindow(JSJoda.LocalDateTime.now().minusMinutes(1).toString(),
         JSJoda.LocalDateTime.now().plusDays(4).withHour(23).withMinute(59).toString());
@@ -245,9 +249,12 @@ function renderScheduleByFlight(schedule) {
                 end: flight.arrivalUTCDateTime,
             });
         }
-        if (countUnassigned > 0) {
-            unassignedElement.append($(`<p class="card-text ms-2 mb-0"/>`).text(`Unassigned skill(s): ${missingSkills.sort().join(", ")}`));
-            unassignedCrew.append($(`<div class="pl-1"/>`).append($(`<div class="card"/>`).append(unassignedElement)));
+        if (unassignedCrew.children().length === 0) {
+            const banner = $(`<div class="col-12"/>`)
+                .append($(`<div class="alert alert-success d-flex align-items-center justify-content-center" role="alert"/>`)
+                    .append($(`<i class="fas fa-check-circle me-2"/>`))
+                    .append($(`<span/>`).text("All crew members have been assigned!")));
+            unassignedCrew.append(banner);
         }
     });
 
@@ -385,4 +392,33 @@ function copyTextToClipboard(id) {
     dummy.select();
     document.execCommand("copy");
     document.body.removeChild(dummy);
+}
+
+function showError(title, xhr) {
+    let serverErrorMessage = !xhr.responseJSON ? `${xhr.status}: ${xhr.statusText}` : xhr.responseJSON.message;
+    let serverErrorCode = !xhr.responseJSON ? `unknown` : xhr.responseJSON.code;
+    let serverErrorId = !xhr.responseJSON ? `----` : xhr.responseJSON.id;
+    let serverErrorDetails = !xhr.responseJSON ? `no details provided` : xhr.responseJSON.details;
+
+    if (xhr.responseJSON && !serverErrorMessage) {
+        serverErrorMessage = JSON.stringify(xhr.responseJSON);
+        serverErrorCode = xhr.statusText + '(' + xhr.status + ')';
+        serverErrorId = `----`;
+    }
+
+    console.error(title + "\n" + serverErrorMessage + " : " + serverErrorDetails);
+    const notification = $(`<div class="toast" role="alert" aria-live="assertive" aria-atomic="true" style="min-width: 50rem"/>`)
+        .append($(`<div class="toast-header bg-danger">
+                 <strong class="me-auto text-dark">Error</strong>
+                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+               </div>`))
+        .append($(`<div class="toast-body"/>`)
+            .append($(`<p/>`).text(title))
+            .append($(`<pre/>`)
+                .append($(`<code/>`).text(serverErrorMessage + "\n\nCode: " + serverErrorCode + "\nError id: " + serverErrorId))
+            )
+        );
+    $("#notificationPanel").append(notification);
+    notification.toast({delay: 30000});
+    notification.toast('show');
 }

@@ -112,10 +112,10 @@ function refreshSchedule() {
     loadedSchedule = schedule;
     renderSchedule(schedule);
   })
-    .fail(function (xhr, ajaxOptions, thrownError) {
-      showError("Getting the timetable has failed.", xhr);
-      refreshSolvingButtons(false);
-    });
+      .fail(function (xhr, ajaxOptions, thrownError) {
+        showError("Getting the timetable has failed.", xhr);
+        refreshSolvingButtons(false);
+      });
 }
 
 function renderSchedule(timetable) {
@@ -138,9 +138,9 @@ function renderSchedule(timetable) {
 
   $.each(timetable.rooms, (index, room) => {
     headerRowByRoom
-      .append($("<th/>")
-        .append($("<span/>").text(room.name))
-        .append($(`<button type="button" class="ms-2 mb-1 btn btn-light btn-sm p-1"/>`)));
+        .append($("<th/>")
+            .append($("<span/>").text(room.name))
+            .append($(`<button type="button" class="ms-2 mb-1 btn btn-light btn-sm p-1"/>`)));
   });
   const theadByTeacher = $("<thead>").appendTo(timetableByTeacher);
   const headerRowByTeacher = $("<tr>").appendTo(theadByTeacher);
@@ -148,8 +148,8 @@ function renderSchedule(timetable) {
   const teachers = [...new Set(timetable.lessons.map(lesson => lesson.teacher))];
   $.each(teachers, (index, teacher) => {
     headerRowByTeacher
-      .append($("<th/>")
-        .append($("<span/>").text(teacher)));
+        .append($("<th/>")
+            .append($("<span/>").text(teacher)));
   });
   const theadByStudentGroup = $("<thead>").appendTo(timetableByStudentGroup);
   const headerRowByStudentGroup = $("<tr>").appendTo(theadByStudentGroup);
@@ -157,8 +157,8 @@ function renderSchedule(timetable) {
   const studentGroups = [...new Set(timetable.lessons.map(lesson => lesson.studentGroup))];
   $.each(studentGroups, (index, studentGroup) => {
     headerRowByStudentGroup
-      .append($("<th/>")
-        .append($("<span/>").text(studentGroup)));
+        .append($("<th/>")
+            .append($("<span/>").text(studentGroup)));
   });
 
   const tbodyByRoom = $("<tbody>").appendTo(timetableByRoom);
@@ -170,8 +170,8 @@ function renderSchedule(timetable) {
   $.each(timetable.timeslots, (index, timeslot) => {
     const rowByRoom = $("<tr>").appendTo(tbodyByRoom);
     rowByRoom
-      .append($(`<th class="align-middle"/>`)
-        .append($("<span/>").text(`
+        .append($(`<th class="align-middle"/>`)
+            .append($("<span/>").text(`
                     ${timeslot.dayOfWeek.charAt(0) + timeslot.dayOfWeek.slice(1).toLowerCase()}
                     ${LocalTime.parse(timeslot.startTime).format(dateTimeFormatter)}
                     -
@@ -183,8 +183,8 @@ function renderSchedule(timetable) {
 
     const rowByTeacher = $("<tr>").appendTo(tbodyByTeacher);
     rowByTeacher
-      .append($(`<th class="align-middle"/>`)
-        .append($("<span/>").text(`
+        .append($(`<th class="align-middle"/>`)
+            .append($("<span/>").text(`
                     ${timeslot.dayOfWeek.charAt(0) + timeslot.dayOfWeek.slice(1).toLowerCase()}
                     ${LocalTime.parse(timeslot.startTime).format(dateTimeFormatter)}
                     -
@@ -196,8 +196,8 @@ function renderSchedule(timetable) {
 
     const rowByStudentGroup = $("<tr>").appendTo(tbodyByStudentGroup);
     rowByStudentGroup
-      .append($(`<th class="align-middle"/>`)
-        .append($("<span/>").text(`
+        .append($(`<th class="align-middle"/>`)
+            .append($("<span/>").text(`
                     ${timeslot.dayOfWeek.charAt(0) + timeslot.dayOfWeek.slice(1).toLowerCase()}
                     ${LocalTime.parse(timeslot.startTime).format(dateTimeFormatter)}
                     -
@@ -211,12 +211,12 @@ function renderSchedule(timetable) {
   $.each(timetable.lessons, (index, lesson) => {
     const color = pickColor(lesson.subject);
     const lessonElement = $(`<div class="card" style="background-color: ${color.bg};color: ${color.fg}"/>`)
-      .append($(`<div class="card-body p-2"/>`)
-        .append($(`<h5 class="card-title mb-1"/>`).text(lesson.subject))
-        .append($(`<p class="card-text ms-2 mb-1"/>`)
-          .append($(`<em/>`).text(`by ${lesson.teacher}`)))
-        .append($(`<small class="ms-2 mt-1 card-text align-bottom float-end"/>`).text(lesson.id))
-        .append($(`<p class="card-text ms-2"/>`).text(lesson.studentGroup)));
+        .append($(`<div class="card-body p-2"/>`)
+            .append($(`<h5 class="card-title mb-1"/>`).text(lesson.subject))
+            .append($(`<p class="card-text ms-2 mb-1"/>`)
+                .append($(`<em/>`).text(`by ${lesson.teacher}`)))
+            .append($(`<small class="ms-2 mt-1 card-text align-bottom float-end"/>`).text(lesson.id))
+            .append($(`<p class="card-text ms-2"/>`).text(lesson.studentGroup)));
     if (lesson.timeslot == null || lesson.room == null) {
       unassignedLessons.append($(`<div class="col"/>`).append(lessonElement));
     } else {
@@ -226,6 +226,14 @@ function renderSchedule(timetable) {
       $(`#timeslot${lesson.timeslot}studentGroup${convertToId(lesson.studentGroup)}`).append(lessonElement.clone());
     }
   });
+
+  if (unassignedLessons.children().length === 0) {
+    const banner = $(`<div class="col-12"/>`)
+        .append($(`<div class="alert alert-success d-flex align-items-center justify-content-center" role="alert"/>`)
+            .append($(`<i class="fas fa-check-circle me-2"/>`))
+            .append($(`<span/>`).text("All lessons have been assigned!")));
+    unassignedLessons.append(banner);
+  }
 }
 
 function solve() {
@@ -233,10 +241,10 @@ function solve() {
     scheduleId = data;
     refreshSolvingButtons(true);
   }).fail(function (xhr, ajaxOptions, thrownError) {
-      showError("Start solving failed.", xhr);
-      refreshSolvingButtons(false);
-    },
-    "text");
+        showError("Start solving failed.", xhr);
+        refreshSolvingButtons(false);
+      },
+      "text");
 }
 
 function analyze() {
@@ -282,13 +290,13 @@ function analyze() {
 
       const analysisTable = $(`<table class="table"/>`).css({textAlign: 'center'});
       const analysisTHead = $(`<thead/>`).append($(`<tr/>`)
-        .append($(`<th></th>`))
-        .append($(`<th>Constraint</th>`).css({textAlign: 'left'}))
-        .append($(`<th>Type</th>`))
-        .append($(`<th># Matches</th>`))
-        .append($(`<th>Weight</th>`))
-        .append($(`<th>Score</th>`))
-        .append($(`<th></th>`)));
+          .append($(`<th></th>`))
+          .append($(`<th>Constraint</th>`).css({textAlign: 'left'}))
+          .append($(`<th>Type</th>`))
+          .append($(`<th># Matches</th>`))
+          .append($(`<th>Weight</th>`))
+          .append($(`<th>Score</th>`))
+          .append($(`<th></th>`)));
       analysisTable.append(analysisTHead);
       const analysisTBody = $(`<tbody/>`)
       $.each(scoreAnalysis.constraints, (index, constraintAnalysis) => {
@@ -297,11 +305,11 @@ function analyze() {
 
         let row = $(`<tr/>`);
         row.append($(`<td/>`).html(icon))
-          .append($(`<td/>`).text(constraintAnalysis.name).css({textAlign: 'left'}))
-          .append($(`<td/>`).text(constraintAnalysis.type))
-          .append($(`<td/>`).html(`<b>${constraintAnalysis.matches.length}</b>`))
-          .append($(`<td/>`).text(constraintAnalysis.weight))
-          .append($(`<td/>`).text(constraintAnalysis.implicitScore));
+            .append($(`<td/>`).text(constraintAnalysis.name).css({textAlign: 'left'}))
+            .append($(`<td/>`).text(constraintAnalysis.type))
+            .append($(`<td/>`).html(`<b>${constraintAnalysis.matches.length}</b>`))
+            .append($(`<td/>`).text(constraintAnalysis.weight))
+            .append($(`<td/>`).text(constraintAnalysis.implicitScore));
 
         analysisTBody.append(row);
         row.append($(`<td/>`));
@@ -309,9 +317,9 @@ function analyze() {
       analysisTable.append(analysisTBody);
       scoreAnalysisModalContent.append(analysisTable);
     }).fail(function (xhr, ajaxOptions, thrownError) {
-        showError("Analyze failed.", xhr);
-      },
-      "text");
+          showError("Analyze failed.", xhr);
+        },
+        "text");
   }
 }
 
@@ -366,4 +374,33 @@ function copyTextToClipboard(id) {
   dummy.select();
   document.execCommand("copy");
   document.body.removeChild(dummy);
+}
+
+function showError(title, xhr) {
+  let serverErrorMessage = !xhr.responseJSON ? `${xhr.status}: ${xhr.statusText}` : xhr.responseJSON.message;
+  let serverErrorCode = !xhr.responseJSON ? `unknown` : xhr.responseJSON.code;
+  let serverErrorId = !xhr.responseJSON ? `----` : xhr.responseJSON.id;
+  let serverErrorDetails = !xhr.responseJSON ? `no details provided` : xhr.responseJSON.details;
+
+  if (xhr.responseJSON && !serverErrorMessage) {
+    serverErrorMessage = JSON.stringify(xhr.responseJSON);
+    serverErrorCode = xhr.statusText + '(' + xhr.status + ')';
+    serverErrorId = `----`;
+  }
+
+  console.error(title + "\n" + serverErrorMessage + " : " + serverErrorDetails);
+  const notification = $(`<div class="toast" role="alert" aria-live="assertive" aria-atomic="true" style="min-width: 50rem"/>`)
+      .append($(`<div class="toast-header bg-danger">
+                 <strong class="me-auto text-dark">Error</strong>
+                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+               </div>`))
+      .append($(`<div class="toast-body"/>`)
+          .append($(`<p/>`).text(title))
+          .append($(`<pre/>`)
+              .append($(`<code/>`).text(serverErrorMessage + "\n\nCode: " + serverErrorCode + "\nError id: " + serverErrorId))
+          )
+      );
+  $("#notificationPanel").append(notification);
+  notification.toast({delay: 30000});
+  notification.toast('show');
 }
