@@ -1,8 +1,5 @@
 package org.acme.conferencescheduling.domain;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptySet;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -11,8 +8,10 @@ import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 
 @PlanningEntity
 public class Talk {
@@ -106,10 +105,6 @@ public class Talk {
     @ValueRangeProvider
     public Set<Room> getRoomRange() {
         return talkType.getCompatibleRooms();
-    }
-
-    public boolean hasSpeaker(Speaker speaker) {
-        return speakers.contains(speaker);
     }
 
     public int overlappingThemeTrackCount(Talk other) {
@@ -317,22 +312,9 @@ public class Talk {
         return overlappingCount(mutuallyExclusiveTalksTags, other.mutuallyExclusiveTalksTags);
     }
 
-    public boolean hasMutualSpeaker(Talk other) {
-        for (Speaker speaker : speakers) {
-            if (other.hasSpeaker(speaker)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     @JsonIgnore
     public Integer getDurationInMinutes() {
         return timeslot == null ? null : timeslot.getDurationInMinutes();
-    }
-
-    public boolean overlapsTime(Talk other) {
-        return timeslot != null && other.getTimeslot() != null && timeslot.overlapsTime(other.getTimeslot());
     }
 
     public int overlappingDurationInMinutes(Talk other) {
