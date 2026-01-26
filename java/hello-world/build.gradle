@@ -4,9 +4,9 @@ plugins {
 }
 
 def timefoldVersion = "999-SNAPSHOT"
-def logbackVersion = "1.5.25"
+def logbackVersion = "1.5.26"
 def junitVersion = "6.0.2"
-def assertjVersion = "3.27.6"
+def assertjVersion = "3.27.7"
 def profile = System.properties['profile'] ?: ''
 
 group = "org.acme"
