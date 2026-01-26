@@ -27,7 +27,7 @@ public class Line {
     private Operator operator;
 
     @JsonIgnore
-    @PlanningListVariable
+    @PlanningListVariable(allowsUnassignedValues = true)
     private List<Job> jobs;
 
     // No-arg constructor required for Timefold
