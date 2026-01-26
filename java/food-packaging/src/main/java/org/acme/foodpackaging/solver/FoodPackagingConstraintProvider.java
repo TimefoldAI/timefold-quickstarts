@@ -1,6 +1,8 @@
 package org.acme.foodpackaging.solver;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.Period;
 
 import ai.timefold.solver.core.api.score.buildin.hardmediumsoftlong.HardMediumSoftLongScore;
 import ai.timefold.solver.core.api.score.stream.Constraint;
@@ -17,10 +19,11 @@ public class FoodPackagingConstraintProvider implements ConstraintProvider {
         return new Constraint[] {
                 // Hard constraints
                 maxEndDateTime(factory),
+                operatorCleaningConflict(factory),
                 // Medium constraints
                 idealEndDateTime(factory),
+                maximizeJobsAssigned(factory),
                 // Soft constraints
-                operatorCleaningConflict(factory),
                 minimizeMakespan(factory)
         };
     }
@@ -37,6 +40,27 @@ public class FoodPackagingConstraintProvider implements ConstraintProvider {
                 .asConstraint("Max end date time");
     }
 
+    protected Constraint operatorCleaningConflict(ConstraintFactory factory) {
+        return factory.forEachUniquePair(
+                        Job.class,
+                        Joiners.equal(job -> job.getLine().getOperator()),
+                        Joiners.overlapping(Job::getStartCleaningDateTime, Job::getStartProductionDateTime)
+                )
+                .penalizeLong(HardMediumSoftLongScore.ONE_HARD,
+                        (j1, j2) -> overlapMinutes(
+                                j1.getStartCleaningDateTime(), j1.getStartProductionDateTime(),
+                                j2.getStartCleaningDateTime(), j2.getStartProductionDateTime()
+                        ))
+                .asConstraint("Operator cleaning conflict");
+    }
+
+    private static long overlapMinutes(LocalDateTime start1, LocalDateTime end1,
+                                       LocalDateTime start2, LocalDateTime end2) {
+        var start = start1.isAfter(start2) ? start1 : start2;
+        var end   = end1.isBefore(end2) ? end1 : end2;
+        return Duration.between(start, end).toMinutes();
+    }
+
     // ************************************************************************
     // Medium constraints
     // ************************************************************************
@@ -49,26 +73,16 @@ public class FoodPackagingConstraintProvider implements ConstraintProvider {
                 .asConstraint("Ideal end date time");
     }
 
+    protected Constraint maximizeJobsAssigned(ConstraintFactory factory) {
+        return factory.forEachIncludingUnassigned(Job.class)
+                .filter(job -> job.getLine() == null)
+                .penalizeLong(HardMediumSoftLongScore.ONE_MEDIUM, job -> job.getDuration().toMinutes())
+                .asConstraint("Maximize jobs assigned");
+    }
+
     // ************************************************************************
     // Soft constraints
     // ************************************************************************
-
-    // TODO Currently dwarfed by minimizeAndLoadBalanceMakeSpan in the same score level, because that squares
-    protected Constraint operatorCleaningConflict(ConstraintFactory factory) {
-        return factory.forEach(Job.class)
-                .filter(job ->job.getLine() != null)
-                .join(factory.forEach(Job.class).filter(job ->job.getLine() != null),
-                        Joiners.equal(job -> job.getLine().getOperator()),
-                        Joiners.overlapping(Job::getStartCleaningDateTime, Job::getStartProductionDateTime),
-                        Joiners.lessThan(Job::getId))
-                .penalizeLong(HardMediumSoftLongScore.ONE_SOFT, (job1, job2) -> Duration.between(
-                        (job1.getStartCleaningDateTime().compareTo(job2.getStartCleaningDateTime()) > 0)
-                               ? job1.getStartCleaningDateTime() : job2.getStartCleaningDateTime(),
-                        (job1.getStartProductionDateTime().compareTo(job2.getStartProductionDateTime()) < 0)
-                                ? job1.getStartProductionDateTime() : job2.getStartProductionDateTime()
-                ).toMinutes())
-                .asConstraint("Operator cleaning conflict");
-    }
 
     protected Constraint minimizeMakespan(ConstraintFactory factory) {
         return factory.forEach(Job.class)
@@ -79,14 +93,4 @@ public class FoodPackagingConstraintProvider implements ConstraintProvider {
                 })
                 .asConstraint("Minimize make span");
     }
-
-    // TODO Currently dwarfed by minimizeAndLoadBalanceMakeSpan in the same score level, because that squares
-    protected Constraint minimizeCleaningDuration(ConstraintFactory factory) {
-        return factory.forEach(Job.class)
-                .filter(job -> job.getStartProductionDateTime() != null)
-                .penalizeLong(HardMediumSoftLongScore.ONE_SOFT, job -> job.getPriority()
-                        * Duration.between(job.getStartCleaningDateTime(), job.getStartProductionDateTime()).toMinutes())
-                .asConstraint("Minimize cleaning duration");
-    }
-
 }

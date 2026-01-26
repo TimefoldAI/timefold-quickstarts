@@ -59,29 +59,6 @@ class FoodPackagingConstraintProviderTest {
                 .penalizesBy(50L);
     }
 
-    // ************************************************************************
-    // Medium constraints
-    // ************************************************************************
-
-    @Test
-    void idealEndDateTime() {
-        Job job1 = new Job("1", "job1", PRODUCT_A_SMALL, Duration.ofMinutes(6000), null, null, null, 1, false);
-        Job job2 = new Job("2", "job2", PRODUCT_A_SMALL, Duration.ofMinutes(200), null, DAY_START_TIME.plusMinutes(200), null, 1, false,
-                DAY_START_TIME, DAY_START_TIME);
-        Job job3 = new Job("3", "job3", PRODUCT_A_SMALL, Duration.ofMinutes(150), null, DAY_START_TIME.plusMinutes(100), null, 1, false,
-                DAY_START_TIME, DAY_START_TIME);
-        Line line = new Line("1", "line1", DAY_START_TIME);
-        addJobs(line, job1, job2, job3);
-
-        constraintVerifier.verifyThat(FoodPackagingConstraintProvider::idealEndDateTime)
-                .given(job1, job2, job3)
-                .penalizesBy(50L);
-    }
-
-    // ************************************************************************
-    // Soft constraints
-    // ************************************************************************
-
     @Test
     void operatorCleaningConflict() {
         Line line1 = new Line("1", "line1", new Operator("operator A"), DAY_START_TIME);
@@ -101,6 +78,44 @@ class FoodPackagingConstraintProviderTest {
                 .given(job1, job2, job3)
                 .penalizesBy(20L);
     }
+
+    // ************************************************************************
+    // Medium constraints
+    // ************************************************************************
+
+    @Test
+    void idealEndDateTime() {
+        Job job1 = new Job("1", "job1", PRODUCT_A_SMALL, Duration.ofMinutes(6000), null, null, null, 1, false);
+        Job job2 = new Job("2", "job2", PRODUCT_A_SMALL, Duration.ofMinutes(200), null, DAY_START_TIME.plusMinutes(200), null, 1, false,
+                DAY_START_TIME, DAY_START_TIME);
+        Job job3 = new Job("3", "job3", PRODUCT_A_SMALL, Duration.ofMinutes(150), null, DAY_START_TIME.plusMinutes(100), null, 1, false,
+                DAY_START_TIME, DAY_START_TIME);
+        Line line = new Line("1", "line1", DAY_START_TIME);
+        addJobs(line, job1, job2, job3);
+
+        constraintVerifier.verifyThat(FoodPackagingConstraintProvider::idealEndDateTime)
+                .given(job1, job2, job3)
+                .penalizesBy(50L);
+    }
+
+    @Test
+    void maximizeJobsAssigned() {
+        long unassignedJobDuration = 200L;
+
+        Job job1 = new Job("1", "job1", PRODUCT_A_SMALL, Duration.ofMinutes(6000), null, null, null, 1, false);
+        Job job2 = new Job("2", "job2", PRODUCT_A_SMALL, Duration.ofMinutes(unassignedJobDuration), null, DAY_START_TIME.plusMinutes(200), null, 1, false,
+                DAY_START_TIME, DAY_START_TIME);
+        Line line = new Line("1", "line1", DAY_START_TIME);
+        addJobs(line, job1);
+
+        constraintVerifier.verifyThat(FoodPackagingConstraintProvider::maximizeJobsAssigned)
+                .given(job1, job2)
+                .penalizesBy(unassignedJobDuration);
+    }
+
+    // ************************************************************************
+    // Soft constraints
+    // ************************************************************************
 
     @Test
     void minimizeMakespan() {
