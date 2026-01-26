@@ -50,6 +50,7 @@ updates:
     ignore:
       - dependency-name: "org.webjars:*"
       - dependency-name: "io.quarkus:*"
+      - dependency-name: "org.springdoc:*"
       - dependency-name: "org.springframework:*"
       - dependency-name: "org.springframework.boot:*"
     multi-ecosystem-group: "base"
@@ -62,6 +63,7 @@ updates:
       - dependency-name: "org.webjars:*"
       - dependency-name: "io.quarkus"
       - dependency-name: "io.quarkus:*"
+      - dependency-name: "org.springdoc:*"
       - dependency-name: "org.springframework:*"
       - dependency-name: "org.springframework.boot:*"
     multi-ecosystem-group: "base"
@@ -77,6 +79,7 @@ updates:
       - dependency-name: "io.quarkus:*"
     ignore:
       - dependency-name: "org.webjars:*"
+      - dependency-name: "org.springdoc:*"
       - dependency-name: "org.springframework:*"
       - dependency-name: "org.springframework.boot:*"
     multi-ecosystem-group: "quarkus"
@@ -88,6 +91,7 @@ updates:
       - dependency-name: "io.quarkus:*"
     ignore:
       - dependency-name: "org.webjars:*"
+      - dependency-name: "org.springdoc:*"
       - dependency-name: "org.springframework:*"
       - dependency-name: "org.springframework.boot:*"
     multi-ecosystem-group: "quarkus"
@@ -96,6 +100,7 @@ updates:
     directory: "/"
     patterns: [ "*" ]
     allow:
+      - dependency-name: "org.springdoc:*"
       - dependency-name: "org.springframework:*"
       - dependency-name: "org.springframework.boot:*"
     ignore:
@@ -106,6 +111,8 @@ updates:
     directory: "/"
     patterns: [ "*" ]
     allow:
+      - dependency-name: "org.springdoc:*"
+      - dependency-name: "org.springframework:*"
       - dependency-name: "org.springframework:*"
       - dependency-name: "org.springframework.boot:*"
     ignore:
