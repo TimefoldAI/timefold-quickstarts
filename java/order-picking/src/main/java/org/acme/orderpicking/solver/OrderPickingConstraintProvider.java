@@ -7,6 +7,7 @@ import ai.timefold.solver.core.api.score.stream.Constraint;
 import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
 import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
 
+import static ai.timefold.solver.core.api.score.stream.ConstraintCollectors.countDistinct;
 import static org.acme.orderpicking.domain.Warehouse.calculateDistance;
 import static ai.timefold.solver.core.api.score.stream.ConstraintCollectors.countDistinctLong;
 import static ai.timefold.solver.core.api.score.stream.ConstraintCollectors.sum;
@@ -64,7 +65,7 @@ public class OrderPickingConstraintProvider implements ConstraintProvider {
     Constraint minimizeOrderSplitByTrolley(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(Pick.class)
                 .groupBy(pick -> pick.getOrderItem().getOrder(),
-                        countDistinctLong(Pick::getTrolley))
+                        countDistinct(Pick::getTrolley))
                 .penalizeLong(HardSoftLongScore.ONE_SOFT,
                         (order, trolleySpreadCount) -> trolleySpreadCount * 1000)
                 .asConstraint("Minimize order split by trolley");

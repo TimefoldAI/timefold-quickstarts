@@ -199,14 +199,14 @@ public class DemoDataGenerator {
         // Generate the random solution to work with.
         Random random = new Random(37);
         validateBucketCapacity(BUCKET_CAPACITY);
-        List<Trolley> trolleys = buildTrolleys(TROLLEYS_COUNT, BUCKET_COUNT, BUCKET_CAPACITY, START_LOCATION);
-        List<Order> orders = buildOrders(ORDERS_COUNT, random);
-        List<Pick> picks = buildPicks(orders);
+        var trolleys = buildTrolleys(TROLLEYS_COUNT, BUCKET_COUNT, BUCKET_CAPACITY, START_LOCATION);
+        var orders = buildOrders(ORDERS_COUNT, random);
+        var picks = buildPicks(orders);
         orderPickingRepository.save(new OrderPickingSolution(trolleys, picks));
     }
 
     public List<Order> buildOrders(int size, Random random) {
-        List<Product> products = buildProducts(random);
+        var products = buildProducts(random);
         return buildOrders(size, products, random);
     }
 
