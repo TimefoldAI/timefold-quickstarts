@@ -5,7 +5,6 @@ import java.util.List;
 import ai.timefold.solver.core.api.domain.solution.PlanningEntityCollectionProperty;
 import ai.timefold.solver.core.api.domain.solution.PlanningScore;
 import ai.timefold.solver.core.api.domain.solution.PlanningSolution;
-import ai.timefold.solver.core.api.domain.solution.ProblemFactCollectionProperty;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
 import ai.timefold.solver.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
 
@@ -15,20 +14,19 @@ public class OrderPickingSolution {
     /**
      * Defines the available Trolleys.
      * 
-     * @see TrolleyStep for more information about the model constructed by the Solver.
+     * @see Pick for more information about the model constructed by the Solver.
      */
-    @ValueRangeProvider
-    @ProblemFactCollectionProperty
+    @PlanningEntityCollectionProperty
     private List<Trolley> trolleys;
 
     /**
-     * Defines the available TrolleySteps.
-     * 
-     * @see TrolleyStep for more information about the model constructed by the Solver.
+     * Defines the available Picks.
+     *
+     * @see Pick for more information about the model constructed by the Solver.
      */
     @ValueRangeProvider
     @PlanningEntityCollectionProperty
-    private List<TrolleyStep> trolleySteps;
+    private List<Pick> picks;
 
     @PlanningScore
     private HardSoftLongScore score;
@@ -37,9 +35,9 @@ public class OrderPickingSolution {
         // Marshalling constructor
     }
 
-    public OrderPickingSolution(List<Trolley> trolleys, List<TrolleyStep> trolleySteps) {
+    public OrderPickingSolution(List<Trolley> trolleys, List<Pick> picks) {
         this.trolleys = trolleys;
-        this.trolleySteps = trolleySteps;
+        this.picks = picks;
     }
 
     public List<Trolley> getTrolleys() {
@@ -50,12 +48,12 @@ public class OrderPickingSolution {
         this.trolleys = trolleys;
     }
 
-    public List<TrolleyStep> getTrolleySteps() {
-        return trolleySteps;
+    public List<Pick> getPicks() {
+        return picks;
     }
 
-    public void setTrolleySteps(List<TrolleyStep> trolleySteps) {
-        this.trolleySteps = trolleySteps;
+    public void setPicks(List<Pick> picks) {
+        this.picks = picks;
     }
 
     public HardSoftLongScore getScore() {

@@ -27,7 +27,7 @@ import org.acme.orderpicking.domain.OrderPickingSolution;
 import org.acme.orderpicking.domain.Product;
 import org.acme.orderpicking.domain.Shelving;
 import org.acme.orderpicking.domain.Trolley;
-import org.acme.orderpicking.domain.TrolleyStep;
+import org.acme.orderpicking.domain.Pick;
 import org.acme.orderpicking.domain.WarehouseLocation;
 import org.acme.orderpicking.persistence.OrderPickingRepository;
 
@@ -201,8 +201,8 @@ public class DemoDataGenerator {
         validateBucketCapacity(BUCKET_CAPACITY);
         List<Trolley> trolleys = buildTrolleys(TROLLEYS_COUNT, BUCKET_COUNT, BUCKET_CAPACITY, START_LOCATION);
         List<Order> orders = buildOrders(ORDERS_COUNT, random);
-        List<TrolleyStep> trolleySteps = buildTrolleySteps(orders);
-        orderPickingRepository.save(new OrderPickingSolution(trolleys, trolleySteps));
+        List<Pick> picks = buildPicks(orders);
+        orderPickingRepository.save(new OrderPickingSolution(trolleys, picks));
     }
 
     public List<Order> buildOrders(int size, Random random) {
@@ -218,22 +218,22 @@ public class DemoDataGenerator {
         return result;
     }
 
-    public List<TrolleyStep> buildTrolleySteps(List<Order> orders) {
-        List<TrolleyStep> result = new ArrayList<>();
+    public List<Pick> buildPicks(List<Order> orders) {
+        List<Pick> result = new ArrayList<>();
         for (Order order : orders) {
-            result.addAll(buildTrolleySteps(order));
+            result.addAll(buildPicks(order));
         }
         return result;
     }
 
-    public List<TrolleyStep> buildTrolleySteps(Order order) {
+    public List<Pick> buildPicks(Order order) {
         int idx = 0;
-        List<TrolleyStep> steps = new ArrayList<>();
+        List<Pick> picks = new ArrayList<>();
         for (OrderItem item : order.getItems()) {
-            TrolleyStep trolleyStep = new TrolleyStep(order.getId() + "-" + idx++, item);
-            steps.add(trolleyStep);
+            Pick pick = new Pick(order.getId() + "-" + idx++, item);
+            picks.add(pick);
         }
-        return steps;
+        return picks;
     }
 
     public void validateBucketCapacity(int bucketCapacity) {

@@ -42,7 +42,7 @@ refreshSolution();
 
 function printSolutionScore(schedule) {
     const score = schedule.score;
-    $("#info").text(`This dataset has ${schedule.trolleys.length} trolleys which need to execute ${schedule.trolleySteps.length} steps.`);
+    $("#info").text(`This dataset has ${schedule.trolleys.length} trolleys which need to execute ${schedule.picks.length} picks.`);
 
     if (score == null) {
         $("#score").text("Score: ?");
@@ -69,7 +69,7 @@ function printSolutionTable(orderPickingSolution) {
     const trolleysByOrder = unassignedOrderItemsAndOrdersSpreading[1];
     const unassignedTrolleys = [];
     for (const trolley of orderPickingSolution.trolleys) {
-        if (trolley.nextElement != null) {
+        if (trolley.picks != null && trolley.picks.length > 0) {
             const travelDistance = TROLLEY_TRAVEL_DISTANCE.get(trolley.id);
             printTrolley(tableBody, trolley, travelDistance, unassignedItemsByOrder, trolleysByOrder);
         } else {
@@ -187,9 +187,9 @@ function printUnassignedOrderRow(unassignedOrderTableBody, orderItem) {
 function findUnassignedOrderItemsAndOrdersSpreading(orderPickingSolution) {
     const unassignedItemsByOrder = new Map();
     const trolleysByOrder = new Map();
-    for (const trolleyStep of orderPickingSolution.trolleySteps) {
-        const orderItem = trolleyStep.orderItem;
-        if (trolleyStep.trolleyId === null) {
+    for (const pick of orderPickingSolution.picks) {
+        const orderItem = pick.orderItem;
+        if (pick.trolleyId === null) {
             let unassignedItems = unassignedItemsByOrder.get(orderItem.orderId);
             if (unassignedItems === undefined) {
                 unassignedItems = [];
@@ -202,30 +202,24 @@ function findUnassignedOrderItemsAndOrdersSpreading(orderPickingSolution) {
                 trolleys = new Set();
                 trolleysByOrder.set(orderItem.orderId, trolleys);
             }
-            trolleys.add(trolleyStep.trolleyId);
+            trolleys.add(pick.trolleyId);
         }
     }
     return [unassignedItemsByOrder, trolleysByOrder];
 }
 
 /**
- * @param trolley a trolley instance to get the steps from.
- * @returns [TrolleyStep] an array with the trolley steps for the given trolley.
+ * @param trolley a trolley instance to get the picks from.
+ * @returns [Pick] an array with the trolley picks for the given trolley.
  */
-function extractTrolleySteps(trolley) {
-    const trolleySteps = [];
-    let next = trolley.nextElement;
-    while (next != null) {
-        trolleySteps.push(next);
-        next = next.nextElement;
-    }
-    return trolleySteps;
+function extractpicks(trolley) {
+    return trolley.picks || [];
 }
 
 function printTrolley(tableBody, trolley, travelDistance, unAssignedItemsByOrder, trolleysByOrder) {
     const trolleyId = 'Trolley_' + trolley.id;
     const trolleyIcon = 'fa-cart-plus';
-    const trolleySteps = extractTrolleySteps(trolley);
+    const picks = extractpicks(trolley);
     const trolleyRow = $('<tr class="agent-row">').appendTo(tableBody);
     const trolleyTd = $('<td style="width:15%;">').appendTo(trolleyRow);
     const trolleyCard = $('<div class="card" style="background-color:#f7ecd5">').appendTo(trolleyTd);
@@ -235,20 +229,20 @@ function printTrolley(tableBody, trolley, travelDistance, unAssignedItemsByOrder
                     <i class="fas ${trolleyIcon}"></i>
                 </div>
                 <div class="col-11">
-                    <span style="font-size:1em" title="${trolleySteps.length} order items assigned to this Trolley, with a travel distance of ${travelDistance} meters."><a id="${trolleyId}">${trolleyId}&nbsp;&nbsp;(${trolleySteps.length} items, ${travelDistance} m)</a></span>
+                    <span style="font-size:1em" title="${picks.length} order items assigned to this Trolley, with a travel distance of ${travelDistance} meters."><a id="${trolleyId}">${trolleyId}&nbsp;&nbsp;(${picks.length} items, ${travelDistance} m)</a></span>
                 </div>
             </div>`).appendTo(trolleyCardBody);
 
-    printTrolleyDetail(trolleyCardBody, trolley, trolleySteps, unAssignedItemsByOrder, trolleysByOrder);
+    printTrolleyDetail(trolleyCardBody, trolley, picks, unAssignedItemsByOrder, trolleysByOrder);
 
-    const stepsTd = $('<td style="flex-flow:row; display: flex;">').appendTo(trolleyRow);
-    printTrolleySteps(stepsTd, trolleySteps);
+    const picksTd = $('<td style="flex-flow:row; display: flex;">').appendTo(trolleyRow);
+    printPicks(picksTd, picks);
 }
 
-function printTrolleyDetail(detailContainer, trolley, trolleySteps, unAssignedItemsByOrder, trolleysByOrder) {
+function printTrolleyDetail(detailContainer, trolley, picks, unAssignedItemsByOrder, trolleysByOrder) {
     const orderVolumes = new Map();
-    for (const trolleyStep of trolleySteps) {
-        const orderItem = trolleyStep.orderItem;
+    for (const pick of picks) {
+        const orderItem = pick.orderItem;
         let orderVolume = orderVolumes.get(orderItem.orderId);
         if (orderVolume === undefined) {
             orderVolume = orderItem.product.volume;
@@ -291,7 +285,7 @@ function printTrolleyDetail(detailContainer, trolley, trolleySteps, unAssignedIt
                 bucketOccupancyPercent = Math.ceil((100 * bucketDivWidth) / bucketWidth);
             }
             bucketTd = $(`<td style="border: 1px solid; border-color: black; padding: 1px; width:${bucketWidth};" title="${bucketOccupancyPercent}% of the bucket reserved for order #${orderNumber}">`).appendTo(bucketsRow);
-            $(`<div style="background-color: ${bucketColor}; width:${bucketDivWidth}px; height:${bucketWidth}px;"></div>`).appendTo(bucketTd);
+            $(`<div style="background-color: ${bucketColor.bg}; width:${bucketDivWidth}px; height:${bucketWidth}px;"></div>`).appendTo(bucketTd);
             availableBuckets--;
         }
     }
@@ -370,20 +364,20 @@ function printTrolleyOrdersSplitDetail(ordersDetailContainer, trolley, ordersDet
     }
 }
 
-function printTrolleySteps(stepsContainer, trolleySteps) {
-    const stepsTable = $('<table class="table table-striped">').appendTo(stepsContainer);
-    printTrolleyStepsTableHeader(stepsTable);
-    const stepsTableBody = $('<tbody>').appendTo(stepsTable);
-    let stepNumber = 1;
-    for (const trolleyStep of trolleySteps) {
-        printTrolleyStep(stepsTableBody, stepNumber++, trolleyStep)
+function printPicks(picksContainer, picks) {
+    const picksTable = $('<table class="table table-striped">').appendTo(picksContainer);
+    printPicksTableHeader(picksTable);
+    const picksTableBody = $('<tbody>').appendTo(picksTable);
+    let pickNumber = 1;
+    for (const pick of picks) {
+        printPick(picksTableBody, pickNumber++, pick)
     }
 }
 
-function printTrolleyStepsTableHeader(stepsTable) {
-    const header = $('<thead class="table-dark">').appendTo(stepsTable);
+function printPicksTableHeader(picksTable) {
+    const header = $('<thead class="table-dark">').appendTo(picksTable);
     const headerTr = $('<tr>').appendTo(header);
-    $('<th scope="col">#Stop</th>').appendTo(headerTr);
+    $('<th scope="col">#Pick</th>').appendTo(headerTr);
     $('<th scope="col">Warehouse location</th>').appendTo(headerTr);
     $('<th scope="col">#Order</th>').appendTo(headerTr);
     $('<th scope="col">#Order item</th>').appendTo(headerTr);
@@ -391,20 +385,20 @@ function printTrolleyStepsTableHeader(stepsTable) {
     $('<th scope="col">Volume</th>').appendTo(headerTr);
 }
 
-function printTrolleyStep(stepsTableBody, stepNumber, trolleyStep) {
-    const orderItem = trolleyStep.orderItem;
+function printPick(picksTableBody, pickNumber, pick) {
+    const orderItem = pick.orderItem;
     const orderItemId = orderItem.id
     const product = orderItem.product;
     const location = product.location;
     const orderId = orderItem.orderId;
 
-    const stepRow = $('<tr>').appendTo(stepsTableBody);
-    stepRow.append($(`<th scope="row">${stepNumber}</th>`));
-    stepRow.append($(`<td>${location.shelvingId}, ${location.side}, ${location.row}</td>`));
-    stepRow.append($(`<td>${orderId}</td>`));
-    stepRow.append($(`<td>${orderItemId}</td>`));
-    stepRow.append($(`<td>${product.name}</td>`));
-    stepRow.append($(`<td>${product.volume}</td>`));
+    const pickRow = $('<tr>').appendTo(picksTableBody);
+    pickRow.append($(`<th scope="row">${pickNumber}</th>`));
+    pickRow.append($(`<td>${location.shelvingId}, ${location.side}, ${location.row}</td>`));
+    pickRow.append($(`<td>${orderId}</td>`));
+    pickRow.append($(`<td>${orderItemId}</td>`));
+    pickRow.append($(`<td>${product.name}</td>`));
+    pickRow.append($(`<td>${product.volume}</td>`));
 }
 
 function printTrolleysMap(orderPickingSolution) {
@@ -415,14 +409,14 @@ function printTrolleysMap(orderPickingSolution) {
     const trolleyCheckBoxes = [];
     let trolleyIndex = 0;
     for (const trolley of orderPickingSolution.trolleys) {
-        if (trolley.nextElement != null) {
+        if (trolley.picks != null && trolley.picks.length > 0) {
             printTrolleyPath(trolley, trolleyIndex, orderPickingSolution.trolleys.length, false);
             trolleyCheckBoxes.push(trolley.id);
         }
         trolleyIndex++;
     }
     for (const trolley of orderPickingSolution.trolleys) {
-        if (trolley.nextElement != null) {
+        if (trolley.picks != null && trolley.picks.length > 0) {
             printTrolleyPath(trolley, trolleyIndex, orderPickingSolution.trolleys.length, true);
             trolleyCheckBoxes.push(trolley.id);
         }
@@ -437,13 +431,13 @@ function printTrolleysMap(orderPickingSolution) {
 }
 
 function printTrolleyPath(trolley, trolleyIndex, trolleyCount, writeText) {
-    const trolleySteps = extractTrolleySteps(trolley);
+    const picks = extractpicks(trolley);
     const trolleyPath = [];
     const trolleyLocation = trolley.location;
 
     trolleyPath.push(new WarehouseLocation(trolleyLocation.shelvingId, trolleyLocation.side, trolleyLocation.row));
-    for (const trolleyStep of trolleySteps) {
-        const location = trolleyStep.location;
+    for (const pick of picks) {
+        const location = pick.location;
         trolleyPath.push(new WarehouseLocation(location.shelvingId, location.side, location.row));
     }
     trolleyPath.push(new WarehouseLocation(trolleyLocation.shelvingId, trolleyLocation.side, trolleyLocation.row));
@@ -458,21 +452,21 @@ function printTrolleyPath(trolley, trolleyIndex, trolleyCount, writeText) {
             drawTrolleyPath(color.bg, trolleyPath, trolleyIndex, trolleyCount);
             trolleyCheckboxEnabled = true;
             const travelDistance = TROLLEY_TRAVEL_DISTANCE.get(trolley.id);
-            printTrolleyCheckbox(trolley, trolleySteps.length, travelDistance, color, trolleyCheckboxEnabled);
+            printTrolleyCheckbox(trolley, picks.length, travelDistance, color, trolleyCheckboxEnabled);
         }
     }
 }
 
-function printTrolleyCheckbox(trolley, stepsLength, travelDistance, color, enabled) {
+function printTrolleyCheckbox(trolley, picksLength, travelDistance, color, enabled) {
     const mapActionsContainer = $('#mapActionsContainer');
     const disabledValue = enabled ? '' : 'disabled';
     const checkedValue = enabled ? 'true' : 'false';
     mapActionsContainer.append($(`<div style="display: inline-block; padding-left: 15px;">
         <div class="trolley-checkbox-rectangle" style="background-color: ${color.bg};color: ${color.fg}; display: inline-block;"></div>
         <div style="display: inline-block;">
-            <label title="${stepsLength} order items assigned to this Trolley, with a travel distance of ${travelDistance} meters.">
+            <label title="${picksLength} order items assigned to this Trolley, with a travel distance of ${travelDistance} meters.">
             <input type="checkbox" id="trolleyPath_${trolley.id}" onChange="printSelectedTrolleys()" checked="${checkedValue}" ${disabledValue}/>
-                Trolley_${trolley.id} (${stepsLength} items, ${travelDistance} m)
+                Trolley_${trolley.id} (${picksLength} items, ${travelDistance} m)
             </label>
         </div>
     </div>`));
