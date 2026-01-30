@@ -10,7 +10,7 @@ import ai.timefold.solver.core.api.domain.variable.PlanningListVariable;
 /**
  * Represents the trolley that will be filled with the order items.
  *
- * @see Pick for more information about the model constructed by the Solver.
+ * @see PickTask for more information about the model constructed by the Solver.
  */
 @PlanningEntity
 public class Trolley {
@@ -22,7 +22,7 @@ public class Trolley {
     private WarehouseLocation location;
 
     @PlanningListVariable
-    private List<Pick> picks = new ArrayList<>();
+    private List<PickTask> pickTasks = new ArrayList<>();
 
     public Trolley() {
         //marshalling constructor
@@ -67,11 +67,11 @@ public class Trolley {
         this.location = location;
     }
 
-    public List<Pick> getPicks() {
-        return picks;
+    public List<PickTask> getPickTasks() {
+        return pickTasks;
     }
 
-    public void setPicks(List<Pick> picks) {
-        this.picks = picks;
+    public void setPickTasks(List<PickTask> pickTasks) {
+        this.pickTasks = pickTasks;
     }
 }

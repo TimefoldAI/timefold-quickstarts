@@ -8,39 +8,39 @@ import ai.timefold.solver.core.api.domain.variable.NextElementShadowVariable;
 import ai.timefold.solver.core.api.domain.variable.PreviousElementShadowVariable;
 
 /**
- * Represents a "stop" in a Trolley's path where an order item is to be picked.
+ * Represents the picking of an order item by a Trolley.
  * <p>
- * The Solver assigns each Pick to a position in a Trolley's list of picks.
+ * The Solver assigns each PickTask to a position in a Trolley's list of picks.
  * Shadow variables provide references to the trolley, the previous pick, and the next pick.
  * <p>
- * Trolley1: [PickA, PickB, PickC]
+ * Trolley1: [PickTaskA, PickTaskB, PickTaskC]
  * <p>
- * Trolley2: [PickD, PickE]
+ * Trolley2: [PickTaskD, PickTaskE]
  */
 @PlanningEntity
-public class Pick {
+public class PickTask {
 
     @PlanningId
     private String id;
     private OrderItem orderItem;
 
     @JsonIgnore
-    @InverseRelationShadowVariable(sourceVariableName = "picks")
+    @InverseRelationShadowVariable(sourceVariableName = "pickTasks")
     private Trolley trolley;
 
     @JsonIgnore
-    @PreviousElementShadowVariable(sourceVariableName = "picks")
-    private Pick previousPick;
+    @PreviousElementShadowVariable(sourceVariableName = "pickTasks")
+    private PickTask previousPickTask;
 
     @JsonIgnore
-    @NextElementShadowVariable(sourceVariableName = "picks")
-    private Pick nextPick;
+    @NextElementShadowVariable(sourceVariableName = "pickTasks")
+    private PickTask nextPickTask;
 
-    public Pick() {
+    public PickTask() {
         //marshaling constructor.
     }
 
-    public Pick(String id, OrderItem orderItem) {
+    public PickTask(String id, OrderItem orderItem) {
         this.id = id;
         this.orderItem = orderItem;
     }
@@ -73,24 +73,16 @@ public class Pick {
         this.trolley = trolley;
     }
 
-    public Pick getPreviousPick() {
-        return previousPick;
+    public PickTask getPreviousPickTask() {
+        return previousPickTask;
     }
 
-    public void setPreviousPick(Pick previousPick) {
-        this.previousPick = previousPick;
-    }
-
-    public Pick getNextPick() {
-        return nextPick;
-    }
-
-    public void setNextPick(Pick nextPick) {
-        this.nextPick = nextPick;
+    public void setPreviousPickTask(PickTask previousPickTask) {
+        this.previousPickTask = previousPickTask;
     }
 
     public boolean isLast() {
-        return nextPick == null;
+        return nextPickTask == null;
     }
 
     /**
@@ -100,4 +92,12 @@ public class Pick {
         return trolley != null ? trolley.getId() : null;
     }
 
+    @Override
+    public String toString() {
+        return "PickTask{" +
+                "id='" + id + '\'' +
+                ", orderItem=" + orderItem +
+                ", trolley=" + trolley +
+                '}';
+    }
 }

@@ -27,7 +27,7 @@ import org.acme.orderpicking.domain.OrderPickingSolution;
 import org.acme.orderpicking.domain.Product;
 import org.acme.orderpicking.domain.Shelving;
 import org.acme.orderpicking.domain.Trolley;
-import org.acme.orderpicking.domain.Pick;
+import org.acme.orderpicking.domain.PickTask;
 import org.acme.orderpicking.domain.WarehouseLocation;
 import org.acme.orderpicking.persistence.OrderPickingRepository;
 
@@ -201,7 +201,7 @@ public class DemoDataGenerator {
         validateBucketCapacity(BUCKET_CAPACITY);
         var trolleys = buildTrolleys(TROLLEYS_COUNT, BUCKET_COUNT, BUCKET_CAPACITY, START_LOCATION);
         var orders = buildOrders(ORDERS_COUNT, random);
-        var picks = buildPicks(orders);
+        var picks = buildPickTasks(orders);
         orderPickingRepository.save(new OrderPickingSolution(trolleys, picks));
     }
 
@@ -218,19 +218,19 @@ public class DemoDataGenerator {
         return result;
     }
 
-    public List<Pick> buildPicks(List<Order> orders) {
-        List<Pick> result = new ArrayList<>();
+    public List<PickTask> buildPickTasks(List<Order> orders) {
+        List<PickTask> result = new ArrayList<>();
         for (Order order : orders) {
-            result.addAll(buildPicks(order));
+            result.addAll(buildPickTasks(order));
         }
         return result;
     }
 
-    public List<Pick> buildPicks(Order order) {
+    public List<PickTask> buildPickTasks(Order order) {
         int idx = 0;
-        List<Pick> picks = new ArrayList<>();
+        List<PickTask> picks = new ArrayList<>();
         for (OrderItem item : order.getItems()) {
-            Pick pick = new Pick(order.getId() + "-" + idx++, item);
+            PickTask pick = new PickTask(order.getId() + "-" + idx++, item);
             picks.add(pick);
         }
         return picks;

@@ -1,6 +1,6 @@
 package org.acme.orderpicking.solver;
 
-import org.acme.orderpicking.domain.Pick;
+import org.acme.orderpicking.domain.PickTask;
 import org.acme.orderpicking.domain.WarehouseLocation;
 import ai.timefold.solver.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
 import ai.timefold.solver.core.api.score.stream.Constraint;
@@ -15,7 +15,7 @@ import static ai.timefold.solver.core.api.score.stream.ConstraintCollectors.sum;
 /**
  * Constraint definitions for solving the order picking problem.
  * 
- * @see Pick for more information about the model constructed by the Solver.
+ * @see PickTask for more information about the model constructed by the Solver.
  * @see ConstraintProvider
  * @see ConstraintFactory
  */
@@ -28,8 +28,8 @@ public class OrderPickingConstraintProvider implements ConstraintProvider {
                 requiredNumberOfBuckets(constraintFactory),
 
                 // Soft
-                minimizeDistanceFromPreviousPick(constraintFactory),
-                minimizeDistanceFromLastPickToPathOrigin(constraintFactory),
+                minimizeDistanceFromPreviousPickTask(constraintFactory),
+                minimizeDistanceFromLastPickTaskToPathOrigin(constraintFactory),
                 minimizeOrderSplitByTrolley(constraintFactory)
         };
     }
@@ -40,9 +40,9 @@ public class OrderPickingConstraintProvider implements ConstraintProvider {
      */
     Constraint requiredNumberOfBuckets(ConstraintFactory constraintFactory) {
         return constraintFactory
-                .forEach(Pick.class)
+                .forEach(PickTask.class)
                 //raw total volume per order
-                .groupBy(Pick::getTrolley,
+                .groupBy(PickTask::getTrolley,
                         pick -> pick.getOrderItem().getOrder(),
                         sum(pick -> pick.getOrderItem().getVolume()))
                 //required buckets per order
@@ -63,9 +63,9 @@ public class OrderPickingConstraintProvider implements ConstraintProvider {
      * An Order should ideally be prepared on the same trolley, penalize the order splitting into different trolleys.
      */
     Constraint minimizeOrderSplitByTrolley(ConstraintFactory constraintFactory) {
-        return constraintFactory.forEach(Pick.class)
+        return constraintFactory.forEach(PickTask.class)
                 .groupBy(pick -> pick.getOrderItem().getOrder(),
-                        countDistinct(Pick::getTrolley))
+                        countDistinct(PickTask::getTrolley))
                 .penalizeLong(HardSoftLongScore.ONE_SOFT,
                         (order, trolleySpreadCount) -> trolleySpreadCount * 1000)
                 .asConstraint("Minimize order split by trolley");
@@ -75,14 +75,14 @@ public class OrderPickingConstraintProvider implements ConstraintProvider {
      * Minimize the distance travelled by the trolley by ensuring that the distance with the previous element in the
      * chain is as short as possible.
      * 
-     * @see Pick for more information about the model constructed by the Solver.
+     * @see PickTask for more information about the model constructed by the Solver.
      */
-    Constraint minimizeDistanceFromPreviousPick(ConstraintFactory constraintFactory) {
-        return constraintFactory.forEach(Pick.class)
+    Constraint minimizeDistanceFromPreviousPickTask(ConstraintFactory constraintFactory) {
+        return constraintFactory.forEach(PickTask.class)
                 .penalizeLong(HardSoftLongScore.ONE_SOFT,
                         pick -> {
-                            WarehouseLocation previousLocation = pick.getPreviousPick() != null
-                                    ? pick.getPreviousPick().getLocation()
+                            WarehouseLocation previousLocation = pick.getPreviousPickTask() != null
+                                    ? pick.getPreviousPickTask().getLocation()
                                     : pick.getTrolley().getLocation();
                             return calculateDistance(previousLocation, pick.getLocation());
                         })
@@ -93,11 +93,11 @@ public class OrderPickingConstraintProvider implements ConstraintProvider {
      * Minimize the distance travelled by the trolley by ensuring that the distance of the last element in the chain
      * with the return point (the Trolley location) is as short as possible.
      *
-     * @see Pick for more information about the model constructed by the Solver.
+     * @see PickTask for more information about the model constructed by the Solver.
      */
-    Constraint minimizeDistanceFromLastPickToPathOrigin(ConstraintFactory constraintFactory) {
-        return constraintFactory.forEach(Pick.class)
-                .filter(Pick::isLast)
+    Constraint minimizeDistanceFromLastPickTaskToPathOrigin(ConstraintFactory constraintFactory) {
+        return constraintFactory.forEach(PickTask.class)
+                .filter(PickTask::isLast)
                 .penalizeLong(HardSoftLongScore.ONE_SOFT,
                         pick -> calculateDistance(pick.getLocation(), pick.getTrolley().getLocation()))
                 .asConstraint("Minimize the distance from last trolley pick to the path origin");

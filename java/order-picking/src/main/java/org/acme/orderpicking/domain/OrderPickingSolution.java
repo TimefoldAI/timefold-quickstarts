@@ -14,19 +14,19 @@ public class OrderPickingSolution {
     /**
      * Defines the available Trolleys.
      * 
-     * @see Pick for more information about the model constructed by the Solver.
+     * @see PickTask for more information about the model constructed by the Solver.
      */
     @PlanningEntityCollectionProperty
     private List<Trolley> trolleys;
 
     /**
-     * Defines the available Picks.
+     * Defines the available PickTasks.
      *
-     * @see Pick for more information about the model constructed by the Solver.
+     * @see PickTask for more information about the model constructed by the Solver.
      */
     @ValueRangeProvider
     @PlanningEntityCollectionProperty
-    private List<Pick> picks;
+    private List<PickTask> pickTasks;
 
     @PlanningScore
     private HardSoftLongScore score;
@@ -35,9 +35,9 @@ public class OrderPickingSolution {
         // Marshalling constructor
     }
 
-    public OrderPickingSolution(List<Trolley> trolleys, List<Pick> picks) {
+    public OrderPickingSolution(List<Trolley> trolleys, List<PickTask> pickTasks) {
         this.trolleys = trolleys;
-        this.picks = picks;
+        this.pickTasks = pickTasks;
     }
 
     public List<Trolley> getTrolleys() {
@@ -48,12 +48,12 @@ public class OrderPickingSolution {
         this.trolleys = trolleys;
     }
 
-    public List<Pick> getPicks() {
-        return picks;
+    public List<PickTask> getPickTasks() {
+        return pickTasks;
     }
 
-    public void setPicks(List<Pick> picks) {
-        this.picks = picks;
+    public void setPickTasks(List<PickTask> picks) {
+        this.pickTasks = picks;
     }
 
     public HardSoftLongScore getScore() {

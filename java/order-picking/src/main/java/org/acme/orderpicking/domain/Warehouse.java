@@ -175,7 +175,7 @@ public class Warehouse {
     public static int calculateDistanceToTravel(Trolley trolley) {
         int distance = 0;
         WarehouseLocation previousLocation = trolley.getLocation();
-        for (Pick pick : trolley.getPicks()) {
+        for (PickTask pick : trolley.getPickTasks()) {
             distance += calculateDistance(previousLocation, pick.getLocation());
             previousLocation = pick.getLocation();
         }

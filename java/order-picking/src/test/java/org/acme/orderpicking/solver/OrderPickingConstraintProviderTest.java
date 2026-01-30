@@ -25,7 +25,7 @@ import org.acme.orderpicking.domain.OrderPickingSolution;
 import org.acme.orderpicking.domain.Product;
 import org.acme.orderpicking.domain.Shelving;
 import org.acme.orderpicking.domain.Trolley;
-import org.acme.orderpicking.domain.Pick;
+import org.acme.orderpicking.domain.PickTask;
 import org.acme.orderpicking.domain.Warehouse;
 import org.acme.orderpicking.domain.WarehouseLocation;
 import org.junit.jupiter.api.Test;
@@ -54,11 +54,11 @@ class OrderPickingConstraintProviderTest {
                 createOrderItem(10), //goes in Trolley2
                 createOrderItem(9)); //goes in Trolley2
 
-        Pick trolley1Pick1 = createPick(order1.getItems().get(0));
-        Pick trolley1Pick2 = createPick(order1.getItems().get(1));
+        PickTask trolley1PickTask1 = createPickTask(order1.getItems().get(0));
+        PickTask trolley1PickTask2 = createPickTask(order1.getItems().get(1));
 
-        Pick trolley1Pick3 = createPick(order2.getItems().get(0));
-        Pick trolley1Pick4 = createPick(order2.getItems().get(1));
+        PickTask trolley1PickTask3 = createPickTask(order2.getItems().get(0));
+        PickTask trolley1PickTask4 = createPickTask(order2.getItems().get(1));
 
         //Trolley1:
         //Order1 total volume = 9 -> requires 2 buckets
@@ -66,18 +66,18 @@ class OrderPickingConstraintProviderTest {
         //Total required buckets = 3
         //Penalization = 3 - 2 = 1
         Trolley trolley1 = initializeTrolley(2, 5,
-                trolley1Pick1,
-                trolley1Pick2,
-                trolley1Pick3,
-                trolley1Pick4);
+                trolley1PickTask1,
+                trolley1PickTask2,
+                trolley1PickTask3,
+                trolley1PickTask4);
 
-        Pick trolley2Pick1 = createPick(order1.getItems().get(2));
-        Pick trolley2Pick2 = createPick(order1.getItems().get(3));
+        PickTask trolley2PickTask1 = createPickTask(order1.getItems().get(2));
+        PickTask trolley2PickTask2 = createPickTask(order1.getItems().get(3));
 
-        Pick trolley2Pick3 = createPick(order2.getItems().get(2));
-        Pick trolley2Pick4 = createPick(order2.getItems().get(3));
-        Pick trolley2Pick5 = createPick(order2.getItems().get(4));
-        Pick trolley2Pick6 = createPick(order2.getItems().get(5));
+        PickTask trolley2PickTask3 = createPickTask(order2.getItems().get(2));
+        PickTask trolley2PickTask4 = createPickTask(order2.getItems().get(3));
+        PickTask trolley2PickTask5 = createPickTask(order2.getItems().get(4));
+        PickTask trolley2PickTask6 = createPickTask(order2.getItems().get(5));
 
         //Trolley2:
         //Order1 total volume = 17 -> requires 2 bucket
@@ -85,68 +85,67 @@ class OrderPickingConstraintProviderTest {
         //Total required buckets = 6
         //Penalization = 6 - 2 = 4
         Trolley trolley2 = initializeTrolley(2, 10,
-                trolley2Pick1,
-                trolley2Pick2,
-                trolley2Pick3,
-                trolley2Pick4,
-                trolley2Pick5,
-                trolley2Pick6);
+                trolley2PickTask1,
+                trolley2PickTask2,
+                trolley2PickTask3,
+                trolley2PickTask4,
+                trolley2PickTask5,
+                trolley2PickTask6);
 
         //Penalization Trolley1 = 1
         //Penalization Trolley2 = 4
         //Total penalization = 5
         constraintVerifier.verifyThat(OrderPickingConstraintProvider::requiredNumberOfBuckets)
-                .given(trolley1Pick1,
-                        trolley1Pick2,
-                        trolley1Pick3,
-                        trolley1Pick4,
-                        trolley2Pick1,
-                        trolley2Pick2,
-                        trolley2Pick3,
-                        trolley2Pick4,
-                        trolley2Pick5,
-                        trolley2Pick6)
+                .given(trolley1PickTask1,
+                        trolley1PickTask2,
+                        trolley1PickTask3,
+                        trolley1PickTask4,
+                        trolley2PickTask1,
+                        trolley2PickTask2,
+                        trolley2PickTask3,
+                        trolley2PickTask4,
+                        trolley2PickTask5,
+                        trolley2PickTask6)
                 .penalizesBy(5);
     }
 
     @Test
-    void minimizeDistanceFromPreviousPick() {
-        Pick currentPick =
-                createPick(new WarehouseLocation(newShelvingId(COL_C, ROW_3), Shelving.Side.RIGHT, 1));
-        Pick previousPick =
-                createPick(new WarehouseLocation(newShelvingId(COL_E, ROW_1), Shelving.Side.RIGHT, 3));
-        currentPick.setPreviousPick(previousPick);
+    void minimizeDistanceFromPreviousPickTask() {
+        PickTask currentPickTask =
+                createPickTask(new WarehouseLocation(newShelvingId(COL_C, ROW_3), Shelving.Side.RIGHT, 1));
+        PickTask previousPickTask =
+                createPickTask(new WarehouseLocation(newShelvingId(COL_E, ROW_1), Shelving.Side.RIGHT, 3));
 
         Trolley trolley = initializeTrolley(1, 1,
-                previousPick,
-                currentPick);
-        currentPick.setTrolley(trolley);
+                previousPickTask,
+                currentPickTask);
+        currentPickTask.setTrolley(trolley);
 
-        Warehouse.calculateDistance(currentPick.getLocation(), previousPick.getLocation());
-        constraintVerifier.verifyThat(OrderPickingConstraintProvider::minimizeDistanceFromPreviousPick)
-                .given(currentPick)
+        Warehouse.calculateDistance(currentPickTask.getLocation(), previousPickTask.getLocation());
+        constraintVerifier.verifyThat(OrderPickingConstraintProvider::minimizeDistanceFromPreviousPickTask)
+                .given(currentPickTask)
                 .penalizesBy(34);
     }
 
     @Test
-    void minimizeDistanceFromLastTrolleyPickToPathOrigin() {
-        Pick lastPick =
-                createPick(new WarehouseLocation(newShelvingId(COL_D, ROW_2), Shelving.Side.LEFT, 0));
+    void minimizeDistanceFromLastTrolleyPickTaskToPathOrigin() {
+        PickTask lastPickTask =
+                createPickTask(new WarehouseLocation(newShelvingId(COL_D, ROW_2), Shelving.Side.LEFT, 0));
 
-        Pick intermediatePick1 = new Pick();
-        Pick intermediatePick2 = new Pick();
+        PickTask intermediatePickTask1 = new PickTask();
+        PickTask intermediatePickTask2 = new PickTask();
 
         Trolley trolley = initializeTrolley(1, 1,
-                intermediatePick1,
-                intermediatePick2,
-                lastPick);
+                intermediatePickTask1,
+                intermediatePickTask2,
+                lastPickTask);
 
         WarehouseLocation pathOriginLocation = new WarehouseLocation(newShelvingId(COL_A, ROW_1), Shelving.Side.LEFT, 0);
         trolley.setLocation(pathOriginLocation);
-        constraintVerifier.verifyThat(OrderPickingConstraintProvider::minimizeDistanceFromLastPickToPathOrigin)
-                .given(intermediatePick1,
-                        intermediatePick2,
-                        lastPick)
+        constraintVerifier.verifyThat(OrderPickingConstraintProvider::minimizeDistanceFromLastPickTaskToPathOrigin)
+                .given(intermediatePickTask1,
+                        intermediatePickTask2,
+                        lastPickTask)
                 .penalizesBy(28);
     }
 
@@ -165,27 +164,27 @@ class OrderPickingConstraintProviderTest {
                 createOrderItem(1));
 
         Trolley order1Trolley1 = initializeTrolley(2, 1,
-                createPick(order1.getItems().get(0)),
-                createPick(order1.getItems().get(1)));
+                createPickTask(order1.getItems().get(0)),
+                createPickTask(order1.getItems().get(1)));
         Trolley order1Trolley2 = initializeTrolley(1, 1,
-                createPick(order1.getItems().get(2)));
+                createPickTask(order1.getItems().get(2)));
         Trolley order1Trolley3 = initializeTrolley(1, 1,
-                createPick(order1.getItems().get(3)));
+                createPickTask(order1.getItems().get(3)));
 
         Trolley order2Trolley1 = initializeTrolley(4, 1,
-                createPick(order2.getItems().get(0)),
-                createPick(order2.getItems().get(1)),
-                createPick(order2.getItems().get(2)),
-                createPick(order2.getItems().get(3)));
+                createPickTask(order2.getItems().get(0)),
+                createPickTask(order2.getItems().get(1)),
+                createPickTask(order2.getItems().get(2)),
+                createPickTask(order2.getItems().get(3)));
 
-        Object[] allPicks = Stream.of(order1Trolley1.getPicks(),
-                order1Trolley2.getPicks(),
-                order1Trolley3.getPicks(),
-                order2Trolley1.getPicks())
+        Object[] allPickTasks = Stream.of(order1Trolley1.getPickTasks(),
+                order1Trolley2.getPickTasks(),
+                order1Trolley3.getPickTasks(),
+                order2Trolley1.getPickTasks())
                 .flatMap(Collection::stream).toArray();
 
         constraintVerifier.verifyThat(OrderPickingConstraintProvider::minimizeOrderSplitByTrolley)
-                .given(allPicks)
+                .given(allPickTasks)
                 .penalizesBy(4 * 1000);
     }
 
@@ -209,23 +208,23 @@ class OrderPickingConstraintProviderTest {
         return item;
     }
 
-    private static Pick createPick(OrderItem item) {
-        return new Pick("", item);
+    private static PickTask createPickTask(OrderItem item) {
+        return new PickTask("", item);
     }
 
-    private static Pick createPick(WarehouseLocation location) {
+    private static PickTask createPickTask(WarehouseLocation location) {
         OrderItem item = new OrderItem();
         Product product = new Product();
         product.setLocation(location);
         item.setProduct(product);
-        return new Pick("1", item);
+        return new PickTask("1", item);
     }
 
-    private static Trolley initializeTrolley(int bucketCount, int bucketCapacity, Pick... picks) {
+    private static Trolley initializeTrolley(int bucketCount, int bucketCapacity, PickTask... picks) {
         Trolley trolley = new Trolley();
         trolley.setBucketCapacity(bucketCapacity);
         trolley.setBucketCount(bucketCount);
-        trolley.setPicks(List.of(picks));
+        trolley.setPickTasks(List.of(picks));
 
         Object[] entities = Stream.concat(Stream.of(trolley), Arrays.stream(picks)).toArray();
 
