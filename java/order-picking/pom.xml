@@ -11,7 +11,7 @@
     <maven.compiler.release>17</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <version.io.quarkus>3.30.6</version.io.quarkus>
+    <version.io.quarkus>3.31.1</version.io.quarkus>
     <version.ai.timefold.solver>999-SNAPSHOT</version.ai.timefold.solver>
 
     <version.compiler.plugin>3.14.1</version.compiler.plugin>
@@ -134,6 +134,7 @@
         <groupId>io.quarkus</groupId>
         <artifactId>quarkus-maven-plugin</artifactId>
         <version>${version.io.quarkus}</version>
+        <extensions>true</extensions>
         <executions>
           <execution>
             <goals>
