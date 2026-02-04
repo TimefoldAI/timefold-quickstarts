@@ -64,6 +64,14 @@ public class Facility {
         this.capacity = capacity;
     }
 
+    public List<Consumer> getConsumers() {
+        return consumers;
+    }
+
+    public void setConsumers(List<Consumer> consumers) {
+        this.consumers = consumers;
+    }
+
     public long getUsedCapacity() {
         return consumers.stream().mapToLong(Consumer::getDemand).sum();
     }

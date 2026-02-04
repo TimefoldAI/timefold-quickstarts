@@ -71,6 +71,10 @@ public class Timetable {
         return score;
     }
 
+    public void setScore(HardSoftScore score) {
+        this.score = score;
+    }
+
     public SolverStatus getSolverStatus() {
         return solverStatus;
     }

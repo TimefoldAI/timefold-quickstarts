@@ -63,19 +63,23 @@ public class Line {
         return name;
     }
 
-    public void setOperator(Operator operator) {
-        this.operator = operator;
+    public LocalDateTime getStartDateTime() {
+        return startDateTime;
     }
 
     public Operator getOperator() {
         return operator;
     }
 
-    public LocalDateTime getStartDateTime() {
-        return startDateTime;
+    public void setOperator(Operator operator) {
+        this.operator = operator;
     }
 
     public List<Job> getJobs() {
         return jobs;
+    }
+
+    public void setJobs(List<Job> jobs) {
+        this.jobs = jobs;
     }
 }

@@ -188,7 +188,7 @@ public class Job {
     // ************************************************************************
     @SuppressWarnings("unused")
     @ShadowSources({"line", "line.operator"})
-    private Operator lineOperatorSupplier() {
+    public Operator lineOperatorSupplier() {
         if (line == null) {
             return null;
         }
@@ -197,7 +197,7 @@ public class Job {
 
     @SuppressWarnings("unused")
     @ShadowSources({"line", "previousJob.endDateTime"})
-    private LocalDateTime startCleaningDateTimeSupplier() {
+    public LocalDateTime startCleaningDateTimeSupplier() {
         if (line == null) {
             return null;
         }
@@ -210,7 +210,7 @@ public class Job {
 
     @SuppressWarnings("unused")
     @ShadowSources({"line", "startCleaningDateTime"})
-    private LocalDateTime startProductionDateTimeSupplier() {
+    public LocalDateTime startProductionDateTimeSupplier() {
         if (line == null) {
             return null;
         }
@@ -223,7 +223,7 @@ public class Job {
 
     @SuppressWarnings("unused")
     @ShadowSources({"startProductionDateTime"})
-    private LocalDateTime endDateTimeSupplier() {
+    public LocalDateTime endDateTimeSupplier() {
         return startProductionDateTime == null ? null : startProductionDateTime.plus(getDuration());
     }
 }
