@@ -8,6 +8,8 @@ import org.acme.facilitylocation.solver.FacilityLocationConstraintProvider;
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.variable.InverseRelationShadowVariable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * Facility satisfies consumers' demand. Cumulative demand of all consumers assigned to this facility must not exceed
  * the facility's capacity. This requirement is expressed by the {@link FacilityLocationConstraintProvider#facilityCapacity
@@ -64,6 +66,7 @@ public class Facility {
         this.capacity = capacity;
     }
 
+    @JsonIgnore
     public List<Consumer> getConsumers() {
         return consumers;
     }
