@@ -105,8 +105,8 @@ public class Warehouse {
     private static final String SHELVING_NOT_FOUND_ERROR = "Shelving: %s was not found in current Warehouse structure.";
 
     static {
-        int shelvingX = 0;
-        int shelvingY;
+        var shelvingX = 0;
+        var shelvingY = 0;
         Shelving shelving;
 
         for (Column col : Column.values()) {
@@ -127,21 +127,21 @@ public class Warehouse {
      * Calculates the distance in meters between two locations considering the warehouse structure.
      */
     public static int calculateDistance(WarehouseLocation start, WarehouseLocation end) {
-        final Shelving startShelving = SHELVING_MAP.get(start.getShelvingId());
+        final var startShelving = SHELVING_MAP.get(start.getShelvingId());
         if (startShelving == null) {
             throw new IndexOutOfBoundsException(String.format(SHELVING_NOT_FOUND_ERROR, start.getShelvingId()));
         }
-        final Shelving endShelving = SHELVING_MAP.get(end.getShelvingId());
+        final var endShelving = SHELVING_MAP.get(end.getShelvingId());
         if (endShelving == null) {
             throw new IndexOutOfBoundsException(String.format(SHELVING_NOT_FOUND_ERROR, end.getShelvingId()));
         }
-        int deltaX = 0;
-        int deltaY;
+        var deltaX = 0;
+        var deltaY = 0;
 
-        final int startX = getAbsoluteX(startShelving, start);
-        final int startY = getAbsoluteY(startShelving, start);
-        final int endX = getAbsoluteX(endShelving, end);
-        final int endY = getAbsoluteY(endShelving, end);
+        final var startX = getAbsoluteX(startShelving, start);
+        final var startY = getAbsoluteY(startShelving, start);
+        final var endX = getAbsoluteX(endShelving, end);
+        final var endY = getAbsoluteY(endShelving, end);
 
         if (startShelving == endShelving) {
             //same shelving
@@ -173,21 +173,19 @@ public class Warehouse {
     }
 
     public static int calculateDistanceToTravel(Trolley trolley) {
-        int distance = 0;
-        WarehouseLocation previousLocation = trolley.getLocation();
-        TrolleyStep nextElement = trolley.getNextElement();
-        while (nextElement != null) {
-            distance += calculateDistance(previousLocation, nextElement.getLocation());
-            previousLocation = nextElement.getLocation();
-            nextElement = nextElement.getNextElement();
+        var distance = 0;
+        var previousLocation = trolley.getLocation();
+        for (var pick : trolley.getPickTasks()) {
+            distance += calculateDistance(previousLocation, pick.getLocation());
+            previousLocation = pick.getLocation();
         }
         distance += calculateDistance(previousLocation, trolley.getLocation());
         return distance;
     }
 
     private static int calculateBestYDistanceInShelvingRow(int startY, int endY) {
-        final int northDirectionDistance = startY + endY;
-        final int southDirectionDistance = (SHELVING_HEIGHT - startY) + (SHELVING_HEIGHT - endY);
+        final var northDirectionDistance = startY + endY;
+        final var southDirectionDistance = (SHELVING_HEIGHT - startY) + (SHELVING_HEIGHT - endY);
         return Math.min(northDirectionDistance, southDirectionDistance);
     }
 

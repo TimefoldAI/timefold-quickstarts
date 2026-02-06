@@ -1,19 +1,28 @@
 package org.acme.orderpicking.domain;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
+import ai.timefold.solver.core.api.domain.variable.PlanningListVariable;
 
 /**
  * Represents the trolley that will be filled with the order items.
- * 
- * @see TrolleyStep for more information about the model constructed by the Solver.
+ *
+ * @see PickTask for more information about the model constructed by the Solver.
  */
-public class Trolley extends TrolleyOrTrolleyStep {
+@PlanningEntity
+public class Trolley {
 
     @PlanningId
     private String id;
     private int bucketCount;
     private int bucketCapacity;
     private WarehouseLocation location;
+
+    @PlanningListVariable
+    private List<PickTask> pickTasks = new ArrayList<>();
 
     public Trolley() {
         //marshalling constructor
@@ -50,12 +59,19 @@ public class Trolley extends TrolleyOrTrolleyStep {
         this.bucketCapacity = bucketCapacity;
     }
 
-    @Override
     public WarehouseLocation getLocation() {
         return location;
     }
 
     public void setLocation(WarehouseLocation location) {
         this.location = location;
+    }
+
+    public List<PickTask> getPickTasks() {
+        return pickTasks;
+    }
+
+    public void setPickTasks(List<PickTask> pickTasks) {
+        this.pickTasks = pickTasks;
     }
 }

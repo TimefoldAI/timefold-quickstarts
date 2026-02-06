@@ -9,11 +9,12 @@ import static org.acme.orderpicking.domain.Warehouse.Row.ROW_1;
 import static org.acme.orderpicking.domain.Warehouse.Row.ROW_2;
 import static org.acme.orderpicking.domain.Warehouse.Row.ROW_3;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
+import ai.timefold.solver.core.api.solver.SolutionManager;
 import jakarta.inject.Inject;
 
 import ai.timefold.solver.test.api.score.stream.ConstraintVerifier;
@@ -24,8 +25,7 @@ import org.acme.orderpicking.domain.OrderPickingSolution;
 import org.acme.orderpicking.domain.Product;
 import org.acme.orderpicking.domain.Shelving;
 import org.acme.orderpicking.domain.Trolley;
-import org.acme.orderpicking.domain.TrolleyOrTrolleyStep;
-import org.acme.orderpicking.domain.TrolleyStep;
+import org.acme.orderpicking.domain.PickTask;
 import org.acme.orderpicking.domain.Warehouse;
 import org.acme.orderpicking.domain.WarehouseLocation;
 import org.junit.jupiter.api.Test;
@@ -40,152 +40,156 @@ class OrderPickingConstraintProviderTest {
 
     @Test
     void requiredNumberOfBucketsWithPenalization() {
-        Order order1 = mockOrder("order1",
-                mockOrderItem(4), //goes in Trolley1
-                mockOrderItem(5), //goes in Trolley1
-                mockOrderItem(9), //goes in Trolley2
-                mockOrderItem(8)); //goes in Trolley2
+        var order1 = createOrder("order1",
+                createOrderItem(4), //goes in Trolley1
+                createOrderItem(5), //goes in Trolley1
+                createOrderItem(9), //goes in Trolley2
+                createOrderItem(8)); //goes in Trolley2
 
-        Order order2 = mockOrder("order2",
-                mockOrderItem(4), //goes in Trolley1
-                mockOrderItem(1), //goes in Trolley1
-                mockOrderItem(8), //goes in Trolley2
-                mockOrderItem(6), //goes in Trolley2
-                mockOrderItem(10), //goes in Trolley2
-                mockOrderItem(9)); //goes in Trolley2
+        var order2 = createOrder("order2",
+                createOrderItem(4), //goes in Trolley1
+                createOrderItem(1), //goes in Trolley1
+                createOrderItem(8), //goes in Trolley2
+                createOrderItem(6), //goes in Trolley2
+                createOrderItem(10), //goes in Trolley2
+                createOrderItem(9)); //goes in Trolley2
 
-        TrolleyStep trolley1Step1 = mockTrolleyStep(order1.getItems().get(0));
-        TrolleyStep trolley1Step2 = mockTrolleyStep(order1.getItems().get(1));
+        var trolley1PickTask1 = createPickTask(order1.getItems().get(0));
+        var trolley1PickTask2 = createPickTask(order1.getItems().get(1));
 
-        TrolleyStep trolley1Step3 = mockTrolleyStep(order2.getItems().get(0));
-        TrolleyStep trolley1Step4 = mockTrolleyStep(order2.getItems().get(1));
+        var trolley1PickTask3 = createPickTask(order2.getItems().get(0));
+        var trolley1PickTask4 = createPickTask(order2.getItems().get(1));
 
         //Trolley1:
         //Order1 total volume = 9 -> requires 2 buckets
         //Order2 total volume = 5 -> requires 1 bucket
         //Total required buckets = 3
         //Penalization = 3 - 2 = 1
-        Trolley trolley1 = mockTrolley(2, 5,
-                trolley1Step1,
-                trolley1Step2,
-                trolley1Step3,
-                trolley1Step4);
+        var trolley1 = initializeTrolley(2, 5,
+                trolley1PickTask1,
+                trolley1PickTask2,
+                trolley1PickTask3,
+                trolley1PickTask4);
 
-        TrolleyStep trolley2Step1 = mockTrolleyStep(order1.getItems().get(2));
-        TrolleyStep trolley2Step2 = mockTrolleyStep(order1.getItems().get(3));
+        var trolley2PickTask1 = createPickTask(order1.getItems().get(2));
+        var trolley2PickTask2 = createPickTask(order1.getItems().get(3));
 
-        TrolleyStep trolley2Step3 = mockTrolleyStep(order2.getItems().get(2));
-        TrolleyStep trolley2Step4 = mockTrolleyStep(order2.getItems().get(3));
-        TrolleyStep trolley2Step5 = mockTrolleyStep(order2.getItems().get(4));
-        TrolleyStep trolley2Step6 = mockTrolleyStep(order2.getItems().get(5));
+        var trolley2PickTask3 = createPickTask(order2.getItems().get(2));
+        var trolley2PickTask4 = createPickTask(order2.getItems().get(3));
+        var trolley2PickTask5 = createPickTask(order2.getItems().get(4));
+        var trolley2PickTask6 = createPickTask(order2.getItems().get(5));
 
         //Trolley2:
         //Order1 total volume = 17 -> requires 2 bucket
         //Order2 total volume = 33 -> requires 4 buckets
         //Total required buckets = 6
         //Penalization = 6 - 2 = 4
-        Trolley trolley2 = mockTrolley(2, 10,
-                trolley2Step1,
-                trolley2Step2,
-                trolley2Step3,
-                trolley2Step4,
-                trolley2Step5,
-                trolley2Step6);
+        var trolley2 = initializeTrolley(2, 10,
+                trolley2PickTask1,
+                trolley2PickTask2,
+                trolley2PickTask3,
+                trolley2PickTask4,
+                trolley2PickTask5,
+                trolley2PickTask6);
 
         //Penalization Trolley1 = 1
         //Penalization Trolley2 = 4
         //Total penalization = 5
         constraintVerifier.verifyThat(OrderPickingConstraintProvider::requiredNumberOfBuckets)
-                .given(trolley1Step1,
-                        trolley1Step2,
-                        trolley1Step3,
-                        trolley1Step4,
-                        trolley2Step1,
-                        trolley2Step2,
-                        trolley2Step3,
-                        trolley2Step4,
-                        trolley2Step5,
-                        trolley2Step6)
+                .given(trolley1PickTask1,
+                        trolley1PickTask2,
+                        trolley1PickTask3,
+                        trolley1PickTask4,
+                        trolley2PickTask1,
+                        trolley2PickTask2,
+                        trolley2PickTask3,
+                        trolley2PickTask4,
+                        trolley2PickTask5,
+                        trolley2PickTask6)
                 .penalizesBy(5);
     }
 
     @Test
-    void minimizeDistanceFromPreviousTrolleyStep() {
-        TrolleyStep currentTrolleyStep =
-                mockTrolleyStep(new WarehouseLocation(newShelvingId(COL_C, ROW_3), Shelving.Side.RIGHT, 1));
-        TrolleyStep previousTrolleyStep =
-                mockTrolleyStep(new WarehouseLocation(newShelvingId(COL_E, ROW_1), Shelving.Side.RIGHT, 3));
-        currentTrolleyStep.setPreviousElement(previousTrolleyStep);
+    void minimizeDistanceFromPreviousPickTask() {
+        var currentPickTask =
+                createPickTask(new WarehouseLocation(newShelvingId(COL_C, ROW_3), Shelving.Side.RIGHT, 1));
+        var previousPickTask =
+                createPickTask(new WarehouseLocation(newShelvingId(COL_E, ROW_1), Shelving.Side.RIGHT, 3));
 
-        Warehouse.calculateDistance(currentTrolleyStep.getLocation(), previousTrolleyStep.getLocation());
-        constraintVerifier.verifyThat(OrderPickingConstraintProvider::minimizeDistanceFromPreviousTrolleyStep)
-                .given(currentTrolleyStep)
+        var trolley = initializeTrolley(1, 1,
+                previousPickTask,
+                currentPickTask);
+        currentPickTask.setTrolley(trolley);
+
+        Warehouse.calculateDistance(currentPickTask.getLocation(), previousPickTask.getLocation());
+        constraintVerifier.verifyThat(OrderPickingConstraintProvider::minimizeDistanceFromPreviousPickTask)
+                .given(currentPickTask)
                 .penalizesBy(34);
     }
 
     @Test
-    void minimizeDistanceFromLastTrolleyStepToPathOrigin() {
-        TrolleyStep lastTrolleyStep =
-                mockTrolleyStep(new WarehouseLocation(newShelvingId(COL_D, ROW_2), Shelving.Side.LEFT, 0));
+    void minimizeDistanceFromLastTrolleyPickTaskToPathOrigin() {
+        var lastPickTask =
+                createPickTask(new WarehouseLocation(newShelvingId(COL_D, ROW_2), Shelving.Side.LEFT, 0));
 
-        TrolleyStep intermediateTrolleyStep1 = new TrolleyStep();
-        TrolleyStep intermediateTrolleyStep2 = new TrolleyStep();
+        var intermediatePickTask1 = new PickTask();
+        var intermediatePickTask2 = new PickTask();
 
-        Trolley trolley = mockTrolley(1, 1,
-                intermediateTrolleyStep1,
-                intermediateTrolleyStep2,
-                lastTrolleyStep);
+        var trolley = initializeTrolley(1, 1,
+                intermediatePickTask1,
+                intermediatePickTask2,
+                lastPickTask);
 
-        WarehouseLocation pathOriginLocation = new WarehouseLocation(newShelvingId(COL_A, ROW_1), Shelving.Side.LEFT, 0);
+        var pathOriginLocation = new WarehouseLocation(newShelvingId(COL_A, ROW_1), Shelving.Side.LEFT, 0);
         trolley.setLocation(pathOriginLocation);
-        constraintVerifier.verifyThat(OrderPickingConstraintProvider::minimizeDistanceFromLastTrolleyStepToPathOrigin)
-                .given(intermediateTrolleyStep1,
-                        intermediateTrolleyStep2,
-                        lastTrolleyStep)
+        constraintVerifier.verifyThat(OrderPickingConstraintProvider::minimizeDistanceFromLastPickTaskToPathOrigin)
+                .given(intermediatePickTask1,
+                        intermediatePickTask2,
+                        lastPickTask)
                 .penalizesBy(28);
     }
 
     @Test
     void minimizeOrderSplitByTrolley() {
-        Order order1 = mockOrder("order1",
-                mockOrderItem(1),
-                mockOrderItem(1),
-                mockOrderItem(1),
-                mockOrderItem(1));
+        var order1 = createOrder("order1",
+                createOrderItem(1),
+                createOrderItem(1),
+                createOrderItem(1),
+                createOrderItem(1));
 
-        Order order2 = mockOrder("order2",
-                mockOrderItem(1),
-                mockOrderItem(1),
-                mockOrderItem(1),
-                mockOrderItem(1));
+        var order2 = createOrder("order2",
+                createOrderItem(1),
+                createOrderItem(1),
+                createOrderItem(1),
+                createOrderItem(1));
 
-        Trolley order1Trolley1 = mockTrolley(2, 1,
-                mockTrolleyStep(order1.getItems().get(0)),
-                mockTrolleyStep(order1.getItems().get(1)));
-        Trolley order1Trolley2 = mockTrolley(1, 1,
-                mockTrolleyStep(order1.getItems().get(2)));
-        Trolley order1Trolley3 = mockTrolley(1, 1,
-                mockTrolleyStep(order1.getItems().get(3)));
+        var order1Trolley1 = initializeTrolley(2, 1,
+                createPickTask(order1.getItems().get(0)),
+                createPickTask(order1.getItems().get(1)));
+        var order1Trolley2 = initializeTrolley(1, 1,
+                createPickTask(order1.getItems().get(2)));
+        var order1Trolley3 = initializeTrolley(1, 1,
+                createPickTask(order1.getItems().get(3)));
 
-        Trolley order2Trolley1 = mockTrolley(4, 1,
-                mockTrolleyStep(order2.getItems().get(0)),
-                mockTrolleyStep(order2.getItems().get(1)),
-                mockTrolleyStep(order2.getItems().get(2)),
-                mockTrolleyStep(order2.getItems().get(3)));
+        var order2Trolley1 = initializeTrolley(4, 1,
+                createPickTask(order2.getItems().get(0)),
+                createPickTask(order2.getItems().get(1)),
+                createPickTask(order2.getItems().get(2)),
+                createPickTask(order2.getItems().get(3)));
 
-        Object[] allSteps = Stream.of(trolleySteps(order1Trolley1),
-                trolleySteps(order1Trolley2),
-                trolleySteps(order1Trolley3),
-                trolleySteps(order2Trolley1))
+        var allPickTasks = Stream.of(order1Trolley1.getPickTasks(),
+                order1Trolley2.getPickTasks(),
+                order1Trolley3.getPickTasks(),
+                order2Trolley1.getPickTasks())
                 .flatMap(Collection::stream).toArray();
 
         constraintVerifier.verifyThat(OrderPickingConstraintProvider::minimizeOrderSplitByTrolley)
-                .given(allSteps)
+                .given(allPickTasks)
                 .penalizesBy(4 * 1000);
     }
 
-    private static Order mockOrder(String id, OrderItem... items) {
-        Order order = new Order();
+    private static Order createOrder(String id, OrderItem... items) {
+        var order = new Order();
         order.setId(id);
         for (int i = 0; i < items.length; i++) {
             OrderItem item = items[i];
@@ -196,51 +200,36 @@ class OrderPickingConstraintProviderTest {
         return order;
     }
 
-    private static OrderItem mockOrderItem(int volume) {
-        OrderItem item = new OrderItem();
-        Product product = new Product();
+    private static OrderItem createOrderItem(int volume) {
+        var item = new OrderItem();
+        var product = new Product();
         product.setVolume(volume);
         item.setProduct(product);
         return item;
     }
 
-    private static TrolleyStep mockTrolleyStep(OrderItem item) {
-        return new TrolleyStep("", item);
+    private static PickTask createPickTask(OrderItem item) {
+        return new PickTask("", item);
     }
 
-    private static TrolleyStep mockTrolleyStep(WarehouseLocation location) {
-        OrderItem item = new OrderItem();
-        Product product = new Product();
+    private static PickTask createPickTask(WarehouseLocation location) {
+        var item = new OrderItem();
+        var product = new Product();
         product.setLocation(location);
         item.setProduct(product);
-        return new TrolleyStep("1", item);
+        return new PickTask("1", item);
     }
 
-    private static Trolley mockTrolley(int bucketCount, int bucketCapacity, TrolleyStep... steps) {
-        Trolley trolley = new Trolley();
+    private static Trolley initializeTrolley(int bucketCount, int bucketCapacity, PickTask... picks) {
+        var trolley = new Trolley();
         trolley.setBucketCapacity(bucketCapacity);
         trolley.setBucketCount(bucketCount);
-        linkPathElements(trolley, steps);
+        trolley.setPickTasks(List.of(picks));
+
+        var entities = Stream.concat(Stream.of(trolley), Arrays.stream(picks)).toArray();
+
+        SolutionManager.updateShadowVariables(OrderPickingSolution.class, entities);
+
         return trolley;
-    }
-
-    private static List<TrolleyStep> trolleySteps(Trolley trolley) {
-        ArrayList<TrolleyStep> result = new ArrayList<>();
-        TrolleyStep nextElement = trolley.getNextElement();
-        while (nextElement != null) {
-            result.add(nextElement);
-            nextElement = nextElement.getNextElement();
-        }
-        return result;
-    }
-
-    private static void linkPathElements(Trolley trolley, TrolleyStep... trolleySteps) {
-        TrolleyOrTrolleyStep previousStep = trolley;
-        for (TrolleyStep trolleyStep : trolleySteps) {
-            trolleyStep.setTrolley(trolley);
-            trolleyStep.setPreviousElement(previousStep);
-            previousStep.setNextElement(trolleyStep);
-            previousStep = trolleyStep;
-        }
     }
 }

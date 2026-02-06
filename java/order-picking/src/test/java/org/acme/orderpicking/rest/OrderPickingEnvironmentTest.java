@@ -40,18 +40,18 @@ class OrderPickingEnvironmentTest {
 
     void solve(EnvironmentMode environmentMode) {
         // Load the problem
-        OrderPickingSolution problem = orderPickingRepository.find();
+        var problem = orderPickingRepository.find();
 
         // Update the environment
-        SolverConfig updatedConfig = solverConfig.copyConfig();
+        var updatedConfig = solverConfig.copyConfig();
         updatedConfig.withEnvironmentMode(environmentMode)
                 .withTerminationSpentLimit(Duration.ofSeconds(30))
                 .getTerminationConfig().withBestScoreLimit(null);
-        SolverFactory<OrderPickingSolution> solverFactory = SolverFactory.create(updatedConfig);
+        var solverFactory = SolverFactory.<OrderPickingSolution>create(updatedConfig);
 
         // Solve the problem
-        Solver<OrderPickingSolution> solver = solverFactory.buildSolver();
-        OrderPickingSolution solution = solver.solve(problem);
+        var solver = solverFactory.buildSolver();
+        var solution = solver.solve(problem);
         assertThat(solution.getScore()).isNotNull();
     }
 }
