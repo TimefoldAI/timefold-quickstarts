@@ -125,7 +125,7 @@ public class Visit implements LocationAware {
 
     @SuppressWarnings("unused")
     @ShadowSources({"vehicle", "previousVisit.arrivalTime"})
-    private LocalDateTime arrivalTimeSupplier() {
+    public LocalDateTime arrivalTimeSupplier() {
         if (previousVisit == null && vehicle == null) {
             return null;
         }
