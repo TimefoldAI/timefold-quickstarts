@@ -40,10 +40,10 @@ class OrderPickingEnvironmentTest {
 
     void solve(EnvironmentMode environmentMode) {
         // Load the problem
-        OrderPickingSolution problem = orderPickingRepository.find();
+        var problem = orderPickingRepository.find();
 
         // Update the environment
-        SolverConfig updatedConfig = solverConfig.copyConfig();
+        var updatedConfig = solverConfig.copyConfig();
         updatedConfig.withEnvironmentMode(environmentMode)
                 .withTerminationSpentLimit(Duration.ofSeconds(30))
                 .getTerminationConfig().withBestScoreLimit(null);
