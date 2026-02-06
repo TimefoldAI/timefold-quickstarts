@@ -28,7 +28,7 @@ class OrderPickingResourceIT {
                 .pollInterval(Duration.ofMillis(500L))
                 .until(() -> !SolverStatus.NOT_SOLVING.name().equals(get("/orderPicking").jsonPath().get("solverStatus")));
 
-        String score = get("/orderPicking").jsonPath().getString("solution.score");
+        var score = get("/orderPicking").jsonPath().getString("solution.score");
         assertThat(score).isNotNull();
     }
 }

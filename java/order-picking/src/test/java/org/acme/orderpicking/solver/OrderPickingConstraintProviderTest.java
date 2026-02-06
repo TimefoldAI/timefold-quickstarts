@@ -140,7 +140,7 @@ class OrderPickingConstraintProviderTest {
                 intermediatePickTask2,
                 lastPickTask);
 
-        WarehouseLocation pathOriginLocation = new WarehouseLocation(newShelvingId(COL_A, ROW_1), Shelving.Side.LEFT, 0);
+        var pathOriginLocation = new WarehouseLocation(newShelvingId(COL_A, ROW_1), Shelving.Side.LEFT, 0);
         trolley.setLocation(pathOriginLocation);
         constraintVerifier.verifyThat(OrderPickingConstraintProvider::minimizeDistanceFromLastPickTaskToPathOrigin)
                 .given(intermediatePickTask1,
@@ -226,7 +226,7 @@ class OrderPickingConstraintProviderTest {
         trolley.setBucketCount(bucketCount);
         trolley.setPickTasks(List.of(picks));
 
-        Object[] entities = Stream.concat(Stream.of(trolley), Arrays.stream(picks)).toArray();
+        var entities = Stream.concat(Stream.of(trolley), Arrays.stream(picks)).toArray();
 
         SolutionManager.updateShadowVariables(OrderPickingSolution.class, entities);
 

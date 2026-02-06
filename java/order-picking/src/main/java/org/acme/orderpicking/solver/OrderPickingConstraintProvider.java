@@ -81,7 +81,7 @@ public class OrderPickingConstraintProvider implements ConstraintProvider {
         return constraintFactory.forEach(PickTask.class)
                 .penalizeLong(HardSoftLongScore.ONE_SOFT,
                         pick -> {
-                            WarehouseLocation previousLocation = pick.getPreviousPickTask() != null
+                            var previousLocation = pick.getPreviousPickTask() != null
                                     ? pick.getPreviousPickTask().getLocation()
                                     : pick.getTrolley().getLocation();
                             return calculateDistance(previousLocation, pick.getLocation());
