@@ -22,21 +22,24 @@ multi-ecosystem-groups:
   base:
     schedule:
       interval: weekly
-      time: '03:00' # Otherwise it picks a random time.
+      day: "monday"
+      time: "03:00"
     target-branch: "development"
     commit-message:
       prefix: "deps: "
   quarkus:
     schedule:
       interval: weekly
-      time: '03:00' # Otherwise it picks a random time.
+      day: "monday"
+      time: "03:00"
     target-branch: "development"
     commit-message:
       prefix: "deps: "
   spring:
     schedule:
       interval: weekly
-      time: '03:00' # Otherwise it picks a random time.
+      day: "monday"
+      time: "03:00"
     target-branch: "development"
     commit-message:
       prefix: "deps: "
