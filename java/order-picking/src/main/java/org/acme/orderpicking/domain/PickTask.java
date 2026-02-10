@@ -81,6 +81,14 @@ public class PickTask {
         this.previousPickTask = previousPickTask;
     }
 
+    public PickTask getNextPickTask() {
+        return nextPickTask;
+    }
+
+    public void setNextPickTask(PickTask nextPickTask) {
+        this.nextPickTask = nextPickTask;
+    }
+
     public boolean isLast() {
         return nextPickTask == null;
     }
