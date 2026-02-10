@@ -65,10 +65,8 @@ jobs:
           "java/tournament-scheduling", "java/vehicle-routing"
         ]
         # Only one supported LTS; already too many jobs here.
-        # We choose 21 as Quarkus 3.17.2 has weird issues with Java 17 GraalVM,
-        # with Java 21+ GraalVM being recommended even for Java 17 projects.
-        # https://github.com/quarkusio/quarkus/issues/44877
-        java-version: [ 21 ]
+        # We choose 25 as that's the latest LTS.
+        java-version: [ 25 ]
     timeout-minutes: 120
     steps:
       - name: Checkout timefold-quickstarts
@@ -124,10 +122,8 @@ jobs:
       matrix:
         module: [ "java/bed-allocation", "java/vehicle-routing"]
         # Only one supported LTS; already too many jobs here.
-        # We choose 21 as Quarkus 3.17.2 has weird issues with Java 17 GraalVM,
-        # with Java 21+ GraalVM being recommended even for Java 17 projects.
-        # https://github.com/quarkusio/quarkus/issues/44877
-        java-version: [ 21 ]
+        # We choose 25 as that's the latest LTS.
+        java-version: [ 25 ]
     timeout-minutes: 120
     steps:
       - name: Checkout timefold-quickstarts
@@ -222,10 +218,8 @@ jobs:
           "java/spring-boot-integration"
         ]
         # Only one supported LTS; already too many jobs here.
-        # We choose 21 as Quarkus 3.17.2 has weird issues with Java 17 GraalVM,
-        # with Java 21+ GraalVM being recommended even for Java 17 projects.
-        # https://github.com/quarkusio/quarkus/issues/44877
-        java-version: [ 21 ]
+        # We choose 25 as that's the latest LTS.
+        java-version: [ 25 ]
     timeout-minutes: 120
     steps:
       - name: Checkout timefold-quickstarts
