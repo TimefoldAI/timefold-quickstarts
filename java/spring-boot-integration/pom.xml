@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.5.10</version>
+    <version>4.0.2</version>
   </parent>
 
   <groupId>org.acme</groupId>
@@ -47,7 +47,7 @@
     <!-- Spring boot -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
+      <artifactId>spring-boot-starter-webmvc</artifactId>
     </dependency>
     <dependency>
       <groupId>ai.timefold.solver</groupId>
@@ -58,7 +58,7 @@
     <dependency>
       <groupId>org.springdoc</groupId>
       <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-      <version>2.8.14</version>
+      <version>3.0.1</version>
     </dependency>
 
     <!-- Testing -->
@@ -68,18 +68,13 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>ai.timefold.solver</groupId>
-      <artifactId>timefold-solver-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-webflux</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.awaitility</groupId>
-      <artifactId>awaitility</artifactId>
+      <groupId>ai.timefold.solver</groupId>
+      <artifactId>timefold-solver-test</artifactId>
       <scope>test</scope>
     </dependency>
 
