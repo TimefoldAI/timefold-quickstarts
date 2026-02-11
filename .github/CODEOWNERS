@@ -1,0 +1,8 @@
+# The general intention behind this file:
+# Github branch rules have been configured to require a review from code owners before merge.
+# Every PR has to be approved by at least one code owner.
+#
+# Rationale for assignments:
+# - @TomCools (Timefold DevRel) is the main code owner.
+# - @triceo is the secondary code owner, on account of being the lead of Timefold Solver.
+**/* @triceo @TomCools

@@ -195,13 +195,25 @@ public class Allocation {
         return startDate;
     }
 
+    public void setStartDate(Integer startDate) {
+        this.startDate = startDate;
+    }
+
     public Integer getEndDate() {
         return endDate;
+    }
+
+    public void setEndDate(Integer endDate) {
+        this.endDate = endDate;
     }
 
     @JsonIgnore
     public List<Integer> getBusyDates() {
         return busyDates;
+    }
+
+    public void setBusyDates(List<Integer> busyDates) {
+        this.busyDates = busyDates;
     }
 
     // ************************************************************************

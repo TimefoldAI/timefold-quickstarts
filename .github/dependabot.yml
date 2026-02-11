@@ -22,21 +22,24 @@ multi-ecosystem-groups:
   base:
     schedule:
       interval: weekly
-      time: '03:00' # Otherwise it picks a random time.
+      day: "monday"
+      time: "03:00"
     target-branch: "development"
     commit-message:
       prefix: "deps: "
   quarkus:
     schedule:
       interval: weekly
-      time: '03:00' # Otherwise it picks a random time.
+      day: "monday"
+      time: "03:00"
     target-branch: "development"
     commit-message:
       prefix: "deps: "
   spring:
     schedule:
       interval: weekly
-      time: '03:00' # Otherwise it picks a random time.
+      day: "monday"
+      time: "03:00"
     target-branch: "development"
     commit-message:
       prefix: "deps: "
@@ -50,6 +53,7 @@ updates:
     ignore:
       - dependency-name: "org.webjars:*"
       - dependency-name: "io.quarkus:*"
+      - dependency-name: "org.springdoc:*"
       - dependency-name: "org.springframework:*"
       - dependency-name: "org.springframework.boot:*"
     multi-ecosystem-group: "base"
@@ -62,6 +66,7 @@ updates:
       - dependency-name: "org.webjars:*"
       - dependency-name: "io.quarkus"
       - dependency-name: "io.quarkus:*"
+      - dependency-name: "org.springdoc:*"
       - dependency-name: "org.springframework:*"
       - dependency-name: "org.springframework.boot:*"
     multi-ecosystem-group: "base"
@@ -77,6 +82,7 @@ updates:
       - dependency-name: "io.quarkus:*"
     ignore:
       - dependency-name: "org.webjars:*"
+      - dependency-name: "org.springdoc:*"
       - dependency-name: "org.springframework:*"
       - dependency-name: "org.springframework.boot:*"
     multi-ecosystem-group: "quarkus"
@@ -88,6 +94,7 @@ updates:
       - dependency-name: "io.quarkus:*"
     ignore:
       - dependency-name: "org.webjars:*"
+      - dependency-name: "org.springdoc:*"
       - dependency-name: "org.springframework:*"
       - dependency-name: "org.springframework.boot:*"
     multi-ecosystem-group: "quarkus"
@@ -96,6 +103,7 @@ updates:
     directory: "/"
     patterns: [ "*" ]
     allow:
+      - dependency-name: "org.springdoc:*"
       - dependency-name: "org.springframework:*"
       - dependency-name: "org.springframework.boot:*"
     ignore:
@@ -106,6 +114,8 @@ updates:
     directory: "/"
     patterns: [ "*" ]
     allow:
+      - dependency-name: "org.springdoc:*"
+      - dependency-name: "org.springframework:*"
       - dependency-name: "org.springframework:*"
       - dependency-name: "org.springframework.boot:*"
     ignore:

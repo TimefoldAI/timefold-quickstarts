@@ -44,8 +44,8 @@ public class OrderPickingSolverResource {
 
     @GET
     public OrderPickingPlanning getBestSolution() {
-        OrderPickingSolution solution = orderPickingRepository.find();
-        SolverStatus solverStatus = solverManager.getSolverStatus(PROBLEM_ID);
+        var solution = orderPickingRepository.find();
+        var solverStatus = solverManager.getSolverStatus(PROBLEM_ID);
         return new OrderPickingPlanning(solverStatus, solution, solverWasNeverStarted.get());
     }
 
@@ -65,7 +65,7 @@ public class OrderPickingSolverResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("analyze")
     public ScoreAnalysis<HardSoftLongScore> analyze(@QueryParam("fetchPolicy") ScoreAnalysisFetchPolicy fetchPolicy) {
-        OrderPickingSolution problem = orderPickingRepository.find();
+        var problem = orderPickingRepository.find();
         return fetchPolicy == null ? solutionManager.analyze(problem) : solutionManager.analyze(problem, fetchPolicy);
     }
 

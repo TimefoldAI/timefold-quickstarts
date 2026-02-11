@@ -1,11 +1,11 @@
 plugins {
-    id "org.springframework.boot" version "3.5.9"
+    id "org.springframework.boot" version "3.5.10"
     id "io.spring.dependency-management" version "1.1.7"
-    id 'org.graalvm.buildtools.native' version '0.11.3'
+    id 'org.graalvm.buildtools.native' version '0.11.4'
     id "java"
 }
 
-def timefoldVersion = "1.30.0"
+def timefoldVersion = "1.31.0"
 def profile = System.properties['profile'] ?: ''
 def enterprise = System.properties['enterprise'] ?: ''
 
@@ -51,7 +51,7 @@ dependencies {
     testImplementation("ai.timefold.solver:timefold-solver-test")
     testImplementation("org.springframework:spring-webflux")
     testImplementation "org.awaitility:awaitility"
-    testImplementation "org.assertj:assertj-core:3.27.6"
+    testImplementation "org.assertj:assertj-core:3.27.7"
 
     // UI
     // No webjar locator; incompatible in native mode;

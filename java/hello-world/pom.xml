@@ -12,12 +12,12 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <jar.with.dependencies.name>hello-world-run</jar.with.dependencies.name>
 
-    <version.ai.timefold.solver>1.30.0</version.ai.timefold.solver>
-    <version.org.assertj>3.27.6</version.org.assertj>
+    <version.ai.timefold.solver>1.31.0</version.ai.timefold.solver>
+    <version.org.assertj>3.27.7</version.org.assertj>
     <version.org.junit.jupiter>6.0.2</version.org.junit.jupiter>
-    <version.ch.qos.logback>1.5.24</version.ch.qos.logback>
+    <version.ch.qos.logback>1.5.28</version.ch.qos.logback>
 
-    <version.compiler.plugin>3.14.1</version.compiler.plugin>
+    <version.compiler.plugin>3.15.0</version.compiler.plugin>
     <version.surefire.plugin>3.5.4</version.surefire.plugin>
     <version.assembly.plugin>3.8.0</version.assembly.plugin>
   </properties>

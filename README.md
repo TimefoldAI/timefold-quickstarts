@@ -16,7 +16,7 @@ It shows different use cases and basic implementations to get you started on you
 | 🚚 <a href="#-vehicle-routing">Vehicle Routing</a>                      | Chained Through Time, Shadow Variables                   |
 | 🧑‍💼 <a href="#-employee-scheduling">Employee Scheduling</a>           | Load Balancing                                           |
 | 🛠️ <a href="#-maintenance-scheduling">Maintenance Scheduling</a>       | TimeGrain, Shadow Variable, Variable Listener            |
-| 📦 <a href="#-food-packaging">Food Packaging</a>                        | Chained Through Time, Shadow Variables, Pinning          |
+| 📦 <a href="#-food-packaging">Food Packaging</a>                        | Mixed Model, Shadow Variables, Pinning                   |
 | 🛒 <a href="#-order-picking">Order Picking</a>                          | Chained Planning Variable, Shadow Variables              |
 | 🏫 <a href="#-school-timetabling">School Timetabling</a>                | Timeslot                                                 |
 | 🏭 <a href="#-facility-location-problem">Facility Location Problem</a>  | Shadow Variable                                          |

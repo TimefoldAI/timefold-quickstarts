@@ -27,7 +27,7 @@ import org.acme.orderpicking.domain.OrderPickingSolution;
 import org.acme.orderpicking.domain.Product;
 import org.acme.orderpicking.domain.Shelving;
 import org.acme.orderpicking.domain.Trolley;
-import org.acme.orderpicking.domain.TrolleyStep;
+import org.acme.orderpicking.domain.PickTask;
 import org.acme.orderpicking.domain.WarehouseLocation;
 import org.acme.orderpicking.persistence.OrderPickingRepository;
 
@@ -197,43 +197,43 @@ public class DemoDataGenerator {
 
     public void startup(@Observes StartupEvent startupEvent) {
         // Generate the random solution to work with.
-        Random random = new Random(37);
+        var random = new Random(37);
         validateBucketCapacity(BUCKET_CAPACITY);
-        List<Trolley> trolleys = buildTrolleys(TROLLEYS_COUNT, BUCKET_COUNT, BUCKET_CAPACITY, START_LOCATION);
-        List<Order> orders = buildOrders(ORDERS_COUNT, random);
-        List<TrolleyStep> trolleySteps = buildTrolleySteps(orders);
-        orderPickingRepository.save(new OrderPickingSolution(trolleys, trolleySteps));
+        var trolleys = buildTrolleys(TROLLEYS_COUNT, BUCKET_COUNT, BUCKET_CAPACITY, START_LOCATION);
+        var orders = buildOrders(ORDERS_COUNT, random);
+        var picks = buildPickTasks(orders);
+        orderPickingRepository.save(new OrderPickingSolution(trolleys, picks));
     }
 
     public List<Order> buildOrders(int size, Random random) {
-        List<Product> products = buildProducts(random);
+        var products = buildProducts(random);
         return buildOrders(size, products, random);
     }
 
     public List<Trolley> buildTrolleys(int size, int bucketCount, int bucketCapacity, WarehouseLocation startLocation) {
-        List<Trolley> result = new ArrayList<>(size);
+        var result = new ArrayList<Trolley>(size);
         for (int i = 1; i <= size; i++) {
             result.add(new Trolley(Integer.toString(i), bucketCount, bucketCapacity, startLocation));
         }
         return result;
     }
 
-    public List<TrolleyStep> buildTrolleySteps(List<Order> orders) {
-        List<TrolleyStep> result = new ArrayList<>();
+    public List<PickTask> buildPickTasks(List<Order> orders) {
+        var result = new ArrayList<PickTask>();
         for (Order order : orders) {
-            result.addAll(buildTrolleySteps(order));
+            result.addAll(buildPickTasks(order));
         }
         return result;
     }
 
-    public List<TrolleyStep> buildTrolleySteps(Order order) {
+    public List<PickTask> buildPickTasks(Order order) {
         int idx = 0;
-        List<TrolleyStep> steps = new ArrayList<>();
+        var picks = new ArrayList<PickTask>();
         for (OrderItem item : order.getItems()) {
-            TrolleyStep trolleyStep = new TrolleyStep(order.getId() + "-" + idx++, item);
-            steps.add(trolleyStep);
+            var pick = new PickTask(order.getId() + "-" + idx++, item);
+            picks.add(pick);
         }
-        return steps;
+        return picks;
     }
 
     public void validateBucketCapacity(int bucketCapacity) {
@@ -250,14 +250,14 @@ public class DemoDataGenerator {
         List<Order> orders = new ArrayList<>();
         Order order;
         for (int orderNumber = 1; orderNumber <= size; orderNumber++) {
-            int orderItemsSize = ORDER_ITEMS_SIZE_MINIMUM + random.nextInt(products.size() - ORDER_ITEMS_SIZE_MINIMUM);
-            List<OrderItem> orderItems = new ArrayList<>();
-            Set<String> orderProducts = new HashSet<>();
+            var orderItemsSize = ORDER_ITEMS_SIZE_MINIMUM + random.nextInt(products.size() - ORDER_ITEMS_SIZE_MINIMUM);
+            var orderItems = new ArrayList<OrderItem>();
+            var orderProducts = new HashSet<String>();
             order = new Order(Integer.toString(orderNumber), orderItems);
-            int itemNumber = 1;
+            var itemNumber = 1;
             for (int i = 0; i < orderItemsSize; i++) {
-                int productItemIndex = random.nextInt(products.size());
-                Product product = products.get(productItemIndex);
+                var productItemIndex = random.nextInt(products.size());
+                var product = products.get(productItemIndex);
                 if (!orderProducts.contains(product.getId())) {
                     orderItems.add(new OrderItem(Integer.toString(itemNumber++), order, product));
                     orderProducts.add(product.getId());
@@ -271,11 +271,11 @@ public class DemoDataGenerator {
     private List<Product> buildProducts(Random random) {
         return PRODUCTS.stream()
                 .map(productFamilyPair -> {
-                    List<String> shelvingIds = SHELVINGS_PER_FAMILY.get(productFamilyPair.getFamily());
-                    int shelvingIndex = random.nextInt(shelvingIds.size());
-                    Shelving.Side shelvingSide = Shelving.Side.values()[random.nextInt(Shelving.Side.values().length)];
-                    int shelvingRow = random.nextInt(Shelving.ROWS_SIZE) + 1;
-                    WarehouseLocation warehouseLocation =
+                    var shelvingIds = SHELVINGS_PER_FAMILY.get(productFamilyPair.getFamily());
+                    var shelvingIndex = random.nextInt(shelvingIds.size());
+                    var shelvingSide = Shelving.Side.values()[random.nextInt(Shelving.Side.values().length)];
+                    var shelvingRow = random.nextInt(Shelving.ROWS_SIZE) + 1;
+                    var warehouseLocation =
                             new WarehouseLocation(shelvingIds.get(shelvingIndex), shelvingSide, shelvingRow);
                     return new Product(productFamilyPair.getProduct().getId(),
                             productFamilyPair.getProduct().getName(),
