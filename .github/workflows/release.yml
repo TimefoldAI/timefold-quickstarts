@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       javaVersion:
-        description: 'Community Edition version (e.g. 1.0.0)'
+        description: 'Community Edition version (e.g. 2.0.0)'
         required: true
       developmentBranch:
         description: 'Development branch to cut the release from'
