@@ -4,7 +4,7 @@ import static ai.timefold.solver.core.api.score.stream.ConstraintCollectors.load
 import static ai.timefold.solver.core.api.score.stream.Joiners.equal;
 import static ai.timefold.solver.core.api.score.stream.Joiners.lessThan;
 
-import ai.timefold.solver.core.api.score.buildin.hardmediumsoftbigdecimal.HardMediumSoftBigDecimalScore;
+import ai.timefold.solver.core.api.score.HardMediumSoftBigDecimalScore;
 import ai.timefold.solver.core.api.score.stream.Constraint;
 import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
 import ai.timefold.solver.core.api.score.stream.ConstraintProvider;

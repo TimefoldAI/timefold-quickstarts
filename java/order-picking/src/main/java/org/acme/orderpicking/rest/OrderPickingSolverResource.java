@@ -1,11 +1,10 @@
 package org.acme.orderpicking.rest;
 
 import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
-import ai.timefold.solver.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
+import ai.timefold.solver.core.api.score.HardSoftScore;
 import ai.timefold.solver.core.api.solver.ScoreAnalysisFetchPolicy;
 import ai.timefold.solver.core.api.solver.SolutionManager;
 import ai.timefold.solver.core.api.solver.SolverManager;
-import ai.timefold.solver.core.api.solver.SolverStatus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -30,12 +29,12 @@ public class OrderPickingSolverResource {
     private final AtomicBoolean solverWasNeverStarted = new AtomicBoolean(true);
 
     private SolverManager<OrderPickingSolution, String> solverManager;
-    private SolutionManager<OrderPickingSolution, HardSoftLongScore> solutionManager;
+    private SolutionManager<OrderPickingSolution, HardSoftScore> solutionManager;
     private OrderPickingRepository orderPickingRepository;
 
     @Inject
     public OrderPickingSolverResource(SolverManager<OrderPickingSolution, String> solverManager,
-            SolutionManager<OrderPickingSolution, HardSoftLongScore> solutionManager,
+            SolutionManager<OrderPickingSolution, HardSoftScore> solutionManager,
             OrderPickingRepository orderPickingRepository) {
         this.solverManager = solverManager;
         this.solutionManager = solutionManager;
@@ -64,7 +63,7 @@ public class OrderPickingSolverResource {
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces(MediaType.APPLICATION_JSON)
     @Path("analyze")
-    public ScoreAnalysis<HardSoftLongScore> analyze(@QueryParam("fetchPolicy") ScoreAnalysisFetchPolicy fetchPolicy) {
+    public ScoreAnalysis<HardSoftScore> analyze(@QueryParam("fetchPolicy") ScoreAnalysisFetchPolicy fetchPolicy) {
         var problem = orderPickingRepository.find();
         return fetchPolicy == null ? solutionManager.analyze(problem) : solutionManager.analyze(problem, fetchPolicy);
     }

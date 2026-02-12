@@ -11,7 +11,7 @@ import ai.timefold.solver.core.api.domain.solution.PlanningEntityCollectionPrope
 import ai.timefold.solver.core.api.domain.solution.PlanningScore;
 import ai.timefold.solver.core.api.domain.solution.PlanningSolution;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
-import ai.timefold.solver.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
+import ai.timefold.solver.core.api.score.HardSoftScore;
 
 @PlanningSolution
 public class FacilityLocationProblem {
@@ -23,11 +23,11 @@ public class FacilityLocationProblem {
     private List<Consumer> consumers;
 
     @PlanningScore
-    private HardSoftLongScore score;
+    private HardSoftScore score;
 
     // Demonstrates how to override the weights of constraints.
-    ConstraintWeightOverrides<HardSoftLongScore> constraintWeightOverrides = ConstraintWeightOverrides.of(
-            Map.of("distance from facility", HardSoftLongScore.ofSoft(6)));
+    ConstraintWeightOverrides<HardSoftScore> constraintWeightOverrides = ConstraintWeightOverrides.of(
+            Map.of("distance from facility", HardSoftScore.ofSoft(6)));
 
     private Location southWestCorner;
     private Location northEastCorner;
@@ -52,7 +52,7 @@ public class FacilityLocationProblem {
                 emptyList(),
                 new Location(-90, -180),
                 new Location(90, 180));
-        problem.setScore(HardSoftLongScore.ZERO);
+        problem.setScore(HardSoftScore.ZERO);
         return problem;
     }
 
@@ -72,19 +72,19 @@ public class FacilityLocationProblem {
         this.consumers = consumers;
     }
 
-    public HardSoftLongScore getScore() {
+    public HardSoftScore getScore() {
         return score;
     }
 
-    public void setScore(HardSoftLongScore score) {
+    public void setScore(HardSoftScore score) {
         this.score = score;
     }
 
-    public ConstraintWeightOverrides<HardSoftLongScore> getConstraintWeightOverrides() {
+    public ConstraintWeightOverrides<HardSoftScore> getConstraintWeightOverrides() {
         return constraintWeightOverrides;
     }
 
-    public void setConstraintWeightOverrides(ConstraintWeightOverrides<HardSoftLongScore> constraintWeightOverrides) {
+    public void setConstraintWeightOverrides(ConstraintWeightOverrides<HardSoftScore> constraintWeightOverrides) {
         this.constraintWeightOverrides = constraintWeightOverrides;
     }
 

@@ -8,7 +8,7 @@ import ai.timefold.solver.core.api.domain.solution.PlanningSolution;
 import ai.timefold.solver.core.api.domain.solution.ProblemFactCollectionProperty;
 import ai.timefold.solver.core.api.domain.solution.ProblemFactProperty;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
-import ai.timefold.solver.core.api.score.buildin.hardmediumsoftlong.HardMediumSoftLongScore;
+import ai.timefold.solver.core.api.score.HardMediumSoftScore;
 import ai.timefold.solver.core.api.solver.SolverStatus;
 
 @PlanningSolution
@@ -32,7 +32,7 @@ public class PackagingSchedule {
     private List<Job> jobs;
 
     @PlanningScore
-    private HardMediumSoftLongScore score;
+    private HardMediumSoftScore score;
 
     // Ignored by Timefold, used by the UI to display solve or stop solving button
     private SolverStatus solverStatus;
@@ -85,11 +85,11 @@ public class PackagingSchedule {
         this.jobs = jobs;
     }
 
-    public HardMediumSoftLongScore getScore() {
+    public HardMediumSoftScore getScore() {
         return score;
     }
 
-    public void setScore(HardMediumSoftLongScore score) {
+    public void setScore(HardMediumSoftScore score) {
         this.score = score;
     }
 

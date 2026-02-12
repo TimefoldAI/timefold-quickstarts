@@ -1,7 +1,7 @@
 package org.acme.employeescheduling.rest;
 
 import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
-import ai.timefold.solver.core.api.score.buildin.hardsoftbigdecimal.HardSoftBigDecimalScore;
+import ai.timefold.solver.core.api.score.HardSoftBigDecimalScore;
 import ai.timefold.solver.core.api.solver.ScoreAnalysisFetchPolicy;
 import ai.timefold.solver.core.api.solver.SolutionManager;
 import ai.timefold.solver.core.api.solver.SolverManager;
