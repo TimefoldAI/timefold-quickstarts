@@ -353,3 +353,39 @@ function showError(title, xhr) {
   notification.toast({delay: 30000});
   notification.toast('show');
 }
+
+function fallbackCopyTextToClipboard(text) {
+  var textArea = document.createElement('textarea');
+  textArea.value = text;
+  textArea.style.position = 'fixed';
+  textArea.style.left = '-9999px';
+  textArea.style.top = '0';
+  document.body.appendChild(textArea);
+  textArea.focus();
+  textArea.select();
+  try {
+    document.execCommand('copy');
+  } catch (err) {
+    // Copying failed; swallow the error to avoid breaking the UI.
+  } finally {
+    document.body.removeChild(textArea);
+  }
+}
+
+function copyTextToClipboard(id) {
+  var element = document.getElementById(id);
+  if (!element) {
+    return;
+  }
+  var text = element.textContent || element.value || '';
+  if (!text) {
+    return;
+  }
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).catch(function () {
+      fallbackCopyTextToClipboard(text);
+    });
+  } else {
+    fallbackCopyTextToClipboard(text);
+  }
+}

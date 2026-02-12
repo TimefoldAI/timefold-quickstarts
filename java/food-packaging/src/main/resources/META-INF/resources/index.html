@@ -111,35 +111,35 @@
     <pre>
         <button class="btn btn-outline-dark btn-sm float-end"
                 onclick="copyTextToClipboard('curl1')">Copy</button>
-        <code id="curl1">curl -X GET -H 'Accept:application/json' http://localhost:8080/food-packaging</code>
+        <code id="curl1">curl -X GET -H 'Accept:application/json' http://localhost:8080/schedule</code>
     </pre>
 
     <h3>2. Start solving</h3>
     <pre>
         <button class="btn btn-outline-dark btn-sm float-end"
                 onclick="copyTextToClipboard('curl2')">Copy</button>
-        <code id="curl2">curl -X POST http://localhost:8080/food-packaging/solve</code>
+        <code id="curl2">curl -X POST http://localhost:8080/schedule/solve</code>
     </pre>
 
     <h3>3. Get the current solution</h3>
     <pre>
         <button class="btn btn-outline-dark btn-sm float-end"
                 onclick="copyTextToClipboard('curl3')">Copy</button>
-        <code id="curl3">curl -X GET -H 'Accept:application/json' http://localhost:8080/food-packaging</code>
+        <code id="curl3">curl -X GET -H 'Accept:application/json' http://localhost:8080/schedule</code>
     </pre>
 
     <h3>4. Analyze the score</h3>
     <pre>
         <button class="btn btn-outline-dark btn-sm float-end"
                 onclick="copyTextToClipboard('curl4')">Copy</button>
-        <code id="curl4">curl -X PUT -H 'Content-Type:application/json' -H 'Accept:application/json' http://localhost:8080/food-packaging/analyze?fetchPolicy=FETCH_SHALLOW</code>
+        <code id="curl4">curl -X PUT -H 'Content-Type:application/json' -H 'Accept:application/json' http://localhost:8080/schedule/analyze?fetchPolicy=FETCH_SHALLOW</code>
     </pre>
 
     <h3>5. Stop solving</h3>
     <pre>
         <button class="btn btn-outline-dark btn-sm float-end"
                 onclick="copyTextToClipboard('curl5')">Copy</button>
-        <code id="curl5">curl -X POST http://localhost:8080/food-packaging/stopSolving</code>
+        <code id="curl5">curl -X POST http://localhost:8080/schedule/stopSolving</code>
     </pre>
   </div>
 
@@ -190,11 +190,5 @@
 <script src="https://cdn.jsdelivr.net/npm/vis-timeline@7.7.2/standalone/umd/vis-timeline-graph2d.min.js"
         integrity="sha256-Jy2+UO7rZ2Dgik50z3XrrNpnc5+2PAx9MhL2CicodME=" crossorigin="anonymous"></script>
 <script src="/app.js"></script>
-<script>
-  function copyTextToClipboard(id) {
-    const text = document.getElementById(id).textContent;
-    navigator.clipboard.writeText(text);
-  }
-</script>
 </body>
 </html>
