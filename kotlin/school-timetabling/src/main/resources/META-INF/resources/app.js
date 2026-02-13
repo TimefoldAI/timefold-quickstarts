@@ -390,6 +390,9 @@ function convertToId(str) {
 }
 
 function extractId(value) {
+    if (value == null) {
+        return value;
+    }
     if (typeof value === "object") {
         return value.id;
     } else {
