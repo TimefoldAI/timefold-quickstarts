@@ -711,3 +711,38 @@ function showError(title, xhr) {
     notification.toast({delay: 30000});
     notification.toast('show');
 }
+
+function fallbackCopyTextToClipboard(text) {
+    var textarea = document.createElement('textarea');
+    textarea.value = text;
+    // Position off-screen to avoid affecting layout
+    textarea.style.position = 'fixed';
+    textarea.style.top = '-1000px';
+    textarea.style.left = '-1000px';
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    try {
+        document.execCommand('copy');
+    } finally {
+        document.body.removeChild(textarea);
+    }
+}
+
+function copyTextToClipboard(id) {
+    var element = document.getElementById(id);
+    if (!element) {
+        return;
+    }
+    var text = element.textContent || element.value || '';
+    if (!text) {
+        return;
+    }
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        navigator.clipboard.writeText(text).catch(function () {
+            fallbackCopyTextToClipboard(text);
+        });
+    } else {
+        fallbackCopyTextToClipboard(text);
+    }
+}
