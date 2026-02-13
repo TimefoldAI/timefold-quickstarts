@@ -1,7 +1,7 @@
 package org.acme.facilitylocation.rest;
 
 import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
-import ai.timefold.solver.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
+import ai.timefold.solver.core.api.score.HardSoftScore;
 import ai.timefold.solver.core.api.solver.ScoreAnalysisFetchPolicy;
 import ai.timefold.solver.core.api.solver.SolutionManager;
 import ai.timefold.solver.core.api.solver.SolverManager;
@@ -28,11 +28,11 @@ public class SolverResource {
 
     private final FacilityLocationProblemRepository repository;
     private final SolverManager<FacilityLocationProblem, String> solverManager;
-    private final SolutionManager<FacilityLocationProblem, HardSoftLongScore> solutionManager;
+    private final SolutionManager<FacilityLocationProblem, HardSoftScore> solutionManager;
 
     public SolverResource(FacilityLocationProblemRepository repository,
             SolverManager<FacilityLocationProblem, String> solverManager,
-            SolutionManager<FacilityLocationProblem, HardSoftLongScore> solutionManager) {
+            SolutionManager<FacilityLocationProblem, HardSoftScore> solutionManager) {
         this.repository = repository;
         this.solverManager = solverManager;
         this.solutionManager = solutionManager;
@@ -69,7 +69,7 @@ public class SolverResource {
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces(MediaType.APPLICATION_JSON)
     @Path("analyze")
-    public ScoreAnalysis<HardSoftLongScore> analyze(@QueryParam("fetchPolicy") ScoreAnalysisFetchPolicy fetchPolicy) {
+    public ScoreAnalysis<HardSoftScore> analyze(@QueryParam("fetchPolicy") ScoreAnalysisFetchPolicy fetchPolicy) {
         FacilityLocationProblem problem = repository.solution().get();
         return fetchPolicy == null ? solutionManager.analyze(problem) : solutionManager.analyze(problem, fetchPolicy);
     }

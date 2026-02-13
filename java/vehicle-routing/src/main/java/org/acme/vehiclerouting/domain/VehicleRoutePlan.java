@@ -7,17 +7,14 @@ import java.util.stream.Stream;
 import ai.timefold.solver.core.api.domain.solution.PlanningEntityCollectionProperty;
 import ai.timefold.solver.core.api.domain.solution.PlanningScore;
 import ai.timefold.solver.core.api.domain.solution.PlanningSolution;
-import ai.timefold.solver.core.api.domain.solution.ProblemFactCollectionProperty;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
-import ai.timefold.solver.core.api.score.buildin.hardmediumsoftlong.HardMediumSoftLongScore;
+import ai.timefold.solver.core.api.score.HardMediumSoftScore;
 import ai.timefold.solver.core.api.solver.SolverStatus;
-
-import org.acme.vehiclerouting.domain.geo.DrivingTimeCalculator;
-import org.acme.vehiclerouting.domain.geo.HaversineDrivingTimeCalculator;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.acme.vehiclerouting.domain.geo.DrivingTimeCalculator;
+import org.acme.vehiclerouting.domain.geo.HaversineDrivingTimeCalculator;
 
 /**
  * The plan for routing vehicles to visits, including:
@@ -52,7 +49,7 @@ public class VehicleRoutePlan {
     private List<Visit> visits;
 
     @PlanningScore
-    private HardMediumSoftLongScore score;
+    private HardMediumSoftScore score;
 
     private SolverStatus solverStatus;
 
@@ -62,7 +59,7 @@ public class VehicleRoutePlan {
     public VehicleRoutePlan() {
     }
 
-    public VehicleRoutePlan(String name, HardMediumSoftLongScore score, SolverStatus solverStatus) {
+    public VehicleRoutePlan(String name, HardMediumSoftScore score, SolverStatus solverStatus) {
         this.name = name;
         this.score = score;
         this.solverStatus = solverStatus;
@@ -119,11 +116,11 @@ public class VehicleRoutePlan {
         return visits;
     }
 
-    public HardMediumSoftLongScore getScore() {
+    public HardMediumSoftScore getScore() {
         return score;
     }
 
-    public void setScore(HardMediumSoftLongScore score) {
+    public void setScore(HardMediumSoftScore score) {
         this.score = score;
     }
 

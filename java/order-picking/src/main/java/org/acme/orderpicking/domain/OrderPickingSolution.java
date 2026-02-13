@@ -6,7 +6,7 @@ import ai.timefold.solver.core.api.domain.solution.PlanningEntityCollectionPrope
 import ai.timefold.solver.core.api.domain.solution.PlanningScore;
 import ai.timefold.solver.core.api.domain.solution.PlanningSolution;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
-import ai.timefold.solver.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
+import ai.timefold.solver.core.api.score.HardSoftScore;
 
 @PlanningSolution
 public class OrderPickingSolution {
@@ -29,7 +29,7 @@ public class OrderPickingSolution {
     private List<PickTask> pickTasks;
 
     @PlanningScore
-    private HardSoftLongScore score;
+    private HardSoftScore score;
 
     public OrderPickingSolution() {
         // Marshalling constructor
@@ -56,11 +56,11 @@ public class OrderPickingSolution {
         this.pickTasks = picks;
     }
 
-    public HardSoftLongScore getScore() {
+    public HardSoftScore getScore() {
         return score;
     }
 
-    public void setScore(HardSoftLongScore score) {
+    public void setScore(HardSoftScore score) {
         this.score = score;
     }
 }
