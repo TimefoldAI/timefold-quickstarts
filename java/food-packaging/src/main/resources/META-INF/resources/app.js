@@ -377,7 +377,7 @@ function copyTextToClipboard(id) {
   if (!element) {
     return;
   }
-  var text = element.textContent || element.value || '';
+  var text = (element.textContent || element.value || '').trim();
   if (!text) {
     return;
   }
