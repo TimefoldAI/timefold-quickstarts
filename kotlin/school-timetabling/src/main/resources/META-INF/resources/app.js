@@ -123,7 +123,7 @@ function refreshSchedule() {
 }
 
 function updateScheduleMap(timetable) {
-        const isObject = timetable.rooms.length > 0 && timetable.timeslots.length > 0 && 
+    const isObject = timetable.rooms.length > 0 && timetable.timeslots.length > 0 &&
         typeof timetable.rooms[0] === "object" && typeof timetable.timeslots[0] === "object";
     if (isObject) {
         roomMap = new Map();
