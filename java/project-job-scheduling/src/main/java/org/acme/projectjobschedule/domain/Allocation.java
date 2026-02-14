@@ -1,5 +1,10 @@
 package org.acme.projectjobschedule.domain;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.IntStream;
+
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.entity.PlanningPin;
 import ai.timefold.solver.core.api.domain.lookup.PlanningId;
@@ -12,11 +17,6 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.acme.projectjobschedule.domain.solver.DelayStrengthComparator;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.IntStream;
 
 @PlanningEntity
 @JsonIdentityInfo(scope = Allocation.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
@@ -42,7 +42,7 @@ public class Allocation {
     // Planning variables: changes during planning, between score calculations.
     @PlanningVariable
     private ExecutionMode executionMode;
-    @PlanningVariable(strengthComparatorClass = DelayStrengthComparator.class)
+    @PlanningVariable(comparatorClass = DelayStrengthComparator.class)
     private Integer delay; // In days
 
     // Shadow variables
