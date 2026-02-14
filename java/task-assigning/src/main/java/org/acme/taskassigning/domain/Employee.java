@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
-import ai.timefold.solver.core.api.domain.lookup.PlanningId;
+import ai.timefold.solver.core.api.domain.entity.PlanningId;
 import ai.timefold.solver.core.api.domain.variable.PlanningListVariable;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;

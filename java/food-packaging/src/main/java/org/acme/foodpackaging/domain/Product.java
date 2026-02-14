@@ -1,6 +1,6 @@
 package org.acme.foodpackaging.domain;
 
-import ai.timefold.solver.core.api.domain.lookup.PlanningId;
+import ai.timefold.solver.core.api.domain.entity.PlanningId;
 
 import java.time.Duration;
 import java.util.Map;
