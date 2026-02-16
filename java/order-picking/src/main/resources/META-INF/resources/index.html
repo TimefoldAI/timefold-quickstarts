@@ -28,14 +28,35 @@
                 <img src="https://timefold.ai/uploads/images/Brand-Assets/timefold-solver-logo.png" alt="Timefold Solver logo" width="200px" style="margin-top:-20px;margin-bottom:-20px">
             </a>
             <a class="navbar-brand d-none d-lg-block">Order Picking Quickstart</a>
+            <div class="ms-auto">
+                <div class="d-flex align-items-center" id="navbarNav">
+                    <ul class="nav nav-pills">
+                        <li class="nav-item active" id="navUIItem">
+                            <button class="nav-link active" id="navUI" data-bs-toggle="pill" data-bs-target="#demo" type="button">Demo UI</button>
+                        </li>
+                        <li class="nav-item" id="navRestItem">
+                            <button class="nav-link" id="navRest" data-bs-toggle="pill" data-bs-target="#rest" type="button">Guide</button>
+                        </li>
+                        <li class="nav-item" id="navOpenApiItem">
+                            <button class="nav-link" id="navOpenApi" data-bs-toggle="pill" data-bs-target="#openapi" type="button">REST API</button>
+                        </li>
+                        <li class="nav-item" id="navNextStepsItem">
+                            <a style="text-decoration: none; font-weight: 600;" href="https://solver.timefold.ai/quickstart-next-steps?utm_source=github&utm_medium=quickstart&utm_campaign=timefold-quickstarts&utm_content=order-picking-java">
+                                <button class="nav-link" id="nextStepsItem" data-bs-toggle="pill" type="button">Next Steps</button>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </nav>
     </div>
 </header>
-<div class="container-fluid">
-    <div class="sticky-top d-flex justify-content-center align-items-center" aria-live="polite" aria-atomic="true">
-        <div id="notificationPanel" style="position: absolute; top: .5rem;"></div>
-    </div>
-    <blockquote>Generate an optimal picking plan for completing a set of orders. <span id="info" class="fw-bold"></span></blockquote>
+<div class="tab-content">
+    <div id="demo" class="tab-pane fade show active container-fluid">
+        <div class="sticky-top d-flex justify-content-center align-items-center" aria-live="polite" aria-atomic="true">
+            <div id="notificationPanel" style="position: absolute; top: .5rem;"></div>
+        </div>
+        <blockquote>Generate an optimal picking plan for completing a set of orders. <span id="info" class="fw-bold"></span></blockquote>
 
     <div class="mb-2">
         <button id="refreshButton" type="button" class="btn btn-success">
@@ -108,6 +129,55 @@
             </div>
         </div>
     </div>
+</div>
+
+<div id="rest" class="tab-pane fade container-fluid">
+    <h1>REST API Guide</h1>
+
+    <h2>Order Picking - integration via cURL</h2>
+
+    <h3>1. Get the initial solution</h3>
+    <pre>
+        <button class="btn btn-outline-dark btn-sm float-end"
+                onclick="copyTextToClipboard('curl1')">Copy</button>
+        <code id="curl1">curl -X GET -H 'Accept:application/json' http://localhost:8080/orderPicking</code>
+    </pre>
+
+    <h3>2. Start solving</h3>
+    <pre>
+        <button class="btn btn-outline-dark btn-sm float-end"
+                onclick="copyTextToClipboard('curl2')">Copy</button>
+        <code id="curl2">curl -X POST http://localhost:8080/orderPicking/solve</code>
+    </pre>
+
+    <h3>3. Get the current solution</h3>
+    <pre>
+        <button class="btn btn-outline-dark btn-sm float-end"
+                onclick="copyTextToClipboard('curl3')">Copy</button>
+        <code id="curl3">curl -X GET -H 'Accept:application/json' http://localhost:8080/orderPicking</code>
+    </pre>
+
+    <h3>4. Analyze the score</h3>
+    <pre>
+        <button class="btn btn-outline-dark btn-sm float-end"
+                onclick="copyTextToClipboard('curl4')">Copy</button>
+        <code id="curl4">curl -X PUT -H 'Content-Type:application/json' -H 'Accept:application/json' http://localhost:8080/orderPicking/analyze?fetchPolicy=FETCH_SHALLOW</code>
+    </pre>
+
+    <h3>5. Stop solving</h3>
+    <pre>
+        <button class="btn btn-outline-dark btn-sm float-end"
+                onclick="copyTextToClipboard('curl5')">Copy</button>
+        <code id="curl5">curl -X POST http://localhost:8080/orderPicking/stopSolving</code>
+    </pre>
+</div>
+
+<div id="openapi" class="tab-pane fade container-fluid">
+    <div class="ratio ratio-1x1">
+        <!-- "scrolling" attribute is obsolete, but e.g. Chrome does not support "overflow:hidden" -->
+        <iframe src="/q/swagger-ui" style="overflow:hidden;" scrolling="no"></iframe>
+    </div>
+</div>
 </div>
 <footer class="bg-black">
   <div class="container">

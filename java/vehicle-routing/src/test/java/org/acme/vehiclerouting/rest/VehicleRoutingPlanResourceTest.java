@@ -74,7 +74,7 @@ class VehicleRoutingPlanResourceTest {
 
         assertNotNull(analysis.score());
         ConstraintAnalysis<?> minimizeTravelTimeAnalysis =
-                analysis.getConstraintAnalysis(ConstraintRef.of(VehicleRoutePlan.class.getPackageName(), "minimizeTravelTime"));
+                analysis.getConstraintAnalysis(ConstraintRef.of("minimizeTravelTime"));
         assertNotNull(minimizeTravelTimeAnalysis);
         assertNotNull(minimizeTravelTimeAnalysis.matches());
         assertFalse(minimizeTravelTimeAnalysis.matches().isEmpty());
@@ -100,7 +100,7 @@ class VehicleRoutingPlanResourceTest {
 
         assertNotNull(analysis.score());
         ConstraintAnalysis<?> minimizeTravelTimeAnalysis =
-                analysis.getConstraintAnalysis(ConstraintRef.of(VehicleRoutePlan.class.getPackageName(), "minimizeTravelTime"));
+                analysis.getConstraintAnalysis(ConstraintRef.of("minimizeTravelTime"));
         assertNotNull(minimizeTravelTimeAnalysis);
         assertNull(minimizeTravelTimeAnalysis.matches());
     }

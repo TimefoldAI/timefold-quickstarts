@@ -6,11 +6,11 @@ This is an open source project, and you are more than welcome to contribute!
 * Want to fix an issue or contribute an improvement? https://github.com/TimefoldAI/timefold-solver/discussions[Talk to us about your ideas] or just start coding:
 
 . https://github.com/TimefoldAI/timefold-quickstarts/fork[Fork it.]
-. Create a feature branch: `git checkout -b feature`
+. Create a feature branch off the `development` branch: `git checkout -b feature development`
 . Commit your changes with a comment: `git commit -m "feat: add shiny new feature"`
 (See xref:commit-messages[Commit messages] for details.)
 . Push to the branch to GitHub: `git push origin feature`
-. https://github.com/TimefoldAI/timefold-quickstarts/compare/development...development[Create a new Pull Request.]
+. https://github.com/TimefoldAI/timefold-quickstarts/compare/development...development[Create a new Pull Request to the `development` branch].
 
 The CI checks against your PR to ensure that it doesn't introduce errors.
 If the CI identifies a potential problem, our friendly PR maintainers will help you resolve it.

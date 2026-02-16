@@ -7,7 +7,7 @@ import ai.timefold.solver.core.api.domain.solution.PlanningScore;
 import ai.timefold.solver.core.api.domain.solution.PlanningSolution;
 import ai.timefold.solver.core.api.domain.solution.ProblemFactCollectionProperty;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
-import ai.timefold.solver.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
+import ai.timefold.solver.core.api.score.HardSoftScore;
 import ai.timefold.solver.core.api.solver.SolverStatus;
 
 @PlanningSolution
@@ -27,7 +27,7 @@ public class FlightCrewSchedule {
     private List<FlightAssignment> flightAssignments;
 
     @PlanningScore
-    private HardSoftLongScore score = null;
+    private HardSoftScore score = null;
 
     // Ignored by Timefold, used by the UI to display solve or stop solving button
     private SolverStatus solverStatus;
@@ -35,7 +35,7 @@ public class FlightCrewSchedule {
     public FlightCrewSchedule() {
     }
 
-    public FlightCrewSchedule(HardSoftLongScore score, SolverStatus solverStatus) {
+    public FlightCrewSchedule(HardSoftScore score, SolverStatus solverStatus) {
         this.score = score;
         this.solverStatus = solverStatus;
     }
@@ -76,11 +76,11 @@ public class FlightCrewSchedule {
         this.flightAssignments = flightAssignments;
     }
 
-    public HardSoftLongScore getScore() {
+    public HardSoftScore getScore() {
         return score;
     }
 
-    public void setScore(HardSoftLongScore score) {
+    public void setScore(HardSoftScore score) {
         this.score = score;
     }
 
