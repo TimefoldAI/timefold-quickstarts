@@ -31,10 +31,10 @@ public class TimetableConstraintProvider implements ConstraintProvider {
         return constraintFactory
                 // Select each pair of 2 different lessons ...
                 .forEachUniquePair(Lesson.class,
+                        // ... in the same room (most selective first) ...
+                        Joiners.equal(Lesson::getRoom),
                         // ... in the same timeslot ...
-                        Joiners.equal(Lesson::getTimeslot),
-                        // ... in the same room ...
-                        Joiners.equal(Lesson::getRoom))
+                        Joiners.equal(Lesson::getTimeslot))
                 // ... and penalize each pair with a hard weight.
                 .penalize(HardSoftScore.ONE_HARD)
                 .justifyWith((lesson1, lesson2, score) -> new RoomConflictJustification(lesson1.getRoom(), lesson1, lesson2))
@@ -45,8 +45,8 @@ public class TimetableConstraintProvider implements ConstraintProvider {
         // A teacher can teach at most one lesson at the same time.
         return constraintFactory
                 .forEachUniquePair(Lesson.class,
-                        Joiners.equal(Lesson::getTimeslot),
-                        Joiners.equal(Lesson::getTeacher))
+                        Joiners.equal(Lesson::getTeacher),
+                        Joiners.equal(Lesson::getTimeslot))
                 .penalize(HardSoftScore.ONE_HARD)
                 .justifyWith(
                         (lesson1, lesson2, score) -> new TeacherConflictJustification(lesson1.getTeacher(), lesson1, lesson2))
@@ -57,8 +57,8 @@ public class TimetableConstraintProvider implements ConstraintProvider {
         // A student can attend at most one lesson at the same time.
         return constraintFactory
                 .forEachUniquePair(Lesson.class,
-                        Joiners.equal(Lesson::getTimeslot),
-                        Joiners.equal(Lesson::getStudentGroup))
+                        Joiners.equal(Lesson::getStudentGroup),
+                        Joiners.equal(Lesson::getTimeslot))
                 .penalize(HardSoftScore.ONE_HARD)
                 .justifyWith((lesson1, lesson2, score) -> new StudentGroupConflictJustification(lesson1.getStudentGroup(), lesson1, lesson2))
                 .asConstraint("Student group conflict");
@@ -68,8 +68,8 @@ public class TimetableConstraintProvider implements ConstraintProvider {
         // A teacher prefers to teach in a single room.
         return constraintFactory
                 .forEachUniquePair(Lesson.class,
-                        Joiners.equal(Lesson::getTeacher))
-                .filter((lesson1, lesson2) -> lesson1.getRoom() != lesson2.getRoom())
+                        Joiners.equal(Lesson::getTeacher),
+                        Joiners.filtering((lesson1, lesson2) -> lesson1.getRoom() != lesson2.getRoom()))
                 .penalize(HardSoftScore.ONE_SOFT)
                 .justifyWith((lesson1, lesson2, score) -> new TeacherRoomStabilityJustification(lesson1.getTeacher(), lesson1, lesson2))
                 .asConstraint("Teacher room stability");

@@ -353,8 +353,8 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
     Constraint themeTrackRoomStability(ConstraintFactory factory) {
         return factory.forEachUniquePair(Talk.class,
                 equal(talk -> talk.getTimeslot().getStartDateTime().toLocalDate()),
-                filtering((talk1, talk2) -> talk2.overlappingThemeTrackCount(talk1) > 0))
-                .filter((talk1, talk2) -> !talk1.getRoom().equals(talk2.getRoom()))
+                filtering((talk1, talk2) -> talk2.overlappingThemeTrackCount(talk1) > 0),
+                filtering((talk1, talk2) -> !talk1.getRoom().equals(talk2.getRoom())))
                 .penalize(HardSoftScore.ofSoft(10), (talk1, talk2) -> talk1.overlappingThemeTrackCount(talk2) *
                         talk1.combinedDurationInMinutes(talk2))
                 .justifyWith(
@@ -446,8 +446,8 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
 
     Constraint languageDiversity(ConstraintFactory factory) {
         return factory.forEachUniquePair(Talk.class,
-                equal(Talk::getTimeslot))
-                .filter((talk1, talk2) -> !talk1.getLanguage().equals(talk2.getLanguage()))
+                equal(Talk::getTimeslot),
+                filtering((talk1, talk2) -> !talk1.getLanguage().equals(talk2.getLanguage())))
                 .reward(HardSoftScore.ofSoft(10), (talk1, talk2) -> talk1.getTimeslot().getDurationInMinutes())
                 .justifyWith((talk, talk2, score) -> new DiversityTalkJustification("language", talk, talk.getLanguage(), talk2,
                         talk2.getLanguage()))
@@ -455,9 +455,9 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
     }
 
     Constraint sameDayTalks(ConstraintFactory factory) {
-        return factory.forEachUniquePair(Talk.class)
-                .filter((talk1, talk2) -> !talk1.getTimeslot().isOnSameDayAs(talk2.getTimeslot()) &&
-                        (talk1.overlappingContentCount(talk2) > 0 || talk1.overlappingThemeTrackCount(talk2) > 0))
+        return factory.forEachUniquePair(Talk.class,
+                filtering((talk1, talk2) -> !talk1.getTimeslot().isOnSameDayAs(talk2.getTimeslot()) &&
+                        (talk1.overlappingContentCount(talk2) > 0 || talk1.overlappingThemeTrackCount(talk2) > 0)))
                 .penalize(HardSoftScore.ofSoft(10),
                         (talk1, talk2) -> (talk2.overlappingThemeTrackCount(talk1) + talk2.overlappingContentCount(talk1))
                                 * talk1.combinedDurationInMinutes(talk2))
