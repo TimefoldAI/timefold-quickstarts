@@ -4,8 +4,8 @@ plugins {
 }
 
 def timefoldVersion = "999-SNAPSHOT"
-def logbackVersion = "1.5.29"
-def junitVersion = "6.0.2"
+def logbackVersion = "1.5.31"
+def junitVersion = "6.0.3"
 def assertjVersion = "3.27.7"
 def profile = System.properties['profile'] ?: ''
 
