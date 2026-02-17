@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.Objects;
 
-import ai.timefold.solver.core.api.domain.lookup.PlanningId;
+import ai.timefold.solver.core.api.domain.common.PlanningId;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;

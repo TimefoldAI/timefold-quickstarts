@@ -2,7 +2,7 @@ package org.acme.maintenancescheduling.domain;
 
 import java.time.LocalDate;
 
-import ai.timefold.solver.core.api.domain.lookup.PlanningId;
+import ai.timefold.solver.core.api.domain.common.PlanningId;
 
 public class WorkCalendar {
 

@@ -1,6 +1,6 @@
 package org.acme.meetingschedule.domain;
 
-import ai.timefold.solver.core.api.domain.lookup.PlanningId;
+import ai.timefold.solver.core.api.domain.common.PlanningId;
 
 public abstract class Attendance {
 
