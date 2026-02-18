@@ -43,7 +43,7 @@ public class TimetableResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TimetableResource.class);
 
-    private final SolverManager<Timetable, String> solverManager;
+    private final SolverManager<Timetable> solverManager;
     private final SolutionManager<Timetable, HardSoftScore> solutionManager;
 
     // TODO: Without any "time to live", the map may eventually grow out of memory.
@@ -56,7 +56,7 @@ public class TimetableResource {
     }
 
     @Inject
-    public TimetableResource(SolverManager<Timetable, String> solverManager,
+    public TimetableResource(SolverManager<Timetable> solverManager,
             SolutionManager<Timetable, HardSoftScore> solutionManager) {
         this.solverManager = solverManager;
         this.solutionManager = solutionManager;

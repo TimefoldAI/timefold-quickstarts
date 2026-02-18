@@ -28,12 +28,12 @@ public class OrderPickingSolverResource {
     private static final String PROBLEM_ID = "1";
     private final AtomicBoolean solverWasNeverStarted = new AtomicBoolean(true);
 
-    private SolverManager<OrderPickingSolution, String> solverManager;
+    private SolverManager<OrderPickingSolution> solverManager;
     private SolutionManager<OrderPickingSolution, HardSoftScore> solutionManager;
     private OrderPickingRepository orderPickingRepository;
 
     @Inject
-    public OrderPickingSolverResource(SolverManager<OrderPickingSolution, String> solverManager,
+    public OrderPickingSolverResource(SolverManager<OrderPickingSolution> solverManager,
             SolutionManager<OrderPickingSolution, HardSoftScore> solutionManager,
             OrderPickingRepository orderPickingRepository) {
         this.solverManager = solverManager;

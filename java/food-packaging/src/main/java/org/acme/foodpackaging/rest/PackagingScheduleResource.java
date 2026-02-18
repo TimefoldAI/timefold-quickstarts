@@ -25,13 +25,13 @@ public class PackagingScheduleResource {
 
     private PackagingScheduleRepository repository;
 
-    private SolverManager<PackagingSchedule, String> solverManager;
+    private SolverManager<PackagingSchedule> solverManager;
 
     private SolutionManager<PackagingSchedule, HardMediumSoftScore> solutionManager;
 
     @Inject
     public PackagingScheduleResource(PackagingScheduleRepository repository,
-            SolverManager<PackagingSchedule, String> solverManager,
+            SolverManager<PackagingSchedule> solverManager,
             SolutionManager<PackagingSchedule, HardMediumSoftScore> solutionManager) {
         this.repository = repository;
         this.solverManager = solverManager;

@@ -27,11 +27,11 @@ public class SolverResource {
     private final AtomicReference<Throwable> solverError = new AtomicReference<>();
 
     private final FacilityLocationProblemRepository repository;
-    private final SolverManager<FacilityLocationProblem, String> solverManager;
+    private final SolverManager<FacilityLocationProblem> solverManager;
     private final SolutionManager<FacilityLocationProblem, HardSoftScore> solutionManager;
 
     public SolverResource(FacilityLocationProblemRepository repository,
-            SolverManager<FacilityLocationProblem, String> solverManager,
+            SolverManager<FacilityLocationProblem> solverManager,
             SolutionManager<FacilityLocationProblem, HardSoftScore> solutionManager) {
         this.repository = repository;
         this.solverManager = solverManager;

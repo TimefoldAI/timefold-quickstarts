@@ -49,13 +49,13 @@ public class TimetableController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TimetableController.class);
 
-    private final SolverManager<Timetable, String> solverManager;
+    private final SolverManager<Timetable> solverManager;
     private final SolutionManager<Timetable, HardSoftScore> solutionManager;
 
     // TODO: Without any "time to live", the map may eventually grow out of memory.
     private final ConcurrentMap<String, Job> jobIdToJob = new ConcurrentHashMap<>();
 
-    public TimetableController(SolverManager<Timetable, String> solverManager,
+    public TimetableController(SolverManager<Timetable> solverManager,
             SolutionManager<Timetable, HardSoftScore> solutionManager) {
         this.solverManager = solverManager;
         this.solutionManager = solutionManager;

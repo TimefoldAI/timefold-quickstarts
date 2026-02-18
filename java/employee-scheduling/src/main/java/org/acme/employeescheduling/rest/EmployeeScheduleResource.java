@@ -43,14 +43,14 @@ public class EmployeeScheduleResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EmployeeScheduleResource.class);
 
-    SolverManager<EmployeeSchedule, String> solverManager;
+    SolverManager<EmployeeSchedule> solverManager;
     SolutionManager<EmployeeSchedule, HardSoftBigDecimalScore> solutionManager;
 
     // TODO: Without any "time to live", the map may eventually grow out of memory.
     private final ConcurrentMap<String, Job> jobIdToJob = new ConcurrentHashMap<>();
 
     @Inject
-    public EmployeeScheduleResource(SolverManager<EmployeeSchedule, String> solverManager,
+    public EmployeeScheduleResource(SolverManager<EmployeeSchedule> solverManager,
             SolutionManager<EmployeeSchedule, HardSoftBigDecimalScore> solutionManager) {
         this.solverManager = solverManager;
         this.solutionManager = solutionManager;
