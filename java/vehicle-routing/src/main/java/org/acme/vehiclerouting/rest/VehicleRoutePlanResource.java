@@ -52,7 +52,7 @@ public class VehicleRoutePlanResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(VehicleRoutePlanResource.class);
     private static final int MAX_RECOMMENDED_ASSIGNMENT_LIST_SIZE = 5;
 
-    private final SolverManager<VehicleRoutePlan, String> solverManager;
+    private final SolverManager<VehicleRoutePlan> solverManager;
 
     private final SolutionManager<VehicleRoutePlan, HardMediumSoftScore> solutionManager;
 
@@ -66,7 +66,7 @@ public class VehicleRoutePlanResource {
     }
 
     @Inject
-    public VehicleRoutePlanResource(SolverManager<VehicleRoutePlan, String> solverManager,
+    public VehicleRoutePlanResource(SolverManager<VehicleRoutePlan> solverManager,
                                     SolutionManager<VehicleRoutePlan, HardMediumSoftScore> solutionManager) {
         this.solverManager = solverManager;
         this.solutionManager = solutionManager;
