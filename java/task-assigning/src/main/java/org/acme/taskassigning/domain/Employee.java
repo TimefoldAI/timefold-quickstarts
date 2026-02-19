@@ -102,8 +102,8 @@ public class Employee {
     }
 
     @JsonIgnore
-    public Integer getEndTime() {
-        return tasks.isEmpty() ? 0 : tasks.get(tasks.size() - 1).getEndTime();
+    public long getEndTime() {
+        return tasks.isEmpty() ? 0L : tasks.get(tasks.size() - 1).getEndTime();
     }
 
     @Override

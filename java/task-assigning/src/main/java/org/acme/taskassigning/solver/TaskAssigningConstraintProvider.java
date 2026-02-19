@@ -52,7 +52,7 @@ public class TaskAssigningConstraintProvider implements ConstraintProvider {
         return constraintFactory.forEach(Employee.class)
                 .penalize(BendableScore.ofSoft(BENDABLE_SCORE_HARD_LEVELS_SIZE, BENDABLE_SCORE_SOFT_LEVELS_SIZE, 1, 1),
                         employee -> employee.getEndTime() * employee.getEndTime())
-                .asConstraint("Minimize makespan, latest ending employee first");
+                .asConstraint("Minimize makespan - latest ending employee first");
     }
 
     protected Constraint criticalPriorityTaskEndTime(ConstraintFactory constraintFactory) {
