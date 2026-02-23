@@ -17,7 +17,7 @@
 
         <version.compiler.plugin>3.15.0</version.compiler.plugin>
         <version.resources.plugin>3.4.0</version.resources.plugin>
-        <version.surefire.plugin>3.5.4</version.surefire.plugin>
+        <version.surefire.plugin>3.5.5</version.surefire.plugin>
     </properties>
 
     <dependencyManagement>
