@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 import ai.timefold.solver.core.api.solver.SolutionManager;
 import jakarta.inject.Inject;
 
-import ai.timefold.solver.test.api.score.stream.ConstraintVerifier;
+import ai.timefold.solver.core.api.score.stream.test.ConstraintVerifier;
 
 import org.acme.orderpicking.domain.Order;
 import org.acme.orderpicking.domain.OrderItem;

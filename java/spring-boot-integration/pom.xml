@@ -72,11 +72,6 @@
       <artifactId>spring-webflux</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>ai.timefold.solver</groupId>
-      <artifactId>timefold-solver-test</artifactId>
-      <scope>test</scope>
-    </dependency>
 
     <!-- UI -->
     <!-- No webjar locator; incompatible in native mode;
