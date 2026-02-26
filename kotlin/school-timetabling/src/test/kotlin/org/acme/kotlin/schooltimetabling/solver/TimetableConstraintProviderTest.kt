@@ -1,6 +1,6 @@
 package org.acme.kotlin.schooltimetabling.solver
 
-import ai.timefold.solver.test.api.score.stream.ConstraintVerifier
+import ai.timefold.solver.core.api.score.stream.test.ConstraintVerifier
 import io.quarkus.test.junit.QuarkusTest
 import jakarta.inject.Inject
 import org.acme.kotlin.schooltimetabling.domain.Lesson

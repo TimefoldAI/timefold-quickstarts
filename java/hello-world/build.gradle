@@ -24,7 +24,6 @@ dependencies {
 
     // Testing
     testImplementation platform("org.junit:junit-bom:${junitVersion}")
-    testImplementation "ai.timefold.solver:timefold-solver-test"
     testImplementation "org.junit.jupiter:junit-jupiter"
     testImplementation "org.assertj:assertj-core:${assertjVersion}"
     testRuntimeOnly "org.junit.platform:junit-platform-launcher"
