@@ -11,6 +11,7 @@ import ai.timefold.solver.core.api.score.stream.Constraint;
 import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
 import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
 import ai.timefold.solver.core.api.score.stream.Joiners;
+
 import org.acme.conferencescheduling.domain.ConferenceConstraintProperties;
 import org.acme.conferencescheduling.domain.Speaker;
 import org.acme.conferencescheduling.domain.Talk;
@@ -186,7 +187,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
     Constraint talkMutuallyExclusiveTalksTags(ConstraintFactory factory) {
         return factory.forEachUniquePair(Talk.class,
                 overlapping(t -> t.getTimeslot().getStartDateTime(), t -> t.getTimeslot().getEndDateTime()),
-                Joiners.intersecting(Talk::getMutuallyExclusiveTalksTags))
+                        Joiners.containingAnyOf(Talk::getMutuallyExclusiveTalksTags))
                 .penalize(HardSoftScore.ofHard(1), (talk1, talk2) -> talk1.overlappingMutuallyExclusiveTalksTagCount(talk2) *
                         talk1.overlappingDurationInMinutes(talk2))
                 .justifyWith((talk, talk2, score) -> new ConflictTalkJustification("mutually-exclusive-talks tags", talk,
@@ -195,7 +196,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
     }
 
     Constraint consecutiveTalksPause(ConstraintFactory factory) {
-        return factory.forEachUniquePair(Talk.class, Joiners.intersecting(Talk::getSpeakers))
+        return factory.forEachUniquePair(Talk.class, Joiners.containingAnyOf(Talk::getSpeakers))
                 .ifExists(ConferenceConstraintProperties.class,
                         filtering((talk1, talk2, config) -> !talk1.getTimeslot().pauseExists(talk2.getTimeslot(),
                                 config.getMinimumConsecutiveTalksPauseInMinutes())))
@@ -342,7 +343,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
     Constraint themeTrackConflict(ConstraintFactory factory) {
         return factory.forEachUniquePair(Talk.class,
                 overlapping(t -> t.getTimeslot().getStartDateTime(), t -> t.getTimeslot().getEndDateTime()),
-                Joiners.intersecting(Talk::getThemeTrackTags))
+                        Joiners.containingAnyOf(Talk::getThemeTrackTags))
                 .penalize(HardSoftScore.ofSoft(10), (talk1, talk2) -> talk1.overlappingThemeTrackCount(talk2) *
                         talk1.overlappingDurationInMinutes(talk2))
                 .justifyWith(
@@ -354,7 +355,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
     Constraint themeTrackRoomStability(ConstraintFactory factory) {
         return factory.forEachUniquePair(Talk.class,
                 equal(talk -> talk.getTimeslot().getStartDateTime().toLocalDate()),
-                Joiners.intersecting(Talk::getThemeTrackTags))
+                        Joiners.containingAnyOf(Talk::getThemeTrackTags))
                 .filter((talk1, talk2) -> !talk1.getRoom().equals(talk2.getRoom()))
                 .penalize(HardSoftScore.ofSoft(10), (talk1, talk2) -> talk1.overlappingThemeTrackCount(talk2) *
                         talk1.combinedDurationInMinutes(talk2))
@@ -372,7 +373,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
     Constraint sectorConflict(ConstraintFactory factory) {
         return factory.forEachUniquePair(Talk.class,
                 overlapping(t -> t.getTimeslot().getStartDateTime(), t -> t.getTimeslot().getEndDateTime()),
-                Joiners.intersecting(Talk::getSectorTags))
+                        Joiners.containingAnyOf(Talk::getSectorTags))
                 .penalize(HardSoftScore.ofSoft(10), (talk1, talk2) -> talk1.overlappingSectorCount(talk2)
                         * talk1.overlappingDurationInMinutes(talk2))
                 .justifyWith((talk, talk2, score) -> new ConflictTalkJustification("sector", talk, talk.getSectorTags(), talk2,
@@ -383,7 +384,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
     Constraint audienceTypeDiversity(ConstraintFactory factory) {
         return factory.forEachUniquePair(Talk.class,
                 equal(Talk::getTimeslot),
-                Joiners.intersecting(Talk::getAudienceTypes))
+                        Joiners.containingAnyOf(Talk::getAudienceTypes))
                 .reward(HardSoftScore.ofSoft(1), (talk1, talk2) -> talk1.overlappingAudienceTypeCount(talk2)
                         * talk1.getTimeslot().getDurationInMinutes())
                 .justifyWith((talk, talk2, score) -> new DiversityTalkJustification("audience types", talk,
@@ -394,8 +395,8 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
     Constraint audienceTypeThemeTrackConflict(ConstraintFactory factory) {
         return factory.forEachUniquePair(Talk.class,
                 overlapping(t -> t.getTimeslot().getStartDateTime(), t -> t.getTimeslot().getEndDateTime()),
-                Joiners.intersecting(Talk::getThemeTrackTags),
-                Joiners.intersecting(Talk::getAudienceTypes))
+                        Joiners.containingAnyOf(Talk::getThemeTrackTags),
+                        Joiners.containingAnyOf(Talk::getAudienceTypes))
                 .penalize(HardSoftScore.ofSoft(1), (talk1, talk2) -> talk1.overlappingThemeTrackCount(talk2)
                         * talk1.overlappingAudienceTypeCount(talk2)
                         * talk1.overlappingDurationInMinutes(talk2))
@@ -421,7 +422,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                         lessThan(Talk::getAudienceLevel),
                         greaterThan(talk1 -> talk1.getTimeslot().getEndDateTime(),
                                 talk2 -> talk2.getTimeslot().getStartDateTime()),
-                        Joiners.intersecting(Talk::getContentTags))
+                        Joiners.containingAnyOf(Talk::getContentTags))
                 .penalize(HardSoftScore.ofSoft(10), (talk1, talk2) -> talk1.overlappingContentCount(talk2)
                         * talk1.combinedDurationInMinutes(talk2))
                 .justifyWith((talk, talk2, score) -> new ConferenceSchedulingJustification(
@@ -436,7 +437,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
     Constraint contentConflict(ConstraintFactory factory) {
         return factory.forEachUniquePair(Talk.class,
                 overlapping(t -> t.getTimeslot().getStartDateTime(), t -> t.getTimeslot().getEndDateTime()),
-                Joiners.intersecting(Talk::getContentTags))
+                        Joiners.containingAnyOf(Talk::getContentTags))
                 .penalize(HardSoftScore.ofSoft(100), (talk1, talk2) -> talk1.overlappingContentCount(talk2)
                         * talk1.overlappingDurationInMinutes(talk2))
                 .justifyWith(
