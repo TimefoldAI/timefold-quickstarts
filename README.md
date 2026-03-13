@@ -41,6 +41,7 @@ Find the most efficient routes for vehicles to reach visits, considering vehicle
 
 ![Vehicle Routing Screenshot](java/vehicle-routing/vehicle-routing-screenshot.png)
 
+- [View constraints](java/vehicle-routing/README.MD#constraints)
 - [Run quarkus-vehicle-routing](java/vehicle-routing/README.MD) (Java, Maven, Quarkus)
 
 > [!TIP]
@@ -54,6 +55,7 @@ Schedule shifts to employees, accounting for employee availability and shift ski
 
 ![Employee Scheduling Screenshot](java/employee-scheduling/employee-scheduling-screenshot.png)
 
+- [View constraints](java/employee-scheduling/README.MD#constraints)
 - [Run quarkus-employee-scheduling](java/employee-scheduling/README.MD) (Java, Maven, Quarkus)
 
 > [!TIP]
@@ -67,6 +69,7 @@ Schedule maintenance jobs to crews over time to reduce both premature and overdu
 
 ![Maintenance Scheduling Screenshot](java/maintenance-scheduling/maintenance-scheduling-screenshot.png)
 
+- [View constraints](java/maintenance-scheduling/README.adoc#_constraints)
 - [Run quarkus-maintenance-scheduling](java/maintenance-scheduling/README.adoc) (Java, Maven, Quarkus)
 
 ---
@@ -77,6 +80,7 @@ Schedule food packaging orders to manufacturing lines to minimize downtime and f
 
 ![Food Packaging Screenshot](java/food-packaging/food-packaging-screenshot.png)
 
+- [View constraints](java/food-packaging/README.adoc#_constraints)
 - [Run quarkus-food-packaging](java/food-packaging/README.adoc) (Java, Maven, Quarkus)
 
 ---
@@ -87,6 +91,7 @@ Generate an optimal picking plan for completing a set of orders.
 
 ![Order Picking Screenshot](java/order-picking/order-picking-screenshot.png)
 
+- [View constraints](java/order-picking/README.adoc#_constraints)
 - [Run quarkus-order-picking](java/order-picking/README.adoc) (Java, Maven, Quarkus)
 
 ---
@@ -97,6 +102,7 @@ Assign lessons to timeslots and rooms to produce a better schedule for teachers 
 
 ![School Timetabling Screenshot](java/school-timetabling/school-timetabling-screenshot.png)
 
+- [View constraints](java/school-timetabling/README.adoc#_constraints)
 - [Run quarkus-school-timetabling](java/school-timetabling/README.adoc) (Java, Maven or Gradle, Quarkus)
 - [Run spring-boot-school-timetabling](java/spring-boot-integration/README.adoc) (Java, Maven or Gradle, Spring Boot)
 - [Run kotlin-quarkus-school-timetabling](kotlin/school-timetabling/README.adoc) (Kotlin, Maven, Quarkus)
@@ -113,6 +119,7 @@ Pick the best geographical locations for new stores, distribution centers, COVID
 
 ![Facility Location Screenshot](java/facility-location/facility-location-screenshot.png)
 
+- [View constraints](java/facility-location/README.adoc#_constraints)
 - [Run quarkus-facility-location](java/facility-location/README.adoc) (Java, Maven, Quarkus)
 
 ---
@@ -123,6 +130,7 @@ Assign conference talks to timeslots and rooms to produce a better schedule for 
 
 ![Conference Scheduling Screenshot](java/conference-scheduling/conference-scheduling-screenshot.png)
 
+- [View constraints](java/conference-scheduling/README.adoc#_constraints)
 - [Run quarkus-conference-scheduling](java/conference-scheduling/README.adoc) (Java, Maven, Quarkus)
 
 ---
@@ -133,6 +141,7 @@ Assign beds to patient stays to produce a better schedule for hospitals.
 
 ![Bed Scheduling Screenshot](java/bed-allocation/bed-allocation-screenshot.png)
 
+- [View constraints](java/bed-allocation/README.adoc#_constraints)
 - [Run quarkus-bed-allocation-scheduling](java/bed-allocation/README.adoc) (Java, Maven, Quarkus)
 
 ---
@@ -143,6 +152,7 @@ Assign crew to flights to produce a better schedule for flight assignments.
 
 ![Flight Crew Scheduling Screenshot](java/flight-crew-scheduling/flight-crew-scheduling-screenshot.png)
 
+- [View constraints](java/flight-crew-scheduling/README.adoc#_constraints)
 - [Run quarkus-flight-crew-scheduling](java/flight-crew-scheduling/README.adoc) (Java, Maven, Quarkus)
 
 ---
@@ -153,6 +163,7 @@ Assign timeslots and rooms for meetings to produce a better schedule.
 
 ![Meeting Scheduling Screenshot](java/meeting-scheduling/meeting-scheduling-screenshot.png)
 
+- [View constraints](java/meeting-scheduling/README.adoc#_constraints)
 - [Run quarkus-meeting-scheduling](java/meeting-scheduling/README.adoc) (Java, Maven, Quarkus)
 
 ---
@@ -163,6 +174,7 @@ Assign employees to tasks to produce a better plan for task assignments.
 
 ![Task Assigning Screenshot](java/task-assigning/task-assigning-screenshot.png)
 
+- [View constraints](java/task-assigning/README.adoc#_constraints)
 - [Run quarkus-task-assigning](java/task-assigning/README.adoc) (Java, Maven, Quarkus)
 
 ---
@@ -173,6 +185,7 @@ Assign jobs for execution to produce a better schedule for project job allocatio
 
 ![Project Job Scheduling Screenshot](java/project-job-scheduling/project-job-scheduling-screenshot.png)
 
+- [View constraints](java/project-job-scheduling/README.adoc#_constraints)
 - [Run quarkus-project-job-scheduling](java/project-job-scheduling/README.adoc) (Java, Maven, Quarkus)
 
 ---
@@ -183,6 +196,7 @@ Assign rounds to matches to produce a better schedule for league matches.
 
 ![Sports League Scheduling Screenshot](java/sports-league-scheduling/sports-league-scheduling-screenshot.png)
 
+- [View constraints](java/sports-league-scheduling/README.adoc#_constraints)
 - [Run quarkus-sports-league-scheduling](java/sports-league-scheduling/README.adoc) (Java, Maven, Quarkus)
 
 ---
@@ -193,6 +207,7 @@ Tournament Scheduling service assigning teams to tournament matches.
 
 ![Tournament Scheduling Screenshot](java/tournament-scheduling/tournament-scheduling-screenshot.png)
 
+- [View constraints](java/tournament-scheduling/README.adoc#_constraints)
 - [Run quarkus-tournament-scheduling](java/tournament-scheduling/README.adoc) (Java, Maven, Quarkus)
 
 ---
