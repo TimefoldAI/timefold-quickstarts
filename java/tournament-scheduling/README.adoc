@@ -13,7 +13,7 @@ image::./tournament-scheduling-screenshot.png[]
 |One assignment per date per team |Hard |A team can only have one assignment per date.
 |Unavailability penalty |Hard |A team cannot be assigned during their unavailability period.
 |Fair assignment count per team |Medium |Fairly distribute the number of assignments across all teams.
-|Evenly confrontation count |Soft |Balance the number of confrontations between each pair of teams.
+|Even confrontation count |Soft |Balance the number of confrontations between each pair of teams.
 |===
 
 * <<run,Run the application>>
