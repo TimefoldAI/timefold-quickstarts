@@ -4,6 +4,20 @@ Assign employees to tasks to produce a better plan for task assignments.
 
 image::./task-assigning-screenshot.png[]
 
+== Constraints
+
+[cols="1,1,3",options="header"]
+|===
+|Name |Level |Description
+
+|No missing skills |Hard |An employee must have all the required skills for their assigned task.
+|Minimize unassigned tasks |Soft |All tasks should be assigned to an employee.
+|Minimize makespan |Soft |Minimize the time until all tasks are completed.
+|Critical priority task end time |Soft |Critical priority tasks should be completed as early as possible.
+|Major priority task end time |Soft |Major priority tasks should be completed as early as possible.
+|Minor priority task end time |Soft |Minor priority tasks should be completed as early as possible.
+|===
+
 * <<run,Run the application>>
 * <<enterprise,Run the application with Timefold Solver Enterprise Edition>>
 * <<package,Run the packaged application>>

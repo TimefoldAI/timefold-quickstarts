@@ -4,6 +4,50 @@ Assign conference talks to timeslots and rooms to produce a better schedule for 
 
 image::./conference-scheduling-screenshot.png[]
 
+== Constraints
+
+[cols="1,1,3",options="header"]
+|===
+|Name |Level |Description
+
+|Room unavailable timeslot |Hard |A talk cannot be scheduled in a room that is unavailable during that timeslot.
+|Room conflict |Hard |Two talks cannot be scheduled in the same room at the same time.
+|Speaker unavailable timeslot |Hard |A speaker cannot give a talk during their unavailable timeslot.
+|Speaker conflict |Hard |A speaker cannot give two talks simultaneously.
+|Talk prerequisite talks |Hard |A talk can only be scheduled after all its prerequisite talks.
+|Talk mutually exclusive talks tags |Hard |Talks with mutually exclusive tags cannot be scheduled simultaneously.
+|Consecutive talks pause |Hard |A speaker must have a minimum pause between consecutive talks.
+|Crowd control |Hard |Talks that require crowd control must not overlap with too many other high-risk talks.
+|Speaker required timeslot tags |Hard |A speaker's required timeslot tags must be present in their assigned timeslot.
+|Speaker prohibited timeslot tags |Hard |A speaker's prohibited timeslot tags must not be present in their assigned timeslot.
+|Talk required timeslot tags |Hard |A talk's required timeslot tags must be present in its assigned timeslot.
+|Talk prohibited timeslot tags |Hard |A talk's prohibited timeslot tags must not be present in its assigned timeslot.
+|Speaker required room tags |Hard |A speaker's required room tags must be present in their assigned room.
+|Speaker prohibited room tags |Hard |A speaker's prohibited room tags must not be present in their assigned room.
+|Talk required room tags |Hard |A talk's required room tags must be present in its assigned room.
+|Talk prohibited room tags |Hard |A talk's prohibited room tags must not be present in its assigned room.
+|Theme track conflict |Soft |Talks with the same theme track should not overlap.
+|Theme track room stability |Soft |Talks with the same theme track should be held in the same room on the same day.
+|Sector conflict |Soft |Talks targeting the same sector should not overlap.
+|Audience type diversity |Soft |Talks scheduled simultaneously should target different audience types.
+|Audience type theme track conflict |Soft |Talks with the same audience type and theme should not overlap.
+|Audience level diversity |Soft |Talks scheduled simultaneously should have different audience levels.
+|Content audience level flow violation |Soft |Talks should be ordered by increasing audience level throughout the day.
+|Content conflict |Soft |Talks with the same content should not overlap.
+|Language diversity |Soft |Talks scheduled simultaneously should be in different languages.
+|Same day talks |Soft |A speaker's talks should be scheduled on the same day.
+|Popular talks |Soft |Popular talks should be assigned to larger rooms.
+|Speaker preferred timeslot tags |Soft |A speaker's preferred timeslot tags should be present in their assigned timeslot.
+|Speaker undesired timeslot tags |Soft |A speaker's undesired timeslot tags should not be present in their assigned timeslot.
+|Talk preferred timeslot tags |Soft |A talk's preferred timeslot tags should be present in its assigned timeslot.
+|Talk undesired timeslot tags |Soft |A talk's undesired timeslot tags should not be present in its assigned timeslot.
+|Speaker preferred room tags |Soft |A speaker's preferred room tags should be present in their assigned room.
+|Speaker undesired room tags |Soft |A speaker's undesired room tags should not be present in their assigned room.
+|Talk preferred room tags |Soft |A talk's preferred room tags should be present in its assigned room.
+|Talk undesired room tags |Soft |A talk's undesired room tags should not be present in its assigned room.
+|Speaker makespan |Soft |Minimize the scheduling span for each speaker.
+|===
+
 * <<run,Run the application>>
 * <<enterprise,Run the application with Timefold Solver Enterprise Edition>>
 * <<package,Run the packaged application>>

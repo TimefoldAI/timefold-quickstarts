@@ -4,6 +4,19 @@ Schedule food packaging orders to manufacturing lines, to minimize downtime and 
 
 image::./food-packaging-screenshot.png[]
 
+== Constraints
+
+[cols="1,1,3",options="header"]
+|===
+|Name |Level |Description
+
+|Max end date time |Hard |A job must finish before its maximum end time.
+|Operator cleaning conflict |Hard |An operator cannot be assigned to a job during their cleaning time.
+|Ideal end date time |Medium |A job should ideally finish before its ideal end time.
+|Maximize jobs assigned |Medium |Assign as many jobs as possible.
+|Minimize makespan |Soft |Minimize the total production time.
+|===
+
 * <<run,Run the application>>
 * <<enterprise,Run the application with Timefold Solver Enterprise Edition>>
 * <<package,Run the packaged application>>

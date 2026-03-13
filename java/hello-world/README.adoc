@@ -4,6 +4,20 @@ Assign lessons to timeslots and rooms to produce a better schedule for teachers 
 
 * <<run,Run the application>>
 
+== Constraints
+
+[cols="1,1,3",options="header"]
+|===
+|Name |Level |Description
+
+|Room conflict |Hard |Two lessons cannot be scheduled in the same room at the same time.
+|Teacher conflict |Hard |A teacher cannot teach two lessons at the same time.
+|Student group conflict |Hard |A student group cannot attend two lessons at the same time.
+|Teacher room stability |Soft |A teacher should teach all their lessons in the same room.
+|Teacher time efficiency |Soft |A teacher should have consecutive lessons to minimize gaps in their schedule.
+|Student group subject variety |Soft |A student group should not have the same subject in consecutive timeslots.
+|===
+
 == Prerequisites
 
 . Install Java and Maven, for example with https://sdkman.io[Sdkman]:
