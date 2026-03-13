@@ -4,6 +4,26 @@ Assign timeslots and rooms for meetings to produce a better schedule.
 
 image::./meeting-scheduling-screenshot.png[]
 
+== Constraints
+
+[cols="1,1,3",options="header"]
+|===
+|Name |Level |Description
+
+|Room conflict |Hard |Two meetings cannot be held in the same room at the same time.
+|Avoid overtime |Hard |Meetings should not be scheduled outside of working hours.
+|Required attendance conflict |Hard |A required attendee cannot be in two meetings at the same time.
+|Required room capacity |Hard |The room must be large enough for all required attendees.
+|Start and end on same day |Hard |A meeting must start and end on the same day.
+|Required and preferred attendance conflict |Medium |Avoid scheduling a required and preferred attendee in conflicting meetings.
+|Preferred attendance conflict |Medium |Avoid scheduling a preferred attendee in two meetings at the same time.
+|Do meetings as soon as possible |Soft |Schedule meetings as early as possible in the day.
+|One break between consecutive meetings |Soft |There should be a break between consecutive meetings for an attendee.
+|Overlapping meetings |Soft |Minimize overlapping meetings for attendees.
+|Assign larger rooms first |Soft |Assign the largest available room to each meeting.
+|Room stability |Soft |An attendee's consecutive meetings should be in the same room.
+|===
+
 * <<run,Run the application>>
 * <<enterprise,Run the application with Timefold Solver Enterprise Edition>>
 * <<package,Run the packaged application>>

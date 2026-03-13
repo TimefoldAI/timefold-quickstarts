@@ -4,6 +4,15 @@ Find the most efficient routes for a fleet of vehicles.
 
 ![Vehicle Routing Screenshot](./vehicle-routing-screenshot.png)
 
+## Constraints
+
+| Name | Level | Description |
+|---|---|---|
+| Vehicle capacity | Hard | The total demand of all visits assigned to a vehicle must not exceed its capacity. |
+| Service finished after max end time | Hard | A visit must be serviced before its maximum end time. |
+| Maximize visits assigned | Medium | All visits should be assigned to a vehicle. |
+| Minimize travel time | Soft | Minimize the total travel time of all vehicles. |
+
 - [Run the application](#run-the-application)
 - [Run the application with Timefold Solver Enterprise Edition](#run-the-application-with-timefold-solver-enterprise-edition)
 - [Run the packaged application](#run-the-packaged-application)

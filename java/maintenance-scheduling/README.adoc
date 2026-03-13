@@ -4,6 +4,20 @@ Schedule maintenance jobs to crews over time to reduce both premature and overdu
 
 image::./maintenance-scheduling-screenshot.png[]
 
+== Constraints
+
+[cols="1,1,3",options="header"]
+|===
+|Name |Level |Description
+
+|Crew conflict |Hard |A maintenance crew cannot be assigned to two overlapping jobs.
+|Min start date |Hard |A job must not start before its minimum start date.
+|Max end date |Hard |A job must not finish after its maximum end date.
+|Before ideal end date |Soft |Avoid finishing a job too early before its ideal end date.
+|After ideal end date |Soft |Avoid finishing a job after its ideal end date.
+|Tag conflict |Soft |Jobs sharing the same tag should not overlap.
+|===
+
 * <<run,Run the application>>
 * <<enterprise,Run the application with Timefold Solver Enterprise Edition>>
 * <<package,Run the packaged application>>

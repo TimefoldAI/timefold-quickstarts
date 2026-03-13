@@ -4,6 +4,24 @@ Assign rounds to matches to produce a better schedule for league matches.
 
 image::./sports-league-scheduling-screenshot.png[]
 
+== Constraints
+
+[cols="1,1,3",options="header"]
+|===
+|Name |Level |Description
+
+|Matches on same day |Hard |A team cannot play two matches on the same day.
+|Multiple consecutive home matches |Hard |A team should not play four or more consecutive home matches.
+|Multiple consecutive away matches |Hard |A team should not play four or more consecutive away matches.
+|Repeat match on the next day |Hard |A team should not play a rematch against the same opponent on the following day.
+|Start to away hop |Soft |Minimize travel distance for the first away match.
+|Home to away hop |Soft |Minimize travel distance when transitioning from a home match to an away match.
+|Away to away hop |Soft |Minimize travel distance between consecutive away matches.
+|Away to home hop |Soft |Minimize travel distance from an away match back home.
+|Away to end hop |Soft |Minimize travel distance from the last away match.
+|Classic matches |Soft |Classic matches should be scheduled on weekends or holidays.
+|===
+
 * <<run,Run the application>>
 * <<enterprise,Run the application with Timefold Solver Enterprise Edition>>
 * <<package,Run the packaged application>>

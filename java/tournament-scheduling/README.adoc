@@ -4,6 +4,18 @@ Tournament Scheduling service assigning teams to tournament matches.
 
 image::./tournament-scheduling-screenshot.png[]
 
+== Constraints
+
+[cols="1,1,3",options="header"]
+|===
+|Name |Level |Description
+
+|One assignment per date per team |Hard |A team can only have one assignment per date.
+|Unavailability penalty |Hard |A team cannot be assigned during their unavailability period.
+|Fair assignment count per team |Medium |Fairly distribute the number of assignments across all teams.
+|Evenly confrontation count |Soft |Balance the number of confrontations between each pair of teams.
+|===
+
 * <<run,Run the application>>
 * <<enterprise,Run the application with Timefold Solver Enterprise Edition>>
 * <<package,Run the packaged application>>

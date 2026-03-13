@@ -4,6 +4,20 @@ Assign crew to flights to produce a better schedule for flight assignments.
 
 image::./flight-crew-scheduling-screenshot.png[]
 
+== Constraints
+
+[cols="1,1,3",options="header"]
+|===
+|Name |Level |Description
+
+|Required skill |Hard |A crew member must have the required skill for their assigned flight.
+|Flight conflict |Hard |A crew member cannot be assigned to two overlapping flights.
+|Transfer between two flights |Hard |A crew member must have enough time to transfer between consecutive flights.
+|Employee unavailability |Hard |A crew member cannot be assigned during their unavailability period.
+|First assignment not departing from home |Soft |The first flight assignment should depart from the crew member's home airport.
+|Last assignment not arriving at home |Soft |The last flight assignment should arrive at the crew member's home airport.
+|===
+
 * <<run,Run the application>>
 * <<enterprise,Run the application with Timefold Solver Enterprise Edition>>
 * <<package,Run the packaged application>>

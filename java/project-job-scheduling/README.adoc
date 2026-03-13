@@ -4,6 +4,18 @@ Assign jobs for execution to produce a better schedule for project job allocatio
 
 image::./project-job-scheduling-screenshot.png[]
 
+== Constraints
+
+[cols="1,1,3",options="header"]
+|===
+|Name |Level |Description
+
+|Non-renewable resource capacity |Hard |The total use of each non-renewable resource must not exceed its capacity.
+|Renewable resource capacity |Hard |The use of each renewable resource at any given time must not exceed its capacity.
+|Total project delay |Medium |Minimize the total delay across all projects.
+|Total makespan |Soft |Minimize the overall project completion time.
+|===
+
 * <<run,Run the application>>
 * <<enterprise,Run the application with Timefold Solver Enterprise Edition>>
 * <<package,Run the packaged application>>

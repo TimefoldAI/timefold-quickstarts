@@ -4,6 +4,17 @@ Pick the best geographical locations for new stores, distribution centers, covid
 
 image::./facility-location-screenshot.png[]
 
+== Constraints
+
+[cols="1,1,3",options="header"]
+|===
+|Name |Level |Description
+
+|Facility capacity |Hard |A facility's total assigned demand must not exceed its capacity.
+|Setup cost |Soft |Minimize the total setup cost of opened facilities.
+|Distance from facility |Soft |Minimize the total distance from consumers to their assigned facility.
+|===
+
 * <<run,Run the application>>
 * <<enterprise,Run the application with Timefold Solver Enterprise Edition>>
 * <<package,Run the packaged application>>

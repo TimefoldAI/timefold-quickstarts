@@ -4,6 +4,18 @@ Generate an optimal picking plan for completing a set of orders.
 
 image::./order-picking-screenshot.png[]
 
+== Constraints
+
+[cols="1,1,3",options="header"]
+|===
+|Name |Level |Description
+
+|Required number of buckets |Hard |A trolley must have enough buckets for all assigned orders.
+|Minimize distance from previous pick task |Soft |Minimize the travel distance between consecutive pick tasks.
+|Minimize distance from last pick task to path origin |Soft |Minimize the return distance from the last pick task to the start of the path.
+|Minimize order split by trolley |Soft |Minimize the number of trolleys used for each order.
+|===
+
 * <<run,Run the application>>
 * <<enterprise,Run the application with Timefold Solver Enterprise Edition>>
 * <<package,Run the packaged application>>
