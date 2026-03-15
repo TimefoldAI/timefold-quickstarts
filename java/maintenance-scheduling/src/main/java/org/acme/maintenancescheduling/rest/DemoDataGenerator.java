@@ -4,8 +4,10 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.SequencedSet;
 import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -65,7 +67,7 @@ public class DemoDataGenerator {
             LocalDate minStartDate = Job.calculateEndDate(fromDate, minWorkdayOffset);
             LocalDate maxEndDate = Job.calculateEndDate(minStartDate, minMaxBetweenWorkdays);
             LocalDate idealEndDate = Job.calculateEndDate(minStartDate, minIdealEndBetweenWorkdays);
-            Set<String> tags = random.nextDouble() < 0.1 ? Set.of(jobArea, "Subway") : Set.of(jobArea);
+            SequencedSet<String> tags = new LinkedHashSet<>(random.nextDouble() < 0.1 ? Set.of(jobArea, "Subway") : Set.of(jobArea));
             jobs.add(new Job(Integer.toString(i), jobArea + " " + jobTarget, durationInDays, minStartDate, maxEndDate, idealEndDate,
                     tags));
         }

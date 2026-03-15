@@ -2,6 +2,7 @@ package org.acme.maintenancescheduling.domain;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.SequencedSet;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -23,7 +24,7 @@ public class Job {
     private LocalDate maxEndDate; // Exclusive
     private LocalDate idealEndDate; // Exclusive
 
-    private Set<String> tags;
+    private SequencedSet<String> tags;
 
     @PlanningVariable
     private Crew crew;
@@ -36,7 +37,7 @@ public class Job {
     public Job() {
     }
 
-    public Job(String id, String name, int durationInDays, LocalDate minStartDate, LocalDate maxEndDate, LocalDate idealEndDate, Set<String> tags) {
+    public Job(String id, String name, int durationInDays, LocalDate minStartDate, LocalDate maxEndDate, LocalDate idealEndDate, SequencedSet<String> tags) {
         this.id = id;
         this.name = name;
         this.durationInDays = durationInDays;
@@ -46,7 +47,7 @@ public class Job {
         this.tags = tags;
     }
 
-    public Job(String id, String name, int durationInDays, LocalDate minStartDate, LocalDate maxEndDate, LocalDate idealEndDate, Set<String> tags,
+    public Job(String id, String name, int durationInDays, LocalDate minStartDate, LocalDate maxEndDate, LocalDate idealEndDate, SequencedSet<String> tags,
                Crew crew, LocalDate startDate) {
         this.id = id;
         this.name = name;
@@ -93,7 +94,7 @@ public class Job {
         return idealEndDate;
     }
 
-    public Set<String> getTags() {
+    public SequencedSet<String> getTags() {
         return tags;
     }
 
