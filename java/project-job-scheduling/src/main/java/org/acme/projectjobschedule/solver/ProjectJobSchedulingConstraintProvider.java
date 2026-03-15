@@ -29,10 +29,10 @@ public class ProjectJobSchedulingConstraintProvider implements ConstraintProvide
                 .join(Allocation.class,
                         Joiners.equal(ResourceRequirement::getExecutionMode, Allocation::getExecutionMode))
                 .groupBy((requirement, allocation) -> requirement.getResource(),
-                        ConstraintCollectors.sum((requirement, allocation) -> (long) requirement.getRequirement()))
+                        ConstraintCollectors.sum((requirement, allocation) -> requirement.getRequirement()))
                 .filter((resource, requirements) -> requirements > resource.getCapacity())
                 .penalize(HardMediumSoftScore.ONE_HARD,
-                        (resource, requirements) -> (int) (requirements - resource.getCapacity()))
+                        (resource, requirements) -> requirements - resource.getCapacity())
                 .asConstraint("Non-renewable resource capacity");
     }
 
@@ -44,10 +44,10 @@ public class ProjectJobSchedulingConstraintProvider implements ConstraintProvide
                 .flattenLast(Allocation::getBusyDates)
                 .groupBy((resourceReq, date) -> resourceReq.getResource(),
                         (resourceReq, date) -> date,
-                        ConstraintCollectors.sum((resourceReq, date) -> (long) resourceReq.getRequirement()))
+                        ConstraintCollectors.sum((resourceReq, date) -> resourceReq.getRequirement()))
                 .filter((resourceReq, date, totalRequirement) -> totalRequirement > resourceReq.getCapacity())
                 .penalize(HardMediumSoftScore.ONE_HARD,
-                        (resourceReq, date, totalRequirement) -> (int) (totalRequirement - resourceReq.getCapacity()))
+                        (resourceReq, date, totalRequirement) -> totalRequirement - resourceReq.getCapacity())
                 .asConstraint("Renewable resource capacity");
     }
 

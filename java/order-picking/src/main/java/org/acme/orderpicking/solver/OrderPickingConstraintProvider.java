@@ -42,18 +42,18 @@ public class OrderPickingConstraintProvider implements ConstraintProvider {
                 //raw total volume per order
                 .groupBy(PickTask::getTrolley,
                         pick -> pick.getOrderItem().getOrder(),
-                        sum(pick -> (long) pick.getOrderItem().getVolume()))
+                        sum(pick -> pick.getOrderItem().getVolume()))
                 //required buckets per order
                 .groupBy((trolley, order, orderTotalVolume) -> trolley,
                         (trolley, order, orderTotalVolume) -> order,
-                        sum((trolley, order, orderTotalVolume) -> (long) calculateOrderRequiredBuckets(orderTotalVolume.intValue(), trolley.getBucketCapacity())))
+                        sum((trolley, order, orderTotalVolume) -> calculateOrderRequiredBuckets(orderTotalVolume.intValue(), trolley.getBucketCapacity())))
                 //required buckets per trolley
                 .groupBy((trolley, order, orderTotalBuckets) -> trolley,
                         sum((trolley, order, orderTotalBuckets) -> orderTotalBuckets))
                 //penalization if the trolley don't have enough buckets to hold the orders
                 .filter((trolley, trolleyTotalBuckets) -> trolley.getBucketCount() < trolleyTotalBuckets)
                 .penalize(HardSoftScore.ONE_HARD,
-                        (trolley, trolleyTotalBuckets) -> (int) (trolleyTotalBuckets - trolley.getBucketCount()))
+                        (trolley, trolleyTotalBuckets) -> trolleyTotalBuckets - trolley.getBucketCount())
                 .asConstraint("Required number of buckets");
     }
 
@@ -65,7 +65,7 @@ public class OrderPickingConstraintProvider implements ConstraintProvider {
                 .groupBy(pick -> pick.getOrderItem().getOrder(),
                         countDistinct(PickTask::getTrolley))
                 .penalize(HardSoftScore.ONE_SOFT,
-                        (order, trolleySpreadCount) -> (int) (trolleySpreadCount * 1000))
+                        (order, trolleySpreadCount) -> trolleySpreadCount * 1000)
                 .asConstraint("Minimize order split by trolley");
     }
 
