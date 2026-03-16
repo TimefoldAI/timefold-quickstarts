@@ -10,7 +10,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.SequencedSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -45,6 +47,11 @@ public class DemoDataGenerator {
             new TalkType(LAB_TALK_TAG),
             new TalkType(BREAKOUT_TALK_TAG)));
 
+    @SafeVarargs
+    private static <T> SequencedSet<T> sequencedSet(T... values) {
+        return new LinkedHashSet<>(Set.of(values));
+    }
+    
     public ConferenceSchedule generateDemoData() {
         Random random = new Random(0);
         Set<Speaker> speakers = generateSpeakers();
@@ -58,37 +65,37 @@ public class DemoDataGenerator {
         return buildSet(List.of(
                 new Timeslot("T1", LocalDateTime.now().withHour(10).withMinute(15).withSecond(0).withNano(0),
                         LocalDateTime.now().withHour(12).withMinute(15).withSecond(0).withNano(0),
-                        Set.of(getTalkType(LAB_TALK_TAG)),
+                        sequencedSet(getTalkType(LAB_TALK_TAG)),
                         emptySet()),
                 new Timeslot("T2", LocalDateTime.now().withHour(10).withMinute(15).withSecond(0).withNano(0),
                         LocalDateTime.now().withHour(11).withMinute(0).withSecond(0).withNano(0),
-                        Set.of(getTalkType(BREAKOUT_TALK_TAG)),
+                        sequencedSet(getTalkType(BREAKOUT_TALK_TAG)),
                         emptySet()),
                 new Timeslot("T3", LocalDateTime.now().withHour(11).withMinute(30).withSecond(0).withNano(0),
                         LocalDateTime.now().withHour(12).withMinute(15).withSecond(0).withNano(0),
-                        Set.of(getTalkType(BREAKOUT_TALK_TAG)),
+                        sequencedSet(getTalkType(BREAKOUT_TALK_TAG)),
                         emptySet()),
                 new Timeslot("T4", LocalDateTime.now().withHour(13).withMinute(0).withSecond(0).withNano(0),
                         LocalDateTime.now().withHour(15).withMinute(0).withSecond(0).withNano(0),
-                        Set.of(getTalkType(LAB_TALK_TAG)),
-                        Set.of(AFTER_LUNCH_TAG)),
+                        sequencedSet(getTalkType(LAB_TALK_TAG)),
+                        sequencedSet(AFTER_LUNCH_TAG)),
                 new Timeslot("T5", LocalDateTime.now().withHour(15).withMinute(30).withSecond(0).withNano(0),
                         LocalDateTime.now().withHour(16).withMinute(15).withSecond(0).withNano(0),
-                        Set.of(getTalkType(BREAKOUT_TALK_TAG)),
+                        sequencedSet(getTalkType(BREAKOUT_TALK_TAG)),
                         emptySet()),
                 new Timeslot("T6", LocalDateTime.now().withHour(16).withMinute(30).withSecond(0).withNano(0),
                         LocalDateTime.now().withHour(17).withMinute(15).withSecond(0).withNano(0),
-                        Set.of(getTalkType(BREAKOUT_TALK_TAG)),
+                        sequencedSet(getTalkType(BREAKOUT_TALK_TAG)),
                         emptySet())));
     }
 
     private Set<Room> generateRooms() {
         return buildSet(List.of(
-                new Room("R1", "Room A", 60, Set.of(getTalkType(BREAKOUT_TALK_TAG)), Set.of(RECORDED_TAG)),
-                new Room("R2", "Room B", 240, Set.of(getTalkType(BREAKOUT_TALK_TAG)), emptySet()),
-                new Room("R3", "Room C", 630, Set.of(getTalkType(BREAKOUT_TALK_TAG)), Set.of(RECORDED_TAG, LARGE_TAG)),
-                new Room("R4", "Room D", 70, Set.of(getTalkType(BREAKOUT_TALK_TAG)), Set.of(RECORDED_TAG)),
-                new Room("R5", "Room E (LAB)", 490, Set.of(getTalkType(LAB_TALK_TAG)), Set.of(RECORDED_TAG))));
+                new Room("R1", "Room A", 60, sequencedSet(getTalkType(BREAKOUT_TALK_TAG)), sequencedSet(RECORDED_TAG)),
+                new Room("R2", "Room B", 240, sequencedSet(getTalkType(BREAKOUT_TALK_TAG)), emptySet()),
+                new Room("R3", "Room C", 630, sequencedSet(getTalkType(BREAKOUT_TALK_TAG)), sequencedSet(RECORDED_TAG, LARGE_TAG)),
+                new Room("R4", "Room D", 70, sequencedSet(getTalkType(BREAKOUT_TALK_TAG)), sequencedSet(RECORDED_TAG)),
+                new Room("R5", "Room E (LAB)", 490, sequencedSet(getTalkType(LAB_TALK_TAG)), sequencedSet(RECORDED_TAG))));
     }
 
     private Set<Speaker> generateSpeakers() {
@@ -104,68 +111,68 @@ public class DemoDataGenerator {
                 new Speaker("9", "Ivy Smith"),
                 new Speaker("10", "Jay Watt"),
                 new Speaker("11", "Amy Fox"),
-                new Speaker("12", "Beth Green", Set.of(AFTER_LUNCH_TAG))));
+                new Speaker("12", "Beth Green", sequencedSet(AFTER_LUNCH_TAG))));
     }
 
     private Set<Talk> generateTalks(Set<Speaker> speakers, Random random) {
         Set<Talk> talks = new LinkedHashSet<>();
         talks.add(new Talk("S01", "Talk One", getTalkType(LAB_TALK_TAG),
-                getSpeakers(speakers, "Amy Cole", "Beth Fox"), Set.of(getRandomTheme(random)), Set.of(getRandomSector(random)),
-                Set.of(getRandomAudience(random)), 2, Set.of(getRandomContent(random)), "en", 551, 1));
+                getSpeakers(speakers, "Amy Cole", "Beth Fox"), sequencedSet(getRandomTheme(random)), sequencedSet(getRandomSector(random)),
+                sequencedSet(getRandomAudience(random)), 2, sequencedSet(getRandomContent(random)), "en", 551, 1));
         talks.add(new Talk("S02", "Talk Two", getTalkType(LAB_TALK_TAG),
-                getSpeakers(speakers, "Carl Green"), Set.of(getRandomTheme(random)), Set.of(getRandomSector(random)),
-                Set.of(getRandomAudience(random)), 3, Set.of(getRandomContent(random)), "en", 528, 0));
+                getSpeakers(speakers, "Carl Green"), sequencedSet(getRandomTheme(random)), sequencedSet(getRandomSector(random)),
+                sequencedSet(getRandomAudience(random)), 3, sequencedSet(getRandomContent(random)), "en", 528, 0));
         talks.stream().filter(t -> t.getCode().equals("S01")).findFirst()
-                .ifPresent(t -> t.setUndesiredRoomTags(Set.of(RECORDED_TAG)));
+                .ifPresent(t -> t.setUndesiredRoomTags(sequencedSet(RECORDED_TAG)));
         talks.add(new Talk("S03", "Talk Three", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Dan Jones"), Set.of(getRandomTheme(random)), Set.of(getRandomSector(random)),
-                Set.of(getRandomAudience(random)), 3, Set.of(getRandomContent(random)), "en", 497, 0));
+                getSpeakers(speakers, "Dan Jones"), sequencedSet(getRandomTheme(random)), sequencedSet(getRandomSector(random)),
+                sequencedSet(getRandomAudience(random)), 3, sequencedSet(getRandomContent(random)), "en", 497, 0));
         talks.add(new Talk("S04", "Talk Four", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Elsa King", "Flo Li"), Set.of(getRandomTheme(random)), Set.of(getRandomSector(random)),
-                Set.of(getRandomAudience(random)), 1, Set.of(getRandomContent(random)), "en", 560, 0));
+                getSpeakers(speakers, "Elsa King", "Flo Li"), sequencedSet(getRandomTheme(random)), sequencedSet(getRandomSector(random)),
+                sequencedSet(getRandomAudience(random)), 1, sequencedSet(getRandomContent(random)), "en", 560, 0));
         talks.add(new Talk("S05", "Talk Five", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Gus Poe", "Hugo Rye"), Set.of(getRandomTheme(random)), Set.of(getRandomSector(random)),
-                Set.of(getRandomAudience(random)), 1, Set.of(getRandomContent(random)), "en", 957, 0));
+                getSpeakers(speakers, "Gus Poe", "Hugo Rye"), sequencedSet(getRandomTheme(random)), sequencedSet(getRandomSector(random)),
+                sequencedSet(getRandomAudience(random)), 1, sequencedSet(getRandomContent(random)), "en", 957, 0));
         talks.add(new Talk("S06", "Talk Six", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Ivy Smith"), Set.of(getRandomTheme(random)), Set.of(getRandomSector(random)),
-                Set.of(getRandomAudience(random)), 1, Set.of(getRandomContent(random)), "en", 957, 0));
+                getSpeakers(speakers, "Ivy Smith"), sequencedSet(getRandomTheme(random)), sequencedSet(getRandomSector(random)),
+                sequencedSet(getRandomAudience(random)), 1, sequencedSet(getRandomContent(random)), "en", 957, 0));
         talks.stream().filter(t -> t.getCode().equals("S05")).findFirst()
                 .ifPresent(
-                        t -> t.setPrerequisiteTalks(talks.stream().filter(t2 -> t2.getCode().equals("S02")).collect(toSet())));
+                        t -> t.setPrerequisiteTalks(talks.stream().filter(t2 -> t2.getCode().equals("S02")).collect(Collectors.toCollection(LinkedHashSet::new))));
         talks.add(new Talk("S07", "Talk Seven", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Jay Watt"), Set.of(getRandomTheme(random)), Set.of(getRandomSector(random)),
-                Set.of(getRandomAudience(random)), 3, Set.of(getRandomContent(random)), "en", 568, 0));
+                getSpeakers(speakers, "Jay Watt"), sequencedSet(getRandomTheme(random)), sequencedSet(getRandomSector(random)),
+                sequencedSet(getRandomAudience(random)), 3, sequencedSet(getRandomContent(random)), "en", 568, 0));
         talks.add(new Talk("S08", "Talk Eight", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Amy Fox"), Set.of(getRandomTheme(random)), Set.of(getRandomSector(random)),
-                Set.of(getRandomAudience(random)), 3, Set.of(getRandomContent(random)), "en", 183, 0));
+                getSpeakers(speakers, "Amy Fox"), sequencedSet(getRandomTheme(random)), sequencedSet(getRandomSector(random)),
+                sequencedSet(getRandomAudience(random)), 3, sequencedSet(getRandomContent(random)), "en", 183, 0));
         talks.add(new Talk("S09", "Talk Nine", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Beth Green", "Amy Cole"), Set.of(getRandomTheme(random)),
-                Set.of(getRandomSector(random)),
-                Set.of(getRandomAudience(random)), 3, Set.of(getRandomContent(random)), "en", 619, 0));
+                getSpeakers(speakers, "Beth Green", "Amy Cole"), sequencedSet(getRandomTheme(random)),
+                sequencedSet(getRandomSector(random)),
+                sequencedSet(getRandomAudience(random)), 3, sequencedSet(getRandomContent(random)), "en", 619, 0));
         talks.add(new Talk("S10", "Talk Ten", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Beth Fox", "Carl Green"), Set.of(getRandomTheme(random)),
-                Set.of(getRandomSector(random)),
-                Set.of(getRandomAudience(random)), 3, Set.of(getRandomContent(random)), "en", 603, 1));
+                getSpeakers(speakers, "Beth Fox", "Carl Green"), sequencedSet(getRandomTheme(random)),
+                sequencedSet(getRandomSector(random)),
+                sequencedSet(getRandomAudience(random)), 3, sequencedSet(getRandomContent(random)), "en", 603, 1));
         talks.add(new Talk("S11", "Talk Eleven", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Dan Jones", "Elsa King"), Set.of(getRandomTheme(random)),
-                Set.of(getRandomSector(random)),
-                Set.of(getRandomAudience(random)), 1, Set.of(getRandomContent(random)), "en", 39, 0));
+                getSpeakers(speakers, "Dan Jones", "Elsa King"), sequencedSet(getRandomTheme(random)),
+                sequencedSet(getRandomSector(random)),
+                sequencedSet(getRandomAudience(random)), 1, sequencedSet(getRandomContent(random)), "en", 39, 0));
         talks.add(new Talk("S12", "Talk Twelve", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Flo Li", "Gus Poe"), Set.of(getRandomTheme(random)), Set.of(getRandomSector(random)),
-                Set.of(getRandomAudience(random)), 3, Set.of(getRandomContent(random)), "en", 977, 0));
+                getSpeakers(speakers, "Flo Li", "Gus Poe"), sequencedSet(getRandomTheme(random)), sequencedSet(getRandomSector(random)),
+                sequencedSet(getRandomAudience(random)), 3, sequencedSet(getRandomContent(random)), "en", 977, 0));
         talks.stream().filter(t -> t.getCode().equals("S11")).findFirst()
-                .ifPresent(t -> t.setMutuallyExclusiveTalksTags(Set.of(getRandomContent(random))));
+                .ifPresent(t -> t.setMutuallyExclusiveTalksTags(sequencedSet(getRandomContent(random))));
         talks.add(new Talk("S13", "Talk Thirteen", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Hugo Rye"), Set.of(getRandomTheme(random)), Set.of(getRandomSector(random)),
-                Set.of(getRandomAudience(random)), 3, Set.of(getRandomContent(random)), "en", 494, 0));
+                getSpeakers(speakers, "Hugo Rye"), sequencedSet(getRandomTheme(random)), sequencedSet(getRandomSector(random)),
+                sequencedSet(getRandomAudience(random)), 3, sequencedSet(getRandomContent(random)), "en", 494, 0));
         talks.add(new Talk("S14", "Talk Fourteen", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Ivy Smith"), Set.of(getRandomTheme(random)), Set.of(getRandomSector(random)),
-                Set.of(getRandomAudience(random)), 3, Set.of(getRandomContent(random)), "en", 500, 0));
+                getSpeakers(speakers, "Ivy Smith"), sequencedSet(getRandomTheme(random)), sequencedSet(getRandomSector(random)),
+                sequencedSet(getRandomAudience(random)), 3, sequencedSet(getRandomContent(random)), "en", 500, 0));
         talks.add(new Talk("S15", "Talk Fifteen", getTalkType(BREAKOUT_TALK_TAG),
-                getSpeakers(speakers, "Jay Watt"), Set.of(getRandomTheme(random)), Set.of(getRandomSector(random)),
-                Set.of(getRandomAudience(random)), 2, Set.of(getRandomContent(random)), "en", 658, 0));
+                getSpeakers(speakers, "Jay Watt"), sequencedSet(getRandomTheme(random)), sequencedSet(getRandomSector(random)),
+                sequencedSet(getRandomAudience(random)), 2, sequencedSet(getRandomContent(random)), "en", 658, 0));
         talks.stream().filter(t -> t.getCode().equals("S11")).findFirst()
-                .ifPresent(t -> t.setRequiredRoomTags(Set.of(RECORDED_TAG)));
+                .ifPresent(t -> t.setRequiredRoomTags(sequencedSet(RECORDED_TAG)));
 
         return talks;
     }

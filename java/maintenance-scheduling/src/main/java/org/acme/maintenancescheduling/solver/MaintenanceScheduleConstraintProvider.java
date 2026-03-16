@@ -1,6 +1,5 @@
 package org.acme.maintenancescheduling.solver;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -8,10 +7,11 @@ import ai.timefold.solver.core.api.score.HardSoftScore;
 import ai.timefold.solver.core.api.score.stream.Constraint;
 import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
 import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
+import ai.timefold.solver.core.api.score.stream.Joiners;
+
 import org.acme.maintenancescheduling.domain.Job;
 
 import static ai.timefold.solver.core.api.score.stream.Joiners.equal;
-import static ai.timefold.solver.core.api.score.stream.Joiners.filtering;
 import static ai.timefold.solver.core.api.score.stream.Joiners.overlapping;
 import static java.time.temporal.ChronoUnit.DAYS;
 
@@ -100,9 +100,7 @@ public class MaintenanceScheduleConstraintProvider implements ConstraintProvider
         return constraintFactory
                 .forEachUniquePair(Job.class,
                         overlapping(Job::getStartDate, Job::getEndDate),
-                        // TODO Use intersecting() when available https://github.com/TimefoldAI/timefold-solver/issues/8
-                        filtering((job1, job2) -> !Collections.disjoint(
-                                job1.getTags(), job2.getTags())))
+                        Joiners.containingAnyOf(Job::getTags))
                 .penalize(HardSoftScore.ofSoft(1_000),
                         (job1, job2) -> {
                             Set<String> intersection = new HashSet<>(job1.getTags());

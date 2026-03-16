@@ -1,50 +1,49 @@
 
 package org.acme.conferencescheduling.domain;
 
-import static java.util.Collections.emptySet;
-
+import java.util.LinkedHashSet;
 import java.util.Objects;
-import java.util.Set;
+import java.util.SequencedSet;
 
 public class Speaker {
 
     private String id;
     private String name;
 
-    private Set<Timeslot> unavailableTimeslots;
+    private SequencedSet<Timeslot> unavailableTimeslots;
 
-    private Set<String> requiredTimeslotTags;
-    private Set<String> preferredTimeslotTags;
-    private Set<String> prohibitedTimeslotTags;
-    private Set<String> undesiredTimeslotTags;
-    private Set<String> requiredRoomTags;
-    private Set<String> preferredRoomTags;
-    private Set<String> prohibitedRoomTags;
-    private Set<String> undesiredRoomTags;
+    private SequencedSet<String> requiredTimeslotTags;
+    private SequencedSet<String> preferredTimeslotTags;
+    private SequencedSet<String> prohibitedTimeslotTags;
+    private SequencedSet<String> undesiredTimeslotTags;
+    private SequencedSet<String> requiredRoomTags;
+    private SequencedSet<String> preferredRoomTags;
+    private SequencedSet<String> prohibitedRoomTags;
+    private SequencedSet<String> undesiredRoomTags;
 
     public Speaker() {
     }
 
     public Speaker(String id, String name) {
-        this(id, name, emptySet(), emptySet(), emptySet(), emptySet(), emptySet(), emptySet(), emptySet(), emptySet(),
-                emptySet());
+        this(id, name, new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(),
+                new LinkedHashSet<>());
     }
 
     public Speaker(String name) {
-        this(name, name, emptySet(), emptySet(), emptySet(), emptySet(), emptySet(), emptySet(), emptySet(), emptySet(),
-                emptySet());
+        this(name, name, new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(),
+                new LinkedHashSet<>());
     }
 
-    public Speaker(String id, String name, Set<String> undesiredTimeslotTags) {
-        this(id, name, emptySet(), emptySet(), emptySet(), emptySet(), undesiredTimeslotTags, emptySet(), emptySet(),
-                emptySet(),
-                emptySet());
+    public Speaker(String id, String name, SequencedSet<String> undesiredTimeslotTags) {
+        this(id, name, new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), undesiredTimeslotTags, new LinkedHashSet<>(), new LinkedHashSet<>(),
+                new LinkedHashSet<>(),
+                new LinkedHashSet<>());
     }
 
-    public Speaker(String id, String name, Set<Timeslot> unavailableTimeslots, Set<String> requiredTimeslotTags,
-            Set<String> preferredTimeslotTags, Set<String> prohibitedTimeslotTags, Set<String> undesiredTimeslotTags,
-            Set<String> requiredRoomTags, Set<String> preferredRoomTags, Set<String> prohibitedRoomTags,
-            Set<String> undesiredRoomTags) {
+    public Speaker(String id, String name, SequencedSet<Timeslot> unavailableTimeslots, SequencedSet<String> requiredTimeslotTags,
+            SequencedSet<String> preferredTimeslotTags, SequencedSet<String> prohibitedTimeslotTags, SequencedSet<String> undesiredTimeslotTags,
+            SequencedSet<String> requiredRoomTags, SequencedSet<String> preferredRoomTags, SequencedSet<String> prohibitedRoomTags,
+            SequencedSet<String> undesiredRoomTags) {
         this.id = id;
         this.name = name;
         this.unavailableTimeslots = unavailableTimeslots;
@@ -74,75 +73,75 @@ public class Speaker {
         this.name = name;
     }
 
-    public Set<Timeslot> getUnavailableTimeslots() {
+    public SequencedSet<Timeslot> getUnavailableTimeslots() {
         return unavailableTimeslots;
     }
 
-    public void setUnavailableTimeslots(Set<Timeslot> unavailableTimeslots) {
+    public void setUnavailableTimeslots(SequencedSet<Timeslot> unavailableTimeslots) {
         this.unavailableTimeslots = unavailableTimeslots;
     }
 
-    public Set<String> getRequiredTimeslotTags() {
+    public SequencedSet<String> getRequiredTimeslotTags() {
         return requiredTimeslotTags;
     }
 
-    public void setRequiredTimeslotTags(Set<String> requiredTimeslotTags) {
+    public void setRequiredTimeslotTags(SequencedSet<String> requiredTimeslotTags) {
         this.requiredTimeslotTags = requiredTimeslotTags;
     }
 
-    public Set<String> getPreferredTimeslotTags() {
+    public SequencedSet<String> getPreferredTimeslotTags() {
         return preferredTimeslotTags;
     }
 
-    public void setPreferredTimeslotTags(Set<String> preferredTimeslotTags) {
+    public void setPreferredTimeslotTags(SequencedSet<String> preferredTimeslotTags) {
         this.preferredTimeslotTags = preferredTimeslotTags;
     }
 
-    public Set<String> getProhibitedTimeslotTags() {
+    public SequencedSet<String> getProhibitedTimeslotTags() {
         return prohibitedTimeslotTags;
     }
 
-    public void setProhibitedTimeslotTags(Set<String> prohibitedTimeslotTags) {
+    public void setProhibitedTimeslotTags(SequencedSet<String> prohibitedTimeslotTags) {
         this.prohibitedTimeslotTags = prohibitedTimeslotTags;
     }
 
-    public Set<String> getUndesiredTimeslotTags() {
+    public SequencedSet<String> getUndesiredTimeslotTags() {
         return undesiredTimeslotTags;
     }
 
-    public void setUndesiredTimeslotTags(Set<String> undesiredTimeslotTags) {
+    public void setUndesiredTimeslotTags(SequencedSet<String> undesiredTimeslotTags) {
         this.undesiredTimeslotTags = undesiredTimeslotTags;
     }
 
-    public Set<String> getRequiredRoomTags() {
+    public SequencedSet<String> getRequiredRoomTags() {
         return requiredRoomTags;
     }
 
-    public void setRequiredRoomTags(Set<String> requiredRoomTags) {
+    public void setRequiredRoomTags(SequencedSet<String> requiredRoomTags) {
         this.requiredRoomTags = requiredRoomTags;
     }
 
-    public Set<String> getPreferredRoomTags() {
+    public SequencedSet<String> getPreferredRoomTags() {
         return preferredRoomTags;
     }
 
-    public void setPreferredRoomTags(Set<String> preferredRoomTags) {
+    public void setPreferredRoomTags(SequencedSet<String> preferredRoomTags) {
         this.preferredRoomTags = preferredRoomTags;
     }
 
-    public Set<String> getProhibitedRoomTags() {
+    public SequencedSet<String> getProhibitedRoomTags() {
         return prohibitedRoomTags;
     }
 
-    public void setProhibitedRoomTags(Set<String> prohibitedRoomTags) {
+    public void setProhibitedRoomTags(SequencedSet<String> prohibitedRoomTags) {
         this.prohibitedRoomTags = prohibitedRoomTags;
     }
 
-    public Set<String> getUndesiredRoomTags() {
+    public SequencedSet<String> getUndesiredRoomTags() {
         return undesiredRoomTags;
     }
 
-    public void setUndesiredRoomTags(Set<String> undesiredRoomTags) {
+    public void setUndesiredRoomTags(SequencedSet<String> undesiredRoomTags) {
         this.undesiredRoomTags = undesiredRoomTags;
     }
 

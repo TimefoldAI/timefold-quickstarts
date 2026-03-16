@@ -8,7 +8,7 @@ import org.acme.facilitylocation.domain.Consumer;
 import org.acme.facilitylocation.domain.Facility;
 
 import static ai.timefold.solver.core.api.score.HardSoftScore.ONE_HARD;
-import static ai.timefold.solver.core.api.score.stream.ConstraintCollectors.sumLong;
+import static ai.timefold.solver.core.api.score.stream.ConstraintCollectors.sum;
 
 public class FacilityLocationConstraintProvider implements ConstraintProvider {
 
@@ -26,7 +26,7 @@ public class FacilityLocationConstraintProvider implements ConstraintProvider {
 
     Constraint facilityCapacity(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(Consumer.class)
-                .groupBy(Consumer::getFacility, sumLong(Consumer::getDemand))
+                .groupBy(Consumer::getFacility, sum(Consumer::getDemand))
                 .filter((facility, demand) -> demand > facility.getCapacity())
                 .penalize(ONE_HARD, (facility, demand) -> demand - facility.getCapacity())
                 .asConstraint("facility capacity");
