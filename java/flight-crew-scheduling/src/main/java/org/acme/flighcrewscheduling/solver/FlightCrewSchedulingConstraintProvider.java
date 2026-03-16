@@ -21,10 +21,13 @@ public class FlightCrewSchedulingConstraintProvider implements ConstraintProvide
     @Override
     public Constraint[] defineConstraints(ConstraintFactory constraintFactory) {
         return new Constraint[] {
+                // Hard constraints
                 requiredSkill(constraintFactory),
                 flightConflict(constraintFactory),
                 transferBetweenTwoFlights(constraintFactory),
                 employeeUnavailability(constraintFactory),
+
+                // Soft constraints
                 firstAssignmentNotDepartingFromHome(constraintFactory),
                 lastAssignmentNotArrivingAtHome(constraintFactory)
         };

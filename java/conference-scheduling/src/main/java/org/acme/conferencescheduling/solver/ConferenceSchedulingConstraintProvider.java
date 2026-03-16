@@ -101,6 +101,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 speakerProhibitedRoomTags(factory),
                 talkRequiredRoomTags(factory),
                 talkProhibitedRoomTags(factory),
+
                 // Soft constraints
                 themeTrackConflict(factory),
                 themeTrackRoomStability(factory),

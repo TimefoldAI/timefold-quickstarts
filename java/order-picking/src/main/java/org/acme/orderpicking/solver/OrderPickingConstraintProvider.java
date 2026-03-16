@@ -22,10 +22,10 @@ public class OrderPickingConstraintProvider implements ConstraintProvider {
     @Override
     public Constraint[] defineConstraints(ConstraintFactory constraintFactory) {
         return new Constraint[] {
-                // Hard
+                // Hard constraints
                 requiredNumberOfBuckets(constraintFactory),
 
-                // Soft
+                // Soft constraints
                 minimizeDistanceFromPreviousPickTask(constraintFactory),
                 minimizeDistanceFromLastPickTaskToPathOrigin(constraintFactory),
                 minimizeOrderSplitByTrolley(constraintFactory)

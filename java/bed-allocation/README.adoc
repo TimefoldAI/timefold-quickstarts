@@ -11,17 +11,17 @@ image::./bed-allocation-screenshot.png[]
 |Name |Level |Description
 
 |Same bed in same night |Hard |Two patients cannot be assigned to the same bed on the same night.
-|Female in male room |Hard |A female patient cannot be assigned to a male-only room.
-|Male in female room |Hard |A male patient cannot be assigned to a female-only room.
-|Different gender in same gender room in same night |Hard |Patients of different genders cannot share a same-gender room on the same night.
+|Female in male room |Hard |A female patient cannot be assigned to a male-only room (GenderLimitation.MALE_ONLY).
+|Male in female room |Hard |A male patient cannot be assigned to a female-only room (GenderLimitation.FEMALE_ONLY).
+|Different gender in same gender room in same night |Hard |Patients of different genders cannot share a same-gender room (GenderLimitation.SAME_GENDER) on the same night.
 |Department minimum age |Hard |A patient must meet the minimum age requirement of their assigned department.
 |Department maximum age |Hard |A patient must not exceed the maximum age requirement of their assigned department.
 |Required patient equipment |Hard |A patient's required medical equipment must be available in the assigned bed's room.
 |Assign every patient to a bed |Medium |Every patient must be assigned to a bed.
 |Preferred maximum room capacity |Soft |Patients prefer rooms within their preferred maximum capacity.
-|Department specialty |Soft |A patient's preferred department specialty should match their room's specialty.
-|Department specialty not first priority |Soft |Penalizes when a patient is placed based on a non-primary specialty match.
-|Preferred patient equipment |Soft |A patient's preferred equipment should be available in the assigned room.
+|Department specialty |Soft |Stay's department specialty should match the assigned room's specialty.
+|Department specialty not first priority |Soft |Penalizes when a patient is not placed in their first speciality priority.
+|Preferred patient equipment |Soft |Penalizes when a patient's preferred equipment is not available in the assigned room.
 |===
 
 * <<run,Run the application>>

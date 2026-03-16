@@ -15,7 +15,10 @@ public class FacilityLocationConstraintProvider implements ConstraintProvider {
     @Override
     public Constraint[] defineConstraints(ConstraintFactory constraintFactory) {
         return new Constraint[] {
+                // Hard constraints
                 facilityCapacity(constraintFactory),
+
+                // Soft constraints
                 setupCost(constraintFactory),
                 distanceFromFacility(constraintFactory)
         };
