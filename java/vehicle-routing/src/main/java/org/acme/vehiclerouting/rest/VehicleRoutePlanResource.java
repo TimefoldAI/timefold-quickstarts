@@ -182,9 +182,7 @@ public class VehicleRoutePlanResource {
             @Parameter(description = "The job ID returned by the POST method.") @PathParam("jobId") String jobId) {
         VehicleRoutePlan routePlan = getRoutePlanAndCheckForExceptions(jobId);
         SolverStatus solverStatus = solverManager.getSolverStatus(jobId);
-        String scoreExplanation = solutionManager.explain(routePlan).getSummary();
         routePlan.setSolverStatus(solverStatus);
-        routePlan.setScoreExplanation(scoreExplanation);
         return routePlan;
     }
 
