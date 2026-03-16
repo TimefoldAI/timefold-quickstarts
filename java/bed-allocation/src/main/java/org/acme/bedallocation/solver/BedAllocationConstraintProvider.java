@@ -147,7 +147,7 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
         return constraintFactory.forEach(Stay.class)
                 .filter(bedDesignation -> !bedDesignation.getRoom().getEquipments().containsAll(
                         bedDesignation.getPatientPreferredEquipments()))
-                .penalize(HardMediumSoftScore.ofHard(50),
+                .penalize(HardMediumSoftScore.ofSoft(50),
                         st -> st.getNightCount() * (int) st.getPatientPreferredEquipments().stream()
                                 .filter(equipment -> st.getRoom().getEquipments().contains(equipment)).count())
                 .asConstraint("preferredPatientEquipment");
