@@ -101,7 +101,7 @@ public class OrderPickingConstraintProvider implements ConstraintProvider {
                 .asConstraint("Minimize the distance from last trolley pick to the path origin");
     }
 
-    private int calculateOrderRequiredBuckets(int orderVolume, int bucketVolume) {
+    private long calculateOrderRequiredBuckets(long orderVolume, long bucketVolume) {
         return (orderVolume + (bucketVolume - 1)) / bucketVolume;
     }
 }
