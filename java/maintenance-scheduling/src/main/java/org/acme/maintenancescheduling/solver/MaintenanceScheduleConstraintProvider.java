@@ -24,6 +24,7 @@ public class MaintenanceScheduleConstraintProvider implements ConstraintProvider
                 crewConflict(constraintFactory),
                 minStartDate(constraintFactory),
                 maxEndDate(constraintFactory),
+
                 // Soft constraints
                 beforeIdealEndDate(constraintFactory),
                 afterIdealEndDate(constraintFactory),

@@ -18,7 +18,10 @@ public class TaskAssigningConstraintProvider implements ConstraintProvider {
     @Override
     public Constraint[] defineConstraints(ConstraintFactory constraintFactory) {
         return new Constraint[] {
+                // Hard constraints
                 noMissingSkills(constraintFactory),
+
+                // Soft constraints
                 minimizeUnassignedTasks(constraintFactory),
                 minimizeMakespan(constraintFactory),
                 criticalPriorityTaskEndTime(constraintFactory),

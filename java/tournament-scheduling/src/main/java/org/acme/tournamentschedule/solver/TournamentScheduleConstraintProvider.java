@@ -18,9 +18,14 @@ public class TournamentScheduleConstraintProvider implements ConstraintProvider 
     @Override
     public Constraint[] defineConstraints(ConstraintFactory constraintFactory) {
         return new Constraint[] {
+                // Hard constraints
                 oneAssignmentPerDatePerTeam(constraintFactory),
                 unavailabilityPenalty(constraintFactory),
+
+                // Medium constraints
                 fairAssignmentCountPerTeam(constraintFactory),
+
+                // Soft constraints
                 evenlyConfrontationCount(constraintFactory)
         };
     }

@@ -41,6 +41,7 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                 atLeast10HoursBetweenTwoShifts(constraintFactory),
                 oneShiftPerDay(constraintFactory),
                 unavailableEmployee(constraintFactory),
+
                 // Soft constraints
                 undesiredDayForEmployee(constraintFactory),
                 desiredDayForEmployee(constraintFactory),

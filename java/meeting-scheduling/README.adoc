@@ -11,7 +11,7 @@ image::./meeting-scheduling-screenshot.png[]
 |Name |Level |Description
 
 |Room conflict |Hard |Two meetings cannot be held in the same room at the same time.
-|Avoid overtime |Hard |Meetings should not be scheduled outside of working hours.
+|Avoid overtime |Hard |Meetings should not be scheduled outside working hours.
 |Required attendance conflict |Hard |A required attendee cannot be in two meetings at the same time.
 |Required room capacity |Hard |The room must be large enough for all required attendees.
 |Start and end on same day |Hard |A meeting must start and end on the same day.

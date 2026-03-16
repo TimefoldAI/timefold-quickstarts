@@ -17,14 +17,14 @@ public class VehicleRoutingConstraintProvider implements ConstraintProvider {
     @Override
     public Constraint[] defineConstraints(ConstraintFactory factory) {
         return new Constraint[] {
-                // Hard
+                // Hard constraints
                 vehicleCapacity(factory),
                 serviceFinishedAfterMaxEndTime(factory),
 
-                // Medium
+                // Medium constraints
                 maximizeVisitsAssigned(factory),
 
-                // Soft
+                // Soft constraints
                 minimizeTravelTime(factory)
         };
     }

@@ -17,7 +17,7 @@ image::./conference-scheduling-screenshot.png[]
 |Talk prerequisite talks |Hard |A talk can only be scheduled after all its prerequisite talks.
 |Talk mutually exclusive talks tags |Hard |Talks with mutually exclusive tags cannot be scheduled simultaneously.
 |Consecutive talks pause |Hard |A speaker must have a minimum pause between consecutive talks.
-|Crowd control |Hard |Talks that require crowd control must not overlap with too many other high-risk talks.
+|Crowd control |Hard |Talks that have a crowd control risk must not overlap with too many other high-risk talks.
 |Speaker required timeslot tags |Hard |A speaker's required timeslot tags must be present in their assigned timeslot.
 |Speaker prohibited timeslot tags |Hard |A speaker's prohibited timeslot tags must not be present in their assigned timeslot.
 |Talk required timeslot tags |Hard |A talk's required timeslot tags must be present in its assigned timeslot.

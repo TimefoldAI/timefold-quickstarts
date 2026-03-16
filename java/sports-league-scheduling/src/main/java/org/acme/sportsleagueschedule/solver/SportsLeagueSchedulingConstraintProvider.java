@@ -23,10 +23,13 @@ public class SportsLeagueSchedulingConstraintProvider implements ConstraintProvi
     @Override
     public Constraint[] defineConstraints(ConstraintFactory constraintFactory) {
         return new Constraint[] {
+                // Hard constraints
                 matchesOnSameDay(constraintFactory),
                 multipleConsecutiveHomeMatches(constraintFactory),
                 multipleConsecutiveAwayMatches(constraintFactory),
                 repeatMatchOnTheNextDay(constraintFactory),
+
+                // Soft constraints
                 startToAwayHop(constraintFactory),
                 homeToAwayHop(constraintFactory),
                 awayToAwayHop(constraintFactory),
