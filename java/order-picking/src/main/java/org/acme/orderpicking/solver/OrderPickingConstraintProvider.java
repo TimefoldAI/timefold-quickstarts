@@ -46,7 +46,7 @@ public class OrderPickingConstraintProvider implements ConstraintProvider {
                 //required buckets per order
                 .groupBy((trolley, order, orderTotalVolume) -> trolley,
                         (trolley, order, orderTotalVolume) -> order,
-                        sum((trolley, order, orderTotalVolume) -> calculateOrderRequiredBuckets(orderTotalVolume.intValue(), trolley.getBucketCapacity())))
+                        sum((trolley, order, orderTotalVolume) -> calculateOrderRequiredBuckets(orderTotalVolume, trolley.getBucketCapacity())))
                 //required buckets per trolley
                 .groupBy((trolley, order, orderTotalBuckets) -> trolley,
                         sum((trolley, order, orderTotalBuckets) -> orderTotalBuckets))
@@ -101,7 +101,7 @@ public class OrderPickingConstraintProvider implements ConstraintProvider {
                 .asConstraint("Minimize the distance from last trolley pick to the path origin");
     }
 
-    private int calculateOrderRequiredBuckets(int orderVolume, int bucketVolume) {
+    private long calculateOrderRequiredBuckets(long orderVolume, long bucketVolume) {
         return (orderVolume + (bucketVolume - 1)) / bucketVolume;
     }
 }
