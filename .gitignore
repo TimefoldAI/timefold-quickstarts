@@ -1,14 +1,15 @@
 # Maven and Gradle files
 target
-.gradle
 build
+bin
 
 # Eclipse, Netbeans and IntelliJ files
-/.*
+.*
 !/.github
+!/.ci
+!/.mvn
 !.gitignore
 !.gitattributes
-!/.mvn
 /nbproject
 *.ipr
 *.iws
