@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
 @QuarkusTest
 class TimetableResourceTest {
@@ -56,6 +57,7 @@ class TimetableResourceTest {
         assertTrue(solution.getScore().isFeasible());
     }
 
+    @EnabledIfSystemProperty(named = "enterprise", matches = ".*")
     @Test
     void analyze() {
         Timetable testTimetable = given()

@@ -1,7 +1,10 @@
 package org.acme.facilitylocation.rest;
 
-import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
+
 import ai.timefold.solver.core.api.score.HardSoftScore;
+import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
 import ai.timefold.solver.core.api.solver.ScoreAnalysisFetchPolicy;
 import ai.timefold.solver.core.api.solver.SolutionManager;
 import ai.timefold.solver.core.api.solver.SolverManager;
@@ -15,9 +18,6 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import org.acme.facilitylocation.domain.FacilityLocationProblem;
 import org.acme.facilitylocation.persistence.FacilityLocationProblemRepository;
-
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Path("/flp")
 public class SolverResource {
@@ -40,7 +40,7 @@ public class SolverResource {
 
     private Status statusFromSolution(FacilityLocationProblem solution) {
         return new Status(solution,
-                solutionManager.explain(solution).getSummary(),
+                solutionManager.analyze(solution).summarize(),
                 solverManager.getSolverStatus(PROBLEM_ID));
     }
 

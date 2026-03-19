@@ -371,7 +371,13 @@ function analyze() {
             analysisTable.append(analysisTBody);
             scoreAnalysisModalContent.append(analysisTable);
         }).fail(function (xhr, ajaxOptions, thrownError) {
-            showError("Analyze failed.", xhr);
+            scoreAnalysisModalContent.children().remove();
+            scoreAnalysisModalContent.append($("<p/>").html(
+                "The server returned an error."
+                + " This may be due to a misconfiguration, or because Score Analysis requires"
+                + " <b>Timefold Solver Enterprise Edition</b>, which is not on the classpath."
+                + " If the latter, reach out to Timefold, obtain your license,"
+                + " and then run the quickstart with an Enterprise profile to see Score analysis in action."));
         }, "text");
     }
 }

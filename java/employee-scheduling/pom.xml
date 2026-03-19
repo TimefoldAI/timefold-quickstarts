@@ -203,13 +203,6 @@
           <name>enterprise</name>
         </property>
       </activation>
-      <repositories>
-        <repository>
-          <id>timefold-solver-enterprise</id>
-          <name>Timefold Solver Enterprise Edition</name>
-          <url>https://timefold.jfrog.io/artifactory/releases/</url>
-        </repository>
-      </repositories>
       <dependencyManagement>
         <dependencies>
           <dependency>
@@ -225,6 +218,10 @@
         <dependency>
           <groupId>ai.timefold.solver.enterprise</groupId>
           <artifactId>timefold-solver-enterprise-quarkus</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>ai.timefold.solver.enterprise</groupId>
+          <artifactId>timefold-solver-enterprise-quarkus-jackson</artifactId>
         </dependency>
       </dependencies>
       <properties>

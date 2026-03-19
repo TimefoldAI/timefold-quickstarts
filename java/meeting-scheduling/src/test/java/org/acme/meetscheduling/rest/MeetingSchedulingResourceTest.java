@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
 @QuarkusTest
 class MeetingSchedulingResourceTest {
@@ -51,6 +52,7 @@ class MeetingSchedulingResourceTest {
         assertThat(solution.getScore().isFeasible()).isTrue();
     }
 
+    @EnabledIfSystemProperty(named = "enterprise", matches = ".*")
     @Test
     void analyze() {
         MeetingSchedule schedule = given()
