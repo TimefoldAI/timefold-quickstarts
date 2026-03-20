@@ -10,7 +10,7 @@ Find the most efficient routes for a fleet of vehicles.
 |---|---|------------------------------------------------------------------------------------|
 | Vehicle capacity | Hard | The total demand of all visits assigned to a vehicle must not exceed its capacity. |
 | Service finished after max end time | Hard | A visit must be serviced before its maximum end time.                              |
-| Maximize visits assigned | Medium | As much visits as possible should be assigned to a vehicle.                        |
+| Maximize visits assigned | Medium | As many visits as possible should be assigned to a vehicle.                        |
 | Minimize travel time | Soft | Minimize the total travel time of all vehicles.                                    |
 
 - [Run the application](#run-the-application)
