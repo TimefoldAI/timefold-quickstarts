@@ -170,7 +170,7 @@ function renderScheduleByRoom(schedule) {
             unassignedPatientElement.append(preferredEquipmentDiv);
             if (stay.patientPreferredEquipments && stay.patientPreferredEquipments.length > 0) {
                 stay.patientPreferredEquipments
-                    .filter(e => stay.patientRequiredEquipments.indexOf(e) == -1)
+                    .filter(e => stay.patientRequiredEquipments.indexOf(e) === -1)
                     .sort()
                     .forEach(e => preferredEquipmentDiv.append($(`<span class="badge text-bg-secondary m-1"/>`).text(e)));
             }
