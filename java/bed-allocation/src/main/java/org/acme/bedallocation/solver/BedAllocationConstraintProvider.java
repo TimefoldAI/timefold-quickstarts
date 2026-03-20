@@ -149,7 +149,7 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
                         bedDesignation.getPatientPreferredEquipments()))
                 .penalize(HardMediumSoftScore.ofSoft(50),
                         st -> st.getNightCount() * (int) st.getPatientPreferredEquipments().stream()
-                                .filter(equipment -> st.getRoom().getEquipments().contains(equipment)).count())
+                                .filter(equipment -> !st.getRoom().getEquipments().contains(equipment)).count())
                 .asConstraint("preferredPatientEquipment");
     }
 }
