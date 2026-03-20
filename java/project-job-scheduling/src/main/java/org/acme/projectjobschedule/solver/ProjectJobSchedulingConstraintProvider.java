@@ -16,9 +16,14 @@ public class ProjectJobSchedulingConstraintProvider implements ConstraintProvide
     @Override
     public Constraint[] defineConstraints(ConstraintFactory constraintFactory) {
         return new Constraint[] {
+                // Hard constraints
                 nonRenewableResourceCapacity(constraintFactory),
                 renewableResourceCapacity(constraintFactory),
+
+                // Medium constraints
                 totalProjectDelay(constraintFactory),
+
+                // Soft constraints
                 totalMakespan(constraintFactory)
         };
     }

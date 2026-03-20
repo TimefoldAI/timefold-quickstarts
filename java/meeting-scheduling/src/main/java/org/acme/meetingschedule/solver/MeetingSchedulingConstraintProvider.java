@@ -23,13 +23,18 @@ public class MeetingSchedulingConstraintProvider implements ConstraintProvider {
     @Override
     public Constraint[] defineConstraints(ConstraintFactory constraintFactory) {
         return new Constraint[] {
+                // Hard constraints
                 roomConflict(constraintFactory),
                 avoidOvertime(constraintFactory),
                 requiredAttendanceConflict(constraintFactory),
                 requiredRoomCapacity(constraintFactory),
                 startAndEndOnSameDay(constraintFactory),
+
+                // Medium constraints
                 requiredAndPreferredAttendanceConflict(constraintFactory),
                 preferredAttendanceConflict(constraintFactory),
+
+                // Soft constraints
                 doMeetingsAsSoonAsPossible(constraintFactory),
                 oneBreakBetweenConsecutiveMeetings(constraintFactory),
                 overlappingMeetings(constraintFactory),
