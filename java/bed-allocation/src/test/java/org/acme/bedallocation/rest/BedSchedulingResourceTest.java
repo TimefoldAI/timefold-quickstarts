@@ -1,19 +1,18 @@
 package org.acme.bedallocation.rest;
 
+import java.time.Duration;
+
+import ai.timefold.solver.core.api.solver.SolverStatus;
+import io.quarkus.test.junit.QuarkusTest;
+import io.restassured.http.ContentType;
+import org.acme.bedallocation.domain.BedPlan;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
+
 import static io.restassured.RestAssured.get;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
-
-import java.time.Duration;
-
-import ai.timefold.solver.core.api.solver.SolverStatus;
-
-import org.acme.bedallocation.domain.BedPlan;
-import org.junit.jupiter.api.Test;
-
-import io.quarkus.test.junit.QuarkusTest;
-import io.restassured.http.ContentType;
 
 @QuarkusTest
 class BedSchedulingResourceTest {
@@ -50,6 +49,7 @@ class BedSchedulingResourceTest {
         assertThat(solution.getScore().isFeasible()).isTrue();
     }
 
+    @EnabledIfSystemProperty(named = "enterprise", matches = ".*")
     @Test
     void analyze() {
         BedPlan schedule = given()

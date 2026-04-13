@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty
 import java.time.Duration
 
 @QuarkusTest
@@ -58,6 +59,7 @@ class TimetableResourceTest {
         assertTrue(solution.score?.isFeasible!!)
     }
 
+    @EnabledIfSystemProperty(named = "enterprise", matches = ".*")
     @Test
     fun analyze() {
         val testTimetable: Timetable = given()

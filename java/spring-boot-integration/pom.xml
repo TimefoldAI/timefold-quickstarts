@@ -10,7 +10,7 @@
   </parent>
 
   <groupId>org.acme</groupId>
-  <artifactId>spring-boot-school-timetabling</artifactId>
+  <artifactId>spring-boot-integration</artifactId>
   <version>1.0-SNAPSHOT</version>
 
   <properties>
@@ -146,13 +146,6 @@
           <name>enterprise</name>
         </property>
       </activation>
-      <repositories>
-        <repository>
-          <id>timefold-solver-enterprise</id>
-          <name>Timefold Solver Enterprise Edition</name>
-          <url>https://timefold.jfrog.io/artifactory/releases/</url>
-        </repository>
-      </repositories>
       <dependencyManagement>
         <dependencies>
           <dependency>

@@ -16,7 +16,7 @@ Assign lessons to timeslots and rooms to produce a better schedule for teachers 
 | Student group subject variety | Soft  | A student group should not have the same subject in consecutive timeslots.    |
 
 - [Run the application](#run-the-application)
-- [Run the application with Timefold Solver Enterprise Edition](#run-the-application-with-timefold-solver-enterprise-edition)
+- [Run the application with Enterprise Edition](#run-the-application-with-enterprise-edition)
 - [Run the packaged application](#run-the-packaged-application)
 - [Create a native image](#create-a-native-image)
 
@@ -55,56 +55,15 @@ Assign lessons to timeslots and rooms to produce a better schedule for teachers 
 
 4. Click on the **Solve** button.
 
-## Run the application with Timefold Solver Enterprise Edition
+## Run the application with Enterprise Edition
 
 For high-scalability use cases, switch to [Timefold Solver Enterprise Edition](https://docs.timefold.ai/timefold-solver/latest/enterprise-edition/enterprise-edition), our commercial offering.
-[Contact Timefold](https://timefold.ai/contact) to obtain the credentials required to access our private Enterprise Maven repository.
+[Contact Timefold](https://timefold.ai/contact) to obtain the commercial license.
 
-1. Configure the Enterprise Edition Maven repository:
-
-   **Maven:** Create `.m2/settings.xml` in your home directory with the following content:
-
-   ```xml
-   <settings>
-     ...
-     <servers>
-       <server>
-         <!-- Replace "my_username" and "my_password" with credentials obtained from a Timefold representative. -->
-         <id>timefold-solver-enterprise</id>
-         <username>my_username</username>
-         <password>my_password</password>
-       </server>
-     </servers>
-     ...
-   </settings>
-   ```
-
-   See [Settings Reference](https://maven.apache.org/settings.html) for more information on Maven settings.
-
-   **Gradle:** Add the following in your `build.gradle`:
-
-   ```groovy
-   repositories {
-     mavenCentral()
-     maven {
-       url "https://timefold.jfrog.io/artifactory/releases/"
-       credentials { // Replace "my_username" and "my_password" with credentials obtained from a Timefold representative.
-           username "my_username"
-           password "my_password"
-       }
-       authentication {
-           basic(BasicAuthentication)
-       }
-     }
-   }
-   ```
-
-   See [Settings Reference](https://docs.gradle.org/current/dsl/org.gradle.api.artifacts.repositories.AuthenticationSupported.html#content) for more information on Gradle settings.
-
-2. Start the application with Maven:
+1. Start the application with Maven:
 
    ```sh
-   $ mvn spring-boot:run -Denterprise
+   $ mvn spring-boot:run -Denterprise=true
    ```
 
    or with Gradle:
@@ -113,9 +72,9 @@ For high-scalability use cases, switch to [Timefold Solver Enterprise Edition](h
    $ gradle bootRun -Denterprise=true
    ```
 
-3. Visit [http://localhost:8080](http://localhost:8080) in your browser.
+2. Visit [http://localhost:8080](http://localhost:8080) in your browser.
 
-4. Click on the **Solve** button.
+3. Click on the **Solve** button.
 
 ## Run the packaged application
 
@@ -136,13 +95,13 @@ When you're ready to deploy the application, package the project to run as a con
 2. Run the Maven output:
 
    ```sh
-   $ java -jar target/spring-boot-school-timetabling-1.0-SNAPSHOT.jar
+   $ java -jar target/spring-boot-integration-1.0-SNAPSHOT.jar
    ```
 
    or the Gradle output:
 
    ```sh
-   $ java -jar build/libs/spring-boot-school-timetabling-1.0-SNAPSHOT.jar
+   $ java -jar build/libs/spring-boot-integration-1.0-SNAPSHOT.jar
    ```
 
    > **Note**
@@ -175,7 +134,7 @@ If you want faster startup times or need to deploy to an environment without a J
 2. Start the built Docker image using `docker run`:
 
    ```sh
-   $ docker run --rm -p 8080:8080 docker.io/library/spring-boot-school-timetabling:1.0-SNAPSHOT
+   $ docker run --rm -p 8080:8080 docker.io/library/spring-boot-integration:1.0-SNAPSHOT
    ```
 
 3. Visit [http://localhost:8080](http://localhost:8080) in your browser.
@@ -199,13 +158,13 @@ If you want faster startup times or need to deploy to an environment without a J
 2. Run the Maven output:
 
    ```sh
-   $ ./target/spring-boot-school-timetabling
+   $ ./target/spring-boot-integration
    ```
 
    or the Gradle output:
 
    ```sh
-   $ ./build/native/nativeCompile/java-spring-boot
+   $ ./build/native/nativeCompile/spring-boot-integration
    ```
 
    > **Note**

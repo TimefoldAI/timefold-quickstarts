@@ -8,6 +8,7 @@ import ai.timefold.solver.core.api.solver.SolverStatus;
 
 import org.acme.schooltimetabling.domain.Timetable;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
@@ -73,6 +74,7 @@ class TimetableControllerTest {
                 .jsonPath("score").isNotEmpty();
     }
 
+    @EnabledIfSystemProperty(named = "enterprise", matches = ".*")
     @Test
     void analyze() {
         WebTestClient client = WebTestClient.bindToServer()

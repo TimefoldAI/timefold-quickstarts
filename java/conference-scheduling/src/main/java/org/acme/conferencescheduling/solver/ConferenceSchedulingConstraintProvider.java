@@ -229,7 +229,6 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .expand(Talk::missingSpeakerRequiredTimeslotTagCount)
                 .filter((talk, missingTagCount) -> missingTagCount > 0)
                 .penalize(HardSoftScore.ofHard(1), (talk, missingTagCount) -> missingTagCount * talk.getDurationInMinutes())
-                .indictWith((talk, missingTagCount) -> Collections.singleton(talk))
                 .justifyWith(
                         (talk, integer, score) -> new RequiredTagsJustification("timeslot", talk.getSpeakers(),
                                 talk.getSpeakers().stream()
@@ -246,7 +245,6 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk, prohibitedTagCount) -> prohibitedTagCount > 0)
                 .penalize(HardSoftScore.ofHard(1),
                         (talk, prohibitedTagCount) -> prohibitedTagCount * talk.getDurationInMinutes())
-                .indictWith((talk, prohibitedTagCount) -> Collections.singleton(talk))
                 .justifyWith((talk, integer, score) -> new ProhibitedTagsJustification("timeslot", talk.getSpeakers(),
                         talk.getSpeakers().stream()
                                 .flatMap(s -> s.getProhibitedTimeslotTags().stream())
@@ -261,7 +259,6 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .expand(Talk::missingRequiredTimeslotTagCount)
                 .filter((talk, missingTagCount) -> missingTagCount > 0)
                 .penalize(HardSoftScore.ofHard(1), (talk, missingTagCount) -> missingTagCount * talk.getDurationInMinutes())
-                .indictWith((talk, missingTagCount) -> Collections.singleton(talk))
                 .justifyWith((talk, integer, score) -> new RequiredTagsJustification("timeslot", talk,
                         talk.getRequiredTimeslotTags(),
                         talk.getTimeslot().getTags()))
@@ -274,7 +271,6 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk, prohibitedTagCount) -> prohibitedTagCount > 0)
                 .penalize(HardSoftScore.ofHard(1),
                         (talk, prohibitedTagCount) -> prohibitedTagCount * talk.getDurationInMinutes())
-                .indictWith((talk, prohibitedTagCount) -> Collections.singleton(talk))
                 .justifyWith((talk, integer, score) -> new ProhibitedTagsJustification("timeslot", talk,
                         talk.getProhibitedTimeslotTags(),
                         talk.getTimeslot().getTags()))
@@ -286,7 +282,6 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .expand(Talk::missingSpeakerRequiredRoomTagCount)
                 .filter((talk, missingTagCount) -> missingTagCount > 0)
                 .penalize(HardSoftScore.ofHard(1), (talk, missingTagCount) -> missingTagCount * talk.getDurationInMinutes())
-                .indictWith((talk, missingTagCount) -> Collections.singleton(talk))
                 .justifyWith((talk, integer, score) -> new RequiredTagsJustification("room", talk.getSpeakers(),
                         talk.getSpeakers().stream()
                                 .flatMap(s -> s.getRequiredRoomTags().stream())
@@ -302,7 +297,6 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk, prohibitedTagCount) -> prohibitedTagCount > 0)
                 .penalize(HardSoftScore.ofHard(1),
                         (talk, prohibitedTagCount) -> prohibitedTagCount * talk.getDurationInMinutes())
-                .indictWith((talk, prohibitedTagCount) -> Collections.singleton(talk))
                 .justifyWith((talk, integer, score) -> new ProhibitedTagsJustification("room", talk.getSpeakers(),
                         talk.getSpeakers().stream()
                                 .flatMap(s -> s.getPreferredRoomTags().stream())
@@ -317,7 +311,6 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .expand(Talk::missingRequiredRoomTagCount)
                 .filter((talk, missingTagCount) -> missingTagCount > 0)
                 .penalize(HardSoftScore.ofHard(1), (talk, missingTagCount) -> missingTagCount * talk.getDurationInMinutes())
-                .indictWith((talk, missingTagCount) -> Collections.singleton(talk))
                 .justifyWith((talk, integer, score) -> new RequiredTagsJustification("room", talk,
                         talk.getRequiredRoomTags(),
                         talk.getRoom().getTags()))
@@ -330,7 +323,6 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk, prohibitedTagCount) -> prohibitedTagCount > 0)
                 .penalize(HardSoftScore.ofHard(1),
                         (talk, prohibitedTagCount) -> prohibitedTagCount * talk.getDurationInMinutes())
-                .indictWith((talk, prohibitedTagCount) -> Collections.singleton(talk))
                 .justifyWith((talk, integer, score) -> new ProhibitedTagsJustification("room", talk,
                         talk.getProhibitedRoomTags(),
                         talk.getRoom().getTags()))
@@ -494,7 +486,6 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .expand(Talk::missingSpeakerPreferredTimeslotTagCount)
                 .filter((talk, missingTagCount) -> missingTagCount > 0)
                 .penalize(HardSoftScore.ofSoft(20), (talk, missingTagCount) -> missingTagCount * talk.getDurationInMinutes())
-                .indictWith((talk, missingTagCount) -> Collections.singleton(talk))
                 .justifyWith((talk, integer, score) -> new PreferredTagsJustification("timeslot", talk.getSpeakers(),
                         talk.getSpeakers().stream()
                                 .flatMap(s -> s.getPreferredTimeslotTags().stream())
@@ -510,7 +501,6 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk, undesiredTagCount) -> undesiredTagCount > 0)
                 .penalize(HardSoftScore.ofSoft(20),
                         (talk, undesiredTagCount) -> undesiredTagCount * talk.getDurationInMinutes())
-                .indictWith((talk, undesiredTagCount) -> Collections.singleton(talk))
                 .justifyWith((talk, integer, score) -> new UndesiredTagsJustification("timeslot", talk.getSpeakers(),
                         talk.getSpeakers().stream()
                                 .flatMap(s -> s.getUndesiredTimeslotTags().stream())
@@ -525,7 +515,6 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .expand(Talk::missingPreferredTimeslotTagCount)
                 .filter((talk, missingTagCount) -> missingTagCount > 0)
                 .penalize(HardSoftScore.ofSoft(20), (talk, missingTagCount) -> missingTagCount * talk.getDurationInMinutes())
-                .indictWith((talk, missingTagCount) -> Collections.singleton(talk))
                 .justifyWith((talk, integer, score) -> new PreferredTagsJustification("timeslot", talk,
                         talk.getPreferredTimeslotTags(),
                         talk.getTimeslot().getTags()))
@@ -538,7 +527,6 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk, undesiredTagCount) -> undesiredTagCount > 0)
                 .penalize(HardSoftScore.ofSoft(20),
                         (talk, undesiredTagCount) -> undesiredTagCount * talk.getDurationInMinutes())
-                .indictWith((talk, undesiredTagCount) -> Collections.singleton(talk))
                 .justifyWith((talk, integer, score) -> new UndesiredTagsJustification("timeslot", talk,
                         talk.getPreferredTimeslotTags(),
                         talk.getTimeslot().getTags()))
@@ -550,7 +538,6 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .expand(Talk::missingSpeakerPreferredRoomTagCount)
                 .filter((talk, missingTagCount) -> missingTagCount > 0)
                 .penalize(HardSoftScore.ofSoft(20), (talk, missingTagCount) -> missingTagCount * talk.getDurationInMinutes())
-                .indictWith((talk, missingTagCount) -> Collections.singleton(talk))
                 .justifyWith((talk, integer, score) -> new PreferredTagsJustification("room", talk.getSpeakers(),
                         talk.getSpeakers().stream()
                                 .flatMap(s -> s.getPreferredRoomTags().stream())
@@ -566,7 +553,6 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk, undesiredTagCount) -> undesiredTagCount > 0)
                 .penalize(HardSoftScore.ofSoft(20),
                         (talk, undesiredTagCount) -> undesiredTagCount * talk.getDurationInMinutes())
-                .indictWith((talk, undesiredTagCount) -> Collections.singleton(talk))
                 .justifyWith((talk, integer, score) -> new UndesiredTagsJustification("room", talk.getSpeakers(),
                         talk.getSpeakers().stream()
                                 .flatMap(s -> s.getUndesiredRoomTags().stream())
@@ -581,7 +567,6 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .expand(Talk::missingPreferredRoomTagCount)
                 .filter((talk, missingTagCount) -> missingTagCount > 0)
                 .penalize(HardSoftScore.ofSoft(20), (talk, missingTagCount) -> missingTagCount * talk.getDurationInMinutes())
-                .indictWith((talk, missingTagCount) -> Collections.singleton(talk))
                 .justifyWith((talk, integer, score) -> new PreferredTagsJustification("room", talk,
                         talk.getPreferredRoomTags(),
                         talk.getRoom().getTags()))
@@ -594,7 +579,6 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk, undesiredTagCount) -> undesiredTagCount > 0)
                 .penalize(HardSoftScore.ofSoft(20),
                         (talk, undesiredTagCount) -> undesiredTagCount * talk.getDurationInMinutes())
-                .indictWith((talk, undesiredTagCount) -> Collections.singleton(talk))
                 .justifyWith((talk, integer, score) -> new UndesiredTagsJustification("room", talk,
                         talk.getUndesiredRoomTags(),
                         talk.getRoom().getTags()))
@@ -617,7 +601,6 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((speaker, daysBetweenTalks) -> daysBetweenTalks > 1)
                 // Each such day counts for 8 hours.
                 .penalize(HardSoftScore.ofSoft(20), (speaker, daysBetweenTalks) -> (daysBetweenTalks - 1) * 8 * 60)
-                .indictWith((speaker, daysBetweenTalks) -> Collections.singleton(speaker))
                 .justifyWith(
                         (speaker, integer, score) -> new ConferenceSchedulingJustification(
                                 "Required makespan for speaker %s".formatted(speaker.getName())))

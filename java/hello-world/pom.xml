@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.acme</groupId>
-  <artifactId>hello-world-school-timetabling</artifactId>
+  <artifactId>hello-world</artifactId>
   <version>1.0-SNAPSHOT</version>
 
   <properties>

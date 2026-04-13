@@ -1,18 +1,14 @@
 package org.acme.conferencescheduling.solver;
 
-import static java.util.Collections.emptySet;
-import static java.util.Collections.singleton;
-
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.SequencedSet;
 import java.util.Set;
 
-import jakarta.inject.Inject;
-
 import ai.timefold.solver.core.api.score.stream.test.ConstraintVerifier;
-
+import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
 import org.acme.conferencescheduling.domain.ConferenceConstraintProperties;
 import org.acme.conferencescheduling.domain.ConferenceSchedule;
 import org.acme.conferencescheduling.domain.Room;
@@ -21,7 +17,8 @@ import org.acme.conferencescheduling.domain.Talk;
 import org.acme.conferencescheduling.domain.Timeslot;
 import org.junit.jupiter.api.Test;
 
-import io.quarkus.test.junit.QuarkusTest;
+import static java.util.Collections.emptySet;
+import static java.util.Collections.singleton;
 
 @QuarkusTest
 class ConferenceSchedulingConstraintProviderTest {
@@ -187,7 +184,6 @@ class ConferenceSchedulingConstraintProviderTest {
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::speakerRequiredTimeslotTags)
                 .given(talk1, talk2)
-                .indictsWith(talk2) // talk2 has no x timeslot tag
                 .penalizesBy(MONDAY_10_05_TO_11.getDurationInMinutes());
     }
 
@@ -204,7 +200,6 @@ class ConferenceSchedulingConstraintProviderTest {
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::speakerProhibitedTimeslotTags)
                 .given(talk1, talk2)
-                .indictsWith(talk1) // a tag prohibited
                 .penalizesBy(MONDAY_9_TO_10.getDurationInMinutes());
     }
 
@@ -217,7 +212,6 @@ class ConferenceSchedulingConstraintProviderTest {
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::talkRequiredTimeslotTags)
                 .given(talk1, talk2)
-                .indictsWith(talk1) // missing b tag
                 .penalizesBy(MONDAY_9_TO_10.getDurationInMinutes());
     }
 
@@ -230,7 +224,6 @@ class ConferenceSchedulingConstraintProviderTest {
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::talkProhibitedTimeslotTags)
                 .given(talk1, talk2)
-                .indictsWith(talk1) // timeslot has a tag
                 .penalizesBy(MONDAY_9_TO_10.getDurationInMinutes());
     }
 
@@ -247,7 +240,6 @@ class ConferenceSchedulingConstraintProviderTest {
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::speakerRequiredRoomTags)
                 .given(talk1, talk2)
-                .indictsWith(talk2) // Missing x tag
                 .penalizesBy(MONDAY_10_05_TO_11.getDurationInMinutes());
     }
 
@@ -264,7 +256,6 @@ class ConferenceSchedulingConstraintProviderTest {
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::speakerProhibitedRoomTags)
                 .given(talk1, talk2)
-                .indictsWith(talk1) // a tag prohibited
                 .penalizesBy(MONDAY_9_TO_10.getDurationInMinutes());
     }
 
@@ -278,7 +269,6 @@ class ConferenceSchedulingConstraintProviderTest {
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::talkRequiredRoomTags)
                 .given(talk1, talk2)
-                .indictsWith(talk1) // missing b tag
                 .penalizesBy(MONDAY_9_TO_10.getDurationInMinutes());
     }
 
@@ -292,7 +282,6 @@ class ConferenceSchedulingConstraintProviderTest {
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::talkProhibitedRoomTags)
                 .given(talk1, talk2)
-                .indictsWith(talk1) // b tag prohibited
                 .penalizesBy(MONDAY_9_TO_10.getDurationInMinutes());
     }
 
@@ -314,7 +303,6 @@ class ConferenceSchedulingConstraintProviderTest {
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::themeTrackConflict)
                 .given(talk1, talk2, talk3, talk4)
-                .indictsWith(talk1, talk2)
                 .penalizesBy(MONDAY_9_TO_10.getDurationInMinutes()); // overlap(talk1, talk2).
     }
 
@@ -333,7 +321,6 @@ class ConferenceSchedulingConstraintProviderTest {
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::themeTrackRoomStability)
                 .given(talk1, talk2, talk3, talk4)
-                .indictsWith(talk1, talk2)
                 .penalizesBy(MONDAY_9_TO_10.getDurationInMinutes() + MONDAY_10_05_TO_11.getDurationInMinutes()); // talk1 + talk2.
     }
 
@@ -351,7 +338,6 @@ class ConferenceSchedulingConstraintProviderTest {
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::sectorConflict)
                 .given(talk1, talk2, talk3, talk4)
-                .indictsWith(talk1, talk2)
                 .penalizesBy(MONDAY_9_TO_10.getDurationInMinutes()); // talk1 + talk2.
     }
 
@@ -369,7 +355,6 @@ class ConferenceSchedulingConstraintProviderTest {
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::audienceTypeDiversity)
                 .given(talk1, talk2, talk3, talk4)
-                .indictsWith(talk1, talk2)
                 .rewardsWith(MONDAY_9_TO_10.getDurationInMinutes()); // talk1 + talk2.
     }
 
@@ -397,7 +382,6 @@ class ConferenceSchedulingConstraintProviderTest {
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::audienceTypeThemeTrackConflict)
                 .given(talk1, talk2, talk3, talk4, talk5, talk6)
-                .indictsWith(talk1, talk5)
                 .penalizesBy(MONDAY_9_TO_10.getDurationInMinutes()); // talk1 + talk5.
     }
 
@@ -415,7 +399,6 @@ class ConferenceSchedulingConstraintProviderTest {
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::audienceLevelDiversity)
                 .given(talk1, talk2, talk3, talk4)
-                .indictsWith(talk1, talk2, talk3)
                 .rewardsWith(MONDAY_9_TO_10.getDurationInMinutes() * 2); // talk1/talk3 + talk2/talk3
     }
 
@@ -437,7 +420,6 @@ class ConferenceSchedulingConstraintProviderTest {
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::contentAudienceLevelFlowViolation)
                 .given(talk1, talk2, talk3, talk4)
-                .indictsWith(talk1, talk2, talk4) // talk4/talk2 and talk1/talk2
                 .penalizesBy(MONDAY_9_TO_10.getDurationInMinutes() + MONDAY_10_05_TO_11.getDurationInMinutes()
                         + MONDAY_9_TO_10.getDurationInMinutes() * 2);
     }
@@ -456,7 +438,6 @@ class ConferenceSchedulingConstraintProviderTest {
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::contentConflict)
                 .given(talk1, talk2, talk3, talk4)
-                .indictsWith(talk1, talk2) // talk1 + talk2.
                 .penalizesBy(MONDAY_9_TO_10.getDurationInMinutes());
     }
 
@@ -474,7 +455,6 @@ class ConferenceSchedulingConstraintProviderTest {
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::languageDiversity)
                 .given(talk1, talk2, talk3, talk4)
-                .indictsWith(talk1, talk3) // talk1 + talk3
                 .rewardsWith(MONDAY_9_TO_10.getDurationInMinutes() * 2);
     }
 
@@ -520,7 +500,6 @@ class ConferenceSchedulingConstraintProviderTest {
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::popularTalks)
                 .given(talk1, talk2, talk3)
-                .indictsWith(talk1, talk3) // talk1 + talk3
                 .penalizesBy(MONDAY_9_TO_10.getDurationInMinutes() * 2);
     }
 
@@ -538,7 +517,6 @@ class ConferenceSchedulingConstraintProviderTest {
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::speakerPreferredTimeslotTags)
                 .given(talk1, talk2)
-                .indictsWith(talk2)
                 .penalizesBy(MONDAY_10_05_TO_11.getDurationInMinutes());
     }
 
@@ -556,7 +534,6 @@ class ConferenceSchedulingConstraintProviderTest {
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::speakerUndesiredTimeslotTags)
                 .given(talk1, talk2)
-                .indictsWith(talk1)
                 .penalizesBy(MONDAY_9_TO_10.getDurationInMinutes());
     }
 
@@ -569,7 +546,6 @@ class ConferenceSchedulingConstraintProviderTest {
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::talkPreferredTimeslotTags)
                 .given(talk1, talk2)
-                .indictsWith(talk1) // missing b tag
                 .penalizesBy(MONDAY_9_TO_10.getDurationInMinutes());
     }
 
@@ -582,7 +558,6 @@ class ConferenceSchedulingConstraintProviderTest {
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::talkUndesiredTimeslotTags)
                 .given(talk1, talk2)
-                .indictsWith(talk1) // a tag
                 .penalizesBy(MONDAY_9_TO_10.getDurationInMinutes());
     }
 
@@ -600,7 +575,6 @@ class ConferenceSchedulingConstraintProviderTest {
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::speakerPreferredRoomTags)
                 .given(talk1, talk2)
-                .indictsWith(talk2) // missing x tag
                 .penalizesBy(MONDAY_10_05_TO_11.getDurationInMinutes());
     }
 
@@ -618,7 +592,6 @@ class ConferenceSchedulingConstraintProviderTest {
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::speakerUndesiredRoomTags)
                 .given(talk1, talk2)
-                .indictsWith(talk1) // undesired a tag
                 .penalizesBy(MONDAY_9_TO_10.getDurationInMinutes());
     }
 
@@ -632,7 +605,6 @@ class ConferenceSchedulingConstraintProviderTest {
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::talkPreferredRoomTags)
                 .given(talk1, talk2)
-                .indictsWith(talk1) // b tag missing
                 .penalizesBy(MONDAY_9_TO_10.getDurationInMinutes());
     }
 
@@ -646,7 +618,6 @@ class ConferenceSchedulingConstraintProviderTest {
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::talkUndesiredRoomTags)
                 .given(talk1, talk2)
-                .indictsWith(talk1) // a tag undesired
                 .penalizesBy(MONDAY_9_TO_10.getDurationInMinutes());
     }
 
@@ -665,7 +636,6 @@ class ConferenceSchedulingConstraintProviderTest {
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::speakerMakespan)
                 .given(speaker1, speaker2, talk1, talk2, talk3)
-                .indictsWith(speaker1) // Just speaker1 is penalized
                 .penalizesBy(8 * 60);
     }
 }

@@ -22,7 +22,7 @@ Assign timeslots and rooms for meetings to produce a better schedule.
 | Room stability                             | Soft   | An attendee's consecutive meetings should be in the same room.              |
 
 - [Run the application](#run-the-application)
-- [Run the application with Timefold Solver Enterprise Edition](#run-the-application-with-timefold-solver-enterprise-edition)
+- [Run the application with Enterprise Edition](#run-the-application-with-enterprise-edition)
 - [Run the packaged application](#run-the-packaged-application)
 - [Run the application in a container](#run-the-application-in-a-container)
 - [Run it native](#run-it-native)
@@ -63,39 +63,20 @@ Then try _live coding_:
 
 Notice that those changes are immediately in effect.
 
-## Run the application with Timefold Solver Enterprise Edition
+## Run the application with Enterprise Edition
 
 For high-scalability use cases, switch to [Timefold Solver Enterprise Edition](https://docs.timefold.ai/timefold-solver/latest/enterprise-edition/enterprise-edition), our commercial offering.
-[Contact Timefold](https://timefold.ai/contact) to obtain the credentials required to access our private Enterprise Maven repository.
+[Contact Timefold](https://timefold.ai/contact) to obtain the commercial license.
 
-1. Create `.m2/settings.xml` in your home directory with the following content:
-
-   ```xml
-   <settings>
-     ...
-     <servers>
-       <server>
-         <!-- Replace "my_username" and "my_password" with credentials obtained from a Timefold representative. -->
-         <id>timefold-solver-enterprise</id>
-         <username>my_username</username>
-         <password>my_password</password>
-       </server>
-     </servers>
-     ...
-   </settings>
-   ```
-
-   See [Settings Reference](https://maven.apache.org/settings.html) for more information on Maven settings.
-
-2. Start the application with Maven:
+1. Start the application with Maven:
 
    ```sh
    $ mvn clean quarkus:dev -Denterprise
    ```
 
-3. Visit [http://localhost:8080](http://localhost:8080) in your browser.
+2. Visit [http://localhost:8080](http://localhost:8080) in your browser.
 
-4. Click on the **Solve** button.
+3. Click on the **Solve** button.
 
 Then try _live coding_:
 
