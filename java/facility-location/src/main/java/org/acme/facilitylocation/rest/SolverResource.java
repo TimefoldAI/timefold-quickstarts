@@ -40,7 +40,6 @@ public class SolverResource {
 
     private Status statusFromSolution(FacilityLocationProblem solution) {
         return new Status(solution,
-                solutionManager.analyze(solution).summarize(),
                 solverManager.getSolverStatus(PROBLEM_ID));
     }
 

@@ -5,12 +5,10 @@ import ai.timefold.solver.core.api.solver.SolverStatus;
 
 class Status {
     public final FacilityLocationProblem solution;
-    public final String scoreExplanation;
     public final boolean isSolving;
 
-    Status(FacilityLocationProblem solution, String scoreExplanation, SolverStatus solverStatus) {
+    Status(FacilityLocationProblem solution, SolverStatus solverStatus) {
         this.solution = solution;
-        this.scoreExplanation = scoreExplanation;
         this.isSolving = solverStatus != SolverStatus.NOT_SOLVING;
     }
 }
