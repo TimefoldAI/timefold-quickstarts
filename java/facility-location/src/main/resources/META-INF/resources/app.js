@@ -123,7 +123,7 @@ const getFacilityMarker = ({id, location}) => {
   return marker;
 };
 
-const showProblem = ({solution, scoreExplanation, isSolving}) => {
+const showProblem = ({solution, isSolving}) => {
   if (!initialized) {
     initialized = true;
     map.fitBounds(solution.bounds);
@@ -166,7 +166,6 @@ style="background-color: ${colorIfUsed}; display: inline-block; width: 1rem; hei
   $('#cost').text(longCostFormat.format(solution.totalCost));
   $('#cost-percentage').text(Math.round(solution.totalCost * 1000 / solution.potentialCost) / 10);
   $('#distance').text(solution.totalDistance);
-  $('#scoreInfo').text(scoreExplanation);
   updateSolvingStatus(isSolving);
 };
 
