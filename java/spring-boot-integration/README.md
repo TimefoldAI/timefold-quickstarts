@@ -16,7 +16,6 @@ Assign lessons to timeslots and rooms to produce a better schedule for teachers 
 | Student group subject variety | Soft  | A student group should not have the same subject in consecutive timeslots.    |
 
 - [Run the application](#run-the-application)
-- [Run the application with Enterprise Edition](#run-the-application-with-enterprise-edition)
 - [Run the packaged application](#run-the-packaged-application)
 - [Create a native image](#create-a-native-image)
 
@@ -39,42 +38,37 @@ Assign lessons to timeslots and rooms to produce a better schedule for teachers 
    $ cd timefold-quickstarts/java/spring-boot-integration
    ```
 
-2. Start the application with Maven:
+2. (Optional) If you want to run a licensed edition (Plus / Enterprise) setup your license key first. See the [Timefold license tool](https://licenses.timefold.ai/) for instructions.
 
-   ```sh
-   $ mvn spring-boot:run
-   ```
+3. Start the application with Maven:
 
-   or with Gradle:
+   1. Community Edition
+   
+      ```sh
+      $ mvn spring-boot:run
+      ```
 
-   ```sh
-   $ gradle bootRun
-   ```
+      or with Gradle:
 
-3. Visit [http://localhost:8080](http://localhost:8080) in your browser.
+      ```sh
+      $ gradle bootRun
+      ```
+   
+   2. Plus / Enterprise Edition: The profile sets up the correct Maven artifacts to run the licensed version. See the pom.xml for the implementation details.
 
-4. Click on the **Solve** button.
+      ```sh
+      $ mvn spring-boot:run -Denterprise
+      ```
 
-## Run the application with Enterprise Edition
+      or with Gradle:
 
-For high-scalability use cases, switch to [Timefold Solver Enterprise Edition](https://docs.timefold.ai/timefold-solver/latest/commercial-editions/commercial-editions), our commercial offering.
-Find the right [Timefold Solver edition](https://licenses.timefold.ai/) for your use case.
+      ```sh
+      $ gradle bootRun -Denterprise
+      ```
 
-1. Start the application with Maven:
+4. Visit [http://localhost:8080](http://localhost:8080) in your browser.
 
-   ```sh
-   $ mvn spring-boot:run -Denterprise=true
-   ```
-
-   or with Gradle:
-
-   ```sh
-   $ gradle bootRun -Denterprise=true
-   ```
-
-2. Visit [http://localhost:8080](http://localhost:8080) in your browser.
-
-3. Click on the **Solve** button.
+5. Click on the **Solve** button.
 
 ## Run the packaged application
 

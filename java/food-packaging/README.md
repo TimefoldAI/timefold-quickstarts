@@ -15,7 +15,6 @@ Schedule food packaging orders to manufacturing lines, to minimize downtime and 
 | Minimize makespan          | Soft   | Minimize the total production time.                                 |
 
 - [Run the application](#run-the-application)
-- [Run the application with Enterprise Edition](#run-the-application-with-enterprise-edition)
 - [Run the packaged application](#run-the-packaged-application)
 - [Run the application in a container](#run-the-application-in-a-container)
 - [Run it native](#run-it-native)
@@ -39,37 +38,25 @@ Schedule food packaging orders to manufacturing lines, to minimize downtime and 
    $ cd timefold-quickstarts/java/food-packaging
    ```
 
-2. Start the application with Maven:
+2. (Optional) If you want to run a licensed edition (Plus / Enterprise) setup your license key first. See the [Timefold license tool](https://licenses.timefold.ai/) for instructions.
 
-   ```sh
-   $ mvn quarkus:dev
-   ```
+3. Start the application with Maven:
 
-3. Visit [http://localhost:8080](http://localhost:8080) in your browser.
+   1. Community Edition
+   
+      ```sh
+      $ mvn quarkus:dev
+      ```
+   
+   2. Plus / Enterprise Edition: The profile sets up the correct Maven artifacts to run the licensed version. See the pom.xml for the implementation details.
 
-4. Click on the **Solve** button.
+      ```sh
+      $ mvn quarkus:dev -Denterprise
+      ```
 
-Then try _live coding_:
+4. Visit [http://localhost:8080](http://localhost:8080) in your browser.
 
-- Make some changes in the source code.
-- Refresh your browser (F5).
-
-Notice that those changes are immediately in effect.
-
-## Run the application with Enterprise Edition
-
-For high-scalability use cases, switch to [Timefold Solver Enterprise Edition](https://docs.timefold.ai/timefold-solver/latest/commercial-editions/commercial-editions), our commercial offering.
-Find the right [Timefold Solver edition](https://licenses.timefold.ai/) for your use case.
-
-1. Start the application with Maven:
-
-   ```sh
-   $ mvn clean quarkus:dev -Denterprise
-   ```
-
-2. Visit [http://localhost:8080](http://localhost:8080) in your browser.
-
-3. Click on the **Solve** button.
+5. Click on the **Solve** button.
 
 Then try _live coding_:
 
