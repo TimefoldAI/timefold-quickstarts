@@ -57,8 +57,8 @@ Notice that those changes are immediately in effect.
 
 ## Run the application with Enterprise Edition
 
-For high-scalability use cases, switch to [Timefold Solver Enterprise Edition](https://docs.timefold.ai/timefold-solver/latest/enterprise-edition/enterprise-edition), our commercial offering.
-[Contact Timefold](https://timefold.ai/contact) to obtain the commercial license.
+For high-scalability use cases, switch to [Timefold Solver Enterprise Edition](https://docs.timefold.ai/timefold-solver/latest/commercial-editions/commercial-editions), our commercial offering.
+Find the right [Timefold Solver edition](https://licenses.timefold.ai/) for your use case.
 
 1. Start the application with Maven:
 
