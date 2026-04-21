@@ -61,7 +61,7 @@ Find the most efficient routes for a fleet of vehicles.
 Then try _live coding_:
 
 - Make some changes in the source code.
-- Refresh your browser (F5). 
+- Refresh your browser (F5).
 - Notice that those changes are immediately visible.
 
 ## Run the packaged application
