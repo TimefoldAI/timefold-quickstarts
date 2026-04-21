@@ -55,7 +55,7 @@ Assign lessons to timeslots and rooms to produce a better schedule for teachers 
       $ gradle quarkusDev
       ```
    
-   2. Plus / Enterprise Edition: The profile sets up the correct Maven artifacts to run the licensed version. See the `pom.xml` for the implementation details.
+   2. Plus / Enterprise Edition: The enterprise profile sets up the correct artifacts to run the licensed version. See the `pom.xml` or `build.gradle` for the implementation details.
 
       ```sh
       $ mvn quarkus:dev -Denterprise
