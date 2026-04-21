@@ -64,7 +64,7 @@ Assign lessons to timeslots and rooms to produce a better schedule for teachers 
       or with Gradle:
 
       ```sh
-      $ gradle quarkusDev -Denterprise
+      $ gradle quarkusDev -Denterprise=true
       ```
 
 4. Visit [http://localhost:8080](http://localhost:8080) in your browser.
