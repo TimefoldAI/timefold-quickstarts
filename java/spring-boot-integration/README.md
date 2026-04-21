@@ -57,7 +57,7 @@ Assign lessons to timeslots and rooms to produce a better schedule for teachers 
    2. Plus / Enterprise Edition: The build configuration sets up the correct dependencies and artifacts to run the licensed version. See `pom.xml` and `build.gradle` for the implementation details.
 
       ```sh
-      $ mvn spring-boot:run -Denterprise=true
+      $ mvn spring-boot:run -Denterprise
       ```
 
       or with Gradle:
