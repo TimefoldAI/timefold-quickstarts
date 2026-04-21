@@ -69,7 +69,7 @@ Assign conference talks to timeslots and rooms to produce a better schedule for 
    $ cd timefold-quickstarts/java/conference-scheduling
    ```
 
-2. (Optional) If you want to run a licensed edition (Plus / Enterprise), setup your license key first. See the [Timefold license tool](https://licenses.timefold.ai/) for instructions.
+2. (Optional) If you want to run a licensed edition (Plus / Enterprise), set up your license key first. See the [Timefold license tool](https://licenses.timefold.ai/) for instructions.
 
 3. Start the application with Maven:
 

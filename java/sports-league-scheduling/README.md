@@ -43,7 +43,7 @@ Assign rounds to matches to produce a better schedule for league matches.
    $ cd timefold-quickstarts/java/sports-league-scheduling
    ```
 
-2. (Optional) If you want to run a licensed edition (Plus / Enterprise), setup your license key first. See the [Timefold license tool](https://licenses.timefold.ai/) for instructions.
+2. (Optional) If you want to run a licensed edition (Plus / Enterprise), set up your license key first. See the [Timefold license tool](https://licenses.timefold.ai/) for instructions.
 
 3. Start the application with Maven:
 

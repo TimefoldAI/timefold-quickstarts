@@ -39,7 +39,7 @@ Assign crew to flights to produce a better schedule for flight assignments.
    $ cd timefold-quickstarts/java/flight-crew-scheduling
    ```
 
-2. (Optional) If you want to run a licensed edition (Plus / Enterprise), setup your license key first. See the [Timefold license tool](https://licenses.timefold.ai/) for instructions.
+2. (Optional) If you want to run a licensed edition (Plus / Enterprise), set up your license key first. See the [Timefold license tool](https://licenses.timefold.ai/) for instructions.
 
 3. Start the application with Maven:
 
