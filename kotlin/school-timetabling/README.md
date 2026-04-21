@@ -40,7 +40,7 @@ Assign lessons to timeslots and rooms to produce a better schedule for teachers 
    $ cd timefold-quickstarts/kotlin/school-timetabling
    ```
 
-2. (Optional) If you want to run a licensed edition (Plus / Enterprise) setup your license key first. See the [Timefold license tool](https://licenses.timefold.ai/) for instructions.
+2. (Optional) If you want to run a licensed edition (Plus / Enterprise), setup your license key first. See the [Timefold license tool](https://licenses.timefold.ai/) for instructions.
 
 3. Start the application with Maven:
 
@@ -50,7 +50,7 @@ Assign lessons to timeslots and rooms to produce a better schedule for teachers 
       $ mvn quarkus:dev
       ```
    
-   2. Plus / Enterprise Edition: The profile sets up the correct Maven artifacts to run the licensed version. See the pom.xml for the implementation details.
+   2. Plus / Enterprise Edition: The profile sets up the correct Maven artifacts to run the licensed version. See the `pom.xml` for the implementation details.
 
       ```sh
       $ mvn quarkus:dev -Denterprise
