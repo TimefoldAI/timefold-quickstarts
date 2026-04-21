@@ -54,7 +54,7 @@ Assign lessons to timeslots and rooms to produce a better schedule for teachers 
       $ gradle bootRun
       ```
    
-   2. Plus / Enterprise Edition: The profile sets up the correct Maven artifacts to run the licensed version. See the `pom.xml` for the implementation details.
+   2. Plus / Enterprise Edition: The build configuration sets up the correct dependencies and artifacts to run the licensed version. See `pom.xml` and `build.gradle` for the implementation details.
 
       ```sh
       $ mvn spring-boot:run -Denterprise=true
