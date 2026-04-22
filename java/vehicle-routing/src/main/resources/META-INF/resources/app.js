@@ -27,7 +27,7 @@ const byVehiclePanel = document.getElementById("byVehiclePanel");
 const byVehicleTimelineOptions = {
     timeAxis: {scale: "hour"},
     orientation: {axis: "top"},
-    xss: {disabled: true}, // Items are XSS safe through JQuery
+    xss: {disabled: false}, // Items are XSS safe through JQuery
     stack: false,
     stackSubgroups: false,
     zoomMin: 1000 * 60 * 60, // A single hour in milliseconds
@@ -42,7 +42,7 @@ const byVisitTimelineOptions = {
     timeAxis: {scale: "hour"},
     orientation: {axis: "top"},
     verticalScroll: true,
-    xss: {disabled: true}, // Items are XSS safe through JQuery
+    xss: {disabled: false}, // Items are XSS safe through JQuery
     stack: false,
     stackSubgroups: false,
     zoomMin: 1000 * 60 * 60, // A single hour in milliseconds
@@ -303,7 +303,7 @@ function renderTimelines(routePlan) {
                     id: visit.id + '_wait',
                     group: visit.vehicle, // visit.vehicle is the vehicle.id due to Jackson serialization
                     subgroup: visit.vehicle,
-                    content: byVehicleWaitElement.ahtml(),
+                    content: byVehicleWaitElement.html(),
                     start: visit.arrivalTime,
                     end: visit.minStartTime
                 });
@@ -353,6 +353,10 @@ function renderTimelines(routePlan) {
         byVehicleTimeline.setWindow(routePlan.startDateTime, routePlan.endDateTime);
         byVisitTimeline.setWindow(routePlan.startDateTime, routePlan.endDateTime);
     }
+    requestAnimationFrame(() => {
+        if ($('#byVehiclePanel').hasClass('active')) byVehicleTimeline.redraw();
+        if ($('#byVisitPanel').hasClass('active')) byVisitTimeline.redraw();
+    });
 }
 
 function analyze() {
