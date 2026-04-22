@@ -23,7 +23,7 @@ const routeGroup = L.layerGroup().addTo(map);
 
 /************************************ Time line constants and variable definitions ************************************/
 
-const byVehiclePanel = document.getElementById("byVehiclePanel");
+const byVehiclePanel = document.getElementById("byVehicleTimeline");
 const byVehicleTimelineOptions = {
     timeAxis: {scale: "hour"},
     orientation: {axis: "top"},
@@ -37,7 +37,7 @@ const byVehicleGroupData = new vis.DataSet();
 const byVehicleItemData = new vis.DataSet();
 const byVehicleTimeline = new vis.Timeline(byVehiclePanel, byVehicleItemData, byVehicleGroupData, byVehicleTimelineOptions);
 
-const byVisitPanel = document.getElementById("byVisitPanel");
+const byVisitPanel = document.getElementById("byVisitTimeline");
 const byVisitTimelineOptions = {
     timeAxis: {scale: "hour"},
     orientation: {axis: "top"},
@@ -105,6 +105,11 @@ $(document).ready(function () {
 
 function colorByVehicle(vehicle) {
     return vehicle === null ? null : pickColor('vehicle' + vehicle.id);
+}
+
+function formatScore(score) {
+    if (!score) return '?';
+    return score.replace('hard', 'H').replace('medium', 'M').replace('soft', 'S');
 }
 
 function formatDrivingTime(drivingTimeInSeconds) {
@@ -209,7 +214,7 @@ function renderRoutes(solution) {
     }
 
     // Summary
-    $('#score').text(solution.score);
+    $('#score').text(formatScore(solution.score));
     $("#info").text(`This dataset has ${solution.visits.length} visits who need to be assigned to ${solution.vehicles.length} vehicles.`);
     $('#drivingTime').text(formatDrivingTime(solution.totalDrivingTimeSeconds));
 }
@@ -221,15 +226,19 @@ function renderTimelines(routePlan) {
     byVisitItemData.clear();
 
     $.each(routePlan.vehicles, function (index, vehicle) {
-        const {totalDemand, capacity} = vehicle
+        const {id, totalDemand, capacity} = vehicle;
         const percentage = totalDemand / capacity * 100;
-        const vehicleWithLoad = `<h5 class="card-title mb-1">vehicle-${vehicle.id}</h5>
-                                 <div class="progress" data-bs-toggle="tooltip-load" data-bs-placement="left" 
-                                      data-html="true" title="Cargo: ${totalDemand} / Capacity: ${capacity}">
-                                   <div class="progress-bar" role="progressbar" style="width: ${percentage}%">
-                                      ${totalDemand}/${capacity}
+        const color = colorByVehicle(vehicle);
+        const vehicleWithLoad = `<div style="padding:2px 0">
+                                   <div class="d-flex align-items-center gap-1 mb-1">
+                                     <span style="width:9px;height:9px;border-radius:50%;background:${color.bg};display:inline-block;flex-shrink:0"></span>
+                                     <span class="small fw-semibold">Vehicle ${id}</span>
                                    </div>
-                                 </div>`
+                                   <div class="progress" style="height:4px;width:70px" data-bs-toggle="tooltip-load"
+                                        data-bs-placement="left" data-html="true" title="Cargo: ${totalDemand} / Capacity: ${capacity}">
+                                     <div class="progress-bar" role="progressbar" style="width: ${percentage}%"></div>
+                                   </div>
+                                 </div>`;
         byVehicleGroupData.add({id: vehicle.id, content: vehicleWithLoad});
     });
 
@@ -238,8 +247,8 @@ function renderTimelines(routePlan) {
         const maxEndTime = JSJoda.LocalDateTime.parse(visit.maxEndTime);
         const serviceDuration = JSJoda.Duration.ofSeconds(visit.serviceDuration);
 
-        const visitGroupElement = $(`<div/>`)
-            .append($(`<h5 class="card-title mb-1"/>`).text(`${visit.name}`));
+        const visitGroupElement = $(`<div style="padding:2px 0"/>`)
+            .append($(`<span class="small fw-semibold"/>`).text(visit.name));
         byVisitGroupData.add({
             id: visit.id,
             content: visitGroupElement.html()
@@ -257,7 +266,8 @@ function renderTimelines(routePlan) {
 
         if (visit.vehicle == null) {
             const byJobJobElement = $(`<div/>`)
-                .append($(`<h5 class="card-title mb-1"/>`).text(`Unassigned`));
+                .append($(`<i class="fas fa-times fa-fw me-1"/>`))
+                .append($(`<span class="small fw-semibold"/>`).text('Unassigned'));
 
             // Unassigned are shown at the beginning of the visit's time window; the length is the service duration.
             byVisitItemData.add({
@@ -275,15 +285,16 @@ function renderTimelines(routePlan) {
             const afterDue = arrivalPlusService.isAfter(maxEndTime);
 
             const byVehicleElement = $(`<div/>`)
-                .append('<div/>')
-                .append($(`<h5 class="card-title mb-1"/>`).text(visit.name));
+                .append($(`<i class="fas fa-map-marker-alt fa-fw me-1"/>`))
+                .append($(`<span class="small fw-semibold"/>`).text(visit.name));
 
             const byVisitElement = $(`<div/>`)
-                // visit.vehicle is the vehicle.id due to Jackson serialization
-                .append($(`<h5 class="card-title mb-1"/>`).text('vehicle-' + visit.vehicle));
+                .append($(`<i class="fas fa-truck fa-fw me-1"/>`))
+                .append($(`<span class="small fw-semibold"/>`).text('Vehicle ' + visit.vehicle));
 
             const byVehicleTravelElement = $(`<div/>`)
-                .append($(`<h5 class="card-title mb-1"/>`).text('Travel'));
+                .append($(`<i class="fas fa-car fa-fw me-1"/>`))
+                .append($(`<span class="small fw-semibold"/>`).text('Travel'));
 
             const previousDeparture = arrivalTime.minusSeconds(visit.drivingTimeSecondsFromPreviousStandstill);
             byVehicleItemData.add({
@@ -297,7 +308,8 @@ function renderTimelines(routePlan) {
             });
             if (beforeReady) {
                 const byVehicleWaitElement = $(`<div/>`)
-                    .append($(`<h5 class="card-title mb-1"/>`).text('Wait'));
+                    .append($(`<i class="fas fa-hourglass-half fa-fw me-1"/>`))
+                    .append($(`<span class="small fw-semibold"/>`).text('Wait'));
 
                 byVehicleItemData.add({
                     id: visit.id + '_wait',
@@ -340,7 +352,7 @@ function renderTimelines(routePlan) {
                     id: vehicle.id + '_travelBackToHomeLocation',
                     group: vehicle.id, // visit.vehicle is the vehicle.id due to Jackson serialization
                     subgroup: vehicle.id,
-                    content: $(`<div/>`).append($(`<h5 class="card-title mb-1"/>`).text('Travel')).html(),
+                    content: $(`<div/>`).append($(`<i class="fas fa-home fa-fw me-1"/>`)).append($(`<span class="small fw-semibold"/>`).text('Return')).html(),
                     start: lastVisit.departureTime,
                     end: vehicle.arrivalTime,
                     style: "background-color: #f7dd8f90"

@@ -22,11 +22,47 @@
     .nav-pills {
       --bs-nav-pills-link-active-bg: var(--ts-violet-1-rgb);
     }
+    .legend-swatch {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    /* Viewport-filling layout — no page-level scrollbar */
+    html, body { height: 100%; }
+    body {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    body > header, body > footer { flex-shrink: 0; height: 4rem; }
+    body > .tab-content { flex: 1; min-height: 0; overflow: hidden; }
+
+    /* Demo tab: flex column so blockquote + nav stay fixed, content fills rest */
+    #demo {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    #demo > .sticky-top,
+    #demo > blockquote,
+    #demo > .container-fluid { flex-shrink: 0; }
+    #demo > .tab-content { flex: 1; min-height: 0; overflow: hidden; }
+
+    /* Map panel */
+    #mapPanel { height: 100%; overflow: hidden; }
+    #mapPanel > .row { height: 100%; margin: 0; }
+    #mapPanel > .row > [class*="col-"] { height: 100%; }
+    #mapPanel > .row > [class*="col-"]:last-child { overflow-y: auto; }
+    #map { width: 100%; height: 100% !important; }
   </style>
 </head>
 <body>
 
-<header class="bg-white shadow">
+<header class="bg-white shadow mb-3">
   <div class="container-fluid">
     <nav class="navbar navbar-expand-lg mb-3">
       <a class="navbar-brand" style="width: 200px;overflow: hidden;">
@@ -72,8 +108,8 @@
     <blockquote>Generate optimal route plan of a vehicle fleet with limited vehicle capacity and time windows. <span id="info" class="fw-bold"></span><br/>New visits may be added by clicking anywhere inside the map. </blockquote>
     <div class="container-fluid mb-2">
       <div class="row justify-content-start">
-        <div class="col-9">
-          <ul class="nav nav-pills col" role="tablist">
+        <div class="col-6">
+          <ul class="nav nav-pills col-auto" role="tablist">
             <li class="nav-item" role="presentation">
               <button class="nav-link active" id="mapTab" data-bs-toggle="tab" data-bs-target="#mapPanel"
                       type="button"
@@ -92,14 +128,13 @@
             </li>
           </ul>
         </div>
-        <div class="col-3">
+        <div class="col-6 d-flex justify-content-end">
           <button id="solveButton" type="button" class="btn btn-success">
             <i class="fas fa-play"></i> Solve
           </button>
           <button id="stopSolvingButton" type="button" class="btn btn-danger p-2">
             <i class="fas fa-stop"></i> Stop solving
           </button>
-          <span id="score" class="score ms-2 align-middle fw-bold">Score: ?</span>
           <button id="analyzeButton" type="button" class="ms-2 btn btn-secondary">
             <span class="fas fa-question"></span>
           </button>
@@ -111,15 +146,19 @@
       <div class="tab-pane fade show active" id="mapPanel" role="tabpanel" aria-labelledby="mapTab">
         <div class="row">
           <div class="col-7 col-lg-8 col-xl-9">
-            <div id="map" style="width: 100%; height: 100vh;"></div>
+            <div id="map"></div>
           </div>
-          <div class="col-5 col-lg-4 col-xl-3" style="height: 100vh; overflow-y: scroll;">
+          <div class="col-5 col-lg-4 col-xl-3">
             <div class="row pt-2 row-cols-1">
               <div class="col">
                 <h5>
                   Solution summary
                 </h5>
                 <table class="table">
+                  <tr>
+                    <td>Score:</td>
+                    <td><span id="score" class="fw-bold">?</span></td>
+                  </tr>
                   <tr>
                     <td>Total driving time:</td>
                     <td><span id="drivingTime">unknown</span></td>
@@ -152,8 +191,27 @@
 
 
       <div class="tab-pane fade" id="byVehiclePanel" role="tabpanel" aria-labelledby="byVehicleTab">
+        <div class="d-flex align-items-center flex-wrap gap-2 px-3 py-2 border-bottom bg-light">
+          <span class="text-muted small">Each row shows a vehicle's day: travel blocks, optional wait, and service stops.</span>
+          <div class="ms-auto d-flex gap-3 flex-wrap">
+            <span class="d-flex align-items-center gap-1 small"><span class="legend-swatch" style="background:#f7dd8f;"></span>Travel</span>
+            <span class="d-flex align-items-center gap-1 small"><span class="legend-swatch" style="background:#97C2FC;"></span>Wait</span>
+            <span class="d-flex align-items-center gap-1 small"><span class="legend-swatch" style="background:#83C159;"></span>Service</span>
+            <span class="d-flex align-items-center gap-1 small"><span class="legend-swatch" style="background:#EF2929;"></span>Late</span>
+          </div>
+        </div>
+        <div id="byVehicleTimeline"></div>
       </div>
       <div class="tab-pane fade" id="byVisitPanel" role="tabpanel" aria-labelledby="byVisitTab">
+        <div class="d-flex align-items-center flex-wrap gap-2 px-3 py-2 border-bottom bg-light">
+          <span class="text-muted small">Each row shows a visit's assigned vehicle and where it falls relative to its time window.</span>
+          <div class="ms-auto d-flex gap-3 flex-wrap">
+            <span class="d-flex align-items-center gap-1 small"><span class="legend-swatch" style="background:#8AE234;opacity:0.4;"></span>Time window</span>
+            <span class="d-flex align-items-center gap-1 small"><span class="legend-swatch" style="background:#83C159;"></span>Assigned</span>
+            <span class="d-flex align-items-center gap-1 small"><span class="legend-swatch" style="background:#EF2929;"></span>Late / Unassigned</span>
+          </div>
+        </div>
+        <div id="byVisitTimeline"></div>
       </div>
     </div>
   </div>
