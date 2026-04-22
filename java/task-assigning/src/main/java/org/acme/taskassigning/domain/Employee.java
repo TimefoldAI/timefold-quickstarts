@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
-import ai.timefold.solver.core.api.domain.lookup.PlanningId;
+import ai.timefold.solver.core.api.domain.common.PlanningId;
 import ai.timefold.solver.core.api.domain.variable.PlanningListVariable;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
@@ -102,8 +102,8 @@ public class Employee {
     }
 
     @JsonIgnore
-    public Integer getEndTime() {
-        return tasks.isEmpty() ? 0 : tasks.get(tasks.size() - 1).getEndTime();
+    public long getEndTime() {
+        return tasks.isEmpty() ? 0L : tasks.get(tasks.size() - 1).getEndTime();
     }
 
     @Override

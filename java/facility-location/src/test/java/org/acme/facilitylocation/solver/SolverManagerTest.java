@@ -19,7 +19,7 @@ import io.quarkus.test.junit.QuarkusTest;
 class SolverManagerTest {
 
     @Inject
-    SolverManager<FacilityLocationProblem, Long> solverManager;
+    SolverManager<FacilityLocationProblem> solverManager;
 
     @Test
     void solve() throws ExecutionException, InterruptedException {

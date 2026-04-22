@@ -1,11 +1,13 @@
 package org.acme.maintenancescheduling.solver;
 
 import java.time.LocalDate;
+import java.util.LinkedHashSet;
+import java.util.SequencedSet;
 import java.util.Set;
 
 import jakarta.inject.Inject;
 
-import ai.timefold.solver.test.api.score.stream.ConstraintVerifier;
+import ai.timefold.solver.core.api.score.stream.test.ConstraintVerifier;
 
 import org.acme.maintenancescheduling.domain.Crew;
 import org.acme.maintenancescheduling.domain.Job;
@@ -23,6 +25,11 @@ class MaintenanceSchedulingConstraintProviderTest {
     private static final LocalDate DAY_2 = LocalDate.of(2021, 2, 2);
     private static final LocalDate DAY_3 = LocalDate.of(2021, 2, 3);
 
+    @SafeVarargs
+    private static <T> SequencedSet<T> sequencedSet(T... values) {
+        return new LinkedHashSet<>(Set.of(values));
+    }
+    
     @Inject
     ConstraintVerifier<MaintenanceScheduleConstraintProvider, MaintenanceSchedule> constraintVerifier;
 
@@ -118,28 +125,28 @@ class MaintenanceSchedulingConstraintProviderTest {
     void tagConflict() {
         constraintVerifier.verifyThat(MaintenanceScheduleConstraintProvider::tagConflict)
                 .given(
-                        new Job("1", "Downtown tunnel", 1, null, null, null, Set.of("Downtown"), ALPHA_CREW, DAY_1),
-                        new Job("2", "Downtown bridge", 1, null, null, null, Set.of("Downtown", "Crane"), ALPHA_CREW, DAY_3))
+                        new Job("1", "Downtown tunnel", 1, null, null, null, sequencedSet("Downtown"), ALPHA_CREW, DAY_1),
+                        new Job("2", "Downtown bridge", 1, null, null, null, sequencedSet("Downtown", "Crane"), ALPHA_CREW, DAY_3))
                 .penalizesBy(0);
         constraintVerifier.verifyThat(MaintenanceScheduleConstraintProvider::tagConflict)
                 .given(
-                        new Job("1", "Downtown tunnel", 1, null, null, null, Set.of("Downtown"), ALPHA_CREW, DAY_1),
-                        new Job("2", "Downtown bridge", 1, null, null, null, Set.of("Downtown", "Crane"), ALPHA_CREW, DAY_1))
+                        new Job("1", "Downtown tunnel", 1, null, null, null, sequencedSet("Downtown"), ALPHA_CREW, DAY_1),
+                        new Job("2", "Downtown bridge", 1, null, null, null, sequencedSet("Downtown", "Crane"), ALPHA_CREW, DAY_1))
                 .penalizesBy(1);
         constraintVerifier.verifyThat(MaintenanceScheduleConstraintProvider::tagConflict)
                 .given(
-                        new Job("1", "Downtown tunnel", 1, null, null, null, Set.of("Downtown"), ALPHA_CREW, DAY_1),
-                        new Job("2", "Uptown bridge", 1, null, null, null, Set.of("Uptown", "Crane"), ALPHA_CREW, DAY_1))
+                        new Job("1", "Downtown tunnel", 1, null, null, null, sequencedSet("Downtown"), ALPHA_CREW, DAY_1),
+                        new Job("2", "Uptown bridge", 1, null, null, null, sequencedSet("Uptown", "Crane"), ALPHA_CREW, DAY_1))
                 .penalizesBy(0);
         constraintVerifier.verifyThat(MaintenanceScheduleConstraintProvider::tagConflict)
                 .given(
-                        new Job("1", "Downtown tunnel", 1, null, null, null, Set.of("Downtown", "Crane"), ALPHA_CREW, DAY_2),
-                        new Job("2", "Downtown bridge", 1, null, null, null, Set.of("Downtown", "Crane"), ALPHA_CREW, DAY_2))
+                        new Job("1", "Downtown tunnel", 1, null, null, null, sequencedSet("Downtown", "Crane"), ALPHA_CREW, DAY_2),
+                        new Job("2", "Downtown bridge", 1, null, null, null, sequencedSet("Downtown", "Crane"), ALPHA_CREW, DAY_2))
                 .penalizesBy(2);
         constraintVerifier.verifyThat(MaintenanceScheduleConstraintProvider::tagConflict)
                 .given(
-                        new Job("1", "Downtown tunnel", 5, null, null, null, Set.of("Downtown", "Crane"), ALPHA_CREW, DAY_1),
-                        new Job("2", "Downtown bridge", 3, null, null, null, Set.of("Downtown", "Crane"), ALPHA_CREW, DAY_2))
+                        new Job("1", "Downtown tunnel", 5, null, null, null, sequencedSet("Downtown", "Crane"), ALPHA_CREW, DAY_1),
+                        new Job("2", "Downtown bridge", 3, null, null, null, sequencedSet("Downtown", "Crane"), ALPHA_CREW, DAY_2))
                 .penalizesBy(2 * 3);
     }
 

@@ -5,7 +5,7 @@ import static java.util.Collections.emptySet;
 import java.util.Objects;
 import java.util.Set;
 
-import ai.timefold.solver.core.api.domain.lookup.PlanningId;
+import ai.timefold.solver.core.api.domain.common.PlanningId;
 
 public class Room {
 

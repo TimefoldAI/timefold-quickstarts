@@ -1,7 +1,7 @@
 package org.acme.kotlin.schooltimetabling.rest
 
+import ai.timefold.solver.core.api.score.HardSoftScore
 import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis
-import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore
 import ai.timefold.solver.core.api.solver.ScoreAnalysisFetchPolicy
 import ai.timefold.solver.core.api.solver.SolutionManager
 import ai.timefold.solver.core.api.solver.SolverManager
@@ -43,7 +43,7 @@ class TimetableResource {
 
     private val LOGGER: Logger = LoggerFactory.getLogger(TimetableResource::class.java)
 
-    private final var solverManager: SolverManager<Timetable, String>?
+    private final var solverManager: SolverManager<Timetable>?
 
     private final var solutionManager: SolutionManager<Timetable, HardSoftScore>?
 
@@ -58,7 +58,7 @@ class TimetableResource {
 
     @Inject
     constructor(
-        solverManager: SolverManager<Timetable, String>, solutionManager: SolutionManager<Timetable, HardSoftScore>
+        solverManager: SolverManager<Timetable>, solutionManager: SolutionManager<Timetable, HardSoftScore>
     ) {
         this.solverManager = solverManager
         this.solutionManager = solutionManager
@@ -99,13 +99,13 @@ class TimetableResource {
         jobIdToJob[jobId] = Job.ofTimetable(problem)
         solverManager!!.solveBuilder()
             .withProblemId(jobId)
-            .withProblemFinder(Function<String, Timetable?> { _: String? ->
-                jobIdToJob[jobId]!!.timetable
+            .withProblemFinder(Function<Any, Timetable> { _: Any ->
+                jobIdToJob[jobId]!!.timetable!!
             })
             .withBestSolutionEventConsumer { event: NewBestSolutionEvent<Timetable> ->
                 jobIdToJob[jobId] = Job.ofTimetable(event.solution())
             }
-            .withExceptionHandler(BiConsumer { _: String?, exception: Throwable? ->
+            .withExceptionHandler(BiConsumer { _: Any?, exception: Throwable? ->
                 jobIdToJob[jobId] = Job.ofException(exception)
                 LOGGER.error("Failed solving jobId ({}).", jobId, exception)
             })

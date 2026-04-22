@@ -284,7 +284,13 @@ function analyze() {
       analysisTable.append(analysisTBody);
       scoreAnalysisModalContent.append(analysisTable);
     }).fail(function (xhr, ajaxOptions, thrownError) {
-      showError("Analyze failed.", xhr);
+      scoreAnalysisModalContent.children().remove();
+      scoreAnalysisModalContent.append($("<p/>").html(
+          "The server returned an error."
+          + " This may be due to a misconfiguration, or because Score Analysis requires"
+          + " <b>Timefold Solver Enterprise Edition</b>, which is not on the classpath."
+          + " If the latter, reach out to Timefold, obtain your license,"
+          + " and then run the quickstart with an Enterprise profile to see Score analysis in action."));
     }, "text");
   }
 }
@@ -352,4 +358,40 @@ function showError(title, xhr) {
   $("#notificationPanel").append(notification);
   notification.toast({delay: 30000});
   notification.toast('show');
+}
+
+function fallbackCopyTextToClipboard(text) {
+  var textArea = document.createElement('textarea');
+  textArea.value = text;
+  textArea.style.position = 'fixed';
+  textArea.style.left = '-9999px';
+  textArea.style.top = '0';
+  document.body.appendChild(textArea);
+  textArea.focus();
+  textArea.select();
+  try {
+    document.execCommand('copy');
+  } catch (err) {
+    // Copying failed; swallow the error to avoid breaking the UI.
+  } finally {
+    document.body.removeChild(textArea);
+  }
+}
+
+function copyTextToClipboard(id) {
+  var element = document.getElementById(id);
+  if (!element) {
+    return;
+  }
+  var text = (element.textContent || element.value || '').trim();
+  if (!text) {
+    return;
+  }
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).catch(function () {
+      fallbackCopyTextToClipboard(text);
+    });
+  } else {
+    fallbackCopyTextToClipboard(text);
+  }
 }

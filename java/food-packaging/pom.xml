@@ -8,11 +8,11 @@
   <version>1.0-SNAPSHOT</version>
 
   <properties>
-    <maven.compiler.release>17</maven.compiler.release>
+    <maven.compiler.release>21</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <version.io.quarkus>3.33.1</version.io.quarkus>
-    <version.ai.timefold.solver>1.33.0</version.ai.timefold.solver>
+    <version.io.quarkus>3.34.5</version.io.quarkus>
+    <version.ai.timefold.solver>2.0.0</version.ai.timefold.solver>
 
     <version.compiler.plugin>3.15.0</version.compiler.plugin>
     <version.surefire.plugin>3.5.5</version.surefire.plugin>
@@ -54,6 +54,10 @@
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-rest-jackson</artifactId>
     </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-smallrye-openapi</artifactId>
+    </dependency>
 
     <!-- UI -->
     <dependency>
@@ -86,11 +90,6 @@
     </dependency>
 
     <!-- Testing -->
-    <dependency>
-      <groupId>ai.timefold.solver</groupId>
-      <artifactId>timefold-solver-test</artifactId>
-      <scope>test</scope>
-    </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-junit5</artifactId>
@@ -197,13 +196,6 @@
           <name>enterprise</name>
         </property>
       </activation>
-      <repositories>
-        <repository>
-          <id>timefold-solver-enterprise</id>
-          <name>Timefold Solver Enterprise Edition</name>
-          <url>https://timefold.jfrog.io/artifactory/releases/</url>
-        </repository>
-      </repositories>
       <dependencyManagement>
         <dependencies>
           <dependency>
@@ -219,6 +211,10 @@
         <dependency>
           <groupId>ai.timefold.solver.enterprise</groupId>
           <artifactId>timefold-solver-enterprise-quarkus</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>ai.timefold.solver.enterprise</groupId>
+          <artifactId>timefold-solver-enterprise-quarkus-jackson</artifactId>
         </dependency>
       </dependencies>
       <properties>

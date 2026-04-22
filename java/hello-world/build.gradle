@@ -3,7 +3,7 @@ plugins {
     id "application"
 }
 
-def timefoldVersion = "1.33.0"
+def timefoldVersion = "2.0.0"
 def logbackVersion = "1.5.32"
 def junitVersion = "6.0.3"
 def assertjVersion = "3.27.7"
@@ -24,7 +24,6 @@ dependencies {
 
     // Testing
     testImplementation platform("org.junit:junit-bom:${junitVersion}")
-    testImplementation "ai.timefold.solver:timefold-solver-test"
     testImplementation "org.junit.jupiter:junit-jupiter"
     testImplementation "org.assertj:assertj-core:${assertjVersion}"
     testRuntimeOnly "org.junit.platform:junit-platform-launcher"
@@ -32,8 +31,8 @@ dependencies {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 compileJava {

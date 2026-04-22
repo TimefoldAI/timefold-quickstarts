@@ -5,7 +5,7 @@ import static ai.timefold.solver.core.api.score.stream.Joiners.filtering;
 
 import java.util.function.Function;
 
-import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
+import ai.timefold.solver.core.api.score.HardSoftScore;
 import ai.timefold.solver.core.api.score.stream.Constraint;
 import ai.timefold.solver.core.api.score.stream.ConstraintCollectors;
 import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
@@ -23,10 +23,13 @@ public class SportsLeagueSchedulingConstraintProvider implements ConstraintProvi
     @Override
     public Constraint[] defineConstraints(ConstraintFactory constraintFactory) {
         return new Constraint[] {
+                // Hard constraints
                 matchesOnSameDay(constraintFactory),
                 multipleConsecutiveHomeMatches(constraintFactory),
                 multipleConsecutiveAwayMatches(constraintFactory),
                 repeatMatchOnTheNextDay(constraintFactory),
+
+                // Soft constraints
                 startToAwayHop(constraintFactory),
                 homeToAwayHop(constraintFactory),
                 awayToAwayHop(constraintFactory),

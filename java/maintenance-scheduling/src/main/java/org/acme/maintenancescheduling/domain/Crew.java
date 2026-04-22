@@ -2,7 +2,7 @@ package org.acme.maintenancescheduling.domain;
 
 import java.util.Objects;
 
-import ai.timefold.solver.core.api.domain.lookup.PlanningId;
+import ai.timefold.solver.core.api.domain.common.PlanningId;
 
 public class Crew {
 

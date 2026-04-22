@@ -4,7 +4,7 @@ import static ai.timefold.solver.core.api.score.stream.ConstraintCollectors.load
 import static ai.timefold.solver.core.api.score.stream.Joiners.equal;
 import static ai.timefold.solver.core.api.score.stream.Joiners.lessThan;
 
-import ai.timefold.solver.core.api.score.buildin.hardmediumsoftbigdecimal.HardMediumSoftBigDecimalScore;
+import ai.timefold.solver.core.api.score.HardMediumSoftBigDecimalScore;
 import ai.timefold.solver.core.api.score.stream.Constraint;
 import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
 import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
@@ -18,9 +18,14 @@ public class TournamentScheduleConstraintProvider implements ConstraintProvider 
     @Override
     public Constraint[] defineConstraints(ConstraintFactory constraintFactory) {
         return new Constraint[] {
+                // Hard constraints
                 oneAssignmentPerDatePerTeam(constraintFactory),
                 unavailabilityPenalty(constraintFactory),
+
+                // Medium constraints
                 fairAssignmentCountPerTeam(constraintFactory),
+
+                // Soft constraints
                 evenlyConfrontationCount(constraintFactory)
         };
     }

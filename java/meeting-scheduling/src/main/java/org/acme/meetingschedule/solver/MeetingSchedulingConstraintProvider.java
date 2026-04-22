@@ -6,7 +6,7 @@ import static ai.timefold.solver.core.api.score.stream.Joiners.greaterThan;
 import static ai.timefold.solver.core.api.score.stream.Joiners.lessThan;
 import static ai.timefold.solver.core.api.score.stream.Joiners.overlapping;
 
-import ai.timefold.solver.core.api.score.buildin.hardmediumsoft.HardMediumSoftScore;
+import ai.timefold.solver.core.api.score.HardMediumSoftScore;
 import ai.timefold.solver.core.api.score.stream.Constraint;
 import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
 import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
@@ -23,13 +23,18 @@ public class MeetingSchedulingConstraintProvider implements ConstraintProvider {
     @Override
     public Constraint[] defineConstraints(ConstraintFactory constraintFactory) {
         return new Constraint[] {
+                // Hard constraints
                 roomConflict(constraintFactory),
                 avoidOvertime(constraintFactory),
                 requiredAttendanceConflict(constraintFactory),
                 requiredRoomCapacity(constraintFactory),
                 startAndEndOnSameDay(constraintFactory),
+
+                // Medium constraints
                 requiredAndPreferredAttendanceConflict(constraintFactory),
                 preferredAttendanceConflict(constraintFactory),
+
+                // Soft constraints
                 doMeetingsAsSoonAsPossible(constraintFactory),
                 oneBreakBetweenConsecutiveMeetings(constraintFactory),
                 overlappingMeetings(constraintFactory),

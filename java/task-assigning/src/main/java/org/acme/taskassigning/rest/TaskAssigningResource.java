@@ -1,7 +1,15 @@
 package org.acme.taskassigning.rest;
 
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
+import ai.timefold.solver.core.api.score.HardSoftScore;
 import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
-import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
 import ai.timefold.solver.core.api.solver.ScoreAnalysisFetchPolicy;
 import ai.timefold.solver.core.api.solver.SolutionManager;
 import ai.timefold.solver.core.api.solver.SolverManager;
@@ -32,14 +40,6 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
 @Tag(name = "Flight Crew Scheduling",
         description = "Task assigning service assigning tasks to employees.")
 @Path("schedules")
@@ -48,7 +48,7 @@ public class TaskAssigningResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(TaskAssigningResource.class);
     private static final int MAX_JOBS_CACHE_SIZE = 2;
 
-    private final SolverManager<TaskAssigningSolution, String> solverManager;
+    private final SolverManager<TaskAssigningSolution> solverManager;
     private final SolutionManager<TaskAssigningSolution, HardSoftScore> solutionManager;
     private final ConcurrentMap<String, Job> jobIdToJob = new ConcurrentHashMap<>();
 
@@ -58,7 +58,7 @@ public class TaskAssigningResource {
     }
 
     @Inject
-    public TaskAssigningResource(SolverManager<TaskAssigningSolution, String> solverManager,
+    public TaskAssigningResource(SolverManager<TaskAssigningSolution> solverManager,
                                  SolutionManager<TaskAssigningSolution, HardSoftScore> solutionManager) {
         this.solverManager = solverManager;
         this.solutionManager = solutionManager;
@@ -91,7 +91,7 @@ public class TaskAssigningResource {
                 .withProblemFinder(id -> jobIdToJob.get(jobId).schedule)
                 .withBestSolutionEventConsumer(event -> jobIdToJob.put(jobId, Job.ofSchedule(event.solution())))
                 .withExceptionHandler((id, exception) -> {
-                    jobIdToJob.put(id, Job.ofException(exception));
+                    jobIdToJob.put((String) id, Job.ofException(exception));
                     LOGGER.error("Failed solving jobId ({}).", id, exception);
                 })
                 .run();

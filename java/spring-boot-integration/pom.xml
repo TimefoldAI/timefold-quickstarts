@@ -6,18 +6,18 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.5.13</version>
+    <version>4.0.5</version>
   </parent>
 
   <groupId>org.acme</groupId>
-  <artifactId>spring-boot-school-timetabling</artifactId>
+  <artifactId>spring-boot-integration</artifactId>
   <version>1.0-SNAPSHOT</version>
 
   <properties>
-    <maven.compiler.release>17</maven.compiler.release>
+    <maven.compiler.release>21</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <version.ai.timefold.solver>1.33.0</version.ai.timefold.solver>
+    <version.ai.timefold.solver>2.0.0</version.ai.timefold.solver>
     <version.org.springframework.boot>${project.parent.version}</version.org.springframework.boot>
 
     <version.compiler.plugin>3.15.0</version.compiler.plugin>
@@ -47,7 +47,7 @@
     <!-- Spring boot -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
+      <artifactId>spring-boot-starter-webmvc</artifactId>
     </dependency>
     <dependency>
       <groupId>ai.timefold.solver</groupId>
@@ -58,7 +58,7 @@
     <dependency>
       <groupId>org.springdoc</groupId>
       <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-      <version>2.8.14</version>
+      <version>3.0.3</version>
     </dependency>
 
     <!-- Testing -->
@@ -68,18 +68,8 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>ai.timefold.solver</groupId>
-      <artifactId>timefold-solver-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-webflux</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.awaitility</groupId>
-      <artifactId>awaitility</artifactId>
       <scope>test</scope>
     </dependency>
 
@@ -156,13 +146,6 @@
           <name>enterprise</name>
         </property>
       </activation>
-      <repositories>
-        <repository>
-          <id>timefold-solver-enterprise</id>
-          <name>Timefold Solver Enterprise Edition</name>
-          <url>https://timefold.jfrog.io/artifactory/releases/</url>
-        </repository>
-      </repositories>
       <dependencyManagement>
         <dependencies>
           <dependency>

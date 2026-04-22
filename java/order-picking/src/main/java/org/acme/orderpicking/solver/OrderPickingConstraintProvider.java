@@ -1,16 +1,14 @@
 package org.acme.orderpicking.solver;
 
-import org.acme.orderpicking.domain.PickTask;
-import org.acme.orderpicking.domain.WarehouseLocation;
-import ai.timefold.solver.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
+import ai.timefold.solver.core.api.score.HardSoftScore;
 import ai.timefold.solver.core.api.score.stream.Constraint;
 import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
 import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
+import org.acme.orderpicking.domain.PickTask;
 
 import static ai.timefold.solver.core.api.score.stream.ConstraintCollectors.countDistinct;
-import static org.acme.orderpicking.domain.Warehouse.calculateDistance;
-import static ai.timefold.solver.core.api.score.stream.ConstraintCollectors.countDistinctLong;
 import static ai.timefold.solver.core.api.score.stream.ConstraintCollectors.sum;
+import static org.acme.orderpicking.domain.Warehouse.calculateDistance;
 
 /**
  * Constraint definitions for solving the order picking problem.
@@ -24,10 +22,10 @@ public class OrderPickingConstraintProvider implements ConstraintProvider {
     @Override
     public Constraint[] defineConstraints(ConstraintFactory constraintFactory) {
         return new Constraint[] {
-                // Hard
+                // Hard constraints
                 requiredNumberOfBuckets(constraintFactory),
 
-                // Soft
+                // Soft constraints
                 minimizeDistanceFromPreviousPickTask(constraintFactory),
                 minimizeDistanceFromLastPickTaskToPathOrigin(constraintFactory),
                 minimizeOrderSplitByTrolley(constraintFactory)
@@ -54,7 +52,7 @@ public class OrderPickingConstraintProvider implements ConstraintProvider {
                         sum((trolley, order, orderTotalBuckets) -> orderTotalBuckets))
                 //penalization if the trolley don't have enough buckets to hold the orders
                 .filter((trolley, trolleyTotalBuckets) -> trolley.getBucketCount() < trolleyTotalBuckets)
-                .penalize(HardSoftLongScore.ONE_HARD,
+                .penalize(HardSoftScore.ONE_HARD,
                         (trolley, trolleyTotalBuckets) -> trolleyTotalBuckets - trolley.getBucketCount())
                 .asConstraint("Required number of buckets");
     }
@@ -66,7 +64,7 @@ public class OrderPickingConstraintProvider implements ConstraintProvider {
         return constraintFactory.forEach(PickTask.class)
                 .groupBy(pick -> pick.getOrderItem().getOrder(),
                         countDistinct(PickTask::getTrolley))
-                .penalizeLong(HardSoftLongScore.ONE_SOFT,
+                .penalize(HardSoftScore.ONE_SOFT,
                         (order, trolleySpreadCount) -> trolleySpreadCount * 1000)
                 .asConstraint("Minimize order split by trolley");
     }
@@ -79,7 +77,7 @@ public class OrderPickingConstraintProvider implements ConstraintProvider {
      */
     Constraint minimizeDistanceFromPreviousPickTask(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(PickTask.class)
-                .penalizeLong(HardSoftLongScore.ONE_SOFT,
+                .penalize(HardSoftScore.ONE_SOFT,
                         pick -> {
                             var previousLocation = pick.getPreviousPickTask() != null
                                     ? pick.getPreviousPickTask().getLocation()
@@ -98,12 +96,12 @@ public class OrderPickingConstraintProvider implements ConstraintProvider {
     Constraint minimizeDistanceFromLastPickTaskToPathOrigin(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(PickTask.class)
                 .filter(PickTask::isLast)
-                .penalizeLong(HardSoftLongScore.ONE_SOFT,
+                .penalize(HardSoftScore.ONE_SOFT,
                         pick -> calculateDistance(pick.getLocation(), pick.getTrolley().getLocation()))
                 .asConstraint("Minimize the distance from last trolley pick to the path origin");
     }
 
-    private int calculateOrderRequiredBuckets(int orderVolume, int bucketVolume) {
+    private long calculateOrderRequiredBuckets(long orderVolume, long bucketVolume) {
         return (orderVolume + (bucketVolume - 1)) / bucketVolume;
     }
 }

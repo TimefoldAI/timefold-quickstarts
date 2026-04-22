@@ -8,12 +8,13 @@ import ai.timefold.solver.core.api.solver.SolverStatus;
 
 import org.acme.schooltimetabling.domain.Timetable;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import tools.jackson.databind.JsonNode;
 
-import com.fasterxml.jackson.databind.JsonNode;
 
 @SpringBootTest(properties = {
         // Effectively disable spent-time termination in favor of the best-score-limit
@@ -57,7 +58,7 @@ class TimetableControllerTest {
                                 .returnResult()
                                 .getResponseBody()
                                 .get("solverStatus")
-                                .asText()));
+                                .asString()));
 
         client.get()
                 .uri("/timetables/" + jobId)
@@ -73,6 +74,7 @@ class TimetableControllerTest {
                 .jsonPath("score").isNotEmpty();
     }
 
+    @EnabledIfSystemProperty(named = "enterprise", matches = ".*")
     @Test
     void analyze() {
         WebTestClient client = WebTestClient.bindToServer()

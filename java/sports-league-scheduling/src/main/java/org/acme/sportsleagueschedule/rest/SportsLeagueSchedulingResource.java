@@ -1,7 +1,15 @@
 package org.acme.sportsleagueschedule.rest;
 
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
+import ai.timefold.solver.core.api.score.HardSoftScore;
 import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
-import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
 import ai.timefold.solver.core.api.solver.ScoreAnalysisFetchPolicy;
 import ai.timefold.solver.core.api.solver.SolutionManager;
 import ai.timefold.solver.core.api.solver.SolverManager;
@@ -32,14 +40,6 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
 @Tag(name = "Sports League Scheduling",
         description = "Sports League Scheduling service assigning rounds for league matches.")
 @Path("schedules")
@@ -48,7 +48,7 @@ public class SportsLeagueSchedulingResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(SportsLeagueSchedulingResource.class);
     private static final int MAX_JOBS_CACHE_SIZE = 2;
 
-    private final SolverManager<LeagueSchedule, String> solverManager;
+    private final SolverManager<LeagueSchedule> solverManager;
     private final SolutionManager<LeagueSchedule, HardSoftScore> solutionManager;
     private final ConcurrentMap<String, Job> jobIdToJob = new ConcurrentHashMap<>();
 
@@ -59,7 +59,7 @@ public class SportsLeagueSchedulingResource {
     }
 
     @Inject
-    public SportsLeagueSchedulingResource(SolverManager<LeagueSchedule, String> solverManager,
+    public SportsLeagueSchedulingResource(SolverManager<LeagueSchedule> solverManager,
             SolutionManager<LeagueSchedule, HardSoftScore> solutionManager) {
         this.solverManager = solverManager;
         this.solutionManager = solutionManager;
@@ -92,7 +92,7 @@ public class SportsLeagueSchedulingResource {
                 .withProblemFinder(id -> jobIdToJob.get(jobId).schedule)
                 .withBestSolutionEventConsumer(event -> jobIdToJob.put(jobId, Job.ofSchedule(event.solution())))
                 .withExceptionHandler((id, exception) -> {
-                    jobIdToJob.put(id, Job.ofException(exception));
+                    jobIdToJob.put((String) id, Job.ofException(exception));
                     LOGGER.error("Failed solving jobId ({}).", id, exception);
                 })
                 .run();

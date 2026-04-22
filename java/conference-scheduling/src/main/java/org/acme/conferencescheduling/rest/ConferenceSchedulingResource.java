@@ -1,7 +1,15 @@
 package org.acme.conferencescheduling.rest;
 
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
+import ai.timefold.solver.core.api.score.HardSoftScore;
 import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
-import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
 import ai.timefold.solver.core.api.solver.ScoreAnalysisFetchPolicy;
 import ai.timefold.solver.core.api.solver.SolutionManager;
 import ai.timefold.solver.core.api.solver.SolverManager;
@@ -32,14 +40,6 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
 @Tag(name = "Conference Scheduling",
         description = "Conference Scheduling service assigning rooms and timeslots for conference talks.")
 @Path("schedules")
@@ -48,7 +48,7 @@ public class ConferenceSchedulingResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConferenceSchedulingResource.class);
     private static final int MAX_JOBS_CACHE_SIZE = 2;
 
-    private final SolverManager<ConferenceSchedule, String> solverManager;
+    private final SolverManager<ConferenceSchedule> solverManager;
     private final SolutionManager<ConferenceSchedule, HardSoftScore> solutionManager;
     private final ConcurrentMap<String, Job> jobIdToJob = new ConcurrentHashMap<>();
 
@@ -59,7 +59,7 @@ public class ConferenceSchedulingResource {
     }
 
     @Inject
-    public ConferenceSchedulingResource(SolverManager<ConferenceSchedule, String> solverManager,
+    public ConferenceSchedulingResource(SolverManager<ConferenceSchedule> solverManager,
             SolutionManager<ConferenceSchedule, HardSoftScore> solutionManager) {
         this.solverManager = solverManager;
         this.solutionManager = solutionManager;
@@ -92,7 +92,7 @@ public class ConferenceSchedulingResource {
                 .withProblemFinder(id -> jobIdToJob.get(jobId).schedule)
                 .withBestSolutionEventConsumer(event -> jobIdToJob.put(jobId, Job.ofSchedule(event.solution())))
                 .withExceptionHandler((id, exception) -> {
-                    jobIdToJob.put(id, Job.ofException(exception));
+                    jobIdToJob.put((String) id, Job.ofException(exception));
                     LOGGER.error("Failed solving jobId ({}).", id, exception);
                 })
                 .run();

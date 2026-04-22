@@ -609,7 +609,13 @@ function analyze() {
             analysisTable.append(analysisTBody);
             scoreAnalysisModalContent.append(analysisTable);
         }).fail(function (xhr, ajaxOptions, thrownError) {
-            showError("Analyze failed.", xhr);
+            scoreAnalysisModalContent.children().remove();
+            scoreAnalysisModalContent.append($("<p/>").html(
+                "The server returned an error."
+                + " This may be due to a misconfiguration, or because Score Analysis requires"
+                + " <b>Timefold Solver Enterprise Edition</b>, which is not on the classpath."
+                + " If the latter, reach out to Timefold, obtain your license,"
+                + " and then run the quickstart with an Enterprise profile to see Score analysis in action."));
         }, "text");
     }
 }
@@ -710,4 +716,39 @@ function showError(title, xhr) {
     $("#notificationPanel").append(notification);
     notification.toast({delay: 30000});
     notification.toast('show');
+}
+
+function fallbackCopyTextToClipboard(text) {
+    var textarea = document.createElement('textarea');
+    textarea.value = text;
+    // Position off-screen to avoid affecting layout
+    textarea.style.position = 'fixed';
+    textarea.style.top = '-1000px';
+    textarea.style.left = '-1000px';
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    try {
+        document.execCommand('copy');
+    } finally {
+        document.body.removeChild(textarea);
+    }
+}
+
+function copyTextToClipboard(id) {
+    var element = document.getElementById(id);
+    if (!element) {
+        return;
+    }
+    var text = element.textContent || element.value || '';
+    if (!text) {
+        return;
+    }
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        navigator.clipboard.writeText(text).catch(function () {
+            fallbackCopyTextToClipboard(text);
+        });
+    } else {
+        fallbackCopyTextToClipboard(text);
+    }
 }

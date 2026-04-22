@@ -1,6 +1,6 @@
 package org.acme.taskassigning.solver;
 
-import ai.timefold.solver.core.api.score.buildin.bendable.BendableScore;
+import ai.timefold.solver.core.api.score.BendableScore;
 import ai.timefold.solver.core.api.score.stream.Constraint;
 import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
 import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
@@ -18,7 +18,10 @@ public class TaskAssigningConstraintProvider implements ConstraintProvider {
     @Override
     public Constraint[] defineConstraints(ConstraintFactory constraintFactory) {
         return new Constraint[] {
+                // Hard constraints
                 noMissingSkills(constraintFactory),
+
+                // Soft constraints
                 minimizeUnassignedTasks(constraintFactory),
                 minimizeMakespan(constraintFactory),
                 criticalPriorityTaskEndTime(constraintFactory),
@@ -52,7 +55,7 @@ public class TaskAssigningConstraintProvider implements ConstraintProvider {
         return constraintFactory.forEach(Employee.class)
                 .penalize(BendableScore.ofSoft(BENDABLE_SCORE_HARD_LEVELS_SIZE, BENDABLE_SCORE_SOFT_LEVELS_SIZE, 1, 1),
                         employee -> employee.getEndTime() * employee.getEndTime())
-                .asConstraint("Minimize makespan, latest ending employee first");
+                .asConstraint("Minimize makespan - latest ending employee first");
     }
 
     protected Constraint criticalPriorityTaskEndTime(ConstraintFactory constraintFactory) {

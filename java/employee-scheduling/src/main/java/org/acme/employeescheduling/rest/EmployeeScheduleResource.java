@@ -1,7 +1,7 @@
 package org.acme.employeescheduling.rest;
 
 import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
-import ai.timefold.solver.core.api.score.buildin.hardsoftbigdecimal.HardSoftBigDecimalScore;
+import ai.timefold.solver.core.api.score.HardSoftBigDecimalScore;
 import ai.timefold.solver.core.api.solver.ScoreAnalysisFetchPolicy;
 import ai.timefold.solver.core.api.solver.SolutionManager;
 import ai.timefold.solver.core.api.solver.SolverManager;
@@ -43,14 +43,14 @@ public class EmployeeScheduleResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EmployeeScheduleResource.class);
 
-    SolverManager<EmployeeSchedule, String> solverManager;
+    SolverManager<EmployeeSchedule> solverManager;
     SolutionManager<EmployeeSchedule, HardSoftBigDecimalScore> solutionManager;
 
     // TODO: Without any "time to live", the map may eventually grow out of memory.
     private final ConcurrentMap<String, Job> jobIdToJob = new ConcurrentHashMap<>();
 
     @Inject
-    public EmployeeScheduleResource(SolverManager<EmployeeSchedule, String> solverManager,
+    public EmployeeScheduleResource(SolverManager<EmployeeSchedule> solverManager,
             SolutionManager<EmployeeSchedule, HardSoftBigDecimalScore> solutionManager) {
         this.solverManager = solverManager;
         this.solutionManager = solutionManager;

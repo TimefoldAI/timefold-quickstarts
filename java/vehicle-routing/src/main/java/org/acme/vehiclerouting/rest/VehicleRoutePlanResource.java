@@ -1,7 +1,13 @@
 package org.acme.vehiclerouting.rest;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
+import ai.timefold.solver.core.api.score.HardMediumSoftScore;
 import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
-import ai.timefold.solver.core.api.score.buildin.hardmediumsoftlong.HardMediumSoftLongScore;
 import ai.timefold.solver.core.api.solver.RecommendedAssignment;
 import ai.timefold.solver.core.api.solver.ScoreAnalysisFetchPolicy;
 import ai.timefold.solver.core.api.solver.SolutionManager;
@@ -38,12 +44,6 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
 @Tag(name = "Vehicle Routing with Capacity and Time Windows",
         description = "Vehicle Routing optimizes routes of vehicles with given capacities to visits available in specified time windows.")
 @Path("route-plans")
@@ -52,9 +52,9 @@ public class VehicleRoutePlanResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(VehicleRoutePlanResource.class);
     private static final int MAX_RECOMMENDED_ASSIGNMENT_LIST_SIZE = 5;
 
-    private final SolverManager<VehicleRoutePlan, String> solverManager;
+    private final SolverManager<VehicleRoutePlan> solverManager;
 
-    private final SolutionManager<VehicleRoutePlan, HardMediumSoftLongScore> solutionManager;
+    private final SolutionManager<VehicleRoutePlan, HardMediumSoftScore> solutionManager;
 
     // TODO: Without any "time to live", the map may eventually grow out of memory.
     private final ConcurrentMap<String, Job> jobIdToJob = new ConcurrentHashMap<>();
@@ -66,8 +66,8 @@ public class VehicleRoutePlanResource {
     }
 
     @Inject
-    public VehicleRoutePlanResource(SolverManager<VehicleRoutePlan, String> solverManager,
-                                    SolutionManager<VehicleRoutePlan, HardMediumSoftLongScore> solutionManager) {
+    public VehicleRoutePlanResource(SolverManager<VehicleRoutePlan> solverManager,
+                                    SolutionManager<VehicleRoutePlan, HardMediumSoftScore> solutionManager) {
         this.solverManager = solverManager;
         this.solutionManager = solutionManager;
     }
@@ -116,12 +116,12 @@ public class VehicleRoutePlanResource {
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces(MediaType.APPLICATION_JSON)
     @Path("recommendation")
-    public List<RecommendedAssignment<VehicleRecommendation, HardMediumSoftLongScore>> recommendedAssignment(RecommendationRequest request) {
+    public List<RecommendedAssignment<VehicleRecommendation, HardMediumSoftScore>> recommendedAssignment(RecommendationRequest request) {
         Visit visit = request.solution().getVisits().stream()
                 .filter(v -> v.getId().equals(request.visitId()))
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("Visit %s not found".formatted(request.visitId())));
-        List<RecommendedAssignment<VehicleRecommendation, HardMediumSoftLongScore>> recommendedAssignments = solutionManager
+        List<RecommendedAssignment<VehicleRecommendation, HardMediumSoftScore>> recommendedAssignments = solutionManager
                 .recommendAssignment(request.solution(), visit, v -> {
                     if(v.getVehicle() != null) {
                         return new VehicleRecommendation(v.getVehicle().getId(),
@@ -182,9 +182,7 @@ public class VehicleRoutePlanResource {
             @Parameter(description = "The job ID returned by the POST method.") @PathParam("jobId") String jobId) {
         VehicleRoutePlan routePlan = getRoutePlanAndCheckForExceptions(jobId);
         SolverStatus solverStatus = solverManager.getSolverStatus(jobId);
-        String scoreExplanation = solutionManager.explain(routePlan).getSummary();
         routePlan.setSolverStatus(solverStatus);
-        routePlan.setScoreExplanation(scoreExplanation);
         return routePlan;
     }
 
@@ -255,7 +253,7 @@ public class VehicleRoutePlanResource {
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces(MediaType.APPLICATION_JSON)
     @Path("analyze")
-    public ScoreAnalysis<HardMediumSoftLongScore> analyze(VehicleRoutePlan problem,
+    public ScoreAnalysis<HardMediumSoftScore> analyze(VehicleRoutePlan problem,
                                                     @QueryParam("fetchPolicy") ScoreAnalysisFetchPolicy fetchPolicy) {
         return fetchPolicy == null ? solutionManager.analyze(problem) : solutionManager.analyze(problem, fetchPolicy);
     }

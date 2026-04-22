@@ -65,10 +65,8 @@ jobs:
           "java/tournament-scheduling", "java/vehicle-routing"
         ]
         # Only one supported LTS; already too many jobs here.
-        # We choose 21 as Quarkus 3.17.2 has weird issues with Java 17 GraalVM,
-        # with Java 21+ GraalVM being recommended even for Java 17 projects.
-        # https://github.com/quarkusio/quarkus/issues/44877
-        java-version: [ 21 ]
+        # We choose 25 as that's the latest LTS.
+        java-version: [ 25 ]
     timeout-minutes: 120
     steps:
       - name: Checkout timefold-quickstarts
@@ -96,7 +94,7 @@ jobs:
 
       # Build and test
       - name: "Setup GraalVM native image"
-        uses: graalvm/setup-graalvm@54b4f5a65c1a84b2fdfdc2078fe43df32819e4b1 # v1
+        uses: graalvm/setup-graalvm@60c26726de13f8b90771df4bc1641a52a3159994 # v1
         with:
           java-version: ${{matrix.java-version}}
           distribution: 'graalvm-community'
@@ -114,102 +112,6 @@ jobs:
         working-directory: ./timefold-quickstarts/${{matrix.module}}
         run: mvn -B -Dnative -Pnative verify
 
-  build-enterprise-quarkus:
-    needs: approval_required
-    concurrency:
-      group: pull_request_enterprise_long_running-${{ github.event_name }}-${{ github.head_ref }}-${{ matrix.module }}-${{ matrix.java-version }}
-      cancel-in-progress: true
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        module: [ "java/bed-allocation", "java/vehicle-routing"]
-        # Only one supported LTS; already too many jobs here.
-        # We choose 21 as Quarkus 3.17.2 has weird issues with Java 17 GraalVM,
-        # with Java 21+ GraalVM being recommended even for Java 17 projects.
-        # https://github.com/quarkusio/quarkus/issues/44877
-        java-version: [ 21 ]
-    timeout-minutes: 120
-    steps:
-      - name: Checkout timefold-quickstarts
-        uses: actions/checkout@v6
-        with:
-          path: ./timefold-quickstarts
-          ref: ${{ github.event.pull_request.head.sha }} # The GHA event will pull the main branch by default, and we must specify the PR reference version
-      - name: Checkout timefold-solver (PR) # Checkout the PR branch first, if it exists
-        id: checkout-solver
-        uses: actions/checkout@v6
-        continue-on-error: true
-        with:
-          repository: ${{ github.actor }}/timefold-solver
-          ref: ${{ github.head_ref }}
-          path: ./timefold-solver
-          fetch-depth: 0 # Otherwise merge will fail on account of not having history.
-      - name: Checkout timefold-solver (main) # Checkout the main branch if the PR branch does not exist
-        if: steps.checkout-solver.outcome != 'success'
-        uses: actions/checkout@v6
-        with:
-          repository: TimefoldAI/timefold-solver
-          ref: main
-          path: ./timefold-solver
-          fetch-depth: 0 # Otherwise merge will fail on account of not having history.
-
-      - name: Checkout timefold-solver-enterprise (PR) # Checkout the PR branch first, if it exists
-        id: checkout-solver-enterprise
-        uses: actions/checkout@v6
-        continue-on-error: true
-        with:
-          repository: TimefoldAI/timefold-solver-enterprise
-          ref: ${{ github.head_ref }}
-          token: ${{ secrets.JRELEASER_GITHUB_TOKEN }} # Safe; only used to clone the repo and not stored in the fork.
-          path: ./timefold-solver-enterprise
-          fetch-depth: 0 # Otherwise merge will fail on account of not having history.
-      - name: Checkout timefold-solver-enterprise (main) # Checkout the main branch if the PR branch does not exist
-        if: steps.checkout-solver-enterprise.outcome != 'success'
-        uses: actions/checkout@v6
-        with:
-          repository: TimefoldAI/timefold-solver-enterprise
-          ref: main
-          token: ${{ secrets.JRELEASER_GITHUB_TOKEN }} # Safe; only used to clone the repo and not stored in the fork.
-          path: ./timefold-solver-enterprise
-          fetch-depth: 0 # Otherwise merge will fail on account of not having history.
-
-      # Build and test
-      - name: "Setup GraalVM native image"
-        uses: graalvm/setup-graalvm@54b4f5a65c1a84b2fdfdc2078fe43df32819e4b1 # v1
-        with:
-          java-version: ${{matrix.java-version}}
-          distribution: 'graalvm-community'
-          components: 'native-image'
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          cache: 'maven'
-
-      - name: Quickly build timefold-solver
-        working-directory: ./timefold-solver
-        run: mvn -B -Dquickly -DskipTests clean install
-
-      - name: Update timefold-solver-enterprise version (Release PR only)
-        if: ${{ startsWith(github.event.pull_request.title, 'build:') && contains(github.event.pull_request.title, 'release version') && github.event.pull_request.user.login == 'timefold-release' }}
-        shell: bash
-        working-directory: ./timefold-solver-enterprise
-        env:
-          # PR titles are user-controlled and can contain malicious payloads.
-          # Avoid direct shell interpolation.
-          PR_TITLE: ${{ github.event.pull_request.title }}
-        run: |
-          git config user.name "Timefold Release Bot"
-          git config user.email "release@timefold.ai"
-          NEW_VERSION=$(echo "$PR_TITLE" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
-          export NEW_VERSION
-          echo "$NEW_VERSION"
-          .github/scripts/change_versions.sh
-      - name: Quickly build timefold-solver-enterprise
-        working-directory: ./timefold-solver-enterprise
-        run: mvn -B -Dquickly -DskipTests clean install
-
-      - name: Test timefold-enterprise-quickstarts (enterprise native tests)
-        working-directory: ./timefold-quickstarts/${{matrix.module}}
-        run: mvn -B -Dnative -Denterprise -Pnative verify
-
   build-spring-boot:
     needs: approval_required
     concurrency:
@@ -222,10 +124,8 @@ jobs:
           "java/spring-boot-integration"
         ]
         # Only one supported LTS; already too many jobs here.
-        # We choose 21 as Quarkus 3.17.2 has weird issues with Java 17 GraalVM,
-        # with Java 21+ GraalVM being recommended even for Java 17 projects.
-        # https://github.com/quarkusio/quarkus/issues/44877
-        java-version: [ 21 ]
+        # We choose 25 as that's the latest LTS.
+        java-version: [ 25 ]
     timeout-minutes: 120
     steps:
       - name: Checkout timefold-quickstarts
@@ -253,7 +153,7 @@ jobs:
 
       # Build and test
       - name: "Setup GraalVM native image"
-        uses: graalvm/setup-graalvm@54b4f5a65c1a84b2fdfdc2078fe43df32819e4b1 # v1
+        uses: graalvm/setup-graalvm@60c26726de13f8b90771df4bc1641a52a3159994 # v1
         with:
           java-version: ${{matrix.java-version}}
           distribution: 'graalvm-community'

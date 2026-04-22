@@ -3,7 +3,7 @@ package org.acme.schooltimetabling.solver;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 
-import ai.timefold.solver.test.api.score.stream.ConstraintVerifier;
+import ai.timefold.solver.core.api.score.stream.test.ConstraintVerifier;
 
 import org.acme.schooltimetabling.domain.Lesson;
 import org.acme.schooltimetabling.domain.Room;

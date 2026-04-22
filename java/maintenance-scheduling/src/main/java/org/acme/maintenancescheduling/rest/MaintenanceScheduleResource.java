@@ -1,7 +1,7 @@
 package org.acme.maintenancescheduling.rest;
 
 import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
-import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
+import ai.timefold.solver.core.api.score.HardSoftScore;
 import ai.timefold.solver.core.api.solver.ScoreAnalysisFetchPolicy;
 import ai.timefold.solver.core.api.solver.SolutionManager;
 import ai.timefold.solver.core.api.solver.SolverManager;
@@ -43,14 +43,14 @@ public class MaintenanceScheduleResource {
 
     public static final String SINGLETON_SCHEDULE_ID = "1";
 
-    SolverManager<MaintenanceSchedule, String> solverManager;
+    SolverManager<MaintenanceSchedule> solverManager;
     SolutionManager<MaintenanceSchedule, HardSoftScore> solutionManager;
 
     // TODO: Without any "time to live", the map may eventually grow out of memory.
     private final ConcurrentMap<String, Job> jobIdToJob = new ConcurrentHashMap<>();
 
     @Inject
-    public MaintenanceScheduleResource(SolverManager<MaintenanceSchedule, String> solverManager,
+    public MaintenanceScheduleResource(SolverManager<MaintenanceSchedule> solverManager,
             SolutionManager<MaintenanceSchedule, HardSoftScore> solutionManager) {
         this.solverManager = solverManager;
         this.solutionManager = solutionManager;

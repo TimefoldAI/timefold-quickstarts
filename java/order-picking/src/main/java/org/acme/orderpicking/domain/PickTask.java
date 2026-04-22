@@ -2,7 +2,7 @@ package org.acme.orderpicking.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
-import ai.timefold.solver.core.api.domain.lookup.PlanningId;
+import ai.timefold.solver.core.api.domain.common.PlanningId;
 import ai.timefold.solver.core.api.domain.variable.InverseRelationShadowVariable;
 import ai.timefold.solver.core.api.domain.variable.NextElementShadowVariable;
 import ai.timefold.solver.core.api.domain.variable.PreviousElementShadowVariable;
@@ -79,6 +79,14 @@ public class PickTask {
 
     public void setPreviousPickTask(PickTask previousPickTask) {
         this.previousPickTask = previousPickTask;
+    }
+
+    public PickTask getNextPickTask() {
+        return nextPickTask;
+    }
+
+    public void setNextPickTask(PickTask nextPickTask) {
+        this.nextPickTask = nextPickTask;
     }
 
     public boolean isLast() {

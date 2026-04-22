@@ -5,7 +5,7 @@ import java.util.List;
 
 import jakarta.inject.Inject;
 
-import ai.timefold.solver.test.api.score.stream.ConstraintVerifier;
+import ai.timefold.solver.core.api.score.stream.test.ConstraintVerifier;
 
 import org.acme.meetingschedule.domain.Meeting;
 import org.acme.meetingschedule.domain.MeetingAssignment;

@@ -51,11 +51,11 @@ updates:
     allow:
       - dependency-type: "all"
     ignore:
-      - dependency-name: "org.webjars:*"
       - dependency-name: "io.quarkus:*"
       - dependency-name: "org.springdoc:*"
       - dependency-name: "org.springframework:*"
       - dependency-name: "org.springframework.boot:*"
+      - dependency-name: "org.webjars:*"
     multi-ecosystem-group: "base"
   - package-ecosystem: "gradle"
     directory: "/"
@@ -63,12 +63,16 @@ updates:
     allow:
       - dependency-type: "all"
     ignore:
-      - dependency-name: "org.webjars:*"
+      # No * because these are plugin IDs, not GAVs.
       - dependency-name: "io.quarkus"
+      - dependency-name: "io.spring.dependency-management"
+      - dependency-name: "org.springframework.boot"
+      # These are GAVs.
       - dependency-name: "io.quarkus:*"
       - dependency-name: "org.springdoc:*"
       - dependency-name: "org.springframework:*"
       - dependency-name: "org.springframework.boot:*"
+      - dependency-name: "org.webjars:*"
     multi-ecosystem-group: "base"
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -81,22 +85,28 @@ updates:
     allow:
       - dependency-name: "io.quarkus:*"
     ignore:
-      - dependency-name: "org.webjars:*"
       - dependency-name: "org.springdoc:*"
       - dependency-name: "org.springframework:*"
       - dependency-name: "org.springframework.boot:*"
+      - dependency-name: "org.webjars:*"
     multi-ecosystem-group: "quarkus"
   - package-ecosystem: "gradle"
     directory: "/"
     patterns: [ "*" ]
     allow:
+      # No * because these are plugin IDs, not GAVs.
       - dependency-name: "io.quarkus"
+      # These are GAVs.
       - dependency-name: "io.quarkus:*"
     ignore:
-      - dependency-name: "org.webjars:*"
+      # No * because these are plugin IDs, not GAVs.
+      - dependency-name: "io.spring.dependency-management"
+      - dependency-name: "org.springframework.boot"
+      # These are GAVs.
       - dependency-name: "org.springdoc:*"
       - dependency-name: "org.springframework:*"
       - dependency-name: "org.springframework.boot:*"
+      - dependency-name: "org.webjars:*"
     multi-ecosystem-group: "quarkus"
 
   - package-ecosystem: "maven"
@@ -107,19 +117,24 @@ updates:
       - dependency-name: "org.springframework:*"
       - dependency-name: "org.springframework.boot:*"
     ignore:
-      - dependency-name: "org.webjars:*"
       - dependency-name: "io.quarkus:*"
+      - dependency-name: "org.webjars:*"
     multi-ecosystem-group: "spring"
   - package-ecosystem: "gradle"
     directory: "/"
     patterns: [ "*" ]
     allow:
+      # No * because these are plugin IDs, not GAVs.
+      - dependency-name: "io.spring.dependency-management"
+      - dependency-name: "org.springframework.boot"
+      # These are GAVs.
       - dependency-name: "org.springdoc:*"
-      - dependency-name: "org.springframework:*"
       - dependency-name: "org.springframework:*"
       - dependency-name: "org.springframework.boot:*"
     ignore:
-      - dependency-name: "org.webjars:*"
+      # No * because these are plugin IDs, not GAVs.
       - dependency-name: "io.quarkus"
+      # These are GAVs.
       - dependency-name: "io.quarkus:*"
+      - dependency-name: "org.webjars:*"
     multi-ecosystem-group: "spring"

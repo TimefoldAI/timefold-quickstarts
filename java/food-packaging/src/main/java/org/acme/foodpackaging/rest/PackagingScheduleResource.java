@@ -1,5 +1,11 @@
 package org.acme.foodpackaging.rest;
 
+import ai.timefold.solver.core.api.score.HardMediumSoftScore;
+import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
+import ai.timefold.solver.core.api.solver.ScoreAnalysisFetchPolicy;
+import ai.timefold.solver.core.api.solver.SolutionManager;
+import ai.timefold.solver.core.api.solver.SolverManager;
+import ai.timefold.solver.core.api.solver.SolverStatus;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -9,14 +15,6 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
-
-import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
-import ai.timefold.solver.core.api.score.buildin.hardmediumsoftlong.HardMediumSoftLongScore;
-import ai.timefold.solver.core.api.solver.ScoreAnalysisFetchPolicy;
-import ai.timefold.solver.core.api.solver.SolutionManager;
-import ai.timefold.solver.core.api.solver.SolverManager;
-import ai.timefold.solver.core.api.solver.SolverStatus;
-
 import org.acme.foodpackaging.domain.PackagingSchedule;
 import org.acme.foodpackaging.persistence.PackagingScheduleRepository;
 
@@ -27,14 +25,14 @@ public class PackagingScheduleResource {
 
     private PackagingScheduleRepository repository;
 
-    private SolverManager<PackagingSchedule, String> solverManager;
+    private SolverManager<PackagingSchedule> solverManager;
 
-    private SolutionManager<PackagingSchedule, HardMediumSoftLongScore> solutionManager;
+    private SolutionManager<PackagingSchedule, HardMediumSoftScore> solutionManager;
 
     @Inject
     public PackagingScheduleResource(PackagingScheduleRepository repository,
-            SolverManager<PackagingSchedule, String> solverManager,
-            SolutionManager<PackagingSchedule, HardMediumSoftLongScore> solutionManager) {
+            SolverManager<PackagingSchedule> solverManager,
+            SolutionManager<PackagingSchedule, HardMediumSoftScore> solutionManager) {
         this.repository = repository;
         this.solverManager = solverManager;
         this.solutionManager = solutionManager;
@@ -64,7 +62,7 @@ public class PackagingScheduleResource {
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces(MediaType.APPLICATION_JSON)
     @Path("analyze")
-    public ScoreAnalysis<HardMediumSoftLongScore> analyze(@QueryParam("fetchPolicy") ScoreAnalysisFetchPolicy fetchPolicy) {
+    public ScoreAnalysis<HardMediumSoftScore> analyze(@QueryParam("fetchPolicy") ScoreAnalysisFetchPolicy fetchPolicy) {
         PackagingSchedule problem = repository.read();
         return fetchPolicy == null ? solutionManager.analyze(problem) : solutionManager.analyze(problem, fetchPolicy);
     }

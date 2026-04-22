@@ -1,7 +1,10 @@
 package org.acme.facilitylocation.rest;
 
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
+
+import ai.timefold.solver.core.api.score.HardSoftScore;
 import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
-import ai.timefold.solver.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
 import ai.timefold.solver.core.api.solver.ScoreAnalysisFetchPolicy;
 import ai.timefold.solver.core.api.solver.SolutionManager;
 import ai.timefold.solver.core.api.solver.SolverManager;
@@ -16,9 +19,6 @@ import jakarta.ws.rs.core.MediaType;
 import org.acme.facilitylocation.domain.FacilityLocationProblem;
 import org.acme.facilitylocation.persistence.FacilityLocationProblemRepository;
 
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
-
 @Path("/flp")
 public class SolverResource {
 
@@ -27,12 +27,12 @@ public class SolverResource {
     private final AtomicReference<Throwable> solverError = new AtomicReference<>();
 
     private final FacilityLocationProblemRepository repository;
-    private final SolverManager<FacilityLocationProblem, String> solverManager;
-    private final SolutionManager<FacilityLocationProblem, HardSoftLongScore> solutionManager;
+    private final SolverManager<FacilityLocationProblem> solverManager;
+    private final SolutionManager<FacilityLocationProblem, HardSoftScore> solutionManager;
 
     public SolverResource(FacilityLocationProblemRepository repository,
-            SolverManager<FacilityLocationProblem, String> solverManager,
-            SolutionManager<FacilityLocationProblem, HardSoftLongScore> solutionManager) {
+            SolverManager<FacilityLocationProblem> solverManager,
+            SolutionManager<FacilityLocationProblem, HardSoftScore> solutionManager) {
         this.repository = repository;
         this.solverManager = solverManager;
         this.solutionManager = solutionManager;
@@ -40,7 +40,6 @@ public class SolverResource {
 
     private Status statusFromSolution(FacilityLocationProblem solution) {
         return new Status(solution,
-                solutionManager.explain(solution).getSummary(),
                 solverManager.getSolverStatus(PROBLEM_ID));
     }
 
@@ -69,7 +68,7 @@ public class SolverResource {
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces(MediaType.APPLICATION_JSON)
     @Path("analyze")
-    public ScoreAnalysis<HardSoftLongScore> analyze(@QueryParam("fetchPolicy") ScoreAnalysisFetchPolicy fetchPolicy) {
+    public ScoreAnalysis<HardSoftScore> analyze(@QueryParam("fetchPolicy") ScoreAnalysisFetchPolicy fetchPolicy) {
         FacilityLocationProblem problem = repository.solution().get();
         return fetchPolicy == null ? solutionManager.analyze(problem) : solutionManager.analyze(problem, fetchPolicy);
     }

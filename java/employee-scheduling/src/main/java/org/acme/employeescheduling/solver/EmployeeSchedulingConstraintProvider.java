@@ -8,7 +8,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.function.Function;
 
-import ai.timefold.solver.core.api.score.buildin.hardsoftbigdecimal.HardSoftBigDecimalScore;
+import ai.timefold.solver.core.api.score.HardSoftBigDecimalScore;
 import ai.timefold.solver.core.api.score.stream.Constraint;
 import ai.timefold.solver.core.api.score.stream.ConstraintCollectors;
 import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
@@ -41,6 +41,7 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                 atLeast10HoursBetweenTwoShifts(constraintFactory),
                 oneShiftPerDay(constraintFactory),
                 unavailableEmployee(constraintFactory),
+
                 // Soft constraints
                 undesiredDayForEmployee(constraintFactory),
                 desiredDayForEmployee(constraintFactory),
@@ -113,7 +114,7 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
     Constraint balanceEmployeeShiftAssignments(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(Shift.class)
                 .groupBy(Shift::getEmployee, ConstraintCollectors.count())
-                .complement(Employee.class, e -> 0) // Include all employees which are not assigned to any shift.c
+                .complement(Employee.class, e -> 0L) // Include all employees which are not assigned to any shift.
                 .groupBy(ConstraintCollectors.loadBalance((employee, shiftCount) -> employee,
                         (employee, shiftCount) -> shiftCount))
                 .penalizeBigDecimal(HardSoftBigDecimalScore.ONE_SOFT, LoadBalance::unfairness)

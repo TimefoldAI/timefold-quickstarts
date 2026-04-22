@@ -2,7 +2,7 @@ package org.acme.tournamentschedule.solver;
 
 import jakarta.inject.Inject;
 
-import ai.timefold.solver.test.api.score.stream.ConstraintVerifier;
+import ai.timefold.solver.core.api.score.stream.test.ConstraintVerifier;
 
 import org.acme.tournamentschedule.domain.Day;
 import org.acme.tournamentschedule.domain.Team;
@@ -12,8 +12,6 @@ import org.acme.tournamentschedule.domain.UnavailabilityPenalty;
 import org.junit.jupiter.api.Test;
 
 import io.quarkus.test.junit.QuarkusTest;
-
-import java.math.BigDecimal;
 
 @QuarkusTest
 class TournamentScheduleConstraintProviderTest {

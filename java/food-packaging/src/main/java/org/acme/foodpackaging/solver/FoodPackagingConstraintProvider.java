@@ -2,14 +2,12 @@ package org.acme.foodpackaging.solver;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.Period;
 
-import ai.timefold.solver.core.api.score.buildin.hardmediumsoftlong.HardMediumSoftLongScore;
+import ai.timefold.solver.core.api.score.HardMediumSoftScore;
 import ai.timefold.solver.core.api.score.stream.Constraint;
 import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
 import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
 import ai.timefold.solver.core.api.score.stream.Joiners;
-
 import org.acme.foodpackaging.domain.Job;
 
 public class FoodPackagingConstraintProvider implements ConstraintProvider {
@@ -20,9 +18,11 @@ public class FoodPackagingConstraintProvider implements ConstraintProvider {
                 // Hard constraints
                 maxEndDateTime(factory),
                 operatorCleaningConflict(factory),
+
                 // Medium constraints
                 idealEndDateTime(factory),
                 maximizeJobsAssigned(factory),
+
                 // Soft constraints
                 minimizeMakespan(factory)
         };
@@ -35,7 +35,7 @@ public class FoodPackagingConstraintProvider implements ConstraintProvider {
     protected Constraint maxEndDateTime(ConstraintFactory factory) {
         return factory.forEach(Job.class)
                 .filter(job -> job.getEndDateTime() != null && job.getMaxEndTime().isBefore(job.getEndDateTime()))
-                .penalizeLong(HardMediumSoftLongScore.ONE_HARD,
+                .penalize(HardMediumSoftScore.ONE_HARD,
                         job -> Duration.between(job.getMaxEndTime(), job.getEndDateTime()).toMinutes())
                 .asConstraint("Max end date time");
     }
@@ -46,7 +46,7 @@ public class FoodPackagingConstraintProvider implements ConstraintProvider {
                         Joiners.equal(job -> job.getLine().getOperator()),
                         Joiners.overlapping(Job::getStartCleaningDateTime, Job::getStartProductionDateTime)
                 )
-                .penalizeLong(HardMediumSoftLongScore.ONE_HARD,
+                .penalize(HardMediumSoftScore.ONE_HARD,
                         (j1, j2) -> overlapMinutes(
                                 j1.getStartCleaningDateTime(), j1.getStartProductionDateTime(),
                                 j2.getStartCleaningDateTime(), j2.getStartProductionDateTime()
@@ -68,7 +68,7 @@ public class FoodPackagingConstraintProvider implements ConstraintProvider {
     protected Constraint idealEndDateTime(ConstraintFactory factory) {
         return factory.forEach(Job.class)
                 .filter(job -> job.getEndDateTime() != null && job.getIdealEndTime().isBefore(job.getEndDateTime()))
-                .penalizeLong(HardMediumSoftLongScore.ONE_MEDIUM,
+                .penalize(HardMediumSoftScore.ONE_MEDIUM,
                         job -> Duration.between(job.getIdealEndTime(), job.getEndDateTime()).toMinutes())
                 .asConstraint("Ideal end date time");
     }
@@ -76,7 +76,7 @@ public class FoodPackagingConstraintProvider implements ConstraintProvider {
     protected Constraint maximizeJobsAssigned(ConstraintFactory factory) {
         return factory.forEachIncludingUnassigned(Job.class)
                 .filter(job -> job.getLine() == null)
-                .penalizeLong(HardMediumSoftLongScore.ONE_MEDIUM, job -> job.getDuration().toMinutes())
+                .penalize(HardMediumSoftScore.ONE_MEDIUM, job -> job.getDuration().toMinutes())
                 .asConstraint("Maximize jobs assigned");
     }
 
@@ -87,7 +87,7 @@ public class FoodPackagingConstraintProvider implements ConstraintProvider {
     protected Constraint minimizeMakespan(ConstraintFactory factory) {
         return factory.forEach(Job.class)
                 .filter(job -> job.getLine() != null && job.getNextJob() == null)
-                .penalizeLong(HardMediumSoftLongScore.ONE_SOFT, job -> {
+                .penalize(HardMediumSoftScore.ONE_SOFT, job -> {
                     long minutes = Duration.between(job.getLine().getStartDateTime(), job.getEndDateTime()).toMinutes();
                     return minutes * minutes;
                 })

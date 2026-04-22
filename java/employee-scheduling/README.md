@@ -4,8 +4,20 @@ Schedule shifts to employees, accounting for employee availability and shift ski
 
 ![Employee Scheduling Screenshot](./employee-scheduling-screenshot.png)
 
+## Constraints
+
+| Name                                 | Level | Description                                                                   |
+|--------------------------------------|-------|-------------------------------------------------------------------------------|
+| Required skill                       | Hard  | An employee must have the required skill for their assigned shift.            |
+| No overlapping shifts                | Hard  | An employee cannot be assigned to two overlapping shifts.                     |
+| At least 10 hours between two shifts | Hard  | An employee must have at least 10 hours of rest between two shifts.           |
+| One shift per day                    | Hard  | An employee can only be assigned to one shift per day.                        |
+| Unavailable employee                 | Hard  | An employee cannot be assigned to a shift during their unavailability period. |
+| Undesired day for employee           | Soft  | Avoid scheduling an employee on their undesired days.                         |
+| Desired day for employee             | Soft  | Prefer scheduling an employee on their desired days.                          |
+| Balance employee shift assignments   | Soft  | Fairly distribute shifts across all employees.                                |
+
 - [Run the application](#run-the-application)
-- [Run the application with Timefold Solver Enterprise Edition](#run-the-application-with-timefold-solver-enterprise-edition)
 - [Run the packaged application](#run-the-packaged-application)
 - [Run the application in a container](#run-the-application-in-a-container)
 - [Run it native](#run-it-native)
@@ -32,56 +44,25 @@ Schedule shifts to employees, accounting for employee availability and shift ski
    $ cd timefold-quickstarts/java/employee-scheduling
    ```
 
-2. Start the application with Maven:
+2. (Optional) If you want to run a licensed edition (Plus / Enterprise), set up your license key first. See the [Timefold license tool](https://licenses.timefold.ai/) for instructions.
 
-   ```sh
-   $ mvn quarkus:dev
-   ```
+3. Start the application with Maven:
 
-3. Visit [http://localhost:8080](http://localhost:8080) in your browser.
+   1. Community Edition
+   
+      ```sh
+      $ mvn quarkus:dev
+      ```
+   
+   2. Plus / Enterprise Edition: The profile sets up the correct Maven artifacts to run the licensed version. See the `pom.xml` for the implementation details.
 
-4. Click on the **Solve** button.
+      ```sh
+      $ mvn quarkus:dev -Denterprise
+      ```
 
-Then try _live coding_:
+4. Visit [http://localhost:8080](http://localhost:8080) in your browser.
 
-- Make some changes in the source code.
-- Refresh your browser (F5).
-
-Notice that those changes are immediately in effect.
-
-## Run the application with Timefold Solver Enterprise Edition
-
-For high-scalability use cases, switch to [Timefold Solver Enterprise Edition](https://docs.timefold.ai/timefold-solver/latest/enterprise-edition/enterprise-edition), our commercial offering.  
-[Contact Timefold](https://timefold.ai/contact) to obtain the credentials required to access our private Enterprise Maven repository.
-
-1. Create `.m2/settings.xml` in your home directory with the following content:
-
-   ```xml
-   <settings>
-     ...
-     <servers>
-       <server>
-         <!-- Replace "my_username" and "my_password" with credentials obtained from a Timefold representative. -->
-         <id>timefold-solver-enterprise</id>
-         <username>my_username</username>
-         <password>my_password</password>
-       </server>
-     </servers>
-     ...
-   </settings>
-   ```
-
-   See [Settings Reference](https://maven.apache.org/settings.html) for more information on Maven settings.
-
-2. Start the application with Maven:
-
-   ```sh
-   $ mvn clean quarkus:dev -Denterprise
-   ```
-
-3. Visit [http://localhost:8080](http://localhost:8080) in your browser.
-
-4. Click on the **Solve** button.
+5. Click on the **Solve** button.
 
 Then try _live coding_:
 

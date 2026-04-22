@@ -7,7 +7,7 @@ import static ai.timefold.solver.core.api.score.stream.Joiners.lessThan;
 
 import java.util.function.Function;
 
-import ai.timefold.solver.core.api.score.buildin.hardmediumsoft.HardMediumSoftScore;
+import ai.timefold.solver.core.api.score.HardMediumSoftScore;
 import ai.timefold.solver.core.api.score.stream.Constraint;
 import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
 import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
@@ -30,8 +30,10 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
                 departmentMinimumAge(constraintFactory),
                 departmentMaximumAge(constraintFactory),
                 requiredPatientEquipment(constraintFactory),
+
                 // Medium constraints
                 assignEveryPatientToABed(constraintFactory),
+
                 // Soft constraints
                 preferredMaximumRoomCapacity(constraintFactory),
                 departmentSpecialty(constraintFactory),
@@ -110,7 +112,7 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
                 .asConstraint("requiredPatientEquipment");
     }
 
-    //Medium
+    // Medium constraints
     public Constraint assignEveryPatientToABed(ConstraintFactory constraintFactory) {
         return constraintFactory.forEachIncludingUnassigned(Stay.class)
                 .filter(st -> st.getBed() == null)
@@ -118,7 +120,7 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
                 .asConstraint("assignEveryPatientToABed");
     }
 
-    //Soft
+    // Soft constraints
     public Constraint preferredMaximumRoomCapacity(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(Stay.class)
                 .filter(st -> st.getPatientPreferredMaximumRoomCapacity() != null
@@ -145,9 +147,9 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
         return constraintFactory.forEach(Stay.class)
                 .filter(bedDesignation -> !bedDesignation.getRoom().getEquipments().containsAll(
                         bedDesignation.getPatientPreferredEquipments()))
-                .penalize(HardMediumSoftScore.ofHard(50),
+                .penalize(HardMediumSoftScore.ofSoft(50),
                         st -> st.getNightCount() * (int) st.getPatientPreferredEquipments().stream()
-                                .filter(equipment -> st.getRoom().getEquipments().contains(equipment)).count())
+                                .filter(equipment -> !st.getRoom().getEquipments().contains(equipment)).count())
                 .asConstraint("preferredPatientEquipment");
     }
 }

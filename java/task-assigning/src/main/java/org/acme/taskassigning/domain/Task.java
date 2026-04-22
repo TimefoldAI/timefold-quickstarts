@@ -1,12 +1,11 @@
 package org.acme.taskassigning.domain;
 
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
-import ai.timefold.solver.core.api.domain.lookup.PlanningId;
+import ai.timefold.solver.core.api.domain.common.PlanningId;
 import ai.timefold.solver.core.api.domain.variable.InverseRelationShadowVariable;
 import ai.timefold.solver.core.api.domain.variable.PreviousElementShadowVariable;
 import ai.timefold.solver.core.api.domain.variable.ShadowSources;
 import ai.timefold.solver.core.api.domain.variable.ShadowVariable;
-import ai.timefold.solver.core.api.domain.variable.ShadowVariablesInconsistent;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -21,7 +20,7 @@ public class Task {
     private TaskType taskType;
     private int indexInTaskType;
     private Customer customer;
-    private int minStartTime;
+    private long minStartTime;
     private Priority priority;
 
     // Shadow variables
@@ -33,7 +32,7 @@ public class Task {
     private Task previousTask;
     // Not ignored, used in the UI.
     @ShadowVariable(supplierName = "startTimeSupplier")
-    private Integer startTime; // In minutes
+    private Long startTime; // In minutes
 
     public Task() {
     }
@@ -89,11 +88,11 @@ public class Task {
         this.customer = customer;
     }
 
-    public int getMinStartTime() {
+    public long getMinStartTime() {
         return minStartTime;
     }
 
-    public void setMinStartTime(int minStartTime) {
+    public void setMinStartTime(long minStartTime) {
         this.minStartTime = minStartTime;
     }
 
@@ -121,11 +120,11 @@ public class Task {
         this.previousTask = previousTask;
     }
 
-    public Integer getStartTime() {
+    public Long getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(Integer startTime) {
+    public void setStartTime(Long startTime) {
         this.startTime = startTime;
     }
 
@@ -135,11 +134,11 @@ public class Task {
 
     @SuppressWarnings("unused")
     @ShadowSources({"employee", "previousTask.startTime"})
-    public Integer startTimeSupplier() {
+    public Long startTimeSupplier() {
         if (employee == null) {
             return null;
         } else if (previousTask == null) {
-            return minStartTime;
+            return (long) minStartTime;
         } else {
             var previousEndTime = previousTask.getEndTime();
             return Math.max(previousEndTime, minStartTime);
@@ -161,7 +160,7 @@ public class Task {
     }
 
     @JsonIgnore
-    public int getDuration() {
+    public long getDuration() {
         Affinity affinity = getAffinity();
         return taskType.getBaseDuration() * affinity.getDurationMultiplier();
     }
@@ -172,7 +171,7 @@ public class Task {
     }
 
     @JsonIgnore
-    public Integer getEndTime() {
+    public Long getEndTime() {
         if (startTime == null) {
             return null;
         }

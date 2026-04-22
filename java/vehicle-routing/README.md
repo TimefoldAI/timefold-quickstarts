@@ -4,8 +4,16 @@ Find the most efficient routes for a fleet of vehicles.
 
 ![Vehicle Routing Screenshot](./vehicle-routing-screenshot.png)
 
+## Constraints
+
+| Name                                | Level  | Description                                                                        |
+|-------------------------------------|--------|------------------------------------------------------------------------------------|
+| Vehicle capacity                    | Hard   | The total demand of all visits assigned to a vehicle must not exceed its capacity. |
+| Service finished after max end time | Hard   | A visit must be serviced before its maximum end time.                              |
+| Maximize visits assigned            | Medium | As many visits as possible should be assigned to a vehicle.                        |
+| Minimize travel time                | Soft   | Minimize the total travel time of all vehicles.                                    |
+
 - [Run the application](#run-the-application)
-- [Run the application with Timefold Solver Enterprise Edition](#run-the-application-with-timefold-solver-enterprise-edition)
 - [Run the packaged application](#run-the-packaged-application)
 - [Run the application in a container](#run-the-application-in-a-container)
 - [Run it native](#run-it-native)
@@ -30,59 +38,31 @@ Find the most efficient routes for a fleet of vehicles.
    $ cd timefold-quickstarts/java/vehicle-routing
    ```
 
-2. Start the application with Maven:
-   ```sh
-   $ mvn quarkus:dev
-   ```
+2. (Optional) If you want to run a licensed edition (Plus / Enterprise), set up your license key first. See the [Timefold license tool](https://licenses.timefold.ai/) for instructions.
 
-3. Visit [http://localhost:8080](http://localhost:8080) in your browser.
+3. Start the application with Maven:
 
-4. Click on the **Solve** button.
+   1. Community Edition
+   
+      ```sh
+      $ mvn quarkus:dev
+      ```
+   
+   2. Plus / Enterprise Edition: The profile sets up the correct Maven artifacts to run the licensed version. See the `pom.xml` for the implementation details.
 
-Then try _live coding_:
+      ```sh
+      $ mvn quarkus:dev -Denterprise
+      ```
 
-- Make some changes in the source code.
-- Refresh your browser (F5). 
-- Notice that those changes are immediately visible.
+4. Visit [http://localhost:8080](http://localhost:8080) in your browser.
 
-## Run the application with Timefold Solver Enterprise Edition
-
-For high-scalability use cases, switch to [Timefold Solver Enterprise Edition](https://docs.timefold.ai/timefold-solver/latest/enterprise-edition/enterprise-edition), our commercial offering.  
-[Contact Timefold](https://timefold.ai/contact) to obtain the credentials required to access our private Enterprise Maven repository.
-
-1. Create `.m2/settings.xml` in your home directory with the following content:
-   ```xml
-   <settings>
-     ...
-     <servers>
-       <server>
-         <!-- Replace "my_username" and "my_password" with credentials obtained from a Timefold representative. -->
-         <id>timefold-solver-enterprise</id>
-         <username>my_username</username>
-         <password>my_password</password>
-       </server>
-     </servers>
-     ...
-   </settings>
-   ```
-
-   See [Settings Reference](https://maven.apache.org/settings.html) for more information on Maven settings.
-
-2. Start the application with Maven:
-   ```sh
-   $ mvn clean quarkus:dev -Denterprise
-   ```
-
-3. Visit [http://localhost:8080](http://localhost:8080) in your browser.
-
-4. Click on the **Solve** button.
+5. Click on the **Solve** button.
 
 Then try _live coding_:
 
 - Make some changes in the source code.
 - Refresh your browser (F5).
-
-Notice that those changes are immediately in effect.
+- Notice that those changes are immediately visible.
 
 ## Run the packaged application
 

@@ -5,7 +5,7 @@ import java.util.Map;
 
 import jakarta.inject.Inject;
 
-import ai.timefold.solver.test.api.score.stream.ConstraintVerifier;
+import ai.timefold.solver.core.api.score.stream.test.ConstraintVerifier;
 
 import org.acme.taskassigning.domain.Affinity;
 import org.acme.taskassigning.domain.Customer;
@@ -70,7 +70,7 @@ class TaskAssigningConstraintProviderTest {
         // Task 1
         TaskType type1 = new TaskType("1", "1", 10);
         Task task1 = new Task("1", type1, 1, customer, employee, 1, Priority.CRITICAL);
-        task1.setStartTime(1);
+        task1.setStartTime(1L);
         // Task 2
         TaskType type2 = new TaskType("1", "1", 20);
         Task task2 = new Task("2", type2, 1, customer, employee, 2, Priority.MINOR);
@@ -90,15 +90,15 @@ class TaskAssigningConstraintProviderTest {
         // Task 1
         TaskType type1 = new TaskType("1", "1", 10);
         Task task1 = new Task("1", type1, 1, customer, employee1, 1, Priority.CRITICAL);
-        task1.setStartTime(1);
+        task1.setStartTime(1L);
         // Task 2
         TaskType type2 = new TaskType("2", "1", 20);
         Task task2 = new Task("2", type2, 1, customer, employee1, 2, Priority.MINOR);
-        task2.setStartTime(2);
+        task2.setStartTime(2L);
         // Task 3
         TaskType invalidType2 = new TaskType("3", "3", 1);
         Task task3 = new Task("3", invalidType2, 1, customer, employee2, 1, Priority.CRITICAL);
-        task3.setStartTime(3);
+        task3.setStartTime(3L);
 
         employee1.setTasks(List.of(task1, task2));
         employee2.setTasks(List.of(task3));
@@ -116,7 +116,7 @@ class TaskAssigningConstraintProviderTest {
         // Task 1
         TaskType type1 = new TaskType("1", "1", 10);
         Task task1 = new Task("1", type1, 1, customer, employee, 1, Priority.MAJOR);
-        task1.setStartTime(1);
+        task1.setStartTime(1L);
         // Task 2
         TaskType type2 = new TaskType("1", "1", 20);
         Task task2 = new Task("2", type2, 1, customer, employee, 2, Priority.MINOR);
@@ -134,7 +134,7 @@ class TaskAssigningConstraintProviderTest {
         // Task 1
         TaskType type1 = new TaskType("1", "1", 10);
         Task task1 = new Task("1", type1, 1, customer, employee, 1, Priority.MINOR);
-        task1.setStartTime(1);
+        task1.setStartTime(1L);
         // Task 2
         TaskType type2 = new TaskType("1", "1", 20);
         Task task2 = new Task("2", type2, 1, customer, employee, 2, Priority.MAJOR);

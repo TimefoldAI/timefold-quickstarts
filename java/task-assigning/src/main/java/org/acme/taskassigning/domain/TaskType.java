@@ -11,7 +11,7 @@ public class TaskType {
 
     private String code;
     private String title;
-    private int baseDuration; // In minutes
+    private long baseDuration; // In minutes
     private List<String> requiredSkills;
 
     public TaskType() {
@@ -47,11 +47,11 @@ public class TaskType {
         this.title = title;
     }
 
-    public int getBaseDuration() {
+    public long getBaseDuration() {
         return baseDuration;
     }
 
-    public void setBaseDuration(int baseDuration) {
+    public void setBaseDuration(long baseDuration) {
         this.baseDuration = baseDuration;
     }
 

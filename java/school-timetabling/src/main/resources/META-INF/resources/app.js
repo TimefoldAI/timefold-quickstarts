@@ -5,6 +5,9 @@ let demoDataId = null;
 let scheduleId = null;
 let loadedSchedule = null;
 
+let roomMap = null;
+let timeslotMap = null;
+
 // Color Picker: Based on https://venngage.com/blog/color-blind-friendly-palette/
 const BG_COLORS = ["#009E73","#0072B2","#D55E00","#000000","#CC79A7","#E69F00","#F0E442","#F6768E","#C10020","#A6BDD7","#803E75","#007D34","#56B4E9","#999999","#8DD3C7","#FFD92F","#B3DE69","#FB8072","#80B1D3","#B15928","#CAB2D6","#1B9E77","#E7298A","#6A3D9A"];
 const FG_COLORS = ["#FFFFFF","#FFFFFF","#FFFFFF","#FFFFFF","#FFFFFF","#000000","#000000","#FFFFFF","#FFFFFF","#000000","#FFFFFF","#FFFFFF","#FFFFFF","#000000","#000000","#000000","#000000","#FFFFFF","#000000","#FFFFFF","#000000","#FFFFFF","#FFFFFF","#FFFFFF"];
@@ -110,12 +113,28 @@ function refreshSchedule() {
 
   $.getJSON(path, function (schedule) {
     loadedSchedule = schedule;
+    updateScheduleMap(schedule);
     renderSchedule(schedule);
   })
     .fail(function (xhr, ajaxOptions, thrownError) {
       showError("Getting the timetable has failed.", xhr);
       refreshSolvingButtons(false);
     });
+}
+
+function updateScheduleMap(timetable) {
+    const isObject = timetable.rooms.length > 0 && timetable.timeslots.length > 0 &&
+        typeof timetable.rooms[0] === "object" && typeof timetable.timeslots[0] === "object";
+    if (isObject) {
+        roomMap = new Map();
+        for (const room of timetable.rooms) {
+            roomMap.set(room.id, room);
+        }
+        timeslotMap = new Map();
+        for (const timeslot of timetable.timeslots) {
+            timeslotMap.set(timeslot.id, timeslot);
+        }
+    }
 }
 
 function renderSchedule(timetable) {
@@ -136,7 +155,8 @@ function renderSchedule(timetable) {
   const headerRowByRoom = $("<tr>").appendTo(theadByRoom);
   headerRowByRoom.append($("<th>Timeslot</th>"));
 
-  $.each(timetable.rooms, (index, room) => {
+  $.each(timetable.rooms, (index, roomIdx) => {
+    const room = roomMap.get(extractId(roomIdx));
     headerRowByRoom
       .append($("<th/>")
         .append($("<span/>").text(room.name))
@@ -167,7 +187,8 @@ function renderSchedule(timetable) {
 
   const LocalTime = JSJoda.LocalTime;
 
-  $.each(timetable.timeslots, (index, timeslot) => {
+  $.each(timetable.timeslots, (index, timeslotIdx) => {
+    const timeslot = timeslotMap.get(extractId(timeslotIdx));
     const rowByRoom = $("<tr>").appendTo(tbodyByRoom);
     rowByRoom
       .append($(`<th class="align-middle"/>`)
@@ -177,7 +198,8 @@ function renderSchedule(timetable) {
                     -
                     ${LocalTime.parse(timeslot.endTime).format(dateTimeFormatter)}
                 `)));
-    $.each(timetable.rooms, (index, room) => {
+    $.each(timetable.rooms, (index, roomIdx) => {
+      const room = roomMap.get(extractId(roomIdx));
       rowByRoom.append($("<td/>").prop("id", `timeslot${timeslot.id}room${room.id}`));
     });
 
@@ -220,10 +242,12 @@ function renderSchedule(timetable) {
     if (lesson.timeslot == null || lesson.room == null) {
       unassignedLessons.append($(`<div class="col"/>`).append(lessonElement));
     } else {
+      const timeslot = timeslotMap.get(extractId(lesson.timeslot));
+      const room = roomMap.get(extractId(lesson.room));
       // In the JSON, the lesson.timeslot and lesson.room are only IDs of these objects.
-      $(`#timeslot${lesson.timeslot}room${lesson.room}`).append(lessonElement.clone());
-      $(`#timeslot${lesson.timeslot}teacher${convertToId(lesson.teacher)}`).append(lessonElement.clone());
-      $(`#timeslot${lesson.timeslot}studentGroup${convertToId(lesson.studentGroup)}`).append(lessonElement.clone());
+      $(`#timeslot${timeslot.id}room${room.id}`).append(lessonElement.clone());
+      $(`#timeslot${timeslot.id}teacher${convertToId(lesson.teacher)}`).append(lessonElement.clone());
+      $(`#timeslot${timeslot.id}studentGroup${convertToId(lesson.studentGroup)}`).append(lessonElement.clone());
     }
   });
 
@@ -317,7 +341,13 @@ function analyze() {
       analysisTable.append(analysisTBody);
       scoreAnalysisModalContent.append(analysisTable);
     }).fail(function (xhr, ajaxOptions, thrownError) {
-        showError("Analyze failed.", xhr);
+        scoreAnalysisModalContent.children().remove();
+        scoreAnalysisModalContent.append($("<p/>").html(
+            "The server returned an error."
+            + " This may be due to a misconfiguration, or because Score Analysis requires"
+            + " <b>Timefold Solver Enterprise Edition</b>, which is not on the classpath."
+            + " If the latter, reach out to Timefold, obtain your license,"
+            + " and then run the quickstart with an Enterprise profile to see Score analysis in action."));
       },
       "text");
   }
@@ -363,6 +393,17 @@ function stopSolving() {
 function convertToId(str) {
   // Base64 encoding without padding to avoid XSS
   return btoa(str).replace(/=/g, "");
+}
+
+function extractId(value) {
+    if (value == null) {
+        return value;
+    }
+    if (typeof value === "object") {
+        return value.id;
+    } else {
+        return value;
+    }
 }
 
 function copyTextToClipboard(id) {

@@ -1,7 +1,7 @@
 package org.acme.schooltimetabling.rest;
 
 import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
-import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
+import ai.timefold.solver.core.api.score.HardSoftScore;
 import ai.timefold.solver.core.api.solver.ScoreAnalysisFetchPolicy;
 import ai.timefold.solver.core.api.solver.SolutionManager;
 import ai.timefold.solver.core.api.solver.SolverManager;
@@ -43,7 +43,7 @@ public class TimetableResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TimetableResource.class);
 
-    private final SolverManager<Timetable, String> solverManager;
+    private final SolverManager<Timetable> solverManager;
     private final SolutionManager<Timetable, HardSoftScore> solutionManager;
 
     // TODO: Without any "time to live", the map may eventually grow out of memory.
@@ -56,7 +56,7 @@ public class TimetableResource {
     }
 
     @Inject
-    public TimetableResource(SolverManager<Timetable, String> solverManager,
+    public TimetableResource(SolverManager<Timetable> solverManager,
             SolutionManager<Timetable, HardSoftScore> solutionManager) {
         this.solverManager = solverManager;
         this.solutionManager = solutionManager;
