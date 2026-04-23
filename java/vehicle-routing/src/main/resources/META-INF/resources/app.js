@@ -23,7 +23,7 @@ const routeGroup = L.layerGroup().addTo(map);
 
 /************************************ Time line constants and variable definitions ************************************/
 
-const byVehiclePanel = document.getElementById("byVehiclePanel");
+const byVehiclePanel = document.getElementById("byVehicleTimeline");
 const byVehicleTimelineOptions = {
     timeAxis: {scale: "hour"},
     orientation: {axis: "top"},
@@ -37,7 +37,7 @@ const byVehicleGroupData = new vis.DataSet();
 const byVehicleItemData = new vis.DataSet();
 const byVehicleTimeline = new vis.Timeline(byVehiclePanel, byVehicleItemData, byVehicleGroupData, byVehicleTimelineOptions);
 
-const byVisitPanel = document.getElementById("byVisitPanel");
+const byVisitPanel = document.getElementById("byVisitTimeline");
 const byVisitTimelineOptions = {
     timeAxis: {scale: "hour"},
     orientation: {axis: "top"},
@@ -105,6 +105,11 @@ $(document).ready(function () {
 
 function colorByVehicle(vehicle) {
     return vehicle === null ? null : pickColor('vehicle' + vehicle.id);
+}
+
+function formatScore(score) {
+    if (!score) return '?';
+    return score.replace('hard', 'H').replace('medium', 'M').replace('soft', 'S');
 }
 
 function formatDrivingTime(drivingTimeInSeconds) {
@@ -209,7 +214,7 @@ function renderRoutes(solution) {
     }
 
     // Summary
-    $('#score').text(solution.score);
+    $('#score').text(formatScore(solution.score));
     $("#info").text(`This dataset has ${solution.visits.length} visits who need to be assigned to ${solution.vehicles.length} vehicles.`);
     $('#drivingTime').text(formatDrivingTime(solution.totalDrivingTimeSeconds));
 }
@@ -303,7 +308,7 @@ function renderTimelines(routePlan) {
                     id: visit.id + '_wait',
                     group: visit.vehicle, // visit.vehicle is the vehicle.id due to Jackson serialization
                     subgroup: visit.vehicle,
-                    content: byVehicleWaitElement.ahtml(),
+                    content: byVehicleWaitElement.html(),
                     start: visit.arrivalTime,
                     end: visit.minStartTime
                 });
@@ -353,6 +358,10 @@ function renderTimelines(routePlan) {
         byVehicleTimeline.setWindow(routePlan.startDateTime, routePlan.endDateTime);
         byVisitTimeline.setWindow(routePlan.startDateTime, routePlan.endDateTime);
     }
+    requestAnimationFrame(() => {
+        if ($('#byVehiclePanel').hasClass('active')) byVehicleTimeline.redraw();
+        if ($('#byVisitPanel').hasClass('active')) byVisitTimeline.redraw();
+    });
 }
 
 function analyze() {
