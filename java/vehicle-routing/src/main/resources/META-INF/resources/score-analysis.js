@@ -91,7 +91,7 @@ function visualizeConstraintAnalysis(analysisTBody, constraintIndex, constraintA
 
     let row = $(`<tr/>`);
     row.append($(`<td/>`).html(icon))
-        .append($(`<td/>`).text(constraintAnalysis.name).css({textAlign: 'left'}))
+        .append($(`<td/>`).text(constraintAnalysis.id).css({textAlign: 'left'}))
         .append($(`<td/>`).text(constraintAnalysis.type))
         .append($(`<td/>`).html(`<b>${constraintAnalysis.matches.length}</b>`))
         .append($(`<td/>`).text(constraintAnalysis.weight))
