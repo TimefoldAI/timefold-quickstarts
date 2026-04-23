@@ -23,7 +23,7 @@ const routeGroup = L.layerGroup().addTo(map);
 
 /************************************ Time line constants and variable definitions ************************************/
 
-const byVehiclePanel = document.getElementById("byVehicleTimeline");
+const byVehicleTimelineElement = document.getElementById("byVehicleTimeline");
 const byVehicleTimelineOptions = {
     timeAxis: {scale: "hour"},
     orientation: {axis: "top"},
@@ -35,9 +35,9 @@ const byVehicleTimelineOptions = {
 };
 const byVehicleGroupData = new vis.DataSet();
 const byVehicleItemData = new vis.DataSet();
-const byVehicleTimeline = new vis.Timeline(byVehiclePanel, byVehicleItemData, byVehicleGroupData, byVehicleTimelineOptions);
+const byVehicleTimeline = new vis.Timeline(byVehicleTimelineElement, byVehicleItemData, byVehicleGroupData, byVehicleTimelineOptions);
 
-const byVisitPanel = document.getElementById("byVisitTimeline");
+const byVisitTimelineElement = document.getElementById("byVisitTimeline");
 const byVisitTimelineOptions = {
     timeAxis: {scale: "hour"},
     orientation: {axis: "top"},
@@ -50,7 +50,7 @@ const byVisitTimelineOptions = {
 };
 const byVisitGroupData = new vis.DataSet();
 const byVisitItemData = new vis.DataSet();
-const byVisitTimeline = new vis.Timeline(byVisitPanel, byVisitItemData, byVisitGroupData, byVisitTimelineOptions);
+const byVisitTimeline = new vis.Timeline(byVisitTimelineElement, byVisitItemData, byVisitGroupData, byVisitTimelineOptions);
 
 const BG_COLORS = ["#009E73","#0072B2","#D55E00","#000000","#CC79A7","#E69F00","#F0E442","#F6768E","#C10020","#A6BDD7","#803E75","#007D34","#56B4E9","#999999","#8DD3C7","#FFD92F","#B3DE69","#FB8072","#80B1D3","#B15928","#CAB2D6","#1B9E77","#E7298A","#6A3D9A"];
 const FG_COLORS = ["#FFFFFF","#FFFFFF","#FFFFFF","#FFFFFF","#FFFFFF","#000000","#000000","#FFFFFF","#FFFFFF","#000000","#FFFFFF","#FFFFFF","#FFFFFF","#000000","#000000","#000000","#000000","#FFFFFF","#000000","#FFFFFF","#000000","#FFFFFF","#FFFFFF","#FFFFFF"];
