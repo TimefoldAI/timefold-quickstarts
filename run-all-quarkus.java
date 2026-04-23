@@ -44,7 +44,7 @@ class App implements Runnable {
     long solveTimeoutSeconds;
 
     @Option(names = {"--screenshot-dir"},
-            description = "Directory to write PNG screenshots (default: ${DEFAULT-VALUE}).")
+            description = "Directory to write PNG screenshots. If omitted, screenshots are saved next to pom.xml.")
     Path screenshotDir;
 
     @Option(names = {"--enterprise"}, defaultValue = "false",
