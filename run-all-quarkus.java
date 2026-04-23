@@ -262,7 +262,10 @@ class App implements Runnable {
                     pw.process.destroyForcibly();
                 }
             }
-        } catch (InterruptedException ignored) {}
+        } catch (InterruptedException ignored) {
+            Thread.currentThread().interrupt();
+            return;
+        }
         System.out.println("Stopped: " + pw.name);
     }
 
