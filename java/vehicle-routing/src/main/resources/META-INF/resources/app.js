@@ -23,7 +23,7 @@ const routeGroup = L.layerGroup().addTo(map);
 
 /************************************ Time line constants and variable definitions ************************************/
 
-const byVehiclePanel = document.getElementById("byVehiclePanel");
+const byVehicleTimelineElement = document.getElementById("byVehicleTimeline");
 const byVehicleTimelineOptions = {
     timeAxis: {scale: "hour"},
     orientation: {axis: "top"},
@@ -35,9 +35,9 @@ const byVehicleTimelineOptions = {
 };
 const byVehicleGroupData = new vis.DataSet();
 const byVehicleItemData = new vis.DataSet();
-const byVehicleTimeline = new vis.Timeline(byVehiclePanel, byVehicleItemData, byVehicleGroupData, byVehicleTimelineOptions);
+const byVehicleTimeline = new vis.Timeline(byVehicleTimelineElement, byVehicleItemData, byVehicleGroupData, byVehicleTimelineOptions);
 
-const byVisitPanel = document.getElementById("byVisitPanel");
+const byVisitTimelineElement = document.getElementById("byVisitTimeline");
 const byVisitTimelineOptions = {
     timeAxis: {scale: "hour"},
     orientation: {axis: "top"},
@@ -50,7 +50,7 @@ const byVisitTimelineOptions = {
 };
 const byVisitGroupData = new vis.DataSet();
 const byVisitItemData = new vis.DataSet();
-const byVisitTimeline = new vis.Timeline(byVisitPanel, byVisitItemData, byVisitGroupData, byVisitTimelineOptions);
+const byVisitTimeline = new vis.Timeline(byVisitTimelineElement, byVisitItemData, byVisitGroupData, byVisitTimelineOptions);
 
 const BG_COLORS = ["#009E73","#0072B2","#D55E00","#000000","#CC79A7","#E69F00","#F0E442","#F6768E","#C10020","#A6BDD7","#803E75","#007D34","#56B4E9","#999999","#8DD3C7","#FFD92F","#B3DE69","#FB8072","#80B1D3","#B15928","#CAB2D6","#1B9E77","#E7298A","#6A3D9A"];
 const FG_COLORS = ["#FFFFFF","#FFFFFF","#FFFFFF","#FFFFFF","#FFFFFF","#000000","#000000","#FFFFFF","#FFFFFF","#000000","#FFFFFF","#FFFFFF","#FFFFFF","#000000","#000000","#000000","#000000","#FFFFFF","#000000","#FFFFFF","#000000","#FFFFFF","#FFFFFF","#FFFFFF"];
@@ -105,6 +105,11 @@ $(document).ready(function () {
 
 function colorByVehicle(vehicle) {
     return vehicle === null ? null : pickColor('vehicle' + vehicle.id);
+}
+
+function formatScore(score) {
+    if (!score) return '?';
+    return score.replace('hard', 'H').replace('medium', 'M').replace('soft', 'S');
 }
 
 function formatDrivingTime(drivingTimeInSeconds) {
@@ -209,7 +214,7 @@ function renderRoutes(solution) {
     }
 
     // Summary
-    $('#score').text(solution.score);
+    $('#score').text(formatScore(solution.score));
     $("#info").text(`This dataset has ${solution.visits.length} visits who need to be assigned to ${solution.vehicles.length} vehicles.`);
     $('#drivingTime').text(formatDrivingTime(solution.totalDrivingTimeSeconds));
 }
@@ -303,7 +308,7 @@ function renderTimelines(routePlan) {
                     id: visit.id + '_wait',
                     group: visit.vehicle, // visit.vehicle is the vehicle.id due to Jackson serialization
                     subgroup: visit.vehicle,
-                    content: byVehicleWaitElement.ahtml(),
+                    content: byVehicleWaitElement.html(),
                     start: visit.arrivalTime,
                     end: visit.minStartTime
                 });
@@ -353,6 +358,10 @@ function renderTimelines(routePlan) {
         byVehicleTimeline.setWindow(routePlan.startDateTime, routePlan.endDateTime);
         byVisitTimeline.setWindow(routePlan.startDateTime, routePlan.endDateTime);
     }
+    requestAnimationFrame(() => {
+        if ($('#byVehiclePanel').hasClass('active')) byVehicleTimeline.redraw();
+        if ($('#byVisitPanel').hasClass('active')) byVisitTimeline.redraw();
+    });
 }
 
 function analyze() {
