@@ -22,6 +22,14 @@
     .nav-pills {
       --bs-nav-pills-link-active-bg: var(--ts-violet-1-rgb);
     }
+
+    .legend-swatch {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
   </style>
 </head>
 <body>
@@ -99,7 +107,6 @@
           <button id="stopSolvingButton" type="button" class="btn btn-danger p-2">
             <i class="fas fa-stop"></i> Stop solving
           </button>
-          <span id="score" class="score ms-2 align-middle fw-bold">Score: ?</span>
           <button id="analyzeButton" type="button" class="ms-2 btn btn-secondary">
             <span class="fas fa-question"></span>
           </button>
@@ -120,6 +127,10 @@
                   Solution summary
                 </h5>
                 <table class="table">
+                  <tr>
+                    <td>Score:</td>
+                    <td><span id="score" class="fw-bold">?</span></td>
+                  </tr>
                   <tr>
                     <td>Total driving time:</td>
                     <td><span id="drivingTime">unknown</span></td>
@@ -152,8 +163,27 @@
 
 
       <div class="tab-pane fade" id="byVehiclePanel" role="tabpanel" aria-labelledby="byVehicleTab">
+        <div class="d-flex align-items-center flex-wrap gap-2 px-3 py-2 border-bottom bg-light">
+          <span class="text-muted small">Each row shows a vehicle's day: travel blocks, optional wait, and service stops.</span>
+          <div class="ms-auto d-flex gap-3 flex-wrap">
+            <span class="d-flex align-items-center gap-1 small"><span class="legend-swatch" style="background:#f7dd8f;"></span>Travel</span>
+            <span class="d-flex align-items-center gap-1 small"><span class="legend-swatch" style="background:#97C2FC;"></span>Wait</span>
+            <span class="d-flex align-items-center gap-1 small"><span class="legend-swatch" style="background:#83C159;"></span>Service</span>
+            <span class="d-flex align-items-center gap-1 small"><span class="legend-swatch" style="background:#EF2929;"></span>Late</span>
+          </div>
+        </div>
+        <div id="byVehicleTimeline"></div>
       </div>
       <div class="tab-pane fade" id="byVisitPanel" role="tabpanel" aria-labelledby="byVisitTab">
+        <div class="d-flex align-items-center flex-wrap gap-2 px-3 py-2 border-bottom bg-light">
+          <span class="text-muted small">Each row shows a visit's assigned vehicle and where it falls relative to its time window.</span>
+          <div class="ms-auto d-flex gap-3 flex-wrap">
+            <span class="d-flex align-items-center gap-1 small"><span class="legend-swatch" style="background:#8AE234;opacity:0.4;"></span>Time window</span>
+            <span class="d-flex align-items-center gap-1 small"><span class="legend-swatch" style="background:#83C159;"></span>Assigned</span>
+            <span class="d-flex align-items-center gap-1 small"><span class="legend-swatch" style="background:#EF2929;"></span>Late / Unassigned</span>
+          </div>
+        </div>
+        <div id="byVisitTimeline"></div>
       </div>
     </div>
   </div>
