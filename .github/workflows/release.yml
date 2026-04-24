@@ -53,12 +53,13 @@ jobs:
 
       - name: Update version
         working-directory: ./timefold-quickstarts
+        env:
+          NEW_JAVA_VERSION: ${{ github.event.inputs.javaVersion }}
         run: |
           git config user.name "Timefold Release Bot"
           git config user.email "release@timefold.ai"
           git checkout -B $RELEASE_BRANCH_NAME
           export OLD_JAVA_VERSION="$(find . -name pom.xml -exec grep '<version.ai.timefold.solver>' {} \;|tail -n 1|cut -d\> -f1 --complement|cut -d\< -f1)"
-          export NEW_JAVA_VERSION="${{ github.event.inputs.javaVersion }}"
           .github/scripts/change_versions.sh
 
       # This step will fail if the Solver binaries aren't already on Maven Central.
