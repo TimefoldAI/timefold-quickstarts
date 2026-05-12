@@ -331,9 +331,9 @@ class ConferenceSchedulingConstraintProviderTest {
         talk1.setSectorTags(sequencedSet("a"));
         Talk talk2 = new Talk("2", MONDAY_9_TO_10, room);
         talk2.setSectorTags(sequencedSet("a"));
-        Talk talk3 = new Talk("2", MONDAY_9_TO_10, room);
+        Talk talk3 = new Talk("3", MONDAY_9_TO_10, room);
         talk3.setSectorTags(sequencedSet("b"));
-        Talk talk4 = new Talk("2", MONDAY_10_05_TO_11, room);
+        Talk talk4 = new Talk("4", MONDAY_10_05_TO_11, room);
         talk4.setSectorTags(sequencedSet("a"));
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::sectorConflict)
