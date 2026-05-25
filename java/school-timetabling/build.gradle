@@ -33,8 +33,7 @@ dependencies {
     implementation "ai.timefold.solver:timefold-solver-quarkus-jackson"
 
     // Testing
-    testImplementation "io.quarkus:quarkus-junit5"
-    testImplementation "io.quarkus:quarkus-junit5-internal"
+    testImplementation "io.quarkus:quarkus-junit"
     testImplementation "io.rest-assured:rest-assured"
     testImplementation "org.awaitility:awaitility"
     testImplementation "org.assertj:assertj-core:3.27.7"
