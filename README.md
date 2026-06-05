@@ -49,7 +49,7 @@ Find the most efficient routes for vehicles to reach visits, considering vehicle
 
 ---
 
-### 🧑‍💼 Employee Scheduling
+### 🧑‍ Employee Scheduling
 
 Schedule shifts to employees, accounting for employee availability and shift skill requirements.
 
@@ -63,7 +63,7 @@ Schedule shifts to employees, accounting for employee availability and shift ski
 
 ---
 
-### 🛠️ Maintenance Scheduling
+### 🛠 Maintenance Scheduling
 
 Schedule maintenance jobs to crews over time to reduce both premature and overdue maintenance.
 
