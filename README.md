@@ -49,7 +49,7 @@ Find the most efficient routes for vehicles to reach visits, considering vehicle
 
 ---
 
-### 🧑‍ Employee Scheduling
+### 🧑‍💼 Employee Scheduling
 
 Schedule shifts to employees, accounting for employee availability and shift skill requirements.
 
