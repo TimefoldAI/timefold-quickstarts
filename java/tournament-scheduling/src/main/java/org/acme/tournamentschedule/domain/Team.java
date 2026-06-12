@@ -49,11 +49,11 @@ public class Team {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof Team team))
-            return false;
-        return Objects.equals(getId(), team.getId());
+        }
+        return o instanceof Team other
+                && id == other.id;
     }
 
     @Override
