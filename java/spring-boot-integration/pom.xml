@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>4.0.6</version>
+    <version>4.1.0</version>
   </parent>
 
   <groupId>org.acme</groupId>
@@ -17,11 +17,11 @@
     <maven.compiler.release>21</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <version.ai.timefold.solver>2.1.0</version.ai.timefold.solver>
+    <version.ai.timefold.solver>2.2.0</version.ai.timefold.solver>
     <version.org.springframework.boot>${project.parent.version}</version.org.springframework.boot>
 
     <version.compiler.plugin>3.15.0</version.compiler.plugin>
-    <version.surefire.plugin>3.5.5</version.surefire.plugin>
+    <version.surefire.plugin>3.5.6</version.surefire.plugin>
   </properties>
 
   <dependencyManagement>

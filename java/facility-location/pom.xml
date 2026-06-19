@@ -11,11 +11,11 @@
     <maven.compiler.release>21</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <version.io.quarkus>3.35.2</version.io.quarkus>
-    <version.ai.timefold.solver>2.1.0</version.ai.timefold.solver>
+    <version.io.quarkus>3.36.2</version.io.quarkus>
+    <version.ai.timefold.solver>2.2.0</version.ai.timefold.solver>
 
     <version.compiler.plugin>3.15.0</version.compiler.plugin>
-    <version.surefire.plugin>3.5.5</version.surefire.plugin>
+    <version.surefire.plugin>3.5.6</version.surefire.plugin>
   </properties>
 
   <dependencyManagement>
@@ -58,7 +58,7 @@
     <!-- Testing -->
     <dependency>
       <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-junit5</artifactId>
+      <artifactId>quarkus-junit</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

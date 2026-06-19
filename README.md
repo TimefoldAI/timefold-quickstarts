@@ -11,10 +11,10 @@ It shows different use cases and basic implementations to get you started on you
 
 ## Overview
 
-| Use Case                                                               | Notable Solver Concepts                                  |
-|------------------------------------------------------------------------|----------------------------------------------------------|
+| Use Case                                                                | Notable Solver Concepts                                  |
+|-------------------------------------------------------------------------|----------------------------------------------------------|
 | 🚚 <a href="#-vehicle-routing">Vehicle Routing</a>                      | Chained Through Time, Shadow Variables                   |
-| 🧑‍💼 <a href="#-employee-scheduling">Employee Scheduling</a>            | Load Balancing                                           |
+| 🧑 <a href="#-employee-scheduling">Employee Scheduling</a>              | Load Balancing                                           |
 | 🛠️ <a href="#-maintenance-scheduling">Maintenance Scheduling</a>       | TimeGrain, Shadow Variable, Variable Listener            |
 | 📦 <a href="#-food-packaging">Food Packaging</a>                        | Mixed Model, Shadow Variables, Pinning                   |
 | 🛒 <a href="#-order-picking">Order Picking</a>                          | Chained Planning Variable, Shadow Variables              |
@@ -24,7 +24,7 @@ It shows different use cases and basic implementations to get you started on you
 | 🛏️ <a href="#-bed-allocation-scheduling">Bed Allocation Scheduling</a> | Allows Unassigned                                        |
 | 🛫 <a href="#-flight-crew-scheduling">Flight Crew Scheduling</a>        |                                                          |
 | 👥 <a href="#-meeting-scheduling">Meeting Scheduling</a>                | TimeGrain                                                |
-| ✅ <a href="#-task-assigning">Task Assigning</a>                        | Bendable Score, Chained Through Time, Allows Unassigned  |
+| ✅ <a href="#-task-assigning">Task Assigning</a>                         | Bendable Score, Chained Through Time, Allows Unassigned  |
 | 📆 <a href="#-project-job-scheduling">Project Job Scheduling</a>        | Shadow Variables, Variable Listener, Strenght Comparator |
 | 🏆 <a href="#-sports-league-scheduling">Sports League Scheduling</a>    | Consecutive Sequences                                    |
 | 🏅 <a href="#-tournament-scheduling">Tournament Scheduling</a>          | Pinning, Load Balancing                                  |
@@ -49,7 +49,7 @@ Find the most efficient routes for vehicles to reach visits, considering vehicle
 
 ---
 
-### 🧑‍💼 Employee Scheduling
+### 🧑 Employee Scheduling
 
 Schedule shifts to employees, accounting for employee availability and shift skill requirements.
 
@@ -63,7 +63,7 @@ Schedule shifts to employees, accounting for employee availability and shift ski
 
 ---
 
-### 🛠️ Maintenance Scheduling
+### 🛠 Maintenance Scheduling
 
 Schedule maintenance jobs to crews over time to reduce both premature and overdue maintenance.
 

@@ -65,10 +65,12 @@ jobs:
       # This step will fail if the Solver binaries aren't already on Maven Central.
       - name: Create release branch and build release
         working-directory: ./timefold-quickstarts
+        env:
+          JAVA_VERSION: ${{ github.event.inputs.javaVersion }}
         run: |
           mvn verify
-          git commit -am "build: switch to version ${{ github.event.inputs.javaVersion }}"
-          git tag -a "v${{ github.event.inputs.javaVersion }}" -m "Release version ${{ github.event.inputs.javaVersion }}"
+          git commit -am "build: switch to version $JAVA_VERSION"
+          git tag -a "v$JAVA_VERSION" -m "Release version $JAVA_VERSION"
           git push --tags
 
       # Merge the release branch into the stable branch.
@@ -78,16 +80,18 @@ jobs:
         working-directory: ./timefold-quickstarts
         env:
           GITHUB_TOKEN: ${{ secrets.JRELEASER_GITHUB_TOKEN }}
+          STABLE_BRANCH: ${{ github.event.inputs.stableBranch }}
+          JAVA_VERSION: ${{ github.event.inputs.javaVersion }}
         run: |
-          git checkout ${{ github.event.inputs.stableBranch }}
+          git checkout $STABLE_BRANCH
           git checkout -B $RELEASE_BRANCH_NAME-bump
           git checkout $RELEASE_BRANCH_NAME
-          git merge -s ours --no-edit ${{ github.event.inputs.stableBranch }}
+          git merge -s ours --no-edit $STABLE_BRANCH
           git checkout $RELEASE_BRANCH_NAME-bump
           git merge --squash $RELEASE_BRANCH_NAME
-          git commit -m "build: release version ${{ github.event.inputs.javaVersion }}"
+          git commit -m "build: release version $JAVA_VERSION"
           git push origin $RELEASE_BRANCH_NAME-bump
-          gh pr create --reviewer triceo --base ${{ github.event.inputs.stableBranch }} --head $RELEASE_BRANCH_NAME-bump --title "build: release version ${{ github.event.inputs.javaVersion }}" --body-file .github/workflows/release-pr-body.md
+          gh pr create --reviewer triceo --base $STABLE_BRANCH --head $RELEASE_BRANCH_NAME-bump --title "build: release version $JAVA_VERSION" --body-file .github/workflows/release-pr-body.md
 
       - name: Put back the 999-SNAPSHOT version on the release branch
         working-directory: ./timefold-quickstarts
@@ -101,17 +105,19 @@ jobs:
 
       - name: Delete version branch (if exists)
         continue-on-error: true
+        env:
+          JAVA_VERSION: ${{ github.event.inputs.javaVersion }}
         run: |
-          java_version=${{ github.event.inputs.javaVersion }}
-          version="${java_version%.*}.x"
+          version="${JAVA_VERSION%.*}.x"
           git push -d origin $version  
 
       - name: Update release branch
         working-directory: ./timefold-quickstarts
         shell: bash
+        env:
+          JAVA_VERSION: ${{ github.event.inputs.javaVersion }}
         run: |
-          java_version=${{ github.event.inputs.javaVersion }}
-          version="${java_version%.*}.x"
+          version="${JAVA_VERSION%.*}.x"
           git config user.name "Timefold Release Bot"
           git config user.email "release@timefold.ai"
           git checkout $RELEASE_BRANCH_NAME

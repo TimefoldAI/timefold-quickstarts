@@ -1,10 +1,10 @@
 plugins {
     id "java"
-    id "io.quarkus" version "3.35.2"
+    id "io.quarkus" version "3.36.2"
 }
 
-def quarkusVersion = "3.35.2"
-def timefoldVersion = "2.1.0"
+def quarkusVersion = "3.36.2"
+def timefoldVersion = "2.2.0"
 def profile = System.properties['profile'] ?: ''
 def enterprise = System.properties['enterprise'] ?: ''
 
@@ -33,8 +33,7 @@ dependencies {
     implementation "ai.timefold.solver:timefold-solver-quarkus-jackson"
 
     // Testing
-    testImplementation "io.quarkus:quarkus-junit5"
-    testImplementation "io.quarkus:quarkus-junit5-internal"
+    testImplementation "io.quarkus:quarkus-junit"
     testImplementation "io.rest-assured:rest-assured"
     testImplementation "org.awaitility:awaitility"
     testImplementation "org.assertj:assertj-core:3.27.7"
