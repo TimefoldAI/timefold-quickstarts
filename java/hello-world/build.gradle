@@ -3,7 +3,7 @@ plugins {
     id "application"
 }
 
-def timefoldVersion = "999-SNAPSHOT"
+def timefoldVersion = "2.2.0"
 def logbackVersion = "1.5.34"
 def junitVersion = "6.1.0"
 def assertjVersion = "3.27.7"

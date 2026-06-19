@@ -4,7 +4,7 @@ plugins {
 }
 
 def quarkusVersion = "3.36.2"
-def timefoldVersion = "999-SNAPSHOT"
+def timefoldVersion = "2.2.0"
 def profile = System.properties['profile'] ?: ''
 def enterprise = System.properties['enterprise'] ?: ''
 
