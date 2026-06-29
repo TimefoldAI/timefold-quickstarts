@@ -1,140 +1,127 @@
+# Dependabot configuration — kept identical in shape across all four solver repos.
+# Only the schedule time, ecosystem list, and 1.x section differ per repo.
+#
+# WHY THIS LOOKS THE WAY IT DOES (read before editing):
+#
+# * Dependencies are split by SemVer level into separate PRs to match the merge
+#   workflow: patch = usually safe / merge on sight, minor = usually needs work,
+#   major = needs attention. Quarkus and Spring get their OWN PRs (their bumps
+#   are easier to review as a unit) and are themselves split patch-vs-rest, so a
+#   safe Quarkus/Spring patch stays merge-on-sight instead of being held hostage
+#   by a minor/major bump in the same PR.
+#
+# * Uses the regular `groups` feature so each dependency lands in exactly ONE PR
+#   (its highest bump, routed to the first matching group). PRs are per-ecosystem
+#   (maven PRs are separate from github-actions PRs).
+#
+# * GROUP ORDER MATTERS — Dependabot assigns a dep to the FIRST matching group, so
+#   quarkus/spring are listed before the major/minor/patch catch-alls.
+#
+# * Commit prefix is plain "deps" for ALL groups — Dependabot has no per-group
+#   commit-message. The level/identity shows in the PR title and branch name, e.g.
+#   "deps: bump the patch group ..." / branch dependabot/maven/patch-<hash>.
+#
+# * Schedule: Monday 01:30 Europe/Berlin (= 1:30am CEST in summer), staggered +15 min
+#   per repo (solver 01:00, enterprise 01:15, quickstarts 01:30, benchmarks 01:45).
+#
+# * Quarkus/Spring patterns drop the ":" so the wildcard spans sub-groupIds
+#   (io.quarkus*, io.quarkiverse*, ...). Re-scan pom.xml/*.gradle if new families appear.
+#
+# * This repo uses development as its default branch, so no target-branch is set.
+#
+# * Webjars are excluded — webjars bumps change bundled UI assets we can't retest
+#   per quickstart. If standalone `ignore` stops working without `allow`, add:
+#   allow: [{dependency-type: all}] alongside the ignore clause.
 version: 2
-
-# The desired behavior is:
-# - All dependencies are updated in the same PR, regardless of the package ecosystem. 
-#   (Quarkus together, Spring together etc.)
-# - Quarkus and Spring dependencies are updated in separate PRs, so that we can decide to not merge them.
-#   (Helps when these large projects sometimes bring breaking changes.)
-# - All three update groups are completely mutually exclusive.
-#   (Dependencies from one group are never part of another group, the PRs do not overlap.)
-# - Webjars are skipped entirely.
-#   (We cannot retest the UI of every quickstarts every time a dependency bumps.)
-
-# To achieve this, we use the following configuration:
-# - Patterns are used to match all dependencies, so that we can use allow and ignore.
-# - Ignore only seems to work if allow is also defined.
-
-# This was the only way to get the desired behavior, established through trial and error; 
-# Dependabot does not really document this complex use case.
-
-# Registries are defined in the organization settings.
-multi-ecosystem-groups:
-  base:
-    schedule:
-      interval: weekly
-      day: "monday"
-      time: "03:00"
-    target-branch: "development"
-    commit-message:
-      prefix: "deps: "
-  quarkus:
-    schedule:
-      interval: weekly
-      day: "monday"
-      time: "03:00"
-    target-branch: "development"
-    commit-message:
-      prefix: "deps: "
-  spring:
-    schedule:
-      interval: weekly
-      day: "monday"
-      time: "03:00"
-    target-branch: "development"
-    commit-message:
-      prefix: "deps: "
-
 updates:
-  - package-ecosystem: "maven"
+  - package-ecosystem: maven
     directory: "/"
-    patterns: [ "*" ]
-    allow:
-      - dependency-type: "all"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "01:30"
+      timezone: "Europe/Berlin"
+    open-pull-requests-limit: 10
+    labels: ["dependencies"]
+    commit-message:
+      prefix: "deps"
     ignore:
-      - dependency-name: "io.quarkus:*"
-      - dependency-name: "org.springdoc:*"
-      - dependency-name: "org.springframework:*"
-      - dependency-name: "org.springframework.boot:*"
-      - dependency-name: "org.webjars:*"
-    multi-ecosystem-group: "base"
-  - package-ecosystem: "gradle"
-    directory: "/"
-    patterns: [ "*" ]
-    allow:
-      - dependency-type: "all"
-    ignore:
-      # No * because these are plugin IDs, not GAVs.
-      - dependency-name: "io.quarkus"
-      - dependency-name: "io.spring.dependency-management"
-      - dependency-name: "org.springframework.boot"
-      # These are GAVs.
-      - dependency-name: "io.quarkus:*"
-      - dependency-name: "org.springdoc:*"
-      - dependency-name: "org.springframework:*"
-      - dependency-name: "org.springframework.boot:*"
-      - dependency-name: "org.webjars:*"
-    multi-ecosystem-group: "base"
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    patterns: [ "*" ]
-    multi-ecosystem-group: "base"
+      # Webjars bumps change bundled UI assets we can't retest per quickstart; skip them.
+      - dependency-name: "org.webjars*"
+    groups:
+      # Identity groups first — first-match-wins keeps these out of the semver buckets.
+      # Each family is split patch-vs-rest: the *-patch group (listed first) grabs
+      # patches for merge-on-sight; the rest-group (no update-types) catches that
+      # family's minor/major (and any non-semver bump).
+      quarkus-patch:
+        patterns: ["io.quarkus*", "io.quarkiverse*"]
+        update-types: ["patch"]
+      quarkus:
+        patterns: ["io.quarkus*", "io.quarkiverse*"]
+      spring-patch:
+        patterns: ["org.springframework*", "org.springdoc*", "io.spring*"]
+        update-types: ["patch"]
+      spring:
+        patterns: ["org.springframework*", "org.springdoc*", "io.spring*"]
+      # Everything else, split by SemVer level into its own PR.
+      major:
+        patterns: ["*"]
+        update-types: ["major"]
+      minor:
+        patterns: ["*"]
+        update-types: ["minor"]
+      patch:
+        patterns: ["*"]
+        update-types: ["patch"]
 
-  - package-ecosystem: "maven"
+  - package-ecosystem: gradle
     directory: "/"
-    patterns: [ "*" ]
-    allow:
-      - dependency-name: "io.quarkus:*"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "01:30"
+      timezone: "Europe/Berlin"
+    open-pull-requests-limit: 10
+    labels: ["dependencies"]
+    commit-message:
+      prefix: "deps"
     ignore:
-      - dependency-name: "org.springdoc:*"
-      - dependency-name: "org.springframework:*"
-      - dependency-name: "org.springframework.boot:*"
-      - dependency-name: "org.webjars:*"
-    multi-ecosystem-group: "quarkus"
-  - package-ecosystem: "gradle"
-    directory: "/"
-    patterns: [ "*" ]
-    allow:
-      # No * because these are plugin IDs, not GAVs.
-      - dependency-name: "io.quarkus"
-      # These are GAVs.
-      - dependency-name: "io.quarkus:*"
-    ignore:
-      # No * because these are plugin IDs, not GAVs.
-      - dependency-name: "io.spring.dependency-management"
-      - dependency-name: "org.springframework.boot"
-      # These are GAVs.
-      - dependency-name: "org.springdoc:*"
-      - dependency-name: "org.springframework:*"
-      - dependency-name: "org.springframework.boot:*"
-      - dependency-name: "org.webjars:*"
-    multi-ecosystem-group: "quarkus"
+      # Webjars bumps change bundled UI assets we can't retest per quickstart; skip them.
+      - dependency-name: "org.webjars*"
+    groups:
+      # Identical group layout as maven — patterns cover both GAVs and Gradle plugin ids.
+      quarkus-patch:
+        patterns: ["io.quarkus*", "io.quarkiverse*"]
+        update-types: ["patch"]
+      quarkus:
+        patterns: ["io.quarkus*", "io.quarkiverse*"]
+      spring-patch:
+        patterns: ["org.springframework*", "org.springdoc*", "io.spring*"]
+        update-types: ["patch"]
+      spring:
+        patterns: ["org.springframework*", "org.springdoc*", "io.spring*"]
+      major:
+        patterns: ["*"]
+        update-types: ["major"]
+      minor:
+        patterns: ["*"]
+        update-types: ["minor"]
+      patch:
+        patterns: ["*"]
+        update-types: ["patch"]
 
-  - package-ecosystem: "maven"
+  - package-ecosystem: github-actions
     directory: "/"
-    patterns: [ "*" ]
-    allow:
-      - dependency-name: "org.springdoc:*"
-      - dependency-name: "org.springframework:*"
-      - dependency-name: "org.springframework.boot:*"
-    ignore:
-      - dependency-name: "io.quarkus:*"
-      - dependency-name: "org.webjars:*"
-    multi-ecosystem-group: "spring"
-  - package-ecosystem: "gradle"
-    directory: "/"
-    patterns: [ "*" ]
-    allow:
-      # No * because these are plugin IDs, not GAVs.
-      - dependency-name: "io.spring.dependency-management"
-      - dependency-name: "org.springframework.boot"
-      # These are GAVs.
-      - dependency-name: "org.springdoc:*"
-      - dependency-name: "org.springframework:*"
-      - dependency-name: "org.springframework.boot:*"
-    ignore:
-      # No * because these are plugin IDs, not GAVs.
-      - dependency-name: "io.quarkus"
-      # These are GAVs.
-      - dependency-name: "io.quarkus:*"
-      - dependency-name: "org.webjars:*"
-    multi-ecosystem-group: "spring"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "01:30"
+      timezone: "Europe/Berlin"
+    open-pull-requests-limit: 10
+    labels: ["dependencies"]
+    commit-message:
+      prefix: "deps"
+    groups:
+      # Actions are NOT semver-split — one PR for all action updates (minimize PRs).
+      actions:
+        patterns: ["*"]
