@@ -1,5 +1,8 @@
 # Getting Started - Service: School Timetabling (Java, Maven or Gradle)
 
+> **Note:** This project is the result of following the [build as a service getting started guide](https://docs.timefold.ai/timefold-solver/latest/quickstart/service/getting-started).
+> For a more complete School Timetabling example, see the [school-timetabling quickstart](https://github.com/TimefoldAI/timefold-quickstarts/tree/main/java/school-timetabling).
+
 Assign lessons to timeslots and rooms to produce a better schedule for teachers and students.
 
 ## Constraints

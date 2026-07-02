@@ -1,5 +1,8 @@
 # Getting Started - Spring Integration: School Timetabling (Java, Spring Boot, Maven or Gradle)
 
+> **Note:** This project is the result of following the [Spring Boot getting started guide](https://docs.timefold.ai/timefold-solver/latest/quickstart/spring-boot/spring-boot-quickstart).
+> For a more complete School Timetabling example, see the [school-timetabling quickstart](https://github.com/TimefoldAI/timefold-quickstarts/tree/main/java/school-timetabling).
+
 Assign lessons to timeslots and rooms to produce a better schedule for teachers and students.
 
 ![School Timetabling Screenshot](school-timetabling-screenshot.png)

@@ -23,22 +23,23 @@
     <module>getting-started/hello-world</module>
     <module>getting-started/spring-boot-integration</module>
     <module>getting-started/service</module>
-    <module>quickstarts/school-timetabling</module>
-    <module>quickstarts/facility-location</module>
-    <module>quickstarts/maintenance-scheduling</module>
-    <module>quickstarts/vehicle-routing</module>
-    <module>quickstarts/order-picking</module>
-    <module>quickstarts/employee-scheduling</module>
-    <module>quickstarts/food-packaging</module>
-    <module>quickstarts/conference-scheduling</module>
-    <module>quickstarts/bed-allocation</module>
-    <module>quickstarts/flight-crew-scheduling</module>
-    <module>quickstarts/meeting-scheduling</module>
-    <module>quickstarts/sports-league-scheduling</module>
-    <module>quickstarts/task-assigning</module>
-    <module>quickstarts/project-job-scheduling</module>
-    <module>quickstarts/tournament-scheduling</module>
-    <module>quickstarts/school-timetabling-kotlin</module>
+    <module>getting-started/quarkus-integration-kotlin</module>
+
+    <module>use-cases/school-timetabling</module>
+    <module>use-cases/facility-location</module>
+    <module>use-cases/maintenance-scheduling</module>
+    <module>use-cases/vehicle-routing</module>
+    <module>use-cases/order-picking</module>
+    <module>use-cases/employee-scheduling</module>
+    <module>use-cases/food-packaging</module>
+    <module>use-cases/conference-scheduling</module>
+    <module>use-cases/bed-allocation</module>
+    <module>use-cases/flight-crew-scheduling</module>
+    <module>use-cases/meeting-scheduling</module>
+    <module>use-cases/sports-league-scheduling</module>
+    <module>use-cases/task-assigning</module>
+    <module>use-cases/project-job-scheduling</module>
+    <module>use-cases/tournament-scheduling</module>
   </modules>
 
 </project>

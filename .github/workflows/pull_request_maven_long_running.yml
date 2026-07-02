@@ -11,7 +11,7 @@ on:
       - synchronize
     paths:
       - 'pom.xml'
-      - 'quickstarts/**/*'
+      - '../../use-cases/**/*'
       - 'getting-started/**/*'
       - '.github/**/*.yml'
 
