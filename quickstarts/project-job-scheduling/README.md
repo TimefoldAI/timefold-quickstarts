@@ -34,7 +34,7 @@ Assign jobs for execution to produce a better schedule for project job allocatio
    ```sh
    $ git clone https://github.com/TimefoldAI/timefold-quickstarts.git
    ...
-   $ cd timefold-quickstarts/java/project-job-scheduling
+   $ cd timefold-quickstarts/quickstarts/project-job-scheduling
    ```
 
 2. (Optional) If you want to run a licensed edition (Plus / Enterprise), set up your license key first. See the [Timefold license tool](https://licenses.timefold.ai/) for instructions.

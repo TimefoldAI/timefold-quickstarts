@@ -42,7 +42,7 @@ Assign timeslots and rooms for meetings to produce a better schedule.
    ```sh
    $ git clone https://github.com/TimefoldAI/timefold-quickstarts.git
    ...
-   $ cd timefold-quickstarts/java/meeting-scheduling
+   $ cd timefold-quickstarts/quickstarts/meeting-scheduling
    ```
 
 2. (Optional) If you want to run a licensed edition (Plus / Enterprise), set up your license key first. See the [Timefold license tool](https://licenses.timefold.ai/) for instructions.

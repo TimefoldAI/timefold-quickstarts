@@ -41,7 +41,7 @@ Schedule shifts to employees, accounting for employee availability and shift ski
    ```sh
    $ git clone https://github.com/TimefoldAI/timefold-quickstarts.git
    ...
-   $ cd timefold-quickstarts/java/employee-scheduling
+   $ cd timefold-quickstarts/quickstarts/employee-scheduling
    ```
 
 2. (Optional) If you want to run a licensed edition (Plus / Enterprise), set up your license key first. See the [Timefold license tool](https://licenses.timefold.ai/) for instructions.

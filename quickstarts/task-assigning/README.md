@@ -36,7 +36,7 @@ Assign employees to tasks to produce a better plan for task assignments.
    ```sh
    $ git clone https://github.com/TimefoldAI/timefold-quickstarts.git
    ...
-   $ cd timefold-quickstarts/java/task-assigning
+   $ cd timefold-quickstarts/quickstarts/task-assigning
    ```
 
 2. (Optional) If you want to run a licensed edition (Plus / Enterprise), set up your license key first. See the [Timefold license tool](https://licenses.timefold.ai/) for instructions.

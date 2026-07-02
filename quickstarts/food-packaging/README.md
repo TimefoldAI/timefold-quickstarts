@@ -35,7 +35,7 @@ Schedule food packaging orders to manufacturing lines, to minimize downtime and 
    ```sh
    $ git clone https://github.com/TimefoldAI/timefold-quickstarts.git
    ...
-   $ cd timefold-quickstarts/java/food-packaging
+   $ cd timefold-quickstarts/quickstarts/food-packaging
    ```
 
 2. (Optional) If you want to run a licensed edition (Plus / Enterprise), set up your license key first. See the [Timefold license tool](https://licenses.timefold.ai/) for instructions.

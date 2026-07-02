@@ -115,7 +115,7 @@ Assign lessons to timeslots and rooms to produce a better schedule for teachers 
 - [View constraints](quickstarts/school-timetabling/README.md#constraints)
 - [Run quarkus-school-timetabling](quickstarts/school-timetabling/README.md) (Java, Maven or Gradle, Quarkus)
 - [Run spring-boot-integration](quickstarts/getting-started/spring-boot-integration/README.md) (Java, Maven or Gradle, Spring Boot)
-- [Run kotlin-quarkus-school-timetabling](kotlin/school-timetabling/README.md) (Kotlin, Maven, Quarkus)
+- [Run kotlin-quarkus-school-timetabling](quickstarts/school-timetabling-kotlin/README.md) (Kotlin, Maven, Quarkus)
 
 Without a UI:
 

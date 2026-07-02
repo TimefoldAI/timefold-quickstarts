@@ -34,7 +34,7 @@ Generate an optimal picking plan for completing a set of orders.
    ```sh
    $ git clone https://github.com/TimefoldAI/timefold-quickstarts.git
    ...
-   $ cd timefold-quickstarts/java/order-picking
+   $ cd timefold-quickstarts/quickstarts/order-picking
    ```
 
 2. (Optional) If you want to run a licensed edition (Plus / Enterprise), set up your license key first. See the [Timefold license tool](https://licenses.timefold.ai/) for instructions.
