@@ -5,15 +5,15 @@ on:
     branches: [stable, development, '*.x']
     paths:
       - 'pom.xml'
-      - 'java/**/*'
-      - 'kotlin/**/*'
+      - '../../use-cases/**/*'
+      - 'getting-started/**/*'
       - '.github/**/*.yml'
   pull_request:
     branches: [stable, development, '*.x']
     paths:
       - 'pom.xml'
-      - 'java/**/*'
-      - 'kotlin/**/*'
+      - '../../use-cases/**/*'
+      - 'getting-started/**/*'
       - '.github/**/*.yml'
 
 jobs:
