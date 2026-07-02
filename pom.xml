@@ -20,7 +20,9 @@
   </properties>
 
   <modules>
-    <module>java/hello-world</module>
+    <module>java/getting-started/hello-world</module>
+    <module>java/getting-started/spring-boot-integration</module>
+    <module>java/getting-started/service</module>
     <module>java/school-timetabling</module>
     <module>java/facility-location</module>
     <module>java/maintenance-scheduling</module>
@@ -36,7 +38,6 @@
     <module>java/task-assigning</module>
     <module>java/project-job-scheduling</module>
     <module>java/tournament-scheduling</module>
-    <module>java/spring-boot-integration</module>
     <module>kotlin/school-timetabling</module>
   </modules>
 

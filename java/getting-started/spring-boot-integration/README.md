@@ -1,8 +1,8 @@
-# School Timetabling (Java, Spring Boot, Maven or Gradle)
+# Getting Started - Spring Integration: School Timetabling (Java, Spring Boot, Maven or Gradle)
 
 Assign lessons to timeslots and rooms to produce a better schedule for teachers and students.
 
-![School Timetabling Screenshot](./school-timetabling-screenshot.png)
+![School Timetabling Screenshot](school-timetabling-screenshot.png)
 
 ## Constraints
 

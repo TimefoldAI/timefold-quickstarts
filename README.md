@@ -7,7 +7,7 @@
 [![GitHub Discussions](https://img.shields.io/github/discussions/TimefoldAI/timefold-solver?style=for-the-badge&logo=github)](https://github.com/TimefoldAI/timefold-solver/discussions)
 
 This repository contains quickstarts for [Timefold Solver](https://github.com/TimefoldAI/timefold-solver), an AI constraint solver for Java and Kotlin. 
-It shows different use cases and basic implementations to get you started on your PlanningAI journey.
+It shows different use cases and basic implementations to get you started on your optimization journey.
 
 ## Overview
 
@@ -32,6 +32,16 @@ It shows different use cases and basic implementations to get you started on you
 > [!NOTE]
 > The implementations in this repository serve as a starting point and/or inspiration when creating your own application.
 > Timefold Solver is a library and does not include a UI. To illustrate these use cases a rudimentary UI is included in these quickstarts.
+
+## Getting started implementations
+
+Our website contains several getting started guides. All of them build the <a href="#-school-timetabling">School Timetabling</a> use case.
+You can find the resulting projects for each of the guides in the `java/getting started` folder.
+
+- [Service](java/getting-started/service) (Java, Maven, Quarkus)
+- [Library: Core](java/getting-started/hello-world) (Java, Maven)
+- [Library: Quarkus Integration](java/getting-started/quarkus-integration) (Java, Maven, Quarkus)
+- [Library: Spring Boot Integration](java/getting-started/spring-boot-integration) (Java, Maven, Spring)
 
 ## Use cases
 
@@ -104,12 +114,13 @@ Assign lessons to timeslots and rooms to produce a better schedule for teachers 
 
 - [View constraints](java/school-timetabling/README.md#constraints)
 - [Run quarkus-school-timetabling](java/school-timetabling/README.md) (Java, Maven or Gradle, Quarkus)
-- [Run spring-boot-integration](java/spring-boot-integration/README.md) (Java, Maven or Gradle, Spring Boot)
+- [Run spring-boot-integration](java/getting-started/spring-boot-integration/README.md) (Java, Maven or Gradle, Spring Boot)
 - [Run kotlin-quarkus-school-timetabling](kotlin/school-timetabling/README.md) (Kotlin, Maven, Quarkus)
 
 Without a UI:
 
-- [Run hello-world-school-timetabling](java/hello-world/README.md) (Java, Maven or Gradle)
+- [Service / REST API](java/getting-started/service) (Java, Maven, Quarkus)
+- [Library / Console Application](java/getting-started/hello-world/README.md) (Java, Maven or Gradle)
 
 ---
 
