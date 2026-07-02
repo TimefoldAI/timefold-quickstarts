@@ -20,25 +20,25 @@
   </properties>
 
   <modules>
-    <module>java/getting-started/hello-world</module>
-    <module>java/getting-started/spring-boot-integration</module>
-    <module>java/getting-started/service</module>
-    <module>java/school-timetabling</module>
-    <module>java/facility-location</module>
-    <module>java/maintenance-scheduling</module>
-    <module>java/vehicle-routing</module>
-    <module>java/order-picking</module>
-    <module>java/employee-scheduling</module>
-    <module>java/food-packaging</module>
-    <module>java/conference-scheduling</module>
-    <module>java/bed-allocation</module>
-    <module>java/flight-crew-scheduling</module>
-    <module>java/meeting-scheduling</module>
-    <module>java/sports-league-scheduling</module>
-    <module>java/task-assigning</module>
-    <module>java/project-job-scheduling</module>
-    <module>java/tournament-scheduling</module>
-    <module>kotlin/school-timetabling</module>
+    <module>getting-started/hello-world</module>
+    <module>getting-started/spring-boot-integration</module>
+    <module>getting-started/service</module>
+    <module>quickstarts/school-timetabling</module>
+    <module>quickstarts/facility-location</module>
+    <module>quickstarts/maintenance-scheduling</module>
+    <module>quickstarts/vehicle-routing</module>
+    <module>quickstarts/order-picking</module>
+    <module>quickstarts/employee-scheduling</module>
+    <module>quickstarts/food-packaging</module>
+    <module>quickstarts/conference-scheduling</module>
+    <module>quickstarts/bed-allocation</module>
+    <module>quickstarts/flight-crew-scheduling</module>
+    <module>quickstarts/meeting-scheduling</module>
+    <module>quickstarts/sports-league-scheduling</module>
+    <module>quickstarts/task-assigning</module>
+    <module>quickstarts/project-job-scheduling</module>
+    <module>quickstarts/tournament-scheduling</module>
+    <module>quickstarts/school-timetabling-kotlin</module>
   </modules>
 
 </project>

@@ -11,7 +11,7 @@ on:
       - synchronize
     paths:
       - 'pom.xml'
-      - 'java/**/*'
+      - '../../quickstarts/**/*'
       - 'kotlin/**/*'
       - '.github/**/*.yml'
 
