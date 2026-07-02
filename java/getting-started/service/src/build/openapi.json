@@ -169,11 +169,6 @@
                       "description" : "The message describing the reason of failure, in case of solverStatus=SOLVING_FAILED.",
                       "type" : "string",
                       "nullable" : true
-                    },
-                    "resolvedMapLocation" : {
-                      "description" : "The map-service region resolved when location is auto-select.",
-                      "type" : "string",
-                      "nullable" : true
                     }
                   }
                 }
@@ -478,11 +473,6 @@
                     },
                     "failureMessage" : {
                       "description" : "The message describing the reason of failure, in case of solverStatus=SOLVING_FAILED.",
-                      "type" : "string",
-                      "nullable" : true
-                    },
-                    "resolvedMapLocation" : {
-                      "description" : "The map-service region resolved when location is auto-select.",
                       "type" : "string",
                       "nullable" : true
                     }
@@ -820,11 +810,6 @@
                       "description" : "The message describing the reason of failure, in case of solverStatus=SOLVING_FAILED.",
                       "type" : "string",
                       "nullable" : true
-                    },
-                    "resolvedMapLocation" : {
-                      "description" : "The map-service region resolved when location is auto-select.",
-                      "type" : "string",
-                      "nullable" : true
                     }
                   }
                 }
@@ -999,11 +984,6 @@
                     },
                     "failureMessage" : {
                       "description" : "The message describing the reason of failure, in case of solverStatus=SOLVING_FAILED.",
-                      "type" : "string",
-                      "nullable" : true
-                    },
-                    "resolvedMapLocation" : {
-                      "description" : "The map-service region resolved when location is auto-select.",
                       "type" : "string",
                       "nullable" : true
                     }
@@ -1345,11 +1325,6 @@
                       "description" : "The message describing the reason of failure, in case of solverStatus=SOLVING_FAILED.",
                       "type" : "string",
                       "nullable" : true
-                    },
-                    "resolvedMapLocation" : {
-                      "description" : "The map-service region resolved when location is auto-select.",
-                      "type" : "string",
-                      "nullable" : true
                     }
                   }
                 }
@@ -1672,6 +1647,9 @@
           },
           "transportType" : {
             "type" : "string"
+          },
+          "useTraffic" : {
+            "type" : "boolean"
           }
         }
       },
@@ -1759,11 +1737,6 @@
             "description" : "The message describing the reason of failure, in case of solverStatus=SOLVING_FAILED.",
             "type" : "string",
             "nullable" : true
-          },
-          "resolvedMapLocation" : {
-            "description" : "The map-service region resolved when location is auto-select.",
-            "type" : "string",
-            "nullable" : true
           }
         }
       },
@@ -1849,11 +1822,6 @@
           },
           "failureMessage" : {
             "description" : "The message describing the reason of failure, in case of solverStatus=SOLVING_FAILED.",
-            "type" : "string",
-            "nullable" : true
-          },
-          "resolvedMapLocation" : {
-            "description" : "The map-service region resolved when location is auto-select.",
             "type" : "string",
             "nullable" : true
           }
