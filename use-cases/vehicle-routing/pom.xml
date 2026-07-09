@@ -109,7 +109,7 @@
           <fork>true</fork>
           <compilerArgs>
             <arg>-Werror</arg>
-            <arg>-XDcompilePolicy=simple</arg>
+            <arg>-XDcompilePolicy=simple</arg> <arg>-XDaddTypeAnnotationsToSymbol=true</arg>
             <arg>--should-stop=ifError=FLOW</arg>
             <arg>-Xplugin:ErrorProne</arg>
             <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
