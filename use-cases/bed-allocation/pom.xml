@@ -20,6 +20,7 @@
     <frontend-maven-plugin.version>2.0.1</frontend-maven-plugin.version>
     <node.version>v24.14.0</node.version>
     <maven.compiler.release>21</maven.compiler.release>
+    <node.lint.skip>false</node.lint.skip>
   </properties>
 
   <dependencies>
@@ -292,6 +293,7 @@
               <goal>exec</goal>
             </goals>
             <configuration>
+              <skip>${node.lint.skip}</skip>
               <environmentVariables>
                 <PATH>${project.build.directory}/node:${env.PATH}</PATH>
               </environmentVariables>
@@ -335,6 +337,7 @@
               <goal>exec</goal>
             </goals>
             <configuration>
+              <skip>${node.lint.skip}</skip>
               <environmentVariables>
                 <PATH>${project.build.directory}/node:${env.PATH}</PATH>
               </environmentVariables>
@@ -446,4 +449,19 @@
     </pluginRepository>
   </pluginRepositories>
 
+
+  <profiles>
+    <profile>
+      <!-- The node-based lints invoke target/node/npx, which is not runnable on Windows. -->
+      <id>skip-node-lints-on-windows</id>
+      <activation>
+        <os>
+          <family>windows</family>
+        </os>
+      </activation>
+      <properties>
+        <node.lint.skip>true</node.lint.skip>
+      </properties>
+    </profile>
+  </profiles>
 </project>
