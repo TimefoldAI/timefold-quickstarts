@@ -1,20 +1,19 @@
 package org.acme.foodpackaging.domain;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
+import ai.timefold.solver.core.api.domain.common.PlanningId;
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.entity.PlanningPin;
-import ai.timefold.solver.core.api.domain.common.PlanningId;
 import ai.timefold.solver.core.api.domain.variable.InverseRelationShadowVariable;
 import ai.timefold.solver.core.api.domain.variable.NextElementShadowVariable;
 import ai.timefold.solver.core.api.domain.variable.PreviousElementShadowVariable;
 import ai.timefold.solver.core.api.domain.variable.ShadowSources;
 import ai.timefold.solver.core.api.domain.variable.ShadowVariable;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import java.time.Duration;
-import java.time.LocalDateTime;
-
 @PlanningEntity
+@SuppressWarnings("unused")
 public class Job {
 
     @PlanningId
@@ -38,10 +37,8 @@ public class Job {
 
     @ShadowVariable(supplierName = "lineOperatorSupplier")
     private Operator lineOperator;
-    @JsonIgnore
     @PreviousElementShadowVariable(sourceVariableName = "jobs")
     private Job previousJob;
-    @JsonIgnore
     @NextElementShadowVariable(sourceVariableName = "jobs")
     private Job nextJob;
 
@@ -59,12 +56,15 @@ public class Job {
     public Job() {
     }
 
-    public Job(String id, String name, Product product, Duration duration, LocalDateTime minStartTime, LocalDateTime idealEndTime, LocalDateTime maxEndTime, int priority, boolean pinned) {
+    public Job(String id, String name, Product product, Duration duration, LocalDateTime minStartTime,
+            LocalDateTime idealEndTime, LocalDateTime maxEndTime, int priority, boolean pinned) {
         this(id, name, product, duration, minStartTime, idealEndTime, maxEndTime, priority, pinned, null, null);
     }
 
-    public Job(String id, String name, Product product, Duration duration, LocalDateTime minStartTime, LocalDateTime idealEndTime, LocalDateTime maxEndTime, int priority, boolean pinned,
-               LocalDateTime startCleaningDateTime, LocalDateTime startProductionDateTime) {
+    @SuppressWarnings({ "PMD.ExcessiveParameterList", "PMD.NullAssignment" })
+    public Job(String id, String name, Product product, Duration duration, LocalDateTime minStartTime,
+            LocalDateTime idealEndTime, LocalDateTime maxEndTime, int priority, boolean pinned,
+            LocalDateTime startCleaningDateTime, LocalDateTime startProductionDateTime) {
         this.id = id;
         this.name = name;
         this.product = product;
@@ -91,7 +91,6 @@ public class Job {
     public String getId() {
         return id;
     }
-
 
     public String getName() {
         return name;
@@ -184,8 +183,7 @@ public class Job {
     // ************************************************************************
     // Complex methods
     // ************************************************************************
-    @SuppressWarnings("unused")
-    @ShadowSources({"line", "line.operator"})
+    @ShadowSources({ "line", "line.operator" })
     public Operator lineOperatorSupplier() {
         if (line == null) {
             return null;
@@ -193,34 +191,30 @@ public class Job {
         return line.getOperator();
     }
 
-    @SuppressWarnings("unused")
-    @ShadowSources({"line", "previousJob.endDateTime"})
+    @ShadowSources({ "line", "previousJob.endDateTime" })
     public LocalDateTime startCleaningDateTimeSupplier() {
         if (line == null) {
             return null;
         }
         if (previousJob == null) {
             return line.getStartDateTime();
-        } else {
-            return previousJob.getEndDateTime();
         }
+        return previousJob.getEndDateTime();
     }
 
-    @SuppressWarnings("unused")
-    @ShadowSources({"line", "startCleaningDateTime"})
+    @ShadowSources({ "line", "startCleaningDateTime" })
     public LocalDateTime startProductionDateTimeSupplier() {
         if (line == null) {
             return null;
         }
         if (previousJob == null) {
             return line.getStartDateTime();
-        } else {
-            return startCleaningDateTime == null ? null : startCleaningDateTime.plus(getProduct().getCleanupDuration(previousJob.getProduct()));
         }
+        return startCleaningDateTime == null ? null
+                : startCleaningDateTime.plus(getProduct().getCleanupDuration(previousJob.getProduct()));
     }
 
-    @SuppressWarnings("unused")
-    @ShadowSources({"startProductionDateTime"})
+    @ShadowSources({ "startProductionDateTime" })
     public LocalDateTime endDateTimeSupplier() {
         return startProductionDateTime == null ? null : startProductionDateTime.plus(getDuration());
     }

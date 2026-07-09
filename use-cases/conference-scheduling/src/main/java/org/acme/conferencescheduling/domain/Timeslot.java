@@ -36,18 +36,18 @@ public class Timeslot {
     }
 
     public boolean overlapsTime(Timeslot other) {
-        if (this == other) {
+        if (this.equals(other)) {
             return true;
         }
         return startDateTime.isBefore(other.endDateTime) && other.startDateTime.isBefore(endDateTime);
     }
 
     public int getOverlapInMinutes(Timeslot other) {
-        if (this == other) {
+        if (this.equals(other)) {
             return durationInMinutes;
         }
-        LocalDateTime startMaximum = (startDateTime.isBefore(other.startDateTime)) ? other.startDateTime : startDateTime;
-        LocalDateTime endMinimum = (endDateTime.isBefore(other.endDateTime)) ? endDateTime : other.endDateTime;
+        LocalDateTime startMaximum = startDateTime.isBefore(other.startDateTime) ? other.startDateTime : startDateTime;
+        LocalDateTime endMinimum = endDateTime.isBefore(other.endDateTime) ? endDateTime : other.endDateTime;
         return (int) Duration.between(startMaximum, endMinimum).toMinutes();
     }
 
@@ -125,10 +125,12 @@ public class Timeslot {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof Timeslot timeslot))
+        }
+        if (!(o instanceof Timeslot timeslot)) {
             return false;
+        }
         return Objects.equals(id, timeslot.id);
     }
 

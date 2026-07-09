@@ -5,10 +5,6 @@ import java.util.Objects;
 
 import ai.timefold.solver.core.api.domain.common.PlanningId;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
-@JsonIdentityInfo(scope = TimeGrain.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class TimeGrain implements Comparable<TimeGrain> {
 
     private static final Comparator<TimeGrain> COMPARATOR = Comparator.comparing(TimeGrain::getDayOfYear)
@@ -73,15 +69,15 @@ public class TimeGrain implements Comparable<TimeGrain> {
 
     @Override
     public boolean equals(Object other) {
-        if (this == other)
+        if (this == other) {
             return true;
-        if (other == null || getClass() != other.getClass())
+        }
+        if (!(other instanceof TimeGrain timeGrain)) {
             return false;
-
-        TimeGrain timeGrain = (TimeGrain) other;
-
-        if (startingMinuteOfDay != timeGrain.startingMinuteOfDay)
+        }
+        if (startingMinuteOfDay != timeGrain.startingMinuteOfDay) {
             return false;
+        }
         return Objects.equals(dayOfYear, timeGrain.dayOfYear);
     }
 

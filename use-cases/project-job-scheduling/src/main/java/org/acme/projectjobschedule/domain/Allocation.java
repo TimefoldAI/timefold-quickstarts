@@ -1,42 +1,37 @@
 package org.acme.projectjobschedule.domain;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
+import ai.timefold.solver.core.api.domain.common.PlanningId;
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.entity.PlanningPin;
-import ai.timefold.solver.core.api.domain.common.PlanningId;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
 import ai.timefold.solver.core.api.domain.variable.ShadowSources;
 import ai.timefold.solver.core.api.domain.variable.ShadowVariable;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIdentityReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import org.acme.projectjobschedule.domain.solver.DelayStrengthComparator;
 
 @PlanningEntity
-@JsonIdentityInfo(scope = Allocation.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Allocation {
+
+    private static final String UNUSED = "unused";
+    private static final int MAX_DELAY = 500;
 
     @PlanningId
     private String id;
 
     @PlanningPin
-    private boolean pinned = false;
+    private boolean pinned;
 
     private Job job;
 
-    @JsonIdentityReference(alwaysAsId = true)
     private Allocation sourceAllocation;
-    @JsonIdentityReference(alwaysAsId = true)
     private Allocation sinkAllocation;
-    @JsonIdentityReference(alwaysAsId = true)
     private List<Allocation> predecessorAllocations;
-    @JsonIdentityReference(alwaysAsId = true)
     private List<Allocation> successorAllocations;
 
     // Planning variables: changes during planning, between score calculations.
@@ -67,8 +62,13 @@ public class Allocation {
 
     public Allocation(String id, Job job) {
         this(id);
-        setJob(job);
+        assignJob(job);
         this.predecessorsDoneDate = 0;
+    }
+
+    private void assignJob(Job job) {
+        this.job = job;
+        this.pinned = job != null && job.getJobType() != JobType.STANDARD;
     }
 
     // ************************************************************************
@@ -76,15 +76,13 @@ public class Allocation {
     // ************************************************************************
 
     @ValueRangeProvider
-    @JsonIgnore
     public List<ExecutionMode> getExecutionModeRange() {
         return job.getExecutionModes();
     }
 
     @ValueRangeProvider
-    @JsonIgnore
     public List<Integer> getDelayRange() {
-        return IntStream.range(0, 500).boxed().toList();
+        return IntStream.range(0, MAX_DELAY).boxed().toList();
     }
 
     // ************************************************************************
@@ -131,8 +129,7 @@ public class Allocation {
      * @param job never null
      */
     public void setJob(Job job) {
-        this.job = job;
-        setPinned(false);
+        assignJob(job);
     }
 
     public Allocation getSourceAllocation() {
@@ -207,7 +204,6 @@ public class Allocation {
         this.endDate = endDate;
     }
 
-    @JsonIgnore
     public List<Integer> getBusyDates() {
         return busyDates;
     }
@@ -219,7 +215,7 @@ public class Allocation {
     // ************************************************************************
     // Complex methods
     // ************************************************************************
-    @SuppressWarnings("unused")
+    @SuppressWarnings(UNUSED)
     @ShadowSources("predecessorAllocations[].endDate")
     public Integer predecessorsDoneDateSupplier() {
         // For the source the doneDate must be 0.
@@ -228,34 +224,34 @@ public class Allocation {
             return doneDate;
         }
         for (Allocation predecessorAllocation : predecessorAllocations) {
-            int endDate = predecessorAllocation.getEndDate();
-            doneDate = Math.max(doneDate, endDate);
+            int predecessorEndDate = predecessorAllocation.getEndDate();
+            doneDate = Math.max(doneDate, predecessorEndDate);
         }
         return doneDate;
     }
 
-    @SuppressWarnings("unused")
-    @ShadowSources({"predecessorsDoneDate", "delay"})
+    @SuppressWarnings(UNUSED)
+    @ShadowSources({ "predecessorsDoneDate", "delay" })
     public Integer startDateSupplier() {
         return predecessorsDoneDate + Objects.requireNonNullElse(delay, 0);
     }
 
-    @SuppressWarnings("unused")
-    @ShadowSources({"startDate", "executionMode"})
+    @SuppressWarnings(UNUSED)
+    @ShadowSources({ "startDate", "executionMode" })
     public Integer endDateSupplier() {
         return getStartDate() + (executionMode == null ? 0 : executionMode.getDuration());
     }
 
-    @SuppressWarnings("unused")
-    @ShadowSources({"startDate", "endDate"})
+    @SuppressWarnings(UNUSED)
+    @ShadowSources({ "startDate", "endDate" })
     public List<Integer> busyDatesSupplier() {
         var start = getStartDate();
         var end = getEndDate();
-        var dates = new Integer[end - start];
-        for (int i = 0; i < dates.length; i++) {
-            dates[i] = start + i;
+        var dates = new ArrayList<Integer>(end - start);
+        for (int i = 0; i < end - start; i++) {
+            dates.add(start + i);
         }
-        return Arrays.asList(dates);
+        return dates;
     }
 
     public void updateShadowsAfterPredecessorDoneDate() {
@@ -264,32 +260,30 @@ public class Allocation {
         busyDates = busyDatesSupplier();
     }
 
-    @JsonIgnore
     public Project getProject() {
         return job.getProject();
     }
 
-    @JsonIgnore
     public int getProjectCriticalPathEndDate() {
         return job.getProject().getCriticalPathEndDate();
     }
 
-    @JsonIgnore
     public int getProjectDelay() {
         return getEndDate() - getProjectCriticalPathEndDate();
     }
 
-    @JsonIgnore
     public JobType getJobType() {
         return job.getJobType();
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof Allocation that))
+        }
+        if (!(o instanceof Allocation that)) {
             return false;
+        }
         return Objects.equals(getId(), that.getId());
     }
 

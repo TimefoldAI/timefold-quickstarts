@@ -1,9 +1,9 @@
 package org.acme.foodpackaging.domain;
 
-import ai.timefold.solver.core.api.domain.common.PlanningId;
-
 import java.time.Duration;
 import java.util.Map;
+
+import ai.timefold.solver.core.api.domain.common.PlanningId;
 
 public class Product {
 
@@ -58,5 +58,4 @@ public class Product {
     public void setCleaningDurations(Map<Product, Duration> cleaningDurations) {
         this.cleaningDurations = cleaningDurations;
     }
-
 }

@@ -3,11 +3,10 @@ package org.acme.maintenancescheduling.domain;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.SequencedSet;
-import java.util.Set;
 import java.util.function.Predicate;
 
-import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.common.PlanningId;
+import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
 import ai.timefold.solver.core.api.domain.variable.ShadowSources;
 import ai.timefold.solver.core.api.domain.variable.ShadowVariable;
@@ -37,7 +36,8 @@ public class Job {
     public Job() {
     }
 
-    public Job(String id, String name, int durationInDays, LocalDate minStartDate, LocalDate maxEndDate, LocalDate idealEndDate, SequencedSet<String> tags) {
+    public Job(String id, String name, int durationInDays, LocalDate minStartDate, LocalDate maxEndDate, LocalDate idealEndDate,
+            SequencedSet<String> tags) {
         this.id = id;
         this.name = name;
         this.durationInDays = durationInDays;
@@ -47,8 +47,9 @@ public class Job {
         this.tags = tags;
     }
 
-    public Job(String id, String name, int durationInDays, LocalDate minStartDate, LocalDate maxEndDate, LocalDate idealEndDate, SequencedSet<String> tags,
-               Crew crew, LocalDate startDate) {
+    public Job(String id, String name, int durationInDays, LocalDate minStartDate, LocalDate maxEndDate, LocalDate idealEndDate,
+            SequencedSet<String> tags,
+            Crew crew, LocalDate startDate) {
         this.id = id;
         this.name = name;
         this.durationInDays = durationInDays;
@@ -59,6 +60,10 @@ public class Job {
         this.crew = crew;
         this.startDate = startDate;
         this.endDate = calculateEndDate(startDate, durationInDays);
+    }
+
+    public boolean isAssigned() {
+        return crew != null && startDate != null;
     }
 
     @Override
@@ -138,8 +143,7 @@ public class Job {
             // Skip weekends. Does not work for holidays.
             // To skip holidays too, cache all working days in WorkCalendar.
             // Keep in sync with MaintenanceSchedule.createStartDateList().
-            Predicate<LocalDate> exclude = test ->
-                    test.getDayOfWeek() == DayOfWeek.SATURDAY
+            Predicate<LocalDate> exclude = test -> test.getDayOfWeek() == DayOfWeek.SATURDAY
                     || test.getDayOfWeek() == DayOfWeek.SUNDAY;
             return plusBusinessDays(startDate, durationInDays, exclude);
         }

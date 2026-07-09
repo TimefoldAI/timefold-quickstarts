@@ -4,10 +4,6 @@ import java.util.Objects;
 
 import ai.timefold.solver.core.api.domain.common.PlanningId;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
-@JsonIdentityInfo(scope = Room.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Room {
 
     @PlanningId
@@ -63,10 +59,12 @@ public class Room {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof Room room))
+        }
+        if (!(o instanceof Room room)) {
             return false;
+        }
         return Objects.equals(getId(), room.getId());
     }
 

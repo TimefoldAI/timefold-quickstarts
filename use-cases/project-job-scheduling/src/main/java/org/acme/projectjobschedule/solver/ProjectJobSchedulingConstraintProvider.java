@@ -6,6 +6,7 @@ import ai.timefold.solver.core.api.score.stream.ConstraintCollectors;
 import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
 import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
 import ai.timefold.solver.core.api.score.stream.Joiners;
+import ai.timefold.solver.service.definition.api.description.ConstraintInfo;
 
 import org.acme.projectjobschedule.domain.Allocation;
 import org.acme.projectjobschedule.domain.JobType;
@@ -38,7 +39,10 @@ public class ProjectJobSchedulingConstraintProvider implements ConstraintProvide
                 .filter((resource, requirements) -> requirements > resource.getCapacity())
                 .penalize(HardMediumSoftScore.ONE_HARD,
                         (resource, requirements) -> requirements - resource.getCapacity())
-                .asConstraint("Non-renewable resource capacity");
+                .asConstraint(new ConstraintInfo(ProjectJobScheduleConstraintProperties.NON_RENEWABLE_RESOURCE_CAPACITY,
+                        "Non-renewable resource capacity",
+                        "A non-renewable resource must not be used beyond its total capacity.",
+                        ProjectJobScheduleConstraintGroup.RESOURCE_CAPACITY));
     }
 
     protected Constraint renewableResourceCapacity(ConstraintFactory constraintFactory) {
@@ -53,7 +57,10 @@ public class ProjectJobSchedulingConstraintProvider implements ConstraintProvide
                 .filter((resourceReq, date, totalRequirement) -> totalRequirement > resourceReq.getCapacity())
                 .penalize(HardMediumSoftScore.ONE_HARD,
                         (resourceReq, date, totalRequirement) -> totalRequirement - resourceReq.getCapacity())
-                .asConstraint("Renewable resource capacity");
+                .asConstraint(new ConstraintInfo(ProjectJobScheduleConstraintProperties.RENEWABLE_RESOURCE_CAPACITY,
+                        "Renewable resource capacity",
+                        "A renewable resource must not be used beyond its per-day capacity.",
+                        ProjectJobScheduleConstraintGroup.RESOURCE_CAPACITY));
     }
 
     protected Constraint totalProjectDelay(ConstraintFactory constraintFactory) {
@@ -62,7 +69,10 @@ public class ProjectJobSchedulingConstraintProvider implements ConstraintProvide
                 .filter(allocation -> allocation.getEndDate() != null)
                 .filter(allocation -> allocation.getProjectDelay() > 0)
                 .penalize(HardMediumSoftScore.ONE_MEDIUM, Allocation::getProjectDelay)
-                .asConstraint("Total project delay");
+                .asConstraint(new ConstraintInfo(ProjectJobScheduleConstraintProperties.TOTAL_PROJECT_DELAY,
+                        "Total project delay",
+                        "Finishing a project after its critical path end date is penalized per day of delay.",
+                        ProjectJobScheduleConstraintGroup.PROJECT_DELAY));
     }
 
     protected Constraint totalMakespan(ConstraintFactory constraintFactory) {
@@ -71,7 +81,10 @@ public class ProjectJobSchedulingConstraintProvider implements ConstraintProvide
                 .filter(allocation -> allocation.getEndDate() != null)
                 .groupBy(ConstraintCollectors.max(Allocation::getEndDate))
                 .penalize(HardMediumSoftScore.ONE_SOFT, maxEndDate -> maxEndDate)
-                .asConstraint("Total makespan");
+                .asConstraint(new ConstraintInfo(ProjectJobScheduleConstraintProperties.TOTAL_MAKESPAN,
+                        "Total makespan",
+                        "The overall schedule length is penalized to keep the makespan short.",
+                        ProjectJobScheduleConstraintGroup.MAKESPAN));
     }
 
 }

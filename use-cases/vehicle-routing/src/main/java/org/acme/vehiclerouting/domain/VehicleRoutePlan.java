@@ -4,17 +4,20 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
+import ai.timefold.solver.core.api.domain.solution.ConstraintWeightOverrides;
 import ai.timefold.solver.core.api.domain.solution.PlanningEntityCollectionProperty;
 import ai.timefold.solver.core.api.domain.solution.PlanningScore;
 import ai.timefold.solver.core.api.domain.solution.PlanningSolution;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
 import ai.timefold.solver.core.api.score.HardMediumSoftScore;
-import ai.timefold.solver.core.api.solver.SolverStatus;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import ai.timefold.solver.service.definition.api.SolverModel;
+import ai.timefold.solver.service.definition.api.metrics.InputMetricsAware;
+import ai.timefold.solver.service.definition.api.metrics.OutputMetricsAware;
+
 import org.acme.vehiclerouting.domain.geo.DrivingTimeCalculator;
 import org.acme.vehiclerouting.domain.geo.HaversineDrivingTimeCalculator;
+import org.acme.vehiclerouting.dto.VehicleRoutingInputMetrics;
+import org.acme.vehiclerouting.dto.VehicleRoutingOutputMetrics;
 
 /**
  * The plan for routing vehicles to visits, including:
@@ -25,12 +28,10 @@ import org.acme.vehiclerouting.domain.geo.HaversineDrivingTimeCalculator;
  *
  * The planning solution is optimized according to the driving time (as opposed to the travel distance, for example)
  * because it is easy to determine if the vehicle arrival time fits into the visit time window.
- * In addition, optimizing travel time optimizes the distance too, as a side effect - in case there is a faster route,
- * the travel time takes precedence (highway vs. local road).
  */
-@JsonInclude(JsonInclude.Include.NON_NULL)
 @PlanningSolution
-public class VehicleRoutePlan {
+public class VehicleRoutePlan implements SolverModel<HardMediumSoftScore>,
+        InputMetricsAware<VehicleRoutingInputMetrics>, OutputMetricsAware<VehicleRoutingOutputMetrics> {
 
     private String name;
 
@@ -51,25 +52,14 @@ public class VehicleRoutePlan {
     @PlanningScore
     private HardMediumSoftScore score;
 
-    private SolverStatus solverStatus;
+    private ConstraintWeightOverrides<HardMediumSoftScore> constraintWeightOverrides = ConstraintWeightOverrides.none();
 
     public VehicleRoutePlan() {
+        // Marshalling constructor
     }
 
-    public VehicleRoutePlan(String name, HardMediumSoftScore score, SolverStatus solverStatus) {
-        this.name = name;
-        this.score = score;
-        this.solverStatus = solverStatus;
-    }
-
-    @JsonCreator
-    public VehicleRoutePlan(@JsonProperty("name") String name,
-            @JsonProperty("southWestCorner") Location southWestCorner,
-            @JsonProperty("northEastCorner") Location northEastCorner,
-            @JsonProperty("startDateTime") LocalDateTime startDateTime,
-            @JsonProperty("endDateTime") LocalDateTime endDateTime,
-            @JsonProperty("vehicles") List<Vehicle> vehicles,
-            @JsonProperty("visits") List<Visit> visits) {
+    public VehicleRoutePlan(String name, Location southWestCorner, Location northEastCorner,
+            LocalDateTime startDateTime, LocalDateTime endDateTime, List<Vehicle> vehicles, List<Visit> visits) {
         this.name = name;
         this.southWestCorner = southWestCorner;
         this.northEastCorner = northEastCorner;
@@ -89,30 +79,59 @@ public class VehicleRoutePlan {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public Location getSouthWestCorner() {
         return southWestCorner;
+    }
+
+    public void setSouthWestCorner(Location southWestCorner) {
+        this.southWestCorner = southWestCorner;
     }
 
     public Location getNorthEastCorner() {
         return northEastCorner;
     }
 
+    public void setNorthEastCorner(Location northEastCorner) {
+        this.northEastCorner = northEastCorner;
+    }
+
     public LocalDateTime getStartDateTime() {
         return startDateTime;
+    }
+
+    public void setStartDateTime(LocalDateTime startDateTime) {
+        this.startDateTime = startDateTime;
     }
 
     public LocalDateTime getEndDateTime() {
         return endDateTime;
     }
 
+    public void setEndDateTime(LocalDateTime endDateTime) {
+        this.endDateTime = endDateTime;
+    }
+
     public List<Vehicle> getVehicles() {
         return vehicles;
+    }
+
+    public void setVehicles(List<Vehicle> vehicles) {
+        this.vehicles = vehicles;
     }
 
     public List<Visit> getVisits() {
         return visits;
     }
 
+    public void setVisits(List<Visit> visits) {
+        this.visits = visits;
+    }
+
+    @Override
     public HardMediumSoftScore getScore() {
         return score;
     }
@@ -121,21 +140,38 @@ public class VehicleRoutePlan {
         this.score = score;
     }
 
+    @Override
+    public ConstraintWeightOverrides<HardMediumSoftScore> getConstraintWeightOverrides() {
+        return constraintWeightOverrides;
+    }
+
+    public void setConstraintWeightOverrides(ConstraintWeightOverrides<HardMediumSoftScore> constraintWeightOverrides) {
+        this.constraintWeightOverrides = constraintWeightOverrides;
+    }
+
     // ************************************************************************
     // Complex methods
     // ************************************************************************
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public long getTotalDrivingTimeSeconds() {
         return vehicles == null ? 0 : vehicles.stream().mapToLong(Vehicle::getTotalDrivingTimeSeconds).sum();
     }
 
-    public SolverStatus getSolverStatus() {
-        return solverStatus;
+    @Override
+    public VehicleRoutingInputMetrics getInputMetrics() {
+        return new VehicleRoutingInputMetrics(vehicles.size(), visits.size());
     }
 
-    public void setSolverStatus(SolverStatus solverStatus) {
-        this.solverStatus = solverStatus;
+    @Override
+    public VehicleRoutingOutputMetrics getOutputMetrics() {
+        int assignedVisits = (int) visits.stream().filter(visit -> visit.getVehicle() != null).count();
+        int unassignedVisits = visits.size() - assignedVisits;
+        int usedVehicles = (int) vehicles.stream().filter(vehicle -> !vehicle.getVisits().isEmpty()).count();
+        return new VehicleRoutingOutputMetrics(assignedVisits, unassignedVisits, usedVehicles, getTotalDrivingTimeSeconds());
     }
 
+    @Override
+    public String toString() {
+        return "VehicleRoutePlan{visits: " + visits.size() + ", score: " + score + '}';
+    }
 }

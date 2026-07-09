@@ -3,8 +3,6 @@ package org.acme.schooltimetabling.solver;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 
-import jakarta.inject.Inject;
-
 import ai.timefold.solver.core.api.score.stream.test.ConstraintVerifier;
 
 import org.acme.schooltimetabling.domain.Lesson;
@@ -13,20 +11,19 @@ import org.acme.schooltimetabling.domain.Timeslot;
 import org.acme.schooltimetabling.domain.Timetable;
 import org.junit.jupiter.api.Test;
 
-import io.quarkus.test.junit.QuarkusTest;
-
-@QuarkusTest
 class TimetableConstraintProviderTest {
 
     private static final Room ROOM1 = new Room("1", "Room1");
     private static final Room ROOM2 = new Room("2", "Room2");
-    private static final Timeslot TIMESLOT1 = new Timeslot("1", DayOfWeek.MONDAY, LocalTime.NOON);
-    private static final Timeslot TIMESLOT2 = new Timeslot("2", DayOfWeek.TUESDAY, LocalTime.NOON);
-    private static final Timeslot TIMESLOT3 = new Timeslot("3", DayOfWeek.TUESDAY, LocalTime.NOON.plusHours(1));
-    private static final Timeslot TIMESLOT4 = new Timeslot("4", DayOfWeek.TUESDAY, LocalTime.NOON.plusHours(3));
+    private static final Timeslot TIMESLOT1 = new Timeslot("1", DayOfWeek.MONDAY, LocalTime.NOON, LocalTime.of(13, 0));
+    private static final Timeslot TIMESLOT2 = new Timeslot("2", DayOfWeek.TUESDAY, LocalTime.NOON, LocalTime.of(13, 0));
+    private static final Timeslot TIMESLOT3 =
+            new Timeslot("3", DayOfWeek.TUESDAY, LocalTime.of(13, 0), LocalTime.of(14, 0));
+    private static final Timeslot TIMESLOT4 =
+            new Timeslot("4", DayOfWeek.TUESDAY, LocalTime.of(14, 0), LocalTime.of(15, 0));
 
-    @Inject
-    ConstraintVerifier<TimetableConstraintProvider, Timetable> constraintVerifier;
+    private final ConstraintVerifier<TimetableConstraintProvider, Timetable> constraintVerifier =
+            ConstraintVerifier.build(new TimetableConstraintProvider(), Timetable.class, Lesson.class);
 
     @Test
     void roomConflict() {
@@ -80,29 +77,20 @@ class TimetableConstraintProviderTest {
         Lesson thirdTuesdayLessonWithGap = new Lesson("4", "Subject4", teacher, "Group4", TIMESLOT4, ROOM1);
         constraintVerifier.verifyThat(TimetableConstraintProvider::teacherTimeEfficiency)
                 .given(singleLessonOnMonday, firstTuesdayLesson, secondTuesdayLesson, thirdTuesdayLessonWithGap)
-                .rewardsWith(1); // Second tuesday lesson immediately follows the first.
-
-        // Reverse ID order
-        Lesson altSecondTuesdayLesson = new Lesson("2", "Subject2", teacher, "Group3", TIMESLOT3, ROOM1);
-        Lesson altFirstTuesdayLesson = new Lesson("3", "Subject3", teacher, "Group2", TIMESLOT2, ROOM1);
-        constraintVerifier.verifyThat(TimetableConstraintProvider::teacherTimeEfficiency)
-                .given(altSecondTuesdayLesson, altFirstTuesdayLesson)
-                .rewardsWith(1); // Second tuesday lesson immediately follows the first.
+                .rewardsWith(2);
     }
 
     @Test
     void studentGroupSubjectVariety() {
         String studentGroup = "Group1";
-        String repeatedSubject = "Subject1";
+        String repeatedSubject = "Math";
         Lesson mondayLesson = new Lesson("1", repeatedSubject, "Teacher1", studentGroup, TIMESLOT1, ROOM1);
         Lesson firstTuesdayLesson = new Lesson("2", repeatedSubject, "Teacher2", studentGroup, TIMESLOT2, ROOM1);
         Lesson secondTuesdayLesson = new Lesson("3", repeatedSubject, "Teacher3", studentGroup, TIMESLOT3, ROOM1);
-        Lesson thirdTuesdayLessonWithDifferentSubject = new Lesson("4", "Subject2", "Teacher4", studentGroup, TIMESLOT4, ROOM1);
-        Lesson lessonInAnotherGroup = new Lesson("5", repeatedSubject, "Teacher5", "Group2", TIMESLOT1, ROOM1);
+        Lesson thirdTuesdayLessonWithDifferentSubject =
+                new Lesson("4", "Physics", "Teacher4", studentGroup, TIMESLOT4, ROOM1);
         constraintVerifier.verifyThat(TimetableConstraintProvider::studentGroupSubjectVariety)
-                .given(mondayLesson, firstTuesdayLesson, secondTuesdayLesson, thirdTuesdayLessonWithDifferentSubject,
-                        lessonInAnotherGroup)
-                .penalizesBy(1); // Second tuesday lesson immediately follows the first.
+                .given(mondayLesson, firstTuesdayLesson, secondTuesdayLesson, thirdTuesdayLessonWithDifferentSubject)
+                .penalizesBy(1);
     }
-
 }

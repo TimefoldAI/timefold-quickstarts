@@ -6,12 +6,13 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
-import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.common.PlanningId;
+import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
 
 @PlanningEntity
 public class Shift {
+
     @PlanningId
     private String id;
 
@@ -35,13 +36,18 @@ public class Shift {
         this(null, start, end, location, requiredSkill, employee);
     }
 
-    public Shift(String id, LocalDateTime start, LocalDateTime end, String location, String requiredSkill, Employee employee) {
+    public Shift(String id, LocalDateTime start, LocalDateTime end, String location, String requiredSkill,
+            Employee employee) {
         this.id = id;
         this.start = start;
         this.end = end;
         this.location = location;
         this.requiredSkill = requiredSkill;
         this.employee = employee;
+    }
+
+    public boolean isAssigned() {
+        return employee != null;
     }
 
     public String getId() {
@@ -104,7 +110,8 @@ public class Shift {
 
     private int getOverlappingDurationInMinutes(LocalDateTime firstStartDateTime, LocalDateTime firstEndDateTime,
             LocalDateTime secondStartDateTime, LocalDateTime secondEndDateTime) {
-        LocalDateTime maxStartTime = firstStartDateTime.isAfter(secondStartDateTime) ? firstStartDateTime : secondStartDateTime;
+        LocalDateTime maxStartTime =
+                firstStartDateTime.isAfter(secondStartDateTime) ? firstStartDateTime : secondStartDateTime;
         LocalDateTime minEndTime = firstEndDateTime.isBefore(secondEndDateTime) ? firstEndDateTime : secondEndDateTime;
         long minutes = maxStartTime.until(minEndTime, ChronoUnit.MINUTES);
         return minutes > 0 ? (int) minutes : 0;

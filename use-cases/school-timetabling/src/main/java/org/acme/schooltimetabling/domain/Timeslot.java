@@ -4,10 +4,11 @@ import java.time.DayOfWeek;
 import java.time.LocalTime;
 
 import ai.timefold.solver.core.api.domain.common.PlanningId;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
-@JsonIdentityInfo(scope = Timeslot.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+/**
+ * A teaching slot on a particular day and time range. Lessons are assigned to a
+ * {@link Timeslot} by the solver.
+ */
 public class Timeslot {
 
     @PlanningId
@@ -27,19 +28,6 @@ public class Timeslot {
         this.endTime = endTime;
     }
 
-    public Timeslot(String id, DayOfWeek dayOfWeek, LocalTime startTime) {
-        this(id, dayOfWeek, startTime, startTime.plusMinutes(50));
-    }
-
-    @Override
-    public String toString() {
-        return dayOfWeek + " " + startTime;
-    }
-
-    // ************************************************************************
-    // Getters and setters
-    // ************************************************************************
-
     public String getId() {
         return id;
     }
@@ -54,5 +42,10 @@ public class Timeslot {
 
     public LocalTime getEndTime() {
         return endTime;
+    }
+
+    @Override
+    public String toString() {
+        return dayOfWeek + " " + startTime;
     }
 }

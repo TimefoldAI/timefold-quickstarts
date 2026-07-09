@@ -1,25 +1,21 @@
 package org.acme.bedallocation.domain;
 
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import ai.timefold.solver.core.api.domain.common.PlanningId;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
-@JsonIdentityInfo(scope = Department.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Department {
 
     @PlanningId
     private String id;
     private Map<String, Integer> specialtyToPriority;
     private String name;
-    private Integer minimumAge = null;
-    private Integer maximumAge = null;
+    private Integer minimumAge;
+    private Integer maximumAge;
     private List<Room> rooms;
 
     public Department() {
@@ -34,7 +30,7 @@ public class Department {
 
     public void addRoom(Room room) {
         if (rooms == null) {
-            rooms = new LinkedList<>();
+            rooms = new ArrayList<>();
         }
         if (!rooms.contains(room)) {
             rooms.add(room);
@@ -111,8 +107,12 @@ public class Department {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Department that)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Department that)) {
+            return false;
+        }
         return Objects.equals(getId(), that.getId());
     }
 

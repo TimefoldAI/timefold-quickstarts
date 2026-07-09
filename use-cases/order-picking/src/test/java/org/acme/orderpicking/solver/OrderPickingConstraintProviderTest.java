@@ -65,7 +65,7 @@ class OrderPickingConstraintProviderTest {
         //Order2 total volume = 5 -> requires 1 bucket
         //Total required buckets = 3
         //Penalization = 3 - 2 = 1
-        var trolley1 = initializeTrolley(2, 5,
+        initializeTrolley(2, 5,
                 trolley1PickTask1,
                 trolley1PickTask2,
                 trolley1PickTask3,
@@ -84,7 +84,7 @@ class OrderPickingConstraintProviderTest {
         //Order2 total volume = 33 -> requires 4 buckets
         //Total required buckets = 6
         //Penalization = 6 - 2 = 4
-        var trolley2 = initializeTrolley(2, 10,
+        initializeTrolley(2, 10,
                 trolley2PickTask1,
                 trolley2PickTask2,
                 trolley2PickTask3,

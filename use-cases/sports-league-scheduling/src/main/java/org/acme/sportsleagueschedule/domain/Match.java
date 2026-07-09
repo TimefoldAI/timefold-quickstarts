@@ -93,10 +93,12 @@ public class Match {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof Match match))
+        }
+        if (!(o instanceof Match match)) {
             return false;
+        }
         return Objects.equals(getId(), match.getId());
     }
 

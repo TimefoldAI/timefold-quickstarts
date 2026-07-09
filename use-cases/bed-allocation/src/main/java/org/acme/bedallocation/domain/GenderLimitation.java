@@ -6,19 +6,19 @@ public enum GenderLimitation {
     FEMALE_ONLY("F"),
     SAME_GENDER("D"); // dependent on the first
 
+    private final String code;
+
+    GenderLimitation(String code) {
+        this.code = code;
+    }
+
     public static GenderLimitation valueOfCode(String code) {
-        for (GenderLimitation gender : GenderLimitation.values()) {
+        for (GenderLimitation gender : values()) {
             if (code.equalsIgnoreCase(gender.getCode())) {
                 return gender;
             }
         }
         return null;
-    }
-
-    private final String code;
-
-    GenderLimitation(String code) {
-        this.code = code;
     }
 
     public String getCode() {

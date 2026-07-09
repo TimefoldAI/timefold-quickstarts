@@ -12,14 +12,13 @@ public abstract class Attendance {
     protected Attendance() {
     }
 
-    protected Attendance(String id) {
+    protected Attendance(String id, Meeting meeting, Person person) {
         this.id = id;
+        this.meeting = meeting;
+        this.person = person;
     }
 
-    protected Attendance(String id, Meeting meeting) {
-        this(id);
-        this.meeting = meeting;
-    }
+    public abstract boolean isRequired();
 
     public String getId() {
         return id;

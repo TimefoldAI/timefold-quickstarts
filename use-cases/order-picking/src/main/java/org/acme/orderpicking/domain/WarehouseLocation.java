@@ -4,7 +4,7 @@ package org.acme.orderpicking.domain;
  * Represents a location in the warehouse where a product can be stored. In the context of the order picking problem
  * the warehouse is modeled as set of shelvings. For picking a particular product the employees walks to the indicated
  * shelving side and row.
- * 
+ *
  * @see Warehouse
  * @see Shelving
  */

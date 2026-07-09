@@ -2,12 +2,10 @@ package org.acme.meetingschedule.domain;
 
 import java.util.Objects;
 
+import ai.timefold.solver.core.api.domain.common.PlanningId;
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.entity.PlanningPin;
-import ai.timefold.solver.core.api.domain.common.PlanningId;
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @PlanningEntity
 public class MeetingAssignment {
@@ -86,31 +84,28 @@ public class MeetingAssignment {
     // Complex methods
     // ************************************************************************
 
-    @JsonIgnore
     public int getGrainIndex() {
         return getStartingTimeGrain().getGrainIndex();
     }
 
-    @JsonIgnore
     public int calculateOverlap(MeetingAssignment other) {
         if (startingTimeGrain == null || other.getStartingTimeGrain() == null) {
             return 0;
         }
         // start is inclusive, end is exclusive
         int start = startingTimeGrain.getGrainIndex();
-        int end = getLastTimeGrainIndex() + 1;
-        int otherStart = other.startingTimeGrain.getGrainIndex();
         int otherEnd = other.getLastTimeGrainIndex() + 1;
         if (otherEnd < start) {
             return 0;
         }
+        int end = getLastTimeGrainIndex() + 1;
+        int otherStart = other.startingTimeGrain.getGrainIndex();
         if (end < otherStart) {
             return 0;
         }
         return Math.min(end, otherEnd) - Math.max(start, otherStart);
     }
 
-    @JsonIgnore
     public Integer getLastTimeGrainIndex() {
         if (startingTimeGrain == null) {
             return null;
@@ -118,7 +113,6 @@ public class MeetingAssignment {
         return startingTimeGrain.getGrainIndex() + meeting.getDurationInGrains() - 1;
     }
 
-    @JsonIgnore
     public int getRoomCapacity() {
         if (room == null) {
             return 0;
@@ -126,7 +120,6 @@ public class MeetingAssignment {
         return room.getCapacity();
     }
 
-    @JsonIgnore
     public int getRequiredCapacity() {
         return meeting.getRequiredCapacity();
     }
@@ -138,10 +131,12 @@ public class MeetingAssignment {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof MeetingAssignment that))
+        }
+        if (!(o instanceof MeetingAssignment that)) {
             return false;
+        }
         return Objects.equals(getId(), that.getId());
     }
 

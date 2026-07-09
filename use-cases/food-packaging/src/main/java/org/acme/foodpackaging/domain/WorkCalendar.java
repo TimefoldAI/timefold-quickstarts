@@ -31,5 +31,4 @@ public class WorkCalendar {
     public LocalDate getToDate() {
         return toDate;
     }
-
 }

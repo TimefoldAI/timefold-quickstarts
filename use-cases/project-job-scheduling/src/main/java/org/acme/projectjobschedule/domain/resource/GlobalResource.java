@@ -3,6 +3,7 @@ package org.acme.projectjobschedule.domain.resource;
 public class GlobalResource extends Resource {
 
     public GlobalResource() {
+        super();
     }
 
     public GlobalResource(String id, int capacity) {

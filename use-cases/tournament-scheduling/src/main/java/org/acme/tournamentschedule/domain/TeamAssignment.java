@@ -1,17 +1,20 @@
 package org.acme.tournamentschedule.domain;
 
+import ai.timefold.solver.core.api.domain.common.PlanningId;
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.entity.PlanningPin;
-import ai.timefold.solver.core.api.domain.common.PlanningId;
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
 
+/**
+ * A slot on a {@link Day} to which the solver assigns a {@link Team}.
+ */
 @PlanningEntity
 public class TeamAssignment {
 
     @PlanningId
-    private long id;
+    private String id;
     private Day day;
-    private int indexInDate;
+    private int indexInDay;
     @PlanningPin
     private boolean pinned;
 
@@ -21,38 +24,35 @@ public class TeamAssignment {
     public TeamAssignment() {
     }
 
-    public TeamAssignment(long id) {
+    public TeamAssignment(String id) {
         this.id = id;
     }
 
-    public TeamAssignment(long id, Day day, int indexInDate) {
+    public TeamAssignment(String id, Day day, int indexInDay) {
         this(id);
         this.day = day;
-        this.indexInDate = indexInDate;
+        this.indexInDay = indexInDay;
     }
 
-    public long getId() {
+    public TeamAssignment(String id, Day day, int indexInDay, Team team) {
+        this(id, day, indexInDay);
+        this.team = team;
+    }
+
+    public boolean isAssigned() {
+        return team != null;
+    }
+
+    public String getId() {
         return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 
     public Day getDay() {
         return day;
     }
 
-    public void setDay(Day day) {
-        this.day = day;
-    }
-
     public int getIndexInDay() {
-        return indexInDate;
-    }
-
-    public void setIndexInDay(int indexInDate) {
-        this.indexInDate = indexInDate;
+        return indexInDay;
     }
 
     public boolean isPinned() {
@@ -73,7 +73,6 @@ public class TeamAssignment {
 
     @Override
     public String toString() {
-        return "Round-" + day.getDateIndex() + "(" + indexInDate + ")";
+        return "Round-" + day.getDateIndex() + "(" + indexInDay + ")";
     }
-
 }

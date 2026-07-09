@@ -32,7 +32,7 @@ class VehicleRoutingConstraintProviderTest {
     private static final Location LOCATION_2 = new Location(49.190922, 16.624466);
     private static final Location LOCATION_3 = new Location(49.1767533245638, 16.50422914190477);
 
-    private static final LocalDate TOMORROW = LocalDate.now().plusDays(1);
+    private static final LocalDate TOMORROW = LocalDate.of(2027, 2, 1);
     private static final LocalDateTime TOMORROW_07_00 = LocalDateTime.of(TOMORROW, LocalTime.of(7, 0));
     private static final LocalDateTime TOMORROW_08_00 = LocalDateTime.of(TOMORROW, LocalTime.of(8, 0));
     private static final LocalDateTime TOMORROW_09_00 = LocalDateTime.of(TOMORROW, LocalTime.of(9, 0));

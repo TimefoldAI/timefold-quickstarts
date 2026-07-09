@@ -15,35 +15,36 @@ import static org.acme.orderpicking.domain.Shelving.newShelvingId;
  * Note: This warehouse structure is completely static and aligned with the "Graphical Map" structure represented in
  * the order picking webapp UI, changes on this structure might require UI adjustments.
  *
- *  -----------------------------------------------------------------------------------> x
- *  |    |--------|   |--------|   |--------|   |--------|   |--------|
- *  |    |        |   |        |   |        |   |        |   |        |
- *  |    |        |   |        |   |        |   |        |   |        |
- *  |    | (A,1)  |   | (B,1)  |   | (C,1)  |   | (D,1)  |   | (E,1)  |
- *  |    |        |   |        |   |        |   |        |   |        |
- *  |    |        |   |        |   |        |   |        |   |        |
- *  |    |--------|   |--------|   |--------|   |--------|   |--------|
- *  |
- *  |    |--------|   |--------|   |--------|   |--------|   |--------|
- *  |    |        |   |        |   |        |   |        |   |        |
- *  |    |        |   |        |   |        |   |        |   |        |
- *  |    | (A,2)  |   | (B,2)  |   | (C,2)  |   | (D,2)  |   | (E,2)  |
- *  |    |        |   |        |   |        |   |        |   |        |
- *  |    |        |   |        |   |        |   |        |   |        |
- *  |    |--------|   |--------|   |--------|   |--------|   |--------|
- *  |
- *  |    |--------|   |--------|   |--------|   |--------|   |--------|
- *  |    |        |   |        |   |        |   |        |   |        |
- *  |    |        |   |        |   |        |   |        |   |        |
- *  |    | (A,3)  |   | (B,3)  |   | (C,3)  |   | (D,3)  |   | (E,3)  |
- *  |    |        |   |        |   |        |   |        |   |        |
- *  |    |        |   |        |   |        |   |        |   |        |
- *  |    |--------|   |--------|   |--------|   |--------|   |--------|
- *  |
- *  y
+ * -----------------------------------------------------------------------------------> x
+ * | |--------| |--------| |--------| |--------| |--------|
+ * | | | | | | | | | | |
+ * | | | | | | | | | | |
+ * | | (A,1) | | (B,1) | | (C,1) | | (D,1) | | (E,1) |
+ * | | | | | | | | | | |
+ * | | | | | | | | | | |
+ * | |--------| |--------| |--------| |--------| |--------|
+ * |
+ * | |--------| |--------| |--------| |--------| |--------|
+ * | | | | | | | | | | |
+ * | | | | | | | | | | |
+ * | | (A,2) | | (B,2) | | (C,2) | | (D,2) | | (E,2) |
+ * | | | | | | | | | | |
+ * | | | | | | | | | | |
+ * | |--------| |--------| |--------| |--------| |--------|
+ * |
+ * | |--------| |--------| |--------| |--------| |--------|
+ * | | | | | | | | | | |
+ * | | | | | | | | | | |
+ * | | (A,3) | | (B,3) | | (C,3) | | (D,3) | | (E,3) |
+ * | | | | | | | | | | |
+ * | | | | | | | | | | |
+ * | |--------| |--------| |--------| |--------| |--------|
+ * |
+ * y
+ *
  * @see Shelving
  */
-public class Warehouse {
+public final class Warehouse {
 
     /**
      * Defines the warehouse columns.
@@ -105,15 +106,17 @@ public class Warehouse {
     private static final String SHELVING_NOT_FOUND_ERROR = "Shelving: %s was not found in current Warehouse structure.";
 
     static {
-        var shelvingX = 0;
-        var shelvingY = 0;
-        Shelving shelving;
+        buildShelvingMap();
+    }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    private static void buildShelvingMap() {
+        var shelvingX = 0;
         for (Column col : Column.values()) {
-            shelvingY = 0;
+            var shelvingY = 0;
             for (Row row : Row.values()) {
-                shelving = new Shelving(newShelvingId(col, row), shelvingX, shelvingY);
-                SHELVING_MAP.put(shelving.getId(), shelving);
+                var id = newShelvingId(col, row);
+                SHELVING_MAP.put(id, new Shelving(id, shelvingX, shelvingY));
                 shelvingY = shelvingY + SHELVING_HEIGHT + SHELVING_PADDING;
             }
             shelvingX = shelvingX + SHELVING_WIDTH + SHELVING_PADDING;
@@ -135,18 +138,19 @@ public class Warehouse {
         if (endShelving == null) {
             throw new IndexOutOfBoundsException(String.format(SHELVING_NOT_FOUND_ERROR, end.getShelvingId()));
         }
-        var deltaX = 0;
-        var deltaY = 0;
+        int deltaX;
+        int deltaY;
 
         final var startX = getAbsoluteX(startShelving, start);
         final var startY = getAbsoluteY(startShelving, start);
         final var endX = getAbsoluteX(endShelving, end);
         final var endY = getAbsoluteY(endShelving, end);
 
-        if (startShelving == endShelving) {
+        if (startShelving.getId().equals(endShelving.getId())) {
             //same shelving
             if (start.getSide() == end.getSide()) {
                 //same side
+                deltaX = 0;
                 deltaY = abs(startY - endY);
             } else {
                 //different side, calculate shortest walk.
@@ -185,7 +189,7 @@ public class Warehouse {
 
     private static int calculateBestYDistanceInShelvingRow(int startY, int endY) {
         final var northDirectionDistance = startY + endY;
-        final var southDirectionDistance = (SHELVING_HEIGHT - startY) + (SHELVING_HEIGHT - endY);
+        final var southDirectionDistance = SHELVING_HEIGHT - startY + SHELVING_HEIGHT - endY;
         return Math.min(northDirectionDistance, southDirectionDistance);
     }
 

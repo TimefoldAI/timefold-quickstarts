@@ -5,9 +5,9 @@
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <title>Vehicle Routing - Timefold Solver on Quarkus</title>
-  <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css">
-  <link rel="stylesheet" href="/webjars/leaflet/leaflet.css">
-  <link rel="stylesheet" href="/webjars/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.8.0/dist/leaflet.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vis-timeline@7.7.2/styles/vis-timeline-graph2d.min.css"
         integrity="sha256-svzNasPg1yR5gvEaRei2jg+n4Pc3sVyMUWeS6xRAh6U=" crossorigin="anonymous">
   <link rel="icon" href="https://timefold.ai/uploads/images/Brand-Assets/timefold-solver-logomark.png" type="image/png">
@@ -30,11 +30,20 @@
       border-radius: 3px;
       flex-shrink: 0;
     }
+
+    /* When embedded in the Timefold Platform, hide the demo chrome (navbar,
+       intro text, solve controls) so only the read-only visualization shows. */
+    body.on-platform #appHeader,
+    body.on-platform #datasetInfo,
+    body.on-platform #solveControls,
+    body.on-platform #rest,
+    body.on-platform #openapi,
+    body.on-platform footer { display: none !important; }
   </style>
 </head>
 <body>
 
-<header class="bg-white shadow">
+<header id="appHeader" class="bg-white shadow">
   <div class="container-fluid">
     <nav class="navbar navbar-expand-lg mb-3">
       <a class="navbar-brand" style="width: 200px;overflow: hidden;">
@@ -77,7 +86,7 @@
     <div class="sticky-top d-flex justify-content-center align-items-center">
       <div id="notificationPanel" style="position: absolute; top: .5rem;"></div>
     </div>
-    <blockquote>Generate optimal route plan of a vehicle fleet with limited vehicle capacity and time windows. <span id="info" class="fw-bold"></span><br/>New visits may be added by clicking anywhere inside the map. </blockquote>
+    <blockquote id="datasetInfo">Generate optimal route plan of a vehicle fleet with limited vehicle capacity and time windows. <span id="info" class="fw-bold"></span></blockquote>
     <div class="container-fluid mb-2">
       <div class="row justify-content-start">
         <div class="col-9">
@@ -100,15 +109,12 @@
             </li>
           </ul>
         </div>
-        <div class="col-3">
+        <div class="col-3" id="solveControls">
           <button id="solveButton" type="button" class="btn btn-success">
             <i class="fas fa-play"></i> Solve
           </button>
           <button id="stopSolvingButton" type="button" class="btn btn-danger p-2">
             <i class="fas fa-stop"></i> Stop solving
-          </button>
-          <button id="analyzeButton" type="button" class="ms-2 btn btn-secondary">
-            <span class="fas fa-question"></span>
           </button>
         </div>
       </div>
@@ -289,16 +295,12 @@
   <div id="applicationInfo" class="container text-center"></div>
 </footer>
 
-<script src="/webjars/flatpickr/dist/flatpickr.min.js"></script>
-<link rel="stylesheet" href="/webjars/flatpickr/dist/flatpickr.min.css">
-<script src="/webjars/leaflet/leaflet.js"></script>
-<script src="/webjars/jquery/jquery.min.js"></script>
-<script src="/webjars/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="/webjars/js-joda/dist/js-joda.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.8.0/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@js-joda/core@5.6.3/dist/js-joda.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vis-timeline@7.7.2/standalone/umd/vis-timeline-graph2d.min.js"
         integrity="sha256-Jy2+UO7rZ2Dgik50z3XrrNpnc5+2PAx9MhL2CicodME=" crossorigin="anonymous"></script>
-<script src="/score-analysis.js"></script>
-<script src="/recommended-fit.js"></script>
-<script src="/app.js"></script>
+<script src="app.js"></script>
 </body>
 </html>

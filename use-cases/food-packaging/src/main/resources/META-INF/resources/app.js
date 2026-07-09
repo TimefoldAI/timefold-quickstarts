@@ -1,7 +1,28 @@
-var autoRefreshIntervalId = null;
+// ── Platform context ──
+// When embedded in the Timefold Platform, the iframe URL carries these query params.
+// Standalone (local dev), none are present and the app behaves as before.
+const PLATFORM = (function () {
+    const q = new URL(window.location.href).searchParams;
+    return {
+        onPlatform: q.has('onPlatform'),
+        runId: q.get('runId'),
+        // apiUrl: base URL of the model API on the platform (URL-encoded). Trailing slash stripped.
+        apiUrl: q.has('apiUrl') ? decodeURIComponent(q.get('apiUrl')).replace(/\/+$/, '') : null,
+        apiKey: q.has('apiKey') ? q.get('apiKey') : null,
+    };
+})();
+
+// Build an API URL: prefix the platform base when embedded, else root-relative (local dev).
+function api(path) {
+    return PLATFORM.apiUrl ? PLATFORM.apiUrl + path : path;
+}
+
+let autoRefreshIntervalId = null;
+let jobId = null;
 let loadedSchedule = null;
 
 const dateTimeFormat = JSJoda.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
 const byLinePanel = document.getElementById("byLinePanel");
 const byLineTimelineOptions = {
   timeAxis: {scale: "hour"},
@@ -10,9 +31,9 @@ const byLineTimelineOptions = {
   xss: {disabled: true}, // Items are XSS safe through JQuery
   zoomMin: 1000 * 60 * 60 * 12 // Half day in milliseconds
 };
-var byLineGroupDataSet = new vis.DataSet();
-var byLineItemDataSet = new vis.DataSet();
-var byLineTimeline = new vis.Timeline(byLinePanel, byLineItemDataSet, byLineGroupDataSet, byLineTimelineOptions);
+const byLineGroupDataSet = new vis.DataSet();
+const byLineItemDataSet = new vis.DataSet();
+const byLineTimeline = new vis.Timeline(byLinePanel, byLineItemDataSet, byLineGroupDataSet, byLineTimelineOptions);
 
 const byJobPanel = document.getElementById("byJobPanel");
 const byJobTimelineOptions = {
@@ -22,12 +43,11 @@ const byJobTimelineOptions = {
   xss: {disabled: true}, // Items are XSS safe through JQuery
   zoomMin: 1000 * 60 * 60 * 12 // Half day in milliseconds
 };
-var byJobGroupDataSet = new vis.DataSet();
-var byJobItemDataSet = new vis.DataSet();
-var byJobTimeline = new vis.Timeline(byJobPanel, byJobItemDataSet, byJobGroupDataSet, byJobTimelineOptions);
+const byJobGroupDataSet = new vis.DataSet();
+const byJobItemDataSet = new vis.DataSet();
+const byJobTimeline = new vis.Timeline(byJobPanel, byJobItemDataSet, byJobGroupDataSet, byJobTimelineOptions);
 
 $(document).ready(function () {
-
   $("#solveButton").click(function () {
     solve();
   });
@@ -40,20 +60,48 @@ $(document).ready(function () {
   // HACK to allow vis-timeline to work within Bootstrap tabs
   $("#byLineTab").on('shown.bs.tab', function (event) {
     byLineTimeline.redraw();
-  })
+  });
   $("#byJobTab").on('shown.bs.tab', function (event) {
     byJobTimeline.redraw();
-  })
+  });
 
   setupAjax();
-  refreshSchedule();
+  if (PLATFORM.onPlatform) {
+    // Embedded: hide demo chrome (navbar + solve/score controls) and load the
+    // existing run read-only.
+    document.body.classList.add('on-platform');
+    loadPlatformRun();
+  } else {
+    // Standalone dev: load demo data, allow solving.
+    getStatus();
+  }
 });
+
+// ── Platform: load an existing run (read-only) ──
+// ModelRest exposes the run's input at /{id}/model-request (ModelRequest → {modelInput})
+// and its output+status at /{id} (ModelResponse → {metadata:{solverStatus}, modelOutput}).
+function loadPlatformRun() {
+  if (!PLATFORM.runId) {
+    showError("No runId provided by platform.", {status: 0, statusText: "missing runId"});
+    return;
+  }
+  jobId = PLATFORM.runId;
+  $.get(api(`/v1/schedules/${jobId}/model-request`), function (req) {
+    loadedSchedule = req.modelInput || req;
+    renderSchedule(loadedSchedule, 'NOT_SOLVING');
+    getStatus(); // fetch output + render; auto-polls while solving
+  }).fail(function (xhr) {
+    showError("Failed to load run input from platform.", xhr);
+  });
+}
 
 function setupAjax() {
   $.ajaxSetup({
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json,text/plain', // plain text is required by solve() returning UUID of the solver job
+      // On the platform, authenticate every request with the supplied API key.
+      ...(PLATFORM.apiKey ? {'X-API-KEY': PLATFORM.apiKey} : {})
     }
   });
 
@@ -76,154 +124,195 @@ function setupAjax() {
   });
 }
 
-function refreshSchedule() {
-  $.getJSON("/schedule", function (schedule) {
-    refreshSolvingButtons(schedule.solverStatus != null && schedule.solverStatus !== "NOT_SOLVING");
-    $("#score").text("Score: " + (schedule.score == null ? "?" : schedule.score));
-    $("#info").text(`This dataset has ${schedule.products.length} products, ${schedule.jobs.length} jobs, to be produced on ${schedule.lines.length} lines by ${schedule.operators.length} operators.`);
-
-    loadedSchedule = schedule;
-    const unassignedOperators = $("#unassignedOperators");
-    const unassignedJobs = $("#unassignedJobs");
-    unassignedOperators.children().remove();
-    unassignedJobs.children().remove();
-    var unassignedOperatorsCount = 0;
-    var unassignedJobsCount = 0;
-    byLineGroupDataSet.clear();
-    byJobGroupDataSet.clear();
-    byLineItemDataSet.clear();
-    byJobItemDataSet.clear();
-    const linesMap = new Map();
-
-    $.each(schedule.lines, (index, line) => {
-      linesMap.set(line.id, line);
-      const lineGroupElement = $(`<div/>`)
-        .append($(`<h5 class="card-title mb-1"/>`).text(line.name))
-        .append($(`<p class="card-text ms-2 mb-0"/>`).text(line.operator));
-      byLineGroupDataSet.add({id : line.id, content: lineGroupElement.html()});
+function getStatus() {
+  if (jobId == null) {
+    $.get(api('/v1/demo-data/BASIC'), function (modelRequest) {
+      loadedSchedule = modelRequest.modelInput;
+      renderSchedule(loadedSchedule, 'NOT_SOLVING');
+    }).fail(function (xhr) {
+      const $demo = $("#demo");
+      $demo.empty();
+      $demo.html("<h1><p align=\"center\">No test data available</p></h1>");
     });
-
-    $.each(schedule.operators, (index, operator) => {
-      if (operator.lines == null || operator.lines.length === 0) {
-        unassignedOperatorsCount++;
-        const unassignedOperatorElement = $(`<div class="card-body p-2"/>`)
-            .append($(`<h5 class="card-title mb-1"/>`).text(operator.id));
-        unassignedOperators.append($(`<div class="col"/>`).append($(`<div class="card"/>`).append(unassignedOperatorElement)));
-      }
+  } else {
+    $.get(api(`/v1/schedules/${jobId}`), function (data) {
+      const solverStatus = data.metadata.solverStatus;
+      const solution = data.modelOutput || loadedSchedule;
+      loadedSchedule = solution;
+      renderSchedule(solution, solverStatus);
+    }).fail(function (xhr) {
+      showError("Getting the schedule has failed.", xhr);
+      refreshSolvingButtons('NOT_SOLVING');
     });
+  }
+}
 
-    $.each(schedule.jobs, (index, job) => {
-      byJobGroupDataSet.add({id : job.id, content: job.name});
-      byJobItemDataSet.add({
-        id: job.id + "_readyToIdealEnd", group: job.id,
-        start: job.minStartTime,
-        end: job.idealEndTime,
-        type: "background",
-        style: "background-color: #8AE23433"
-      });
-      byJobItemDataSet.add({
-        id: job.id + "_idealEndToDue", group: job.id,
-        start: job.idealEndTime,
-        end: job.maxEndTime,
-        type: "background",
-        style: "background-color: #FCAF3E33"
-      });
+function isSolving(solverStatus) {
+  return solverStatus === 'SOLVING_ACTIVE' || solverStatus === 'SOLVING_SCHEDULED'
+      || solverStatus === 'SOLVING_STARTED';
+}
 
-      if (job.line == null || job.startCleaningDateTime == null || job.startProductionDateTime == null || job.endDateTime == null) {
-        unassignedJobsCount++;
-        const durationMinutes = JSJoda.Duration.ofSeconds(job.duration).toMinutes();
-        const unassignedJobElement = $(`<div class="card-body p-2"/>`)
-          .append($(`<h5 class="card-title mb-1"/>`).text(job.name))
-          .append($(`<p class="card-text ms-2 mb-0"/>`).text(`${Math.floor(durationMinutes / 60)} hours ${durationMinutes % 60} mins`))
-          .append($(`<p class="card-text ms-2 mb-0"/>`).text(`Min: ${JSJoda.LocalDateTime.parse(job.minStartTime).format(dateTimeFormat)}`))
-          .append($(`<p class="card-text ms-2 mb-0"/>`).text(`Ideal: ${JSJoda.LocalDateTime.parse(job.idealEndTime).format(dateTimeFormat)}`))
-          .append($(`<p class="card-text ms-2 mb-0"/>`).text(`Max: ${JSJoda.LocalDateTime.parse(job.maxEndTime).format(dateTimeFormat)}`));
-        const byJobJobElement = $(`<div/>`)
-          .append($(`<h5 class="card-title mb-1"/>`).text(`Unassigned`));
-        unassignedJobs.append($(`<div class="col"/>`).append($(`<div class="card"/>`).append(unassignedJobElement)));
-        byJobItemDataSet.add({
-          id : job.id, group: job.id,
-          content: byJobJobElement.html(),
-          start: job.minStartTime, end: JSJoda.LocalDateTime.parse(job.minStartTime).plus(JSJoda.Duration.ofSeconds(job.duration)).toString(),
-          style: "background-color: #EF292999"
-        });
-      } else {
-        const beforeReady = JSJoda.LocalDateTime.parse(job.startProductionDateTime).isBefore(JSJoda.LocalDateTime.parse(job.minStartTime));
-        const afterDue = JSJoda.LocalDateTime.parse(job.endDateTime).isAfter(JSJoda.LocalDateTime.parse(job.maxEndTime));
-        const line = linesMap.get(job.line);
-        const byLineJobElement = $(`<div/>`)
-          .append($(`<p class="card-text"/>`).text(job.name));
-        const byJobJobElement = $(`<div/>`)
-          .append($(`<p class="card-text"/>`).text(line.name));
-        if (beforeReady) {
-          byLineJobElement.append($(`<p class="badge badge-danger mb-0"/>`).text(`Before ready (too early)`));
-          byJobJobElement.append($(`<p class="badge badge-danger mb-0"/>`).text(`Before ready (too early)`));
-        }
-        if (afterDue) {
-          byLineJobElement.append($(`<p class="badge badge-danger mb-0"/>`).text(`After due (too late)`));
-          byJobJobElement.append($(`<p class="badge badge-danger mb-0"/>`).text(`After due (too late)`));
-        }
-        byLineItemDataSet.add({
-          id : job.id + "_cleaning", group: job.line,
-          content: "Cleaning",
-          start: job.startCleaningDateTime, end: job.startProductionDateTime,
-          style: "background-color: #FCAF3E99"
-        });
-        byLineItemDataSet.add({
-          id : job.id, group: job.line,
-          content: byLineJobElement.html(),
-          start: job.startProductionDateTime, end: job.endDateTime
-        });
-        byJobItemDataSet.add({
-          id : job.id + "_cleaning", group: job.id,
-          content: "Cleaning",
-          start: job.startCleaningDateTime, end: job.startProductionDateTime,
-          style: "background-color: #FCAF3E99"
-        });
-        byJobItemDataSet.add({
-          id : job.id, group: job.id,
-          content: byJobJobElement.html(),
-          start: job.startProductionDateTime, end: job.endDateTime
-        });
-      }
-    });
-    if (unassignedOperatorsCount === 0) {
-      const banner = $(`<div class="col-12"/>`)
-          .append($(`<div class="alert alert-success d-flex align-items-center justify-content-center" role="alert"/>`)
-              .append($(`<i class="fas fa-check-circle me-2"/>`))
-              .append($(`<span/>`).text("There are no unassigned operators.")));
-      unassignedOperators.append(banner);
+function renderSchedule(schedule, solverStatus) {
+  refreshSolvingButtons(solverStatus);
+  $("#score").text("Score: " + (schedule.score == null ? "?" : schedule.score));
+  $("#info").text(`This dataset has ${schedule.products.length} products, ${schedule.jobs.length} jobs, to be produced on ${schedule.lines.length} lines by ${schedule.operators.length} operators.`);
+
+  const unassignedOperators = $("#unassignedOperators");
+  const unassignedJobs = $("#unassignedJobs");
+  unassignedOperators.children().remove();
+  unassignedJobs.children().remove();
+  let unassignedOperatorsCount = 0;
+  let unassignedJobsCount = 0;
+  byLineGroupDataSet.clear();
+  byJobGroupDataSet.clear();
+  byLineItemDataSet.clear();
+  byJobItemDataSet.clear();
+
+  const linesMap = new Map();
+  const usedOperatorIds = new Set();
+  $.each(schedule.lines, (index, line) => {
+    linesMap.set(line.id, line);
+    if (line.operatorId != null) {
+      usedOperatorIds.add(line.operatorId);
     }
-    if (unassignedJobsCount === 0) {
-      const banner = $(`<div class="col-12"/>`)
-          .append($(`<div class="alert alert-success d-flex align-items-center justify-content-center" role="alert"/>`)
-              .append($(`<i class="fas fa-check-circle me-2"/>`))
-              .append($(`<span/>`).text("There are no unassigned jobs.")));
-      unassignedJobs.append(banner);
-    }
-    const nextDate = JSJoda.LocalDate.parse(schedule.workCalendar.fromDate).plusDays(1);
-    byLineTimeline.setWindow(schedule.workCalendar.fromDate, nextDate.toString());
-    byJobTimeline.setWindow(schedule.workCalendar.fromDate, nextDate.toString());
+    const lineGroupElement = $(`<div/>`)
+      .append($(`<h5 class="card-title mb-1"/>`).text(line.name))
+      .append($(`<p class="card-text ms-2 mb-0"/>`).text(line.operatorId == null ? "No operator" : line.operatorId));
+    byLineGroupDataSet.add({id: line.id, content: lineGroupElement.html()});
   });
+
+  $.each(schedule.operators, (index, operator) => {
+    if (!usedOperatorIds.has(operator.id)) {
+      unassignedOperatorsCount++;
+      const unassignedOperatorElement = $(`<div class="card-body p-2"/>`)
+        .append($(`<h5 class="card-title mb-1"/>`).text(operator.id));
+      unassignedOperators.append($(`<div class="col"/>`).append($(`<div class="card"/>`).append(unassignedOperatorElement)));
+    }
+  });
+
+  $.each(schedule.jobs, (index, job) => {
+    byJobGroupDataSet.add({id: job.id, content: job.name});
+    byJobItemDataSet.add({
+      id: job.id + "_readyToIdealEnd", group: job.id,
+      start: job.minStartTime,
+      end: job.idealEndTime,
+      type: "background",
+      style: "background-color: #8AE23433"
+    });
+    byJobItemDataSet.add({
+      id: job.id + "_idealEndToDue", group: job.id,
+      start: job.idealEndTime,
+      end: job.maxEndTime,
+      type: "background",
+      style: "background-color: #FCAF3E33"
+    });
+
+    if (job.lineId == null || job.startCleaningDateTime == null || job.startProductionDateTime == null || job.endDateTime == null) {
+      unassignedJobsCount++;
+      const durationMinutes = job.durationMinutes;
+      const unassignedJobElement = $(`<div class="card-body p-2"/>`)
+        .append($(`<h5 class="card-title mb-1"/>`).text(job.name))
+        .append($(`<p class="card-text ms-2 mb-0"/>`).text(`${Math.floor(durationMinutes / 60)} hours ${durationMinutes % 60} mins`))
+        .append($(`<p class="card-text ms-2 mb-0"/>`).text(`Min: ${JSJoda.LocalDateTime.parse(job.minStartTime).format(dateTimeFormat)}`))
+        .append($(`<p class="card-text ms-2 mb-0"/>`).text(`Ideal: ${JSJoda.LocalDateTime.parse(job.idealEndTime).format(dateTimeFormat)}`))
+        .append($(`<p class="card-text ms-2 mb-0"/>`).text(`Max: ${JSJoda.LocalDateTime.parse(job.maxEndTime).format(dateTimeFormat)}`));
+      const byJobJobElement = $(`<div/>`)
+        .append($(`<h5 class="card-title mb-1"/>`).text(`Unassigned`));
+      unassignedJobs.append($(`<div class="col"/>`).append($(`<div class="card"/>`).append(unassignedJobElement)));
+      byJobItemDataSet.add({
+        id: job.id, group: job.id,
+        content: byJobJobElement.html(),
+        start: job.minStartTime,
+        end: JSJoda.LocalDateTime.parse(job.minStartTime).plus(JSJoda.Duration.ofMinutes(durationMinutes)).toString(),
+        style: "background-color: #EF292999"
+      });
+    } else {
+      const beforeReady = JSJoda.LocalDateTime.parse(job.startProductionDateTime).isBefore(JSJoda.LocalDateTime.parse(job.minStartTime));
+      const afterDue = JSJoda.LocalDateTime.parse(job.endDateTime).isAfter(JSJoda.LocalDateTime.parse(job.maxEndTime));
+      const line = linesMap.get(job.lineId);
+      const byLineJobElement = $(`<div/>`)
+        .append($(`<p class="card-text"/>`).text(job.name));
+      const byJobJobElement = $(`<div/>`)
+        .append($(`<p class="card-text"/>`).text(line.name));
+      if (beforeReady) {
+        byLineJobElement.append($(`<p class="badge badge-danger mb-0"/>`).text(`Before ready (too early)`));
+        byJobJobElement.append($(`<p class="badge badge-danger mb-0"/>`).text(`Before ready (too early)`));
+      }
+      if (afterDue) {
+        byLineJobElement.append($(`<p class="badge badge-danger mb-0"/>`).text(`After due (too late)`));
+        byJobJobElement.append($(`<p class="badge badge-danger mb-0"/>`).text(`After due (too late)`));
+      }
+      byLineItemDataSet.add({
+        id: job.id + "_cleaning", group: job.lineId,
+        content: "Cleaning",
+        start: job.startCleaningDateTime, end: job.startProductionDateTime,
+        style: "background-color: #FCAF3E99"
+      });
+      byLineItemDataSet.add({
+        id: job.id, group: job.lineId,
+        content: byLineJobElement.html(),
+        start: job.startProductionDateTime, end: job.endDateTime
+      });
+      byJobItemDataSet.add({
+        id: job.id + "_cleaning", group: job.id,
+        content: "Cleaning",
+        start: job.startCleaningDateTime, end: job.startProductionDateTime,
+        style: "background-color: #FCAF3E99"
+      });
+      byJobItemDataSet.add({
+        id: job.id, group: job.id,
+        content: byJobJobElement.html(),
+        start: job.startProductionDateTime, end: job.endDateTime
+      });
+    }
+  });
+  if (unassignedOperatorsCount === 0) {
+    const banner = $(`<div class="col-12"/>`)
+      .append($(`<div class="alert alert-success d-flex align-items-center justify-content-center" role="alert"/>`)
+        .append($(`<i class="fas fa-check-circle me-2"/>`))
+        .append($(`<span/>`).text("There are no unassigned operators.")));
+    unassignedOperators.append(banner);
+  }
+  if (unassignedJobsCount === 0) {
+    const banner = $(`<div class="col-12"/>`)
+      .append($(`<div class="alert alert-success d-flex align-items-center justify-content-center" role="alert"/>`)
+        .append($(`<i class="fas fa-check-circle me-2"/>`))
+        .append($(`<span/>`).text("There are no unassigned jobs.")));
+    unassignedJobs.append(banner);
+  }
+  const nextDate = JSJoda.LocalDate.parse(schedule.workCalendar.fromDate).plusDays(1);
+  byLineTimeline.setWindow(schedule.workCalendar.fromDate, nextDate.toString());
+  byJobTimeline.setWindow(schedule.workCalendar.fromDate, nextDate.toString());
 }
 
 function solve() {
-  $.post("/schedule/solve", function () {
-    refreshSolvingButtons(true);
-  }).fail(function (xhr, ajaxOptions, thrownError) {
-    showError("Start solving failed.", xhr);
+  $.get(api('/v1/demo-data/BASIC'), function (modelRequest) {
+    $.post(api('/v1/schedules'), JSON.stringify(modelRequest), function (metadata) {
+      jobId = metadata.id;
+      refreshSolvingButtons(metadata.solverStatus || 'SOLVING_ACTIVE');
+      if (autoRefreshIntervalId == null) {
+        autoRefreshIntervalId = setInterval(getStatus, 2000);
+      }
+    }).fail(function (xhr) {
+      showError("Start solving failed.", xhr);
+      refreshSolvingButtons('NOT_SOLVING');
+    });
+  }).fail(function (xhr) {
+    showError("Get demo data failed.", xhr);
   });
 }
 
 function analyze() {
-  new bootstrap.Modal("#scoreAnalysisModal").show()
+  new bootstrap.Modal("#scoreAnalysisModal").show();
   const scoreAnalysisModalContent = $("#scoreAnalysisModalContent");
   scoreAnalysisModalContent.children().remove();
-  if (loadedSchedule.score == null) {
+  if (loadedSchedule == null || loadedSchedule.score == null) {
     scoreAnalysisModalContent.text("No score to analyze yet, please first press the 'solve' button.");
+  } else if (jobId == null) {
+    scoreAnalysisModalContent.text("No solving job yet, please first press the 'solve' button.");
   } else {
     $('#scoreAnalysisScoreLabel').text(`(${loadedSchedule.score})`);
-    $.put("/schedule/analyze", function (scoreAnalysis) {
+    $.get(api(`/v1/schedules/${jobId}/score-analysis`), function (scoreAnalysis) {
       let constraints = scoreAnalysis.constraints;
       constraints.sort((a, b) => {
         let aComponents = getScoreComponents(a.score), bComponents = getScoreComponents(b.score);
@@ -258,32 +347,32 @@ function analyze() {
 
       const analysisTable = $(`<table class="table"/>`).css({textAlign: 'center'});
       const analysisTHead = $(`<thead/>`).append($(`<tr/>`)
-          .append($(`<th></th>`))
-          .append($(`<th>Constraint</th>`).css({textAlign: 'left'}))
-          .append($(`<th>Type</th>`))
-          .append($(`<th># Matches</th>`))
-          .append($(`<th>Weight</th>`))
-          .append($(`<th>Score</th>`))
-          .append($(`<th></th>`)));
+        .append($(`<th></th>`))
+        .append($(`<th>Constraint</th>`).css({textAlign: 'left'}))
+        .append($(`<th>Type</th>`))
+        .append($(`<th># Matches</th>`))
+        .append($(`<th>Weight</th>`))
+        .append($(`<th>Score</th>`))
+        .append($(`<th></th>`)));
       analysisTable.append(analysisTHead);
-      const analysisTBody = $(`<tbody/>`)
+      const analysisTBody = $(`<tbody/>`);
       $.each(scoreAnalysis.constraints, (index, constraintAnalysis) => {
         let icon = constraintAnalysis.type == "hard" && constraintAnalysis.implicitScore < 0 ? '<span class="fas fa-exclamation-triangle" style="color: red"></span>' : '';
         if (!icon) icon = constraintAnalysis.matches.length == 0 ? '<span class="fas fa-check-circle" style="color: green"></span>' : '';
 
         let row = $(`<tr/>`);
         row.append($(`<td/>`).html(icon))
-            .append($(`<td/>`).text(constraintAnalysis.id).css({textAlign: 'left'}))
-            .append($(`<td/>`).text(constraintAnalysis.type))
-            .append($(`<td/>`).html(`<b>${constraintAnalysis.matches.length}</b>`))
-            .append($(`<td/>`).text(constraintAnalysis.weight))
-            .append($(`<td/>`).text(constraintAnalysis.implicitScore));
+          .append($(`<td/>`).text(constraintAnalysis.name).css({textAlign: 'left'}))
+          .append($(`<td/>`).text(constraintAnalysis.type))
+          .append($(`<td/>`).html(`<b>${constraintAnalysis.matches.length}</b>`))
+          .append($(`<td/>`).text(constraintAnalysis.weight))
+          .append($(`<td/>`).text(constraintAnalysis.implicitScore));
         analysisTBody.append(row);
         row.append($(`<td/>`));
       });
       analysisTable.append(analysisTBody);
       scoreAnalysisModalContent.append(analysisTable);
-    }).fail(function (xhr, ajaxOptions, thrownError) {
+    }).fail(function (xhr) {
       scoreAnalysisModalContent.children().remove();
       scoreAnalysisModalContent.append($("<p/>").html(
           "The server returned an error."
@@ -305,12 +394,12 @@ function getScoreComponents(score) {
   return components;
 }
 
-function refreshSolvingButtons(solving) {
-  if (solving) {
+function refreshSolvingButtons(solverStatus) {
+  if (isSolving(solverStatus)) {
     $("#solveButton").hide();
     $("#stopSolvingButton").show();
     if (autoRefreshIntervalId == null) {
-      autoRefreshIntervalId = setInterval(refreshSchedule, 2000);
+      autoRefreshIntervalId = setInterval(getStatus, 2000);
     }
   } else {
     $("#solveButton").show();
@@ -323,10 +412,10 @@ function refreshSolvingButtons(solving) {
 }
 
 function stopSolving() {
-  $.post("/schedule/stopSolving", function () {
-    refreshSolvingButtons(false);
-    refreshSchedule();
-  }).fail(function (xhr, ajaxOptions, thrownError) {
+  $.delete(api(`/v1/schedules/${jobId}`), function () {
+    refreshSolvingButtons('NOT_SOLVING');
+    getStatus();
+  }).fail(function (xhr) {
     showError("Stop solving failed.", xhr);
   });
 }

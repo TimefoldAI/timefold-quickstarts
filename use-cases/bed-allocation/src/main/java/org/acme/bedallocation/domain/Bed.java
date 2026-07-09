@@ -4,10 +4,6 @@ import java.util.Objects;
 
 import ai.timefold.solver.core.api.domain.common.PlanningId;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
-@JsonIdentityInfo(scope = Bed.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Bed {
 
     @PlanningId
@@ -59,8 +55,12 @@ public class Bed {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Bed bed)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Bed bed)) {
+            return false;
+        }
         return Objects.equals(getId(), bed.getId());
     }
 

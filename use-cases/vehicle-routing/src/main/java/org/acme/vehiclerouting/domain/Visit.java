@@ -43,7 +43,7 @@ public class Visit implements LocationAware {
     }
 
     public Visit(String id, String name, Location location, int demand,
-                 LocalDateTime minStartTime, LocalDateTime maxEndTime, Duration serviceDuration) {
+            LocalDateTime minStartTime, LocalDateTime maxEndTime, Duration serviceDuration) {
         this.id = id;
         this.name = name;
         this.location = location;
@@ -123,7 +123,7 @@ public class Visit implements LocationAware {
     // ************************************************************************
 
     @SuppressWarnings("unused")
-    @ShadowSources({"vehicle", "previousVisit.arrivalTime"})
+    @ShadowSources({ "vehicle", "previousVisit.arrivalTime" })
     public LocalDateTime arrivalTimeSupplier() {
         if (previousVisit == null && vehicle == null) {
             return null;

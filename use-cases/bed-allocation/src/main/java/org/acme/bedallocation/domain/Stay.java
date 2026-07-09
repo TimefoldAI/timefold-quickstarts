@@ -3,14 +3,12 @@ package org.acme.bedallocation.domain;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 import java.time.LocalDate;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
-import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.common.PlanningId;
+import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @PlanningEntity
 public class Stay {
@@ -35,8 +33,8 @@ public class Stay {
     public Stay(String id, String patientName) {
         this.id = id;
         this.patientName = patientName;
-        this.patientRequiredEquipments = new LinkedList<>();
-        this.patientPreferredEquipments = new LinkedList<>();
+        this.patientRequiredEquipments = new ArrayList<>();
+        this.patientPreferredEquipments = new ArrayList<>();
     }
 
     public Stay(String id, LocalDate arrivalDate, LocalDate departureDate, String specialty, Bed bed) {
@@ -45,11 +43,10 @@ public class Stay {
         this.departureDate = departureDate;
         this.specialty = specialty;
         this.bed = bed;
-        this.patientRequiredEquipments = new LinkedList<>();
-        this.patientPreferredEquipments = new LinkedList<>();
+        this.patientRequiredEquipments = new ArrayList<>();
+        this.patientPreferredEquipments = new ArrayList<>();
     }
 
-    @JsonIgnore
     public int getNightCount() {
         return (int) DAYS.between(arrivalDate, departureDate) + 1; // TODO is + 1 still desired?
     }
@@ -60,17 +57,14 @@ public class Stay {
         return Math.max(0, (int) DAYS.between(maxArrivalDate, minDepartureDate) + 1); // TODO is + 1 still desired?
     }
 
-    @JsonIgnore
     public boolean hasDepartmentSpecialty() {
         return getDepartment().getSpecialtyToPriority().containsKey(specialty);
     }
 
-    @JsonIgnore
     public int getSpecialtyPriority() {
         return getDepartment().getSpecialtyToPriority().get(specialty);
     }
 
-    @JsonIgnore
     public Room getRoom() {
         if (bed == null) {
             return null;
@@ -78,7 +72,6 @@ public class Stay {
         return bed.getRoom();
     }
 
-    @JsonIgnore
     public int getRoomCapacity() {
         if (bed == null) {
             return Integer.MIN_VALUE;
@@ -86,7 +79,6 @@ public class Stay {
         return bed.getRoom().getCapacity();
     }
 
-    @JsonIgnore
     public Department getDepartment() {
         if (bed == null) {
             return null;
@@ -94,7 +86,6 @@ public class Stay {
         return bed.getRoom().getDepartment();
     }
 
-    @JsonIgnore
     public GenderLimitation getRoomGenderLimitation() {
         if (bed == null) {
             return null;

@@ -3,11 +3,6 @@ package org.acme.meetingschedule.domain;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
-@JsonIdentityInfo(scope = Meeting.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Meeting {
 
     private String id;
@@ -24,12 +19,13 @@ public class Meeting {
     private List<PreferredAttendance> preferredAttendances;
 
     public Meeting() {
+        this.requiredAttendances = new ArrayList<>();
+        this.preferredAttendances = new ArrayList<>();
     }
 
     public Meeting(String id) {
+        this();
         this.id = id;
-        this.requiredAttendances = new ArrayList<>();
-        this.preferredAttendances = new ArrayList<>();
     }
 
     public Meeting(String id, String topic) {
@@ -111,7 +107,6 @@ public class Meeting {
     // Complex methods
     // ************************************************************************
 
-    @JsonIgnore
     public int getRequiredCapacity() {
         return requiredAttendances.size() + preferredAttendances.size();
     }

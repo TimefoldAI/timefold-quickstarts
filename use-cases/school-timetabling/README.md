@@ -1,19 +1,17 @@
-# School Timetabling (Java, Quarkus, Maven or Gradle)
+# School Timetabling (Java, Quarkus, Maven)
 
-Assign lessons to timeslots and rooms to produce a better schedule for teachers and students.
-
-![School Timetabling Screenshot](./school-timetabling-screenshot.png)
+Assign lessons to timeslots and rooms to produce a conflict-free school timetable.
 
 ## Constraints
 
-| Name                          | Level | Description                                                                   |
-|-------------------------------|-------|-------------------------------------------------------------------------------|
-| Room conflict                 | Hard  | Two lessons cannot be scheduled in the same room at the same time.            |
-| Teacher conflict              | Hard  | A teacher cannot teach two lessons at the same time.                          |
-| Student group conflict        | Hard  | A student group cannot attend two lessons at the same time.                   |
-| Teacher room stability        | Soft  | A teacher should teach all their lessons in the same room.                    |
-| Teacher time efficiency       | Soft  | A teacher should have consecutive lessons to minimize gaps in their schedule. |
-| Student group subject variety | Soft  | A student group should not have the same subject in consecutive timeslots.    |
+| Name                          | Level | Description                                                      |
+|-------------------------------|-------|------------------------------------------------------------------|
+| Room conflict                 | Hard  | A room can accommodate at most one lesson at the same time.      |
+| Teacher conflict              | Hard  | A teacher can teach at most one lesson at the same time.         |
+| Student group conflict        | Hard  | A student group can attend at most one lesson at the same time.  |
+| Teacher room stability        | Soft  | A teacher prefers to teach in a single room.                     |
+| Teacher time efficiency       | Soft  | A teacher prefers sequential lessons without gaps.               |
+| Student group subject variety | Soft  | A student group dislikes sequential lessons on the same subject. |
 
 - [Run the application](#run-the-application)
 - [Run the packaged application](#run-the-packaged-application)
@@ -25,8 +23,8 @@ Assign lessons to timeslots and rooms to produce a better schedule for teachers 
 1. Install Java and Maven, for example with [Sdkman](https://sdkman.io):
 
    ```sh
-   $ sdk install java
-   $ sdk install maven
+   sdk install java
+   sdk install maven
    ```
 
 ## Run the application
@@ -34,37 +32,24 @@ Assign lessons to timeslots and rooms to produce a better schedule for teachers 
 1. Git clone the timefold-quickstarts repo and navigate to this directory:
 
    ```sh
-   $ git clone https://github.com/TimefoldAI/timefold-quickstarts.git
-   ...
-   $ cd timefold-quickstarts/quickstarts/school-timetabling
+   git clone https://github.com/TimefoldAI/timefold-quickstarts.git
+   cd timefold-quickstarts/java/school-timetabling
    ```
 
 2. (Optional) If you want to run a licensed edition (Plus / Enterprise), set up your license key first. See the [Timefold license tool](https://licenses.timefold.ai/) for instructions.
 
-3. Start the application with Maven or Gradle:
+3. Start the application with Maven:
 
    1. Community Edition
-   
+
       ```sh
-      $ mvn quarkus:dev
+      mvn quarkus:dev
       ```
 
-      or with Gradle:
+   2. Plus / Enterprise Edition: The profile sets up the correct Maven artifacts to run the licensed version. See the `pom.xml` for the implementation details.
 
       ```sh
-      $ gradle quarkusDev
-      ```
-   
-   2. Plus / Enterprise Edition: The enterprise profile sets up the correct artifacts to run the licensed version. See the `pom.xml` or `build.gradle` for the implementation details.
-
-      ```sh
-      $ mvn quarkus:dev -Denterprise
-      ```
-
-      or with Gradle:
-
-      ```sh
-      $ gradle quarkusDev -Denterprise=true
+      mvn quarkus:dev -Denterprise
       ```
 
 4. Visit [http://localhost:8080](http://localhost:8080) in your browser.
@@ -82,28 +67,16 @@ Notice that those changes are immediately in effect.
 
 When you're done iterating in `quarkus:dev` mode, package the application to run as a conventional jar file.
 
-1. Build it with Maven:
+1. Compile it with Maven:
 
    ```sh
-   $ mvn package
+   mvn package
    ```
 
-   or with Gradle:
+2. Run it:
 
    ```sh
-   $ gradle clean build
-   ```
-
-2. Run the Maven output:
-
-   ```sh
-   $ java -jar ./target/quarkus-app/quarkus-run.jar
-   ```
-
-   or the Gradle output:
-
-   ```sh
-   $ java -jar ./build/quarkus-app/quarkus-run.jar
+   java -jar ./target/quarkus-app/quarkus-run.jar
    ```
 
    > **Note**
@@ -118,13 +91,13 @@ When you're done iterating in `quarkus:dev` mode, package the application to run
 1. Build a container image:
 
    ```sh
-   $ mvn package -Dcontainer
+   mvn package -Dcontainer
    ```
 
 2. Run a container:
 
    ```sh
-   $ docker run -p 8080:8080 --rm $USER/school-timetabling:1.0-SNAPSHOT
+   docker run -p 8080:8080 --rm $USER/school-timetabling:1.0-SNAPSHOT
    ```
 
 ## Run it native
@@ -136,13 +109,13 @@ To increase startup performance for serverless deployments, build the applicatio
 2. Compile it natively. This takes a few minutes:
 
    ```sh
-   $ mvn package -Dnative
+   mvn package -Dnative -DskipTests
    ```
 
 3. Run the native executable:
 
    ```sh
-   $ ./target/*-runner
+   ./target/*-runner
    ```
 
 4. Visit [http://localhost:8080](http://localhost:8080) in your browser.

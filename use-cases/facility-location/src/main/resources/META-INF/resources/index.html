@@ -5,9 +5,9 @@
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <title>Facility location - Timefold Solver on Quarkus</title>
-  <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css">
-  <link rel="stylesheet" href="/webjars/leaflet/leaflet.css">
-  <link rel="stylesheet" href="/webjars/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.8.0/dist/leaflet.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="icon" href="https://timefold.ai/uploads/images/Brand-Assets/timefold-solver-logomark.png" type="image/png">
 
   <style>
@@ -18,11 +18,18 @@
       --bs-link-color: var(--ts-violet-1-rgb);
       --bs-link-hover-color: var(--ts-violet-2-rgb);
     }
+
+    /* When embedded in the Timefold Platform, hide the demo chrome (navbar,
+       intro text, solve controls) so only the read-only visualization shows. */
+    body.on-platform #appHeader,
+    body.on-platform #datasetInfo,
+    body.on-platform #solveControls,
+    body.on-platform footer { display: none !important; }
   </style>
 </head>
 <body>
 
-<header class="bg-white shadow">
+<header id="appHeader" class="bg-white shadow">
   <div class="container-fluid">
     <div id="notificationPanel" style="position: absolute; top: .5rem;"></div>
     <nav class="navbar sticky-top  navbar-expand-lg navbar-light" style="background-color: white; ">
@@ -41,12 +48,9 @@
     </div>
     <div class="col-5 col-lg-4 col-xl-3" style="height: 100vh; overflow-y: scroll;">
       <div class="row pt-2 row-cols-1">
-        <div class="col mb-3">
+        <div id="solveControls" class="col mb-3">
           <button id="solveButton" type="button" class="btn btn-success">
             <i class="fas fa-play"></i> Solve
-          </button>
-          <button id="stopSolvingButton" type="button" class="btn btn-danger">
-            <i class="fas fa-stop"></i> Stop solving
           </button>
         </div>
         <div class="col">
@@ -93,9 +97,9 @@
 <footer class="bg-black">
   <div class="container">
     <div class="hstack gap-3 p-4">
-      <div class="ms-auto"><a class="text-white" href="https://solver.timefold.ai?utm_source=github&utm_medium=quickstart&utm_campaign=timefold-quickstarts&utm_content=facility-location-java">Website</a></div>
+      <div class="ms-auto"><a class="text-white" href="https://solver.timefold.ai?utm_source=github&utm_medium=quickstart&utm_campaign=timefold-quickstarts&utm_content=facilitylocation-java">Website</a></div>
       <div class="vr"></div>
-      <div><a class="text-white" href="https://docs.timefold.ai/timefold-solver/latest?utm_source=github&utm_medium=quickstart&utm_campaign=timefold-quickstarts&utm_content=facility-location-java">Documentation</a></div>
+      <div><a class="text-white" href="https://docs.timefold.ai/timefold-solver/latest?utm_source=github&utm_medium=quickstart&utm_campaign=timefold-quickstarts&utm_content=facilitylocation-java">Documentation</a></div>
       <div class="vr"></div>
       <div><a class="text-white" href="https://github.com/TimefoldAI/timefold-quickstarts">Code</a></div>
       <div class="vr"></div>
@@ -125,9 +129,9 @@
   </div>
 </div>
 
-<script src="/webjars/leaflet/leaflet.js"></script>
-<script src="/webjars/jquery/jquery.min.js"></script>
-<script src="/webjars/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="/app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.8.0/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="app.js"></script>
 </body>
 </html>

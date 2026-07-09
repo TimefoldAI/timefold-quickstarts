@@ -23,15 +23,15 @@ Schedule shifts to employees, accounting for employee availability and shift ski
 - [Run it native](#run-it-native)
 
 > [!TIP]
-> <img src="https://docs.timefold.ai/_/img/models/employee-shift-scheduling.svg" align="right" width="50px" /> [Check out our off-the-shelf model for Employee Shift Scheduling](https://app.timefold.ai/models/employee-scheduling/v1). This model supports many additional constraints such as skills, pairing employees, fairness and more.
+> <img src="https://docs.timefold.ai/_/img/models/employee-shift-scheduling.svg" alt="Employee Shift Scheduling model" align="right" width="50px" /> [Check out our off-the-shelf model for Employee Shift Scheduling](https://app.timefold.ai/models/employee-scheduling/v1). This model supports many additional constraints such as skills, pairing employees, fairness and more.
 
 ## Prerequisites
 
 1. Install Java and Maven, for example with [Sdkman](https://sdkman.io):
 
    ```sh
-   $ sdk install java
-   $ sdk install maven
+   sdk install java
+   sdk install maven
    ```
 
 ## Run the application
@@ -39,9 +39,9 @@ Schedule shifts to employees, accounting for employee availability and shift ski
 1. Git clone the timefold-quickstarts repo and navigate to this directory:
 
    ```sh
-   $ git clone https://github.com/TimefoldAI/timefold-quickstarts.git
+   git clone https://github.com/TimefoldAI/timefold-quickstarts.git
    ...
-   $ cd timefold-quickstarts/quickstarts/employee-scheduling
+   cd timefold-quickstarts/java/employee-scheduling
    ```
 
 2. (Optional) If you want to run a licensed edition (Plus / Enterprise), set up your license key first. See the [Timefold license tool](https://licenses.timefold.ai/) for instructions.
@@ -49,15 +49,15 @@ Schedule shifts to employees, accounting for employee availability and shift ski
 3. Start the application with Maven:
 
    1. Community Edition
-   
+
       ```sh
-      $ mvn quarkus:dev
+      mvn quarkus:dev
       ```
-   
+
    2. Plus / Enterprise Edition: The profile sets up the correct Maven artifacts to run the licensed version. See the `pom.xml` for the implementation details.
 
       ```sh
-      $ mvn quarkus:dev -Denterprise
+      mvn quarkus:dev -Denterprise
       ```
 
 4. Visit [http://localhost:8080](http://localhost:8080) in your browser.
@@ -78,16 +78,16 @@ When you're done iterating in `quarkus:dev` mode, package the application to run
 1. Compile it with Maven:
 
    ```sh
-   $ mvn package
+   mvn package
    ```
 
 2. Run it:
 
    ```sh
-   $ java -jar ./target/quarkus-app/quarkus-run.jar
+   java -jar ./target/quarkus-app/quarkus-run.jar
    ```
 
-   > **Note**  
+   > **Note**
    > To run it on port 8081 instead, add `-Dquarkus.http.port=8081`.
 
 3. Visit [http://localhost:8080](http://localhost:8080) in your browser.
@@ -99,13 +99,13 @@ When you're done iterating in `quarkus:dev` mode, package the application to run
 1. Build a container image:
 
    ```sh
-   $ mvn package -Dcontainer
+   mvn package -Dcontainer
    ```
 
 2. Run a container:
 
    ```sh
-   $ docker run -p 8080:8080 $USER/employee-scheduling:1.0-SNAPSHOT
+   docker run -p 8080:8080 $USER/employee-scheduling:1.0-SNAPSHOT
    ```
 
 ## Run it native
@@ -117,13 +117,13 @@ To increase startup performance for serverless deployments, build the applicatio
 2. Compile it natively. This takes a few minutes:
 
    ```sh
-   $ mvn package -Dnative -DskipTests
+   mvn package -Dnative -DskipTests
    ```
 
 3. Run the native executable:
 
    ```sh
-   $ ./target/*-runner
+   ./target/*-runner
    ```
 
 4. Visit [http://localhost:8080](http://localhost:8080) in your browser.

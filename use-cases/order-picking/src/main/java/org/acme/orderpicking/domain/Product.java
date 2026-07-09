@@ -4,7 +4,7 @@ package org.acme.orderpicking.domain;
  * Represents an indivisible store article that can be included in an order, e.g. "6 milk bricks pack". In the context
  * of the order picking problem the volume of a product is measured in cm3, and every product is located in a
  * particular shelving, this information is represented by the WarehouseLocation.
- * 
+ *
  * @see WarehouseLocation
  * @see Shelving
  */

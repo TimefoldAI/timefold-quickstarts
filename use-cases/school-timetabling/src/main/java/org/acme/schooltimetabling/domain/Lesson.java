@@ -1,10 +1,13 @@
 package org.acme.schooltimetabling.domain;
 
-import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.common.PlanningId;
+import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
-import com.fasterxml.jackson.annotation.JsonIdentityReference;
 
+/**
+ * A lesson taught by a teacher to a student group about a subject. The solver
+ * assigns each lesson to a {@link Timeslot} and a {@link Room}.
+ */
 @PlanningEntity
 public class Lesson {
 
@@ -15,11 +18,9 @@ public class Lesson {
     private String teacher;
     private String studentGroup;
 
-    @JsonIdentityReference
     @PlanningVariable
     private Timeslot timeslot;
 
-    @JsonIdentityReference
     @PlanningVariable
     private Room room;
 
@@ -39,14 +40,9 @@ public class Lesson {
         this.room = room;
     }
 
-    @Override
-    public String toString() {
-        return subject + "(" + id + ")";
+    public boolean isScheduled() {
+        return timeslot != null && room != null;
     }
-
-    // ************************************************************************
-    // Getters and setters
-    // ************************************************************************
 
     public String getId() {
         return id;
@@ -78,5 +74,10 @@ public class Lesson {
 
     public void setRoom(Room room) {
         this.room = room;
+    }
+
+    @Override
+    public String toString() {
+        return subject + "(" + id + ")";
     }
 }

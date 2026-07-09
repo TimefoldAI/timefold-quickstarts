@@ -10,8 +10,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonFormat(shape = JsonFormat.Shape.ARRAY)
 public class Location {
 
-    private double latitude;
-    private double longitude;
+    private final double latitude;
+    private final double longitude;
 
     @JsonIgnore
     private Map<Location, Long> drivingTimeSeconds;

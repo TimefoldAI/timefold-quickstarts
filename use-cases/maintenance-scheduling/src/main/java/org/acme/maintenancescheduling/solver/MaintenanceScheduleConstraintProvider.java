@@ -1,21 +1,29 @@
 package org.acme.maintenancescheduling.solver;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import ai.timefold.solver.core.api.score.HardSoftScore;
-import ai.timefold.solver.core.api.score.stream.Constraint;
-import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
-import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
-import ai.timefold.solver.core.api.score.stream.Joiners;
-
-import org.acme.maintenancescheduling.domain.Job;
-
 import static ai.timefold.solver.core.api.score.stream.Joiners.equal;
 import static ai.timefold.solver.core.api.score.stream.Joiners.overlapping;
 import static java.time.temporal.ChronoUnit.DAYS;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import ai.timefold.solver.core.api.score.HardMediumSoftScore;
+import ai.timefold.solver.core.api.score.stream.Constraint;
+import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
+import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
+import ai.timefold.solver.core.api.score.stream.Joiners;
+import ai.timefold.solver.service.definition.api.description.ConstraintInfo;
+
+import org.acme.maintenancescheduling.domain.Job;
+
 public class MaintenanceScheduleConstraintProvider implements ConstraintProvider {
+
+    public static final String CREW_CONFLICT = "Crew conflict";
+    public static final String MIN_START_DATE = "Min start date";
+    public static final String MAX_END_DATE = "Max end date";
+    public static final String BEFORE_IDEAL_END_DATE = "Before ideal end date";
+    public static final String AFTER_IDEAL_END_DATE = "After ideal end date";
+    public static final String TAG_CONFLICT = "Tag conflict";
 
     @Override
     public Constraint[] defineConstraints(ConstraintFactory constraintFactory) {
@@ -36,83 +44,98 @@ public class MaintenanceScheduleConstraintProvider implements ConstraintProvider
     // Hard constraints
     // ************************************************************************
 
-    public Constraint crewConflict(ConstraintFactory constraintFactory) {
+    Constraint crewConflict(ConstraintFactory constraintFactory) {
         // A crew can do at most one maintenance job at the same time.
         return constraintFactory
                 .forEachUniquePair(Job.class,
                         equal(Job::getCrew),
                         overlapping(Job::getStartDate, Job::getEndDate))
-                .penalize(HardSoftScore.ONE_HARD,
-                        (job1, job2) -> DAYS.between(
+                .penalize(HardMediumSoftScore.ONE_HARD,
+                        (job1, job2) -> (int) DAYS.between(
                                 job1.getStartDate().isAfter(job2.getStartDate())
-                                        ? job1.getStartDate() : job2.getStartDate(),
+                                        ? job1.getStartDate()
+                                        : job2.getStartDate(),
                                 job1.getEndDate().isBefore(job2.getEndDate())
-                                        ? job1.getEndDate() : job2.getEndDate()))
-                .asConstraint("Crew conflict");
+                                        ? job1.getEndDate()
+                                        : job2.getEndDate()))
+                .asConstraint(new ConstraintInfo(CREW_CONFLICT, CREW_CONFLICT,
+                        "A crew can do at most one maintenance job at the same time.",
+                        MaintenanceScheduleConstraintGroup.CONFLICT_AVOIDANCE));
     }
 
-    public Constraint minStartDate(ConstraintFactory constraintFactory) {
-        // Don't start a maintenance job before its ready to start.
+    Constraint minStartDate(ConstraintFactory constraintFactory) {
+        // Don't start a maintenance job before it is ready to start.
         return constraintFactory.forEach(Job.class)
                 .filter(job -> job.getMinStartDate() != null
                         && job.getStartDate().isBefore(job.getMinStartDate()))
-                .penalize(HardSoftScore.ONE_HARD,
-                        job -> DAYS.between(job.getStartDate(), job.getMinStartDate()))
-                .asConstraint("Min start date");
+                .penalize(HardMediumSoftScore.ONE_HARD,
+                        job -> (int) DAYS.between(job.getStartDate(), job.getMinStartDate()))
+                .asConstraint(new ConstraintInfo(MIN_START_DATE, MIN_START_DATE,
+                        "Don't start a maintenance job before it is ready to start.",
+                        MaintenanceScheduleConstraintGroup.DEADLINES));
     }
 
-    public Constraint maxEndDate(ConstraintFactory constraintFactory) {
-        // Don't end a maintenance job after its due.
+    Constraint maxEndDate(ConstraintFactory constraintFactory) {
+        // Don't end a maintenance job after it is due.
         return constraintFactory.forEach(Job.class)
                 .filter(job -> job.getMaxEndDate() != null
                         && job.getEndDate().isAfter(job.getMaxEndDate()))
-                .penalize(HardSoftScore.ONE_HARD,
-                        job -> DAYS.between(job.getMaxEndDate(), job.getEndDate()))
-                .asConstraint("Max end date");
+                .penalize(HardMediumSoftScore.ONE_HARD,
+                        job -> (int) DAYS.between(job.getMaxEndDate(), job.getEndDate()))
+                .asConstraint(new ConstraintInfo(MAX_END_DATE, MAX_END_DATE,
+                        "Don't end a maintenance job after it is due.",
+                        MaintenanceScheduleConstraintGroup.DEADLINES));
     }
 
     // ************************************************************************
     // Soft constraints
     // ************************************************************************
 
-    public Constraint beforeIdealEndDate(ConstraintFactory constraintFactory) {
+    Constraint beforeIdealEndDate(ConstraintFactory constraintFactory) {
         // Early maintenance is expensive because the sooner maintenance is done, the sooner it needs to happen again.
         return constraintFactory.forEach(Job.class)
                 .filter(job -> job.getIdealEndDate() != null
                         && job.getEndDate().isBefore(job.getIdealEndDate()))
-                .penalize(HardSoftScore.ofSoft(1),
-                        job -> DAYS.between(job.getEndDate(), job.getIdealEndDate()))
-                .asConstraint("Before ideal end date");
+                .penalize(HardMediumSoftScore.ofSoft(1),
+                        job -> (int) DAYS.between(job.getEndDate(), job.getIdealEndDate()))
+                .asConstraint(new ConstraintInfo(BEFORE_IDEAL_END_DATE, BEFORE_IDEAL_END_DATE,
+                        "Early maintenance is expensive because it needs to happen again sooner.",
+                        MaintenanceScheduleConstraintGroup.PREFERENCES));
     }
 
-    public Constraint afterIdealEndDate(ConstraintFactory constraintFactory) {
+    Constraint afterIdealEndDate(ConstraintFactory constraintFactory) {
         // Late maintenance is risky because delays can push it over the due date.
         return constraintFactory.forEach(Job.class)
                 .filter(job -> job.getIdealEndDate() != null
                         && job.getEndDate().isAfter(job.getIdealEndDate()))
-                .penalize(HardSoftScore.ofSoft(1_000_000),
-                        job -> DAYS.between(job.getIdealEndDate(), job.getEndDate()))
-                .asConstraint("After ideal end date");
+                .penalize(HardMediumSoftScore.ofSoft(1_000_000),
+                        job -> (int) DAYS.between(job.getIdealEndDate(), job.getEndDate()))
+                .asConstraint(new ConstraintInfo(AFTER_IDEAL_END_DATE, AFTER_IDEAL_END_DATE,
+                        "Late maintenance is risky because delays can push it over the due date.",
+                        MaintenanceScheduleConstraintGroup.PREFERENCES));
     }
-    
-    public Constraint tagConflict(ConstraintFactory constraintFactory) {
+
+    Constraint tagConflict(ConstraintFactory constraintFactory) {
         // Avoid overlapping maintenance jobs with the same tag (for example road maintenance in the same area).
         return constraintFactory
                 .forEachUniquePair(Job.class,
                         overlapping(Job::getStartDate, Job::getEndDate),
                         Joiners.containingAnyOf(Job::getTags))
-                .penalize(HardSoftScore.ofSoft(1_000),
+                .penalize(HardMediumSoftScore.ofSoft(1_000),
                         (job1, job2) -> {
                             Set<String> intersection = new HashSet<>(job1.getTags());
                             intersection.retainAll(job2.getTags());
                             long overlap = DAYS.between(
                                     job1.getStartDate().isAfter(job2.getStartDate())
-                                            ? job1.getStartDate()  : job2.getStartDate(),
+                                            ? job1.getStartDate()
+                                            : job2.getStartDate(),
                                     job1.getEndDate().isBefore(job2.getEndDate())
-                                            ? job1.getEndDate() : job2.getEndDate());
-                            return intersection.size() * overlap;
+                                            ? job1.getEndDate()
+                                            : job2.getEndDate());
+                            return (int) (intersection.size() * overlap);
                         })
-                .asConstraint("Tag conflict");
+                .asConstraint(new ConstraintInfo(TAG_CONFLICT, TAG_CONFLICT,
+                        "Avoid overlapping maintenance jobs with the same tag.",
+                        MaintenanceScheduleConstraintGroup.CONFLICT_AVOIDANCE));
     }
-
 }

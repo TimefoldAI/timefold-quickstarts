@@ -2,8 +2,6 @@ package org.acme.projectjobschedule.domain;
 
 import org.acme.projectjobschedule.domain.resource.Resource;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 public class ResourceRequirement {
 
     private String id;
@@ -61,7 +59,6 @@ public class ResourceRequirement {
     // Complex methods
     // ************************************************************************
 
-    @JsonIgnore
     public boolean isResourceRenewable() {
         return resource.isRenewable();
     }

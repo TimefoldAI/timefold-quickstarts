@@ -2,16 +2,23 @@ package org.acme.employeescheduling.domain;
 
 import java.util.List;
 
+import ai.timefold.solver.core.api.domain.solution.ConstraintWeightOverrides;
 import ai.timefold.solver.core.api.domain.solution.PlanningEntityCollectionProperty;
 import ai.timefold.solver.core.api.domain.solution.PlanningScore;
 import ai.timefold.solver.core.api.domain.solution.PlanningSolution;
 import ai.timefold.solver.core.api.domain.solution.ProblemFactCollectionProperty;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
-import ai.timefold.solver.core.api.score.HardSoftBigDecimalScore;
-import ai.timefold.solver.core.api.solver.SolverStatus;
+import ai.timefold.solver.core.api.score.HardMediumSoftScore;
+import ai.timefold.solver.service.definition.api.SolverModel;
+import ai.timefold.solver.service.definition.api.metrics.InputMetricsAware;
+import ai.timefold.solver.service.definition.api.metrics.OutputMetricsAware;
+
+import org.acme.employeescheduling.dto.EmployeeScheduleInputMetrics;
+import org.acme.employeescheduling.dto.EmployeeScheduleOutputMetrics;
 
 @PlanningSolution
-public class EmployeeSchedule {
+public class EmployeeSchedule implements SolverModel<HardMediumSoftScore>,
+        InputMetricsAware<EmployeeScheduleInputMetrics>, OutputMetricsAware<EmployeeScheduleOutputMetrics> {
 
     @ProblemFactCollectionProperty
     @ValueRangeProvider
@@ -21,21 +28,16 @@ public class EmployeeSchedule {
     private List<Shift> shifts;
 
     @PlanningScore
-    private HardSoftBigDecimalScore score;
+    private HardMediumSoftScore score;
 
-    private SolverStatus solverStatus;
+    private ConstraintWeightOverrides<HardMediumSoftScore> constraintWeightOverrides = ConstraintWeightOverrides.none();
 
-    // No-arg constructor required for Timefold
-    public EmployeeSchedule() {}
+    public EmployeeSchedule() {
+    }
 
     public EmployeeSchedule(List<Employee> employees, List<Shift> shifts) {
         this.employees = employees;
         this.shifts = shifts;
-    }
-
-    public EmployeeSchedule(HardSoftBigDecimalScore score, SolverStatus solverStatus) {
-        this.score = score;
-        this.solverStatus = solverStatus;
     }
 
     public List<Employee> getEmployees() {
@@ -54,19 +56,41 @@ public class EmployeeSchedule {
         this.shifts = shifts;
     }
 
-    public HardSoftBigDecimalScore getScore() {
+    @Override
+    public HardMediumSoftScore getScore() {
         return score;
     }
 
-    public void setScore(HardSoftBigDecimalScore score) {
+    public void setScore(HardMediumSoftScore score) {
         this.score = score;
     }
 
-    public SolverStatus getSolverStatus() {
-        return solverStatus;
+    @Override
+    public ConstraintWeightOverrides<HardMediumSoftScore> getConstraintWeightOverrides() {
+        return constraintWeightOverrides;
     }
 
-    public void setSolverStatus(SolverStatus solverStatus) {
-        this.solverStatus = solverStatus;
+    public void setConstraintWeightOverrides(ConstraintWeightOverrides<HardMediumSoftScore> constraintWeightOverrides) {
+        this.constraintWeightOverrides = constraintWeightOverrides;
+    }
+
+    @Override
+    public EmployeeScheduleInputMetrics getInputMetrics() {
+        long locationCount = shifts.stream().map(Shift::getLocation).distinct().count();
+        long skillCount = shifts.stream().map(Shift::getRequiredSkill).distinct().count();
+        return new EmployeeScheduleInputMetrics(employees.size(), shifts.size(), (int) locationCount, (int) skillCount);
+    }
+
+    @Override
+    public EmployeeScheduleOutputMetrics getOutputMetrics() {
+        int assignedShifts = (int) shifts.stream().filter(Shift::isAssigned).count();
+        int unassignedShifts = shifts.size() - assignedShifts;
+        int usedEmployees = (int) shifts.stream().filter(Shift::isAssigned).map(Shift::getEmployee).distinct().count();
+        return new EmployeeScheduleOutputMetrics(assignedShifts, unassignedShifts, usedEmployees);
+    }
+
+    @Override
+    public String toString() {
+        return "EmployeeSchedule{shifts: " + (shifts == null ? 0 : shifts.size()) + ", score: " + score + '}';
     }
 }

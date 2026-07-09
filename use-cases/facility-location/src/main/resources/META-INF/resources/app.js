@@ -1,3 +1,22 @@
+// ── Platform context ──
+// When embedded in the Timefold Platform, the iframe URL carries these query params.
+// Standalone (local dev), none are present and the app behaves as before.
+const PLATFORM = (function () {
+  const q = new URL(window.location.href).searchParams;
+  return {
+    onPlatform: q.has('onPlatform'),
+    runId: q.get('runId'),
+    // apiUrl: base URL of the model API on the platform (URL-encoded). Trailing slash stripped.
+    apiUrl: q.has('apiUrl') ? decodeURIComponent(q.get('apiUrl')).replace(/\/+$/, '') : null,
+    apiKey: q.has('apiKey') ? q.get('apiKey') : null,
+  };
+})();
+
+// Build an API URL: prefix the platform base when embedded, else root-relative (local dev).
+function api(path) {
+  return PLATFORM.apiUrl ? PLATFORM.apiUrl + path : path;
+}
+
 const colors = [
   'aqua',
   'aquamarine',
@@ -18,6 +37,7 @@ const colors = [
 ];
 let autoRefreshCount = 0;
 let autoRefreshIntervalId = null;
+let jobId = null;
 let loadedSchedule = null;
 
 let initialized = false;
@@ -25,8 +45,9 @@ const facilityByIdMap = new Map();
 
 const solveButton = $('#solveButton');
 const analyzeButton = $('#analyzeButton');
-const stopSolvingButton = $('#stopSolvingButton');
 const facilitiesTable = $('#facilities');
+
+const toLatLng = (location) => [location.latitude, location.longitude];
 
 const colorById = (i) => colors[i % colors.length];
 const colorByFacility = (facility) => facility === null ? null : colorById(facility.id);
@@ -51,60 +72,99 @@ const createCostFormat = (notation) => new Intl.NumberFormat('en-US', {
 const shortCostFormat = createCostFormat('compact');
 const longCostFormat = createCostFormat('standard');
 
+// ── Platform: load an existing run (read-only) ──
+// ModelRest exposes the run's input at /{id}/model-request (ModelRequest → {modelInput})
+// and its output+status at /{id} (ModelResponse → {metadata:{solverStatus}, modelOutput}).
+const loadPlatformRun = () => {
+  if (!PLATFORM.runId) {
+    showError('No runId provided by platform.', {status: 0, statusText: 'missing runId'});
+    return;
+  }
+  jobId = PLATFORM.runId;
+  $.get(api(`/v1/facilitylocations/${jobId}/model-request`), (req) => {
+    const input = req.modelInput || req;
+    loadedSchedule = input;
+    showProblem({solution: input, scoreExplanation: null});
+    getStatus(); // fetch output + render
+    // Poll while the run is still solving; refreshSolvingButtons clears it on completion.
+    if (autoRefreshIntervalId == null) {
+      autoRefreshIntervalId = setInterval(autoRefresh, 1000);
+    }
+  }).fail((xhr) => {
+    showError('Failed to load run input from platform.', xhr);
+  });
+};
+
 const getStatus = () => {
-  $.get('/flp/status', null, (data) => {
-        loadedSchedule = data.solution;
-        return showProblem(data);
-    }).fail((xhr, ajaxOptions, thrownError) => {
+  if (jobId == null) {
+    $.get(api('/v1/demo-data/BASIC'), (data) => {
+      loadedSchedule = data.modelInput;
+      showProblem({
+        solution: data.modelInput,
+        scoreExplanation: null,
+      });
+    }).fail((xhr) => {
+      showError('Get demo data failed.', xhr);
+    });
+  } else {
+    $.get(api(`/v1/facilitylocations/${jobId}`), (data) => {
+      loadedSchedule = data.modelOutput;
+      const solverStatus = data.metadata.solverStatus;
+      showProblem({
+        solution: data.modelOutput || loadedSchedule,
+        scoreExplanation: null,
+      });
+      refreshSolvingButtons(solverStatus);
+    }).fail((xhr) => {
       showError('Get status failed.', xhr);
-    },
-    "text");
+    });
+  }
 };
 
 const solve = () => {
-  $.post('/flp/solve', null, () => {
-      updateSolvingStatus(true);
-      autoRefreshCount = 300;
+  $.get(api('/v1/demo-data/BASIC'), (modelRequest) => {
+    $.post(api('/v1/facilitylocations'), JSON.stringify(modelRequest), (metadata) => {
+      jobId = metadata.id;
+      refreshSolvingButtons(metadata.solverStatus);
       if (autoRefreshIntervalId == null) {
-        autoRefreshIntervalId = setInterval(autoRefresh, 500);
+        autoRefreshIntervalId = setInterval(autoRefresh, 1000);
       }
-    }).fail((xhr, ajaxOptions, thrownError) => {
+    }).fail((xhr) => {
       showError('Start solving failed.', xhr);
-    },
-    "text");
+    });
+  });
 };
 
 const stopSolving = () => {
-  $.post('/flp/stopSolving', null, () => {
-      updateSolvingStatus(false);
-      getStatus();
-    }).fail((xhr, ajaxOptions, thrownError) => {
-      showError('Stop solving failed.', xhr);
-    },
-    "text");
+  $.delete(api(`/v1/facilitylocations/${jobId}`), (data) => {
+    refreshSolvingButtons('SOLVING_COMPLETED');
+    getStatus();
+  }).fail((xhr) => {
+    showError('Stop solving failed.', xhr);
+  });
 };
 
-const updateSolvingStatus = (solving) => {
-  if (solving) {
-    solveButton.hide();
-    stopSolvingButton.show();
+const refreshSolvingButtons = (solverStatus) => {
+  if (solverStatus === 'SOLVING_ACTIVE' || solverStatus === 'SOLVING_SCHEDULED' || solverStatus === 'SOLVING_STARTED') {
+    solveButton.html('<i class="fas fa-stop"></i> Stop solving');
+    solveButton.removeClass('btn-success').addClass('btn-danger');
+    solveButton.off('click').click(stopSolving);
   } else {
-    autoRefreshCount = 0;
-    solveButton.show();
-    stopSolvingButton.hide();
+    solveButton.html('<i class="fas fa-play"></i> Solve');
+    solveButton.removeClass('btn-danger').addClass('btn-success');
+    solveButton.off('click').click(solve);
+    if (autoRefreshIntervalId != null) {
+      clearInterval(autoRefreshIntervalId);
+      autoRefreshIntervalId = null;
+    }
   }
 };
 
 const autoRefresh = () => {
   getStatus();
-  autoRefreshCount--;
-  if (autoRefreshCount <= 0) {
-    clearInterval(autoRefreshIntervalId);
-    autoRefreshIntervalId = null;
-  }
 };
 
-const facilityPopupContent = (facility, cost, color) => `<h5>Facility ${facility.id}</h5>
+const facilityPopupContent = (facility, cost, color) => `<h5>${facility.name}</h5>
 <ul class="list-unstyled">
 <li>Usage: ${facility.usedCapacity}/${facility.capacity}</li>
 <li>Setup cost: ${cost}</li>
@@ -112,21 +172,21 @@ const facilityPopupContent = (facility, cost, color) => `<h5>Facility ${facility
 </span> ${color}</li>
 </ul>`;
 
-const getFacilityMarker = ({id, location}) => {
-  let marker = facilityByIdMap.get(id);
+const getFacilityMarker = (facility) => {
+  let marker = facilityByIdMap.get(facility.id);
   if (marker) {
     return marker;
   }
-  marker = L.marker(location);
+  marker = L.marker(toLatLng(facility.location));
   marker.addTo(facilityGroup).bindPopup();
-  facilityByIdMap.set(id, marker);
+  facilityByIdMap.set(facility.id, marker);
   return marker;
 };
 
-const showProblem = ({solution, isSolving}) => {
-  if (!initialized) {
+const showProblem = ({solution, scoreExplanation}) => {
+  if (!initialized && solution.bounds) {
     initialized = true;
-    map.fitBounds(solution.bounds);
+    map.fitBounds(solution.bounds.map(toLatLng));
   }
   // Facilities
   facilitiesTable.children().remove();
@@ -142,7 +202,7 @@ const showProblem = ({solution, isSolving}) => {
     facilitiesTable.append(`<tr class="${used ? 'table-active' : 'text-muted'}">
 <td><i class="fas fa-crosshairs" id="crosshairs-${id}"
 style="background-color: ${colorIfUsed}; display: inline-block; width: 1rem; height: 1rem; text-align: center">
-</i></td><td>Facility ${id}</td>
+</i></td><td>${facility.name}</td>
 <td><div class="progress">
 <div class="progress-bar" role="progressbar" style="width: ${percentage}%">${usedCapacity}/${capacity}</div>
 </div></td>
@@ -155,18 +215,20 @@ style="background-color: ${colorIfUsed}; display: inline-block; width: 1rem; hei
   // Consumers
   consumerGroup.clearLayers();
   solution.consumers.forEach((consumer) => {
-    const color = colorByFacility(consumer.facility);
-    L.circleMarker(consumer.location, consumer.assigned ? {color} : {}).addTo(consumerGroup);
-    if (consumer.assigned) {
-      L.polyline([consumer.location, consumer.facility.location], {color}).addTo(consumerGroup);
+    const facility = consumer.facilityId ? solution.facilities.find(f => f.id === consumer.facilityId) : null;
+    const color = colorByFacility(facility);
+    const consumerLatLng = toLatLng(consumer.location);
+    L.circleMarker(consumerLatLng, consumer.assigned ? {color} : {}).addTo(consumerGroup);
+    if (consumer.assigned && facility) {
+      L.polyline([consumerLatLng, toLatLng(facility.location)], {color}).addTo(consumerGroup);
     }
   });
   // Summary
-  $('#score').text(solution.score);
-  $('#cost').text(longCostFormat.format(solution.totalCost));
-  $('#cost-percentage').text(Math.round(solution.totalCost * 1000 / solution.potentialCost) / 10);
-  $('#distance').text(solution.totalDistance);
-  updateSolvingStatus(isSolving);
+  $('#score').text(solution.score || 'unknown');
+  $('#cost').text(solution.totalCost ? longCostFormat.format(solution.totalCost) : 'unknown');
+  $('#cost-percentage').text(solution.totalCost ? Math.round(solution.totalCost * 1000 / solution.potentialCost) / 10 : 'unknown');
+  $('#distance').text(solution.totalDistance || 'unknown');
+  $('#scoreInfo').text(scoreExplanation);
 };
 
 function analyze() {
@@ -177,7 +239,7 @@ function analyze() {
     scoreAnalysisModalContent.text("No score to analyze yet, please first press the 'solve' button.");
   } else {
     $('#scoreAnalysisScoreLabel').text(`(${loadedSchedule.score})`);
-    $.put("/flp/analyze", function (scoreAnalysis) {
+    $.get(api(`/v1/facilitylocations/${jobId}/score-analysis`), function (scoreAnalysis) {
       let constraints = scoreAnalysis.constraints;
       constraints.sort((a, b) => {
         let aComponents = getScoreComponents(a.score), bComponents = getScoreComponents(b.score);
@@ -227,7 +289,7 @@ function analyze() {
 
         let row = $(`<tr/>`);
         row.append($(`<td/>`).html(icon))
-            .append($(`<td/>`).text(constraintAnalysis.id).css({textAlign: 'left'}))
+            .append($(`<td/>`).text(constraintAnalysis.name).css({textAlign: 'left'}))
             .append($(`<td/>`).text(constraintAnalysis.type))
             .append($(`<td/>`).html(`<b>${constraintAnalysis.matches.length}</b>`))
             .append($(`<td/>`).text(constraintAnalysis.weight))
@@ -238,13 +300,7 @@ function analyze() {
       analysisTable.append(analysisTBody);
       scoreAnalysisModalContent.append(analysisTable);
     }).fail(function (xhr, ajaxOptions, thrownError) {
-      scoreAnalysisModalContent.children().remove();
-      scoreAnalysisModalContent.append($("<p/>").html(
-          "The server returned an error."
-          + " This may be due to a misconfiguration, or because Score Analysis requires"
-          + " <b>Timefold Solver Enterprise Edition</b>, which is not on the classpath."
-          + " If the latter, reach out to Timefold, obtain your license,"
-          + " and then run the quickstart with an Enterprise profile to see Score analysis in action."));
+      showError("Analyze failed.", xhr);
     }, "text");
   }
 }
@@ -263,6 +319,8 @@ function setupAjax() {
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json,text/plain', // plain text is required by solve() returning UUID of the solver job
+      // On the platform, authenticate every request with the supplied API key.
+      ...(PLATFORM.apiKey ? {'X-API-KEY': PLATFORM.apiKey} : {})
     }
   });
 
@@ -287,8 +345,13 @@ function setupAjax() {
 
 setupAjax();
 
+// Embedded on the platform: hide the demo chrome and load the run read-only.
+if (PLATFORM.onPlatform) {
+  document.body.classList.add('on-platform');
+}
+
 const map = L.map('map', {doubleClickZoom: false}).setView([51.505, -0.09], 13);
-map.whenReady(getStatus);
+map.whenReady(PLATFORM.onPlatform ? loadPlatformRun : getStatus);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19,
@@ -300,11 +363,10 @@ const facilityGroup = L.layerGroup();
 consumerGroup.addTo(map);
 facilityGroup.addTo(map);
 
-solveButton.click(solve);
-stopSolvingButton.click(stopSolving);
+solveButton.off('click').click(solve);
 analyzeButton.click(analyze);
 
-updateSolvingStatus();
+refreshSolvingButtons();
 
 function showError(title, xhr) {
   let serverErrorMessage = !xhr.responseJSON ? `${xhr.status}: ${xhr.statusText}` : xhr.responseJSON.message;

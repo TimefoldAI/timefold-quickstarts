@@ -1,15 +1,39 @@
+// ── Platform context ──
+// When embedded in the Timefold Platform, the iframe URL carries these query params.
+// Standalone (local dev), none are present and the app behaves as before.
+const PLATFORM = (function () {
+    const q = new URL(window.location.href).searchParams;
+    return {
+        onPlatform: q.has('onPlatform'),
+        runId: q.get('runId'),
+        // apiUrl: base URL of the model API on the platform (URL-encoded). Trailing slash stripped.
+        apiUrl: q.has('apiUrl') ? decodeURIComponent(q.get('apiUrl')).replace(/\/+$/, '') : null,
+        apiKey: q.has('apiKey') ? q.get('apiKey') : null,
+    };
+})();
+
+// Build an API URL: prefix the platform base when embedded, else root-relative (local dev).
+function api(path) {
+    return PLATFORM.apiUrl ? PLATFORM.apiUrl + path : path;
+}
+
 let autoRefreshIntervalId = null;
 let initialized = false;
-let optimizing = false;
-let demoDataId = null;
-let scheduleId = null;
-let loadedRoutePlan = null;
-let newVisit = null;
-let visitMarker = null;
+let planId = null;
+// The demo dataset ({config, modelInput}) used both as the POST body and as the source of problem facts.
+let demoDataset = null;
+// Bounding box and time window cached from the demo modelInput; they do not change while solving.
+let southWestCorner = null;
+let northEastCorner = null;
+let startDateTime = null;
+let endDateTime = null;
+
+const SOLVING_STATUSES = new Set(["SOLVING_SCHEDULED", "SOLVING_ACTIVE", "SOLVING_STARTED", "SCHEDULED", "STARTED",
+    "SOLVING"]);
+
 const solveButton = $('#solveButton');
 const stopSolvingButton = $('#stopSolvingButton');
 const vehiclesTable = $('#vehicles');
-const analyzeButton = $('#analyzeButton');
 
 /*************************************** Map constants and variable definitions  **************************************/
 
@@ -62,7 +86,8 @@ function pickColor(object) {
     if (color !== undefined) {
         return color;
     }
-    let index = nextColorIndex++;
+    let index = nextColorIndex % BG_COLORS.length;
+    nextColorIndex++;
     color = {bg : BG_COLORS[index], fg: FG_COLORS[index]};
     COLOR_MAP.set(object,color);
     return color;
@@ -78,7 +103,6 @@ $(document).ready(function () {
 
     solveButton.click(solve);
     stopSolvingButton.click(stopSolving);
-    analyzeButton.click(analyze);
     refreshSolvingButtons(false);
 
     // HACK to allow vis-timeline to work within Bootstrap tabs
@@ -88,23 +112,45 @@ $(document).ready(function () {
     $("#byVisitTab").on('shown.bs.tab', function (event) {
         byVisitTimeline.redraw();
     })
-    // Add new visit
-    map.on('click', function (e) {
-        visitMarker = L.circleMarker(e.latlng);
-        visitMarker.setStyle({color: 'green'});
-        visitMarker.addTo(map);
-        openRecommendationModal(e.latlng.lat, e.latlng.lng);
-    });
-    // Remove visit mark
-    $("#newVisitModal").on("hidden.bs.modal", function () {
-        map.removeLayer(visitMarker);
-    });
     setupAjax();
-    fetchDemoData();
+    // Embedded on the platform: hide the demo chrome and load the run read-only.
+    if (PLATFORM.onPlatform) {
+        document.body.classList.add('on-platform');
+        loadPlatformRun();
+    } else {
+        loadDemoData();
+    }
 });
 
-function colorByVehicle(vehicle) {
-    return vehicle === null ? null : pickColor('vehicle' + vehicle.id);
+// ── Platform: load an existing run (read-only) ──
+// ModelRest exposes the run's input at /{id}/model-request (ModelRequest -> {config, modelInput})
+// and its output+status at /{id} (ModelResponse -> {metadata:{solverStatus,score}, modelOutput}).
+function loadPlatformRun() {
+    if (!PLATFORM.runId) {
+        showError("No runId provided by platform.", {status: 0, statusText: "missing runId"});
+        return;
+    }
+    planId = PLATFORM.runId;
+    $.getJSON(api("/v1/route-plans/" + planId + "/model-request"), function (req) {
+        const input = req.modelInput || req;
+        cacheBounds(input);
+        homeLocationGroup.clearLayers();
+        homeLocationMarkerByIdMap.clear();
+        visitGroup.clearLayers();
+        visitMarkerByIdMap.clear();
+        initialized = false;
+        render(input.vehicles, input.visits, null);
+        refreshRoutePlan();
+        if (autoRefreshIntervalId == null) {
+            autoRefreshIntervalId = setInterval(refreshRoutePlan, 2000);
+        }
+    }).fail(function (xhr) {
+        showError("Failed to load run input from platform.", xhr);
+    });
+}
+
+function colorByVehicleId(vehicleId) {
+    return vehicleId == null ? null : pickColor('vehicle' + vehicleId);
 }
 
 function formatScore(score) {
@@ -117,8 +163,7 @@ function formatDrivingTime(drivingTimeInSeconds) {
 }
 
 function homeLocationPopupContent(vehicle) {
-    return `<h5>Vehicle ${vehicle.id}</h5>
-Home Location`;
+    return `<h5>Vehicle ${vehicle.id}</h5>Home Location`;
 }
 
 function visitPopupContent(visit) {
@@ -129,8 +174,19 @@ function visitPopupContent(visit) {
     ${arrival}`;
 }
 
-function showTimeOnly(localDateTimeString) {
-    return JSJoda.LocalDateTime.parse(localDateTimeString).toLocalTime();
+// Times are serialized as UTC OffsetDateTime strings (e.g. 2026-07-01T13:00:00Z); this
+// js-joda build has no OffsetDateTime, so drop the offset and parse as a LocalDateTime.
+function parseLocalDateTime(offsetDateTimeString) {
+    return JSJoda.LocalDateTime.parse(offsetDateTimeString.replace(/(Z|[+-]\d{2}:\d{2})$/, ''));
+}
+
+function showTimeOnly(offsetDateTimeString) {
+    return parseLocalDateTime(offsetDateTimeString).toLocalTime();
+}
+
+// LocationDTO is a {latitude, longitude} object; Leaflet expects a [lat, lng] tuple.
+function latLng(location) {
+    return location ? [location.latitude, location.longitude] : location;
 }
 
 function getHomeLocationMarker(vehicle) {
@@ -138,14 +194,14 @@ function getHomeLocationMarker(vehicle) {
     if (marker) {
         return marker;
     }
-    const color = colorByVehicle(vehicle);
+    const color = colorByVehicleId(vehicle.id);
     const homeIcon = L.divIcon({
         html: `<i class="fas fa-home" style="color: ${color.bg}; font-size: 20px; text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;"></i>`,
         className: 'home-location-icon',
         iconSize: [20, 20],
         iconAnchor: [10, 10]
     });
-    marker = L.marker(vehicle.homeLocation, { icon: homeIcon });
+    marker = L.marker(latLng(vehicle.homeLocation), { icon: homeIcon });
     marker.addTo(homeLocationGroup).bindPopup();
     homeLocationMarkerByIdMap.set(vehicle.id, marker);
     return marker;
@@ -156,31 +212,31 @@ function getVisitMarker(visit) {
     if (marker) {
         return marker;
     }
-    marker = L.circleMarker(visit.location);
+    marker = L.circleMarker(latLng(visit.location));
     marker.addTo(visitGroup).bindPopup();
     visitMarkerByIdMap.set(visit.id, marker);
     return marker;
 }
 
-function renderRoutes(solution) {
-    if (!initialized) {
-        const bounds = [solution.southWestCorner, solution.northEastCorner];
-        map.fitBounds(bounds);
+function totalDrivingTime(vehicles) {
+    return vehicles.reduce((sum, vehicle) => sum + (vehicle.totalDrivingTimeSeconds || 0), 0);
+}
+
+function renderRoutes(vehicles, visits, score) {
+    if (!initialized && southWestCorner && northEastCorner) {
+        map.fitBounds([latLng(southWestCorner), latLng(northEastCorner)]);
     }
     // Vehicles
     vehiclesTable.children().remove();
-    solution.vehicles.forEach(function (vehicle) {
+    vehicles.forEach(function (vehicle) {
         getHomeLocationMarker(vehicle).setPopupContent(homeLocationPopupContent(vehicle));
         const {id, capacity, totalDemand, totalDrivingTimeSeconds} = vehicle;
         const percentage = totalDemand / capacity * 100;
-        const color = colorByVehicle(vehicle);
+        const color = colorByVehicleId(id);
         vehiclesTable.append(`
       <tr>
-        <td>
-          <i class="fas fa-home" id="home-${id}"
-            style="color: ${color.bg}; font-size: 1.2rem; display: inline-block; width: 1rem; text-align: center">
-          </i>
-        </td>
+        <td><i class="fas fa-home" id="home-${id}"
+            style="color: ${color.bg}; font-size: 1.2rem; display: inline-block; width: 1rem; text-align: center"></i></td>
         <td>Vehicle ${id}</td>
         <td>
           <div class="progress" data-bs-toggle="tooltip-load" data-bs-placement="left" data-html="true"
@@ -188,48 +244,48 @@ function renderRoutes(solution) {
             <div class="progress-bar" role="progressbar" style="width: ${percentage}%">${totalDemand}/${capacity}</div>
           </div>
         </td>
-        <td>${formatDrivingTime(totalDrivingTimeSeconds)}</td>
+        <td>${formatDrivingTime(totalDrivingTimeSeconds || 0)}</td>
       </tr>`);
     });
     // Visits
-    solution.visits.forEach(function (visit) {
+    visits.forEach(function (visit) {
         const marker = getVisitMarker(visit);
         marker.setPopupContent(visitPopupContent(visit));
-        if (visit.vehicle != null) {
-            const vehicle = solution.vehicles.find(v => v.id === visit.vehicle);
-            if (vehicle) {
-                marker.setStyle({color: colorByVehicle(vehicle).bg, fillOpacity: 0.8});
-            }
+        if (visit.vehicleId != null) {
+            marker.setStyle({color: colorByVehicleId(visit.vehicleId).bg, fillOpacity: 0.8});
         } else {
             marker.setStyle({color: '#999999', fillOpacity: 0.5});
         }
     });
     // Route
     routeGroup.clearLayers();
-    const visitByIdMap = new Map(solution.visits.map(visit => [visit.id, visit]));
-    for (let vehicle of solution.vehicles) {
-        const homeLocation = vehicle.homeLocation;
-        const locations = vehicle.visits.map(visitId => visitByIdMap.get(visitId).location);
-        L.polyline([homeLocation, ...locations, homeLocation], {color: colorByVehicle(vehicle).bg}).addTo(routeGroup);
+    const visitByIdMap = new Map(visits.map(visit => [visit.id, visit]));
+    for (let vehicle of vehicles) {
+        const homeLocation = latLng(vehicle.homeLocation);
+        const locations = (vehicle.visitIds || [])
+            .map(visitId => visitByIdMap.get(visitId))
+            .filter(visit => visit != null)
+            .map(visit => latLng(visit.location));
+        L.polyline([homeLocation, ...locations, homeLocation], {color: colorByVehicleId(vehicle.id).bg}).addTo(routeGroup);
     }
 
     // Summary
-    $('#score').text(formatScore(solution.score));
-    $("#info").text(`This dataset has ${solution.visits.length} visits who need to be assigned to ${solution.vehicles.length} vehicles.`);
-    $('#drivingTime').text(formatDrivingTime(solution.totalDrivingTimeSeconds));
+    $('#score').text(formatScore(score));
+    $("#info").text(`This dataset has ${visits.length} visits who need to be assigned to ${vehicles.length} vehicles.`);
+    $('#drivingTime').text(formatDrivingTime(totalDrivingTime(vehicles)));
 }
 
-function renderTimelines(routePlan) {
+function renderTimelines(vehicles, visits) {
     byVehicleGroupData.clear();
     byVisitGroupData.clear();
     byVehicleItemData.clear();
     byVisitItemData.clear();
 
-    $.each(routePlan.vehicles, function (index, vehicle) {
+    $.each(vehicles, function (index, vehicle) {
         const {totalDemand, capacity} = vehicle
         const percentage = totalDemand / capacity * 100;
         const vehicleWithLoad = `<h5 class="card-title mb-1">vehicle-${vehicle.id}</h5>
-                                 <div class="progress" data-bs-toggle="tooltip-load" data-bs-placement="left" 
+                                 <div class="progress" data-bs-toggle="tooltip-load" data-bs-placement="left"
                                       data-html="true" title="Cargo: ${totalDemand} / Capacity: ${capacity}">
                                    <div class="progress-bar" role="progressbar" style="width: ${percentage}%">
                                       ${totalDemand}/${capacity}
@@ -238,10 +294,10 @@ function renderTimelines(routePlan) {
         byVehicleGroupData.add({id: vehicle.id, content: vehicleWithLoad});
     });
 
-    $.each(routePlan.visits, function (index, visit) {
-        const minStartTime = JSJoda.LocalDateTime.parse(visit.minStartTime);
-        const maxEndTime = JSJoda.LocalDateTime.parse(visit.maxEndTime);
-        const serviceDuration = JSJoda.Duration.ofSeconds(visit.serviceDuration);
+    $.each(visits, function (index, visit) {
+        const minStartTime = parseLocalDateTime(visit.minStartTime);
+        const maxEndTime = parseLocalDateTime(visit.maxEndTime);
+        const serviceDuration = JSJoda.Duration.ofSeconds(visit.serviceDurationSeconds);
 
         const visitGroupElement = $(`<div/>`)
             .append($(`<h5 class="card-title mb-1"/>`).text(`${visit.name}`));
@@ -260,11 +316,9 @@ function renderTimelines(routePlan) {
             style: "background-color: #8AE23433"
         });
 
-        if (visit.vehicle == null) {
+        if (visit.vehicleId == null) {
             const byJobJobElement = $(`<div/>`)
                 .append($(`<h5 class="card-title mb-1"/>`).text(`Unassigned`));
-
-            // Unassigned are shown at the beginning of the visit's time window; the length is the service duration.
             byVisitItemData.add({
                 id: visit.id + '_unassigned',
                 group: visit.id,
@@ -274,7 +328,7 @@ function renderTimelines(routePlan) {
                 style: "background-color: #EF292999"
             });
         } else {
-            const arrivalTime = JSJoda.LocalDateTime.parse(visit.arrivalTime);
+            const arrivalTime = parseLocalDateTime(visit.arrivalTime);
             const beforeReady = arrivalTime.isBefore(minStartTime);
             const arrivalPlusService = arrivalTime.plus(serviceDuration);
             const afterDue = arrivalPlusService.isAfter(maxEndTime);
@@ -282,19 +336,16 @@ function renderTimelines(routePlan) {
             const byVehicleElement = $(`<div/>`)
                 .append('<div/>')
                 .append($(`<h5 class="card-title mb-1"/>`).text(visit.name));
-
             const byVisitElement = $(`<div/>`)
-                // visit.vehicle is the vehicle.id due to Jackson serialization
-                .append($(`<h5 class="card-title mb-1"/>`).text('vehicle-' + visit.vehicle));
-
+                .append($(`<h5 class="card-title mb-1"/>`).text('vehicle-' + visit.vehicleId));
             const byVehicleTravelElement = $(`<div/>`)
                 .append($(`<h5 class="card-title mb-1"/>`).text('Travel'));
 
             const previousDeparture = arrivalTime.minusSeconds(visit.drivingTimeSecondsFromPreviousStandstill);
             byVehicleItemData.add({
                 id: visit.id + '_travel',
-                group: visit.vehicle, // visit.vehicle is the vehicle.id due to Jackson serialization
-                subgroup: visit.vehicle,
+                group: visit.vehicleId,
+                subgroup: visit.vehicleId,
                 content: byVehicleTravelElement.html(),
                 start: previousDeparture.toString(),
                 end: visit.arrivalTime,
@@ -303,22 +354,20 @@ function renderTimelines(routePlan) {
             if (beforeReady) {
                 const byVehicleWaitElement = $(`<div/>`)
                     .append($(`<h5 class="card-title mb-1"/>`).text('Wait'));
-
                 byVehicleItemData.add({
                     id: visit.id + '_wait',
-                    group: visit.vehicle, // visit.vehicle is the vehicle.id due to Jackson serialization
-                    subgroup: visit.vehicle,
+                    group: visit.vehicleId,
+                    subgroup: visit.vehicleId,
                     content: byVehicleWaitElement.html(),
                     start: visit.arrivalTime,
                     end: visit.minStartTime
                 });
             }
             let serviceElementBackground = afterDue ? '#EF292999' : '#83C15955'
-
             byVehicleItemData.add({
                 id: visit.id + '_service',
-                group: visit.vehicle, // visit.vehicle is the vehicle.id due to Jackson serialization
-                subgroup: visit.vehicle,
+                group: visit.vehicleId,
+                subgroup: visit.vehicleId,
                 content: byVehicleElement.html(),
                 start: visit.startServiceTime,
                 end: visit.departureTime,
@@ -332,18 +381,17 @@ function renderTimelines(routePlan) {
                 end: visit.departureTime,
                 style: "background-color: " + serviceElementBackground
             });
-
         }
-
     });
 
-    $.each(routePlan.vehicles, function (index, vehicle) {
-        if (vehicle.visits.length > 0) {
-            let lastVisit = routePlan.visits.filter((visit) => visit.id === vehicle.visits[vehicle.visits.length -1]).pop();
-            if (lastVisit) {
+    $.each(vehicles, function (index, vehicle) {
+        if ((vehicle.visitIds || []).length > 0 && vehicle.arrivalTime) {
+            let lastVisitId = vehicle.visitIds[vehicle.visitIds.length - 1];
+            let lastVisit = visits.filter((visit) => visit.id === lastVisitId).pop();
+            if (lastVisit && lastVisit.departureTime) {
                 byVehicleItemData.add({
                     id: vehicle.id + '_travelBackToHomeLocation',
-                    group: vehicle.id, // visit.vehicle is the vehicle.id due to Jackson serialization
+                    group: vehicle.id,
                     subgroup: vehicle.id,
                     content: $(`<div/>`).append($(`<h5 class="card-title mb-1"/>`).text('Travel')).html(),
                     start: lastVisit.departureTime,
@@ -354,9 +402,9 @@ function renderTimelines(routePlan) {
         }
     });
 
-    if (!initialized) {
-        byVehicleTimeline.setWindow(routePlan.startDateTime, routePlan.endDateTime);
-        byVisitTimeline.setWindow(routePlan.startDateTime, routePlan.endDateTime);
+    if (!initialized && startDateTime && endDateTime) {
+        byVehicleTimeline.setWindow(startDateTime, endDateTime);
+        byVisitTimeline.setWindow(startDateTime, endDateTime);
     }
     requestAnimationFrame(() => {
         if ($('#byVehiclePanel').hasClass('active')) byVehicleTimeline.redraw();
@@ -364,94 +412,21 @@ function renderTimelines(routePlan) {
     });
 }
 
-function analyze() {
-    // see score-analysis.js
-    analyzeScore(loadedRoutePlan, "/route-plans/analyze")
+function render(vehicles, visits, score) {
+    renderRoutes(vehicles, visits, score);
+    renderTimelines(vehicles, visits);
+    initialized = true;
 }
-
-function openRecommendationModal(lat, lng) {
-
-    if (!('score' in loadedRoutePlan) || optimizing) {
-        map.removeLayer(visitMarker);
-        visitMarker = null;
-        let message = "Please click the Solve button before adding new visits.";
-        if (optimizing) {
-            message = "Please wait for the solving process to finish."
-        }
-        alert(message);
-        return;
-    }
-    // see recommended-fit.js
-    const visitId = Math.max(...loadedRoutePlan.visits.map(c => parseInt(c.id))) + 1;
-    newVisit = {id: visitId, location: [lat, lng]};
-    addNewVisit(visitId, lat, lng, map, visitMarker);
-}
-
-function getRecommendationsModal() {
-    let formValid = true;
-    formValid = validateFormField(newVisit, 'name' , '#inputName') && formValid;
-    formValid = validateFormField(newVisit, 'demand' , '#inputDemand') && formValid;
-    formValid = validateFormField(newVisit, 'minStartTime' , '#inputMinStartTime') && formValid;
-    formValid = validateFormField(newVisit, 'maxEndTime' , '#inputMaxStartTime') && formValid;
-    formValid = validateFormField(newVisit, 'serviceDuration' , '#inputDuration') && formValid;
-    if (formValid) {
-        const updatedMinStartTime = JSJoda.LocalDateTime.parse(newVisit['minStartTime'], JSJoda.DateTimeFormatter.ofPattern('yyyy-M-d HH:mm')).format(JSJoda.DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-        const updatedMaxEndTime = JSJoda.LocalDateTime.parse(newVisit['maxEndTime'], JSJoda.DateTimeFormatter.ofPattern('yyyy-M-d HH:mm')).format(JSJoda.DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-        const updatedVisit = {...newVisit, serviceDuration: `PT${newVisit['serviceDuration']}M`, minStartTime: updatedMinStartTime, maxEndTime: updatedMaxEndTime};
-        let updatedVisitList = [...loadedRoutePlan['visits']];
-        updatedVisitList.push(updatedVisit);
-        let updatedSolution = {...loadedRoutePlan, visits: updatedVisitList};
-        // see recommended-fit.js
-        requestRecommendations(updatedVisit.id, updatedSolution, "/route-plans/recommendation")
-    }
-}
-
-function validateFormField(target, fieldName, inputName) {
-    target[fieldName] = $(inputName).val();
-    if ($(inputName).val() == "") {
-        $(inputName).addClass("is-invalid");
-    } else {
-        $(inputName).removeClass("is-invalid");
-    }
-    return $(inputName).val() != "";
-}
-
-function applyRecommendationModal(recommendations) {
-    let checkedRecommendation = null;
-    recommendations.forEach((recommendation, index) => {
-        if ($('#option'+ index).is(":checked")) {
-            checkedRecommendation = recommendations[index];
-        }
-    });
-    const updatedMinStartTime = JSJoda.LocalDateTime.parse(newVisit['minStartTime'], JSJoda.DateTimeFormatter.ofPattern('yyyy-M-d HH:mm')).format(JSJoda.DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-    const updatedMaxEndTime = JSJoda.LocalDateTime.parse(newVisit['maxEndTime'], JSJoda.DateTimeFormatter.ofPattern('yyyy-M-d HH:mm')).format(JSJoda.DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-    const updatedVisit = {...newVisit, serviceDuration: `PT${newVisit['serviceDuration']}M`, minStartTime: updatedMinStartTime, maxEndTime: updatedMaxEndTime};
-    let updatedVisitList = [...loadedRoutePlan['visits']];
-    updatedVisitList.push(updatedVisit);
-    let updatedSolution = {...loadedRoutePlan, visits: updatedVisitList};
-    // see recommended-fit.js
-    applyRecommendation(updatedSolution, newVisit.id, checkedRecommendation.proposition.vehicleId, checkedRecommendation.proposition.index,
-        "/route-plans/recommendation/apply");
-}
-
-function updateSolutionWithNewVisit(newSolution) {
-    loadedRoutePlan = newSolution;
-    renderRoutes(newSolution);
-    renderTimelines(newSolution);
-    $('#newVisitModal').modal('hide');
-}
-
-// TODO: move the general functionality to the webjar.
 
 function setupAjax() {
     $.ajaxSetup({
         headers: {
             'Content-Type': 'application/json',
-            'Accept': 'application/json,text/plain', // plain text is required by solve() returning UUID of the solver job
+            'Accept': 'application/json,text/plain',
+            // On the platform, authenticate every request with the supplied API key.
+            ...(PLATFORM.apiKey ? {'X-API-KEY': PLATFORM.apiKey} : {})
         }
     });
-
-    // Extend jQuery to support $.put() and $.delete()
     jQuery.each(["put", "delete"], function (i, method) {
         jQuery[method] = function (url, data, callback, type) {
             if (jQuery.isFunction(data)) {
@@ -459,40 +434,73 @@ function setupAjax() {
                 callback = data;
                 data = undefined;
             }
-            return jQuery.ajax({
-                url: url,
-                type: method,
-                dataType: type,
-                data: data,
-                success: callback
-            });
+            return jQuery.ajax({url: url, type: method, dataType: type, data: data, success: callback});
         };
     });
 }
 
+function cacheBounds(modelInput) {
+    southWestCorner = modelInput.southWestCorner;
+    northEastCorner = modelInput.northEastCorner;
+    startDateTime = modelInput.startDateTime;
+    endDateTime = modelInput.endDateTime;
+}
+
+function loadDemoData() {
+    $.getJSON(api("/v1/demo-data/BASIC"), function (dataset) {
+        demoDataset = dataset;
+        cacheBounds(dataset.modelInput);
+        homeLocationGroup.clearLayers();
+        homeLocationMarkerByIdMap.clear();
+        visitGroup.clearLayers();
+        visitMarkerByIdMap.clear();
+        initialized = false;
+        render(dataset.modelInput.vehicles, dataset.modelInput.visits, null);
+        refreshSolvingButtons(false);
+    }).fail(function (xhr) {
+        showError("Getting the demo data has failed.", xhr);
+    });
+}
+
 function solve() {
-    $.post("/route-plans", JSON.stringify(loadedRoutePlan), function (data) {
-        scheduleId = data;
+    if (demoDataset === null) {
+        showError("No demo data loaded yet.", {status: 0, statusText: "no data"});
+        return;
+    }
+    $.post(api("/v1/route-plans"), JSON.stringify(demoDataset), function (data) {
+        planId = data.id;
         refreshSolvingButtons(true);
-    }).fail(function (xhr, ajaxOptions, thrownError) {
-            showError("Start solving failed.", xhr);
-            refreshSolvingButtons(false);
-        },
-        "text");
+    }).fail(function (xhr) {
+        showError("Start solving failed.", xhr);
+        refreshSolvingButtons(false);
+    });
+}
+
+function refreshRoutePlan() {
+    if (planId === null) {
+        loadDemoData();
+        return;
+    }
+    $.getJSON(api("/v1/route-plans/" + planId), function (plan) {
+        const metadata = plan.metadata || {};
+        const output = plan.modelOutput || {};
+        render(output.vehicles || [], output.visits || [], metadata.score);
+        refreshSolvingButtons(SOLVING_STATUSES.has(metadata.solverStatus));
+    }).fail(function (xhr) {
+        showError("Getting the route plan has failed.", xhr);
+        refreshSolvingButtons(false);
+    });
 }
 
 function refreshSolvingButtons(solving) {
-    optimizing = solving;
     if (solving) {
         $("#solveButton").hide();
-        $("#visitButton").hide();
         $("#stopSolvingButton").show();
         if (autoRefreshIntervalId == null) {
             autoRefreshIntervalId = setInterval(refreshRoutePlan, 2000);
         }
     } else {
         $("#solveButton").show();
-        $("#visitButton").show();
         $("#stopSolvingButton").hide();
         if (autoRefreshIntervalId != null) {
             clearInterval(autoRefreshIntervalId);
@@ -501,77 +509,21 @@ function refreshSolvingButtons(solving) {
     }
 }
 
-function refreshRoutePlan() {
-    let path = "/route-plans/" + scheduleId;
-    if (scheduleId === null) {
-        if (demoDataId === null) {
-            alert("Please select a test data set.");
-            return;
-        }
-
-        path = "/demo-data/" + demoDataId;
-    }
-
-    $.getJSON(path, function (routePlan) {
-        loadedRoutePlan = routePlan;
-        refreshSolvingButtons(routePlan.solverStatus != null && routePlan.solverStatus !== "NOT_SOLVING");
-        renderRoutes(routePlan);
-        renderTimelines(routePlan);
-        initialized = true;
-    }).fail(function (xhr, ajaxOptions, thrownError) {
-        showError("Getting route plan has failed.", xhr);
-        refreshSolvingButtons(false);
-    });
-}
-
 function stopSolving() {
-    $.delete("/route-plans/" + scheduleId, function () {
+    if (planId === null) {
+        return;
+    }
+    $.delete(api("/v1/route-plans/" + planId), function () {
         refreshSolvingButtons(false);
         refreshRoutePlan();
-    }).fail(function (xhr, ajaxOptions, thrownError) {
+    }).fail(function (xhr) {
         showError("Stop solving failed.", xhr);
     });
 }
 
-function fetchDemoData() {
-    $.get("/demo-data", function (data) {
-        data.forEach(function (item) {
-            $("#testDataButton").append($('<a id="' + item + 'TestData" class="dropdown-item" href="#">' + item + '</a>'));
-
-            $("#" + item + "TestData").click(function () {
-                switchDataDropDownItemActive(item);
-                scheduleId = null;
-                demoDataId = item;
-                initialized = false;
-                homeLocationGroup.clearLayers();
-                homeLocationMarkerByIdMap.clear();
-                visitGroup.clearLayers();
-                visitMarkerByIdMap.clear();
-                refreshRoutePlan();
-            });
-        });
-
-        demoDataId = data[0];
-        switchDataDropDownItemActive(demoDataId);
-
-        refreshRoutePlan();
-    }).fail(function (xhr, ajaxOptions, thrownError) {
-        // disable this page as there is no data
-        $("#demo").empty();
-        $("#demo").html("<h1><p style=\"justify-content: center\">No test data available</p></h1>")
-    });
-}
-
-function switchDataDropDownItemActive(newItem) {
-    activeCssClass = "active";
-    $("#testDataButton > a." + activeCssClass).removeClass(activeCssClass);
-    $("#" + newItem + "TestData").addClass(activeCssClass);
-}
-
 function copyTextToClipboard(id) {
-    var text = $("#" + id).text().trim();
-
-    var dummy = document.createElement("textarea");
+    let text = $("#" + id).text().trim();
+    let dummy = document.createElement("textarea");
     document.body.appendChild(dummy);
     dummy.value = text;
     dummy.select();
@@ -581,17 +533,7 @@ function copyTextToClipboard(id) {
 
 function showError(title, xhr) {
     let serverErrorMessage = !xhr.responseJSON ? `${xhr.status}: ${xhr.statusText}` : xhr.responseJSON.message;
-    let serverErrorCode = !xhr.responseJSON ? `unknown` : xhr.responseJSON.code;
-    let serverErrorId = !xhr.responseJSON ? `----` : xhr.responseJSON.id;
-    let serverErrorDetails = !xhr.responseJSON ? `no details provided` : xhr.responseJSON.details;
-
-    if (xhr.responseJSON && !serverErrorMessage) {
-        serverErrorMessage = JSON.stringify(xhr.responseJSON);
-        serverErrorCode = xhr.statusText + '(' + xhr.status + ')';
-        serverErrorId = `----`;
-    }
-
-    console.error(title + "\n" + serverErrorMessage + " : " + serverErrorDetails);
+    console.error(title + "\n" + serverErrorMessage);
     const notification = $(`<div class="toast" role="alert" aria-live="assertive" aria-atomic="true" style="min-width: 50rem"/>`)
         .append($(`<div class="toast-header bg-danger">
                  <strong class="me-auto text-dark">Error</strong>
@@ -599,9 +541,7 @@ function showError(title, xhr) {
                </div>`))
         .append($(`<div class="toast-body"/>`)
             .append($(`<p/>`).text(title))
-            .append($(`<pre/>`)
-                .append($(`<code/>`).text(serverErrorMessage + "\n\nCode: " + serverErrorCode + "\nError id: " + serverErrorId))
-            )
+            .append($(`<pre/>`).append($(`<code/>`).text(serverErrorMessage)))
         );
     $("#notificationPanel").append(notification);
     notification.toast({delay: 30000});

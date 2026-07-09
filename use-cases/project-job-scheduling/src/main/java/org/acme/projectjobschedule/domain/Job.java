@@ -3,18 +3,12 @@ package org.acme.projectjobschedule.domain;
 import java.util.List;
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIdentityReference;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
-@JsonIdentityInfo(scope = Job.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Job {
 
     private String id;
     private Project project;
     private JobType jobType;
     private List<ExecutionMode> executionModes;
-    @JsonIdentityReference(alwaysAsId = true)
     private List<Job> successorJobs;
 
     public Job() {
@@ -72,10 +66,12 @@ public class Job {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof Job job))
+        }
+        if (!(o instanceof Job job)) {
             return false;
+        }
         return Objects.equals(getId(), job.getId());
     }
 

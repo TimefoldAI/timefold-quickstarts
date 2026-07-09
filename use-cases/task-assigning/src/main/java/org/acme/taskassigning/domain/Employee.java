@@ -93,6 +93,8 @@ public class Employee {
     // ************************************************************************
 
     /**
+     * Returns this employee's affinity with the given customer.
+     *
      * @param customer never null
      * @return never null
      */

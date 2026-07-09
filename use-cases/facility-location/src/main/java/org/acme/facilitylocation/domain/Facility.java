@@ -4,23 +4,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ai.timefold.solver.core.api.domain.common.PlanningId;
-import org.acme.facilitylocation.solver.FacilityLocationConstraintProvider;
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.variable.InverseRelationShadowVariable;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 /**
- * Facility satisfies consumers' demand. Cumulative demand of all consumers assigned to this facility must not exceed
- * the facility's capacity. This requirement is expressed by the {@link FacilityLocationConstraintProvider#facilityCapacity
- * facility capacity} constraint.
+ * Facility satisfies consumers' demand. Cumulative demand of all consumers
+ * assigned to this facility must not exceed the facility's capacity. This
+ * requirement is expressed by the
+ * {@link FacilityLocationConstraintProvider#facilityCapacity facility capacity}
+ * constraint.
  */
-// This is a shadow planning entity, not a genuine planning entity, because it has a shadow variable (consumers).
+// This is a shadow planning entity, not a genuine planning entity, because it
+// has a shadow variable (consumers).
 @PlanningEntity
 public class Facility {
 
     @PlanningId
     private String id;
+    private String name;
     private Location location;
     private long setupCost;
     private long capacity;
@@ -31,8 +32,9 @@ public class Facility {
     public Facility() {
     }
 
-    public Facility(String id, Location location, long setupCost, long capacity) {
+    public Facility(String id, String name, Location location, long setupCost, long capacity) {
         this.id = id;
+        this.name = name;
         this.location = location;
         this.setupCost = setupCost;
         this.capacity = capacity;
@@ -40,6 +42,14 @@ public class Facility {
 
     public String getId() {
         return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Location getLocation() {
@@ -66,7 +76,6 @@ public class Facility {
         this.capacity = capacity;
     }
 
-    @JsonIgnore
     public List<Consumer> getConsumers() {
         return consumers;
     }
@@ -76,17 +85,18 @@ public class Facility {
     }
 
     public long getUsedCapacity() {
+        if (consumers == null) {
+            return 0;
+        }
         return consumers.stream().mapToLong(Consumer::getDemand).sum();
     }
 
     public boolean isUsed() {
-        return !consumers.isEmpty();
+        return consumers != null && !consumers.isEmpty();
     }
 
     @Override
     public String toString() {
-        return "Facility " + id +
-                " ($" + setupCost
-                + ", " + capacity + " cap)";
+        return "Facility " + id + " ($" + setupCost + ", " + capacity + " cap)";
     }
 }

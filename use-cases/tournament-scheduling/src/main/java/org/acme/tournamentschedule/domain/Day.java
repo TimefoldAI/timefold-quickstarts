@@ -1,11 +1,13 @@
 package org.acme.tournamentschedule.domain;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import ai.timefold.solver.core.api.domain.common.PlanningId;
 
-@JsonIdentityInfo(scope = Day.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "dateIndex")
+/**
+ * A day (round) on which {@link TeamAssignment}s take place.
+ */
 public class Day {
 
+    @PlanningId
     private int dateIndex;
 
     public Day() {
@@ -19,21 +21,24 @@ public class Day {
         return dateIndex;
     }
 
-    public void setDateIndex(int dateIndex) {
-        this.dateIndex = dateIndex;
-    }
-
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof Day day))
+        }
+        if (!(o instanceof Day day)) {
             return false;
-        return getDateIndex() == day.getDateIndex();
+        }
+        return dateIndex == day.dateIndex;
     }
 
     @Override
     public int hashCode() {
         return 31 * dateIndex;
+    }
+
+    @Override
+    public String toString() {
+        return "Day-" + dateIndex;
     }
 }

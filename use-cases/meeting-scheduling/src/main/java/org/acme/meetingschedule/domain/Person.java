@@ -2,12 +2,11 @@ package org.acme.meetingschedule.domain;
 
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import ai.timefold.solver.core.api.domain.common.PlanningId;
 
-@JsonIdentityInfo(scope = Person.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Person {
 
+    @PlanningId
     private String id;
     private String fullName;
 
@@ -46,10 +45,12 @@ public class Person {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof Person person))
+        }
+        if (!(o instanceof Person person)) {
             return false;
+        }
         return Objects.equals(getId(), person.getId());
     }
 

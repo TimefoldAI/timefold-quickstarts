@@ -1,24 +1,19 @@
 package org.acme.foodpackaging.domain;
 
-import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
-import ai.timefold.solver.core.api.domain.common.PlanningId;
-import ai.timefold.solver.core.api.domain.variable.InverseRelationShadowVariable;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIdentityReference;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-@JsonIdentityInfo(scope = Operator.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+import ai.timefold.solver.core.api.domain.common.PlanningId;
+import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
+import ai.timefold.solver.core.api.domain.variable.InverseRelationShadowVariable;
+
 @PlanningEntity
 public class Operator {
 
     @PlanningId
     private String id;
 
-    @JsonIdentityReference(alwaysAsId = true)
     @InverseRelationShadowVariable(sourceVariableName = "operator")
     private List<Line> lines;
 
@@ -49,7 +44,9 @@ public class Operator {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Operator operator)) return false;
+        if (!(o instanceof Operator operator)) {
+            return false;
+        }
         return Objects.equals(getId(), operator.getId());
     }
 

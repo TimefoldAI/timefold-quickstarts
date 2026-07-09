@@ -1,19 +1,17 @@
 # Maintenance Scheduling (Java, Quarkus, Maven)
 
-Schedule maintenance jobs to crews over time to reduce both premature and overdue maintenance.
-
-![Maintenance Scheduling Screenshot](./maintenance-scheduling-screenshot.png)
+Assign maintenance jobs to crews and start dates to produce a conflict-free maintenance schedule.
 
 ## Constraints
 
-| Name                  | Level | Description                                                    |
-|-----------------------|-------|----------------------------------------------------------------|
-| Crew conflict         | Hard  | A maintenance crew cannot be assigned to two overlapping jobs. |
-| Min start date        | Hard  | A job must not start before its minimum start date.            |
-| Max end date          | Hard  | A job must not finish after its maximum end date.              |
-| Before ideal end date | Soft  | Avoid finishing a job too early before its ideal end date.     |
-| After ideal end date  | Soft  | Avoid finishing a job after its ideal end date.                |
-| Tag conflict          | Soft  | Jobs sharing the same tag should not overlap.                  |
+| Name                  | Level | Description                                                             |
+|-----------------------|-------|-------------------------------------------------------------------------|
+| Crew conflict         | Hard  | A crew can do at most one maintenance job at the same time.             |
+| Min start date        | Hard  | Don't start a maintenance job before it is ready to start.              |
+| Max end date          | Hard  | Don't end a maintenance job after it is due.                            |
+| Before ideal end date | Soft  | Early maintenance is expensive because it needs to happen again.        |
+| After ideal end date  | Soft  | Late maintenance is risky because delays can push it over the due date. |
+| Tag conflict          | Soft  | Avoid overlapping maintenance jobs with the same tag.                   |
 
 - [Run the application](#run-the-application)
 - [Run the packaged application](#run-the-packaged-application)
@@ -25,8 +23,8 @@ Schedule maintenance jobs to crews over time to reduce both premature and overdu
 1. Install Java and Maven, for example with [Sdkman](https://sdkman.io):
 
    ```sh
-   $ sdk install java
-   $ sdk install maven
+   sdk install java
+   sdk install maven
    ```
 
 ## Run the application
@@ -34,9 +32,8 @@ Schedule maintenance jobs to crews over time to reduce both premature and overdu
 1. Git clone the timefold-quickstarts repo and navigate to this directory:
 
    ```sh
-   $ git clone https://github.com/TimefoldAI/timefold-quickstarts.git
-   ...
-   $ cd timefold-quickstarts/quickstarts/maintenance-scheduling
+   git clone https://github.com/TimefoldAI/timefold-quickstarts.git
+   cd timefold-quickstarts/java/maintenance-scheduling
    ```
 
 2. (Optional) If you want to run a licensed edition (Plus / Enterprise), set up your license key first. See the [Timefold license tool](https://licenses.timefold.ai/) for instructions.
@@ -44,15 +41,15 @@ Schedule maintenance jobs to crews over time to reduce both premature and overdu
 3. Start the application with Maven:
 
    1. Community Edition
-   
+
       ```sh
-      $ mvn quarkus:dev
+      mvn quarkus:dev
       ```
-   
+
    2. Plus / Enterprise Edition: The profile sets up the correct Maven artifacts to run the licensed version. See the `pom.xml` for the implementation details.
 
       ```sh
-      $ mvn quarkus:dev -Denterprise
+      mvn quarkus:dev -Denterprise
       ```
 
 4. Visit [http://localhost:8080](http://localhost:8080) in your browser.
@@ -73,13 +70,13 @@ When you're done iterating in `quarkus:dev` mode, package the application to run
 1. Compile it with Maven:
 
    ```sh
-   $ mvn package
+   mvn package
    ```
 
 2. Run it:
 
    ```sh
-   $ java -jar ./target/quarkus-app/quarkus-run.jar
+   java -jar ./target/quarkus-app/quarkus-run.jar
    ```
 
    > **Note**
@@ -94,13 +91,13 @@ When you're done iterating in `quarkus:dev` mode, package the application to run
 1. Build a container image:
 
    ```sh
-   $ mvn package -Dcontainer
+   mvn package -Dcontainer
    ```
 
 2. Run a container:
 
    ```sh
-   $ docker run -p 8080:8080 $USER/maintenance-scheduling:1.0-SNAPSHOT
+   docker run -p 8080:8080 --rm $USER/maintenance-scheduling:1.0-SNAPSHOT
    ```
 
 ## Run it native
@@ -112,13 +109,13 @@ To increase startup performance for serverless deployments, build the applicatio
 2. Compile it natively. This takes a few minutes:
 
    ```sh
-   $ mvn package -Dnative -DskipTests
+   mvn package -Dnative -DskipTests
    ```
 
 3. Run the native executable:
 
    ```sh
-   $ ./target/*-runner
+   ./target/*-runner
    ```
 
 4. Visit [http://localhost:8080](http://localhost:8080) in your browser.

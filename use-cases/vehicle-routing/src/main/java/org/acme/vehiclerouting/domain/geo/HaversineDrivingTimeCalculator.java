@@ -12,14 +12,14 @@ public final class HaversineDrivingTimeCalculator implements DrivingTimeCalculat
 
     public static final int AVERAGE_SPEED_KMPH = 50;
 
-    private static final int EARTH_RADIUS_IN_M = 6371000;
+    private static final int EARTH_RADIUS_IN_M = 6_371_000;
     private static final int TWICE_EARTH_RADIUS_IN_M = 2 * EARTH_RADIUS_IN_M;
 
     static long metersToDrivingSeconds(long meters) {
         return Math.round((double) meters / AVERAGE_SPEED_KMPH * 3.6);
     }
 
-    public static synchronized HaversineDrivingTimeCalculator getInstance() {
+    public static HaversineDrivingTimeCalculator getInstance() {
         return INSTANCE;
     }
 
@@ -61,5 +61,10 @@ public final class HaversineDrivingTimeCalculator implements DrivingTimeCalculat
 
     private record CartesianCoordinate(double x, double y, double z) {
 
+        private CartesianCoordinate {
+            if (Double.isNaN(x) || Double.isNaN(y) || Double.isNaN(z)) {
+                throw new IllegalArgumentException("Cartesian coordinates must be valid numbers.");
+            }
+        }
     }
 }

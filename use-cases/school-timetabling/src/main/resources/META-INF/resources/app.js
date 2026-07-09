@@ -1,8 +1,26 @@
-var autoRefreshIntervalId = null;
-const dateTimeFormatter = JSJoda.DateTimeFormatter.ofPattern('HH:mm')
+const dateTimeFormatter = JSJoda.DateTimeFormatter.ofPattern('HH:mm');
 
-let demoDataId = null;
-let scheduleId = null;
+// ── Platform context ──
+// When embedded in the Timefold Platform, the iframe URL carries these query params.
+// Standalone (local dev), none are present and the app behaves as before.
+const PLATFORM = (function () {
+    const q = new URL(window.location.href).searchParams;
+    return {
+        onPlatform: q.has('onPlatform'),
+        runId: q.get('runId'),
+        // apiUrl: base URL of the model API on the platform (URL-encoded). Trailing slash stripped.
+        apiUrl: q.has('apiUrl') ? decodeURIComponent(q.get('apiUrl')).replace(/\/+$/, '') : null,
+        apiKey: q.has('apiKey') ? q.get('apiKey') : null,
+    };
+})();
+
+// Build an API URL: prefix the platform base when embedded, else root-relative (local dev).
+function api(path) {
+    return PLATFORM.apiUrl ? PLATFORM.apiUrl + path : path;
+}
+
+let autoRefreshIntervalId = null;
+let jobId = null;
 let loadedSchedule = null;
 
 let roomMap = null;
@@ -11,8 +29,8 @@ let timeslotMap = null;
 // Color Picker: Based on https://venngage.com/blog/color-blind-friendly-palette/
 const BG_COLORS = ["#009E73","#0072B2","#D55E00","#000000","#CC79A7","#E69F00","#F0E442","#F6768E","#C10020","#A6BDD7","#803E75","#007D34","#56B4E9","#999999","#8DD3C7","#FFD92F","#B3DE69","#FB8072","#80B1D3","#B15928","#CAB2D6","#1B9E77","#E7298A","#6A3D9A"];
 const FG_COLORS = ["#FFFFFF","#FFFFFF","#FFFFFF","#FFFFFF","#FFFFFF","#000000","#000000","#FFFFFF","#FFFFFF","#000000","#FFFFFF","#FFFFFF","#FFFFFF","#000000","#000000","#000000","#000000","#FFFFFF","#000000","#FFFFFF","#000000","#FFFFFF","#FFFFFF","#FFFFFF"];
-let COLOR_MAP = new Map()
-let nextColorIndex = 0
+let COLOR_MAP = new Map();
+let nextColorIndex = 0;
 
 function pickColor(object) {
   let color = COLOR_MAP.get(object);
@@ -20,13 +38,12 @@ function pickColor(object) {
     return color;
   }
   let index = nextColorIndex++;
-  color = {bg : BG_COLORS[index], fg: FG_COLORS[index]};
-  COLOR_MAP.set(object,color);
+  color = {bg: BG_COLORS[index], fg: FG_COLORS[index]};
+  COLOR_MAP.set(object, color);
   return color;
 }
 
 $(document).ready(function () {
-
   $("#solveButton").click(function () {
     solve();
   });
@@ -38,14 +55,43 @@ $(document).ready(function () {
   });
 
   setupAjax();
-  fetchDemoData();
+  if (PLATFORM.onPlatform) {
+    // Embedded: hide demo chrome (navbar + solve/score controls) and load the
+    // existing run read-only.
+    document.body.classList.add('on-platform');
+    loadPlatformRun();
+  } else {
+    // Standalone dev: load demo data, allow solving.
+    getStatus();
+  }
 });
+
+// ── Platform: load an existing run (read-only) ──
+// ModelRest exposes the run's input at /{id}/model-request (ModelRequest → {modelInput})
+// and its output+status at /{id} (ModelResponse → {metadata:{solverStatus}, modelOutput}).
+function loadPlatformRun() {
+  if (!PLATFORM.runId) {
+    showError("No runId provided by platform.", {status: 0, statusText: "missing runId"});
+    return;
+  }
+  jobId = PLATFORM.runId;
+  $.get(api(`/v1/timetables/${jobId}/model-request`), function (req) {
+    loadedSchedule = req.modelInput || req;
+    updateScheduleMap(loadedSchedule);
+    renderSchedule(loadedSchedule, 'NOT_SOLVING');
+    getStatus(); // fetch output + render; auto-polls while solving
+  }).fail(function (xhr) {
+    showError("Failed to load run input from platform.", xhr);
+  });
+}
 
 function setupAjax() {
   $.ajaxSetup({
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json,text/plain', // plain text is required by solve() returning UUID of the solver job
+      // On the platform, authenticate every request with the supplied API key.
+      ...(PLATFORM.apiKey ? {'X-API-KEY': PLATFORM.apiKey} : {})
     }
   });
 
@@ -68,77 +114,50 @@ function setupAjax() {
   });
 }
 
-function fetchDemoData() {
-  $.get("/demo-data", function (data) {
-    data.forEach(item => {
-      $("#testDataButton").append($('<a id="' + item + 'TestData" class="dropdown-item" href="#">' + item + '</a>'));
-
-      $("#" + item + "TestData").click(function () {
-        switchDataDropDownItemActive(item);
-        scheduleId = null;
-        demoDataId = item;
-
-        refreshSchedule();
-      });
+function getStatus() {
+  if (jobId == null) {
+    $.get(api('/v1/demo-data/BASIC'), function (data) {
+      loadedSchedule = data.modelInput;
+      updateScheduleMap(loadedSchedule);
+      renderSchedule(loadedSchedule, 'NOT_SOLVING');
+    }).fail(function (xhr) {
+      // disable this page as there is no data
+      let $demo = $("#demo");
+      $demo.empty();
+      $demo.html("<h1><p align=\"center\">No test data available</p></h1>");
     });
-
-    // load first data set
-    demoDataId = data[0];
-    switchDataDropDownItemActive(demoDataId);
-    refreshSchedule();
-  }).fail(function (xhr, ajaxOptions, thrownError) {
-    // disable this page as there is no data
-    let $demo = $("#demo");
-    $demo.empty();
-    $demo.html("<h1><p align=\"center\">No test data available</p></h1>")
-  });
-}
-
-function switchDataDropDownItemActive(newItem) {
-  activeCssClass = "active";
-  $("#testDataButton > a." + activeCssClass).removeClass(activeCssClass);
-  $("#" + newItem + "TestData").addClass(activeCssClass);
-}
-
-function refreshSchedule() {
-  let path = "/timetables/" + scheduleId;
-  if (scheduleId === null) {
-    if (demoDataId === null) {
-      alert("Please select a test data set.");
-      return;
-    }
-
-    path = "/demo-data/" + demoDataId;
-  }
-
-  $.getJSON(path, function (schedule) {
-    loadedSchedule = schedule;
-    updateScheduleMap(schedule);
-    renderSchedule(schedule);
-  })
-    .fail(function (xhr, ajaxOptions, thrownError) {
+  } else {
+    $.get(api(`/v1/timetables/${jobId}`), function (data) {
+      const solverStatus = data.metadata.solverStatus;
+      const solution = data.modelOutput || loadedSchedule;
+      loadedSchedule = solution;
+      updateScheduleMap(solution);
+      renderSchedule(solution, solverStatus);
+    }).fail(function (xhr) {
       showError("Getting the timetable has failed.", xhr);
-      refreshSolvingButtons(false);
+      refreshSolvingButtons('NOT_SOLVING');
     });
+  }
+}
+
+function isSolving(solverStatus) {
+  return solverStatus === 'SOLVING_ACTIVE' || solverStatus === 'SOLVING_SCHEDULED'
+      || solverStatus === 'SOLVING_STARTED';
 }
 
 function updateScheduleMap(timetable) {
-    const isObject = timetable.rooms.length > 0 && timetable.timeslots.length > 0 &&
-        typeof timetable.rooms[0] === "object" && typeof timetable.timeslots[0] === "object";
-    if (isObject) {
-        roomMap = new Map();
-        for (const room of timetable.rooms) {
-            roomMap.set(room.id, room);
-        }
-        timeslotMap = new Map();
-        for (const timeslot of timetable.timeslots) {
-            timeslotMap.set(timeslot.id, timeslot);
-        }
-    }
+  roomMap = new Map();
+  for (const room of timetable.rooms) {
+    roomMap.set(room.id, room);
+  }
+  timeslotMap = new Map();
+  for (const timeslot of timetable.timeslots) {
+    timeslotMap.set(timeslot.id, timeslot);
+  }
 }
 
-function renderSchedule(timetable) {
-  refreshSolvingButtons(timetable.solverStatus != null && timetable.solverStatus !== "NOT_SOLVING");
+function renderSchedule(timetable, solverStatus) {
+  refreshSolvingButtons(solverStatus);
   $("#score").text("Score: " + (timetable.score == null ? "?" : timetable.score));
   $("#info").text(`This dataset has ${timetable.lessons.length} lessons and ${timetable.rooms.length} rooms which need to be allocated to ${timetable.timeslots.length} timeslots.`);
 
@@ -155,8 +174,7 @@ function renderSchedule(timetable) {
   const headerRowByRoom = $("<tr>").appendTo(theadByRoom);
   headerRowByRoom.append($("<th>Timeslot</th>"));
 
-  $.each(timetable.rooms, (index, roomIdx) => {
-    const room = roomMap.get(extractId(roomIdx));
+  $.each(timetable.rooms, (index, room) => {
     headerRowByRoom
       .append($("<th/>")
         .append($("<span/>").text(room.name))
@@ -187,31 +205,26 @@ function renderSchedule(timetable) {
 
   const LocalTime = JSJoda.LocalTime;
 
-  $.each(timetable.timeslots, (index, timeslotIdx) => {
-    const timeslot = timeslotMap.get(extractId(timeslotIdx));
-    const rowByRoom = $("<tr>").appendTo(tbodyByRoom);
-    rowByRoom
-      .append($(`<th class="align-middle"/>`)
-        .append($("<span/>").text(`
+  const timeslotLabel = (timeslot) => `
                     ${timeslot.dayOfWeek.charAt(0) + timeslot.dayOfWeek.slice(1).toLowerCase()}
                     ${LocalTime.parse(timeslot.startTime).format(dateTimeFormatter)}
                     -
                     ${LocalTime.parse(timeslot.endTime).format(dateTimeFormatter)}
-                `)));
-    $.each(timetable.rooms, (index, roomIdx) => {
-      const room = roomMap.get(extractId(roomIdx));
+                `;
+
+  $.each(timetable.timeslots, (index, timeslot) => {
+    const rowByRoom = $("<tr>").appendTo(tbodyByRoom);
+    rowByRoom
+      .append($(`<th class="align-middle"/>`)
+        .append($("<span/>").text(timeslotLabel(timeslot))));
+    $.each(timetable.rooms, (index, room) => {
       rowByRoom.append($("<td/>").prop("id", `timeslot${timeslot.id}room${room.id}`));
     });
 
     const rowByTeacher = $("<tr>").appendTo(tbodyByTeacher);
     rowByTeacher
       .append($(`<th class="align-middle"/>`)
-        .append($("<span/>").text(`
-                    ${timeslot.dayOfWeek.charAt(0) + timeslot.dayOfWeek.slice(1).toLowerCase()}
-                    ${LocalTime.parse(timeslot.startTime).format(dateTimeFormatter)}
-                    -
-                    ${LocalTime.parse(timeslot.endTime).format(dateTimeFormatter)}
-                `)));
+        .append($("<span/>").text(timeslotLabel(timeslot))));
     $.each(teachers, (index, teacher) => {
       rowByTeacher.append($("<td/>").prop("id", `timeslot${timeslot.id}teacher${convertToId(teacher)}`));
     });
@@ -219,12 +232,7 @@ function renderSchedule(timetable) {
     const rowByStudentGroup = $("<tr>").appendTo(tbodyByStudentGroup);
     rowByStudentGroup
       .append($(`<th class="align-middle"/>`)
-        .append($("<span/>").text(`
-                    ${timeslot.dayOfWeek.charAt(0) + timeslot.dayOfWeek.slice(1).toLowerCase()}
-                    ${LocalTime.parse(timeslot.startTime).format(dateTimeFormatter)}
-                    -
-                    ${LocalTime.parse(timeslot.endTime).format(dateTimeFormatter)}
-                `)));
+        .append($("<span/>").text(timeslotLabel(timeslot))));
     $.each(studentGroups, (index, studentGroup) => {
       rowByStudentGroup.append($("<td/>").prop("id", `timeslot${timeslot.id}studentGroup${convertToId(studentGroup)}`));
     });
@@ -239,15 +247,13 @@ function renderSchedule(timetable) {
           .append($(`<em/>`).text(`by ${lesson.teacher}`)))
         .append($(`<small class="ms-2 mt-1 card-text align-bottom float-end"/>`).text(lesson.id))
         .append($(`<p class="card-text ms-2"/>`).text(lesson.studentGroup)));
-    if (lesson.timeslot == null || lesson.room == null) {
+    if (lesson.timeslotId == null || lesson.roomId == null) {
       unassignedLessons.append($(`<div class="col"/>`).append(lessonElement));
     } else {
-      const timeslot = timeslotMap.get(extractId(lesson.timeslot));
-      const room = roomMap.get(extractId(lesson.room));
-      // In the JSON, the lesson.timeslot and lesson.room are only IDs of these objects.
-      $(`#timeslot${timeslot.id}room${room.id}`).append(lessonElement.clone());
-      $(`#timeslot${timeslot.id}teacher${convertToId(lesson.teacher)}`).append(lessonElement.clone());
-      $(`#timeslot${timeslot.id}studentGroup${convertToId(lesson.studentGroup)}`).append(lessonElement.clone());
+      // In the JSON, lesson.timeslotId and lesson.roomId are only IDs of these objects.
+      $(`#timeslot${lesson.timeslotId}room${lesson.roomId}`).append(lessonElement.clone());
+      $(`#timeslot${lesson.timeslotId}teacher${convertToId(lesson.teacher)}`).append(lessonElement.clone());
+      $(`#timeslot${lesson.timeslotId}studentGroup${convertToId(lesson.studentGroup)}`).append(lessonElement.clone());
     }
   });
 
@@ -261,25 +267,33 @@ function renderSchedule(timetable) {
 }
 
 function solve() {
-  $.post("/timetables", JSON.stringify(loadedSchedule), function (data) {
-    scheduleId = data;
-    refreshSolvingButtons(true);
-  }).fail(function (xhr, ajaxOptions, thrownError) {
+  $.get(api('/v1/demo-data/BASIC'), function (modelRequest) {
+    $.post(api('/v1/timetables'), JSON.stringify(modelRequest), function (metadata) {
+      jobId = metadata.id;
+      refreshSolvingButtons(metadata.solverStatus || 'SOLVING_ACTIVE');
+      if (autoRefreshIntervalId == null) {
+        autoRefreshIntervalId = setInterval(getStatus, 2000);
+      }
+    }).fail(function (xhr) {
       showError("Start solving failed.", xhr);
-      refreshSolvingButtons(false);
-    },
-    "text");
+      refreshSolvingButtons('NOT_SOLVING');
+    });
+  }).fail(function (xhr) {
+    showError("Get demo data failed.", xhr);
+  });
 }
 
 function analyze() {
-  new bootstrap.Modal("#scoreAnalysisModal").show()
+  new bootstrap.Modal("#scoreAnalysisModal").show();
   const scoreAnalysisModalContent = $("#scoreAnalysisModalContent");
   scoreAnalysisModalContent.children().remove();
-  if (loadedSchedule.score == null) {
+  if (loadedSchedule == null || loadedSchedule.score == null) {
     scoreAnalysisModalContent.text("No score to analyze yet, please first press the 'solve' button.");
+  } else if (jobId == null) {
+    scoreAnalysisModalContent.text("No solving job yet, please first press the 'solve' button.");
   } else {
     $('#scoreAnalysisScoreLabel').text(`(${loadedSchedule.score})`);
-    $.put("/timetables/analyze", JSON.stringify(loadedSchedule), function (scoreAnalysis) {
+    $.get(api(`/v1/timetables/${jobId}/score-analysis`), function (scoreAnalysis) {
       let constraints = scoreAnalysis.constraints;
       constraints.sort((a, b) => {
         let aComponents = getScoreComponents(a.score), bComponents = getScoreComponents(b.score);
@@ -322,14 +336,14 @@ function analyze() {
         .append($(`<th>Score</th>`))
         .append($(`<th></th>`)));
       analysisTable.append(analysisTHead);
-      const analysisTBody = $(`<tbody/>`)
+      const analysisTBody = $(`<tbody/>`);
       $.each(scoreAnalysis.constraints, (index, constraintAnalysis) => {
         let icon = constraintAnalysis.type == "hard" && constraintAnalysis.implicitScore < 0 ? '<span class="fas fa-exclamation-triangle" style="color: red"></span>' : '';
-        if (!icon) icon = constraintAnalysis.weight < 0 && constraintAnalysis.matches.length == 0 ? '<span class="fas fa-check-circle" style="color: green"></span>' : '';
+        if (!icon) icon = constraintAnalysis.matches.length == 0 ? '<span class="fas fa-check-circle" style="color: green"></span>' : '';
 
         let row = $(`<tr/>`);
         row.append($(`<td/>`).html(icon))
-          .append($(`<td/>`).text(constraintAnalysis.id).css({textAlign: 'left'}))
+          .append($(`<td/>`).text(constraintAnalysis.name).css({textAlign: 'left'}))
           .append($(`<td/>`).text(constraintAnalysis.type))
           .append($(`<td/>`).html(`<b>${constraintAnalysis.matches.length}</b>`))
           .append($(`<td/>`).text(constraintAnalysis.weight))
@@ -340,16 +354,15 @@ function analyze() {
       });
       analysisTable.append(analysisTBody);
       scoreAnalysisModalContent.append(analysisTable);
-    }).fail(function (xhr, ajaxOptions, thrownError) {
-        scoreAnalysisModalContent.children().remove();
-        scoreAnalysisModalContent.append($("<p/>").html(
-            "The server returned an error."
-            + " This may be due to a misconfiguration, or because Score Analysis requires"
-            + " <b>Timefold Solver Enterprise Edition</b>, which is not on the classpath."
-            + " If the latter, reach out to Timefold, obtain your license,"
-            + " and then run the quickstart with an Enterprise profile to see Score analysis in action."));
-      },
-      "text");
+    }).fail(function (xhr) {
+      scoreAnalysisModalContent.children().remove();
+      scoreAnalysisModalContent.append($("<p/>").html(
+          "The server returned an error."
+          + " This may be due to a misconfiguration, or because Score Analysis requires"
+          + " <b>Timefold Solver Enterprise Edition</b>, which is not on the classpath."
+          + " If the latter, reach out to Timefold, obtain your license,"
+          + " and then run the quickstart with an Enterprise profile to see Score analysis in action."));
+    }, "text");
   }
 }
 
@@ -363,13 +376,12 @@ function getScoreComponents(score) {
   return components;
 }
 
-
-function refreshSolvingButtons(solving) {
-  if (solving) {
+function refreshSolvingButtons(solverStatus) {
+  if (isSolving(solverStatus)) {
     $("#solveButton").hide();
     $("#stopSolvingButton").show();
     if (autoRefreshIntervalId == null) {
-      autoRefreshIntervalId = setInterval(refreshSchedule, 2000);
+      autoRefreshIntervalId = setInterval(getStatus, 2000);
     }
   } else {
     $("#solveButton").show();
@@ -382,10 +394,10 @@ function refreshSolvingButtons(solving) {
 }
 
 function stopSolving() {
-  $.delete("/timetables/" + scheduleId, function () {
-    refreshSolvingButtons(false);
-    refreshSchedule();
-  }).fail(function (xhr, ajaxOptions, thrownError) {
+  $.delete(api(`/v1/timetables/${jobId}`), function () {
+    refreshSolvingButtons('NOT_SOLVING');
+    getStatus();
+  }).fail(function (xhr) {
     showError("Stop solving failed.", xhr);
   });
 }
@@ -393,17 +405,6 @@ function stopSolving() {
 function convertToId(str) {
   // Base64 encoding without padding to avoid XSS
   return btoa(str).replace(/=/g, "");
-}
-
-function extractId(value) {
-    if (value == null) {
-        return value;
-    }
-    if (typeof value === "object") {
-        return value.id;
-    } else {
-        return value;
-    }
 }
 
 function copyTextToClipboard(id) {

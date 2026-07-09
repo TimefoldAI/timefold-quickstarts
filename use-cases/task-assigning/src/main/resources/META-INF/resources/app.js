@@ -1,3 +1,22 @@
+// ── Platform context ──
+// When embedded in the Timefold Platform, the iframe URL carries these query params.
+// Standalone (local dev), none are present and the app behaves as before.
+const PLATFORM = (function () {
+    const q = new URL(window.location.href).searchParams;
+    return {
+        onPlatform: q.has('onPlatform'),
+        runId: q.get('runId'),
+        // apiUrl: base URL of the model API on the platform (URL-encoded). Trailing slash stripped.
+        apiUrl: q.has('apiUrl') ? decodeURIComponent(q.get('apiUrl')).replace(/\/+$/, '') : null,
+        apiKey: q.has('apiKey') ? q.get('apiKey') : null,
+    };
+})();
+
+// Build an API URL: prefix the platform base when embedded, else root-relative (local dev).
+function api(path) {
+    return PLATFORM.apiUrl ? PLATFORM.apiUrl + path : path;
+}
+
 let autoRefreshIntervalId = null;
 
 const byEmployeePanel = document.getElementById("byEmployeePanel");
@@ -13,9 +32,15 @@ const byEmployeeGroupData = new vis.DataSet();
 const byEmployeeItemData = new vis.DataSet();
 const byEmployeeTimeline = new vis.Timeline(byEmployeePanel, byEmployeeItemData, byEmployeeGroupData, byEmployeeTimelineOptions);
 
+const SOLVING_STATUSES = new Set(["SOLVING_SCHEDULED", "SOLVING_ACTIVE", "SOLVING_STARTED", "SCHEDULED", "STARTED",
+    "SOLVING"]);
+
 let planId = null;
-let loadedPlan = null;
-let viewType = "E";
+// The demo dataset ({config, modelInput}) used both as the POST body and as the source of problem facts.
+let demoDataset = null;
+// Problem facts (taskTypes, customers) cached from the demo dataset; they do not change while solving.
+let taskTypeMap = new Map();
+let customerMap = new Map();
 
 // Color Picker: Based on https://venngage.com/blog/color-blind-friendly-palette/
 const BG_COLORS = ["#009E73","#0072B2","#D55E00","#000000","#CC79A7","#E69F00","#F0E442","#F6768E","#C10020","#A6BDD7","#803E75","#007D34","#56B4E9","#999999","#8DD3C7","#FFD92F","#B3DE69","#FB8072","#80B1D3","#B15928","#CAB2D6","#1B9E77","#E7298A","#6A3D9A"];
@@ -28,37 +53,60 @@ function pickColor(object) {
     if (color !== undefined) {
         return color;
     }
-    let index = nextColorIndex++;
+    let index = nextColorIndex % BG_COLORS.length;
+    nextColorIndex++;
     color = {bg : BG_COLORS[index], fg: FG_COLORS[index]};
     COLOR_MAP.set(object,color);
     return color;
 }
 
 $(document).ready(function () {
-
     $("#solveButton").click(function () {
         solve();
     });
     $("#stopSolvingButton").click(function () {
         stopSolving();
     });
-    $("#analyzeButton").click(function () {
-        analyze();
-    });
-    $("#byEmployeeTab").click(function () {
-        viewType = "E";
-        byEmployeeTimeline.redraw();
-        refreshSchedule();
-    });
+    // Score analysis is not available through the Models Service SDK local endpoints.
+    $("#analyzeButton").hide();
 
     setupAjax();
-    refreshSchedule();
+    if (PLATFORM.onPlatform) {
+        // Embedded: hide demo chrome (navbar + dataset info + solve/score controls)
+        // and load the existing run read-only.
+        document.body.classList.add("on-platform");
+        loadPlatformRun();
+    } else {
+        // Standalone dev: load demo data, allow solving.
+        loadDemoData();
+    }
 });
+
+// ── Platform: load an existing run (read-only) ──
+// ModelRest exposes the run's input at /{id}/model-request (ModelRequest -> {modelInput})
+// and its output+status at /{id} (ModelResponse -> {metadata:{solverStatus,score}, modelOutput}).
+function loadPlatformRun() {
+    if (!PLATFORM.runId) {
+        showError("No runId provided by platform.", {status: 0, statusText: "missing runId"});
+        return;
+    }
+    planId = PLATFORM.runId;
+    $.getJSON(api("/v1/task-assigning-plans/" + planId + "/model-request"), function (req) {
+        const modelInput = req.modelInput || req;
+        cacheProblemFacts(modelInput);
+        renderSchedule(modelInput.employees, modelInput.tasks, "NOT_SOLVING", null);
+        refreshSchedule(); // fetch output + render; auto-polls while solving
+    }).fail(function (xhr) {
+        showError("Failed to load run input from platform.", xhr);
+    });
+}
 
 function setupAjax() {
     $.ajaxSetup({
         headers: {
-            'Content-Type': 'application/json', 'Accept': 'application/json,text/plain', // plain text is required by solve() returning UUID of the solver job
+            'Content-Type': 'application/json', 'Accept': 'application/json,text/plain',
+            // On the platform, authenticate every request with the supplied API key.
+            ...(PLATFORM.apiKey ? {'X-API-KEY': PLATFORM.apiKey} : {})
         }
     });
 
@@ -77,91 +125,104 @@ function setupAjax() {
     });
 }
 
+function cacheProblemFacts(modelInput) {
+    taskTypeMap = new Map();
+    (modelInput.taskTypes || []).forEach(t => taskTypeMap.set(t.code, t));
+    customerMap = new Map();
+    (modelInput.customers || []).forEach(c => customerMap.set(c.id, c));
+}
+
+function loadDemoData() {
+    $.getJSON(api("/v1/demo-data/BASIC"), function (dataset) {
+        demoDataset = dataset;
+        cacheProblemFacts(dataset.modelInput);
+        renderSchedule(dataset.modelInput.employees, dataset.modelInput.tasks, "NOT_SOLVING", null);
+        refreshSolvingButtons(false);
+    }).fail(function (xhr) {
+        showError("Getting the demo data has failed.", xhr);
+    });
+}
+
 function refreshSchedule() {
-    let path = "/schedules/" + planId;
     if (planId === null) {
-        path = "/demo-data";
+        loadDemoData();
+        return;
     }
-
-    $.getJSON(path, function (plan) {
-        loadedPlan = plan;
-        $('#exportData').attr('href', 'data:text/plain;charset=utf-8,' + JSON.stringify(loadedPlan));
-        renderSchedule(plan);
-    })
-        .fail(function (xhr, ajaxOptions, thrownError) {
-            showError("Getting the schedule has failed.", xhr);
-            refreshSolvingButtons(false);
-        });
+    $.getJSON(api("/v1/task-assigning-plans/" + planId), function (plan) {
+        const metadata = plan.metadata || {};
+        const output = plan.modelOutput || {};
+        renderSchedule(output.employees || [], output.tasks || [], metadata.solverStatus, metadata.score);
+        refreshSolvingButtons(SOLVING_STATUSES.has(metadata.solverStatus));
+    }).fail(function (xhr) {
+        showError("Getting the schedule has failed.", xhr);
+        refreshSolvingButtons(false);
+    });
 }
 
-function renderSchedule(plan) {
-    refreshSolvingButtons(plan.solverStatus != null && plan.solverStatus !== "NOT_SOLVING");
-    $("#score").text("Score: " + (plan.score == null ? "?" : plan.score));
-    $("#info").text(`This dataset has ${plan.tasks.length} tasks and ${plan.employees.length} employees.`);
-
-    if (viewType === "E") {
-        renderScheduleByEmployee(plan);
-    }
+function affinityMultiplier(affinity) {
+    if (affinity === "LOW") return 3;
+    if (affinity === "MEDIUM") return 2;
+    if (affinity === "HIGH") return 1;
+    return 4;
 }
 
-function renderScheduleByEmployee(plan) {
+function affinityIcon(affinity) {
+    if (affinity === "LOW") return "<span class='fas fa-solid fa-arrow-down' style='color: blue' title='Low Affinity'/>";
+    if (affinity === "MEDIUM") return "<span class='fas fa-solid fa-arrow-up' style='color: blue' title='Medium Affinity'/>";
+    if (affinity === "HIGH") return "<span class='fas fa-solid fa-arrow-circle-up' style='color: blue' title='High Affinity'/>";
+    return "<span class='fas fa-solid fa-exclamation-circle' style='color: red' title='No Affinity'/>";
+}
+
+function renderSchedule(employees, tasks, solverStatus, score) {
+    $("#score").text("Score: " + (score == null ? "?" : score));
+    $("#info").text(`This dataset has ${tasks.length} tasks and ${employees.length} employees.`);
+
     const unassigned = $("#unassigned");
     unassigned.children().remove();
-    let unassignedCount = 0;
     byEmployeeGroupData.clear();
     byEmployeeItemData.clear();
 
-    $.each(plan.employees.sort((e1, e2) => e1.fullName.localeCompare(e2.fullName)), (_, employee) => {
+    // Build employee groups (rows in the timeline).
+    employees.slice().sort((e1, e2) => e1.fullName.localeCompare(e2.fullName)).forEach(employee => {
         let content = `<div class="d-flex flex-column"><div><h5 class="card-title mb-1">${employee.fullName}</h5></div>`;
-        if (employee.skills.length > 0) {
-            let skills = employee.skills.sort().slice(0, Math.min(2, employee.skills.length));
-            content += `<div class="d-flex">`;
-            skills.forEach(s => content += `<div><span class="badge text-bg-primary m-1" style="background-color: ${pickColor(s.bg)};color:${pickColor(s.fg)}">${s}</span></div>`);
+        const skills = (employee.skills || []).slice().sort();
+        if (skills.length > 0) {
+            content += `<div class="d-flex flex-wrap">`;
+            skills.forEach(s => {
+                const c = pickColor(s);
+                content += `<div><span class="badge m-1" style="background-color: ${c.bg};color:${c.fg}">${s}</span></div>`;
+            });
             content += "</div>";
-            if (employee.skills.length > 2) {
-                let skills = employee.skills.sort().slice(2, Math.min(4, employee.skills.length));
-                content += `<div class="d-flex">`;
-                skills.forEach(s => content += `<div><span class="badge text-bg-primary m-1" style="background-color: ${pickColor(s.bg)};color:${pickColor(s.fg)}">${s}</span></div>`);
-                content += "</div>";
-            }
         }
+        content += "</div>";
         byEmployeeGroupData.add({id: employee.id, content: content});
     });
 
-    const taskTypeMap = new Map();
-    plan.taskTypes.forEach(t => taskTypeMap.set(t.code, t));
-
-    const taskMap = new Map();
-    plan.tasks.forEach(t => taskMap.set(t.id, t));
-
-    const employeeMap = new Map();
-    plan.employees.forEach(e => employeeMap.set(e.id, e));
-
-    const customerMap = new Map();
-    plan.customers.forEach(c => customerMap.set(c.id, c));
-
-    let tasks = [];
-    plan.employees.forEach(e => {
-        e.tasks.forEach(t => tasks.push({
-            ...taskMap.get(t), employee: e.id
-        }));
+    // Map each task id to the employee it is assigned to, plus each employee's customer affinities.
+    const taskToEmployee = new Map();
+    const affinityByEmployee = new Map();
+    employees.forEach(employee => {
+        const affinities = new Map();
+        (employee.affinities || []).forEach(a => affinities.set(a.customerId, a.affinity));
+        affinityByEmployee.set(employee.id, affinities);
+        (employee.taskIds || []).forEach(taskId => taskToEmployee.set(taskId, employee.id));
     });
-    if (tasks.length === 0) {
-        tasks = plan.tasks;
-    }
 
-    $.each(tasks, (_, task) => {
-        const taskType = taskTypeMap.get(task.taskType);
-        const customer = customerMap.get(task.customer);
+    let unassignedCount = 0;
+    tasks.forEach(task => {
+        const taskType = taskTypeMap.get(task.taskTypeCode)
+            || {title: task.taskTypeCode, requiredSkills: [], baseDuration: 60};
+        const customer = customerMap.get(task.customerId) || {id: task.customerId, name: task.customerId};
+        const employeeId = taskToEmployee.get(task.id);
 
         const skillsDiv = $("<div />").prop("class", "col");
-        taskType.requiredSkills.sort().forEach(s => {
-            skillsDiv.append($(`<span class="badge text-bg-primary m-1"/>`).text(s))
+        (taskType.requiredSkills || []).slice().sort().forEach(s => {
+            const c = pickColor(s);
+            skillsDiv.append($(`<span class="badge m-1" style="background-color: ${c.bg};color:${c.fg}"/>`).text(s));
         });
 
-
         const customerDiv = $("<div />").prop("class", "col");
-        const customerColor = pickColor(customer.id);
+        const customerColor = pickColor("customer-" + customer.id);
         customerDiv.append($(`<span class="badge m-1" style="background-color: ${customerColor.bg};color:${customerColor.fg}" />`).text(customer.name));
 
         let priorityElement = $("<small class='ms-2 mt-1 card-text text-muted align-bottom float-end' />");
@@ -172,50 +233,36 @@ function renderScheduleByEmployee(plan) {
         } else {
             priorityElement.append($(`<span class='fas fa-solid fa-chevron-circle-up' style="color: red" title='Critical Priority'/>`));
         }
-        if (task.employee == null) {
+
+        if (employeeId == null || task.startTime == null) {
             unassignedCount++;
             const unassignedElement = $(`<div class="card-body p-2"/>`)
                 .append($(`<h5 class="card-title mb-1"/>`).text(`${taskType.title}-${task.indexInTaskType}`));
-
             unassignedElement.append(skillsDiv);
             unassignedElement.append(customerDiv);
             unassignedElement.append(priorityElement);
             unassigned.append($(`<div class="pl-1" />`).append($(`<div class="card" />`).append(unassignedElement)));
         } else {
-            const employee = employeeMap.get(task.employee);
-            const affinity = employee.customerToAffinity[task.customer];
-            let affinityMultiplier = 4;
-            let affinityIcon = "<span class='fas fa-solid fa-exclamation-circle' style='color: red' title='No Affinity'/>";
-            if (affinity === 'LOW') {
-                affinityIcon = "<span class='fas fa-solid fa-arrow-down' style='color: blue' title='Low Affinity'/>";
-                affinityMultiplier = 3;
-            } else if (affinity === 'MEDIUM') {
-                affinityIcon = "<span class='fas fa-solid fa-arrow-up' style='color: blue' title='Medium Affinity'/>";
-                affinityMultiplier = 2;
-            } else if (affinity === 'HIGH') {
-                affinityIcon = "<span class='fas fa-solid fa-arrow-circle-up' style='color: blue' title='High Affinity'/>";
-                affinityMultiplier = 1;
-            }
-
+            const affinity = (affinityByEmployee.get(employeeId) || new Map()).get(task.customerId);
             const employeeElement = $(`<div class="card-body p-2"/>`)
-                .append($(`<h5 class="card-title mb-1"/>`).text(`${taskType.title}-${task.indexInTaskType} `).append($(affinityIcon)));
-
+                .append($(`<h5 class="card-title mb-1"/>`).text(`${taskType.title}-${task.indexInTaskType} `).append($(affinityIcon(affinity))));
             employeeElement.append(skillsDiv);
             employeeElement.append(customerDiv);
             employeeElement.append(priorityElement);
-            const startTime = JSJoda.LocalDateTime.now().withHour(8).withMinute(0).withSecond(0)
+            const startTime = JSJoda.LocalDateTime.now().withHour(8).withMinute(0).withSecond(0).withNano(0)
                 .plusMinutes(task.startTime);
-            const duration = affinityMultiplier * taskType.baseDuration;
+            const duration = affinityMultiplier(affinity) * taskType.baseDuration;
             byEmployeeItemData.add({
                 id: task.id,
-                group: task.employee,
+                group: employeeId,
                 content: employeeElement.html(),
                 start: startTime.toString(),
                 end: startTime.plusMinutes(duration).toString(),
             });
         }
     });
-    if (unassignedCount === 0) {
+
+    if (unassignedCount === 0 && tasks.length > 0) {
         const banner = $(`<div class="col-12"/>`)
             .append($(`<div class="alert alert-success d-flex align-items-center justify-content-center" role="alert"/>`)
                 .append($(`<i class="fas fa-check-circle me-2"/>`))
@@ -228,103 +275,17 @@ function renderScheduleByEmployee(plan) {
 }
 
 function solve() {
-    $.post("/schedules", JSON.stringify(loadedPlan), function (data) {
-        planId = data;
+    if (demoDataset === null) {
+        showError("No demo data loaded yet.", {status: 0, statusText: "no data"});
+        return;
+    }
+    $.post(api("/v1/task-assigning-plans"), JSON.stringify(demoDataset), function (data) {
+        planId = data.id;
         refreshSolvingButtons(true);
-    }).fail(function (xhr, ajaxOptions, thrownError) {
+    }).fail(function (xhr) {
         showError("Start solving failed.", xhr);
         refreshSolvingButtons(false);
-    }, "text");
-}
-
-function analyze() {
-    new bootstrap.Modal("#scoreAnalysisModal").show()
-    const scoreAnalysisModalContent = $("#scoreAnalysisModalContent");
-    scoreAnalysisModalContent.children().remove();
-    if (loadedPlan.score == null) {
-        scoreAnalysisModalContent.text("No score to analyze yet, please first press the 'solve' button.");
-    } else {
-        $('#scoreAnalysisScoreLabel').text(`(${loadedPlan.score})`);
-        $.put("/schedules/analyze", JSON.stringify(loadedPlan), function (scoreAnalysis) {
-            let constraints = scoreAnalysis.constraints;
-            constraints.sort((a, b) => {
-                let aComponents = getScoreComponents(a.score), bComponents = getScoreComponents(b.score);
-                if (aComponents.hard < 0 && bComponents.hard > 0) return -1;
-                if (aComponents.hard > 0 && bComponents.soft < 0) return 1;
-                if (Math.abs(aComponents.hard) > Math.abs(bComponents.hard)) {
-                    return -1;
-                } else {
-                    if (aComponents.medium < 0 && bComponents.medium > 0) return -1;
-                    if (aComponents.medium > 0 && bComponents.medium < 0) return 1;
-                    if (Math.abs(aComponents.medium) > Math.abs(bComponents.medium)) {
-                        return -1;
-                    } else {
-                        if (aComponents.soft < 0 && bComponents.soft > 0) return -1;
-                        if (aComponents.soft > 0 && bComponents.soft < 0) return 1;
-
-                        return Math.abs(bComponents.soft) - Math.abs(aComponents.soft);
-                    }
-                }
-            });
-            constraints.map((e) => {
-                let components = getScoreComponents(e.weight);
-                e.type = components.hard != 0 ? 'hard' : (components.medium != 0 ? 'medium' : 'soft');
-                e.weight = components[e.type];
-                let scores = getScoreComponents(e.score);
-                e.implicitScore = scores.hard != 0 ? scores.hard : (scores.medium != 0 ? scores.medium : scores.soft);
-            });
-            scoreAnalysis.constraints = constraints;
-
-            scoreAnalysisModalContent.children().remove();
-            scoreAnalysisModalContent.text("");
-
-            const analysisTable = $(`<table class="table"/>`).css({textAlign: 'center'});
-            const analysisTHead = $(`<thead/>`).append($(`<tr/>`)
-                .append($(`<th></th>`))
-                .append($(`<th>Constraint</th>`).css({textAlign: 'left'}))
-                .append($(`<th>Type</th>`))
-                .append($(`<th># Matches</th>`))
-                .append($(`<th>Weight</th>`))
-                .append($(`<th>Score</th>`))
-                .append($(`<th></th>`)));
-            analysisTable.append(analysisTHead);
-            const analysisTBody = $(`<tbody/>`)
-            $.each(scoreAnalysis.constraints, (index, constraintAnalysis) => {
-                let icon = constraintAnalysis.type == "hard" && constraintAnalysis.implicitScore < 0 ? '<span class="fas fa-exclamation-triangle" style="color: red"></span>' : '';
-                if (!icon) icon = constraintAnalysis.matches.length == 0 ? '<span class="fas fa-check-circle" style="color: green"></span>' : '';
-
-                let row = $(`<tr/>`);
-                row.append($(`<td/>`).html(icon))
-                    .append($(`<td/>`).text(constraintAnalysis.id).css({textAlign: 'left'}))
-                    .append($(`<td/>`).text(constraintAnalysis.type))
-                    .append($(`<td/>`).html(`<b>${constraintAnalysis.matches.length}</b>`))
-                    .append($(`<td/>`).text(constraintAnalysis.weight))
-                    .append($(`<td/>`).text(constraintAnalysis.implicitScore));
-                analysisTBody.append(row);
-                row.append($(`<td/>`));
-            });
-            analysisTable.append(analysisTBody);
-            scoreAnalysisModalContent.append(analysisTable);
-        }).fail(function (xhr, ajaxOptions, thrownError) {
-            scoreAnalysisModalContent.children().remove();
-            scoreAnalysisModalContent.append($("<p/>").html(
-                "The server returned an error."
-                + " This may be due to a misconfiguration, or because Score Analysis requires"
-                + " <b>Timefold Solver Enterprise Edition</b>, which is not on the classpath."
-                + " If the latter, reach out to Timefold, obtain your license,"
-                + " and then run the quickstart with an Enterprise profile to see Score analysis in action."));
-        }, "text");
-    }
-}
-
-function getScoreComponents(score) {
-    let components = {hard: 0, medium: 0, soft: 0};
-
-    $.each([...score.matchAll(/(-?[0-9]+)(hard|medium|soft)/g)], (i, parts) => {
-        components[parts[2]] = parseInt(parts[1], 10);
     });
-
-    return components;
 }
 
 function refreshSolvingButtons(solving) {
@@ -345,17 +306,19 @@ function refreshSolvingButtons(solving) {
 }
 
 function stopSolving() {
-    $.delete("/schedules/" + planId, function () {
+    if (planId === null) {
+        return;
+    }
+    $.delete(api("/v1/task-assigning-plans/" + planId), function () {
         refreshSolvingButtons(false);
         refreshSchedule();
-    }).fail(function (xhr, ajaxOptions, thrownError) {
+    }).fail(function (xhr) {
         showError("Stop solving failed.", xhr);
     });
 }
 
 function copyTextToClipboard(id) {
     let text = $("#" + id).text().trim();
-
     let dummy = document.createElement("textarea");
     document.body.appendChild(dummy);
     dummy.value = text;
@@ -366,17 +329,7 @@ function copyTextToClipboard(id) {
 
 function showError(title, xhr) {
     let serverErrorMessage = !xhr.responseJSON ? `${xhr.status}: ${xhr.statusText}` : xhr.responseJSON.message;
-    let serverErrorCode = !xhr.responseJSON ? `unknown` : xhr.responseJSON.code;
-    let serverErrorId = !xhr.responseJSON ? `----` : xhr.responseJSON.id;
-    let serverErrorDetails = !xhr.responseJSON ? `no details provided` : xhr.responseJSON.details;
-
-    if (xhr.responseJSON && !serverErrorMessage) {
-        serverErrorMessage = JSON.stringify(xhr.responseJSON);
-        serverErrorCode = xhr.statusText + '(' + xhr.status + ')';
-        serverErrorId = `----`;
-    }
-
-    console.error(title + "\n" + serverErrorMessage + " : " + serverErrorDetails);
+    console.error(title + "\n" + serverErrorMessage);
     const notification = $(`<div class="toast" role="alert" aria-live="assertive" aria-atomic="true" style="min-width: 50rem"/>`)
         .append($(`<div class="toast-header bg-danger">
                  <strong class="me-auto text-dark">Error</strong>
@@ -384,9 +337,7 @@ function showError(title, xhr) {
                </div>`))
         .append($(`<div class="toast-body"/>`)
             .append($(`<p/>`).text(title))
-            .append($(`<pre/>`)
-                .append($(`<code/>`).text(serverErrorMessage + "\n\nCode: " + serverErrorCode + "\nError id: " + serverErrorId))
-            )
+            .append($(`<pre/>`).append($(`<code/>`).text(serverErrorMessage)))
         );
     $("#notificationPanel").append(notification);
     notification.toast({delay: 30000});

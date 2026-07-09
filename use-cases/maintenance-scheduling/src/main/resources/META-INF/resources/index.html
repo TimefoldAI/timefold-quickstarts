@@ -7,8 +7,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vis-timeline@7.7.2/styles/vis-timeline-graph2d.min.css"
           integrity="sha256-svzNasPg1yR5gvEaRei2jg+n4Pc3sVyMUWeS6xRAh6U=" crossorigin="anonymous">
 
-    <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="/webjars/font-awesome/css/all.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
     <link rel="icon" href="https://timefold.ai/uploads/images/Brand-Assets/timefold-solver-logomark.png" type="image/png">
     <style>
         :root {
@@ -25,11 +25,15 @@
         .vis-time-axis .vis-grid.vis-sunday {
             background: #D3D7CFFF;
         }
+        body.on-platform #appHeader,
+        body.on-platform #datasetInfo,
+        body.on-platform #solveControls,
+        body.on-platform footer { display: none !important; }
     </style>
 </head>
 
 <body>
-<header class="bg-white shadow">
+<header id="appHeader" class="bg-white shadow">
     <div class="container-fluid">
         <nav class="navbar navbar-expand-lg mb-3">
             <a class="navbar-brand" style="width: 200px;overflow: hidden;">
@@ -72,9 +76,9 @@
     <div class="sticky-top d-flex justify-content-center align-items-center" aria-live="polite" aria-atomic="true">
         <div id="notificationPanel" style="position: absolute; top: .5rem;"></div>
     </div>
-    <blockquote>Generate the optimal schedule for your maintenance staff. <span id="info" class="fw-bold"></span></blockquote>
+    <blockquote id="datasetInfo">Generate the optimal schedule for your maintenance staff. <span id="info" class="fw-bold"></span></blockquote>
 
-    <div class="mb-2">
+    <div id="solveControls" class="mb-2">
         <button id="solveButton" type="button" class="btn btn-success">
             <span class="fas fa-play"></span> Solve
         </button>
@@ -119,7 +123,7 @@
         <pre>
             <button class="btn btn-outline-dark btn-sm float-end"
                     onclick="copyTextToClipboard('curl1')">Copy</button>
-            <code id="curl1">curl -X GET -H 'Accept:application/json' http://localhost:8080/demo-data/SMALL -o sample.json</code>
+            <code id="curl1">curl -X GET -H 'Accept:application/json' http://localhost:8080/v1/demo-data/BASIC -o sample.json</code>
     </pre>
 
         <h3>2. Post the sample data for solving</h3>
@@ -127,35 +131,28 @@
         <pre>
             <button class="btn btn-outline-dark btn-sm float-end"
                     onclick="copyTextToClipboard('curl2')">Copy</button>
-            <code id="curl2">curl -X POST -H 'Content-Type:application/json' http://localhost:8080/schedules -d@sample.json</code>
+            <code id="curl2">curl -X POST -H 'Content-Type:application/json' http://localhost:8080/v1/schedules -d@sample.json</code>
     </pre>
 
         <h3>3. Get the current status and score</h3>
         <pre>
             <button class="btn btn-outline-dark btn-sm float-end"
                     onclick="copyTextToClipboard('curl3')">Copy</button>
-            <code id="curl3">curl -X GET -H 'Accept:application/json' http://localhost:8080/schedules/{jobId}/status</code>
+            <code id="curl3">curl -X GET -H 'Accept:application/json' http://localhost:8080/v1/schedules/{jobId}</code>
     </pre>
 
         <h3>4. Get the complete solution</h3>
         <pre>
             <button class="btn btn-outline-dark btn-sm float-end"
                     onclick="copyTextToClipboard('curl4')">Copy</button>
-            <code id="curl4">curl -X GET -H 'Accept:application/json' http://localhost:8080/schedules/{jobId}</code>
-    </pre>
-
-        <h3>5. Fetch the analysis of the solution</h3>
-        <pre>
-            <button class="btn btn-outline-dark btn-sm float-end"
-                    onclick="copyTextToClipboard('curl5')">Copy</button>
-            <code id="curl5">curl -X PUT -H 'Content-Type:application/json' http://localhost:8080/schedules/analyze -d@solution.json</code>
+            <code id="curl4">curl -X GET -H 'Accept:application/json' http://localhost:8080/v1/schedules/{jobId}</code>
     </pre>
 
         <h3>5. Terminate solving early</h3>
         <pre>
             <button class="btn btn-outline-dark btn-sm float-end"
                     onclick="copyTextToClipboard('curl5')">Copy</button>
-            <code id="curl6">curl -X DELETE -H 'Accept:application/json' http://localhost:8080/schedules/{id}</code>
+            <code id="curl5">curl -X DELETE -H 'Accept:application/json' http://localhost:8080/v1/schedules/{id}</code>
     </pre>
     </div>
 
@@ -200,11 +197,11 @@
     </div>
 </div>
 
-<script src="/webjars/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="/webjars/jquery/jquery.min.js"></script>
-<script src="/webjars/js-joda/dist/js-joda.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@js-joda/core@5.6.3/dist/js-joda.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vis-timeline@7.7.2/standalone/umd/vis-timeline-graph2d.min.js"
         integrity="sha256-Jy2+UO7rZ2Dgik50z3XrrNpnc5+2PAx9MhL2CicodME=" crossorigin="anonymous"></script>
-<script src="/app.js"></script>
+<script src="app.js"></script>
 </body>
 </html>

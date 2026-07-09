@@ -48,10 +48,12 @@ public class Round {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof Round round))
+        }
+        if (!(o instanceof Round round)) {
             return false;
+        }
         return getIndex() == round.getIndex();
     }
 

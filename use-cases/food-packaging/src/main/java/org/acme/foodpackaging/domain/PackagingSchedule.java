@@ -1,7 +1,10 @@
 package org.acme.foodpackaging.domain;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
+import ai.timefold.solver.core.api.domain.solution.ConstraintWeightOverrides;
 import ai.timefold.solver.core.api.domain.solution.PlanningEntityCollectionProperty;
 import ai.timefold.solver.core.api.domain.solution.PlanningScore;
 import ai.timefold.solver.core.api.domain.solution.PlanningSolution;
@@ -9,10 +12,16 @@ import ai.timefold.solver.core.api.domain.solution.ProblemFactCollectionProperty
 import ai.timefold.solver.core.api.domain.solution.ProblemFactProperty;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
 import ai.timefold.solver.core.api.score.HardMediumSoftScore;
-import ai.timefold.solver.core.api.solver.SolverStatus;
+import ai.timefold.solver.service.definition.api.SolverModel;
+import ai.timefold.solver.service.definition.api.metrics.InputMetricsAware;
+import ai.timefold.solver.service.definition.api.metrics.OutputMetricsAware;
+
+import org.acme.foodpackaging.dto.PackagingScheduleInputMetrics;
+import org.acme.foodpackaging.dto.PackagingScheduleOutputMetrics;
 
 @PlanningSolution
-public class PackagingSchedule {
+public class PackagingSchedule implements SolverModel<HardMediumSoftScore>,
+        InputMetricsAware<PackagingScheduleInputMetrics>, OutputMetricsAware<PackagingScheduleOutputMetrics> {
 
     @ProblemFactProperty
     private WorkCalendar workCalendar;
@@ -34,11 +43,20 @@ public class PackagingSchedule {
     @PlanningScore
     private HardMediumSoftScore score;
 
-    // Ignored by Timefold, used by the UI to display solve or stop solving button
-    private SolverStatus solverStatus;
+    private ConstraintWeightOverrides<HardMediumSoftScore> constraintWeightOverrides =
+            ConstraintWeightOverrides.none();
 
     public PackagingSchedule() {
         // No-arg constructor required for Timefold
+    }
+
+    public PackagingSchedule(WorkCalendar workCalendar, List<Product> products, List<Operator> operators,
+            List<Line> lines, List<Job> jobs) {
+        this.workCalendar = workCalendar;
+        this.products = products;
+        this.operators = operators;
+        this.lines = lines;
+        this.jobs = jobs;
     }
 
     // ************************************************************************
@@ -85,6 +103,7 @@ public class PackagingSchedule {
         this.jobs = jobs;
     }
 
+    @Override
     public HardMediumSoftScore getScore() {
         return score;
     }
@@ -93,12 +112,43 @@ public class PackagingSchedule {
         this.score = score;
     }
 
-    public SolverStatus getSolverStatus() {
-        return solverStatus;
+    @Override
+    public ConstraintWeightOverrides<HardMediumSoftScore> getConstraintWeightOverrides() {
+        return constraintWeightOverrides;
     }
 
-    public void setSolverStatus(SolverStatus solverStatus) {
-        this.solverStatus = solverStatus;
+    public void setConstraintWeightOverrides(
+            ConstraintWeightOverrides<HardMediumSoftScore> constraintWeightOverrides) {
+        this.constraintWeightOverrides = constraintWeightOverrides;
     }
 
+    @Override
+    public PackagingScheduleInputMetrics getInputMetrics() {
+        return new PackagingScheduleInputMetrics(jobs.size(), lines.size(), operators.size(), products.size());
+    }
+
+    @Override
+    public PackagingScheduleOutputMetrics getOutputMetrics() {
+        int assignedJobs = (int) jobs.stream().filter(job -> job.getLine() != null).count();
+        int unassignedJobs = jobs.size() - assignedJobs;
+        int usedLines = (int) lines.stream().filter(line -> !line.getJobs().isEmpty()).count();
+        LocalDateTime earliestStart = lines.stream()
+                .map(Line::getStartDateTime)
+                .filter(start -> start != null)
+                .min(LocalDateTime::compareTo)
+                .orElse(null);
+        LocalDateTime latestEnd = jobs.stream()
+                .filter(job -> job.getLine() != null && job.getEndDateTime() != null)
+                .map(Job::getEndDateTime)
+                .max(LocalDateTime::compareTo)
+                .orElse(null);
+        int makespanMinutes = earliestStart == null || latestEnd == null ? 0
+                : (int) Duration.between(earliestStart, latestEnd).toMinutes();
+        return new PackagingScheduleOutputMetrics(assignedJobs, unassignedJobs, usedLines, Math.max(0, makespanMinutes));
+    }
+
+    @Override
+    public String toString() {
+        return "PackagingSchedule{jobs: " + jobs.size() + ", score: " + score + '}';
+    }
 }

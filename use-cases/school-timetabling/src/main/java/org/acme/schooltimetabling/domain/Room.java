@@ -1,10 +1,10 @@
 package org.acme.schooltimetabling.domain;
 
 import ai.timefold.solver.core.api.domain.common.PlanningId;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
-@JsonIdentityInfo(scope = Room.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+/**
+ * A room in which a {@link Lesson} can be taught.
+ */
 public class Room {
 
     @PlanningId
@@ -20,20 +20,16 @@ public class Room {
         this.name = name;
     }
 
-    @Override
-    public String toString() {
-        return name;
-    }
-
-    // ************************************************************************
-    // Getters and setters
-    // ************************************************************************
-
     public String getId() {
         return id;
     }
 
     public String getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
         return name;
     }
 }

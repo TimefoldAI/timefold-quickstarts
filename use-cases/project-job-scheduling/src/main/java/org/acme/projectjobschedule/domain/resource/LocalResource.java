@@ -8,6 +8,7 @@ public class LocalResource extends Resource {
     private boolean renewable;
 
     public LocalResource() {
+        super();
     }
 
     public LocalResource(String id, Project project, int capacity, boolean renewable) {

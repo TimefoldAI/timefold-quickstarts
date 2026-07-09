@@ -4,7 +4,7 @@ package org.acme.orderpicking.domain;
  * Represents the products container. In the order picking problem the warehouse is represented as a set of shelvings
  * that are organized into columns and rows. Each shelving has two sides where the products can be stored, and
  * a number of rows.
- * 
+ *
  * @see Warehouse
  */
 public class Shelving {
@@ -19,16 +19,16 @@ public class Shelving {
         RIGHT
     }
 
-    private String id;
+    private final String id;
 
     /**
      * Absolute x position of the shelving's left bottom corner within the warehouse.
      */
-    private int x;
+    private final int x;
     /**
      * Absolute y position of the shelving's left bottom corner within the warehouse.
      */
-    private int y;
+    private final int y;
 
     Shelving(String id, int x, int y) {
         this.id = id;

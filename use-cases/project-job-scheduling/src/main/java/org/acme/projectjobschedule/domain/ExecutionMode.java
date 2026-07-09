@@ -5,10 +5,6 @@ import java.util.Objects;
 
 import ai.timefold.solver.core.api.domain.common.PlanningId;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
-@JsonIdentityInfo(scope = ExecutionMode.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class ExecutionMode {
 
     @PlanningId
@@ -69,10 +65,12 @@ public class ExecutionMode {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof ExecutionMode that))
+        }
+        if (!(o instanceof ExecutionMode that)) {
             return false;
+        }
         return Objects.equals(getId(), that.getId());
     }
 

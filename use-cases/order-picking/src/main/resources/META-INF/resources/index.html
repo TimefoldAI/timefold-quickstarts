@@ -1,183 +1,140 @@
 <html lang="en">
 <head>
-    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
-    <meta content="width=device-width, initial-scale=1" name="viewport">
-    <title>Order Picking - Timefold Solver on Quarkus</title>
-    <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="/webjars/font-awesome/css/all.css"/>
-    <link rel="stylesheet" href="/style.css"/>
-    <link rel="icon" href="https://timefold.ai/uploads/images/Brand-Assets/timefold-solver-logomark.png" type="image/png">
-    <style>
-        :root {
-            --ts-violet-1-rgb: #3E00FF;
-            --ts-violet-2-rgb: #3423A6;
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+  <meta content="width=device-width, initial-scale=1" name="viewport">
+  <title>Order Picking - Timefold Solver on Quarkus</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+  <link rel="icon" href="https://timefold.ai/uploads/images/Brand-Assets/timefold-solver-logomark.png" type="image/png">
+  <style>
+    :root {
+      --ts-violet-1-rgb: #3E00FF;
+      --ts-violet-2-rgb: #3423A6;
 
-            --bs-link-color: var(--ts-violet-1-rgb);
-            --bs-link-hover-color: var(--ts-violet-2-rgb);
-        }
-        .nav-pills {
-            --bs-nav-pills-link-active-bg: var(--ts-violet-1-rgb);
-        }
-    </style>
+      --bs-link-color: var(--ts-violet-1-rgb);
+      --bs-link-hover-color: var(--ts-violet-2-rgb);
+    }
+    .nav-pills {
+      --bs-nav-pills-link-active-bg: var(--ts-violet-1-rgb);
+    }
+
+    /* Embedded on the Timefold Platform: hide the demo navbar + solve/score
+       controls so only the read-only solution visualization remains. */
+    body.on-platform #appHeader,
+    body.on-platform #datasetInfo,
+    body.on-platform #solveControls,
+    body.on-platform footer { display: none !important; }
+  </style>
 </head>
 <body>
-<header class="bg-white shadow">
-    <div class="container-fluid">
-        <nav class="navbar navbar-expand-lg mb-3">
-            <a class="navbar-brand" style="width: 200px;overflow: hidden;">
-                <img src="https://timefold.ai/uploads/images/Brand-Assets/timefold-solver-logo.png" alt="Timefold Solver logo" width="200px" style="margin-top:-20px;margin-bottom:-20px">
-            </a>
-            <a class="navbar-brand d-none d-lg-block">Order Picking Quickstart</a>
-            <div class="ms-auto">
-                <div class="d-flex align-items-center" id="navbarNav">
-                    <ul class="nav nav-pills">
-                        <li class="nav-item active" id="navUIItem">
-                            <button class="nav-link active" id="navUI" data-bs-toggle="pill" data-bs-target="#demo" type="button">Demo UI</button>
-                        </li>
-                        <li class="nav-item" id="navRestItem">
-                            <button class="nav-link" id="navRest" data-bs-toggle="pill" data-bs-target="#rest" type="button">Guide</button>
-                        </li>
-                        <li class="nav-item" id="navOpenApiItem">
-                            <button class="nav-link" id="navOpenApi" data-bs-toggle="pill" data-bs-target="#openapi" type="button">REST API</button>
-                        </li>
-                        <li class="nav-item" id="navNextStepsItem">
-                            <a style="text-decoration: none; font-weight: 600;" href="https://solver.timefold.ai/quickstart-next-steps?utm_source=github&utm_medium=quickstart&utm_campaign=timefold-quickstarts&utm_content=order-picking-java">
-                                <button class="nav-link" id="nextStepsItem" data-bs-toggle="pill" type="button">Next Steps</button>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </div>
+<header id="appHeader" class="bg-white shadow">
+  <div class="container-fluid">
+    <nav class="navbar navbar-expand-lg mb-3">
+      <a class="navbar-brand" style="width: 200px;overflow: hidden;">
+        <img src="https://timefold.ai/uploads/images/Brand-Assets/timefold-solver-logo.png" alt="Timefold Solver logo" width="200px" style="margin-top:-20px;margin-bottom:-20px">
+      </a>
+      <a class="navbar-brand d-none d-lg-block">Order Picking Quickstart</a>
+      <div class="ms-auto">
+        <div class="d-flex align-items-center" id="navbarNav">
+          <ul class="nav nav-pills">
+            <li class="nav-item active" id="navUIItem">
+              <button class="nav-link active" id="navUI" data-bs-toggle="pill" data-bs-target="#demo" type="button">Demo UI</button>
+            </li>
+            <li class="nav-item" id="navRestItem">
+              <button class="nav-link" id="navRest" data-bs-toggle="pill" data-bs-target="#rest" type="button">Guide</button>
+            </li>
+            <li class="nav-item" id="navOpenApiItem">
+              <button class="nav-link" id="navOpenApi" data-bs-toggle="pill" data-bs-target="#openapi" type="button">REST API</button>
+            </li>
+            <li class="nav-item" id="navNextStepsItem">
+              <a style="text-decoration: none; font-weight: 600;" href="https://solver.timefold.ai/quickstart-next-steps?utm_source=github&utm_medium=quickstart&utm_campaign=timefold-quickstarts&utm_content=order-picking-java">
+                <button class="nav-link" id="nextStepsItem" data-bs-toggle="pill" type="button">Next Steps</button>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </div>
 </header>
 <div class="tab-content">
-    <div id="demo" class="tab-pane fade show active container-fluid">
-        <div class="sticky-top d-flex justify-content-center align-items-center" aria-live="polite" aria-atomic="true">
-            <div id="notificationPanel" style="position: absolute; top: .5rem;"></div>
-        </div>
-        <blockquote>Generate an optimal picking plan for completing a set of orders. <span id="info" class="fw-bold"></span></blockquote>
+  <div id="demo" class="tab-pane fade show active container-fluid">
+    <div class="sticky-top d-flex justify-content-center align-items-center" aria-live="polite" aria-atomic="true">
+      <div id="notificationPanel" style="position: absolute; top: .5rem;"></div>
+    </div>
+    <blockquote id="datasetInfo">Generate an optimal picking plan for completing a set of orders. <span id="info" class="fw-bold"></span></blockquote>
 
-    <div class="mb-2">
-        <button id="refreshButton" type="button" class="btn btn-success">
-            <span class="fas fa-sync"></span> Refresh
-        </button>
-        <button id="solveButton" type="button" class="btn btn-success">
-            <span class="fas fa-play"></span> Solve
-        </button>
-        <button id="stopSolvingButton" type="button" class="btn btn-danger" style="display: none">
-            <span class="fas fa-stop"></span> Stop solving
-        </button>
-        <span id="score" class="score ms-2 align-middle fw-bold">Score: ?</span>
-        <button id="analyzeButton" type="button" class="ms-2 btn btn-secondary">
-            <span class="fas fa-question"></span>
-        </button>
-
-        <div class="float-end">
-            <ul class="nav nav-pills" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="solutionTab" data-bs-toggle="tab" data-bs-target="#solutionTabDiv" type="button" role="tab" aria-controls="solutionPanel" aria-selected="true">Picking plan</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="mapTab" data-bs-toggle="tab" data-bs-target="#mapTabDiv" type="button" role="tab" aria-controls="mapPanel" aria-selected="false" onclick="window.setTimeout(() => refreshSolution(), 500);">Map</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="unassignedEntitiesTab" data-bs-toggle="tab" data-bs-target="#unassignedEntitiesTabDiv" type="button" role="tab" aria-controls="unassignedEntitiesPanel" aria-selected="false">Unassigned</button>
-                </li>
-            </ul>
-        </div>
+    <div id="solveControls" class="mb-2">
+      <button id="solveButton" type="button" class="btn btn-success">
+        <span class="fas fa-play"></span> Solve
+      </button>
+      <button id="stopSolvingButton" type="button" class="btn btn-danger">
+        <span class="fas fa-stop"></span> Stop solving
+      </button>
+      <span id="score" class="score ms-2 align-middle fw-bold">Score: ?</span>
+      <button id="analyzeButton" type="button" class="ms-2 btn btn-secondary">
+        <span class="fas fa-question"></span>
+      </button>
     </div>
 
     <div class="tab-content">
-        <div class="tab-pane fade show active" id="solutionTabDiv" role="tabpanel" aria-labelledby="solutionTab">
-            <div class="container text-center" id="welcomeMessageContainer" style="display: none">
-                <div class="row" style="padding-top: 140px;">
-                    <div class="col-md-12">
-                        <h4><strong>It looks like the Order Picking quickstart has not been started...</strong></h4>
-                    </div>
-                </div>
-                <div class="row" style="padding-top: 10px;">
-                    <div class="col-md-12">
-                        <span>To see the initial data set before staring the Solver you can use the <a href="javascript:doClickOnUnassignedEntities()">Unassigned</a> entities tab.</span>
-                    </div>
-                </div>
-            </div>
+      <h2 class="my-3">Picking plan by trolley</h2>
+      <div id="trolleys" class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3"></div>
 
-            <table class="table table-borderless table-striped" id="solutionTable">
-                <!-- Filled in by app.js -->
-            </table>
-        </div>
-
-        <div class="tab-pane fade" id="mapTabDiv" role="tabpanel" aria-labelledby="mapTab">
-            <div id="mapContainer" style="padding-top: 10px;">
-                <div id="mapActionsContainer">
-                    <!-- Filled in by app.js -->
-                </div>
-                <div id="mapCanvasContainer" style="width: 75%; height: 75%; padding-top: 20px; padding-left: 15px;">
-                    <!-- Canvas drawing by app.js -->
-                    <canvas id="warehouseCanvas" style="position: absolute"></canvas>
-                </div>
-                <div>
-                    *Shelving dimension is of 2 meters width x 10 meters height.
-                </div>
-            </div>
-        </div>
-
-        <div class="tab-pane fade" id="unassignedEntitiesTabDiv" role="tabpanel" aria-labelledby="unassignedEntitiesTab">
-            <div id="unassignedEntitiesContainer">
-                <!-- Filled by the app.js -->
-            </div>
-        </div>
+      <h2 class="my-4">Unassigned pick tasks</h2>
+      <div id="unassignedPickTasks" class="row row-cols-2 row-cols-md-4 g-3 mb-4"></div>
     </div>
-</div>
+  </div>
 
-<div id="rest" class="tab-pane fade container-fluid">
+  <div id="rest" class="tab-pane fade  container-fluid">
     <h1>REST API Guide</h1>
 
-    <h2>Order Picking - integration via cURL</h2>
+    <h2>Order picking solver integration via cURL</h2>
 
-    <h3>1. Get the initial solution</h3>
+    <h3>1. Download demo data</h3>
     <pre>
-        <button class="btn btn-outline-dark btn-sm float-end"
-                onclick="copyTextToClipboard('curl1')">Copy</button>
-        <code id="curl1">curl -X GET -H 'Accept:application/json' http://localhost:8080/orderPicking</code>
+            <button class="btn btn-outline-dark btn-sm float-end"
+                    onclick="copyTextToClipboard('curl1')">Copy</button>
+            <code id="curl1">curl -X GET -H 'Accept:application/json' http://localhost:8080/v1/demo-data/BASIC -o sample.json</code>
     </pre>
 
-    <h3>2. Start solving</h3>
+    <h3>2. Post the sample data for solving</h3>
+    <p>The POST operation returns an <code>id</code> that should be used in subsequent commands.</p>
     <pre>
-        <button class="btn btn-outline-dark btn-sm float-end"
-                onclick="copyTextToClipboard('curl2')">Copy</button>
-        <code id="curl2">curl -X POST http://localhost:8080/orderPicking/solve</code>
+            <button class="btn btn-outline-dark btn-sm float-end"
+                    onclick="copyTextToClipboard('curl2')">Copy</button>
+            <code id="curl2">curl -X POST -H 'Content-Type:application/json' http://localhost:8080/v1/order-picking-plans -d@sample.json</code>
     </pre>
 
-    <h3>3. Get the current solution</h3>
+    <h3>3. Get the current status and score</h3>
     <pre>
-        <button class="btn btn-outline-dark btn-sm float-end"
-                onclick="copyTextToClipboard('curl3')">Copy</button>
-        <code id="curl3">curl -X GET -H 'Accept:application/json' http://localhost:8080/orderPicking</code>
+            <button class="btn btn-outline-dark btn-sm float-end"
+                    onclick="copyTextToClipboard('curl3')">Copy</button>
+            <code id="curl3">curl -X GET -H 'Accept:application/json' http://localhost:8080/v1/order-picking-plans/{id}</code>
     </pre>
 
-    <h3>4. Analyze the score</h3>
+    <h3>4. Get the complete solution</h3>
     <pre>
-        <button class="btn btn-outline-dark btn-sm float-end"
-                onclick="copyTextToClipboard('curl4')">Copy</button>
-        <code id="curl4">curl -X PUT -H 'Content-Type:application/json' -H 'Accept:application/json' http://localhost:8080/orderPicking/analyze?fetchPolicy=FETCH_SHALLOW</code>
+            <button class="btn btn-outline-dark btn-sm float-end"
+                    onclick="copyTextToClipboard('curl4')">Copy</button>
+            <code id="curl4">curl -X GET -H 'Accept:application/json' http://localhost:8080/v1/order-picking-plans/{id}</code>
     </pre>
 
-    <h3>5. Stop solving</h3>
+    <h3>5. Terminate solving early</h3>
     <pre>
-        <button class="btn btn-outline-dark btn-sm float-end"
-                onclick="copyTextToClipboard('curl5')">Copy</button>
-        <code id="curl5">curl -X POST http://localhost:8080/orderPicking/stopSolving</code>
+            <button class="btn btn-outline-dark btn-sm float-end"
+                    onclick="copyTextToClipboard('curl5')">Copy</button>
+            <code id="curl5">curl -X DELETE -H 'Accept:application/json' http://localhost:8080/v1/order-picking-plans/{id}</code>
     </pre>
-</div>
+  </div>
 
-<div id="openapi" class="tab-pane fade container-fluid">
+  <div id="openapi" class="tab-pane fade container-fluid">
+
     <div class="ratio ratio-1x1">
-        <!-- "scrolling" attribute is obsolete, but e.g. Chrome does not support "overflow:hidden" -->
-        <iframe src="/q/swagger-ui" style="overflow:hidden;" scrolling="no"></iframe>
+      <!-- "scrolling" attribute is obsolete, but e.g. Chrome does not support "overflow:hidden" -->
+      <iframe src="/q/swagger-ui" style="overflow:hidden;" scrolling="no"></iframe>
     </div>
-</div>
+  </div>
 </div>
 <footer class="bg-black">
   <div class="container">
@@ -193,31 +150,28 @@
   </div>
   <div id="applicationInfo" class="container text-center"></div>
 </footer>
-<div class="modal fadebd-example-modal-lg" id="scoreAnalysisModal" tabindex="-1"
-     aria-labelledby="scoreAnalysisModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="scoreAnalysisModalLabel">Score analysis <span
-                        id="scoreAnalysisScoreLabel"></span></h1>
+<div class="modal fadebd-example-modal-lg" id="scoreAnalysisModal" tabindex="-1" aria-labelledby="scoreAnalysisModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="scoreAnalysisModalLabel">Score analysis <span id="scoreAnalysisScoreLabel"></span></h1>
 
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" id="scoreAnalysisModalContent">
-                <!-- Filled in by app.js -->
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
-            </div>
-        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="scoreAnalysisModalContent">
+        <!-- Filled in by app.js -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+      </div>
     </div>
+  </div>
 </div>
 
-<script src="/webjars/jquery/jquery.min.js"></script>
-<script src="/webjars/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="/webjars/js-joda/dist/js-joda.min.js"></script>
-<script src="/warehouse-api.js"></script>
-<script src="/app.js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@js-joda/core@5.6.3/dist/js-joda.min.js"></script>
+<script src="app.js"></script>
 </body>
 </html>

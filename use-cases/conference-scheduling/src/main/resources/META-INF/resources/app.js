@@ -1,9 +1,34 @@
+// ── Platform context ──
+// When embedded in the Timefold Platform, the iframe URL carries these query params.
+// Standalone (local dev), none are present and the app behaves as before.
+const PLATFORM = (function () {
+    const q = new URL(window.location.href).searchParams;
+    return {
+        onPlatform: q.has('onPlatform'),
+        runId: q.get('runId'),
+        apiUrl: q.has('apiUrl') ? decodeURIComponent(q.get('apiUrl')).replace(/\/+$/, '') : null,
+        apiKey: q.has('apiKey') ? q.get('apiKey') : null,
+    };
+})();
+
+// Build an API URL: prefix the platform base when embedded, else root-relative (local dev).
+function api(path) {
+    return PLATFORM.apiUrl ? PLATFORM.apiUrl + path : path;
+}
+
+const MODEL_PATH = '/v1/schedules';
+const DEMO_DATA_PATH = '/v1/demo-data/BASIC';
+
 var autoRefreshIntervalId = null;
 const timeFormatter = JSJoda.DateTimeFormatter.ofPattern('HH:mm');
 
-let scheduleId = null;
+let jobId = null;
 let loadedSchedule = null;
 let viewType = "R";
+
+// Lookup maps rebuilt on every render (the DTO flattens references to IDs).
+let speakerNameById = new Map();
+let roomById = new Map();
 
 // Color Picker: Based on https://venngage.com/blog/color-blind-friendly-palette/
 const BG_COLORS = ["#009E73","#0072B2","#D55E00","#000000","#CC79A7","#E69F00","#F0E442","#F6768E","#C10020","#A6BDD7","#803E75","#007D34","#56B4E9","#999999","#8DD3C7","#FFD92F","#B3DE69","#FB8072","#80B1D3","#B15928","#CAB2D6","#1B9E77","#E7298A","#6A3D9A"];
@@ -44,37 +69,44 @@ $(document).ready(function () {
     });
     $("#byRoomTab").click(function () {
         viewType = "R";
-        refreshSchedule();
+        renderSchedule(loadedSchedule);
     });
     $("#bySpeakerTab").click(function () {
         viewType = "S";
-        refreshSchedule();
+        renderSchedule(loadedSchedule);
     });
     $("#byThemeTrackTab").click(function () {
         viewType = "TH";
-        refreshSchedule();
+        renderSchedule(loadedSchedule);
     });
     $("#bySectorsTab").click(function () {
         viewType = "SC";
-        refreshSchedule();
+        renderSchedule(loadedSchedule);
     });
     $("#byAudienceTypeTab").click(function () {
         viewType = "AT";
-        refreshSchedule();
+        renderSchedule(loadedSchedule);
     });
     $("#byAudienceLevelTab").click(function () {
         viewType = "AL";
-        refreshSchedule();
+        renderSchedule(loadedSchedule);
     });
 
     setupAjax();
-    refreshSchedule();
+    if (PLATFORM.onPlatform) {
+        document.body.classList.add('on-platform');
+        loadPlatformRun();
+    } else {
+        getStatus();
+    }
 });
 
 function setupAjax() {
     $.ajaxSetup({
         headers: {
-            'Content-Type': 'application/json', 'Accept': 'application/json,text/plain', // plain text is required by solve() returning UUID of the solver job
+            'Content-Type': 'application/json',
+            'Accept': 'application/json,text/plain',
+            ...(PLATFORM.apiKey ? {'X-API-KEY': PLATFORM.apiKey} : {})
         }
     });
 
@@ -93,28 +125,105 @@ function setupAjax() {
     });
 }
 
-function refreshSchedule() {
-    let path = "/schedules/" + scheduleId;
-    if (scheduleId === null) {
-        path = "/demo-data";
-    }
+// ── ModelRest plumbing ──
+// demo-data → ModelRequest {modelInput,...}; POST model → metadata {id, solverStatus};
+// GET model/{id} → ModelResponse {metadata:{solverStatus}, modelOutput}.
 
-    $.getJSON(path, function (schedule) {
-        loadedSchedule = schedule;
-        renderSchedule(schedule);
-    })
-        .fail(function (xhr, ajaxOptions, thrownError) {
-            showError("Getting the timetable has failed.", xhr);
-            refreshSolvingButtons(false);
+function loadPlatformRun() {
+    if (!PLATFORM.runId) {
+        showError("No runId provided by platform.", {status: 0, statusText: "missing runId"});
+        return;
+    }
+    jobId = PLATFORM.runId;
+    $.get(api(`${MODEL_PATH}/${jobId}/model-request`), function (req) {
+        loadedSchedule = req.modelInput || req;
+        renderSchedule(loadedSchedule);
+        getStatus();
+        if (autoRefreshIntervalId == null) {
+            autoRefreshIntervalId = setInterval(getStatus, 2000);
+        }
+    }).fail(function (xhr) {
+        showError("Failed to load run input from platform.", xhr);
+    });
+}
+
+function getStatus() {
+    if (jobId == null) {
+        $.get(api(DEMO_DATA_PATH), function (data) {
+            loadedSchedule = data.modelInput;
+            renderSchedule(loadedSchedule);
+        }).fail(function (xhr) {
+            showError("Getting the demo data has failed.", xhr);
+            refreshSolvingButtons("SOLVING_COMPLETED");
         });
+    } else {
+        $.get(api(`${MODEL_PATH}/${jobId}`), function (data) {
+            loadedSchedule = data.modelOutput || loadedSchedule;
+            renderSchedule(loadedSchedule);
+            refreshSolvingButtons(data.metadata.solverStatus);
+        }).fail(function (xhr) {
+            showError("Getting the schedule has failed.", xhr);
+            refreshSolvingButtons("SOLVING_COMPLETED");
+        });
+    }
+}
+
+function solve() {
+    $.get(api(DEMO_DATA_PATH), function (modelRequest) {
+        $.post(api(MODEL_PATH), JSON.stringify(modelRequest), function (metadata) {
+            jobId = metadata.id;
+            refreshSolvingButtons(metadata.solverStatus || "SOLVING_ACTIVE");
+            if (autoRefreshIntervalId == null) {
+                autoRefreshIntervalId = setInterval(getStatus, 2000);
+            }
+        }).fail(function (xhr) {
+            showError("Start solving failed.", xhr);
+            refreshSolvingButtons("SOLVING_COMPLETED");
+        });
+    }).fail(function (xhr) {
+        showError("Start solving failed.", xhr);
+        refreshSolvingButtons("SOLVING_COMPLETED");
+    });
+}
+
+function stopSolving() {
+    $.delete(api(`${MODEL_PATH}/${jobId}`), function () {
+        refreshSolvingButtons("SOLVING_COMPLETED");
+        getStatus();
+    }).fail(function (xhr) {
+        showError("Stop solving failed.", xhr);
+    });
+}
+
+function isSolving(solverStatus) {
+    return solverStatus === "SOLVING_ACTIVE" || solverStatus === "SOLVING_SCHEDULED"
+        || solverStatus === "SOLVING_STARTED";
+}
+
+function refreshSolvingButtons(solverStatus) {
+    if (isSolving(solverStatus)) {
+        $("#solveButton").hide();
+        $("#stopSolvingButton").show();
+    } else {
+        $("#solveButton").show();
+        $("#stopSolvingButton").hide();
+        if (autoRefreshIntervalId != null) {
+            clearInterval(autoRefreshIntervalId);
+            autoRefreshIntervalId = null;
+        }
+    }
 }
 
 function renderSchedule(schedule) {
-    refreshSolvingButtons(schedule.solverStatus != null && schedule.solverStatus !== "NOT_SOLVING");
-    $("#score").text("Score: " + (schedule.score == null ? "?" : schedule.score));
+    if (schedule == null) {
+        return;
+    }
+    speakerNameById = new Map((schedule.speakers || []).map(s => [s.id, s.name]));
+    roomById = new Map((schedule.rooms || []).map(r => [r.id, r]));
+
+    $("#score").text("Score: " + (schedule.score == null || schedule.score === "" ? "?" : schedule.score));
     $("#info").text(`This dataset has ${schedule.talks.length} talks by ${schedule.speakers.length} speakers which need to be scheduled in ${schedule.timeslots.length} timeslots and ${schedule.rooms.length} rooms.`);
 
-    //reset color map
     resetColorMap();
 
     if (viewType === "R") {
@@ -132,6 +241,14 @@ function renderSchedule(schedule) {
     }
 }
 
+function talkSpeakerNames(talk) {
+    return (talk.speakerIds || []).map(id => speakerNameById.get(id) ?? id).join(", ");
+}
+
+function isAssigned(talk) {
+    return talk.timeslotId != null && talk.roomId != null;
+}
+
 function renderScheduleByRoom(schedule) {
     const scheduleByRoom = $("#scheduleByRoom");
     scheduleByRoom.children().remove();
@@ -140,7 +257,7 @@ function renderScheduleByRoom(schedule) {
     unassignedTalks.children().remove();
 
     const colgroup = $("<colgroup>").appendTo(scheduleByRoom)
-    colgroup.append('<col style="width: 250px">'); //speaker columns
+    colgroup.append('<col style="width: 250px">');
     $.each(schedule.rooms, item => {
         colgroup.append('<col style="width: 250px">');
     })
@@ -163,8 +280,8 @@ function renderScheduleByRoom(schedule) {
         const rowByRoom = $("<tr>").appendTo(tbodyByRoom);
         rowByRoom
             .append($(`<th class="align-middle"/>`)
-                .append($("<span/>").text(`   
-                    ${LocalDateTime.parse(timeslot.startDateTime).dayOfWeek().name().charAt(0) + LocalDateTime.parse(timeslot.startDateTime).dayOfWeek().name().slice(1).toLowerCase()}                 
+                .append($("<span/>").text(`
+                    ${LocalDateTime.parse(timeslot.startDateTime).dayOfWeek().name().charAt(0) + LocalDateTime.parse(timeslot.startDateTime).dayOfWeek().name().slice(1).toLowerCase()}
                     ${LocalDateTime.parse(timeslot.startDateTime).format(timeFormatter)}
                     -
                     ${LocalDateTime.parse(timeslot.endDateTime).format(timeFormatter)}
@@ -175,33 +292,27 @@ function renderScheduleByRoom(schedule) {
     });
 
     $.each(schedule.talks.sort((a, b) => a.code > b.code ? 1 : (a.code < b.code ? -1 : 0)), (index, talk) => {
-        const color = pickColor(talk.talkType);
+        const color = pickColor(talk.talkTypeName);
         const talkElement = $(`<div class="card" style="background-color: ${color.bg};color:${color.fg}"/>`)
             .append($(`<div class="card-body p-2"/>`)
                 .append($(`<h5 class="card-title mb-1 text-truncate"/>`).text(`${talk.code}: ${talk.title}`))
                 .append($(`<p class="card-text ms-2 mb-1"/>`)
-                    .append($(`<em/>`).text(`by ${talk.speakers.map(s => s.name).join(", ")}`))));
-        if (talk.timeslot != null && talk.room != null) {
-            $(`#timeslot${talk.timeslot.id}room${talk.room.id}`).append(talkElement.clone());
+                    .append($(`<em/>`).text(`by ${talkSpeakerNames(talk)}`))));
+        if (isAssigned(talk)) {
+            $(`#timeslot${talk.timeslotId}room${talk.roomId}`).append(talkElement.clone());
         } else {
             unassignedTalks.append($(`<div class="col"/>`).append(talkElement));
         }
     });
 
-    if (unassignedTalks.children().length === 0) {
-        const banner = $(`<div class="col-12"/>`)
-            .append($(`<div class="alert alert-success d-flex align-items-center justify-content-center" role="alert"/>`)
-                .append($(`<i class="fas fa-check-circle me-2"/>`))
-                .append($(`<span/>`).text("All talks have been assigned!")));
-        unassignedTalks.append(banner);
-    }
+    renderUnassignedBanner(unassignedTalks);
 }
 
 function compareTimeslots(t1, t2) {
     const LocalDateTime = JSJoda.LocalDateTime;
-    const diff = LocalDateTime.parse(t1.startDateTime).compareTo(LocalDateTime.parse(t2.startDateTime));
+    let diff = LocalDateTime.parse(t1.startDateTime).compareTo(LocalDateTime.parse(t2.startDateTime));
     if (diff === 0) {
-        return LocalDateTime.parse(t1.endDateTime).compareTo(LocalDateTime.parse(t2.endDateTime));
+        diff = LocalDateTime.parse(t1.endDateTime).compareTo(LocalDateTime.parse(t2.endDateTime));
     }
     return diff;
 }
@@ -214,7 +325,7 @@ function renderScheduleBySpeaker(schedule) {
     unassignedTalks.children().remove();
 
     const colgroup = $("<colgroup>").appendTo(scheduleBySpeaker)
-    colgroup.append('<col style="width: 250px">'); //speaker columns
+    colgroup.append('<col style="width: 250px">');
     $.each(schedule.timeslots, item => {
         colgroup.append('<col style="width: 250px">');
     })
@@ -227,8 +338,8 @@ function renderScheduleBySpeaker(schedule) {
     $.each(schedule.timeslots.sort((a, b) => compareTimeslots(a, b)), (index, timeslot) => {
         headerRowBySpeaker
             .append($("<th/>")
-                .append($("<span/>").text(`   
-                    ${LocalDateTime.parse(timeslot.startDateTime).dayOfWeek().name().charAt(0) + LocalDateTime.parse(timeslot.startDateTime).dayOfWeek().name().slice(1).toLowerCase()}                 
+                .append($("<span/>").text(`
+                    ${LocalDateTime.parse(timeslot.startDateTime).dayOfWeek().name().charAt(0) + LocalDateTime.parse(timeslot.startDateTime).dayOfWeek().name().slice(1).toLowerCase()}
                     ${LocalDateTime.parse(timeslot.startDateTime).format(timeFormatter)} - ${LocalDateTime.parse(timeslot.endDateTime).format(timeFormatter)}`))
             );
     });
@@ -246,27 +357,21 @@ function renderScheduleBySpeaker(schedule) {
     });
 
     $.each(schedule.talks.sort((a, b) => a.code > b.code ? 1 : (a.code < b.code ? -1 : 0)), (index, talk) => {
-        $.each(talk.speakers, (_, speaker) => {
+        $.each(talk.speakerIds || [], (_, speakerId) => {
             const talkElement = $(`<div class="card"/>`)
                 .append($(`<div class="card-body p-2"/>`)
                     .append($(`<h5 class="card-title mb-1"/>`).text(`${talk.title}`))
                     .append($(`<p class="card-text ms-2 mb-1"/>`)
                         .append($(`<em/>`).text(`code ${talk.code}`))));
-            if (talk.timeslot != null && talk.room != null) {
-                $(`#speaker${speaker.id}timeslot${talk.timeslot.id}`).append(talkElement.clone());
+            if (isAssigned(talk)) {
+                $(`#speaker${speakerId}timeslot${talk.timeslotId}`).append(talkElement.clone());
             } else {
                 unassignedTalks.append($(`<div class="col"/>`).append(talkElement));
             }
         });
     });
 
-    if (unassignedTalks.children().length === 0) {
-        const banner = $(`<div class="col-12"/>`)
-            .append($(`<div class="alert alert-success d-flex align-items-center justify-content-center" role="alert"/>`)
-                .append($(`<i class="fas fa-check-circle me-2"/>`))
-                .append($(`<span/>`).text("All talks have been assigned!")));
-        unassignedTalks.append(banner);
-    }
+    renderUnassignedBanner(unassignedTalks);
 }
 
 function renderScheduleByThemeTrack(schedule) {
@@ -315,8 +420,8 @@ function renderScheduleByValues(schedule, tableKey, rowTitle, rowKey, key, value
     $.each(schedule.timeslots.sort((a, b) => compareTimeslots(a, b)), (index, timeslot) => {
         headerRowByValue
             .append($("<th/>")
-                .append($("<span/>").text(`   
-                    ${LocalDateTime.parse(timeslot.startDateTime).dayOfWeek().name().charAt(0) + LocalDateTime.parse(timeslot.startDateTime).dayOfWeek().name().slice(1).toLowerCase()}                 
+                .append($("<span/>").text(`
+                    ${LocalDateTime.parse(timeslot.startDateTime).dayOfWeek().name().charAt(0) + LocalDateTime.parse(timeslot.startDateTime).dayOfWeek().name().slice(1).toLowerCase()}
                     ${LocalDateTime.parse(timeslot.startDateTime).format(timeFormatter)}
                     -
                     ${LocalDateTime.parse(timeslot.endDateTime).format(timeFormatter)}
@@ -338,6 +443,7 @@ function renderScheduleByValues(schedule, tableKey, rowTitle, rowKey, key, value
     });
 
     $.each(schedule.talks.sort((a, b) => a.code > b.code ? 1 : (a.code < b.code ? -1 : 0)), (index, talk) => {
+        const roomName = roomById.get(talk.roomId)?.name ?? 'not scheduled';
         if (singleValue) {
             const value = talk[key];
             const color = pickColor(value);
@@ -345,9 +451,9 @@ function renderScheduleByValues(schedule, tableKey, rowTitle, rowKey, key, value
                 .append($(`<div class="card-body p-2"/>`)
                     .append($(`<h5 class="card-title mb-1 text-truncate"/>`).text(`${talk.code}: ${talk.title}`))
                     .append($(`<p class="card-text ms-2 mb-1"/>`)
-                        .append($(`<em/>`).text(`by ${talk.speakers?.map(s=>s.name).join(",") ?? 'speakers unknown'} ${talk.room?.name ?? 'not scheduled'}`))));
-            if (talk.timeslot != null && talk.room != null) {
-                $(`#${rowKey}${value}timeslot${talk.timeslot.id}`).append(talkElement.clone());
+                        .append($(`<em/>`).text(`by ${talkSpeakerNames(talk)} ${roomName}`))));
+            if (isAssigned(talk)) {
+                $(`#${rowKey}${value}timeslot${talk.timeslotId}`).append(talkElement.clone());
             } else {
                 unassignedTalks.append($(`<div class="col"/>`).append(talkElement));
             }
@@ -358,9 +464,9 @@ function renderScheduleByValues(schedule, tableKey, rowTitle, rowKey, key, value
                     .append($(`<div class="card-body p-2"/>`)
                         .append($(`<h5 class="card-title mb-1 text-truncate"/>`).text(`${talk.code}: ${talk.title}`))
                         .append($(`<p class="card-text ms-2 mb-1"/>`)
-                            .append($(`<em/>`).text(`by ${talk.speakers?.map(s=>s.name).join(",") ?? 'speakers unknown'} at ${talk.room?.name ?? 'not scheduled'}`))));
-                if (talk.timeslot != null && talk.room != null) {
-                    $(`#${rowKey}${value}timeslot${talk.timeslot.id}`).append(talkElement.clone());
+                            .append($(`<em/>`).text(`by ${talkSpeakerNames(talk)} at ${roomName}`))));
+                if (isAssigned(talk)) {
+                    $(`#${rowKey}${value}timeslot${talk.timeslotId}`).append(talkElement.clone());
                 } else {
                     unassignedTalks.append($(`<div class="col"/>`).append(talkElement));
                 }
@@ -368,6 +474,10 @@ function renderScheduleByValues(schedule, tableKey, rowTitle, rowKey, key, value
         }
     });
 
+    renderUnassignedBanner(unassignedTalks);
+}
+
+function renderUnassignedBanner(unassignedTalks) {
     if (unassignedTalks.children().length === 0) {
         const banner = $(`<div class="col-12"/>`)
             .append($(`<div class="alert alert-success d-flex align-items-center justify-content-center" role="alert"/>`)
@@ -377,120 +487,110 @@ function renderScheduleByValues(schedule, tableKey, rowTitle, rowKey, key, value
     }
 }
 
-function solve() {
-    $.post("/schedules", JSON.stringify(loadedSchedule), function (data) {
-        scheduleId = data;
-        refreshSolvingButtons(true);
-    }).fail(function (xhr, ajaxOptions, thrownError) {
-        showError("Start solving failed.", xhr);
-        refreshSolvingButtons(false);
-    }, "text");
-}
-
 function analyze() {
     new bootstrap.Modal("#scoreAnalysisModal").show()
     const scoreAnalysisModalContent = $("#scoreAnalysisModalContent");
     scoreAnalysisModalContent.children().remove();
-    if (loadedSchedule.score == null) {
+    if (jobId == null || loadedSchedule == null || loadedSchedule.score == null || loadedSchedule.score === "") {
         scoreAnalysisModalContent.text("No score to analyze yet, please first press the 'solve' button.");
-    } else {
-        $('#scoreAnalysisScoreLabel').text(`(${loadedSchedule.score})`);
-        $.put("/schedules/analyze", JSON.stringify(loadedSchedule), function (scoreAnalysis) {
-            let constraints = scoreAnalysis.constraints;
-            constraints.sort((a, b) => {
-                let aComponents = getScoreComponents(a.score), bComponents = getScoreComponents(b.score);
-                if (aComponents.hard < 0 && bComponents.hard > 0) return -1;
-                if (aComponents.hard > 0 && bComponents.soft < 0) return 1;
-                if (Math.abs(aComponents.hard) > Math.abs(bComponents.hard)) {
+        return;
+    }
+    $('#scoreAnalysisScoreLabel').text(`(${loadedSchedule.score})`);
+    $.get(api(`${MODEL_PATH}/${jobId}/score-analysis`), function (scoreAnalysis) {
+        let constraints = scoreAnalysis.constraints;
+        constraints.sort((a, b) => {
+            let aComponents = getScoreComponents(a.score), bComponents = getScoreComponents(b.score);
+            if (aComponents.hard < 0 && bComponents.hard > 0) return -1;
+            if (aComponents.hard > 0 && bComponents.soft < 0) return 1;
+            if (Math.abs(aComponents.hard) > Math.abs(bComponents.hard)) {
+                return -1;
+            } else {
+                if (aComponents.medium < 0 && bComponents.medium > 0) return -1;
+                if (aComponents.medium > 0 && bComponents.medium < 0) return 1;
+                if (Math.abs(aComponents.medium) > Math.abs(bComponents.medium)) {
                     return -1;
                 } else {
-                    if (aComponents.medium < 0 && bComponents.medium > 0) return -1;
-                    if (aComponents.medium > 0 && bComponents.medium < 0) return 1;
-                    if (Math.abs(aComponents.medium) > Math.abs(bComponents.medium)) {
-                        return -1;
+                    if (aComponents.soft < 0 && bComponents.soft > 0) return -1;
+                    if (aComponents.soft > 0 && bComponents.soft < 0) return 1;
+
+                    return Math.abs(bComponents.soft) - Math.abs(aComponents.soft);
+                }
+            }
+        });
+        constraints.map((e) => {
+            let components = getScoreComponents(e.weight);
+            e.type = components.hard != 0 ? 'hard' : (components.medium != 0 ? 'medium' : 'soft');
+            e.weight = components[e.type];
+            let scores = getScoreComponents(e.score);
+            e.implicitScore = scores.hard != 0 ? scores.hard : (scores.medium != 0 ? scores.medium : scores.soft);
+        });
+        scoreAnalysis.constraints = constraints;
+
+        scoreAnalysisModalContent.children().remove();
+        scoreAnalysisModalContent.text("");
+
+        const analysisTable = $(`<table class="table"/>`).css({textAlign: 'center'});
+        const analysisTHead = $(`<thead/>`).append($(`<tr/>`)
+            .append($(`<th></th>`))
+            .append($(`<th>Constraint</th>`).css({textAlign: 'left'}))
+            .append($(`<th>Type</th>`))
+            .append($(`<th># Matches</th>`))
+            .append($(`<th>Weight</th>`))
+            .append($(`<th>Score</th>`))
+            .append($(`<th></th>`)));
+        analysisTable.append(analysisTHead);
+        const analysisTBody = $(`<tbody/>`)
+        $.each(scoreAnalysis.constraints, (index, constraintAnalysis) => {
+            let icon = constraintAnalysis.type == "hard" && constraintAnalysis.implicitScore < 0 ? '<span class="fas fa-exclamation-triangle" style="color: red"></span>' : '';
+            if (!icon) icon = constraintAnalysis.matches.length == 0 ? '<span class="fas fa-check-circle" style="color: green"></span>' : '';
+
+            let row = $(`<tr/>`);
+            row.append($(`<td/>`).html(icon))
+                .append($(`<td/>`).text(constraintAnalysis.name).css({textAlign: 'left'}))
+                .append($(`<td/>`).text(constraintAnalysis.type))
+                .append($(`<td/>`).html(`<b>${constraintAnalysis.matches.length}</b>`))
+                .append($(`<td/>`).text(constraintAnalysis.weight))
+                .append($(`<td/>`).text(constraintAnalysis.implicitScore));
+
+            analysisTBody.append(row);
+
+            if (constraintAnalysis.matches.length > 0) {
+                let matchesRow = $(`<tr/>`).addClass("collapse").attr("id", "row" + index + "Collapse");
+                let matchesListGroup = $(`<ul/>`).addClass('list-group').addClass('list-group-flush').css({textAlign: 'left'});
+
+                $.each(constraintAnalysis.matches, (_, match) => {
+                    matchesListGroup.append($(`<li/>`).addClass('list-group-item').addClass('list-group-item-light').text(match.justification.description));
+                });
+
+                matchesRow.append($(`<td/>`));
+                matchesRow.append($(`<td/>`).attr('colspan', '6').append(matchesListGroup));
+                analysisTBody.append(matchesRow);
+
+                row.append($(`<td/>`).append($(`<a/>`).attr("data-toggle", "collapse").attr('href', "#row" + index + "Collapse").append($(`<span/>`).addClass('fas').addClass('fa-chevron-down')).click(e => {
+                    matchesRow.collapse('toggle');
+                    let target = $(e.target);
+                    if (target.hasClass('fa-chevron-down')) {
+                        target.removeClass('fa-chevron-down').addClass('fa-chevron-up');
                     } else {
-                        if (aComponents.soft < 0 && bComponents.soft > 0) return -1;
-                        if (aComponents.soft > 0 && bComponents.soft < 0) return 1;
-
-                        return Math.abs(bComponents.soft) - Math.abs(aComponents.soft);
+                        target.removeClass('fa-chevron-up').addClass('fa-chevron-down');
                     }
-                }
-            });
-            constraints.map((e) => {
-                let components = getScoreComponents(e.weight);
-                e.type = components.hard != 0 ? 'hard' : (components.medium != 0 ? 'medium' : 'soft');
-                e.weight = components[e.type];
-                let scores = getScoreComponents(e.score);
-                e.implicitScore = scores.hard != 0 ? scores.hard : (scores.medium != 0 ? scores.medium : scores.soft);
-            });
-            scoreAnalysis.constraints = constraints;
+                })));
+            } else {
+                row.append($(`<td/>`));
+            }
 
-            scoreAnalysisModalContent.children().remove();
-            scoreAnalysisModalContent.text("");
-
-            const analysisTable = $(`<table class="table"/>`).css({textAlign: 'center'});
-            const analysisTHead = $(`<thead/>`).append($(`<tr/>`)
-                .append($(`<th></th>`))
-                .append($(`<th>Constraint</th>`).css({textAlign: 'left'}))
-                .append($(`<th>Type</th>`))
-                .append($(`<th># Matches</th>`))
-                .append($(`<th>Weight</th>`))
-                .append($(`<th>Score</th>`))
-                .append($(`<th></th>`)));
-            analysisTable.append(analysisTHead);
-            const analysisTBody = $(`<tbody/>`)
-            $.each(scoreAnalysis.constraints, (index, constraintAnalysis) => {
-                let icon = constraintAnalysis.type == "hard" && constraintAnalysis.implicitScore < 0 ? '<span class="fas fa-exclamation-triangle" style="color: red"></span>' : '';
-                if (!icon) icon = constraintAnalysis.matches.length == 0 ? '<span class="fas fa-check-circle" style="color: green"></span>' : '';
-
-                let row = $(`<tr/>`);
-                row.append($(`<td/>`).html(icon))
-                    .append($(`<td/>`).text(constraintAnalysis.id).css({textAlign: 'left'}))
-                    .append($(`<td/>`).text(constraintAnalysis.type))
-                    .append($(`<td/>`).html(`<b>${constraintAnalysis.matches.length}</b>`))
-                    .append($(`<td/>`).text(constraintAnalysis.weight))
-                    .append($(`<td/>`).text(constraintAnalysis.implicitScore));
-
-                analysisTBody.append(row);
-
-                if (constraintAnalysis.matches.length > 0) {
-                    let matchesRow = $(`<tr/>`).addClass("collapse").attr("id", "row" + index + "Collapse");
-                    let matchesListGroup = $(`<ul/>`).addClass('list-group').addClass('list-group-flush').css({textAlign: 'left'});
-
-                    $.each(constraintAnalysis.matches, (_, match) => {
-                        matchesListGroup.append($(`<li/>`).addClass('list-group-item').addClass('list-group-item-light').text(match.justification.description));
-                    });
-
-                    matchesRow.append($(`<td/>`));
-                    matchesRow.append($(`<td/>`).attr('colspan', '6').append(matchesListGroup));
-                    analysisTBody.append(matchesRow);
-
-                    row.append($(`<td/>`).append($(`<a/>`).attr("data-toggle", "collapse").attr('href', "#row" + index + "Collapse").append($(`<span/>`).addClass('fas').addClass('fa-chevron-down')).click(e => {
-                        matchesRow.collapse('toggle');
-                        let target = $(e.target);
-                        if (target.hasClass('fa-chevron-down')) {
-                            target.removeClass('fa-chevron-down').addClass('fa-chevron-up');
-                        } else {
-                            target.removeClass('fa-chevron-up').addClass('fa-chevron-down');
-                        }
-                    })));
-                } else {
-                    row.append($(`<td/>`));
-                }
-
-            });
-            analysisTable.append(analysisTBody);
-            scoreAnalysisModalContent.append(analysisTable);
-        }).fail(function (xhr, ajaxOptions, thrownError) {
-            scoreAnalysisModalContent.children().remove();
-            scoreAnalysisModalContent.append($("<p/>").html(
-                "The server returned an error."
-                + " This may be due to a misconfiguration, or because Score Analysis requires"
-                + " <b>Timefold Solver Enterprise Edition</b>, which is not on the classpath."
-                + " If the latter, reach out to Timefold, obtain your license,"
-                + " and then run the quickstart with an Enterprise profile to see Score analysis in action."));
-        }, "text");
-    }
+        });
+        analysisTable.append(analysisTBody);
+        scoreAnalysisModalContent.append(analysisTable);
+    }).fail(function (xhr, ajaxOptions, thrownError) {
+        scoreAnalysisModalContent.children().remove();
+        scoreAnalysisModalContent.append($("<p/>").html(
+            "The server returned an error."
+            + " This may be due to a misconfiguration, or because Score Analysis requires"
+            + " <b>Timefold Solver Enterprise Edition</b>, which is not on the classpath."
+            + " If the latter, reach out to Timefold, obtain your license,"
+            + " and then run the quickstart with an Enterprise profile to see Score analysis in action."));
+    }, "text");
 }
 
 function getScoreComponents(score) {
@@ -503,32 +603,6 @@ function getScoreComponents(score) {
     return components;
 }
 
-function refreshSolvingButtons(solving) {
-    if (solving) {
-        $("#solveButton").hide();
-        $("#stopSolvingButton").show();
-        if (autoRefreshIntervalId == null) {
-            autoRefreshIntervalId = setInterval(refreshSchedule, 2000);
-        }
-    } else {
-        $("#solveButton").show();
-        $("#stopSolvingButton").hide();
-        if (autoRefreshIntervalId != null) {
-            clearInterval(autoRefreshIntervalId);
-            autoRefreshIntervalId = null;
-        }
-    }
-}
-
-function stopSolving() {
-    $.delete("/schedules/" + scheduleId, function () {
-        refreshSolvingButtons(false);
-        refreshSchedule();
-    }).fail(function (xhr, ajaxOptions, thrownError) {
-        showError("Stop solving failed.", xhr);
-    });
-}
-
 function copyTextToClipboard(id) {
     var text = $("#" + id).text().trim();
 
@@ -538,15 +612,6 @@ function copyTextToClipboard(id) {
     dummy.select();
     document.execCommand("copy");
     document.body.removeChild(dummy);
-}
-
-function compareTimeslots(t1, t2) {
-    const LocalDateTime = JSJoda.LocalDateTime;
-    let diff = LocalDateTime.parse(t1.startDateTime).compareTo(LocalDateTime.parse(t2.startDateTime));
-    if (diff === 0) {
-        diff = LocalDateTime.parse(t1.endDateTime).compareTo(LocalDateTime.parse(t2.endDateTime));
-    }
-    return diff;
 }
 
 function showError(title, xhr) {
@@ -577,5 +642,3 @@ function showError(title, xhr) {
     notification.toast({delay: 30000});
     notification.toast('show');
 }
-
-

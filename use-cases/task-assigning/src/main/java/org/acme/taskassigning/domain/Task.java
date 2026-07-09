@@ -46,7 +46,7 @@ public class Task {
     }
 
     public Task(String id, TaskType taskType, int indexInTaskType, Customer customer, Employee employee, int minStartTime,
-                Priority priority) {
+            Priority priority) {
         this.id = id;
         this.taskType = taskType;
         this.indexInTaskType = indexInTaskType;
@@ -133,12 +133,12 @@ public class Task {
     // ************************************************************************
 
     @SuppressWarnings("unused")
-    @ShadowSources({"employee", "previousTask.startTime"})
+    @ShadowSources({ "employee", "previousTask.startTime" })
     public Long startTimeSupplier() {
         if (employee == null) {
             return null;
         } else if (previousTask == null) {
-            return (long) minStartTime;
+            return minStartTime;
         } else {
             var previousEndTime = previousTask.getEndTime();
             return Math.max(previousEndTime, minStartTime);

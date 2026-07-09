@@ -3,20 +3,23 @@ package org.acme.meetingschedule.domain;
 import java.util.List;
 import java.util.stream.Stream;
 
+import ai.timefold.solver.core.api.domain.solution.ConstraintWeightOverrides;
 import ai.timefold.solver.core.api.domain.solution.PlanningEntityCollectionProperty;
 import ai.timefold.solver.core.api.domain.solution.PlanningScore;
 import ai.timefold.solver.core.api.domain.solution.PlanningSolution;
 import ai.timefold.solver.core.api.domain.solution.ProblemFactCollectionProperty;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
 import ai.timefold.solver.core.api.score.HardMediumSoftScore;
-import ai.timefold.solver.core.api.solver.SolverStatus;
+import ai.timefold.solver.service.definition.api.SolverModel;
+import ai.timefold.solver.service.definition.api.metrics.InputMetricsAware;
+import ai.timefold.solver.service.definition.api.metrics.OutputMetricsAware;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import org.acme.meetingschedule.dto.MeetingScheduleInputMetrics;
+import org.acme.meetingschedule.dto.MeetingScheduleOutputMetrics;
 
 @PlanningSolution
-public class MeetingSchedule {
+public class MeetingSchedule implements SolverModel<HardMediumSoftScore>,
+        InputMetricsAware<MeetingScheduleInputMetrics>, OutputMetricsAware<MeetingScheduleOutputMetrics> {
 
     @ProblemFactCollectionProperty
     private List<Person> people;
@@ -28,7 +31,6 @@ public class MeetingSchedule {
     private List<Room> rooms;
     @ProblemFactCollectionProperty
     private List<Meeting> meetings;
-    @JsonIgnore
     @ProblemFactCollectionProperty
     private List<Attendance> attendances;
     @PlanningEntityCollectionProperty
@@ -37,29 +39,22 @@ public class MeetingSchedule {
     @PlanningScore
     private HardMediumSoftScore score;
 
-    private SolverStatus solverStatus;
+    private ConstraintWeightOverrides<HardMediumSoftScore> constraintWeightOverrides = ConstraintWeightOverrides.none();
 
     public MeetingSchedule() {
     }
 
-    @JsonCreator
-    public MeetingSchedule(@JsonProperty("people") List<Person> people, @JsonProperty("timeGrains") List<TimeGrain> timeGrains,
-            @JsonProperty("rooms") List<Room> rooms, @JsonProperty("meetings") List<Meeting> meetings,
-            @JsonProperty("meetingAssignments") List<MeetingAssignment> meetingAssignments) {
+    public MeetingSchedule(List<Person> people, List<TimeGrain> timeGrains, List<Room> rooms, List<Meeting> meetings,
+            List<MeetingAssignment> meetingAssignments) {
         this.people = people;
         this.timeGrains = timeGrains;
         this.rooms = rooms;
         this.meetings = meetings;
         this.meetingAssignments = meetingAssignments;
         this.attendances = Stream.concat(
-                this.meetings.stream().flatMap(m -> m.getRequiredAttendances().stream()),
-                this.meetings.stream().flatMap(m -> m.getPreferredAttendances().stream()))
+                meetings.stream().flatMap(m -> m.getRequiredAttendances().stream()),
+                meetings.stream().flatMap(m -> m.getPreferredAttendances().stream()))
                 .toList();
-    }
-
-    public MeetingSchedule(HardMediumSoftScore score, SolverStatus solverStatus) {
-        this.score = score;
-        this.solverStatus = solverStatus;
     }
 
     public List<Meeting> getMeetings() {
@@ -110,6 +105,7 @@ public class MeetingSchedule {
         this.meetingAssignments = meetingAssignments;
     }
 
+    @Override
     public HardMediumSoftScore getScore() {
         return score;
     }
@@ -118,11 +114,37 @@ public class MeetingSchedule {
         this.score = score;
     }
 
-    public SolverStatus getSolverStatus() {
-        return solverStatus;
+    @Override
+    public ConstraintWeightOverrides<HardMediumSoftScore> getConstraintWeightOverrides() {
+        return constraintWeightOverrides;
     }
 
-    public void setSolverStatus(SolverStatus solverStatus) {
-        this.solverStatus = solverStatus;
+    public void setConstraintWeightOverrides(ConstraintWeightOverrides<HardMediumSoftScore> constraintWeightOverrides) {
+        this.constraintWeightOverrides = constraintWeightOverrides;
+    }
+
+    @Override
+    public MeetingScheduleInputMetrics getInputMetrics() {
+        return new MeetingScheduleInputMetrics(meetings.size(), meetingAssignments.size(), people.size(), rooms.size(),
+                timeGrains.size());
+    }
+
+    @Override
+    public MeetingScheduleOutputMetrics getOutputMetrics() {
+        int assigned = (int) meetingAssignments.stream()
+                .filter(assignment -> assignment.getStartingTimeGrain() != null && assignment.getRoom() != null)
+                .count();
+        int unassigned = meetingAssignments.size() - assigned;
+        int usedRooms = (int) meetingAssignments.stream()
+                .filter(assignment -> assignment.getRoom() != null)
+                .map(assignment -> assignment.getRoom().getId())
+                .distinct()
+                .count();
+        return new MeetingScheduleOutputMetrics(assigned, unassigned, usedRooms);
+    }
+
+    @Override
+    public String toString() {
+        return "MeetingSchedule{meetingAssignments: " + meetingAssignments.size() + ", score: " + score + '}';
     }
 }

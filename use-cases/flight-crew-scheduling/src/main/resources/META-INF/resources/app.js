@@ -1,8 +1,25 @@
-let autoRefreshIntervalId = null;
 const formatter = JSJoda.DateTimeFormatter.ofPattern("MM/dd/YYYY HH:mm").withLocale(JSJodaLocale.Locale.ENGLISH);
 
-const zoomMin = 1000 * 60 * 60 * 8 // 2 hours in milliseconds
-const zoomMax = 2 * 7 * 1000 * 60 * 60 * 24 // 2 weeks in milliseconds
+const zoomMin = 1000 * 60 * 60 * 8; // 8 hours in milliseconds
+const zoomMax = 2 * 7 * 1000 * 60 * 60 * 24; // 2 weeks in milliseconds
+
+// ── Platform context ──
+// When embedded in the Timefold Platform, the iframe URL carries these query params.
+// Standalone (local dev), none are present and the app behaves as before.
+const PLATFORM = (function () {
+    const q = new URL(window.location.href).searchParams;
+    return {
+        onPlatform: q.has('onPlatform'),
+        runId: q.get('runId'),
+        apiUrl: q.has('apiUrl') ? decodeURIComponent(q.get('apiUrl')).replace(/\/+$/, '') : null,
+        apiKey: q.has('apiKey') ? q.get('apiKey') : null,
+    };
+})();
+
+// Build an API URL: prefix the platform base when embedded, else root-relative (local dev).
+function api(path) {
+    return PLATFORM.apiUrl ? PLATFORM.apiUrl + path : path;
+}
 
 const byTimelineOptions = {
     timeAxis: {scale: "hour", step: 8},
@@ -23,12 +40,17 @@ let byFlightGroupData = new vis.DataSet();
 let byFlightItemData = new vis.DataSet();
 let byFlightTimeline = new vis.Timeline(byFlightPanel, byFlightItemData, byFlightGroupData, byTimelineOptions);
 
-let scheduleId = null;
+let autoRefreshIntervalId = null;
+let jobId = null;
 let loadedSchedule = null;
 let viewType = "R";
 
-$(document).ready(function () {
+// Lookup maps rebuilt on every load, because DTOs reference other entities by ID only.
+let airportMap = null;
+let employeeMap = null;
+let flightMap = null;
 
+$(document).ready(function () {
     $("#solveButton").click(function () {
         solve();
     });
@@ -40,28 +62,35 @@ $(document).ready(function () {
     });
     $("#byCrewTab").click(function () {
         viewType = "R";
-        refreshSchedule();
+        renderSchedule(loadedSchedule);
     });
     $("#byFlightTab").click(function () {
         viewType = "F";
-        refreshSchedule();
+        renderSchedule(loadedSchedule);
     });
     // HACK to allow vis-timeline to work within Bootstrap tabs
     $("#byCrewTab").on('shown.bs.tab', function (event) {
         byCrewTimeline.redraw();
-    })
+    });
     $("#byFlightTab").on('shown.bs.tab', function (event) {
         byFlightTimeline.redraw();
-    })
+    });
 
     setupAjax();
-    refreshSchedule();
+    if (PLATFORM.onPlatform) {
+        document.body.classList.add('on-platform');
+        loadPlatformRun();
+    } else {
+        getStatus();
+    }
 });
 
 function setupAjax() {
     $.ajaxSetup({
         headers: {
-            'Content-Type': 'application/json', 'Accept': 'application/json,text/plain', // plain text is required by solve() returning UUID of the solver job
+            'Content-Type': 'application/json',
+            'Accept': 'application/json,text/plain',
+            ...(PLATFORM.apiKey ? {'X-API-KEY': PLATFORM.apiKey} : {})
         }
     });
 
@@ -80,25 +109,80 @@ function setupAjax() {
     });
 }
 
-function refreshSchedule() {
-    let path = "/schedules/" + scheduleId;
-    if (scheduleId === null) {
-        path = "/demo-data";
+// ── Platform: load an existing run (read-only) ──
+function loadPlatformRun() {
+    if (!PLATFORM.runId) {
+        showError("No runId provided by platform.", {status: 0, statusText: "missing runId"});
+        return;
     }
-
-    $.getJSON(path, function (schedule) {
-        loadedSchedule = schedule;
-        $('#exportData').attr('href', 'data:text/plain;charset=utf-8,' + JSON.stringify(loadedSchedule));
-        renderSchedule(schedule);
-    })
-        .fail(function (xhr, ajaxOptions, thrownError) {
-            showError("Getting the schedule has failed.", xhr);
-            refreshSolvingButtons(false);
-        });
+    jobId = PLATFORM.runId;
+    $.get(api(`/v1/schedules/${jobId}/model-request`), function (req) {
+        loadedSchedule = req.modelInput || req;
+        updateScheduleMap(loadedSchedule);
+        renderSchedule(loadedSchedule, 'NOT_SOLVING');
+        getStatus();
+    }).fail(function (xhr) {
+        showError("Failed to load run input from platform.", xhr);
+    });
 }
 
-function renderSchedule(schedule) {
-    refreshSolvingButtons(schedule.solverStatus != null && schedule.solverStatus !== "NOT_SOLVING");
+function getStatus() {
+    if (jobId == null) {
+        $.get(api('/v1/demo-data/BASIC'), function (data) {
+            loadedSchedule = data.modelInput;
+            updateScheduleMap(loadedSchedule);
+            renderSchedule(loadedSchedule, 'NOT_SOLVING');
+        }).fail(function (xhr) {
+            let $demo = $("#demo");
+            $demo.empty();
+            $demo.html("<h1><p align=\"center\">No test data available</p></h1>");
+        });
+    } else {
+        $.get(api(`/v1/schedules/${jobId}`), function (data) {
+            const solverStatus = data.metadata.solverStatus;
+            const solution = data.modelOutput || loadedSchedule;
+            loadedSchedule = solution;
+            updateScheduleMap(solution);
+            renderSchedule(solution, solverStatus);
+        }).fail(function (xhr) {
+            showError("Getting the schedule has failed.", xhr);
+            refreshSolvingButtons('NOT_SOLVING');
+        });
+    }
+}
+
+function isSolving(solverStatus) {
+    return solverStatus === 'SOLVING_ACTIVE' || solverStatus === 'SOLVING_SCHEDULED'
+        || solverStatus === 'SOLVING_STARTED';
+}
+
+function updateScheduleMap(schedule) {
+    airportMap = new Map();
+    for (const airport of schedule.airports) {
+        airportMap.set(airport.id, airport);
+    }
+    employeeMap = new Map();
+    for (const employee of schedule.employees) {
+        employeeMap.set(employee.id, employee);
+    }
+    flightMap = new Map();
+    for (const flight of schedule.flights) {
+        flightMap.set(flight.flightNumber, flight);
+    }
+}
+
+function airportName(id) {
+    const airport = airportMap.get(id);
+    return airport ? airport.name : id;
+}
+
+function renderSchedule(schedule, solverStatus) {
+    if (schedule == null) {
+        return;
+    }
+    if (solverStatus !== undefined) {
+        refreshSolvingButtons(solverStatus);
+    }
     $("#score").text("Score: " + (schedule.score == null ? "?" : schedule.score));
     $("#info").text(`This dataset has ${schedule.employees.length} employees which need to be assigned ${schedule.flightAssignments.length} tasks on ${schedule.flights.length} flights.`);
 
@@ -111,28 +195,22 @@ function renderSchedule(schedule) {
 }
 
 function getCrewIcon(employee) {
-    return employee.skills.indexOf("Pilot") >= 0 ? '<span class="fas fa-solid fa-plane-departure" title="Pilot"></span>' :
-        '<span class="fas fa-solid fa-glass-martini" title="Flight Attendant"></span>';
-
+    return employee.skills.indexOf("Pilot") >= 0
+        ? '<span class="fas fa-solid fa-plane-departure" title="Pilot"></span>'
+        : '<span class="fas fa-solid fa-glass-martini" title="Flight Attendant"></span>';
 }
 
 function renderScheduleByCrew(schedule) {
     const unassignedCrew = $("#unassignedCrew");
     unassignedCrew.children().remove();
-    let unassignedCrewCount = 0;
     byCrewGroupData.clear();
     byCrewItemData.clear();
 
-    $.each(schedule.employees.sort((e1, e2) => e1.name.localeCompare(e2.name)), (_, employee) => {
+    $.each(schedule.employees.slice().sort((e1, e2) => e1.name.localeCompare(e2.name)), (_, employee) => {
         const crewIcon = getCrewIcon(employee);
-        let content = `<div class="d-flex flex-column"><div><h5 class="card-title mb-1">${employee.name} (${employee.homeAirport}) ${crewIcon}</h5></div>`;
+        let content = `<div class="d-flex flex-column"><div><h5 class="card-title mb-1">${employee.name} (${airportName(employee.homeAirportId)}) ${crewIcon}</h5></div></div>`;
+        byCrewGroupData.add({id: employee.id, content: content});
 
-        byCrewGroupData.add({
-            id: employee.id,
-            content: content,
-        });
-
-        // Unavailable days
         if (employee.unavailableDays) {
             let count = 0;
             employee.unavailableDays.forEach(date => {
@@ -140,7 +218,7 @@ function renderScheduleByCrew(schedule) {
                 byCrewItemData.add({
                     id: `${employee.id}-${count++}`,
                     group: employee.id,
-                    content: $(`<div />`).html(),
+                    content: "",
                     start: unavailableDatetime.atStartOfDay().toString(),
                     end: unavailableDatetime.atStartOfDay().withHour(23).withMinute(59).toString(),
                     style: "background-color: gray; min-height: 50px"
@@ -149,33 +227,23 @@ function renderScheduleByCrew(schedule) {
         }
     });
 
-    const flightMap = new Map();
-    schedule.flights.forEach(f => flightMap.set(f.flightNumber, f));
     $.each(schedule.flightAssignments, (_, assignment) => {
-        const flight = flightMap.get(assignment.flight);
-        if (assignment.employee == null) {
-            unassignedCrewCount++;
+        const flight = flightMap.get(assignment.flightNumber);
+        if (assignment.employeeId == null) {
             const departureDateTime = JSJoda.LocalDateTime.parse(flight.departureUTCDateTime);
             const arrivalDateTime = JSJoda.LocalDateTime.parse(flight.arrivalUTCDateTime);
             const unassignedElement = $(`<div class="card-body"/>`)
-                .append($(`<h5 class="card-title mb-1"/>`).text(`${flight.departureAirport} → ${flight.arrivalAirport}`))
+                .append($(`<h5 class="card-title mb-1"/>`).text(`${airportName(flight.departureAirportId)} → ${airportName(flight.arrivalAirportId)}`))
                 .append($(`<p class="card-text ms-2 mb-0"/>`).text(`${departureDateTime.until(arrivalDateTime, JSJoda.ChronoUnit.HOURS)} hour(s)`))
                 .append($(`<p class="card-text ms-2 mb-0"/>`).text(`Departure: ${formatter.format(departureDateTime)}`))
                 .append($(`<p class="card-text ms-2 mb-0"/>`).text(`Arrival: ${formatter.format(arrivalDateTime)}`));
-
             unassignedCrew.append($(`<div class="pl-1"/>`).append($(`<div class="card"/>`).append(unassignedElement)));
-            byCrewItemData.add({
-                id: assignment.id,
-                group: assignment.employee,
-                start: formatter.format(departureDateTime),
-                end: formatter.format(arrivalDateTime),
-                style: "background-color: #EF292999"
-            });
         } else {
-            const byCrewElement = $("<div />").append($("<div class='d-flex justify-content-center' />").append($(`<h5 class="card-title mb-1"/>`).text(`${flight.departureAirport} → ${flight.arrivalAirport}`)));
+            const byCrewElement = $("<div />").append($("<div class='d-flex justify-content-center' />")
+                .append($(`<h5 class="card-title mb-1"/>`).text(`${airportName(flight.departureAirportId)} → ${airportName(flight.arrivalAirportId)}`)));
             byCrewItemData.add({
                 id: assignment.id,
-                group: assignment.employee,
+                group: assignment.employeeId,
                 content: byCrewElement.html(),
                 start: flight.departureUTCDateTime,
                 end: flight.arrivalUTCDateTime,
@@ -201,34 +269,21 @@ function renderScheduleByFlight(schedule) {
     byFlightGroupData.clear();
     byFlightItemData.clear();
 
-    $.each(schedule.flights.sort((e1, e2) => JSJoda.LocalDateTime.parse(e1.departureUTCDateTime)
+    $.each(schedule.flights.slice().sort((e1, e2) => JSJoda.LocalDateTime.parse(e1.departureUTCDateTime)
         .compareTo(JSJoda.LocalDateTime.parse(e2.departureUTCDateTime))), (_, flight) => {
-        let content = `<div class="d-flex flex-column"><div><h5 class="card-title mb-1">${flight.departureAirport} → ${flight.arrivalAirport}</h5></div>`;
-
-        byFlightGroupData.add({
-            id: flight.flightNumber,
-            content: content,
-        });
+        let content = `<div class="d-flex flex-column"><div><h5 class="card-title mb-1">${airportName(flight.departureAirportId)} → ${airportName(flight.arrivalAirportId)}</h5></div></div>`;
+        byFlightGroupData.add({id: flight.flightNumber, content: content});
     });
-
-    const employeeMap = new Map();
-    schedule.employees.forEach(e => employeeMap.set(e.id, e));
 
     $.each(schedule.flights, (_, flight) => {
         const content = $(`<div class="card-body"/>`).append($(`<h4 class="card-title mb-1"/>`).text(flight.flightNumber));
-        const unassignedElement = $(`<div class="card-body"/>`).append($(`<h4 class="card-title mb-1"/>`).text(`${flight.departureAirport} → ${flight.arrivalAirport}`));
-        const assignments = schedule.flightAssignments.filter(f => f.flight === flight.flightNumber);
-        let countUnassigned = 0;
-        const missingSkills = [];
+        const assignments = schedule.flightAssignments.filter(f => f.flightNumber === flight.flightNumber);
         const pilots = [];
         const attendants = [];
-        assignments.forEach(assigment => {
-            if (assigment.employee == null) {
-                countUnassigned++;
-                missingSkills.push(assigment.requiredSkill);
-            } else {
-                const employee = employeeMap.get(assigment.employee);
-                if (assigment.requiredSkill === 'Pilot') {
+        assignments.forEach(assignment => {
+            if (assignment.employeeId != null) {
+                const employee = employeeMap.get(assignment.employeeId);
+                if (assignment.requiredSkill === 'Pilot') {
                     pilots.push(employee.name);
                 } else {
                     attendants.push(employee.name);
@@ -249,39 +304,47 @@ function renderScheduleByFlight(schedule) {
                 end: flight.arrivalUTCDateTime,
             });
         }
-        if (unassignedCrew.children().length === 0) {
-            const banner = $(`<div class="col-12"/>`)
-                .append($(`<div class="alert alert-success d-flex align-items-center justify-content-center" role="alert"/>`)
-                    .append($(`<i class="fas fa-check-circle me-2"/>`))
-                    .append($(`<span/>`).text("All crew members have been assigned!")));
-            unassignedCrew.append(banner);
-        }
     });
-
+    if (unassignedCrew.children().length === 0) {
+        const banner = $(`<div class="col-12"/>`)
+            .append($(`<div class="alert alert-success d-flex align-items-center justify-content-center" role="alert"/>`)
+                .append($(`<i class="fas fa-check-circle me-2"/>`))
+                .append($(`<span/>`).text("All crew members have been assigned!")));
+        unassignedCrew.append(banner);
+    }
     byFlightTimeline.setWindow(JSJoda.LocalDateTime.now().minusMinutes(1).toString(),
         JSJoda.LocalDateTime.now().plusDays(4).withHour(23).withMinute(59).toString());
     byFlightTimeline.redraw();
 }
 
 function solve() {
-    $.post("/schedules", JSON.stringify(loadedSchedule), function (data) {
-        scheduleId = data;
-        refreshSolvingButtons(true);
-    }).fail(function (xhr, ajaxOptions, thrownError) {
-        showError("Start solving failed.", xhr);
-        refreshSolvingButtons(false);
-    }, "text");
+    $.get(api('/v1/demo-data/BASIC'), function (modelRequest) {
+        $.post(api('/v1/schedules'), JSON.stringify(modelRequest), function (metadata) {
+            jobId = metadata.id;
+            refreshSolvingButtons(metadata.solverStatus || 'SOLVING_ACTIVE');
+            if (autoRefreshIntervalId == null) {
+                autoRefreshIntervalId = setInterval(getStatus, 2000);
+            }
+        }).fail(function (xhr) {
+            showError("Start solving failed.", xhr);
+            refreshSolvingButtons('NOT_SOLVING');
+        });
+    }).fail(function (xhr) {
+        showError("Get demo data failed.", xhr);
+    });
 }
 
 function analyze() {
-    new bootstrap.Modal("#scoreAnalysisModal").show()
+    new bootstrap.Modal("#scoreAnalysisModal").show();
     const scoreAnalysisModalContent = $("#scoreAnalysisModalContent");
     scoreAnalysisModalContent.children().remove();
-    if (loadedSchedule.score == null) {
+    if (loadedSchedule == null || loadedSchedule.score == null) {
         scoreAnalysisModalContent.text("No score to analyze yet, please first press the 'solve' button.");
+    } else if (jobId == null) {
+        scoreAnalysisModalContent.text("No solving job yet, please first press the 'solve' button.");
     } else {
         $('#scoreAnalysisScoreLabel').text(`(${loadedSchedule.score})`);
-        $.put("/schedules/analyze", JSON.stringify(loadedSchedule), function (scoreAnalysis) {
+        $.get(api(`/v1/schedules/${jobId}/score-analysis`), function (scoreAnalysis) {
             let constraints = scoreAnalysis.constraints;
             constraints.sort((a, b) => {
                 let aComponents = getScoreComponents(a.score), bComponents = getScoreComponents(b.score);
@@ -297,7 +360,6 @@ function analyze() {
                     } else {
                         if (aComponents.soft < 0 && bComponents.soft > 0) return -1;
                         if (aComponents.soft > 0 && bComponents.soft < 0) return 1;
-
                         return Math.abs(bComponents.soft) - Math.abs(aComponents.soft);
                     }
                 }
@@ -324,14 +386,14 @@ function analyze() {
                 .append($(`<th>Score</th>`))
                 .append($(`<th></th>`)));
             analysisTable.append(analysisTHead);
-            const analysisTBody = $(`<tbody/>`)
+            const analysisTBody = $(`<tbody/>`);
             $.each(scoreAnalysis.constraints, (index, constraintAnalysis) => {
                 let icon = constraintAnalysis.type == "hard" && constraintAnalysis.implicitScore < 0 ? '<span class="fas fa-exclamation-triangle" style="color: red"></span>' : '';
                 if (!icon) icon = constraintAnalysis.matches.length == 0 ? '<span class="fas fa-check-circle" style="color: green"></span>' : '';
 
                 let row = $(`<tr/>`);
                 row.append($(`<td/>`).html(icon))
-                    .append($(`<td/>`).text(constraintAnalysis.id).css({textAlign: 'left'}))
+                    .append($(`<td/>`).text(constraintAnalysis.name).css({textAlign: 'left'}))
                     .append($(`<td/>`).text(constraintAnalysis.type))
                     .append($(`<td/>`).html(`<b>${constraintAnalysis.matches.length}</b>`))
                     .append($(`<td/>`).text(constraintAnalysis.weight))
@@ -341,7 +403,7 @@ function analyze() {
             });
             analysisTable.append(analysisTBody);
             scoreAnalysisModalContent.append(analysisTable);
-        }).fail(function (xhr, ajaxOptions, thrownError) {
+        }).fail(function (xhr) {
             scoreAnalysisModalContent.children().remove();
             scoreAnalysisModalContent.append($("<p/>").html(
                 "The server returned an error."
@@ -355,20 +417,18 @@ function analyze() {
 
 function getScoreComponents(score) {
     let components = {hard: 0, medium: 0, soft: 0};
-
     $.each([...score.matchAll(/(-?[0-9]+)(hard|medium|soft)/g)], (i, parts) => {
         components[parts[2]] = parseInt(parts[1], 10);
     });
-
     return components;
 }
 
-function refreshSolvingButtons(solving) {
-    if (solving) {
+function refreshSolvingButtons(solverStatus) {
+    if (isSolving(solverStatus)) {
         $("#solveButton").hide();
         $("#stopSolvingButton").show();
         if (autoRefreshIntervalId == null) {
-            autoRefreshIntervalId = setInterval(refreshSchedule, 2000);
+            autoRefreshIntervalId = setInterval(getStatus, 2000);
         }
     } else {
         $("#solveButton").show();
@@ -381,17 +441,16 @@ function refreshSolvingButtons(solving) {
 }
 
 function stopSolving() {
-    $.delete("/schedules/" + scheduleId, function () {
-        refreshSolvingButtons(false);
-        refreshSchedule();
-    }).fail(function (xhr, ajaxOptions, thrownError) {
+    $.delete(api(`/v1/schedules/${jobId}`), function () {
+        refreshSolvingButtons('NOT_SOLVING');
+        getStatus();
+    }).fail(function (xhr) {
         showError("Stop solving failed.", xhr);
     });
 }
 
 function copyTextToClipboard(id) {
     var text = $("#" + id).text().trim();
-
     var dummy = document.createElement("textarea");
     document.body.appendChild(dummy);
     dummy.value = text;

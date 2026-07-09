@@ -2,11 +2,6 @@ package org.acme.projectjobschedule.domain;
 
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
-@JsonIdentityInfo(scope = Project.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Project {
 
     private String id;
@@ -54,17 +49,18 @@ public class Project {
     // Complex methods
     // ************************************************************************
 
-    @JsonIgnore
     public int getCriticalPathEndDate() {
         return releaseDate + criticalPathDuration;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof Project project))
+        }
+        if (!(o instanceof Project project)) {
             return false;
+        }
         return Objects.equals(getId(), project.getId());
     }
 

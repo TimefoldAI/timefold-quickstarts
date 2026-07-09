@@ -3,14 +3,15 @@ package org.acme.meetingschedule.domain;
 public class RequiredAttendance extends Attendance {
 
     public RequiredAttendance() {
-    }
-
-    public RequiredAttendance(String id, Meeting meeting) {
-        super(id, meeting);
+        super();
     }
 
     public RequiredAttendance(String id, Meeting meeting, Person person) {
-        super(id, meeting);
-        setPerson(person);
+        super(id, meeting, person);
+    }
+
+    @Override
+    public boolean isRequired() {
+        return true;
     }
 }

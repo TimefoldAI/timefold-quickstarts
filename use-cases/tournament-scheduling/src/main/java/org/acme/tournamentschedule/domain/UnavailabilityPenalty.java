@@ -1,5 +1,8 @@
 package org.acme.tournamentschedule.domain;
 
+/**
+ * A penalty expressing that a {@link Team} is unavailable on a given {@link Day}.
+ */
 public class UnavailabilityPenalty {
 
     private Team team;
@@ -17,16 +20,12 @@ public class UnavailabilityPenalty {
         return team;
     }
 
-    public void setTeam(Team team) {
-        this.team = team;
-    }
-
     public Day getDay() {
         return day;
     }
 
-    public void setDay(Day day) {
-        this.day = day;
+    @Override
+    public String toString() {
+        return team + "@" + day;
     }
-
 }

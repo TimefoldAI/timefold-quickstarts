@@ -7,6 +7,7 @@ import java.util.Set;
 import ai.timefold.solver.core.api.domain.common.PlanningId;
 
 public class Employee {
+
     @PlanningId
     private String name;
     private Set<String> skills;
@@ -16,11 +17,10 @@ public class Employee {
     private Set<LocalDate> desiredDates;
 
     public Employee() {
-
     }
 
     public Employee(String name, Set<String> skills,
-        Set<LocalDate> unavailableDates, Set<LocalDate> undesiredDates, Set<LocalDate> desiredDates) {
+            Set<LocalDate> unavailableDates, Set<LocalDate> undesiredDates, Set<LocalDate> desiredDates) {
         this.name = name;
         this.skills = skills;
         this.unavailableDates = unavailableDates;

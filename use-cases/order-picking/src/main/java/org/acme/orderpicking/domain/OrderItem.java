@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * In the order picking problem context, the order item represents an indivisible product that was added to the order.
- * 
+ *
  * @see Product
  */
 public class OrderItem {

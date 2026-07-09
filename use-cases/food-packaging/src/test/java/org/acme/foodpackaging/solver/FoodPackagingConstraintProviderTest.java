@@ -1,8 +1,10 @@
 package org.acme.foodpackaging.solver;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 import ai.timefold.solver.core.api.score.stream.test.ConstraintVerifier;
-import io.quarkus.test.junit.QuarkusTest;
-import jakarta.inject.Inject;
+
 import org.acme.foodpackaging.domain.Job;
 import org.acme.foodpackaging.domain.Line;
 import org.acme.foodpackaging.domain.Operator;
@@ -10,148 +12,86 @@ import org.acme.foodpackaging.domain.PackagingSchedule;
 import org.acme.foodpackaging.domain.Product;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.Map;
-
-@QuarkusTest
 class FoodPackagingConstraintProviderTest {
 
-    private static final LocalDate DAY = LocalDate.of(2021, 2, 1);
-    private static final LocalDateTime DAY_START_TIME = DAY.atTime(LocalTime.of(9, 0));
-    private static final Product PRODUCT_A_SMALL = new Product("1", "Product A small");
-    private static final Product PRODUCT_A_LARGE = new Product("2", "Product A large");
-    private static final Product PRODUCT_B = new Product("3", "Product B");
+    private static final LocalDateTime BASE = LocalDateTime.of(2024, 1, 1, 8, 0);
 
-    static {
-        PRODUCT_A_SMALL.setCleaningDurations(Map.of(
-                PRODUCT_A_LARGE, Duration.ofMinutes(5),
-                PRODUCT_B, Duration.ofMinutes(60)));
-        PRODUCT_A_LARGE.setCleaningDurations(Map.of(
-                PRODUCT_A_SMALL, Duration.ofMinutes(0),
-                PRODUCT_B, Duration.ofMinutes(60)));
-        PRODUCT_B.setCleaningDurations(Map.of(
-                PRODUCT_A_SMALL, Duration.ofMinutes(40),
-                PRODUCT_A_LARGE, Duration.ofMinutes(40)));
+    private final ConstraintVerifier<FoodPackagingConstraintProvider, PackagingSchedule> constraintVerifier =
+            ConstraintVerifier.build(new FoodPackagingConstraintProvider(), PackagingSchedule.class,
+                    Job.class, Line.class, Operator.class);
+
+    private static Job job(String id, LocalDateTime idealEndTime, LocalDateTime maxEndTime, long durationMinutes) {
+        return new Job(id, "Job " + id, new Product(id, "Product " + id), Duration.ofMinutes(durationMinutes),
+                BASE, idealEndTime, maxEndTime, 1, false);
     }
 
-    @Inject
-    ConstraintVerifier<FoodPackagingConstraintProvider, PackagingSchedule> constraintVerifier;
-
-    // ************************************************************************
-    // Hard constraints
-    // ************************************************************************
+    private static Line lineWith(Job... jobs) {
+        Line line = new Line("L", "Line", BASE);
+        for (Job job : jobs) {
+            job.setLine(line);
+        }
+        return line;
+    }
 
     @Test
     void maxEndDateTime() {
-        Job job1 = new Job("1", "job1", PRODUCT_A_SMALL, Duration.ofMinutes(6000), null, null, null, 1, false);
-        Job job2 = new Job("2", "job2", PRODUCT_A_SMALL, Duration.ofMinutes(200), null, null, DAY_START_TIME.plusMinutes(200), 1, false,
-                DAY_START_TIME, DAY_START_TIME);
-        Job job3 = new Job("3", "job3", PRODUCT_A_SMALL, Duration.ofMinutes(150), null, null, DAY_START_TIME.plusMinutes(100), 1, false,
-                DAY_START_TIME, DAY_START_TIME);
-        Line line = new Line("1", "line1", DAY_START_TIME);
-        addJobs(line, job1, job2, job3);
+        Job job = job("0", BASE.plusDays(10), BASE.plusHours(2), 60);
+        Line line = lineWith(job);
+        job.setEndDateTime(BASE.plusHours(2).plusMinutes(30));
 
         constraintVerifier.verifyThat(FoodPackagingConstraintProvider::maxEndDateTime)
-                .given(job1, job2, job3)
-                .penalizesBy(50L);
+                .given(job, line)
+                .penalizesBy(30);
     }
 
     @Test
     void operatorCleaningConflict() {
-        Line line1 = new Line("1", "line1", new Operator("operator A"), DAY_START_TIME);
-        Line line2 = new Line("2", "line2", new Operator("operator A"), DAY_START_TIME);
-        Line line3 = new Line("3", "line3", new Operator("operator B"), DAY_START_TIME);
-        Job job1 = new Job("1", "job1", PRODUCT_A_SMALL, Duration.ofMinutes(100), DAY_START_TIME, null, null, 1, false,
-                DAY_START_TIME, DAY_START_TIME.plusMinutes(30));
-        Job job2 = new Job("2", "job2", PRODUCT_A_SMALL, Duration.ofMinutes(200), DAY_START_TIME, null, null, 1, false,
-                DAY_START_TIME.plusMinutes(10), DAY_START_TIME.plusMinutes(50));
-        Job job3 = new Job("3", "job3", PRODUCT_A_SMALL, Duration.ofMinutes(300), DAY_START_TIME, null, null, 1, false,
-                DAY_START_TIME.plusMinutes(5), DAY_START_TIME.plusMinutes(60));
-        addJobs(line1, job1);
-        addJobs(line2, job2);
-        addJobs(line3, job3);
+        Operator operator = new Operator("op");
+
+        Job job1 = job("0", BASE.plusDays(10), BASE.plusDays(10), 60);
+        Job job2 = job("1", BASE.plusDays(10), BASE.plusDays(10), 60);
+        Line line = lineWith(job1, job2);
+        job1.setLineOperator(operator);
+        job1.setStartCleaningDateTime(BASE);
+        job1.setStartProductionDateTime(BASE.plusMinutes(60));
+        job2.setLineOperator(operator);
+        job2.setStartCleaningDateTime(BASE.plusMinutes(30));
+        job2.setStartProductionDateTime(BASE.plusMinutes(90));
 
         constraintVerifier.verifyThat(FoodPackagingConstraintProvider::operatorCleaningConflict)
-                .given(job1, job2, job3)
-                .penalizesBy(20L);
+                .given(job1, job2, line, operator)
+                .penalizesBy(30);
     }
-
-    // ************************************************************************
-    // Medium constraints
-    // ************************************************************************
 
     @Test
     void idealEndDateTime() {
-        Job job1 = new Job("1", "job1", PRODUCT_A_SMALL, Duration.ofMinutes(6000), null, null, null, 1, false);
-        Job job2 = new Job("2", "job2", PRODUCT_A_SMALL, Duration.ofMinutes(200), null, DAY_START_TIME.plusMinutes(200), null, 1, false,
-                DAY_START_TIME, DAY_START_TIME);
-        Job job3 = new Job("3", "job3", PRODUCT_A_SMALL, Duration.ofMinutes(150), null, DAY_START_TIME.plusMinutes(100), null, 1, false,
-                DAY_START_TIME, DAY_START_TIME);
-        Line line = new Line("1", "line1", DAY_START_TIME);
-        addJobs(line, job1, job2, job3);
+        Job job = job("0", BASE.plusHours(2), BASE.plusDays(10), 60);
+        Line line = lineWith(job);
+        job.setEndDateTime(BASE.plusHours(2).plusMinutes(45));
 
         constraintVerifier.verifyThat(FoodPackagingConstraintProvider::idealEndDateTime)
-                .given(job1, job2, job3)
-                .penalizesBy(50L);
+                .given(job, line)
+                .penalizesBy(45);
     }
 
     @Test
     void maximizeJobsAssigned() {
-        long unassignedJobDuration = 200L;
-
-        Job job1 = new Job("1", "job1", PRODUCT_A_SMALL, Duration.ofMinutes(6000), null, null, null, 1, false);
-        Job job2 = new Job("2", "job2", PRODUCT_A_SMALL, Duration.ofMinutes(unassignedJobDuration), null, DAY_START_TIME.plusMinutes(200), null, 1, false,
-                DAY_START_TIME, DAY_START_TIME);
-        Line line = new Line("1", "line1", DAY_START_TIME);
-        addJobs(line, job1);
+        Job job = job("0", BASE.plusDays(10), BASE.plusDays(10), 60);
 
         constraintVerifier.verifyThat(FoodPackagingConstraintProvider::maximizeJobsAssigned)
-                .given(job1, job2)
-                .penalizesBy(unassignedJobDuration);
+                .given(job)
+                .penalizesBy(60);
     }
-
-    // ************************************************************************
-    // Soft constraints
-    // ************************************************************************
 
     @Test
     void minimizeMakespan() {
-        Line line1 = new Line("1", "line1", DAY_START_TIME);
-        Line line2 = new Line("2", "line2", DAY_START_TIME);
-        Job job1 = new Job("1", "job1", PRODUCT_A_SMALL, Duration.ofMinutes(6000), null, null, null, 1, false);
-        Job job2 = new Job("2", "job2", PRODUCT_A_SMALL, Duration.ofMinutes(100), null, null, null, 1, false,
-                DAY_START_TIME, DAY_START_TIME);
-        Job job3 = new Job("3", "job3", PRODUCT_A_SMALL, Duration.ofMinutes(200), null, null, null, 3, false,
-                DAY_START_TIME, DAY_START_TIME);
-        Job job4 = new Job("4", "job4", PRODUCT_A_SMALL, Duration.ofMinutes(1000), null, null, null, 3, false,
-                DAY_START_TIME.plusMinutes(200), DAY_START_TIME.plusMinutes(250));
-        addJobs(line1, job2);
-        addJobs(line2, job3, job4);
+        Line line = new Line("0", "Line 0", BASE);
+        Job job = job("0", BASE.plusDays(10), BASE.plusDays(10), 60);
+        job.setLine(line);
+        job.setEndDateTime(BASE.plusMinutes(60));
 
         constraintVerifier.verifyThat(FoodPackagingConstraintProvider::minimizeMakespan)
-                .given(line1, line2, job1, job2, job3, job4)
-                .penalizesBy(100L * 100L + 1250L * 1250L);
+                .given(job)
+                .penalizesBy(60L * 60L);
     }
-
-    // ************************************************************************
-    // Helper methods
-    // ************************************************************************
-
-    private static void addJobs(Line line, Job... jobs) {
-        for (int i = 0; i < jobs.length; i++) {
-            Job job = jobs[i];
-            job.setLine(line);
-            line.getJobs().add(job);
-            if (i > 0) {
-                job.setPreviousJob(jobs[i - 1]);
-            }
-            if (i < jobs.length - 1) {
-                job.setNextJob(jobs[i + 1]);
-            }
-        }
-    }
-
 }

@@ -3,8 +3,8 @@
     <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
     <meta content="width=device-width, initial-scale=1" name="viewport">
     <title>Flight Crew Scheduling - Timefold Solver on Quarkus</title>
-    <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="/webjars/font-awesome/css/all.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
     <link rel="icon" href="https://timefold.ai/uploads/images/Brand-Assets/timefold-solver-logomark.png" type="image/png">
     <style>
         :root {
@@ -17,10 +17,17 @@
         .nav-pills {
             --bs-nav-pills-link-active-bg: var(--ts-violet-1-rgb);
         }
+
+        /* Embedded on the Timefold Platform: hide the demo navbar + dataset blurb
+           + solve/score controls so only the read-only schedule visualization remains. */
+        body.on-platform #appHeader,
+        body.on-platform #datasetInfo,
+        body.on-platform #solveControls,
+        body.on-platform footer { display: none !important; }
     </style>
 </head>
 <body>
-<header class="bg-white shadow">
+<header id="appHeader" class="bg-white shadow">
     <div class="container-fluid">
         <nav class="navbar navbar-expand-lg mb-3">
             <a class="navbar-brand" style="width: 200px;overflow: hidden;">
@@ -55,36 +62,37 @@
         <div class="sticky-top d-flex justify-content-center align-items-center" aria-live="polite" aria-atomic="true">
             <div id="notificationPanel" style="position: absolute; top: .5rem;"></div>
         </div>
-        <blockquote>Generate the optimal schedule for your flight crew scheduling. <span id="info" class="fw-bold"></span></blockquote>
+        <blockquote id="datasetInfo">Generate the optimal schedule for your flight crew scheduling. <span id="info" class="fw-bold"></span></blockquote>
 
         <div class="mb-2">
-            <button id="solveButton" type="button" class="btn btn-success">
-                <span class="fas fa-play"></span> Solve
-            </button>
-            <button id="stopSolvingButton" type="button" class="btn btn-danger">
-                <span class="fas fa-stop"></span> Stop solving
-            </button>
-            <span id="score" class="score ms-2 align-middle fw-bold">Score: ?</span>
-            <button id="analyzeButton" type="button" class="ms-2 btn btn-secondary">
-                <span class="fas fa-question"></span>
-            </button>
-
-            <div class="float-end">
-                <ul class="nav nav-pills" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="byCrewTab" data-bs-toggle="tab"
-                                data-bs-target="#byCrewPanel" type="button" role="tab" aria-controls="byCrewPanel"
-                                aria-selected="true">By crew
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="byFlightTab" data-bs-toggle="tab"
-                                data-bs-target="#byFlightPanel" type="button" role="tab" aria-controls="byFlightPanel"
-                                aria-selected="true">By Flight
-                        </button>
-                    </li>
-                </ul>
-            </div>
+            <span id="solveControls">
+                <button id="solveButton" type="button" class="btn btn-success">
+                    <span class="fas fa-play"></span> Solve
+                </button>
+                <button id="stopSolvingButton" type="button" class="btn btn-danger">
+                    <span class="fas fa-stop"></span> Stop solving
+                </button>
+                <span id="score" class="score ms-2 align-middle fw-bold">Score: ?</span>
+                <button id="analyzeButton" type="button" class="ms-2 btn btn-secondary">
+                    <span class="fas fa-question"></span>
+                </button>
+            </span>
+        </div>
+        <div class="mb-2">
+            <ul class="nav nav-pills" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="byCrewTab" data-bs-toggle="tab"
+                            data-bs-target="#byCrewPanel" type="button" role="tab" aria-controls="byCrewPanel"
+                            aria-selected="true">By crew
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="byFlightTab" data-bs-toggle="tab"
+                            data-bs-target="#byFlightPanel" type="button" role="tab" aria-controls="byFlightPanel"
+                            aria-selected="true">By Flight
+                    </button>
+                </li>
+            </ul>
         </div>
         <div class="mb-4 tab-content">
             <div class="tab-pane fade show active" id="byCrewPanel" role="tabpanel" aria-labelledby="byCrewTab">
@@ -189,12 +197,12 @@
     </div>
 </div>
 
-<script src="/webjars/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="/webjars/jquery/jquery.min.js"></script>
-<script src="/webjars/js-joda/dist/js-joda.min.js"></script>
-<script src="/webjars/js-joda__locale_en-us/dist/index.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@js-joda/core@5.6.3/dist/js-joda.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@js-joda/locale_en-us@4.11.0/dist/index.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vis-timeline@7.7.2/standalone/umd/vis-timeline-graph2d.min.js"
         integrity="sha256-Jy2+UO7rZ2Dgik50z3XrrNpnc5+2PAx9MhL2CicodME=" crossorigin="anonymous"></script>
-<script src="/app.js"></script>
+<script src="app.js"></script>
 </body>
 </html>

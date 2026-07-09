@@ -1,19 +1,14 @@
 package org.acme.foodpackaging.domain;
 
-import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
-import ai.timefold.solver.core.api.domain.common.PlanningId;
-import ai.timefold.solver.core.api.domain.variable.PlanningListVariable;
-import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIdentityReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@JsonIdentityInfo(scope = Line.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+import ai.timefold.solver.core.api.domain.common.PlanningId;
+import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
+import ai.timefold.solver.core.api.domain.variable.PlanningListVariable;
+import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
+
 @PlanningEntity
 public class Line {
 
@@ -22,11 +17,9 @@ public class Line {
     private String name;
     private LocalDateTime startDateTime;
 
-    @JsonIdentityReference(alwaysAsId = true)
     @PlanningVariable
     private Operator operator;
 
-    @JsonIgnore
     @PlanningListVariable(allowsUnassignedValues = true)
     private List<Job> jobs;
 
