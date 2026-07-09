@@ -1,4 +1,6 @@
-package org.acme.conferencescheduling.solver.justifications;
+package org.acme.conferencescheduling.domain.justification;
+
+import java.util.Objects;
 
 import static java.util.stream.Collectors.joining;
 
@@ -10,6 +12,10 @@ import org.acme.conferencescheduling.domain.Speaker;
 import org.acme.conferencescheduling.domain.Talk;
 
 public record RequiredTagsJustification(String description) implements ConstraintJustification {
+
+    public RequiredTagsJustification {
+        Objects.requireNonNull(description);
+    }
 
     public RequiredTagsJustification(String type, Talk talk, Collection<String> expectedTags, Collection<String> actualTags) {
         this("Missing required %s tags [%s] for talk %s."

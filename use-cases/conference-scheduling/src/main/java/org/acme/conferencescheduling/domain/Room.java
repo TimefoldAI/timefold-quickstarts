@@ -99,10 +99,12 @@ public class Room {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof Room room))
+        }
+        if (!(o instanceof Room room)) {
             return false;
+        }
         return Objects.equals(getId(), room.getId());
     }
 

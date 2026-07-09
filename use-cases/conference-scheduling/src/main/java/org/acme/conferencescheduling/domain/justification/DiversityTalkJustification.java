@@ -1,4 +1,6 @@
-package org.acme.conferencescheduling.solver.justifications;
+package org.acme.conferencescheduling.domain.justification;
+
+import java.util.Objects;
 
 import static java.util.stream.Collectors.joining;
 
@@ -9,6 +11,10 @@ import ai.timefold.solver.core.api.score.stream.ConstraintJustification;
 import org.acme.conferencescheduling.domain.Talk;
 
 public record DiversityTalkJustification(String description) implements ConstraintJustification {
+
+    public DiversityTalkJustification {
+        Objects.requireNonNull(description);
+    }
 
     public DiversityTalkJustification(String type, Talk talk, Collection<String> values, Talk talk2,
             Collection<String> values2) {

@@ -1,4 +1,6 @@
-package org.acme.conferencescheduling.solver.justifications;
+package org.acme.conferencescheduling.domain.justification;
+
+import java.util.Objects;
 
 import static java.util.stream.Collectors.joining;
 
@@ -10,6 +12,10 @@ import org.acme.conferencescheduling.domain.Speaker;
 import org.acme.conferencescheduling.domain.Talk;
 
 public record ConflictTalkJustification(String description) implements ConstraintJustification {
+
+    public ConflictTalkJustification {
+        Objects.requireNonNull(description);
+    }
 
     public ConflictTalkJustification(String type, Talk talk1, Collection<String> values1, Talk talk2,
             Collection<String> values2) {

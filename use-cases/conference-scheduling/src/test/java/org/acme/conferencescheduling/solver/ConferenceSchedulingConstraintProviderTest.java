@@ -43,7 +43,7 @@ class ConferenceSchedulingConstraintProviderTest {
             ConstraintVerifier<ConferenceSchedulingConstraintProvider, ConferenceSchedule> constraintVerifier) {
         this.constraintVerifier = constraintVerifier;
     }
-    
+
     @SafeVarargs
     private static <T> SequencedSet<T> sequencedSet(T... values) {
         return new LinkedHashSet<>(Set.of(values));

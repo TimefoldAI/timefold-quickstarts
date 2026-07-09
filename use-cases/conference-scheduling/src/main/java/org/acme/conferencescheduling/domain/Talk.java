@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import static java.util.Collections.emptyList;
 
 @PlanningEntity
+@SuppressWarnings("PMD.ExcessiveParameterList")
 public class Talk {
 
     @PlanningId
@@ -55,25 +56,32 @@ public class Talk {
     }
 
     public Talk(String code, Timeslot timeslot, Room room, List<Speaker> speakers) {
-        this(code, null, null, speakers, new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), 0, new LinkedHashSet<>(), null, 0, 0);
+        this(code, null, null, speakers, new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), 0,
+                new LinkedHashSet<>(), null, 0, 0);
         this.timeslot = timeslot;
         this.room = room;
     }
 
     public Talk(String code, String title, TalkType talkType, List<Speaker> speakers, SequencedSet<String> themeTrackTags,
-            SequencedSet<String> sectorTags, SequencedSet<String> audienceTypes, int audienceLevel, SequencedSet<String> contentTags,
+            SequencedSet<String> sectorTags, SequencedSet<String> audienceTypes, int audienceLevel,
+            SequencedSet<String> contentTags,
             String language, int favoriteCount, int crowdControlRisk) {
         this(code, title, talkType, speakers, themeTrackTags, sectorTags, audienceTypes, audienceLevel, contentTags,
-                language, new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(),
+                language, new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(),
+                new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(),
                 new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), favoriteCount, crowdControlRisk);
     }
 
     public Talk(String code, String title, TalkType talkType, List<Speaker> speakers, SequencedSet<String> themeTrackTags,
-            SequencedSet<String> sectorTags, SequencedSet<String> audienceTypes, int audienceLevel, SequencedSet<String> contentTags,
+            SequencedSet<String> sectorTags, SequencedSet<String> audienceTypes, int audienceLevel,
+            SequencedSet<String> contentTags,
             String language, SequencedSet<String> requiredTimeslotTags, SequencedSet<String> preferredTimeslotTags,
-            SequencedSet<String> prohibitedTimeslotTags, SequencedSet<String> undesiredTimeslotTags, SequencedSet<String> requiredRoomTags,
-            SequencedSet<String> preferredRoomTags, SequencedSet<String> prohibitedRoomTags, SequencedSet<String> undesiredRoomTags,
-            SequencedSet<String> mutuallyExclusiveTalksTags, SequencedSet<Talk> prerequisiteTalks, int favoriteCount, int crowdControlRisk) {
+            SequencedSet<String> prohibitedTimeslotTags, SequencedSet<String> undesiredTimeslotTags,
+            SequencedSet<String> requiredRoomTags,
+            SequencedSet<String> preferredRoomTags, SequencedSet<String> prohibitedRoomTags,
+            SequencedSet<String> undesiredRoomTags,
+            SequencedSet<String> mutuallyExclusiveTalksTags, SequencedSet<Talk> prerequisiteTalks, int favoriteCount,
+            int crowdControlRisk) {
         this.code = code;
         this.title = title;
         this.talkType = talkType;
@@ -450,6 +458,10 @@ public class Talk {
         this.undesiredTimeslotTags = undesiredTimeslotTags;
     }
 
+    public boolean isScheduled() {
+        return timeslot != null && room != null;
+    }
+
     public SequencedSet<String> getRequiredRoomTags() {
         return requiredRoomTags;
     }
@@ -532,10 +544,12 @@ public class Talk {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof Talk talk))
+        }
+        if (!(o instanceof Talk talk)) {
             return false;
+        }
         return Objects.equals(getCode(), talk.getCode());
     }
 

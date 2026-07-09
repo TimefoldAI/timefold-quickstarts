@@ -45,9 +45,6 @@ public class ConferenceConstraintProperties {
 
     private int minimumConsecutiveTalksPauseInMinutes = 30;
 
-    public ConferenceConstraintProperties() {
-    }
-
     // ************************************************************************
     // Simple getters and setters
     // ************************************************************************

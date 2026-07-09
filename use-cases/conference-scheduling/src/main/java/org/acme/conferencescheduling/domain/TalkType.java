@@ -1,6 +1,5 @@
 package org.acme.conferencescheduling.domain;
 
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -20,8 +19,8 @@ public class TalkType {
 
     public TalkType(String name) {
         this.name = name;
-        this.compatibleRooms = new HashSet<>();
-        this.compatibleTimeslots = new HashSet<>();
+        this.compatibleRooms = new LinkedHashSet<>();
+        this.compatibleTimeslots = new LinkedHashSet<>();
     }
 
     public void addCompatibleTimeslot(Timeslot timeslot) {
@@ -58,8 +57,12 @@ public class TalkType {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof TalkType talkType)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof TalkType talkType)) {
+            return false;
+        }
         return Objects.equals(getName(), talkType.getName());
     }
 
