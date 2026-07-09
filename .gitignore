@@ -10,6 +10,10 @@ bin
 !/.mvn
 !.gitignore
 !.gitattributes
+!.pmd-ruleset.xml
+!.markdownlint-cli2.jsonc
+!.vacuum-ruleset.yaml
+!.flattened-pom.xml
 /nbproject
 *.ipr
 *.iws
