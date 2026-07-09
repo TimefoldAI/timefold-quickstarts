@@ -1,4 +1,6 @@
-package org.acme.conferencescheduling.solver.justifications;
+package org.acme.conferencescheduling.domain.justification;
+
+import java.util.Objects;
 
 import static java.util.stream.Collectors.joining;
 
@@ -9,6 +11,10 @@ import org.acme.conferencescheduling.domain.Talk;
 import org.acme.conferencescheduling.domain.Timeslot;
 
 public record UnavailableTimeslotJustification(String description) implements ConstraintJustification {
+
+    public UnavailableTimeslotJustification {
+        Objects.requireNonNull(description);
+    }
 
     public UnavailableTimeslotJustification(Talk talk) {
         this("The timeslot %s of Talk %s has been marked as unavailable for room %s [%s].".formatted(talk.getTimeslot().getId(),

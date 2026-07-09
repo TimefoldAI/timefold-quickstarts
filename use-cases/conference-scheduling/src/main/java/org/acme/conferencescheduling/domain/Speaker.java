@@ -5,6 +5,7 @@ import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.SequencedSet;
 
+@SuppressWarnings("PMD.ExcessiveParameterList")
 public class Speaker {
 
     private String id;
@@ -25,24 +26,30 @@ public class Speaker {
     }
 
     public Speaker(String id, String name) {
-        this(id, name, new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(),
+        this(id, name, new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(),
+                new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(),
                 new LinkedHashSet<>());
     }
 
     public Speaker(String name) {
-        this(name, name, new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(),
+        this(name, name, new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(),
+                new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(),
                 new LinkedHashSet<>());
     }
 
     public Speaker(String id, String name, SequencedSet<String> undesiredTimeslotTags) {
-        this(id, name, new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), undesiredTimeslotTags, new LinkedHashSet<>(), new LinkedHashSet<>(),
+        this(id, name, new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(),
+                undesiredTimeslotTags, new LinkedHashSet<>(), new LinkedHashSet<>(),
                 new LinkedHashSet<>(),
                 new LinkedHashSet<>());
     }
 
-    public Speaker(String id, String name, SequencedSet<Timeslot> unavailableTimeslots, SequencedSet<String> requiredTimeslotTags,
-            SequencedSet<String> preferredTimeslotTags, SequencedSet<String> prohibitedTimeslotTags, SequencedSet<String> undesiredTimeslotTags,
-            SequencedSet<String> requiredRoomTags, SequencedSet<String> preferredRoomTags, SequencedSet<String> prohibitedRoomTags,
+    public Speaker(String id, String name, SequencedSet<Timeslot> unavailableTimeslots,
+            SequencedSet<String> requiredTimeslotTags,
+            SequencedSet<String> preferredTimeslotTags, SequencedSet<String> prohibitedTimeslotTags,
+            SequencedSet<String> undesiredTimeslotTags,
+            SequencedSet<String> requiredRoomTags, SequencedSet<String> preferredRoomTags,
+            SequencedSet<String> prohibitedRoomTags,
             SequencedSet<String> undesiredRoomTags) {
         this.id = id;
         this.name = name;
@@ -147,8 +154,12 @@ public class Speaker {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Speaker speaker)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Speaker speaker)) {
+            return false;
+        }
         return Objects.equals(getId(), speaker.getId());
     }
 

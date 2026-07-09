@@ -1,4 +1,6 @@
-package org.acme.conferencescheduling.solver.justifications;
+package org.acme.conferencescheduling.domain.justification;
+
+import java.util.Objects;
 
 import static java.util.stream.Collectors.joining;
 
@@ -11,15 +13,20 @@ import org.acme.conferencescheduling.domain.Talk;
 
 public record UndesiredTagsJustification(String description) implements ConstraintJustification {
 
+    public UndesiredTagsJustification {
+        Objects.requireNonNull(description);
+    }
+
     public UndesiredTagsJustification(String type, Talk talk, Collection<String> undesiredTags,
-                                       Collection<String> actualTags) {
+            Collection<String> actualTags) {
         this("Talk %s has undesired %s tags [%s]".formatted(talk.getCode(), type,
                 undesiredTags.stream().filter(actualTags::contains).collect(joining(", "))));
     }
 
     public UndesiredTagsJustification(String type, Collection<Speaker> speakers, Collection<String> undesiredTags,
-                                       Collection<String> actualTags) {
-        this("Speakers [%s] have undesired %s tags [%s]".formatted(speakers.stream().map(Speaker::getName).collect(joining(", ")),
+            Collection<String> actualTags) {
+        this("Speakers [%s] have undesired %s tags [%s]".formatted(
+                speakers.stream().map(Speaker::getName).collect(joining(", ")),
                 type, undesiredTags.stream().filter(actualTags::contains).collect(joining(", "))));
     }
 }

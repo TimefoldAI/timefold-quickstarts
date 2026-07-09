@@ -1,4 +1,6 @@
-package org.acme.conferencescheduling.solver.justifications;
+package org.acme.conferencescheduling.domain.justification;
+
+import java.util.Objects;
 
 import static java.util.stream.Collectors.joining;
 
@@ -11,6 +13,10 @@ import org.acme.conferencescheduling.domain.Talk;
 
 public record ProhibitedTagsJustification(String description) implements ConstraintJustification {
 
+    public ProhibitedTagsJustification {
+        Objects.requireNonNull(description);
+    }
+
     public ProhibitedTagsJustification(String type, Talk talk, Collection<String> prohibitedTags,
             Collection<String> actualTags) {
         this("Talk %s has prohibited %s tags [%s]".formatted(talk.getCode(), type,
@@ -19,7 +25,8 @@ public record ProhibitedTagsJustification(String description) implements Constra
 
     public ProhibitedTagsJustification(String type, Collection<Speaker> speakers, Collection<String> prohibitedTags,
             Collection<String> actualTags) {
-        this("Speakers [%s] have prohibited %s tags [%s]".formatted(speakers.stream().map(Speaker::getName).collect(joining(", ")),
+        this("Speakers [%s] have prohibited %s tags [%s]".formatted(
+                speakers.stream().map(Speaker::getName).collect(joining(", ")),
                 type, prohibitedTags.stream().filter(actualTags::contains).collect(joining(", "))));
     }
 }
