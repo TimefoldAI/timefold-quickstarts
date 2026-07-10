@@ -1,4 +1,4 @@
 rootProject.name = 'Timefold Solver Quickstarts'
-include ':java:hello-world'
-include ':java:school-timetabling'
-include ':java:spring-boot-integration'
+include 'getting-started:hello-world'
+include 'getting-started:spring-boot-integration'
+include 'quickstarts:school-timetabling'
