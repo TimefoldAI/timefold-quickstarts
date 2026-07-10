@@ -6,7 +6,7 @@
   <parent>
     <groupId>ai.timefold.solver</groupId>
     <artifactId>timefold-solver-build-parent</artifactId>
-    <version>2.2.0</version>
+    <version>2.3.0</version>
     <relativePath/>
   </parent>
   <!-- IMPORTANT: the individual quickstarts have no parent pom. -->
@@ -20,24 +20,26 @@
   </properties>
 
   <modules>
-    <module>java/hello-world</module>
-    <module>java/school-timetabling</module>
-    <module>java/facility-location</module>
-    <module>java/maintenance-scheduling</module>
-    <module>java/vehicle-routing</module>
-    <module>java/order-picking</module>
-    <module>java/employee-scheduling</module>
-    <module>java/food-packaging</module>
-    <module>java/conference-scheduling</module>
-    <module>java/bed-allocation</module>
-    <module>java/flight-crew-scheduling</module>
-    <module>java/meeting-scheduling</module>
-    <module>java/sports-league-scheduling</module>
-    <module>java/task-assigning</module>
-    <module>java/project-job-scheduling</module>
-    <module>java/tournament-scheduling</module>
-    <module>java/spring-boot-integration</module>
-    <module>kotlin/school-timetabling</module>
+    <module>getting-started/hello-world</module>
+    <module>getting-started/spring-boot-integration</module>
+    <module>getting-started/service</module>
+    <module>getting-started/quarkus-integration-kotlin</module>
+
+    <module>use-cases/school-timetabling</module>
+    <module>use-cases/facility-location</module>
+    <module>use-cases/maintenance-scheduling</module>
+    <module>use-cases/vehicle-routing</module>
+    <module>use-cases/order-picking</module>
+    <module>use-cases/employee-scheduling</module>
+    <module>use-cases/food-packaging</module>
+    <module>use-cases/conference-scheduling</module>
+    <module>use-cases/bed-allocation</module>
+    <module>use-cases/flight-crew-scheduling</module>
+    <module>use-cases/meeting-scheduling</module>
+    <module>use-cases/sports-league-scheduling</module>
+    <module>use-cases/task-assigning</module>
+    <module>use-cases/project-job-scheduling</module>
+    <module>use-cases/tournament-scheduling</module>
   </modules>
 
 </project>

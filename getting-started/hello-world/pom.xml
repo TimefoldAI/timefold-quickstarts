@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.acme</groupId>
+  <artifactId>hello-world</artifactId>
+  <version>1.0-SNAPSHOT</version>
+
+  <properties>
+    <maven.compiler.release>21</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <jar.with.dependencies.name>hello-world-run</jar.with.dependencies.name>
+
+    <version.ai.timefold.solver>2.3.0</version.ai.timefold.solver>
+    <version.org.assertj>3.27.7</version.org.assertj>
+    <version.org.junit.jupiter>6.1.1</version.org.junit.jupiter>
+    <version.ch.qos.logback>1.5.37</version.ch.qos.logback>
+
+    <version.compiler.plugin>3.15.0</version.compiler.plugin>
+    <version.surefire.plugin>3.5.6</version.surefire.plugin>
+    <version.assembly.plugin>3.8.0</version.assembly.plugin>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>ai.timefold.solver</groupId>
+        <artifactId>timefold-solver-bom</artifactId>
+        <version>${version.ai.timefold.solver}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
+        <version>${version.org.junit.jupiter}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>${version.ch.qos.logback}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <dependency>
+      <groupId>ai.timefold.solver</groupId>
+      <artifactId>timefold-solver-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+
+    <!-- Testing -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <version>${version.org.assertj}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${version.compiler.plugin}</version>
+      </plugin>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${version.surefire.plugin}</version>
+      </plugin>
+      <plugin> <!-- For the purposes of integration testing only. -->
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>${version.surefire.plugin}</version>
+        <configuration>
+          <useModulePath>false</useModulePath>
+          <systemPropertyVariables>
+            <artifactName>${jar.with.dependencies.name}</artifactName>
+          </systemPropertyVariables>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>${version.assembly.plugin}</version>
+        <configuration>
+          <finalName>${jar.with.dependencies.name}</finalName>
+          <appendAssemblyId>false</appendAssemblyId>
+          <descriptors> <!-- Builds a JAR with dependencies that correctly merges META-INF/service descriptors. -->
+            <descriptor>src/assembly/jar-with-dependencies-and-services.xml</descriptor>
+          </descriptors>
+          <archive>
+            <manifestEntries>
+              <Main-Class>org.acme.schooltimetabling.TimetableApp</Main-Class>
+              <Multi-Release>true</Multi-Release> <!-- Some of our dependencies are multi-release JARs. -->
+            </manifestEntries>
+          </archive>
+        </configuration>
+        <executions>
+          <execution>
+            <id>make-assembly</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

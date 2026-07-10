@@ -7,7 +7,7 @@
 [![GitHub Discussions](https://img.shields.io/github/discussions/TimefoldAI/timefold-solver?style=for-the-badge&logo=github)](https://github.com/TimefoldAI/timefold-solver/discussions)
 
 This repository contains quickstarts for [Timefold Solver](https://github.com/TimefoldAI/timefold-solver), an AI constraint solver for Java and Kotlin. 
-It shows different use cases and basic implementations to get you started on your PlanningAI journey.
+It shows different use cases and basic implementations to get you started on your optimization journey.
 
 ## Overview
 
@@ -33,16 +33,27 @@ It shows different use cases and basic implementations to get you started on you
 > The implementations in this repository serve as a starting point and/or inspiration when creating your own application.
 > Timefold Solver is a library and does not include a UI. To illustrate these use cases a rudimentary UI is included in these quickstarts.
 
+## Getting started implementations
+
+Our website contains several getting started guides. All of them build the <a href="#-school-timetabling">School Timetabling</a> use case.
+You can find the resulting projects for each of the guides in the `getting started` folder.
+
+- [Service](getting-started/service) (Java, Maven, Quarkus)
+- [Library: Core](getting-started/hello-world) (Java, Maven)
+- [Library: Quarkus Integration](getting-started/quarkus-integration) (Java, Maven, Quarkus)
+- [Library: Quarkus Integration](getting-started/quarkus-integration-kotlin) (Kotlin, Maven, Quarkus)
+- [Library: Spring Boot Integration](getting-started/spring-boot-integration/README.md) (Java, Maven, Spring)
+
 ## Use cases
 
 ### 🚚 Vehicle Routing
 
 Find the most efficient routes for vehicles to reach visits, considering vehicle capacity and time windows when visits are available. Sometimes also called "CVRPTW".
 
-![Vehicle Routing Screenshot](java/vehicle-routing/vehicle-routing-screenshot.png)
+![Vehicle Routing Screenshot](use-cases/vehicle-routing/vehicle-routing-screenshot.png)
 
-- [View constraints](java/vehicle-routing/README.md#constraints)
-- [Run quarkus-vehicle-routing](java/vehicle-routing/README.md) (Java, Maven, Quarkus)
+- [View constraints](use-cases/vehicle-routing/README.md#constraints)
+- [Run quarkus-vehicle-routing](use-cases/vehicle-routing/README.md) (Java, Maven, Quarkus)
 
 > [!TIP]
 >  <img src="https://docs.timefold.ai/_/img/models/field-service-routing.svg" align="right" width="50px" /> [Check out our off-the-shelf model for Field Service Routing](https://app.timefold.ai/models/field-service-routing). This model goes beyond basic Vehicle Routing and supports additional constraints such as priorities, skills, fairness and more.
@@ -53,10 +64,10 @@ Find the most efficient routes for vehicles to reach visits, considering vehicle
 
 Schedule shifts to employees, accounting for employee availability and shift skill requirements.
 
-![Employee Scheduling Screenshot](java/employee-scheduling/employee-scheduling-screenshot.png)
+![Employee Scheduling Screenshot](use-cases/employee-scheduling/employee-scheduling-screenshot.png)
 
-- [View constraints](java/employee-scheduling/README.md#constraints)
-- [Run quarkus-employee-scheduling](java/employee-scheduling/README.md) (Java, Maven, Quarkus)
+- [View constraints](use-cases/employee-scheduling/README.md#constraints)
+- [Run quarkus-employee-scheduling](use-cases/employee-scheduling/README.md) (Java, Maven, Quarkus)
 
 > [!TIP]
 >  <img src="https://docs.timefold.ai/_/img/models/employee-shift-scheduling.svg" align="right" width="50px" /> [Check out our off-the-shelf model for Employee Shift Scheduling](https://app.timefold.ai/models/employee-scheduling). This model supports many additional constraints such as skills, pairing employees, fairness and more.
@@ -67,10 +78,10 @@ Schedule shifts to employees, accounting for employee availability and shift ski
 
 Schedule maintenance jobs to crews over time to reduce both premature and overdue maintenance.
 
-![Maintenance Scheduling Screenshot](java/maintenance-scheduling/maintenance-scheduling-screenshot.png)
+![Maintenance Scheduling Screenshot](use-cases/maintenance-scheduling/maintenance-scheduling-screenshot.png)
 
-- [View constraints](java/maintenance-scheduling/README.md#constraints)
-- [Run quarkus-maintenance-scheduling](java/maintenance-scheduling/README.md) (Java, Maven, Quarkus)
+- [View constraints](use-cases/maintenance-scheduling/README.md#constraints)
+- [Run quarkus-maintenance-scheduling](use-cases/maintenance-scheduling/README.md) (Java, Maven, Quarkus)
 
 ---
 
@@ -78,10 +89,10 @@ Schedule maintenance jobs to crews over time to reduce both premature and overdu
 
 Schedule food packaging orders to manufacturing lines to minimize downtime and fulfill all orders on time.
 
-![Food Packaging Screenshot](java/food-packaging/food-packaging-screenshot.png)
+![Food Packaging Screenshot](use-cases/food-packaging/food-packaging-screenshot.png)
 
-- [View constraints](java/food-packaging/README.md#constraints)
-- [Run quarkus-food-packaging](java/food-packaging/README.md) (Java, Maven, Quarkus)
+- [View constraints](use-cases/food-packaging/README.md#constraints)
+- [Run quarkus-food-packaging](use-cases/food-packaging/README.md) (Java, Maven, Quarkus)
 
 ---
 
@@ -89,10 +100,10 @@ Schedule food packaging orders to manufacturing lines to minimize downtime and f
 
 Generate an optimal picking plan for completing a set of orders.
 
-![Order Picking Screenshot](java/order-picking/order-picking-screenshot.png)
+![Order Picking Screenshot](use-cases/order-picking/order-picking-screenshot.png)
 
-- [View constraints](java/order-picking/README.md#constraints)
-- [Run quarkus-order-picking](java/order-picking/README.md) (Java, Maven, Quarkus)
+- [View constraints](use-cases/order-picking/README.md#constraints)
+- [Run quarkus-order-picking](use-cases/order-picking/README.md) (Java, Maven, Quarkus)
 
 ---
 
@@ -100,16 +111,17 @@ Generate an optimal picking plan for completing a set of orders.
 
 Assign lessons to timeslots and rooms to produce a better schedule for teachers and students.
 
-![School Timetabling Screenshot](java/school-timetabling/school-timetabling-screenshot.png)
+![School Timetabling Screenshot](use-cases/school-timetabling/school-timetabling-screenshot.png)
 
-- [View constraints](java/school-timetabling/README.md#constraints)
-- [Run quarkus-school-timetabling](java/school-timetabling/README.md) (Java, Maven or Gradle, Quarkus)
-- [Run spring-boot-integration](java/spring-boot-integration/README.md) (Java, Maven or Gradle, Spring Boot)
-- [Run kotlin-quarkus-school-timetabling](kotlin/school-timetabling/README.md) (Kotlin, Maven, Quarkus)
+- [View constraints](use-cases/school-timetabling/README.md#constraints)
+- [Run quarkus-school-timetabling](use-cases/school-timetabling/README.md) (Java, Maven or Gradle, Quarkus)
+- [Run spring-boot-integration](use-cases/getting-started/spring-boot-integration/README.md) (Java, Maven or Gradle, Spring Boot)
+- [Run kotlin-quarkus-school-timetabling](use-cases/school-timetabling-kotlin/README.md) (Kotlin, Maven, Quarkus)
 
 Without a UI:
 
-- [Run hello-world-school-timetabling](java/hello-world/README.md) (Java, Maven or Gradle)
+- [Service / REST API](use-cases/getting-started/service) (Java, Maven, Quarkus)
+- [Library / Console Application](use-cases/getting-started/hello-world/README.md) (Java, Maven or Gradle)
 
 ---
 
@@ -117,10 +129,10 @@ Without a UI:
 
 Pick the best geographical locations for new stores, distribution centers, COVID test centers, or telecom masts.
 
-![Facility Location Screenshot](java/facility-location/facility-location-screenshot.png)
+![Facility Location Screenshot](use-cases/facility-location/facility-location-screenshot.png)
 
-- [View constraints](java/facility-location/README.md#constraints)
-- [Run quarkus-facility-location](java/facility-location/README.md) (Java, Maven, Quarkus)
+- [View constraints](use-cases/facility-location/README.md#constraints)
+- [Run quarkus-facility-location](use-cases/facility-location/README.md) (Java, Maven, Quarkus)
 
 ---
 
@@ -128,10 +140,10 @@ Pick the best geographical locations for new stores, distribution centers, COVID
 
 Assign conference talks to timeslots and rooms to produce a better schedule for speakers.
 
-![Conference Scheduling Screenshot](java/conference-scheduling/conference-scheduling-screenshot.png)
+![Conference Scheduling Screenshot](use-cases/conference-scheduling/conference-scheduling-screenshot.png)
 
-- [View constraints](java/conference-scheduling/README.md#constraints)
-- [Run quarkus-conference-scheduling](java/conference-scheduling/README.md) (Java, Maven, Quarkus)
+- [View constraints](use-cases/conference-scheduling/README.md#constraints)
+- [Run quarkus-conference-scheduling](use-cases/conference-scheduling/README.md) (Java, Maven, Quarkus)
 
 ---
 
@@ -139,10 +151,10 @@ Assign conference talks to timeslots and rooms to produce a better schedule for 
 
 Assign beds to patient stays to produce a better schedule for hospitals.
 
-![Bed Scheduling Screenshot](java/bed-allocation/bed-allocation-screenshot.png)
+![Bed Scheduling Screenshot](use-cases/bed-allocation/bed-allocation-screenshot.png)
 
-- [View constraints](java/bed-allocation/README.md#constraints)
-- [Run quarkus-bed-allocation-scheduling](java/bed-allocation/README.md) (Java, Maven, Quarkus)
+- [View constraints](use-cases/bed-allocation/README.md#constraints)
+- [Run quarkus-bed-allocation-scheduling](use-cases/bed-allocation/README.md) (Java, Maven, Quarkus)
 
 ---
 
@@ -150,10 +162,10 @@ Assign beds to patient stays to produce a better schedule for hospitals.
 
 Assign crew to flights to produce a better schedule for flight assignments.
 
-![Flight Crew Scheduling Screenshot](java/flight-crew-scheduling/flight-crew-scheduling-screenshot.png)
+![Flight Crew Scheduling Screenshot](use-cases/flight-crew-scheduling/flight-crew-scheduling-screenshot.png)
 
-- [View constraints](java/flight-crew-scheduling/README.md#constraints)
-- [Run quarkus-flight-crew-scheduling](java/flight-crew-scheduling/README.md) (Java, Maven, Quarkus)
+- [View constraints](use-cases/flight-crew-scheduling/README.md#constraints)
+- [Run quarkus-flight-crew-scheduling](use-cases/flight-crew-scheduling/README.md) (Java, Maven, Quarkus)
 
 ---
 
@@ -161,10 +173,10 @@ Assign crew to flights to produce a better schedule for flight assignments.
 
 Assign timeslots and rooms for meetings to produce a better schedule.
 
-![Meeting Scheduling Screenshot](java/meeting-scheduling/meeting-scheduling-screenshot.png)
+![Meeting Scheduling Screenshot](use-cases/meeting-scheduling/meeting-scheduling-screenshot.png)
 
-- [View constraints](java/meeting-scheduling/README.md#constraints)
-- [Run quarkus-meeting-scheduling](java/meeting-scheduling/README.md) (Java, Maven, Quarkus)
+- [View constraints](use-cases/meeting-scheduling/README.md#constraints)
+- [Run quarkus-meeting-scheduling](use-cases/meeting-scheduling/README.md) (Java, Maven, Quarkus)
 
 ---
 
@@ -172,10 +184,10 @@ Assign timeslots and rooms for meetings to produce a better schedule.
 
 Assign employees to tasks to produce a better plan for task assignments.
 
-![Task Assigning Screenshot](java/task-assigning/task-assigning-screenshot.png)
+![Task Assigning Screenshot](use-cases/task-assigning/task-assigning-screenshot.png)
 
-- [View constraints](java/task-assigning/README.md#constraints)
-- [Run quarkus-task-assigning](java/task-assigning/README.md) (Java, Maven, Quarkus)
+- [View constraints](use-cases/task-assigning/README.md#constraints)
+- [Run quarkus-task-assigning](use-cases/task-assigning/README.md) (Java, Maven, Quarkus)
 
 ---
 
@@ -183,10 +195,10 @@ Assign employees to tasks to produce a better plan for task assignments.
 
 Assign jobs for execution to produce a better schedule for project job allocations.
 
-![Project Job Scheduling Screenshot](java/project-job-scheduling/project-job-scheduling-screenshot.png)
+![Project Job Scheduling Screenshot](use-cases/project-job-scheduling/project-job-scheduling-screenshot.png)
 
-- [View constraints](java/project-job-scheduling/README.md#constraints)
-- [Run quarkus-project-job-scheduling](java/project-job-scheduling/README.md) (Java, Maven, Quarkus)
+- [View constraints](use-cases/project-job-scheduling/README.md#constraints)
+- [Run quarkus-project-job-scheduling](use-cases/project-job-scheduling/README.md) (Java, Maven, Quarkus)
 
 ---
 
@@ -194,10 +206,10 @@ Assign jobs for execution to produce a better schedule for project job allocatio
 
 Assign rounds to matches to produce a better schedule for league matches.
 
-![Sports League Scheduling Screenshot](java/sports-league-scheduling/sports-league-scheduling-screenshot.png)
+![Sports League Scheduling Screenshot](use-cases/sports-league-scheduling/sports-league-scheduling-screenshot.png)
 
-- [View constraints](java/sports-league-scheduling/README.md#constraints)
-- [Run quarkus-sports-league-scheduling](java/sports-league-scheduling/README.md) (Java, Maven, Quarkus)
+- [View constraints](use-cases/sports-league-scheduling/README.md#constraints)
+- [Run quarkus-sports-league-scheduling](use-cases/sports-league-scheduling/README.md) (Java, Maven, Quarkus)
 
 ---
 
@@ -205,10 +217,10 @@ Assign rounds to matches to produce a better schedule for league matches.
 
 Tournament Scheduling service assigning teams to tournament matches.
 
-![Tournament Scheduling Screenshot](java/tournament-scheduling/tournament-scheduling-screenshot.png)
+![Tournament Scheduling Screenshot](use-cases/tournament-scheduling/tournament-scheduling-screenshot.png)
 
-- [View constraints](java/tournament-scheduling/README.md#constraints)
-- [Run quarkus-tournament-scheduling](java/tournament-scheduling/README.md) (Java, Maven, Quarkus)
+- [View constraints](use-cases/tournament-scheduling/README.md#constraints)
+- [Run quarkus-tournament-scheduling](use-cases/tournament-scheduling/README.md) (Java, Maven, Quarkus)
 
 ---
 
