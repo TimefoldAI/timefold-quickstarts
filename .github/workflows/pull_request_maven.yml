@@ -5,14 +5,14 @@ on:
     branches: [stable, development, '*.x']
     paths:
       - 'pom.xml'
-      - '../../use-cases/**/*'
+      - 'use-cases/**/*'
       - 'getting-started/**/*'
       - '.github/**/*.yml'
   pull_request:
     branches: [stable, development, '*.x']
     paths:
       - 'pom.xml'
-      - '../../use-cases/**/*'
+      - 'use-cases/**/*'
       - 'getting-started/**/*'
       - '.github/**/*.yml'
 

@@ -40,7 +40,7 @@ Assign rounds to matches to produce a better schedule for league matches.
    ```sh
    $ git clone https://github.com/TimefoldAI/timefold-quickstarts.git
    ...
-   $ cd timefold-quickstarts/quickstarts/sports-league-scheduling
+   $ cd timefold-quickstarts/use-cases/sports-league-scheduling
    ```
 
 2. (Optional) If you want to run a licensed edition (Plus / Enterprise), set up your license key first. See the [Timefold license tool](https://licenses.timefold.ai/) for instructions.
