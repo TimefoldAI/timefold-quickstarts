@@ -52,24 +52,4 @@ public record ConferenceScheduleOutputMetrics(
             throw new IllegalArgumentException("Output metrics must not be negative.");
         }
     }
-
-    public ConferenceScheduleOutputMetrics withTotalScheduledTalks(int totalScheduledTalks) {
-        return new ConferenceScheduleOutputMetrics(totalScheduledTalks, totalUnscheduledTalks, totalUsedRooms,
-                totalUsedTimeslots);
-    }
-
-    public ConferenceScheduleOutputMetrics withTotalUnscheduledTalks(int totalUnscheduledTalks) {
-        return new ConferenceScheduleOutputMetrics(totalScheduledTalks, totalUnscheduledTalks, totalUsedRooms,
-                totalUsedTimeslots);
-    }
-
-    public ConferenceScheduleOutputMetrics withTotalUsedRooms(int totalUsedRooms) {
-        return new ConferenceScheduleOutputMetrics(totalScheduledTalks, totalUnscheduledTalks, totalUsedRooms,
-                totalUsedTimeslots);
-    }
-
-    public ConferenceScheduleOutputMetrics withTotalUsedTimeslots(int totalUsedTimeslots) {
-        return new ConferenceScheduleOutputMetrics(totalScheduledTalks, totalUnscheduledTalks, totalUsedRooms,
-                totalUsedTimeslots);
-    }
 }

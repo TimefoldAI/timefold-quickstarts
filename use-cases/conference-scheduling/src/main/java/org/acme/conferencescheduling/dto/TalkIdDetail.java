@@ -12,10 +12,6 @@ public record TalkIdDetail(
         talkId = talkId == null ? "" : talkId;
     }
 
-    public TalkIdDetail withTalkId(String talkId) {
-        return new TalkIdDetail(talkId);
-    }
-
     @Override
     public String getType() {
         return "TalkId";

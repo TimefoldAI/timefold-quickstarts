@@ -15,32 +15,12 @@ public record RoomDTO(
 
     public RoomDTO {
         name = name == null ? "" : name;
-        talkTypeNames = talkTypeNames == null ? List.of() : List.copyOf(talkTypeNames);
-        unavailableTimeslotIds = unavailableTimeslotIds == null ? List.of() : List.copyOf(unavailableTimeslotIds);
-        tags = tags == null ? List.of() : List.copyOf(tags);
+        talkTypeNames = immutableCopy(talkTypeNames);
+        unavailableTimeslotIds = immutableCopy(unavailableTimeslotIds);
+        tags = immutableCopy(tags);
     }
 
-    public RoomDTO withId(String id) {
-        return new RoomDTO(id, name, capacity, talkTypeNames, unavailableTimeslotIds, tags);
-    }
-
-    public RoomDTO withName(String name) {
-        return new RoomDTO(id, name, capacity, talkTypeNames, unavailableTimeslotIds, tags);
-    }
-
-    public RoomDTO withCapacity(int capacity) {
-        return new RoomDTO(id, name, capacity, talkTypeNames, unavailableTimeslotIds, tags);
-    }
-
-    public RoomDTO withTalkTypeNames(List<String> talkTypeNames) {
-        return new RoomDTO(id, name, capacity, talkTypeNames, unavailableTimeslotIds, tags);
-    }
-
-    public RoomDTO withUnavailableTimeslotIds(List<String> unavailableTimeslotIds) {
-        return new RoomDTO(id, name, capacity, talkTypeNames, unavailableTimeslotIds, tags);
-    }
-
-    public RoomDTO withTags(List<String> tags) {
-        return new RoomDTO(id, name, capacity, talkTypeNames, unavailableTimeslotIds, tags);
+    private static List<String> immutableCopy(List<String> list) {
+        return list == null ? List.of() : List.copyOf(list);
     }
 }

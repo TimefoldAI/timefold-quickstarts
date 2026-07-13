@@ -20,80 +20,98 @@ public record SpeakerDTO(
 
     public SpeakerDTO {
         name = name == null ? "" : name;
-        unavailableTimeslotIds = unavailableTimeslotIds == null ? List.of() : List.copyOf(unavailableTimeslotIds);
-        requiredTimeslotTags = requiredTimeslotTags == null ? List.of() : List.copyOf(requiredTimeslotTags);
-        preferredTimeslotTags = preferredTimeslotTags == null ? List.of() : List.copyOf(preferredTimeslotTags);
-        prohibitedTimeslotTags = prohibitedTimeslotTags == null ? List.of() : List.copyOf(prohibitedTimeslotTags);
-        undesiredTimeslotTags = undesiredTimeslotTags == null ? List.of() : List.copyOf(undesiredTimeslotTags);
-        requiredRoomTags = requiredRoomTags == null ? List.of() : List.copyOf(requiredRoomTags);
-        preferredRoomTags = preferredRoomTags == null ? List.of() : List.copyOf(preferredRoomTags);
-        prohibitedRoomTags = prohibitedRoomTags == null ? List.of() : List.copyOf(prohibitedRoomTags);
-        undesiredRoomTags = undesiredRoomTags == null ? List.of() : List.copyOf(undesiredRoomTags);
+        unavailableTimeslotIds = immutableCopy(unavailableTimeslotIds);
+        requiredTimeslotTags = immutableCopy(requiredTimeslotTags);
+        preferredTimeslotTags = immutableCopy(preferredTimeslotTags);
+        prohibitedTimeslotTags = immutableCopy(prohibitedTimeslotTags);
+        undesiredTimeslotTags = immutableCopy(undesiredTimeslotTags);
+        requiredRoomTags = immutableCopy(requiredRoomTags);
+        preferredRoomTags = immutableCopy(preferredRoomTags);
+        prohibitedRoomTags = immutableCopy(prohibitedRoomTags);
+        undesiredRoomTags = immutableCopy(undesiredRoomTags);
     }
 
-    public SpeakerDTO withId(String id) {
-        return new SpeakerDTO(id, name, unavailableTimeslotIds, requiredTimeslotTags, preferredTimeslotTags,
-                prohibitedTimeslotTags, undesiredTimeslotTags, requiredRoomTags, preferredRoomTags, prohibitedRoomTags,
-                undesiredRoomTags);
+    private static List<String> immutableCopy(List<String> list) {
+        return list == null ? List.of() : List.copyOf(list);
     }
 
-    public SpeakerDTO withName(String name) {
-        return new SpeakerDTO(id, name, unavailableTimeslotIds, requiredTimeslotTags, preferredTimeslotTags,
-                prohibitedTimeslotTags, undesiredTimeslotTags, requiredRoomTags, preferredRoomTags, prohibitedRoomTags,
-                undesiredRoomTags);
+    public static Builder builder(String id, String name) {
+        return new Builder(id, name);
     }
 
-    public SpeakerDTO withUnavailableTimeslotIds(List<String> unavailableTimeslotIds) {
-        return new SpeakerDTO(id, name, unavailableTimeslotIds, requiredTimeslotTags, preferredTimeslotTags,
-                prohibitedTimeslotTags, undesiredTimeslotTags, requiredRoomTags, preferredRoomTags, prohibitedRoomTags,
-                undesiredRoomTags);
-    }
+    // In a fluent builder, methods named after the fields they set are the whole point.
+    @SuppressWarnings("PMD.AvoidFieldNameMatchingMethodName")
+    public static final class Builder {
 
-    public SpeakerDTO withRequiredTimeslotTags(List<String> requiredTimeslotTags) {
-        return new SpeakerDTO(id, name, unavailableTimeslotIds, requiredTimeslotTags, preferredTimeslotTags,
-                prohibitedTimeslotTags, undesiredTimeslotTags, requiredRoomTags, preferredRoomTags, prohibitedRoomTags,
-                undesiredRoomTags);
-    }
+        private final String id;
+        private final String name;
+        private List<String> unavailableTimeslotIds;
+        private List<String> requiredTimeslotTags;
+        private List<String> preferredTimeslotTags;
+        private List<String> prohibitedTimeslotTags;
+        private List<String> undesiredTimeslotTags;
+        private List<String> requiredRoomTags;
+        private List<String> preferredRoomTags;
+        private List<String> prohibitedRoomTags;
+        private List<String> undesiredRoomTags;
 
-    public SpeakerDTO withPreferredTimeslotTags(List<String> preferredTimeslotTags) {
-        return new SpeakerDTO(id, name, unavailableTimeslotIds, requiredTimeslotTags, preferredTimeslotTags,
-                prohibitedTimeslotTags, undesiredTimeslotTags, requiredRoomTags, preferredRoomTags, prohibitedRoomTags,
-                undesiredRoomTags);
-    }
+        private Builder(String id, String name) {
+            this.id = id;
+            this.name = name;
+        }
 
-    public SpeakerDTO withProhibitedTimeslotTags(List<String> prohibitedTimeslotTags) {
-        return new SpeakerDTO(id, name, unavailableTimeslotIds, requiredTimeslotTags, preferredTimeslotTags,
-                prohibitedTimeslotTags, undesiredTimeslotTags, requiredRoomTags, preferredRoomTags, prohibitedRoomTags,
-                undesiredRoomTags);
-    }
+        // CPD-OFF: builder boilerplate intentionally mirrors the TalkDTO builder.
+        public Builder unavailableTimeslotIds(List<String> unavailableTimeslotIds) {
+            this.unavailableTimeslotIds = unavailableTimeslotIds;
+            return this;
+        }
 
-    public SpeakerDTO withUndesiredTimeslotTags(List<String> undesiredTimeslotTags) {
-        return new SpeakerDTO(id, name, unavailableTimeslotIds, requiredTimeslotTags, preferredTimeslotTags,
-                prohibitedTimeslotTags, undesiredTimeslotTags, requiredRoomTags, preferredRoomTags, prohibitedRoomTags,
-                undesiredRoomTags);
-    }
+        public Builder requiredTimeslotTags(List<String> requiredTimeslotTags) {
+            this.requiredTimeslotTags = requiredTimeslotTags;
+            return this;
+        }
 
-    public SpeakerDTO withRequiredRoomTags(List<String> requiredRoomTags) {
-        return new SpeakerDTO(id, name, unavailableTimeslotIds, requiredTimeslotTags, preferredTimeslotTags,
-                prohibitedTimeslotTags, undesiredTimeslotTags, requiredRoomTags, preferredRoomTags, prohibitedRoomTags,
-                undesiredRoomTags);
-    }
+        public Builder preferredTimeslotTags(List<String> preferredTimeslotTags) {
+            this.preferredTimeslotTags = preferredTimeslotTags;
+            return this;
+        }
 
-    public SpeakerDTO withPreferredRoomTags(List<String> preferredRoomTags) {
-        return new SpeakerDTO(id, name, unavailableTimeslotIds, requiredTimeslotTags, preferredTimeslotTags,
-                prohibitedTimeslotTags, undesiredTimeslotTags, requiredRoomTags, preferredRoomTags, prohibitedRoomTags,
-                undesiredRoomTags);
-    }
+        public Builder prohibitedTimeslotTags(List<String> prohibitedTimeslotTags) {
+            this.prohibitedTimeslotTags = prohibitedTimeslotTags;
+            return this;
+        }
 
-    public SpeakerDTO withProhibitedRoomTags(List<String> prohibitedRoomTags) {
-        return new SpeakerDTO(id, name, unavailableTimeslotIds, requiredTimeslotTags, preferredTimeslotTags,
-                prohibitedTimeslotTags, undesiredTimeslotTags, requiredRoomTags, preferredRoomTags, prohibitedRoomTags,
-                undesiredRoomTags);
-    }
+        public Builder undesiredTimeslotTags(List<String> undesiredTimeslotTags) {
+            this.undesiredTimeslotTags = undesiredTimeslotTags;
+            return this;
+        }
 
-    public SpeakerDTO withUndesiredRoomTags(List<String> undesiredRoomTags) {
-        return new SpeakerDTO(id, name, unavailableTimeslotIds, requiredTimeslotTags, preferredTimeslotTags,
-                prohibitedTimeslotTags, undesiredTimeslotTags, requiredRoomTags, preferredRoomTags, prohibitedRoomTags,
-                undesiredRoomTags);
+        public Builder requiredRoomTags(List<String> requiredRoomTags) {
+            this.requiredRoomTags = requiredRoomTags;
+            return this;
+        }
+
+        public Builder preferredRoomTags(List<String> preferredRoomTags) {
+            this.preferredRoomTags = preferredRoomTags;
+            return this;
+        }
+
+        public Builder prohibitedRoomTags(List<String> prohibitedRoomTags) {
+            this.prohibitedRoomTags = prohibitedRoomTags;
+            return this;
+        }
+
+        public Builder undesiredRoomTags(List<String> undesiredRoomTags) {
+            this.undesiredRoomTags = undesiredRoomTags;
+            return this;
+        }
+
+        // CPD-ON
+
+        public SpeakerDTO build() {
+            return new SpeakerDTO(id, name, unavailableTimeslotIds, requiredTimeslotTags, preferredTimeslotTags,
+                    prohibitedTimeslotTags, undesiredTimeslotTags, requiredRoomTags, preferredRoomTags,
+                    prohibitedRoomTags, undesiredRoomTags);
+        }
     }
 }

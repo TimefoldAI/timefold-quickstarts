@@ -12,10 +12,6 @@ public record TimeslotIdDetail(
         timeslotId = timeslotId == null ? "" : timeslotId;
     }
 
-    public TimeslotIdDetail withTimeslotId(String timeslotId) {
-        return new TimeslotIdDetail(timeslotId);
-    }
-
     @Override
     public String getType() {
         return "TimeslotId";

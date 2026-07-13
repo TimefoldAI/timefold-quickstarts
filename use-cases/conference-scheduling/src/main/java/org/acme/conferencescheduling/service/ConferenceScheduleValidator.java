@@ -108,7 +108,8 @@ public class ConferenceScheduleValidator
             if (talk.roomId() != null && !roomIds.contains(talk.roomId())) {
                 validationBuilder.addIssue(new NonExistingRoomReferenceIssue(new TalkIdDetail(talk.code())));
             }
-            if (!talk.talkTypeName().isBlank() && !talkTypeNames.contains(talk.talkTypeName())) {
+            // A blank talk type name is just as invalid as an unknown one: the solver model requires a talk type.
+            if (talk.talkTypeName().isBlank() || !talkTypeNames.contains(talk.talkTypeName())) {
                 validationBuilder.addIssue(new NonExistingTalkTypeReferenceIssue(new TalkIdDetail(talk.code())));
             }
             for (String speakerId : talk.speakerIds()) {

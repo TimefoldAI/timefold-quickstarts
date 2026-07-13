@@ -18,39 +18,15 @@ public record ConferenceScheduleOutput(
 
     public ConferenceScheduleOutput {
         name = name == null ? "" : name;
-        talkTypes = talkTypes == null ? List.of() : List.copyOf(talkTypes);
-        timeslots = timeslots == null ? List.of() : List.copyOf(timeslots);
-        rooms = rooms == null ? List.of() : List.copyOf(rooms);
-        speakers = speakers == null ? List.of() : List.copyOf(speakers);
-        talks = talks == null ? List.of() : List.copyOf(talks);
+        talkTypes = immutableCopy(talkTypes);
+        timeslots = immutableCopy(timeslots);
+        rooms = immutableCopy(rooms);
+        speakers = immutableCopy(speakers);
+        talks = immutableCopy(talks);
         score = score == null ? "" : score;
     }
 
-    public ConferenceScheduleOutput withName(String name) {
-        return new ConferenceScheduleOutput(name, talkTypes, timeslots, rooms, speakers, talks, score);
-    }
-
-    public ConferenceScheduleOutput withTalkTypes(List<TalkTypeDTO> talkTypes) {
-        return new ConferenceScheduleOutput(name, talkTypes, timeslots, rooms, speakers, talks, score);
-    }
-
-    public ConferenceScheduleOutput withTimeslots(List<TimeslotDTO> timeslots) {
-        return new ConferenceScheduleOutput(name, talkTypes, timeslots, rooms, speakers, talks, score);
-    }
-
-    public ConferenceScheduleOutput withRooms(List<RoomDTO> rooms) {
-        return new ConferenceScheduleOutput(name, talkTypes, timeslots, rooms, speakers, talks, score);
-    }
-
-    public ConferenceScheduleOutput withSpeakers(List<SpeakerDTO> speakers) {
-        return new ConferenceScheduleOutput(name, talkTypes, timeslots, rooms, speakers, talks, score);
-    }
-
-    public ConferenceScheduleOutput withTalks(List<TalkDTO> talks) {
-        return new ConferenceScheduleOutput(name, talkTypes, timeslots, rooms, speakers, talks, score);
-    }
-
-    public ConferenceScheduleOutput withScore(String score) {
-        return new ConferenceScheduleOutput(name, talkTypes, timeslots, rooms, speakers, talks, score);
+    private static <T> List<T> immutableCopy(List<T> list) {
+        return list == null ? List.of() : List.copyOf(list);
     }
 }

@@ -66,8 +66,7 @@ public final class DemoDataBuilder {
     }
 
     private static SpeakerDTO speaker(String id, String name) {
-        return new SpeakerDTO(id, name, List.of(), List.of(), List.of(), List.of(), List.of(), List.of(), List.of(),
-                List.of(), List.of());
+        return SpeakerDTO.builder(id, name).build();
     }
 
     private static List<SpeakerDTO> buildSpeakers() {
@@ -83,42 +82,45 @@ public final class DemoDataBuilder {
         speakers.add(speaker("9", "Ivy Smith"));
         speakers.add(speaker("10", "Jay Watt"));
         speakers.add(speaker("11", "Amy Fox"));
-        speakers.add(speaker("12", "Beth Green").withUndesiredTimeslotTags(List.of(AFTER_LUNCH)));
+        speakers.add(SpeakerDTO.builder("12", "Beth Green").undesiredTimeslotTags(List.of(AFTER_LUNCH)).build());
         return speakers;
     }
 
-    private static TalkDTO talk(int index, String code, String title, String talkType, List<String> speakerIds,
+    private static TalkDTO.Builder talk(int index, String code, String title, String talkType, List<String> speakerIds,
             int audienceLevel, int favoriteCount, int crowdControlRisk) {
-        return new TalkDTO(code, title, talkType, speakerIds,
-                List.of(THEME_TAGS.get(index % THEME_TAGS.size())),
-                List.of(SECTOR_TAGS.get(index % SECTOR_TAGS.size())),
-                List.of(AUDIENCE_TAGS.get(index % AUDIENCE_TAGS.size())),
-                audienceLevel,
-                List.of(CONTENT_TAGS.get(index % CONTENT_TAGS.size())),
-                "en", List.of(), List.of(), List.of(), List.of(), List.of(), List.of(), List.of(), List.of(),
-                List.of(), List.of(), favoriteCount, crowdControlRisk, "", "");
+        return TalkDTO.builder(code, title, talkType)
+                .speakerIds(speakerIds)
+                .themeTrackTags(List.of(THEME_TAGS.get(index % THEME_TAGS.size())))
+                .sectorTags(List.of(SECTOR_TAGS.get(index % SECTOR_TAGS.size())))
+                .audienceTypes(List.of(AUDIENCE_TAGS.get(index % AUDIENCE_TAGS.size())))
+                .audienceLevel(audienceLevel)
+                .contentTags(List.of(CONTENT_TAGS.get(index % CONTENT_TAGS.size())))
+                .language("en")
+                .favoriteCount(favoriteCount)
+                .crowdControlRisk(crowdControlRisk);
     }
 
     private static List<TalkDTO> buildTalks() {
         List<TalkDTO> talks = new ArrayList<>();
-        talks.add(talk(0, "S01", "Talk One", LAB, List.of("1", "2"), 2, 551, 1).withUndesiredRoomTags(List.of(RECORDED)));
-        talks.add(talk(1, "S02", "Talk Two", LAB, List.of("3"), 3, 528, 0));
-        talks.add(talk(2, "S03", "Talk Three", BREAKOUT, List.of("4"), 3, 497, 0));
-        talks.add(talk(3, "S04", "Talk Four", BREAKOUT, List.of("5", "6"), 1, 560, 0));
+        talks.add(talk(0, "S01", "Talk One", LAB, List.of("1", "2"), 2, 551, 1)
+                .undesiredRoomTags(List.of(RECORDED)).build());
+        talks.add(talk(1, "S02", "Talk Two", LAB, List.of("3"), 3, 528, 0).build());
+        talks.add(talk(2, "S03", "Talk Three", BREAKOUT, List.of("4"), 3, 497, 0).build());
+        talks.add(talk(3, "S04", "Talk Four", BREAKOUT, List.of("5", "6"), 1, 560, 0).build());
         talks.add(talk(4, "S05", "Talk Five", BREAKOUT, List.of("7", "8"), 1, 957, 0)
-                .withPrerequisiteTalkCodes(List.of("S02")));
-        talks.add(talk(5, "S06", "Talk Six", BREAKOUT, List.of("9"), 1, 957, 0));
-        talks.add(talk(6, "S07", "Talk Seven", BREAKOUT, List.of("10"), 3, 568, 0));
-        talks.add(talk(7, "S08", "Talk Eight", BREAKOUT, List.of("11"), 3, 183, 0));
-        talks.add(talk(8, "S09", "Talk Nine", BREAKOUT, List.of("12", "1"), 3, 619, 0));
-        talks.add(talk(9, "S10", "Talk Ten", BREAKOUT, List.of("2", "3"), 3, 603, 1));
+                .prerequisiteTalkCodes(List.of("S02")).build());
+        talks.add(talk(5, "S06", "Talk Six", BREAKOUT, List.of("9"), 1, 957, 0).build());
+        talks.add(talk(6, "S07", "Talk Seven", BREAKOUT, List.of("10"), 3, 568, 0).build());
+        talks.add(talk(7, "S08", "Talk Eight", BREAKOUT, List.of("11"), 3, 183, 0).build());
+        talks.add(talk(8, "S09", "Talk Nine", BREAKOUT, List.of("12", "1"), 3, 619, 0).build());
+        talks.add(talk(9, "S10", "Talk Ten", BREAKOUT, List.of("2", "3"), 3, 603, 1).build());
         talks.add(talk(10, "S11", "Talk Eleven", BREAKOUT, List.of("4", "5"), 1, 39, 0)
-                .withMutuallyExclusiveTalksTags(List.of("Constraints"))
-                .withRequiredRoomTags(List.of(RECORDED)));
-        talks.add(talk(11, "S12", "Talk Twelve", BREAKOUT, List.of("6", "7"), 3, 977, 0));
-        talks.add(talk(12, "S13", "Talk Thirteen", BREAKOUT, List.of("8"), 3, 494, 0));
-        talks.add(talk(13, "S14", "Talk Fourteen", BREAKOUT, List.of("9"), 3, 500, 0));
-        talks.add(talk(14, "S15", "Talk Fifteen", BREAKOUT, List.of("10"), 2, 658, 0));
+                .mutuallyExclusiveTalksTags(List.of("Constraints"))
+                .requiredRoomTags(List.of(RECORDED)).build());
+        talks.add(talk(11, "S12", "Talk Twelve", BREAKOUT, List.of("6", "7"), 3, 977, 0).build());
+        talks.add(talk(12, "S13", "Talk Thirteen", BREAKOUT, List.of("8"), 3, 494, 0).build());
+        talks.add(talk(13, "S14", "Talk Fourteen", BREAKOUT, List.of("9"), 3, 500, 0).build());
+        talks.add(talk(14, "S15", "Talk Fifteen", BREAKOUT, List.of("10"), 2, 658, 0).build());
         return talks;
     }
 }

@@ -57,251 +57,45 @@ public record ConferenceScheduleConfigOverrides(
         implements
             ModelConfigOverrides {
 
-    public ConferenceScheduleConfigOverrides {
-        themeTrackConflictWeight =
-                themeTrackConflictWeight != null && themeTrackConflictWeight < 0L ? 0L : themeTrackConflictWeight;
-        themeTrackRoomStabilityWeight = themeTrackRoomStabilityWeight != null && themeTrackRoomStabilityWeight < 0L ? 0L
-                : themeTrackRoomStabilityWeight;
-        sectorConflictWeight = sectorConflictWeight != null && sectorConflictWeight < 0L ? 0L : sectorConflictWeight;
-        audienceTypeDiversityWeight =
-                audienceTypeDiversityWeight != null && audienceTypeDiversityWeight < 0L ? 0L : audienceTypeDiversityWeight;
-        audienceTypeThemeTrackConflictWeight =
-                audienceTypeThemeTrackConflictWeight != null && audienceTypeThemeTrackConflictWeight < 0L ? 0L
-                        : audienceTypeThemeTrackConflictWeight;
-        audienceLevelDiversityWeight =
-                audienceLevelDiversityWeight != null && audienceLevelDiversityWeight < 0L ? 0L : audienceLevelDiversityWeight;
-        contentAudienceLevelFlowViolationWeight =
-                contentAudienceLevelFlowViolationWeight != null && contentAudienceLevelFlowViolationWeight < 0L ? 0L
-                        : contentAudienceLevelFlowViolationWeight;
-        contentConflictWeight = contentConflictWeight != null && contentConflictWeight < 0L ? 0L : contentConflictWeight;
-        languageDiversityWeight =
-                languageDiversityWeight != null && languageDiversityWeight < 0L ? 0L : languageDiversityWeight;
-        sameDayTalksWeight = sameDayTalksWeight != null && sameDayTalksWeight < 0L ? 0L : sameDayTalksWeight;
-        popularTalksWeight = popularTalksWeight != null && popularTalksWeight < 0L ? 0L : popularTalksWeight;
-        speakerPreferredTimeslotTagsWeight =
-                speakerPreferredTimeslotTagsWeight != null && speakerPreferredTimeslotTagsWeight < 0L ? 0L
-                        : speakerPreferredTimeslotTagsWeight;
-        speakerUndesiredTimeslotTagsWeight =
-                speakerUndesiredTimeslotTagsWeight != null && speakerUndesiredTimeslotTagsWeight < 0L ? 0L
-                        : speakerUndesiredTimeslotTagsWeight;
-        talkPreferredTimeslotTagsWeight = talkPreferredTimeslotTagsWeight != null && talkPreferredTimeslotTagsWeight < 0L ? 0L
-                : talkPreferredTimeslotTagsWeight;
-        talkUndesiredTimeslotTagsWeight = talkUndesiredTimeslotTagsWeight != null && talkUndesiredTimeslotTagsWeight < 0L ? 0L
-                : talkUndesiredTimeslotTagsWeight;
-        speakerPreferredRoomTagsWeight = speakerPreferredRoomTagsWeight != null && speakerPreferredRoomTagsWeight < 0L ? 0L
-                : speakerPreferredRoomTagsWeight;
-        speakerUndesiredRoomTagsWeight = speakerUndesiredRoomTagsWeight != null && speakerUndesiredRoomTagsWeight < 0L ? 0L
-                : speakerUndesiredRoomTagsWeight;
-        talkPreferredRoomTagsWeight =
-                talkPreferredRoomTagsWeight != null && talkPreferredRoomTagsWeight < 0L ? 0L : talkPreferredRoomTagsWeight;
-        talkUndesiredRoomTagsWeight =
-                talkUndesiredRoomTagsWeight != null && talkUndesiredRoomTagsWeight < 0L ? 0L : talkUndesiredRoomTagsWeight;
-        speakerMakespanWeight = speakerMakespanWeight != null && speakerMakespanWeight < 0L ? 0L : speakerMakespanWeight;
-    }
-
+    /**
+     * Creates an empty overrides instance: no weight is overridden, so the configuration profile
+     * (or each constraint's default) applies. Required by the SDK to generate the default config profile.
+     */
     public ConferenceScheduleConfigOverrides() {
-        this(1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L);
+        this(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+                null, null);
     }
 
-    public ConferenceScheduleConfigOverrides withThemeTrackConflictWeight(Long themeTrackConflictWeight) {
-        return new ConferenceScheduleConfigOverrides(themeTrackConflictWeight, themeTrackRoomStabilityWeight,
-                sectorConflictWeight, audienceTypeDiversityWeight, audienceTypeThemeTrackConflictWeight,
-                audienceLevelDiversityWeight, contentAudienceLevelFlowViolationWeight, contentConflictWeight,
-                languageDiversityWeight, sameDayTalksWeight, popularTalksWeight, speakerPreferredTimeslotTagsWeight,
-                speakerUndesiredTimeslotTagsWeight, talkPreferredTimeslotTagsWeight, talkUndesiredTimeslotTagsWeight,
-                speakerPreferredRoomTagsWeight, speakerUndesiredRoomTagsWeight, talkPreferredRoomTagsWeight,
-                talkUndesiredRoomTagsWeight, speakerMakespanWeight);
+    public ConferenceScheduleConfigOverrides {
+        themeTrackConflictWeight = nonNegative(themeTrackConflictWeight);
+        themeTrackRoomStabilityWeight = nonNegative(themeTrackRoomStabilityWeight);
+        sectorConflictWeight = nonNegative(sectorConflictWeight);
+        audienceTypeDiversityWeight = nonNegative(audienceTypeDiversityWeight);
+        audienceTypeThemeTrackConflictWeight = nonNegative(audienceTypeThemeTrackConflictWeight);
+        audienceLevelDiversityWeight = nonNegative(audienceLevelDiversityWeight);
+        contentAudienceLevelFlowViolationWeight = nonNegative(contentAudienceLevelFlowViolationWeight);
+        contentConflictWeight = nonNegative(contentConflictWeight);
+        languageDiversityWeight = nonNegative(languageDiversityWeight);
+        sameDayTalksWeight = nonNegative(sameDayTalksWeight);
+        popularTalksWeight = nonNegative(popularTalksWeight);
+        speakerPreferredTimeslotTagsWeight = nonNegative(speakerPreferredTimeslotTagsWeight);
+        speakerUndesiredTimeslotTagsWeight = nonNegative(speakerUndesiredTimeslotTagsWeight);
+        talkPreferredTimeslotTagsWeight = nonNegative(talkPreferredTimeslotTagsWeight);
+        talkUndesiredTimeslotTagsWeight = nonNegative(talkUndesiredTimeslotTagsWeight);
+        speakerPreferredRoomTagsWeight = nonNegative(speakerPreferredRoomTagsWeight);
+        speakerUndesiredRoomTagsWeight = nonNegative(speakerUndesiredRoomTagsWeight);
+        talkPreferredRoomTagsWeight = nonNegative(talkPreferredRoomTagsWeight);
+        talkUndesiredRoomTagsWeight = nonNegative(talkUndesiredRoomTagsWeight);
+        speakerMakespanWeight = nonNegative(speakerMakespanWeight);
     }
 
-    public ConferenceScheduleConfigOverrides withThemeTrackRoomStabilityWeight(Long themeTrackRoomStabilityWeight) {
-        return new ConferenceScheduleConfigOverrides(themeTrackConflictWeight, themeTrackRoomStabilityWeight,
-                sectorConflictWeight, audienceTypeDiversityWeight, audienceTypeThemeTrackConflictWeight,
-                audienceLevelDiversityWeight, contentAudienceLevelFlowViolationWeight, contentConflictWeight,
-                languageDiversityWeight, sameDayTalksWeight, popularTalksWeight, speakerPreferredTimeslotTagsWeight,
-                speakerUndesiredTimeslotTagsWeight, talkPreferredTimeslotTagsWeight, talkUndesiredTimeslotTagsWeight,
-                speakerPreferredRoomTagsWeight, speakerUndesiredRoomTagsWeight, talkPreferredRoomTagsWeight,
-                talkUndesiredRoomTagsWeight, speakerMakespanWeight);
-    }
-
-    public ConferenceScheduleConfigOverrides withSectorConflictWeight(Long sectorConflictWeight) {
-        return new ConferenceScheduleConfigOverrides(themeTrackConflictWeight, themeTrackRoomStabilityWeight,
-                sectorConflictWeight, audienceTypeDiversityWeight, audienceTypeThemeTrackConflictWeight,
-                audienceLevelDiversityWeight, contentAudienceLevelFlowViolationWeight, contentConflictWeight,
-                languageDiversityWeight, sameDayTalksWeight, popularTalksWeight, speakerPreferredTimeslotTagsWeight,
-                speakerUndesiredTimeslotTagsWeight, talkPreferredTimeslotTagsWeight, talkUndesiredTimeslotTagsWeight,
-                speakerPreferredRoomTagsWeight, speakerUndesiredRoomTagsWeight, talkPreferredRoomTagsWeight,
-                talkUndesiredRoomTagsWeight, speakerMakespanWeight);
-    }
-
-    public ConferenceScheduleConfigOverrides withAudienceTypeDiversityWeight(Long audienceTypeDiversityWeight) {
-        return new ConferenceScheduleConfigOverrides(themeTrackConflictWeight, themeTrackRoomStabilityWeight,
-                sectorConflictWeight, audienceTypeDiversityWeight, audienceTypeThemeTrackConflictWeight,
-                audienceLevelDiversityWeight, contentAudienceLevelFlowViolationWeight, contentConflictWeight,
-                languageDiversityWeight, sameDayTalksWeight, popularTalksWeight, speakerPreferredTimeslotTagsWeight,
-                speakerUndesiredTimeslotTagsWeight, talkPreferredTimeslotTagsWeight, talkUndesiredTimeslotTagsWeight,
-                speakerPreferredRoomTagsWeight, speakerUndesiredRoomTagsWeight, talkPreferredRoomTagsWeight,
-                talkUndesiredRoomTagsWeight, speakerMakespanWeight);
-    }
-
-    public ConferenceScheduleConfigOverrides
-            withAudienceTypeThemeTrackConflictWeight(Long audienceTypeThemeTrackConflictWeight) {
-        return new ConferenceScheduleConfigOverrides(themeTrackConflictWeight, themeTrackRoomStabilityWeight,
-                sectorConflictWeight, audienceTypeDiversityWeight, audienceTypeThemeTrackConflictWeight,
-                audienceLevelDiversityWeight, contentAudienceLevelFlowViolationWeight, contentConflictWeight,
-                languageDiversityWeight, sameDayTalksWeight, popularTalksWeight, speakerPreferredTimeslotTagsWeight,
-                speakerUndesiredTimeslotTagsWeight, talkPreferredTimeslotTagsWeight, talkUndesiredTimeslotTagsWeight,
-                speakerPreferredRoomTagsWeight, speakerUndesiredRoomTagsWeight, talkPreferredRoomTagsWeight,
-                talkUndesiredRoomTagsWeight, speakerMakespanWeight);
-    }
-
-    public ConferenceScheduleConfigOverrides withAudienceLevelDiversityWeight(Long audienceLevelDiversityWeight) {
-        return new ConferenceScheduleConfigOverrides(themeTrackConflictWeight, themeTrackRoomStabilityWeight,
-                sectorConflictWeight, audienceTypeDiversityWeight, audienceTypeThemeTrackConflictWeight,
-                audienceLevelDiversityWeight, contentAudienceLevelFlowViolationWeight, contentConflictWeight,
-                languageDiversityWeight, sameDayTalksWeight, popularTalksWeight, speakerPreferredTimeslotTagsWeight,
-                speakerUndesiredTimeslotTagsWeight, talkPreferredTimeslotTagsWeight, talkUndesiredTimeslotTagsWeight,
-                speakerPreferredRoomTagsWeight, speakerUndesiredRoomTagsWeight, talkPreferredRoomTagsWeight,
-                talkUndesiredRoomTagsWeight, speakerMakespanWeight);
-    }
-
-    public ConferenceScheduleConfigOverrides
-            withContentAudienceLevelFlowViolationWeight(Long contentAudienceLevelFlowViolationWeight) {
-        return new ConferenceScheduleConfigOverrides(themeTrackConflictWeight, themeTrackRoomStabilityWeight,
-                sectorConflictWeight, audienceTypeDiversityWeight, audienceTypeThemeTrackConflictWeight,
-                audienceLevelDiversityWeight, contentAudienceLevelFlowViolationWeight, contentConflictWeight,
-                languageDiversityWeight, sameDayTalksWeight, popularTalksWeight, speakerPreferredTimeslotTagsWeight,
-                speakerUndesiredTimeslotTagsWeight, talkPreferredTimeslotTagsWeight, talkUndesiredTimeslotTagsWeight,
-                speakerPreferredRoomTagsWeight, speakerUndesiredRoomTagsWeight, talkPreferredRoomTagsWeight,
-                talkUndesiredRoomTagsWeight, speakerMakespanWeight);
-    }
-
-    public ConferenceScheduleConfigOverrides withContentConflictWeight(Long contentConflictWeight) {
-        return new ConferenceScheduleConfigOverrides(themeTrackConflictWeight, themeTrackRoomStabilityWeight,
-                sectorConflictWeight, audienceTypeDiversityWeight, audienceTypeThemeTrackConflictWeight,
-                audienceLevelDiversityWeight, contentAudienceLevelFlowViolationWeight, contentConflictWeight,
-                languageDiversityWeight, sameDayTalksWeight, popularTalksWeight, speakerPreferredTimeslotTagsWeight,
-                speakerUndesiredTimeslotTagsWeight, talkPreferredTimeslotTagsWeight, talkUndesiredTimeslotTagsWeight,
-                speakerPreferredRoomTagsWeight, speakerUndesiredRoomTagsWeight, talkPreferredRoomTagsWeight,
-                talkUndesiredRoomTagsWeight, speakerMakespanWeight);
-    }
-
-    public ConferenceScheduleConfigOverrides withLanguageDiversityWeight(Long languageDiversityWeight) {
-        return new ConferenceScheduleConfigOverrides(themeTrackConflictWeight, themeTrackRoomStabilityWeight,
-                sectorConflictWeight, audienceTypeDiversityWeight, audienceTypeThemeTrackConflictWeight,
-                audienceLevelDiversityWeight, contentAudienceLevelFlowViolationWeight, contentConflictWeight,
-                languageDiversityWeight, sameDayTalksWeight, popularTalksWeight, speakerPreferredTimeslotTagsWeight,
-                speakerUndesiredTimeslotTagsWeight, talkPreferredTimeslotTagsWeight, talkUndesiredTimeslotTagsWeight,
-                speakerPreferredRoomTagsWeight, speakerUndesiredRoomTagsWeight, talkPreferredRoomTagsWeight,
-                talkUndesiredRoomTagsWeight, speakerMakespanWeight);
-    }
-
-    public ConferenceScheduleConfigOverrides withSameDayTalksWeight(Long sameDayTalksWeight) {
-        return new ConferenceScheduleConfigOverrides(themeTrackConflictWeight, themeTrackRoomStabilityWeight,
-                sectorConflictWeight, audienceTypeDiversityWeight, audienceTypeThemeTrackConflictWeight,
-                audienceLevelDiversityWeight, contentAudienceLevelFlowViolationWeight, contentConflictWeight,
-                languageDiversityWeight, sameDayTalksWeight, popularTalksWeight, speakerPreferredTimeslotTagsWeight,
-                speakerUndesiredTimeslotTagsWeight, talkPreferredTimeslotTagsWeight, talkUndesiredTimeslotTagsWeight,
-                speakerPreferredRoomTagsWeight, speakerUndesiredRoomTagsWeight, talkPreferredRoomTagsWeight,
-                talkUndesiredRoomTagsWeight, speakerMakespanWeight);
-    }
-
-    public ConferenceScheduleConfigOverrides withPopularTalksWeight(Long popularTalksWeight) {
-        return new ConferenceScheduleConfigOverrides(themeTrackConflictWeight, themeTrackRoomStabilityWeight,
-                sectorConflictWeight, audienceTypeDiversityWeight, audienceTypeThemeTrackConflictWeight,
-                audienceLevelDiversityWeight, contentAudienceLevelFlowViolationWeight, contentConflictWeight,
-                languageDiversityWeight, sameDayTalksWeight, popularTalksWeight, speakerPreferredTimeslotTagsWeight,
-                speakerUndesiredTimeslotTagsWeight, talkPreferredTimeslotTagsWeight, talkUndesiredTimeslotTagsWeight,
-                speakerPreferredRoomTagsWeight, speakerUndesiredRoomTagsWeight, talkPreferredRoomTagsWeight,
-                talkUndesiredRoomTagsWeight, speakerMakespanWeight);
-    }
-
-    public ConferenceScheduleConfigOverrides withSpeakerPreferredTimeslotTagsWeight(Long speakerPreferredTimeslotTagsWeight) {
-        return new ConferenceScheduleConfigOverrides(themeTrackConflictWeight, themeTrackRoomStabilityWeight,
-                sectorConflictWeight, audienceTypeDiversityWeight, audienceTypeThemeTrackConflictWeight,
-                audienceLevelDiversityWeight, contentAudienceLevelFlowViolationWeight, contentConflictWeight,
-                languageDiversityWeight, sameDayTalksWeight, popularTalksWeight, speakerPreferredTimeslotTagsWeight,
-                speakerUndesiredTimeslotTagsWeight, talkPreferredTimeslotTagsWeight, talkUndesiredTimeslotTagsWeight,
-                speakerPreferredRoomTagsWeight, speakerUndesiredRoomTagsWeight, talkPreferredRoomTagsWeight,
-                talkUndesiredRoomTagsWeight, speakerMakespanWeight);
-    }
-
-    public ConferenceScheduleConfigOverrides withSpeakerUndesiredTimeslotTagsWeight(Long speakerUndesiredTimeslotTagsWeight) {
-        return new ConferenceScheduleConfigOverrides(themeTrackConflictWeight, themeTrackRoomStabilityWeight,
-                sectorConflictWeight, audienceTypeDiversityWeight, audienceTypeThemeTrackConflictWeight,
-                audienceLevelDiversityWeight, contentAudienceLevelFlowViolationWeight, contentConflictWeight,
-                languageDiversityWeight, sameDayTalksWeight, popularTalksWeight, speakerPreferredTimeslotTagsWeight,
-                speakerUndesiredTimeslotTagsWeight, talkPreferredTimeslotTagsWeight, talkUndesiredTimeslotTagsWeight,
-                speakerPreferredRoomTagsWeight, speakerUndesiredRoomTagsWeight, talkPreferredRoomTagsWeight,
-                talkUndesiredRoomTagsWeight, speakerMakespanWeight);
-    }
-
-    public ConferenceScheduleConfigOverrides withTalkPreferredTimeslotTagsWeight(Long talkPreferredTimeslotTagsWeight) {
-        return new ConferenceScheduleConfigOverrides(themeTrackConflictWeight, themeTrackRoomStabilityWeight,
-                sectorConflictWeight, audienceTypeDiversityWeight, audienceTypeThemeTrackConflictWeight,
-                audienceLevelDiversityWeight, contentAudienceLevelFlowViolationWeight, contentConflictWeight,
-                languageDiversityWeight, sameDayTalksWeight, popularTalksWeight, speakerPreferredTimeslotTagsWeight,
-                speakerUndesiredTimeslotTagsWeight, talkPreferredTimeslotTagsWeight, talkUndesiredTimeslotTagsWeight,
-                speakerPreferredRoomTagsWeight, speakerUndesiredRoomTagsWeight, talkPreferredRoomTagsWeight,
-                talkUndesiredRoomTagsWeight, speakerMakespanWeight);
-    }
-
-    public ConferenceScheduleConfigOverrides withTalkUndesiredTimeslotTagsWeight(Long talkUndesiredTimeslotTagsWeight) {
-        return new ConferenceScheduleConfigOverrides(themeTrackConflictWeight, themeTrackRoomStabilityWeight,
-                sectorConflictWeight, audienceTypeDiversityWeight, audienceTypeThemeTrackConflictWeight,
-                audienceLevelDiversityWeight, contentAudienceLevelFlowViolationWeight, contentConflictWeight,
-                languageDiversityWeight, sameDayTalksWeight, popularTalksWeight, speakerPreferredTimeslotTagsWeight,
-                speakerUndesiredTimeslotTagsWeight, talkPreferredTimeslotTagsWeight, talkUndesiredTimeslotTagsWeight,
-                speakerPreferredRoomTagsWeight, speakerUndesiredRoomTagsWeight, talkPreferredRoomTagsWeight,
-                talkUndesiredRoomTagsWeight, speakerMakespanWeight);
-    }
-
-    public ConferenceScheduleConfigOverrides withSpeakerPreferredRoomTagsWeight(Long speakerPreferredRoomTagsWeight) {
-        return new ConferenceScheduleConfigOverrides(themeTrackConflictWeight, themeTrackRoomStabilityWeight,
-                sectorConflictWeight, audienceTypeDiversityWeight, audienceTypeThemeTrackConflictWeight,
-                audienceLevelDiversityWeight, contentAudienceLevelFlowViolationWeight, contentConflictWeight,
-                languageDiversityWeight, sameDayTalksWeight, popularTalksWeight, speakerPreferredTimeslotTagsWeight,
-                speakerUndesiredTimeslotTagsWeight, talkPreferredTimeslotTagsWeight, talkUndesiredTimeslotTagsWeight,
-                speakerPreferredRoomTagsWeight, speakerUndesiredRoomTagsWeight, talkPreferredRoomTagsWeight,
-                talkUndesiredRoomTagsWeight, speakerMakespanWeight);
-    }
-
-    public ConferenceScheduleConfigOverrides withSpeakerUndesiredRoomTagsWeight(Long speakerUndesiredRoomTagsWeight) {
-        return new ConferenceScheduleConfigOverrides(themeTrackConflictWeight, themeTrackRoomStabilityWeight,
-                sectorConflictWeight, audienceTypeDiversityWeight, audienceTypeThemeTrackConflictWeight,
-                audienceLevelDiversityWeight, contentAudienceLevelFlowViolationWeight, contentConflictWeight,
-                languageDiversityWeight, sameDayTalksWeight, popularTalksWeight, speakerPreferredTimeslotTagsWeight,
-                speakerUndesiredTimeslotTagsWeight, talkPreferredTimeslotTagsWeight, talkUndesiredTimeslotTagsWeight,
-                speakerPreferredRoomTagsWeight, speakerUndesiredRoomTagsWeight, talkPreferredRoomTagsWeight,
-                talkUndesiredRoomTagsWeight, speakerMakespanWeight);
-    }
-
-    public ConferenceScheduleConfigOverrides withTalkPreferredRoomTagsWeight(Long talkPreferredRoomTagsWeight) {
-        return new ConferenceScheduleConfigOverrides(themeTrackConflictWeight, themeTrackRoomStabilityWeight,
-                sectorConflictWeight, audienceTypeDiversityWeight, audienceTypeThemeTrackConflictWeight,
-                audienceLevelDiversityWeight, contentAudienceLevelFlowViolationWeight, contentConflictWeight,
-                languageDiversityWeight, sameDayTalksWeight, popularTalksWeight, speakerPreferredTimeslotTagsWeight,
-                speakerUndesiredTimeslotTagsWeight, talkPreferredTimeslotTagsWeight, talkUndesiredTimeslotTagsWeight,
-                speakerPreferredRoomTagsWeight, speakerUndesiredRoomTagsWeight, talkPreferredRoomTagsWeight,
-                talkUndesiredRoomTagsWeight, speakerMakespanWeight);
-    }
-
-    public ConferenceScheduleConfigOverrides withTalkUndesiredRoomTagsWeight(Long talkUndesiredRoomTagsWeight) {
-        return new ConferenceScheduleConfigOverrides(themeTrackConflictWeight, themeTrackRoomStabilityWeight,
-                sectorConflictWeight, audienceTypeDiversityWeight, audienceTypeThemeTrackConflictWeight,
-                audienceLevelDiversityWeight, contentAudienceLevelFlowViolationWeight, contentConflictWeight,
-                languageDiversityWeight, sameDayTalksWeight, popularTalksWeight, speakerPreferredTimeslotTagsWeight,
-                speakerUndesiredTimeslotTagsWeight, talkPreferredTimeslotTagsWeight, talkUndesiredTimeslotTagsWeight,
-                speakerPreferredRoomTagsWeight, speakerUndesiredRoomTagsWeight, talkPreferredRoomTagsWeight,
-                talkUndesiredRoomTagsWeight, speakerMakespanWeight);
-    }
-
-    public ConferenceScheduleConfigOverrides withSpeakerMakespanWeight(Long speakerMakespanWeight) {
-        return new ConferenceScheduleConfigOverrides(themeTrackConflictWeight, themeTrackRoomStabilityWeight,
-                sectorConflictWeight, audienceTypeDiversityWeight, audienceTypeThemeTrackConflictWeight,
-                audienceLevelDiversityWeight, contentAudienceLevelFlowViolationWeight, contentConflictWeight,
-                languageDiversityWeight, sameDayTalksWeight, popularTalksWeight, speakerPreferredTimeslotTagsWeight,
-                speakerUndesiredTimeslotTagsWeight, talkPreferredTimeslotTagsWeight, talkUndesiredTimeslotTagsWeight,
-                speakerPreferredRoomTagsWeight, speakerUndesiredRoomTagsWeight, talkPreferredRoomTagsWeight,
-                talkUndesiredRoomTagsWeight, speakerMakespanWeight);
+    /**
+     * Clamps a negative weight to 0 (disabled) and keeps null as "not overridden".
+     */
+    private static Long nonNegative(Long weight) {
+        if (weight == null) {
+            return null;
+        }
+        return Math.max(weight, 0L);
     }
 }

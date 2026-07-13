@@ -6,224 +6,250 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Schema(description = "A talk to be assigned to a timeslot and a room.")
 public record TalkDTO(
-        @Schema(description = "code") String code,
-        @Schema(description = "title") String title,
-        @Schema(description = "talkTypeName") String talkTypeName,
-        @Schema(description = "speakerIds") List<String> speakerIds,
-        @Schema(description = "themeTrackTags") List<String> themeTrackTags,
-        @Schema(description = "sectorTags") List<String> sectorTags,
-        @Schema(description = "audienceTypes") List<String> audienceTypes,
-        @Schema(description = "audienceLevel") int audienceLevel,
-        @Schema(description = "contentTags") List<String> contentTags,
-        @Schema(description = "language") String language,
-        @Schema(description = "requiredTimeslotTags") List<String> requiredTimeslotTags,
-        @Schema(description = "preferredTimeslotTags") List<String> preferredTimeslotTags,
-        @Schema(description = "prohibitedTimeslotTags") List<String> prohibitedTimeslotTags,
-        @Schema(description = "undesiredTimeslotTags") List<String> undesiredTimeslotTags,
-        @Schema(description = "requiredRoomTags") List<String> requiredRoomTags,
-        @Schema(description = "preferredRoomTags") List<String> preferredRoomTags,
-        @Schema(description = "prohibitedRoomTags") List<String> prohibitedRoomTags,
-        @Schema(description = "undesiredRoomTags") List<String> undesiredRoomTags,
-        @Schema(description = "mutuallyExclusiveTalksTags") List<String> mutuallyExclusiveTalksTags,
-        @Schema(description = "prerequisiteTalkCodes") List<String> prerequisiteTalkCodes,
-        @Schema(description = "favoriteCount") int favoriteCount,
-        @Schema(description = "crowdControlRisk") int crowdControlRisk,
-        @Schema(description = "timeslotId") String timeslotId,
-        @Schema(description = "roomId") String roomId) {
+        @Schema(description = "Unique code of the talk.") String code,
+        @Schema(description = "Title of the talk.") String title,
+        @Schema(description = "Name of the talk type of this talk.") String talkTypeName,
+        @Schema(description = "IDs of the speakers presenting this talk.") List<String> speakerIds,
+        @Schema(description = "Theme track tags of this talk.") List<String> themeTrackTags,
+        @Schema(description = "Sector tags of this talk.") List<String> sectorTags,
+        @Schema(description = "Audience types of this talk.") List<String> audienceTypes,
+        @Schema(description = "Audience level of this talk, a low number means for beginners.") int audienceLevel,
+        @Schema(description = "Content tags of this talk.") List<String> contentTags,
+        @Schema(description = "Language in which this talk is presented.") String language,
+        @Schema(description = "Timeslot tags required by this talk.") List<String> requiredTimeslotTags,
+        @Schema(description = "Timeslot tags preferred by this talk.") List<String> preferredTimeslotTags,
+        @Schema(description = "Timeslot tags prohibited by this talk.") List<String> prohibitedTimeslotTags,
+        @Schema(description = "Timeslot tags undesired by this talk.") List<String> undesiredTimeslotTags,
+        @Schema(description = "Room tags required by this talk.") List<String> requiredRoomTags,
+        @Schema(description = "Room tags preferred by this talk.") List<String> preferredRoomTags,
+        @Schema(description = "Room tags prohibited by this talk.") List<String> prohibitedRoomTags,
+        @Schema(description = "Room tags undesired by this talk.") List<String> undesiredRoomTags,
+        @Schema(description = "Tags shared by talks that must not be scheduled at overlapping times.") List<String> mutuallyExclusiveTalksTags,
+        @Schema(description = "Codes of the talks that must be scheduled before this talk.") List<String> prerequisiteTalkCodes,
+        @Schema(description = "Number of attendees who marked this talk as favorite.") int favoriteCount,
+        @Schema(description = "Crowd control risk level of this talk.") int crowdControlRisk,
+        @Schema(description = "ID of the timeslot this talk is assigned to, or null if unassigned.") String timeslotId,
+        @Schema(description = "ID of the room this talk is assigned to, or null if unassigned.") String roomId) {
 
     public TalkDTO {
-        code = code == null ? "" : code;
-        title = title == null ? "" : title;
-        talkTypeName = talkTypeName == null ? "" : talkTypeName;
-        speakerIds = speakerIds == null ? List.of() : List.copyOf(speakerIds);
-        themeTrackTags = themeTrackTags == null ? List.of() : List.copyOf(themeTrackTags);
-        sectorTags = sectorTags == null ? List.of() : List.copyOf(sectorTags);
-        audienceTypes = audienceTypes == null ? List.of() : List.copyOf(audienceTypes);
-        contentTags = contentTags == null ? List.of() : List.copyOf(contentTags);
-        language = language == null ? "" : language;
-        requiredTimeslotTags = requiredTimeslotTags == null ? List.of() : List.copyOf(requiredTimeslotTags);
-        preferredTimeslotTags = preferredTimeslotTags == null ? List.of() : List.copyOf(preferredTimeslotTags);
-        prohibitedTimeslotTags = prohibitedTimeslotTags == null ? List.of() : List.copyOf(prohibitedTimeslotTags);
-        undesiredTimeslotTags = undesiredTimeslotTags == null ? List.of() : List.copyOf(undesiredTimeslotTags);
-        requiredRoomTags = requiredRoomTags == null ? List.of() : List.copyOf(requiredRoomTags);
-        preferredRoomTags = preferredRoomTags == null ? List.of() : List.copyOf(preferredRoomTags);
-        prohibitedRoomTags = prohibitedRoomTags == null ? List.of() : List.copyOf(prohibitedRoomTags);
-        undesiredRoomTags = undesiredRoomTags == null ? List.of() : List.copyOf(undesiredRoomTags);
-        mutuallyExclusiveTalksTags = mutuallyExclusiveTalksTags == null ? List.of() : List.copyOf(mutuallyExclusiveTalksTags);
-        prerequisiteTalkCodes = prerequisiteTalkCodes == null ? List.of() : List.copyOf(prerequisiteTalkCodes);
+        code = orEmpty(code);
+        title = orEmpty(title);
+        talkTypeName = orEmpty(talkTypeName);
+        speakerIds = immutableCopy(speakerIds);
+        themeTrackTags = immutableCopy(themeTrackTags);
+        sectorTags = immutableCopy(sectorTags);
+        audienceTypes = immutableCopy(audienceTypes);
+        contentTags = immutableCopy(contentTags);
+        language = orEmpty(language);
+        requiredTimeslotTags = immutableCopy(requiredTimeslotTags);
+        preferredTimeslotTags = immutableCopy(preferredTimeslotTags);
+        prohibitedTimeslotTags = immutableCopy(prohibitedTimeslotTags);
+        undesiredTimeslotTags = immutableCopy(undesiredTimeslotTags);
+        requiredRoomTags = immutableCopy(requiredRoomTags);
+        preferredRoomTags = immutableCopy(preferredRoomTags);
+        prohibitedRoomTags = immutableCopy(prohibitedRoomTags);
+        undesiredRoomTags = immutableCopy(undesiredRoomTags);
+        mutuallyExclusiveTalksTags = immutableCopy(mutuallyExclusiveTalksTags);
+        prerequisiteTalkCodes = immutableCopy(prerequisiteTalkCodes);
         timeslotId = normalizeId(timeslotId);
         roomId = normalizeId(roomId);
+    }
+
+    private static String orEmpty(String value) {
+        return value == null ? "" : value;
+    }
+
+    private static List<String> immutableCopy(List<String> list) {
+        return list == null ? List.of() : List.copyOf(list);
     }
 
     private static String normalizeId(String id) {
         return id != null && id.isBlank() ? null : id;
     }
 
-    public TalkDTO withCode(String code) {
-        return new TalkDTO(code, title, talkTypeName, speakerIds, themeTrackTags, sectorTags, audienceTypes, audienceLevel,
-                contentTags, language, requiredTimeslotTags, preferredTimeslotTags, prohibitedTimeslotTags,
-                undesiredTimeslotTags, requiredRoomTags, preferredRoomTags, prohibitedRoomTags, undesiredRoomTags,
-                mutuallyExclusiveTalksTags, prerequisiteTalkCodes, favoriteCount, crowdControlRisk, timeslotId, roomId);
-    }
-
-    public TalkDTO withTitle(String title) {
-        return new TalkDTO(code, title, talkTypeName, speakerIds, themeTrackTags, sectorTags, audienceTypes, audienceLevel,
-                contentTags, language, requiredTimeslotTags, preferredTimeslotTags, prohibitedTimeslotTags,
-                undesiredTimeslotTags, requiredRoomTags, preferredRoomTags, prohibitedRoomTags, undesiredRoomTags,
-                mutuallyExclusiveTalksTags, prerequisiteTalkCodes, favoriteCount, crowdControlRisk, timeslotId, roomId);
-    }
-
-    public TalkDTO withTalkTypeName(String talkTypeName) {
-        return new TalkDTO(code, title, talkTypeName, speakerIds, themeTrackTags, sectorTags, audienceTypes, audienceLevel,
-                contentTags, language, requiredTimeslotTags, preferredTimeslotTags, prohibitedTimeslotTags,
-                undesiredTimeslotTags, requiredRoomTags, preferredRoomTags, prohibitedRoomTags, undesiredRoomTags,
-                mutuallyExclusiveTalksTags, prerequisiteTalkCodes, favoriteCount, crowdControlRisk, timeslotId, roomId);
-    }
-
-    public TalkDTO withSpeakerIds(List<String> speakerIds) {
-        return new TalkDTO(code, title, talkTypeName, speakerIds, themeTrackTags, sectorTags, audienceTypes, audienceLevel,
-                contentTags, language, requiredTimeslotTags, preferredTimeslotTags, prohibitedTimeslotTags,
-                undesiredTimeslotTags, requiredRoomTags, preferredRoomTags, prohibitedRoomTags, undesiredRoomTags,
-                mutuallyExclusiveTalksTags, prerequisiteTalkCodes, favoriteCount, crowdControlRisk, timeslotId, roomId);
-    }
-
-    public TalkDTO withThemeTrackTags(List<String> themeTrackTags) {
-        return new TalkDTO(code, title, talkTypeName, speakerIds, themeTrackTags, sectorTags, audienceTypes, audienceLevel,
-                contentTags, language, requiredTimeslotTags, preferredTimeslotTags, prohibitedTimeslotTags,
-                undesiredTimeslotTags, requiredRoomTags, preferredRoomTags, prohibitedRoomTags, undesiredRoomTags,
-                mutuallyExclusiveTalksTags, prerequisiteTalkCodes, favoriteCount, crowdControlRisk, timeslotId, roomId);
-    }
-
-    public TalkDTO withSectorTags(List<String> sectorTags) {
-        return new TalkDTO(code, title, talkTypeName, speakerIds, themeTrackTags, sectorTags, audienceTypes, audienceLevel,
-                contentTags, language, requiredTimeslotTags, preferredTimeslotTags, prohibitedTimeslotTags,
-                undesiredTimeslotTags, requiredRoomTags, preferredRoomTags, prohibitedRoomTags, undesiredRoomTags,
-                mutuallyExclusiveTalksTags, prerequisiteTalkCodes, favoriteCount, crowdControlRisk, timeslotId, roomId);
-    }
-
-    public TalkDTO withAudienceTypes(List<String> audienceTypes) {
-        return new TalkDTO(code, title, talkTypeName, speakerIds, themeTrackTags, sectorTags, audienceTypes, audienceLevel,
-                contentTags, language, requiredTimeslotTags, preferredTimeslotTags, prohibitedTimeslotTags,
-                undesiredTimeslotTags, requiredRoomTags, preferredRoomTags, prohibitedRoomTags, undesiredRoomTags,
-                mutuallyExclusiveTalksTags, prerequisiteTalkCodes, favoriteCount, crowdControlRisk, timeslotId, roomId);
-    }
-
-    public TalkDTO withAudienceLevel(int audienceLevel) {
-        return new TalkDTO(code, title, talkTypeName, speakerIds, themeTrackTags, sectorTags, audienceTypes, audienceLevel,
-                contentTags, language, requiredTimeslotTags, preferredTimeslotTags, prohibitedTimeslotTags,
-                undesiredTimeslotTags, requiredRoomTags, preferredRoomTags, prohibitedRoomTags, undesiredRoomTags,
-                mutuallyExclusiveTalksTags, prerequisiteTalkCodes, favoriteCount, crowdControlRisk, timeslotId, roomId);
-    }
-
-    public TalkDTO withContentTags(List<String> contentTags) {
-        return new TalkDTO(code, title, talkTypeName, speakerIds, themeTrackTags, sectorTags, audienceTypes, audienceLevel,
-                contentTags, language, requiredTimeslotTags, preferredTimeslotTags, prohibitedTimeslotTags,
-                undesiredTimeslotTags, requiredRoomTags, preferredRoomTags, prohibitedRoomTags, undesiredRoomTags,
-                mutuallyExclusiveTalksTags, prerequisiteTalkCodes, favoriteCount, crowdControlRisk, timeslotId, roomId);
-    }
-
-    public TalkDTO withLanguage(String language) {
-        return new TalkDTO(code, title, talkTypeName, speakerIds, themeTrackTags, sectorTags, audienceTypes, audienceLevel,
-                contentTags, language, requiredTimeslotTags, preferredTimeslotTags, prohibitedTimeslotTags,
-                undesiredTimeslotTags, requiredRoomTags, preferredRoomTags, prohibitedRoomTags, undesiredRoomTags,
-                mutuallyExclusiveTalksTags, prerequisiteTalkCodes, favoriteCount, crowdControlRisk, timeslotId, roomId);
-    }
-
-    public TalkDTO withRequiredTimeslotTags(List<String> requiredTimeslotTags) {
-        return new TalkDTO(code, title, talkTypeName, speakerIds, themeTrackTags, sectorTags, audienceTypes, audienceLevel,
-                contentTags, language, requiredTimeslotTags, preferredTimeslotTags, prohibitedTimeslotTags,
-                undesiredTimeslotTags, requiredRoomTags, preferredRoomTags, prohibitedRoomTags, undesiredRoomTags,
-                mutuallyExclusiveTalksTags, prerequisiteTalkCodes, favoriteCount, crowdControlRisk, timeslotId, roomId);
-    }
-
-    public TalkDTO withPreferredTimeslotTags(List<String> preferredTimeslotTags) {
-        return new TalkDTO(code, title, talkTypeName, speakerIds, themeTrackTags, sectorTags, audienceTypes, audienceLevel,
-                contentTags, language, requiredTimeslotTags, preferredTimeslotTags, prohibitedTimeslotTags,
-                undesiredTimeslotTags, requiredRoomTags, preferredRoomTags, prohibitedRoomTags, undesiredRoomTags,
-                mutuallyExclusiveTalksTags, prerequisiteTalkCodes, favoriteCount, crowdControlRisk, timeslotId, roomId);
-    }
-
-    public TalkDTO withProhibitedTimeslotTags(List<String> prohibitedTimeslotTags) {
-        return new TalkDTO(code, title, talkTypeName, speakerIds, themeTrackTags, sectorTags, audienceTypes, audienceLevel,
-                contentTags, language, requiredTimeslotTags, preferredTimeslotTags, prohibitedTimeslotTags,
-                undesiredTimeslotTags, requiredRoomTags, preferredRoomTags, prohibitedRoomTags, undesiredRoomTags,
-                mutuallyExclusiveTalksTags, prerequisiteTalkCodes, favoriteCount, crowdControlRisk, timeslotId, roomId);
-    }
-
-    public TalkDTO withUndesiredTimeslotTags(List<String> undesiredTimeslotTags) {
-        return new TalkDTO(code, title, talkTypeName, speakerIds, themeTrackTags, sectorTags, audienceTypes, audienceLevel,
-                contentTags, language, requiredTimeslotTags, preferredTimeslotTags, prohibitedTimeslotTags,
-                undesiredTimeslotTags, requiredRoomTags, preferredRoomTags, prohibitedRoomTags, undesiredRoomTags,
-                mutuallyExclusiveTalksTags, prerequisiteTalkCodes, favoriteCount, crowdControlRisk, timeslotId, roomId);
-    }
-
-    public TalkDTO withRequiredRoomTags(List<String> requiredRoomTags) {
-        return new TalkDTO(code, title, talkTypeName, speakerIds, themeTrackTags, sectorTags, audienceTypes, audienceLevel,
-                contentTags, language, requiredTimeslotTags, preferredTimeslotTags, prohibitedTimeslotTags,
-                undesiredTimeslotTags, requiredRoomTags, preferredRoomTags, prohibitedRoomTags, undesiredRoomTags,
-                mutuallyExclusiveTalksTags, prerequisiteTalkCodes, favoriteCount, crowdControlRisk, timeslotId, roomId);
-    }
-
-    public TalkDTO withPreferredRoomTags(List<String> preferredRoomTags) {
-        return new TalkDTO(code, title, talkTypeName, speakerIds, themeTrackTags, sectorTags, audienceTypes, audienceLevel,
-                contentTags, language, requiredTimeslotTags, preferredTimeslotTags, prohibitedTimeslotTags,
-                undesiredTimeslotTags, requiredRoomTags, preferredRoomTags, prohibitedRoomTags, undesiredRoomTags,
-                mutuallyExclusiveTalksTags, prerequisiteTalkCodes, favoriteCount, crowdControlRisk, timeslotId, roomId);
-    }
-
-    public TalkDTO withProhibitedRoomTags(List<String> prohibitedRoomTags) {
-        return new TalkDTO(code, title, talkTypeName, speakerIds, themeTrackTags, sectorTags, audienceTypes, audienceLevel,
-                contentTags, language, requiredTimeslotTags, preferredTimeslotTags, prohibitedTimeslotTags,
-                undesiredTimeslotTags, requiredRoomTags, preferredRoomTags, prohibitedRoomTags, undesiredRoomTags,
-                mutuallyExclusiveTalksTags, prerequisiteTalkCodes, favoriteCount, crowdControlRisk, timeslotId, roomId);
-    }
-
-    public TalkDTO withUndesiredRoomTags(List<String> undesiredRoomTags) {
-        return new TalkDTO(code, title, talkTypeName, speakerIds, themeTrackTags, sectorTags, audienceTypes, audienceLevel,
-                contentTags, language, requiredTimeslotTags, preferredTimeslotTags, prohibitedTimeslotTags,
-                undesiredTimeslotTags, requiredRoomTags, preferredRoomTags, prohibitedRoomTags, undesiredRoomTags,
-                mutuallyExclusiveTalksTags, prerequisiteTalkCodes, favoriteCount, crowdControlRisk, timeslotId, roomId);
-    }
-
-    public TalkDTO withMutuallyExclusiveTalksTags(List<String> mutuallyExclusiveTalksTags) {
-        return new TalkDTO(code, title, talkTypeName, speakerIds, themeTrackTags, sectorTags, audienceTypes, audienceLevel,
-                contentTags, language, requiredTimeslotTags, preferredTimeslotTags, prohibitedTimeslotTags,
-                undesiredTimeslotTags, requiredRoomTags, preferredRoomTags, prohibitedRoomTags, undesiredRoomTags,
-                mutuallyExclusiveTalksTags, prerequisiteTalkCodes, favoriteCount, crowdControlRisk, timeslotId, roomId);
-    }
-
-    public TalkDTO withPrerequisiteTalkCodes(List<String> prerequisiteTalkCodes) {
-        return new TalkDTO(code, title, talkTypeName, speakerIds, themeTrackTags, sectorTags, audienceTypes, audienceLevel,
-                contentTags, language, requiredTimeslotTags, preferredTimeslotTags, prohibitedTimeslotTags,
-                undesiredTimeslotTags, requiredRoomTags, preferredRoomTags, prohibitedRoomTags, undesiredRoomTags,
-                mutuallyExclusiveTalksTags, prerequisiteTalkCodes, favoriteCount, crowdControlRisk, timeslotId, roomId);
-    }
-
-    public TalkDTO withFavoriteCount(int favoriteCount) {
-        return new TalkDTO(code, title, talkTypeName, speakerIds, themeTrackTags, sectorTags, audienceTypes, audienceLevel,
-                contentTags, language, requiredTimeslotTags, preferredTimeslotTags, prohibitedTimeslotTags,
-                undesiredTimeslotTags, requiredRoomTags, preferredRoomTags, prohibitedRoomTags, undesiredRoomTags,
-                mutuallyExclusiveTalksTags, prerequisiteTalkCodes, favoriteCount, crowdControlRisk, timeslotId, roomId);
-    }
-
-    public TalkDTO withCrowdControlRisk(int crowdControlRisk) {
-        return new TalkDTO(code, title, talkTypeName, speakerIds, themeTrackTags, sectorTags, audienceTypes, audienceLevel,
-                contentTags, language, requiredTimeslotTags, preferredTimeslotTags, prohibitedTimeslotTags,
-                undesiredTimeslotTags, requiredRoomTags, preferredRoomTags, prohibitedRoomTags, undesiredRoomTags,
-                mutuallyExclusiveTalksTags, prerequisiteTalkCodes, favoriteCount, crowdControlRisk, timeslotId, roomId);
-    }
-
     public TalkDTO withTimeslotId(String timeslotId) {
-        return new TalkDTO(code, title, talkTypeName, speakerIds, themeTrackTags, sectorTags, audienceTypes, audienceLevel,
-                contentTags, language, requiredTimeslotTags, preferredTimeslotTags, prohibitedTimeslotTags,
-                undesiredTimeslotTags, requiredRoomTags, preferredRoomTags, prohibitedRoomTags, undesiredRoomTags,
-                mutuallyExclusiveTalksTags, prerequisiteTalkCodes, favoriteCount, crowdControlRisk, timeslotId, roomId);
+        return toBuilder().timeslotId(timeslotId).build();
     }
 
     public TalkDTO withRoomId(String roomId) {
-        return new TalkDTO(code, title, talkTypeName, speakerIds, themeTrackTags, sectorTags, audienceTypes, audienceLevel,
-                contentTags, language, requiredTimeslotTags, preferredTimeslotTags, prohibitedTimeslotTags,
-                undesiredTimeslotTags, requiredRoomTags, preferredRoomTags, prohibitedRoomTags, undesiredRoomTags,
-                mutuallyExclusiveTalksTags, prerequisiteTalkCodes, favoriteCount, crowdControlRisk, timeslotId, roomId);
+        return toBuilder().roomId(roomId).build();
+    }
+
+    public static Builder builder(String code, String title, String talkTypeName) {
+        return new Builder(code, title, talkTypeName);
+    }
+
+    public Builder toBuilder() {
+        return new Builder(code, title, talkTypeName)
+                .speakerIds(speakerIds)
+                .themeTrackTags(themeTrackTags)
+                .sectorTags(sectorTags)
+                .audienceTypes(audienceTypes)
+                .audienceLevel(audienceLevel)
+                .contentTags(contentTags)
+                .language(language)
+                .requiredTimeslotTags(requiredTimeslotTags)
+                .preferredTimeslotTags(preferredTimeslotTags)
+                .prohibitedTimeslotTags(prohibitedTimeslotTags)
+                .undesiredTimeslotTags(undesiredTimeslotTags)
+                .requiredRoomTags(requiredRoomTags)
+                .preferredRoomTags(preferredRoomTags)
+                .prohibitedRoomTags(prohibitedRoomTags)
+                .undesiredRoomTags(undesiredRoomTags)
+                .mutuallyExclusiveTalksTags(mutuallyExclusiveTalksTags)
+                .prerequisiteTalkCodes(prerequisiteTalkCodes)
+                .favoriteCount(favoriteCount)
+                .crowdControlRisk(crowdControlRisk)
+                .timeslotId(timeslotId)
+                .roomId(roomId);
+    }
+
+    // In a fluent builder, methods named after the fields they set are the whole point.
+    @SuppressWarnings("PMD.AvoidFieldNameMatchingMethodName")
+    public static final class Builder {
+
+        private final String code;
+        private final String title;
+        private final String talkTypeName;
+        private List<String> speakerIds;
+        private List<String> themeTrackTags;
+        private List<String> sectorTags;
+        private List<String> audienceTypes;
+        private int audienceLevel;
+        private List<String> contentTags;
+        private String language;
+        private List<String> requiredTimeslotTags;
+        private List<String> preferredTimeslotTags;
+        private List<String> prohibitedTimeslotTags;
+        private List<String> undesiredTimeslotTags;
+        private List<String> requiredRoomTags;
+        private List<String> preferredRoomTags;
+        private List<String> prohibitedRoomTags;
+        private List<String> undesiredRoomTags;
+        private List<String> mutuallyExclusiveTalksTags;
+        private List<String> prerequisiteTalkCodes;
+        private int favoriteCount;
+        private int crowdControlRisk;
+        private String timeslotId;
+        private String roomId;
+
+        private Builder(String code, String title, String talkTypeName) {
+            this.code = code;
+            this.title = title;
+            this.talkTypeName = talkTypeName;
+        }
+
+        public Builder speakerIds(List<String> speakerIds) {
+            this.speakerIds = speakerIds;
+            return this;
+        }
+
+        public Builder themeTrackTags(List<String> themeTrackTags) {
+            this.themeTrackTags = themeTrackTags;
+            return this;
+        }
+
+        public Builder sectorTags(List<String> sectorTags) {
+            this.sectorTags = sectorTags;
+            return this;
+        }
+
+        public Builder audienceTypes(List<String> audienceTypes) {
+            this.audienceTypes = audienceTypes;
+            return this;
+        }
+
+        public Builder audienceLevel(int audienceLevel) {
+            this.audienceLevel = audienceLevel;
+            return this;
+        }
+
+        public Builder contentTags(List<String> contentTags) {
+            this.contentTags = contentTags;
+            return this;
+        }
+
+        public Builder language(String language) {
+            this.language = language;
+            return this;
+        }
+
+        public Builder requiredTimeslotTags(List<String> requiredTimeslotTags) {
+            this.requiredTimeslotTags = requiredTimeslotTags;
+            return this;
+        }
+
+        public Builder preferredTimeslotTags(List<String> preferredTimeslotTags) {
+            this.preferredTimeslotTags = preferredTimeslotTags;
+            return this;
+        }
+
+        public Builder prohibitedTimeslotTags(List<String> prohibitedTimeslotTags) {
+            this.prohibitedTimeslotTags = prohibitedTimeslotTags;
+            return this;
+        }
+
+        public Builder undesiredTimeslotTags(List<String> undesiredTimeslotTags) {
+            this.undesiredTimeslotTags = undesiredTimeslotTags;
+            return this;
+        }
+
+        public Builder requiredRoomTags(List<String> requiredRoomTags) {
+            this.requiredRoomTags = requiredRoomTags;
+            return this;
+        }
+
+        public Builder preferredRoomTags(List<String> preferredRoomTags) {
+            this.preferredRoomTags = preferredRoomTags;
+            return this;
+        }
+
+        public Builder prohibitedRoomTags(List<String> prohibitedRoomTags) {
+            this.prohibitedRoomTags = prohibitedRoomTags;
+            return this;
+        }
+
+        public Builder undesiredRoomTags(List<String> undesiredRoomTags) {
+            this.undesiredRoomTags = undesiredRoomTags;
+            return this;
+        }
+
+        public Builder mutuallyExclusiveTalksTags(List<String> mutuallyExclusiveTalksTags) {
+            this.mutuallyExclusiveTalksTags = mutuallyExclusiveTalksTags;
+            return this;
+        }
+
+        public Builder prerequisiteTalkCodes(List<String> prerequisiteTalkCodes) {
+            this.prerequisiteTalkCodes = prerequisiteTalkCodes;
+            return this;
+        }
+
+        public Builder favoriteCount(int favoriteCount) {
+            this.favoriteCount = favoriteCount;
+            return this;
+        }
+
+        public Builder crowdControlRisk(int crowdControlRisk) {
+            this.crowdControlRisk = crowdControlRisk;
+            return this;
+        }
+
+        public Builder timeslotId(String timeslotId) {
+            this.timeslotId = timeslotId;
+            return this;
+        }
+
+        public Builder roomId(String roomId) {
+            this.roomId = roomId;
+            return this;
+        }
+
+        public TalkDTO build() {
+            return new TalkDTO(code, title, talkTypeName, speakerIds, themeTrackTags, sectorTags, audienceTypes,
+                    audienceLevel, contentTags, language, requiredTimeslotTags, preferredTimeslotTags,
+                    prohibitedTimeslotTags, undesiredTimeslotTags, requiredRoomTags, preferredRoomTags,
+                    prohibitedRoomTags, undesiredRoomTags, mutuallyExclusiveTalksTags, prerequisiteTalkCodes,
+                    favoriteCount, crowdControlRisk, timeslotId, roomId);
+        }
     }
 }
