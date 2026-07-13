@@ -12,10 +12,6 @@ public record SpeakerIdDetail(
         speakerId = speakerId == null ? "" : speakerId;
     }
 
-    public SpeakerIdDetail withSpeakerId(String speakerId) {
-        return new SpeakerIdDetail(speakerId);
-    }
-
     @Override
     public String getType() {
         return "SpeakerId";

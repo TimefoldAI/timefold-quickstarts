@@ -6,7 +6,7 @@
   <parent>
     <groupId>ai.timefold.solver</groupId>
     <artifactId>timefold-solver-service-parent</artifactId>
-    <version>2.2.0</version>
+    <version>999-SNAPSHOT</version>
   </parent>
 
   <groupId>ai.timefold.model</groupId>
@@ -17,8 +17,6 @@
     <revision>1.0.0-SNAPSHOT</revision>
     <error-prone.version>2.50.0</error-prone.version>
     <jacoco.version>0.8.15</jacoco.version>
-    <frontend-maven-plugin.version>2.0.1</frontend-maven-plugin.version>
-    <node.version>v24.14.0</node.version>
     <maven.compiler.release>21</maven.compiler.release>
   </properties>
 
@@ -245,116 +243,6 @@
       </plugin>
 
       <plugin>
-        <groupId>com.github.eirslett</groupId>
-        <artifactId>frontend-maven-plugin</artifactId>
-        <version>${frontend-maven-plugin.version}</version>
-        <configuration>
-          <installDirectory>${project.build.directory}</installDirectory>
-          <workingDirectory>${project.basedir}</workingDirectory>
-        </configuration>
-        <executions>
-          <execution>
-            <id>install-node-and-npm</id>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>install-node-and-npm</goal>
-            </goals>
-            <configuration>
-              <nodeVersion>${node.version}</nodeVersion>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>3.6.3</version>
-        <executions>
-          <execution>
-            <id>report-coverage</id>
-            <phase>test</phase>
-            <goals>
-              <goal>java</goal>
-            </goals>
-            <configuration>
-              <classpathScope>test</classpathScope>
-              <mainClass>org.acme.conferencescheduling.support.CoverageReportSummary</mainClass>
-              <arguments>
-                <argument>${project.reporting.outputDirectory}/jacoco/jacoco.csv</argument>
-              </arguments>
-            </configuration>
-          </execution>
-          <execution>
-            <id>lint-openapi-descriptions</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <configuration>
-              <environmentVariables>
-                <PATH>${project.build.directory}/node:${env.PATH}</PATH>
-              </environmentVariables>
-              <executable>${project.build.directory}/node/npx</executable>
-              <arguments>
-                <argument>--prefix</argument>
-                <argument>${project.build.directory}/node</argument>
-                <argument>--yes</argument>
-                <argument>@quobix/vacuum</argument>
-                <argument>lint</argument>
-                <argument>--ruleset</argument>
-                <argument>${project.basedir}/.vacuum-ruleset.yaml</argument>
-                <argument>--details</argument>
-                <argument>--fail-severity</argument>
-                <argument>error</argument>
-                <argument>${project.basedir}/src/build/openapi.json</argument>
-              </arguments>
-            </configuration>
-          </execution>
-          <execution>
-            <id>check-shadow-sources-coverage</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>java</goal>
-            </goals>
-            <configuration>
-              <classpathScope>test</classpathScope>
-              <mainClass>org.acme.conferencescheduling.support.ShadowSourcesCoverageCheck</mainClass>
-              <arguments>
-                <argument>--source-root</argument>
-                <argument>${project.basedir}/src/main/java</argument>
-                <argument>--jacoco-report</argument>
-                <argument>${project.reporting.outputDirectory}/jacoco/jacoco.xml</argument>
-              </arguments>
-            </configuration>
-          </execution>
-          <execution>
-            <id>lint-markdown</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <configuration>
-              <environmentVariables>
-                <PATH>${project.build.directory}/node:${env.PATH}</PATH>
-              </environmentVariables>
-              <executable>${project.build.directory}/node/npx</executable>
-              <arguments>
-                <argument>--prefix</argument>
-                <argument>${project.build.directory}/node</argument>
-                <argument>--yes</argument>
-                <argument>markdownlint-cli2</argument>
-                <argument>--config</argument>
-                <argument>${project.basedir}/.markdownlint-cli2.jsonc</argument>
-                <argument>--</argument>
-                <argument>**/*.md</argument>
-                <argument>!target/**</argument>
-              </arguments>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
         <artifactId>maven-resources-plugin</artifactId>
         <version>3.5.0</version>
         <executions>
@@ -420,30 +308,5 @@
       </plugin>
     </plugins>
   </build>
-
-  <repositories>
-    <repository>
-      <id>timefold</id>
-      <name>Timefold JFrog Solver and SDK releases repository</name>
-      <url>https://timefold.jfrog.io/artifactory/releases-all</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
-  <pluginRepositories>
-    <pluginRepository>
-      <id>timefold</id>
-      <name>Timefold JFrog Solver and SDK releases repository</name>
-      <url>https://timefold.jfrog.io/artifactory/releases-all</url>
-      <releases />
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </pluginRepository>
-  </pluginRepositories>
 
 </project>

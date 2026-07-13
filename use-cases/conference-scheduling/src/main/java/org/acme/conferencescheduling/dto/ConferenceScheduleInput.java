@@ -19,31 +19,15 @@ public record ConferenceScheduleInput(
 
     public ConferenceScheduleInput {
         name = name == null ? "" : name;
-        talkTypes = talkTypes == null ? List.of() : List.copyOf(talkTypes);
-        timeslots = timeslots == null ? List.of() : List.copyOf(timeslots);
-        rooms = rooms == null ? List.of() : List.copyOf(rooms);
-        speakers = speakers == null ? List.of() : List.copyOf(speakers);
-        talks = talks == null ? List.of() : List.copyOf(talks);
+        talkTypes = immutableCopy(talkTypes);
+        timeslots = immutableCopy(timeslots);
+        rooms = immutableCopy(rooms);
+        speakers = immutableCopy(speakers);
+        talks = immutableCopy(talks);
     }
 
-    public ConferenceScheduleInput withName(String name) {
-        return new ConferenceScheduleInput(name, talkTypes, timeslots, rooms, speakers, talks);
-    }
-
-    public ConferenceScheduleInput withTalkTypes(List<TalkTypeDTO> talkTypes) {
-        return new ConferenceScheduleInput(name, talkTypes, timeslots, rooms, speakers, talks);
-    }
-
-    public ConferenceScheduleInput withTimeslots(List<TimeslotDTO> timeslots) {
-        return new ConferenceScheduleInput(name, talkTypes, timeslots, rooms, speakers, talks);
-    }
-
-    public ConferenceScheduleInput withRooms(List<RoomDTO> rooms) {
-        return new ConferenceScheduleInput(name, talkTypes, timeslots, rooms, speakers, talks);
-    }
-
-    public ConferenceScheduleInput withSpeakers(List<SpeakerDTO> speakers) {
-        return new ConferenceScheduleInput(name, talkTypes, timeslots, rooms, speakers, talks);
+    private static <T> List<T> immutableCopy(List<T> list) {
+        return list == null ? List.of() : List.copyOf(list);
     }
 
     public ConferenceScheduleInput withTalks(List<TalkDTO> talks) {

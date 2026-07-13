@@ -5,7 +5,6 @@ import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.SequencedSet;
 
-@SuppressWarnings("PMD.ExcessiveParameterList")
 public class Speaker {
 
     private String id;
@@ -26,42 +25,103 @@ public class Speaker {
     }
 
     public Speaker(String id, String name) {
-        this(id, name, new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(),
-                new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(),
-                new LinkedHashSet<>());
+        this(builder(id, name));
     }
 
     public Speaker(String name) {
-        this(name, name, new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(),
-                new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(),
-                new LinkedHashSet<>());
+        this(builder(name, name));
     }
 
-    public Speaker(String id, String name, SequencedSet<String> undesiredTimeslotTags) {
-        this(id, name, new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>(),
-                undesiredTimeslotTags, new LinkedHashSet<>(), new LinkedHashSet<>(),
-                new LinkedHashSet<>(),
-                new LinkedHashSet<>());
+    private Speaker(Builder builder) {
+        this.id = builder.id;
+        this.name = builder.name;
+        this.unavailableTimeslots = builder.unavailableTimeslots;
+        this.requiredTimeslotTags = builder.requiredTimeslotTags;
+        this.preferredTimeslotTags = builder.preferredTimeslotTags;
+        this.prohibitedTimeslotTags = builder.prohibitedTimeslotTags;
+        this.undesiredTimeslotTags = builder.undesiredTimeslotTags;
+        this.requiredRoomTags = builder.requiredRoomTags;
+        this.preferredRoomTags = builder.preferredRoomTags;
+        this.prohibitedRoomTags = builder.prohibitedRoomTags;
+        this.undesiredRoomTags = builder.undesiredRoomTags;
     }
 
-    public Speaker(String id, String name, SequencedSet<Timeslot> unavailableTimeslots,
-            SequencedSet<String> requiredTimeslotTags,
-            SequencedSet<String> preferredTimeslotTags, SequencedSet<String> prohibitedTimeslotTags,
-            SequencedSet<String> undesiredTimeslotTags,
-            SequencedSet<String> requiredRoomTags, SequencedSet<String> preferredRoomTags,
-            SequencedSet<String> prohibitedRoomTags,
-            SequencedSet<String> undesiredRoomTags) {
-        this.id = id;
-        this.name = name;
-        this.unavailableTimeslots = unavailableTimeslots;
-        this.requiredTimeslotTags = requiredTimeslotTags;
-        this.preferredTimeslotTags = preferredTimeslotTags;
-        this.prohibitedTimeslotTags = prohibitedTimeslotTags;
-        this.undesiredTimeslotTags = undesiredTimeslotTags;
-        this.requiredRoomTags = requiredRoomTags;
-        this.preferredRoomTags = preferredRoomTags;
-        this.prohibitedRoomTags = prohibitedRoomTags;
-        this.undesiredRoomTags = undesiredRoomTags;
+    public static Builder builder(String id, String name) {
+        return new Builder(id, name);
+    }
+
+    // In a fluent builder, methods named after the fields they set are the whole point.
+    @SuppressWarnings("PMD.AvoidFieldNameMatchingMethodName")
+    public static final class Builder {
+
+        private final String id;
+        private final String name;
+        private SequencedSet<Timeslot> unavailableTimeslots = new LinkedHashSet<>();
+        private SequencedSet<String> requiredTimeslotTags = new LinkedHashSet<>();
+        private SequencedSet<String> preferredTimeslotTags = new LinkedHashSet<>();
+        private SequencedSet<String> prohibitedTimeslotTags = new LinkedHashSet<>();
+        private SequencedSet<String> undesiredTimeslotTags = new LinkedHashSet<>();
+        private SequencedSet<String> requiredRoomTags = new LinkedHashSet<>();
+        private SequencedSet<String> preferredRoomTags = new LinkedHashSet<>();
+        private SequencedSet<String> prohibitedRoomTags = new LinkedHashSet<>();
+        private SequencedSet<String> undesiredRoomTags = new LinkedHashSet<>();
+
+        private Builder(String id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+        // CPD-OFF: builder boilerplate intentionally mirrors the Talk builder.
+        public Builder unavailableTimeslots(SequencedSet<Timeslot> unavailableTimeslots) {
+            this.unavailableTimeslots = unavailableTimeslots;
+            return this;
+        }
+
+        public Builder requiredTimeslotTags(SequencedSet<String> requiredTimeslotTags) {
+            this.requiredTimeslotTags = requiredTimeslotTags;
+            return this;
+        }
+
+        public Builder preferredTimeslotTags(SequencedSet<String> preferredTimeslotTags) {
+            this.preferredTimeslotTags = preferredTimeslotTags;
+            return this;
+        }
+
+        public Builder prohibitedTimeslotTags(SequencedSet<String> prohibitedTimeslotTags) {
+            this.prohibitedTimeslotTags = prohibitedTimeslotTags;
+            return this;
+        }
+
+        public Builder undesiredTimeslotTags(SequencedSet<String> undesiredTimeslotTags) {
+            this.undesiredTimeslotTags = undesiredTimeslotTags;
+            return this;
+        }
+
+        public Builder requiredRoomTags(SequencedSet<String> requiredRoomTags) {
+            this.requiredRoomTags = requiredRoomTags;
+            return this;
+        }
+
+        public Builder preferredRoomTags(SequencedSet<String> preferredRoomTags) {
+            this.preferredRoomTags = preferredRoomTags;
+            return this;
+        }
+
+        public Builder prohibitedRoomTags(SequencedSet<String> prohibitedRoomTags) {
+            this.prohibitedRoomTags = prohibitedRoomTags;
+            return this;
+        }
+
+        public Builder undesiredRoomTags(SequencedSet<String> undesiredRoomTags) {
+            this.undesiredRoomTags = undesiredRoomTags;
+            return this;
+        }
+
+        // CPD-ON
+
+        public Speaker build() {
+            return new Speaker(this);
+        }
     }
 
     public String getId() {

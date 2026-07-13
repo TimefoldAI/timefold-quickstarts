@@ -9,8 +9,4 @@ public record TalkTypeDTO(
     public TalkTypeDTO {
         name = name == null ? "" : name;
     }
-
-    public TalkTypeDTO withName(String name) {
-        return new TalkTypeDTO(name);
-    }
 }

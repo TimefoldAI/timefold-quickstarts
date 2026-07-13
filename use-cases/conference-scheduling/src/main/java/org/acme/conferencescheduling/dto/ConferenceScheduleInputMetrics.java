@@ -54,24 +54,4 @@ public record ConferenceScheduleInputMetrics(
             throw new IllegalArgumentException("Input metrics must not be negative.");
         }
     }
-
-    public ConferenceScheduleInputMetrics withTalks(int talks) {
-        return new ConferenceScheduleInputMetrics(talks, speakers, rooms, timeslots, talkTypes);
-    }
-
-    public ConferenceScheduleInputMetrics withSpeakers(int speakers) {
-        return new ConferenceScheduleInputMetrics(talks, speakers, rooms, timeslots, talkTypes);
-    }
-
-    public ConferenceScheduleInputMetrics withRooms(int rooms) {
-        return new ConferenceScheduleInputMetrics(talks, speakers, rooms, timeslots, talkTypes);
-    }
-
-    public ConferenceScheduleInputMetrics withTimeslots(int timeslots) {
-        return new ConferenceScheduleInputMetrics(talks, speakers, rooms, timeslots, talkTypes);
-    }
-
-    public ConferenceScheduleInputMetrics withTalkTypes(int talkTypes) {
-        return new ConferenceScheduleInputMetrics(talks, speakers, rooms, timeslots, talkTypes);
-    }
 }

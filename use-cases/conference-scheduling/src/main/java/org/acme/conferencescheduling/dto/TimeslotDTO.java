@@ -13,27 +13,11 @@ public record TimeslotDTO(
         @Schema(description = "Tags describing this timeslot.") List<String> tags) {
 
     public TimeslotDTO {
-        talkTypeNames = talkTypeNames == null ? List.of() : List.copyOf(talkTypeNames);
-        tags = tags == null ? List.of() : List.copyOf(tags);
+        talkTypeNames = immutableCopy(talkTypeNames);
+        tags = immutableCopy(tags);
     }
 
-    public TimeslotDTO withId(String id) {
-        return new TimeslotDTO(id, startDateTime, endDateTime, talkTypeNames, tags);
-    }
-
-    public TimeslotDTO withStartDateTime(String startDateTime) {
-        return new TimeslotDTO(id, startDateTime, endDateTime, talkTypeNames, tags);
-    }
-
-    public TimeslotDTO withEndDateTime(String endDateTime) {
-        return new TimeslotDTO(id, startDateTime, endDateTime, talkTypeNames, tags);
-    }
-
-    public TimeslotDTO withTalkTypeNames(List<String> talkTypeNames) {
-        return new TimeslotDTO(id, startDateTime, endDateTime, talkTypeNames, tags);
-    }
-
-    public TimeslotDTO withTags(List<String> tags) {
-        return new TimeslotDTO(id, startDateTime, endDateTime, talkTypeNames, tags);
+    private static List<String> immutableCopy(List<String> list) {
+        return list == null ? List.of() : List.copyOf(list);
     }
 }

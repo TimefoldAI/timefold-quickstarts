@@ -8,7 +8,6 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.lang.reflect.Modifier;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -228,6 +227,7 @@ class ProjectStructureTest {
     private static ArchRule dtoTypesMustEndWithDto() {
         return classes()
                 .that().resideInAPackage(BASE_PACKAGE + ".dto..")
+                .and().areTopLevelClasses()
                 .should(haveDtoTypeNamingConvention())
                 .as("Types in the DTO package must follow DTO naming conventions");
     }
@@ -264,9 +264,19 @@ class ProjectStructureTest {
     static final ArchRule only_interfaces_and_records_in_dto_package =
             classes()
                     .that().resideInAPackage("..dto..")
+                    .and().areTopLevelClasses()
                     .should().beInterfaces()
                     .orShould().beRecords()
                     .orShould().beEnums();
+
+    @ArchTest
+    static final ArchRule nested_dto_classes_must_be_builders =
+            classes()
+                    .that().resideInAPackage("..dto..")
+                    .and().areNotTopLevelClasses()
+                    .should().haveSimpleName("Builder")
+                    .allowEmptyShould(true)
+                    .as("The only nested classes allowed in the DTO package are builders");
 
     @ArchTest
     static final ArchRule record_constructor_calls_must_not_pass_null_literals =
@@ -288,15 +298,6 @@ class ProjectStructureTest {
                     .should(haveAtLeastOneDefinedConstructor())
                     .as("Records must define at least one constructor");
 
-    @ArchTest
-    static final ArchRule records_must_have_with_method_for_every_component =
-            classes()
-                    .that().areRecords()
-                    .and(not(resideInAPackage(BASE_PACKAGE + ".domain..")))
-                    .and().haveNameNotMatching(".*Test\\$.*")
-                    .should(haveWithMethodForEveryRecordComponent())
-                    .as("Records must define one withXxx method for every record component");
-
     private static ArchRule recordConstructorCallsMustNotPassNullLiterals() {
         return classes()
                 .should(notInstantiateRecordsWithNullLiteralArguments())
@@ -309,10 +310,6 @@ class ProjectStructureTest {
 
     private static ArchCondition<JavaClass> haveAtLeastOneDefinedConstructor() {
         return new AtLeastOneDefinedConstructorConditionTest();
-    }
-
-    private static ArchCondition<JavaClass> haveWithMethodForEveryRecordComponent() {
-        return new WithMethodForEveryRecordComponentConditionTest();
     }
 
     private static ArchCondition<JavaClass> notInstantiateRecordsWithNullLiteralArguments() {
@@ -668,35 +665,6 @@ class ProjectStructureTest {
             if (!constructorMatcher.find()) {
                 var message = "%s must declare at least one constructor".formatted(javaClass.getName());
                 events.add(SimpleConditionEvent.violated(javaClass, message));
-            }
-        }
-    }
-
-    private static final class WithMethodForEveryRecordComponentConditionTest extends ArchCondition<JavaClass> {
-
-        private WithMethodForEveryRecordComponentConditionTest() {
-            super("define one withXxx method per record component");
-        }
-
-        @Override
-        public void check(JavaClass javaClass, ConditionEvents events) {
-            var reflectedClass = javaClass.reflect();
-            var declaredMethods = reflectedClass.getDeclaredMethods();
-            for (var recordComponent : reflectedClass.getRecordComponents()) {
-                var expectedMethodName = "with" + Character.toUpperCase(recordComponent.getName().charAt(0))
-                        + recordComponent.getName().substring(1);
-                var hasWithMethod = Arrays.stream(declaredMethods)
-                        .anyMatch(method -> method.getName().equals(expectedMethodName)
-                                && !Modifier.isStatic(method.getModifiers())
-                                && method.getParameterCount() == 1
-                                && method.getParameterTypes()[0].equals(recordComponent.getType())
-                                && method.getReturnType().equals(reflectedClass));
-                if (!hasWithMethod) {
-                    var message = "%s must declare %s(%s) returning %s"
-                            .formatted(javaClass.getName(), expectedMethodName, recordComponent.getType().getSimpleName(),
-                                    reflectedClass.getSimpleName());
-                    events.add(SimpleConditionEvent.violated(javaClass, message));
-                }
             }
         }
     }

@@ -12,10 +12,6 @@ public record RoomIdDetail(
         roomId = roomId == null ? "" : roomId;
     }
 
-    public RoomIdDetail withRoomId(String roomId) {
-        return new RoomIdDetail(roomId);
-    }
-
     @Override
     public String getType() {
         return "RoomId";
