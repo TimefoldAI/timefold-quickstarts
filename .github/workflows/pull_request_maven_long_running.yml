@@ -11,7 +11,7 @@ on:
       - synchronize
     paths:
       - 'pom.xml'
-      - '../../use-cases/**/*'
+      - 'use-cases/**/*'
       - 'getting-started/**/*'
       - '.github/**/*.yml'
 
@@ -57,12 +57,12 @@ jobs:
       matrix:
         os: [ ubuntu-latest, ubuntu-24.04-arm ]
         module: [
-          "quickstarts/school-timetabling", "quickstarts/bed-allocation",
-          "quickstarts/conference-scheduling", "quickstarts/employee-scheduling", "quickstarts/facility-location",
-          "quickstarts/flight-crew-scheduling", "quickstarts/food-packaging", "quickstarts/maintenance-scheduling",
-          "quickstarts/meeting-scheduling", "quickstarts/order-picking", "quickstarts/project-job-scheduling",
-          "quickstarts/school-timetabling", "quickstarts/sports-league-scheduling", "quickstarts/task-assigning",
-          "quickstarts/tournament-scheduling", "quickstarts/vehicle-routing"
+          "use-cases/school-timetabling", "use-cases/bed-allocation",
+          "use-cases/conference-scheduling", "use-cases/employee-scheduling", "use-cases/facility-location",
+          "use-cases/flight-crew-scheduling", "use-cases/food-packaging", "use-cases/maintenance-scheduling",
+          "use-cases/meeting-scheduling", "use-cases/order-picking", "use-cases/project-job-scheduling",
+          "use-cases/sports-league-scheduling", "use-cases/task-assigning",
+          "use-cases/tournament-scheduling", "use-cases/vehicle-routing"
         ]
         # Only one supported LTS; already too many jobs here.
         # We choose 25 as that's the latest LTS.

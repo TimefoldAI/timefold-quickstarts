@@ -27,7 +27,9 @@
 # * Quarkus/Spring patterns drop the ":" so the wildcard spans sub-groupIds
 #   (io.quarkus*, io.quarkiverse*, ...). Re-scan pom.xml/*.gradle if new families appear.
 #
-# * This repo uses development as its default branch, so no target-branch is set.
+# * Unlike the solver repos, this repo's GitHub default branch is "stable",
+#   not "development" - so target-branch must be set explicitly on every section,
+#   or updates silently land on stable instead.
 #
 # * Webjars are excluded — webjars bumps change bundled UI assets we can't retest
 #   per quickstart. If standalone `ignore` stops working without `allow`, add:
@@ -36,6 +38,7 @@ version: 2
 updates:
   - package-ecosystem: maven
     directory: "/"
+    target-branch: "development"
     schedule:
       interval: weekly
       day: monday
@@ -76,6 +79,7 @@ updates:
 
   - package-ecosystem: gradle
     directory: "/"
+    target-branch: "development"
     schedule:
       interval: weekly
       day: monday
@@ -112,6 +116,7 @@ updates:
 
   - package-ecosystem: github-actions
     directory: "/"
+    target-branch: "development"
     schedule:
       interval: weekly
       day: monday

@@ -36,7 +36,7 @@ Schedule maintenance jobs to crews over time to reduce both premature and overdu
    ```sh
    $ git clone https://github.com/TimefoldAI/timefold-quickstarts.git
    ...
-   $ cd timefold-quickstarts/quickstarts/maintenance-scheduling
+   $ cd timefold-quickstarts/use-cases/maintenance-scheduling
    ```
 
 2. (Optional) If you want to run a licensed edition (Plus / Enterprise), set up your license key first. See the [Timefold license tool](https://licenses.timefold.ai/) for instructions.
