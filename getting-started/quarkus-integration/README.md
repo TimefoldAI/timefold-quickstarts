@@ -4,4 +4,4 @@
 > For a more complete School Timetabling example, see the [school-timetabling quickstart](https://github.com/TimefoldAI/timefold-quickstarts/tree/main/use-cases/school-timetabling).
 
 The resulting application is the default School Timetabling application. 
-You can find the source code here: [here](../../use-cases/school-timetabling/README.md)
+You can find the source code here: [School Timetabling example](../../use-cases/school-timetabling/README.md)
