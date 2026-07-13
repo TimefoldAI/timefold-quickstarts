@@ -36,7 +36,7 @@ Assign crew to flights to produce a better schedule for flight assignments.
    ```sh
    $ git clone https://github.com/TimefoldAI/timefold-quickstarts.git
    ...
-   $ cd timefold-quickstarts/quickstarts/flight-crew-scheduling
+   $ cd timefold-quickstarts/use-cases/flight-crew-scheduling
    ```
 
 2. (Optional) If you want to run a licensed edition (Plus / Enterprise), set up your license key first. See the [Timefold license tool](https://licenses.timefold.ai/) for instructions.

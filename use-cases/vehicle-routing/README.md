@@ -35,7 +35,7 @@ Find the most efficient routes for a fleet of vehicles.
    ```sh
    $ git clone https://github.com/TimefoldAI/timefold-quickstarts.git
    ...
-   $ cd timefold-quickstarts/quickstarts/vehicle-routing
+   $ cd timefold-quickstarts/use-cases/vehicle-routing
    ```
 
 2. (Optional) If you want to run a licensed edition (Plus / Enterprise), set up your license key first. See the [Timefold license tool](https://licenses.timefold.ai/) for instructions.

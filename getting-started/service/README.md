@@ -34,7 +34,7 @@ Assign lessons to timeslots and rooms to produce a better schedule for teachers 
    ```sh
    $ git clone https://github.com/TimefoldAI/timefold-quickstarts.git
    ...
-   $ cd timefold-quickstarts/quickstarts/hello-world
+   $ cd timefold-quickstarts/getting-started/service
    ```
 
 2. Start the application with Maven:

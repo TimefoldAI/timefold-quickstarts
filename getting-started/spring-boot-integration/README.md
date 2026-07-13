@@ -38,7 +38,7 @@ Assign lessons to timeslots and rooms to produce a better schedule for teachers 
    ```sh
    $ git clone https://github.com/TimefoldAI/timefold-quickstarts.git
    ...
-   $ cd timefold-quickstarts/quickstarts/spring-boot-integration
+   $ cd timefold-quickstarts/getting-started/spring-boot-integration
    ```
 
 2. (Optional) If you want to run a licensed edition (Plus / Enterprise), set up your license key first. See the [Timefold license tool](https://licenses.timefold.ai/) for instructions.

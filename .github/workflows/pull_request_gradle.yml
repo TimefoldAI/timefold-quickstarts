@@ -5,14 +5,14 @@ on:
     branches: [stable, development, '*.x']
     paths:
       - 'settings.gradle'
-      - '../../use-cases/**/*'
+      - 'use-cases/**/*'
       - 'getting-started/**/*'
       - '.github/**/*.yml'
   pull_request:
     branches: [stable, development, '*.x']
     paths:
       - 'settings.gradle'
-      - '../../use-cases/**/*'
+      - 'use-cases/**/*'
       - 'getting-started/**/*'
       - '.github/**/*.yml'
 
@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        module: ['getting-started/hello-world', 'quickstarts/school-timetabling', 'getting-started/spring-boot-integration']
+        module: ['getting-started/hello-world', 'use-cases/school-timetabling', 'getting-started/spring-boot-integration']
         java-version: [ 21 ] # Only the first supported LTS; already too many jobs here.
     timeout-minutes: 120
     steps:
