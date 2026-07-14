@@ -17,6 +17,8 @@
     <revision>1.0.0-SNAPSHOT</revision>
     <error-prone.version>2.50.0</error-prone.version>
     <jacoco.version>0.8.15</jacoco.version>
+    <frontend-maven-plugin.version>2.0.1</frontend-maven-plugin.version>
+    <node.version>v24.14.0</node.version>
     <maven.compiler.release>21</maven.compiler.release>
   </properties>
 
@@ -234,6 +236,86 @@
         <configuration>
           <argLine>@{argLine} --add-opens java.base/java.lang=ALL-UNNAMED</argLine>
         </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>com.github.eirslett</groupId>
+        <artifactId>frontend-maven-plugin</artifactId>
+        <version>${frontend-maven-plugin.version}</version>
+        <configuration>
+          <installDirectory>${project.build.directory}</installDirectory>
+          <workingDirectory>${project.basedir}</workingDirectory>
+        </configuration>
+        <executions>
+          <execution>
+            <id>install-node-and-npm</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>install-node-and-npm</goal>
+            </goals>
+            <configuration>
+              <nodeVersion>${node.version}</nodeVersion>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.6.3</version>
+        <executions>
+          <execution>
+            <id>lint-openapi-descriptions</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <environmentVariables>
+                <PATH>${project.build.directory}/node:${env.PATH}</PATH>
+              </environmentVariables>
+              <executable>${project.build.directory}/node/npx</executable>
+              <arguments>
+                <argument>--prefix</argument>
+                <argument>${project.build.directory}/node</argument>
+                <argument>--yes</argument>
+                <argument>@quobix/vacuum</argument>
+                <argument>lint</argument>
+                <argument>--ruleset</argument>
+                <argument>${project.basedir}/.vacuum-ruleset.yaml</argument>
+                <argument>--details</argument>
+                <argument>--fail-severity</argument>
+                <argument>error</argument>
+                <argument>${project.basedir}/src/build/openapi.json</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>lint-markdown</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <environmentVariables>
+                <PATH>${project.build.directory}/node:${env.PATH}</PATH>
+              </environmentVariables>
+              <executable>${project.build.directory}/node/npx</executable>
+              <arguments>
+                <argument>--prefix</argument>
+                <argument>${project.build.directory}/node</argument>
+                <argument>--yes</argument>
+                <argument>markdownlint-cli2</argument>
+                <argument>--config</argument>
+                <argument>${project.basedir}/.markdownlint-cli2.jsonc</argument>
+                <argument>--</argument>
+                <argument>**/*.md</argument>
+                <argument>!target/**</argument>
+              </arguments>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
 
       <plugin>
