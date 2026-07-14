@@ -1,0 +1,2930 @@
+{
+  "openapi" : "3.0.3",
+  "info" : {
+    "title" : "Conference Scheduling",
+    "description" : "",
+    "contact" : {
+      "name" : "Your Name",
+      "url" : "https://example.com",
+      "email" : "info@example.com"
+    },
+    "version" : "v1"
+  },
+  "servers" : [ {
+    "url" : "http://localhost:8080",
+    "description" : "Auto generated value"
+  }, {
+    "url" : "http://0.0.0.0:8080",
+    "description" : "Auto generated value"
+  } ],
+  "tags" : [ {
+    "name" : "Demo data",
+    "description" : "Generated demo data for the model"
+  } ],
+  "paths" : {
+    "/v1/demo-data" : {
+      "get" : {
+        "summary" : "List of available demo datasets.",
+        "tags" : [ "Demo data" ],
+        "responses" : {
+          "200" : {
+            "description" : "List of available demo datasets",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/DemoMetaData"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/demo-data/{demoDataId}" : {
+      "get" : {
+        "summary" : "Get the demo dataset with the given identifier.",
+        "tags" : [ "Demo data" ],
+        "parameters" : [ {
+          "description" : "ID of the demo dataset from the list of available datasets",
+          "required" : true,
+          "name" : "demoDataId",
+          "in" : "path",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "404" : {
+            "description" : "In case the given demo data does not exist",
+            "content" : {
+              "application/json" : { }
+            }
+          },
+          "200" : {
+            "description" : "Demo data as a dataset",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ModelRequestConferenceScheduleInputConferenceScheduleConfigOverrides"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/demo-data/{demoDataId}/input" : {
+      "get" : {
+        "summary" : "Get the demo dataset with the given identifier as model input only.",
+        "tags" : [ "Demo data" ],
+        "parameters" : [ {
+          "description" : "ID of the demo dataset from the list of available datasets",
+          "required" : true,
+          "name" : "demoDataId",
+          "in" : "path",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "404" : {
+            "description" : "In case the given demo data does not exist",
+            "content" : {
+              "application/json" : { }
+            }
+          },
+          "200" : {
+            "description" : "Demo data as a dataset",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ConferenceScheduleInput"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/schedules" : {
+      "post" : {
+        "summary" : "Posts a dataset and optionally requests its solving. Unique identifier is returned that can be used for further operations on the dataset.",
+        "operationId" : "schedule",
+        "parameters" : [ {
+          "description" : "Optional name to be given to the dataset, if not provided a name will be generated.",
+          "name" : "name",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "Operation to execute on the POST request.",
+          "name" : "operation",
+          "in" : "query",
+          "schema" : {
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/OperationOnPost"
+            }, {
+              "default" : "SOLVE"
+            } ]
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ModelRequestConferenceScheduleInputConferenceScheduleConfigOverrides"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "400" : {
+            "description" : "In case request given does not meet expectations",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "oneOf" : [ {
+                    "$ref" : "#/components/schemas/ErrorInfo"
+                  }, {
+                    "$ref" : "#/components/schemas/ValidationErrorInfo"
+                  } ]
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "In case of processing errors",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorInfo"
+                }
+              }
+            }
+          },
+          "202" : {
+            "description" : "Successfully accepted request to post a dataset",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "id" : {
+                      "type" : "string"
+                    },
+                    "parentId" : {
+                      "description" : "The id of the parent data set this was created from",
+                      "type" : "string",
+                      "nullable" : true
+                    },
+                    "originId" : {
+                      "description" : "The id of the origin (root) data set this initially originates from",
+                      "type" : "string",
+                      "nullable" : true
+                    },
+                    "name" : {
+                      "type" : "string",
+                      "nullable" : true
+                    },
+                    "submitDateTime" : {
+                      "description" : "The moment the run is submitted",
+                      "type" : "string",
+                      "allOf" : [ {
+                        "$ref" : "#/components/schemas/OffsetDateTime"
+                      } ],
+                      "nullable" : true
+                    },
+                    "startDateTime" : {
+                      "description" : "The moment the run begins initializing",
+                      "type" : "string",
+                      "allOf" : [ {
+                        "$ref" : "#/components/schemas/OffsetDateTime"
+                      } ],
+                      "nullable" : true
+                    },
+                    "activeDateTime" : {
+                      "description" : "The moment the solving phase begins",
+                      "type" : "string",
+                      "allOf" : [ {
+                        "$ref" : "#/components/schemas/OffsetDateTime"
+                      } ],
+                      "nullable" : true
+                    },
+                    "completeDateTime" : {
+                      "description" : "The moment the solving phase concludes",
+                      "type" : "string",
+                      "allOf" : [ {
+                        "$ref" : "#/components/schemas/OffsetDateTime"
+                      } ],
+                      "nullable" : true
+                    },
+                    "shutdownDateTime" : {
+                      "description" : "The moment the post-processing phase finishes",
+                      "type" : "string",
+                      "allOf" : [ {
+                        "$ref" : "#/components/schemas/OffsetDateTime"
+                      } ],
+                      "nullable" : true
+                    },
+                    "solverStatus" : {
+                      "allOf" : [ {
+                        "$ref" : "#/components/schemas/SolvingStatus"
+                      } ],
+                      "nullable" : true
+                    },
+                    "score" : {
+                      "type" : "string",
+                      "nullable" : true
+                    },
+                    "tags" : {
+                      "uniqueItems" : true,
+                      "type" : "array",
+                      "items" : {
+                        "type" : "string"
+                      }
+                    },
+                    "validationResult" : {
+                      "$ref" : "#/components/schemas/LegacyValidationResult"
+                    },
+                    "failureMessage" : {
+                      "description" : "The message describing the reason of failure, in case of solverStatus=SOLVING_FAILED.",
+                      "type" : "string",
+                      "nullable" : true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags" : [ "Conference Schedule _ Conference Schedule Resource" ]
+      },
+      "get" : {
+        "summary" : "List all schedules that are registered in the service (that are to be solved, in progress or solved), only returning it's status, score and id",
+        "operationId" : "getSchedules",
+        "deprecated" : true,
+        "parameters" : [ {
+          "name" : "page",
+          "in" : "query",
+          "schema" : {
+            "format" : "int32",
+            "default" : 0,
+            "minimum" : 0,
+            "type" : "integer"
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "schema" : {
+            "format" : "int32",
+            "default" : 100,
+            "maximum" : 1000,
+            "minimum" : 0,
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "404" : {
+            "description" : "In case request given schedule does not exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorInfo"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "In case of processing errors",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorInfo"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "Returns scheduling with given identifier",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/Metadata"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags" : [ "Conference Schedule _ Conference Schedule Resource" ]
+      }
+    },
+    "/v1/schedules/validation-issue-types" : {
+      "get" : {
+        "summary" : "Get validation issue types supported by the model",
+        "operationId" : "getValidationIssueTypes",
+        "responses" : {
+          "500" : {
+            "description" : "In case of processing errors",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorInfo"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "Validation issue types supported by the model",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationIssueTypes"
+                }
+              }
+            }
+          }
+        },
+        "tags" : [ "Conference Schedule _ Conference Schedule Resource" ]
+      }
+    },
+    "/v1/schedules/validation-issue-types/{code}" : {
+      "get" : {
+        "summary" : "Get validation issue type by the code",
+        "operationId" : "getValidationIssueTypeByCode",
+        "parameters" : [ {
+          "description" : "Unique identifier of the validation issue type",
+          "required" : true,
+          "name" : "code",
+          "in" : "path",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "404" : {
+            "description" : "In case the issue type of the given code does not exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorInfo"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "In case of processing errors",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorInfo"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "Validation issue type of the given code",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationIssueTypes"
+                }
+              }
+            }
+          }
+        },
+        "tags" : [ "Conference Schedule _ Conference Schedule Resource" ]
+      }
+    },
+    "/v1/schedules/{id}" : {
+      "delete" : {
+        "summary" : "Terminate and return schedule with given identifier",
+        "operationId" : "terminateSchedule",
+        "parameters" : [ {
+          "description" : "Unique identifier of the schedule",
+          "required" : true,
+          "name" : "id",
+          "in" : "path",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "404" : {
+            "description" : "In case request given schedule does not exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorInfo"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "In case of processing errors",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorInfo"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "Returns scheduling with given identifier",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ModelResponseHardMediumSoftScoreConferenceScheduleOutputConferenceScheduleInputMetricsConferenceScheduleOutputMetrics"
+                }
+              }
+            }
+          }
+        },
+        "tags" : [ "Conference Schedule _ Conference Schedule Resource" ]
+      },
+      "post" : {
+        "summary" : "Request solving a dataset under the given unique identifier.",
+        "operationId" : "solveDataset",
+        "parameters" : [ {
+          "description" : "Unique identifier of the dataset",
+          "required" : true,
+          "name" : "id",
+          "in" : "path",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "500" : {
+            "description" : "In case of processing errors",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorInfo"
+                }
+              }
+            }
+          },
+          "202" : {
+            "description" : "Successfully accepted request to solve scheduling problem",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "id" : {
+                      "type" : "string"
+                    },
+                    "parentId" : {
+                      "description" : "The id of the parent data set this was created from",
+                      "type" : "string",
+                      "nullable" : true
+                    },
+                    "originId" : {
+                      "description" : "The id of the origin (root) data set this initially originates from",
+                      "type" : "string",
+                      "nullable" : true
+                    },
+                    "name" : {
+                      "type" : "string",
+                      "nullable" : true
+                    },
+                    "submitDateTime" : {
+                      "description" : "The moment the run is submitted",
+                      "type" : "string",
+                      "allOf" : [ {
+                        "$ref" : "#/components/schemas/OffsetDateTime"
+                      } ],
+                      "nullable" : true
+                    },
+                    "startDateTime" : {
+                      "description" : "The moment the run begins initializing",
+                      "type" : "string",
+                      "allOf" : [ {
+                        "$ref" : "#/components/schemas/OffsetDateTime"
+                      } ],
+                      "nullable" : true
+                    },
+                    "activeDateTime" : {
+                      "description" : "The moment the solving phase begins",
+                      "type" : "string",
+                      "allOf" : [ {
+                        "$ref" : "#/components/schemas/OffsetDateTime"
+                      } ],
+                      "nullable" : true
+                    },
+                    "completeDateTime" : {
+                      "description" : "The moment the solving phase concludes",
+                      "type" : "string",
+                      "allOf" : [ {
+                        "$ref" : "#/components/schemas/OffsetDateTime"
+                      } ],
+                      "nullable" : true
+                    },
+                    "shutdownDateTime" : {
+                      "description" : "The moment the post-processing phase finishes",
+                      "type" : "string",
+                      "allOf" : [ {
+                        "$ref" : "#/components/schemas/OffsetDateTime"
+                      } ],
+                      "nullable" : true
+                    },
+                    "solverStatus" : {
+                      "allOf" : [ {
+                        "$ref" : "#/components/schemas/SolvingStatus"
+                      } ],
+                      "nullable" : true
+                    },
+                    "score" : {
+                      "type" : "string",
+                      "nullable" : true
+                    },
+                    "tags" : {
+                      "uniqueItems" : true,
+                      "type" : "array",
+                      "items" : {
+                        "type" : "string"
+                      }
+                    },
+                    "validationResult" : {
+                      "$ref" : "#/components/schemas/LegacyValidationResult"
+                    },
+                    "failureMessage" : {
+                      "description" : "The message describing the reason of failure, in case of solverStatus=SOLVING_FAILED.",
+                      "type" : "string",
+                      "nullable" : true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags" : [ "Conference Schedule _ Conference Schedule Resource" ]
+      },
+      "get" : {
+        "summary" : "Get schedule (might be incomplete as long as the solver is still running) with given identifier",
+        "operationId" : "getSchedule",
+        "parameters" : [ {
+          "description" : "Unique identifier of the schedule",
+          "required" : true,
+          "name" : "id",
+          "in" : "path",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "404" : {
+            "description" : "In case request given schedule does not exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorInfo"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "In case of processing errors",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorInfo"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "Returns scheduling with given identifier",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ModelResponseHardMediumSoftScoreConferenceScheduleOutputConferenceScheduleInputMetricsConferenceScheduleOutputMetrics"
+                }
+              }
+            }
+          }
+        },
+        "tags" : [ "Conference Schedule _ Conference Schedule Resource" ]
+      }
+    },
+    "/v1/schedules/{id}/config" : {
+      "get" : {
+        "summary" : "Get the configuration used for the schedule",
+        "operationId" : "getScheduleConfig",
+        "parameters" : [ {
+          "description" : "Unique identifier of the schedule",
+          "required" : true,
+          "name" : "id",
+          "in" : "path",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "404" : {
+            "description" : "In case request given schedule does not exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorInfo"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "In case of processing errors",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorInfo"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "Returns the configuration used for a schedule with the given identifier",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ModelConfiguration2"
+                }
+              }
+            }
+          }
+        },
+        "tags" : [ "Conference Schedule _ Conference Schedule Resource" ]
+      }
+    },
+    "/v1/schedules/{id}/events" : {
+      "get" : {
+        "summary" : "Subscribes to events of given dataset (of type metadata) as long as it has not yet reached final state (completed, failed, incomplete or invalid)",
+        "operationId" : "getMetadataEvents",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "status",
+          "in" : "query",
+          "schema" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SolvingStatus"
+            }
+          }
+        } ],
+        "responses" : {
+          "404" : {
+            "description" : "In case request given dataset does not exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorInfo"
+                }
+              }
+            }
+          },
+          "410" : {
+            "description" : "In case given dataset is already in final state",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorInfo"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "In case of processing errors",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorInfo"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "Event stream of dataset changes",
+            "content" : {
+              "text/event-stream" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Metadata"
+                }
+              }
+            }
+          }
+        },
+        "tags" : [ "Conference Schedule _ Conference Schedule Resource" ]
+      }
+    },
+    "/v1/schedules/{id}/from-input" : {
+      "post" : {
+        "summary" : "Request a problem to be solved, based on a previously solved dataset. A unique identifier is returned that can be used to get the schedule once solved",
+        "operationId" : "fromInput",
+        "parameters" : [ {
+          "description" : "Unique identifier of the schedule",
+          "required" : true,
+          "name" : "id",
+          "in" : "path",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "Optional name to be given to the dataset, if not provided a name will be generated.",
+          "name" : "name",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "Operation to execute on the POST request.",
+          "name" : "operation",
+          "in" : "query",
+          "schema" : {
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/OperationOnPost"
+            }, {
+              "default" : "SOLVE"
+            } ]
+          }
+        }, {
+          "description" : "Data to use as a source for the operation.",
+          "name" : "select",
+          "in" : "query",
+          "schema" : {
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/DatasetSelector"
+            }, {
+              "default" : "UNSOLVED"
+            } ]
+          }
+        } ],
+        "requestBody" : {
+          "required" : false,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ModelConfiguration2"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "400" : {
+            "description" : "In case request given does not meet expectations",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "oneOf" : [ {
+                    "$ref" : "#/components/schemas/ErrorInfo"
+                  }, {
+                    "$ref" : "#/components/schemas/ValidationErrorInfo"
+                  } ]
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "In case of processing errors",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorInfo"
+                }
+              }
+            }
+          },
+          "202" : {
+            "description" : "Successfully accepted request to solve scheduling problem",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "id" : {
+                      "type" : "string"
+                    },
+                    "parentId" : {
+                      "description" : "The id of the parent data set this was created from",
+                      "type" : "string",
+                      "nullable" : true
+                    },
+                    "originId" : {
+                      "description" : "The id of the origin (root) data set this initially originates from",
+                      "type" : "string",
+                      "nullable" : true
+                    },
+                    "name" : {
+                      "type" : "string",
+                      "nullable" : true
+                    },
+                    "submitDateTime" : {
+                      "description" : "The moment the run is submitted",
+                      "type" : "string",
+                      "allOf" : [ {
+                        "$ref" : "#/components/schemas/OffsetDateTime"
+                      } ],
+                      "nullable" : true
+                    },
+                    "startDateTime" : {
+                      "description" : "The moment the run begins initializing",
+                      "type" : "string",
+                      "allOf" : [ {
+                        "$ref" : "#/components/schemas/OffsetDateTime"
+                      } ],
+                      "nullable" : true
+                    },
+                    "activeDateTime" : {
+                      "description" : "The moment the solving phase begins",
+                      "type" : "string",
+                      "allOf" : [ {
+                        "$ref" : "#/components/schemas/OffsetDateTime"
+                      } ],
+                      "nullable" : true
+                    },
+                    "completeDateTime" : {
+                      "description" : "The moment the solving phase concludes",
+                      "type" : "string",
+                      "allOf" : [ {
+                        "$ref" : "#/components/schemas/OffsetDateTime"
+                      } ],
+                      "nullable" : true
+                    },
+                    "shutdownDateTime" : {
+                      "description" : "The moment the post-processing phase finishes",
+                      "type" : "string",
+                      "allOf" : [ {
+                        "$ref" : "#/components/schemas/OffsetDateTime"
+                      } ],
+                      "nullable" : true
+                    },
+                    "solverStatus" : {
+                      "allOf" : [ {
+                        "$ref" : "#/components/schemas/SolvingStatus"
+                      } ],
+                      "nullable" : true
+                    },
+                    "score" : {
+                      "type" : "string",
+                      "nullable" : true
+                    },
+                    "tags" : {
+                      "uniqueItems" : true,
+                      "type" : "array",
+                      "items" : {
+                        "type" : "string"
+                      }
+                    },
+                    "validationResult" : {
+                      "$ref" : "#/components/schemas/LegacyValidationResult"
+                    },
+                    "failureMessage" : {
+                      "description" : "The message describing the reason of failure, in case of solverStatus=SOLVING_FAILED.",
+                      "type" : "string",
+                      "nullable" : true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags" : [ "Conference Schedule _ Conference Schedule Resource" ]
+      }
+    },
+    "/v1/schedules/{id}/from-patch" : {
+      "post" : {
+        "summary" : "Preview: Request a problem to be solved, based on a previous dataset that is patched with given operations. A unique identifier is returned that can be used to get the dataset",
+        "description" : "Request a problem to be solved, based on a previous dataset that is patched with given operations. This operation is in preview and might be a subject to change. This operation is not be available for everyone (feature-flagged).",
+        "operationId" : "fromPatch",
+        "parameters" : [ {
+          "description" : "Unique identifier of the schedule",
+          "required" : true,
+          "name" : "id",
+          "in" : "path",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "Optional name to be given to the dataset, if not provided a name will be generated.",
+          "name" : "name",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "Operation to execute on the POST request.",
+          "name" : "operation",
+          "in" : "query",
+          "schema" : {
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/OperationOnPost"
+            }, {
+              "default" : "SOLVE"
+            } ]
+          }
+        }, {
+          "description" : "Data to use as a source for the operation.",
+          "name" : "select",
+          "in" : "query",
+          "schema" : {
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/DatasetSelector"
+            }, {
+              "default" : "SOLVED"
+            } ]
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ModelInputPatchRequestConferenceScheduleConfigOverrides"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "400" : {
+            "description" : "In case request given does not meet expectations",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "oneOf" : [ {
+                    "$ref" : "#/components/schemas/ErrorInfo"
+                  }, {
+                    "$ref" : "#/components/schemas/ValidationErrorInfo"
+                  } ]
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "In case of processing errors",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorInfo"
+                }
+              }
+            }
+          },
+          "202" : {
+            "description" : "Successfully patched and accepted request to solve scheduling problem",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "id" : {
+                      "type" : "string"
+                    },
+                    "parentId" : {
+                      "description" : "The id of the parent data set this was created from",
+                      "type" : "string",
+                      "nullable" : true
+                    },
+                    "originId" : {
+                      "description" : "The id of the origin (root) data set this initially originates from",
+                      "type" : "string",
+                      "nullable" : true
+                    },
+                    "name" : {
+                      "type" : "string",
+                      "nullable" : true
+                    },
+                    "submitDateTime" : {
+                      "description" : "The moment the run is submitted",
+                      "type" : "string",
+                      "allOf" : [ {
+                        "$ref" : "#/components/schemas/OffsetDateTime"
+                      } ],
+                      "nullable" : true
+                    },
+                    "startDateTime" : {
+                      "description" : "The moment the run begins initializing",
+                      "type" : "string",
+                      "allOf" : [ {
+                        "$ref" : "#/components/schemas/OffsetDateTime"
+                      } ],
+                      "nullable" : true
+                    },
+                    "activeDateTime" : {
+                      "description" : "The moment the solving phase begins",
+                      "type" : "string",
+                      "allOf" : [ {
+                        "$ref" : "#/components/schemas/OffsetDateTime"
+                      } ],
+                      "nullable" : true
+                    },
+                    "completeDateTime" : {
+                      "description" : "The moment the solving phase concludes",
+                      "type" : "string",
+                      "allOf" : [ {
+                        "$ref" : "#/components/schemas/OffsetDateTime"
+                      } ],
+                      "nullable" : true
+                    },
+                    "shutdownDateTime" : {
+                      "description" : "The moment the post-processing phase finishes",
+                      "type" : "string",
+                      "allOf" : [ {
+                        "$ref" : "#/components/schemas/OffsetDateTime"
+                      } ],
+                      "nullable" : true
+                    },
+                    "solverStatus" : {
+                      "allOf" : [ {
+                        "$ref" : "#/components/schemas/SolvingStatus"
+                      } ],
+                      "nullable" : true
+                    },
+                    "score" : {
+                      "type" : "string",
+                      "nullable" : true
+                    },
+                    "tags" : {
+                      "uniqueItems" : true,
+                      "type" : "array",
+                      "items" : {
+                        "type" : "string"
+                      }
+                    },
+                    "validationResult" : {
+                      "$ref" : "#/components/schemas/LegacyValidationResult"
+                    },
+                    "failureMessage" : {
+                      "description" : "The message describing the reason of failure, in case of solverStatus=SOLVING_FAILED.",
+                      "type" : "string",
+                      "nullable" : true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags" : [ "Conference Schedule _ Conference Schedule Resource" ]
+      }
+    },
+    "/v1/schedules/{id}/input" : {
+      "get" : {
+        "summary" : "Get input dataset",
+        "operationId" : "getScheduleInput",
+        "parameters" : [ {
+          "description" : "Unique identifier of the schedule",
+          "required" : true,
+          "name" : "id",
+          "in" : "path",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "404" : {
+            "description" : "In case request given schedule does not exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorInfo"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "In case of processing errors",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorInfo"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "Returns input dataset for given identifier",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ConferenceScheduleInput"
+                }
+              }
+            }
+          }
+        },
+        "tags" : [ "Conference Schedule _ Conference Schedule Resource" ]
+      }
+    },
+    "/v1/schedules/{id}/logs" : {
+      "get" : {
+        "summary" : "Get logs with given identifier",
+        "operationId" : "getScheduleLogs",
+        "parameters" : [ {
+          "description" : "Unique identifier of the schedule",
+          "required" : true,
+          "name" : "id",
+          "in" : "path",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "404" : {
+            "description" : "In case request given schedule does not exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorInfo"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "In case of processing errors",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorInfo"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "Returns logs with given identifier",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LogInfo"
+                }
+              }
+            }
+          }
+        },
+        "tags" : [ "Conference Schedule _ Conference Schedule Resource" ]
+      }
+    },
+    "/v1/schedules/{id}/metadata" : {
+      "get" : {
+        "summary" : "Get schedule status with given identifier",
+        "operationId" : "getMetadata",
+        "parameters" : [ {
+          "description" : "Unique identifier of the schedule",
+          "required" : true,
+          "name" : "id",
+          "in" : "path",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "404" : {
+            "description" : "In case request given schedule does not exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorInfo"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "In case of processing errors",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorInfo"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "Returns scheduling with given identifier",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Metadata"
+                }
+              }
+            }
+          }
+        },
+        "tags" : [ "Conference Schedule _ Conference Schedule Resource" ]
+      }
+    },
+    "/v1/schedules/{id}/model-request" : {
+      "get" : {
+        "summary" : "Get complete input request for given schedule with given identifier",
+        "operationId" : "getModelRequest",
+        "parameters" : [ {
+          "description" : "Unique identifier of the schedule",
+          "required" : true,
+          "name" : "id",
+          "in" : "path",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "404" : {
+            "description" : "In case request given schedule does not exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorInfo"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "In case of processing errors",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorInfo"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "Returns scheduling input with given identifier",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ModelRequestConferenceScheduleInputConferenceScheduleConfigOverrides"
+                }
+              }
+            }
+          }
+        },
+        "tags" : [ "Conference Schedule _ Conference Schedule Resource" ]
+      }
+    },
+    "/v1/schedules/{id}/new-run" : {
+      "post" : {
+        "summary" : "(Deprecated endpoint, please use /{id}/from-input instead) Request a problem to be solved, based on a previously solved dataset. A unique identifier is returned that can be used to get the schedule once solved",
+        "operationId" : "reschedule",
+        "deprecated" : true,
+        "parameters" : [ {
+          "description" : "Unique identifier of the schedule",
+          "required" : true,
+          "name" : "id",
+          "in" : "path",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "required" : false,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ModelConfiguration2"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "400" : {
+            "description" : "In case request given does not meet expectations",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "oneOf" : [ {
+                    "$ref" : "#/components/schemas/ErrorInfo"
+                  }, {
+                    "$ref" : "#/components/schemas/ValidationErrorInfo"
+                  } ]
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "In case of processing errors",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorInfo"
+                }
+              }
+            }
+          },
+          "202" : {
+            "description" : "Successfully accepted request to solve scheduling problem",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "id" : {
+                      "type" : "string"
+                    },
+                    "parentId" : {
+                      "description" : "The id of the parent data set this was created from",
+                      "type" : "string",
+                      "nullable" : true
+                    },
+                    "originId" : {
+                      "description" : "The id of the origin (root) data set this initially originates from",
+                      "type" : "string",
+                      "nullable" : true
+                    },
+                    "name" : {
+                      "type" : "string",
+                      "nullable" : true
+                    },
+                    "submitDateTime" : {
+                      "description" : "The moment the run is submitted",
+                      "type" : "string",
+                      "allOf" : [ {
+                        "$ref" : "#/components/schemas/OffsetDateTime"
+                      } ],
+                      "nullable" : true
+                    },
+                    "startDateTime" : {
+                      "description" : "The moment the run begins initializing",
+                      "type" : "string",
+                      "allOf" : [ {
+                        "$ref" : "#/components/schemas/OffsetDateTime"
+                      } ],
+                      "nullable" : true
+                    },
+                    "activeDateTime" : {
+                      "description" : "The moment the solving phase begins",
+                      "type" : "string",
+                      "allOf" : [ {
+                        "$ref" : "#/components/schemas/OffsetDateTime"
+                      } ],
+                      "nullable" : true
+                    },
+                    "completeDateTime" : {
+                      "description" : "The moment the solving phase concludes",
+                      "type" : "string",
+                      "allOf" : [ {
+                        "$ref" : "#/components/schemas/OffsetDateTime"
+                      } ],
+                      "nullable" : true
+                    },
+                    "shutdownDateTime" : {
+                      "description" : "The moment the post-processing phase finishes",
+                      "type" : "string",
+                      "allOf" : [ {
+                        "$ref" : "#/components/schemas/OffsetDateTime"
+                      } ],
+                      "nullable" : true
+                    },
+                    "solverStatus" : {
+                      "allOf" : [ {
+                        "$ref" : "#/components/schemas/SolvingStatus"
+                      } ],
+                      "nullable" : true
+                    },
+                    "score" : {
+                      "type" : "string",
+                      "nullable" : true
+                    },
+                    "tags" : {
+                      "uniqueItems" : true,
+                      "type" : "array",
+                      "items" : {
+                        "type" : "string"
+                      }
+                    },
+                    "validationResult" : {
+                      "$ref" : "#/components/schemas/LegacyValidationResult"
+                    },
+                    "failureMessage" : {
+                      "description" : "The message describing the reason of failure, in case of solverStatus=SOLVING_FAILED.",
+                      "type" : "string",
+                      "nullable" : true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags" : [ "Conference Schedule _ Conference Schedule Resource" ]
+      }
+    },
+    "/v1/schedules/{id}/run" : {
+      "get" : {
+        "summary" : "(Deprecated endpoint, please use /{id}/metadata instead) Get schedule status with given identifier",
+        "operationId" : "getScheduleStatus",
+        "deprecated" : true,
+        "parameters" : [ {
+          "description" : "Unique identifier of the schedule",
+          "required" : true,
+          "name" : "id",
+          "in" : "path",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "404" : {
+            "description" : "In case request given schedule does not exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorInfo"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "In case of processing errors",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorInfo"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "Returns scheduling with given identifier",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Metadata"
+                }
+              }
+            }
+          }
+        },
+        "tags" : [ "Conference Schedule _ Conference Schedule Resource" ]
+      }
+    },
+    "/v1/schedules/{id}/validation-result" : {
+      "get" : {
+        "summary" : "Get validation result of a dataset with the given identifier",
+        "operationId" : "getValidationResult",
+        "parameters" : [ {
+          "description" : "Unique identifier of the schedule",
+          "required" : true,
+          "name" : "id",
+          "in" : "path",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "404" : {
+            "description" : "In case the given dataset does not exist",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorInfo"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "In case of processing errors",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorInfo"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "Validation results of a dataset with the given identifier",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationResultConferenceScheduleIssue"
+                }
+              }
+            }
+          }
+        },
+        "tags" : [ "Conference Schedule _ Conference Schedule Resource" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "ConferenceScheduleConfigOverrides" : {
+        "description" : "Soft constraint weights. Set a weight to 0 to disable the corresponding constraint. A weight left unset (null) is not overridden here, so the value from the configuration profile (or the constraint's default) applies. This makes it possible to override some weights via the input while leaving others to the configuration profile.",
+        "type" : "object",
+        "properties" : {
+          "themeTrackConflictWeight" : {
+            "format" : "int64",
+            "description" : "Soft weight of the themeTrackConflict constraint.",
+            "type" : "integer"
+          },
+          "themeTrackRoomStabilityWeight" : {
+            "format" : "int64",
+            "description" : "Soft weight of the themeTrackRoomStability constraint.",
+            "type" : "integer"
+          },
+          "sectorConflictWeight" : {
+            "format" : "int64",
+            "description" : "Soft weight of the sectorConflict constraint.",
+            "type" : "integer"
+          },
+          "audienceTypeDiversityWeight" : {
+            "format" : "int64",
+            "description" : "Soft weight of the audienceTypeDiversity constraint.",
+            "type" : "integer"
+          },
+          "audienceTypeThemeTrackConflictWeight" : {
+            "format" : "int64",
+            "description" : "Soft weight of the audienceTypeThemeTrackConflict constraint.",
+            "type" : "integer"
+          },
+          "audienceLevelDiversityWeight" : {
+            "format" : "int64",
+            "description" : "Soft weight of the audienceLevelDiversity constraint.",
+            "type" : "integer"
+          },
+          "contentAudienceLevelFlowViolationWeight" : {
+            "format" : "int64",
+            "description" : "Soft weight of the contentAudienceLevelFlowViolation constraint.",
+            "type" : "integer"
+          },
+          "contentConflictWeight" : {
+            "format" : "int64",
+            "description" : "Soft weight of the contentConflict constraint.",
+            "type" : "integer"
+          },
+          "languageDiversityWeight" : {
+            "format" : "int64",
+            "description" : "Soft weight of the languageDiversity constraint.",
+            "type" : "integer"
+          },
+          "sameDayTalksWeight" : {
+            "format" : "int64",
+            "description" : "Soft weight of the sameDayTalks constraint.",
+            "type" : "integer"
+          },
+          "popularTalksWeight" : {
+            "format" : "int64",
+            "description" : "Soft weight of the popularTalks constraint.",
+            "type" : "integer"
+          },
+          "speakerPreferredTimeslotTagsWeight" : {
+            "format" : "int64",
+            "description" : "Soft weight of the speakerPreferredTimeslotTags constraint.",
+            "type" : "integer"
+          },
+          "speakerUndesiredTimeslotTagsWeight" : {
+            "format" : "int64",
+            "description" : "Soft weight of the speakerUndesiredTimeslotTags constraint.",
+            "type" : "integer"
+          },
+          "talkPreferredTimeslotTagsWeight" : {
+            "format" : "int64",
+            "description" : "Soft weight of the talkPreferredTimeslotTags constraint.",
+            "type" : "integer"
+          },
+          "talkUndesiredTimeslotTagsWeight" : {
+            "format" : "int64",
+            "description" : "Soft weight of the talkUndesiredTimeslotTags constraint.",
+            "type" : "integer"
+          },
+          "speakerPreferredRoomTagsWeight" : {
+            "format" : "int64",
+            "description" : "Soft weight of the speakerPreferredRoomTags constraint.",
+            "type" : "integer"
+          },
+          "speakerUndesiredRoomTagsWeight" : {
+            "format" : "int64",
+            "description" : "Soft weight of the speakerUndesiredRoomTags constraint.",
+            "type" : "integer"
+          },
+          "talkPreferredRoomTagsWeight" : {
+            "format" : "int64",
+            "description" : "Soft weight of the talkPreferredRoomTags constraint.",
+            "type" : "integer"
+          },
+          "talkUndesiredRoomTagsWeight" : {
+            "format" : "int64",
+            "description" : "Soft weight of the talkUndesiredRoomTags constraint.",
+            "type" : "integer"
+          },
+          "speakerMakespanWeight" : {
+            "format" : "int64",
+            "description" : "Soft weight of the speakerMakespan constraint.",
+            "type" : "integer"
+          }
+        }
+      },
+      "ConferenceScheduleInput" : {
+        "description" : "The conference scheduling planning problem input.",
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "description" : "Name of the conference.",
+            "type" : "string"
+          },
+          "talkTypes" : {
+            "description" : "Talk types restricting compatible timeslots and rooms.",
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/TalkTypeDTO"
+            }
+          },
+          "timeslots" : {
+            "description" : "Timeslots a talk can be assigned to.",
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/TimeslotDTO"
+            }
+          },
+          "rooms" : {
+            "description" : "Rooms a talk can be assigned to.",
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/RoomDTO"
+            }
+          },
+          "speakers" : {
+            "description" : "Speakers presenting the talks.",
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SpeakerDTO"
+            }
+          },
+          "talks" : {
+            "description" : "Talks that must each be assigned to a timeslot and a room.",
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/TalkDTO"
+            }
+          }
+        }
+      },
+      "ConferenceScheduleInputMetrics" : {
+        "description" : "Metrics describing the conference scheduling problem submitted in the input dataset.",
+        "type" : "object",
+        "properties" : {
+          "talks" : {
+            "format" : "number",
+            "title" : "Talks",
+            "description" : "The number of talks submitted in the input dataset.",
+            "minimum" : 0,
+            "type" : "integer",
+            "readOnly" : true,
+            "example" : 15,
+            "x-tf-priority" : "1",
+            "x-tf-example" : "15"
+          },
+          "speakers" : {
+            "format" : "number",
+            "title" : "Speakers",
+            "description" : "The number of speakers submitted in the input dataset.",
+            "minimum" : 0,
+            "type" : "integer",
+            "readOnly" : true,
+            "example" : 12,
+            "x-tf-priority" : "2",
+            "x-tf-example" : "12"
+          },
+          "rooms" : {
+            "format" : "number",
+            "title" : "Rooms",
+            "description" : "The number of rooms submitted in the input dataset.",
+            "minimum" : 0,
+            "type" : "integer",
+            "readOnly" : true,
+            "example" : 5,
+            "x-tf-priority" : "3",
+            "x-tf-example" : "5"
+          },
+          "timeslots" : {
+            "format" : "number",
+            "title" : "Timeslots",
+            "description" : "The number of timeslots submitted in the input dataset.",
+            "minimum" : 0,
+            "type" : "integer",
+            "readOnly" : true,
+            "example" : 6,
+            "x-tf-priority" : "4",
+            "x-tf-example" : "6"
+          },
+          "talkTypes" : {
+            "format" : "number",
+            "title" : "Talk types",
+            "description" : "The number of talk types submitted in the input dataset.",
+            "minimum" : 0,
+            "type" : "integer",
+            "readOnly" : true,
+            "example" : 2,
+            "x-tf-priority" : "5",
+            "x-tf-example" : "2"
+          }
+        }
+      },
+      "ConferenceScheduleIssue" : {
+        "description" : "A dataset validation issue reported for a conference schedule input.",
+        "required" : [ "code", "severity" ],
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "description" : "Issue code referring to an issue type.",
+            "type" : "string"
+          },
+          "severity" : {
+            "description" : "Issue severity",
+            "enum" : [ "ERROR", "WARNING" ],
+            "type" : "string"
+          }
+        }
+      },
+      "ConferenceScheduleOutput" : {
+        "description" : "The conference scheduling planning problem output.",
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "description" : "Name of the conference.",
+            "type" : "string"
+          },
+          "talkTypes" : {
+            "description" : "Talk types restricting compatible timeslots and rooms.",
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/TalkTypeDTO"
+            }
+          },
+          "timeslots" : {
+            "description" : "Timeslots a talk can be assigned to.",
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/TimeslotDTO"
+            }
+          },
+          "rooms" : {
+            "description" : "Rooms a talk can be assigned to.",
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/RoomDTO"
+            }
+          },
+          "speakers" : {
+            "description" : "Speakers presenting the talks.",
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SpeakerDTO"
+            }
+          },
+          "talks" : {
+            "description" : "Talks with their assigned timeslot and room.",
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/TalkDTO"
+            }
+          },
+          "score" : {
+            "description" : "The score of the solution.",
+            "type" : "string"
+          }
+        }
+      },
+      "ConferenceScheduleOutputMetrics" : {
+        "description" : "Metrics describing the conference scheduling solution produced for this schedule.",
+        "type" : "object",
+        "properties" : {
+          "totalScheduledTalks" : {
+            "format" : "number",
+            "title" : "Scheduled talks",
+            "description" : "The number of talks assigned to both a timeslot and a room in this schedule.",
+            "minimum" : 0,
+            "type" : "integer",
+            "readOnly" : true,
+            "example" : 15,
+            "x-tf-priority" : "1",
+            "x-tf-example" : "15"
+          },
+          "totalUnscheduledTalks" : {
+            "format" : "number",
+            "title" : "Unscheduled talks",
+            "description" : "The number of talks left without a timeslot or room in this schedule.",
+            "minimum" : 0,
+            "type" : "integer",
+            "readOnly" : true,
+            "example" : 0,
+            "x-tf-priority" : "2",
+            "x-tf-example" : "0"
+          },
+          "totalUsedRooms" : {
+            "format" : "number",
+            "title" : "Used rooms",
+            "description" : "The number of distinct rooms used by at least one talk in this schedule.",
+            "minimum" : 0,
+            "type" : "integer",
+            "readOnly" : true,
+            "example" : 5,
+            "x-tf-priority" : "3",
+            "x-tf-example" : "5"
+          },
+          "totalUsedTimeslots" : {
+            "format" : "number",
+            "title" : "Used timeslots",
+            "description" : "The number of distinct timeslots used by at least one talk in this schedule.",
+            "minimum" : 0,
+            "type" : "integer",
+            "readOnly" : true,
+            "example" : 6,
+            "x-tf-priority" : "4",
+            "x-tf-example" : "6"
+          }
+        }
+      },
+      "DatasetSelector" : {
+        "enum" : [ "UNSOLVED", "SOLVED" ],
+        "type" : "string"
+      },
+      "DemoDataConfigEntry" : {
+        "type" : "object",
+        "properties" : {
+          "key" : {
+            "type" : "string"
+          },
+          "value" : {
+            "type" : "string"
+          }
+        }
+      },
+      "DemoMetaData" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "shortDescription" : {
+            "type" : "string"
+          },
+          "longDescription" : {
+            "type" : "string"
+          },
+          "tags" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "config" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/DemoDataConfigEntry"
+            }
+          }
+        }
+      },
+      "Duration" : {
+        "format" : "duration",
+        "type" : "string",
+        "example" : "P1D"
+      },
+      "ErrorInfo" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "details" : {
+            "type" : "string"
+          }
+        }
+      },
+      "IssueCode" : {
+        "type" : "object",
+        "properties" : {
+          "value" : {
+            "type" : "string"
+          }
+        }
+      },
+      "IssueMessage" : {
+        "type" : "object",
+        "properties" : {
+          "type" : {
+            "description" : "The type of the issue type detail.",
+            "type" : "string",
+            "readOnly" : true
+          },
+          "message" : {
+            "type" : "string"
+          }
+        }
+      },
+      "IssueMetadata" : {
+        "type" : "object",
+        "properties" : {
+          "type" : {
+            "description" : "The type of the issue type detail.",
+            "type" : "string",
+            "readOnly" : true
+          }
+        },
+        "oneOf" : [ {
+          "$ref" : "#/components/schemas/IssueMessage"
+        } ]
+      },
+      "IssueSeverity" : {
+        "enum" : [ "ERROR", "WARNING" ],
+        "type" : "string"
+      },
+      "IssueType" : {
+        "required" : [ "code", "severity" ],
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "description" : "Unique case-sensitive code of the issue type.",
+            "type" : "object",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/IssueCode"
+            } ]
+          },
+          "severity" : {
+            "description" : "Issue severity",
+            "type" : "string",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/IssueSeverity"
+            } ]
+          },
+          "metadata" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IssueMetadata"
+            }
+          }
+        }
+      },
+      "LegacyValidationResult" : {
+        "description" : "The result of the validation of the model input",
+        "type" : "object",
+        "properties" : {
+          "summary" : {
+            "description" : "The summary of the validation. The model input passes the validation if the summary does not contain errors.",
+            "type" : "string",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/ValidationStatus"
+            } ]
+          },
+          "errors" : {
+            "description" : "The list of errors that occurred during the validation. If the list is empty, the model input is considered valid.",
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "warnings" : {
+            "description" : "The list of warnings that occurred during the validation.",
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        },
+        "additionalProperties" : false
+      },
+      "LogInfo" : {
+        "type" : "object",
+        "properties" : {
+          "details" : {
+            "type" : "string"
+          }
+        }
+      },
+      "MapsConfiguration" : {
+        "type" : "object",
+        "properties" : {
+          "provider" : {
+            "type" : "string"
+          },
+          "location" : {
+            "type" : "string"
+          },
+          "maxDistanceFromRoad" : {
+            "format" : "double",
+            "type" : "number"
+          },
+          "transportType" : {
+            "type" : "string"
+          }
+        }
+      },
+      "Metadata" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "parentId" : {
+            "description" : "The id of the parent data set this was created from",
+            "type" : "string",
+            "nullable" : true
+          },
+          "originId" : {
+            "description" : "The id of the origin (root) data set this initially originates from",
+            "type" : "string",
+            "nullable" : true
+          },
+          "name" : {
+            "type" : "string",
+            "nullable" : true
+          },
+          "submitDateTime" : {
+            "description" : "The moment the run is submitted",
+            "type" : "string",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/OffsetDateTime"
+            } ],
+            "nullable" : true
+          },
+          "startDateTime" : {
+            "description" : "The moment the run begins initializing",
+            "type" : "string",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/OffsetDateTime"
+            } ],
+            "nullable" : true
+          },
+          "activeDateTime" : {
+            "description" : "The moment the solving phase begins",
+            "type" : "string",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/OffsetDateTime"
+            } ],
+            "nullable" : true
+          },
+          "completeDateTime" : {
+            "description" : "The moment the solving phase concludes",
+            "type" : "string",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/OffsetDateTime"
+            } ],
+            "nullable" : true
+          },
+          "shutdownDateTime" : {
+            "description" : "The moment the post-processing phase finishes",
+            "type" : "string",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/OffsetDateTime"
+            } ],
+            "nullable" : true
+          },
+          "solverStatus" : {
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/SolvingStatus"
+            } ],
+            "nullable" : true
+          },
+          "score" : {
+            "type" : "string",
+            "nullable" : true
+          },
+          "tags" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "validationResult" : {
+            "$ref" : "#/components/schemas/LegacyValidationResult"
+          },
+          "failureMessage" : {
+            "description" : "The message describing the reason of failure, in case of solverStatus=SOLVING_FAILED.",
+            "type" : "string",
+            "nullable" : true
+          }
+        }
+      },
+      "MetadataHardMediumSoftScore" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "parentId" : {
+            "description" : "The id of the parent data set this was created from",
+            "type" : "string",
+            "nullable" : true
+          },
+          "originId" : {
+            "description" : "The id of the origin (root) data set this initially originates from",
+            "type" : "string",
+            "nullable" : true
+          },
+          "name" : {
+            "type" : "string",
+            "nullable" : true
+          },
+          "submitDateTime" : {
+            "description" : "The moment the run is submitted",
+            "type" : "string",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/OffsetDateTime"
+            } ],
+            "nullable" : true
+          },
+          "startDateTime" : {
+            "description" : "The moment the run begins initializing",
+            "type" : "string",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/OffsetDateTime"
+            } ],
+            "nullable" : true
+          },
+          "activeDateTime" : {
+            "description" : "The moment the solving phase begins",
+            "type" : "string",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/OffsetDateTime"
+            } ],
+            "nullable" : true
+          },
+          "completeDateTime" : {
+            "description" : "The moment the solving phase concludes",
+            "type" : "string",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/OffsetDateTime"
+            } ],
+            "nullable" : true
+          },
+          "shutdownDateTime" : {
+            "description" : "The moment the post-processing phase finishes",
+            "type" : "string",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/OffsetDateTime"
+            } ],
+            "nullable" : true
+          },
+          "solverStatus" : {
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/SolvingStatus"
+            } ],
+            "nullable" : true
+          },
+          "score" : {
+            "type" : "string",
+            "nullable" : true
+          },
+          "tags" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "validationResult" : {
+            "$ref" : "#/components/schemas/LegacyValidationResult"
+          },
+          "failureMessage" : {
+            "description" : "The message describing the reason of failure, in case of solverStatus=SOLVING_FAILED.",
+            "type" : "string",
+            "nullable" : true
+          }
+        }
+      },
+      "ModelConfigConferenceScheduleConfigOverrides" : {
+        "type" : "object",
+        "properties" : {
+          "overrides" : {
+            "description" : "The configuration of individual (soft) constraints weights and additional global model configuration attributes.",
+            "type" : "object",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/ConferenceScheduleConfigOverrides"
+            } ],
+            "nullable" : true
+          }
+        },
+        "additionalProperties" : false
+      },
+      "ModelConfigModelConfigOverrides" : {
+        "type" : "object",
+        "properties" : {
+          "overrides" : {
+            "description" : "The configuration of individual (soft) constraints weights and additional global model configuration attributes.",
+            "type" : "object",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/ModelConfigOverrides"
+            } ],
+            "nullable" : true
+          }
+        },
+        "additionalProperties" : false
+      },
+      "ModelConfigObject" : {
+        "type" : "object",
+        "properties" : {
+          "overrides" : {
+            "description" : "The configuration of individual (soft) constraints weights and additional global model configuration attributes.",
+            "type" : "object",
+            "nullable" : true
+          }
+        },
+        "additionalProperties" : false
+      },
+      "ModelConfigOverrides" : {
+        "type" : "object"
+      },
+      "ModelConfiguration1" : {
+        "type" : "object",
+        "properties" : {
+          "run" : {
+            "description" : "The run configuration.",
+            "type" : "object",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/RunConfiguration"
+            } ],
+            "nullable" : true
+          },
+          "model" : {
+            "description" : "The model configuration. Impacts the quality of solution.",
+            "type" : "object",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/ModelConfigModelConfigOverrides"
+            } ],
+            "nullable" : true
+          },
+          "resourcesConfiguration" : {
+            "type" : "object",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/ResourcesConfiguration"
+            } ],
+            "readOnly" : true,
+            "nullable" : true
+          },
+          "mapsConfiguration" : {
+            "type" : "object",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/MapsConfiguration"
+            } ],
+            "readOnly" : true,
+            "nullable" : true
+          }
+        },
+        "additionalProperties" : false
+      },
+      "ModelConfiguration2" : {
+        "type" : "object",
+        "properties" : {
+          "run" : {
+            "description" : "The run configuration.",
+            "type" : "object",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/RunConfiguration"
+            } ],
+            "nullable" : true
+          },
+          "model" : {
+            "description" : "The model configuration. Impacts the quality of solution.",
+            "type" : "object",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/ModelConfigConferenceScheduleConfigOverrides"
+            } ],
+            "nullable" : true
+          },
+          "resourcesConfiguration" : {
+            "type" : "object",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/ResourcesConfiguration"
+            } ],
+            "readOnly" : true,
+            "nullable" : true
+          },
+          "mapsConfiguration" : {
+            "type" : "object",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/MapsConfiguration"
+            } ],
+            "readOnly" : true,
+            "nullable" : true
+          }
+        },
+        "additionalProperties" : false
+      },
+      "ModelInput" : {
+        "type" : "object"
+      },
+      "ModelInputPatch" : {
+        "required" : [ "op", "path" ],
+        "type" : "object",
+        "properties" : {
+          "op" : {
+            "description" : "Operation to be applied",
+            "type" : "string",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/ModelInputPatchOp"
+            } ]
+          },
+          "path" : {
+            "description" : "Path within the dataset structure to be modified. Can use field expression with format [fieldName=value] or index to point to selected objects",
+            "type" : "string",
+            "example" : "/employees/[id=Employee123]"
+          },
+          "value" : {
+            "description" : "Value (object, array or simple value) to be used for add or replace operations. It should not be given for remove operation",
+            "additionalProperties" : true,
+            "anyOf" : [ { }, {
+              "type" : "array",
+              "items" : { }
+            } ]
+          }
+        }
+      },
+      "ModelInputPatchOp" : {
+        "enum" : [ "add", "remove", "replace" ],
+        "type" : "string"
+      },
+      "ModelInputPatchRequestConferenceScheduleConfigOverrides" : {
+        "required" : [ "patch" ],
+        "type" : "object",
+        "properties" : {
+          "config" : {
+            "description" : "Optional configuration to be applied when solving the patched dataset.",
+            "type" : "object",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/ModelConfiguration2"
+            } ]
+          },
+          "patch" : {
+            "description" : "List of patches to be applied to the original dataset.",
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ModelInputPatch"
+            }
+          }
+        }
+      },
+      "ModelRequestConferenceScheduleInputConferenceScheduleConfigOverrides" : {
+        "required" : [ "modelInput" ],
+        "type" : "object",
+        "properties" : {
+          "config" : {
+            "description" : "The configuration of the model request. If not provided, defaults of the model are used.",
+            "type" : "object",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/ModelConfiguration2"
+            } ],
+            "nullable" : true
+          },
+          "modelInput" : {
+            "description" : "The model input to solve.",
+            "type" : "object",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/ConferenceScheduleInput"
+            } ]
+          }
+        },
+        "additionalProperties" : false
+      },
+      "ModelResponseHardMediumSoftScoreConferenceScheduleOutputConferenceScheduleInputMetricsConferenceScheduleOutputMetrics" : {
+        "type" : "object",
+        "properties" : {
+          "metadata" : {
+            "description" : "The model dataset metadata.",
+            "type" : "object",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/MetadataHardMediumSoftScore"
+            } ],
+            "nullable" : true
+          },
+          "modelOutput" : {
+            "description" : "The solution to the requested model input.",
+            "type" : "object",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/ConferenceScheduleOutput"
+            } ],
+            "nullable" : true
+          },
+          "inputMetrics" : {
+            "description" : "Key metrics aggregated from the model input.",
+            "type" : "object",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/ConferenceScheduleInputMetrics"
+            } ],
+            "nullable" : true
+          },
+          "kpis" : {
+            "description" : "Key metrics aggregated from the model output.",
+            "type" : "object",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/ConferenceScheduleOutputMetrics"
+            } ],
+            "nullable" : true
+          },
+          "run" : {
+            "description" : "The model run metadata. Deprecated in favor of \"metadata\"",
+            "type" : "object",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/MetadataHardMediumSoftScore"
+            } ],
+            "readOnly" : true,
+            "nullable" : true,
+            "deprecated" : true
+          }
+        }
+      },
+      "OffsetDateTime" : {
+        "format" : "date-time",
+        "type" : "string",
+        "example" : "2022-03-10T12:15:50-04:00"
+      },
+      "OperationOnPost" : {
+        "enum" : [ "NONE", "SOLVE" ],
+        "type" : "string"
+      },
+      "ResourcesConfiguration" : {
+        "type" : "object",
+        "properties" : {
+          "memory" : {
+            "format" : "double",
+            "type" : "number"
+          },
+          "labels" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "RoomDTO" : {
+        "description" : "A room in which talks can be scheduled.",
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "description" : "Unique identifier of the room.",
+            "type" : "string"
+          },
+          "name" : {
+            "description" : "Display name of the room.",
+            "type" : "string"
+          },
+          "capacity" : {
+            "format" : "int32",
+            "description" : "Seating capacity of the room.",
+            "type" : "integer"
+          },
+          "talkTypeNames" : {
+            "description" : "Names of the talk types compatible with this room.",
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "unavailableTimeslotIds" : {
+            "description" : "IDs of the timeslots during which this room is unavailable.",
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "tags" : {
+            "description" : "Tags describing this room.",
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "RunConfiguration" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "description" : "Optional name to be given to the dataset. If not provided, the name will be generated.",
+            "maxLength" : 255,
+            "minLength" : 0,
+            "type" : "string",
+            "nullable" : true
+          },
+          "termination" : {
+            "$ref" : "#/components/schemas/SolverTerminationConfig"
+          },
+          "maxThreadCount" : {
+            "format" : "int32",
+            "description" : "Optional maximum number of threads to be used for solving.",
+            "minimum" : 1,
+            "type" : "integer",
+            "nullable" : true
+          },
+          "tags" : {
+            "description" : "Optional tags to be assigned to the dataset.",
+            "maxItems" : 100,
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        },
+        "additionalProperties" : false
+      },
+      "ScoreAnalysisConfigModelConfigOverrides" : {
+        "type" : "object",
+        "properties" : {
+          "model" : {
+            "description" : "Model configuration for the score analysis.",
+            "type" : "object",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/ModelConfigModelConfigOverrides"
+            } ],
+            "nullable" : true
+          }
+        },
+        "additionalProperties" : false
+      },
+      "SolverTerminationConfig" : {
+        "type" : "object",
+        "properties" : {
+          "spentLimit" : {
+            "description" : "Maximum duration (ISO 8601 duration format) to keep the solver running (e.g. PT1H).",
+            "type" : "string",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/Duration"
+            } ],
+            "example" : "PT1H"
+          },
+          "unimprovedSpentLimit" : {
+            "description" : "Maximum unimproved score duration (ISO 8601 duration format). If the score has not improved during this period (e.g. PT5M), terminate the solver. If no value is provided, the default diminished returns termination will apply. If set, stepCountLimit must be empty. Warning: using this option will disable the default diminished returns termination which is recommended for most use cases.",
+            "type" : "string",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/Duration"
+            } ],
+            "example" : "PT5M"
+          },
+          "stepCountLimit" : {
+            "format" : "int32",
+            "description" : "Maximum solver step count. The solver will stop solving after a pre-determined amount of steps. Use when you require results independently of the hardware resources performance. Use this termination if you want to benchmark your models, not recommended for production use. If set, unimprovedSpentLimit must be empty. Warning: using this option will disable the default diminished returns termination which is recommended for most use cases.",
+            "type" : "integer",
+            "example" : 1000
+          },
+          "slidingWindowDuration" : {
+            "description" : "Sliding window (ISO 8601 duration format) over which score improvement is measured by the diminished returns termination. Defaults to PT30S when omitted. Only takes effect when diminished returns is active (i.e. unimprovedSpentLimit and stepCountLimit are both empty).",
+            "type" : "string",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/Duration"
+            } ],
+            "example" : "PT30S"
+          },
+          "minimumImprovementRatio" : {
+            "format" : "double",
+            "description" : "Minimum ratio between current and initial improvement before the diminished returns termination kicks in. Must be strictly positive. Defaults to 0.0001 when omitted. Only takes effect when diminished returns is active (i.e. unimprovedSpentLimit and stepCountLimit are both empty).",
+            "type" : "number",
+            "example" : 0.0001
+          }
+        },
+        "additionalProperties" : false
+      },
+      "SolvingStatus" : {
+        "enum" : [ "DATASET_CREATED", "DATASET_VALIDATED", "DATASET_INVALID", "DATASET_COMPUTED", "SOLVING_SCHEDULED", "SOLVING_STARTED", "SOLVING_ACTIVE", "SOLVING_COMPLETED", "SOLVING_INCOMPLETE", "SOLVING_FAILED" ],
+        "type" : "string"
+      },
+      "SpeakerDTO" : {
+        "description" : "A speaker who presents one or more talks.",
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "description" : "Unique identifier of the speaker.",
+            "type" : "string"
+          },
+          "name" : {
+            "description" : "Display name of the speaker.",
+            "type" : "string"
+          },
+          "unavailableTimeslotIds" : {
+            "description" : "IDs of the timeslots during which this speaker is unavailable.",
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "requiredTimeslotTags" : {
+            "description" : "Timeslot tags required by this speaker.",
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "preferredTimeslotTags" : {
+            "description" : "Timeslot tags preferred by this speaker.",
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "prohibitedTimeslotTags" : {
+            "description" : "Timeslot tags prohibited by this speaker.",
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "undesiredTimeslotTags" : {
+            "description" : "Timeslot tags undesired by this speaker.",
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "requiredRoomTags" : {
+            "description" : "Room tags required by this speaker.",
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "preferredRoomTags" : {
+            "description" : "Room tags preferred by this speaker.",
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "prohibitedRoomTags" : {
+            "description" : "Room tags prohibited by this speaker.",
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "undesiredRoomTags" : {
+            "description" : "Room tags undesired by this speaker.",
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "TalkDTO" : {
+        "description" : "A talk to be assigned to a timeslot and a room.",
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "description" : "Unique code of the talk.",
+            "type" : "string"
+          },
+          "title" : {
+            "description" : "Title of the talk.",
+            "type" : "string"
+          },
+          "talkTypeName" : {
+            "description" : "Name of the talk type of this talk.",
+            "type" : "string"
+          },
+          "speakerIds" : {
+            "description" : "IDs of the speakers presenting this talk.",
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "themeTrackTags" : {
+            "description" : "Theme track tags of this talk.",
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "sectorTags" : {
+            "description" : "Sector tags of this talk.",
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "audienceTypes" : {
+            "description" : "Audience types of this talk.",
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "audienceLevel" : {
+            "format" : "int32",
+            "description" : "Audience level of this talk, a low number means for beginners.",
+            "type" : "integer"
+          },
+          "contentTags" : {
+            "description" : "Content tags of this talk.",
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "language" : {
+            "description" : "Language in which this talk is presented.",
+            "type" : "string"
+          },
+          "requiredTimeslotTags" : {
+            "description" : "Timeslot tags required by this talk.",
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "preferredTimeslotTags" : {
+            "description" : "Timeslot tags preferred by this talk.",
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "prohibitedTimeslotTags" : {
+            "description" : "Timeslot tags prohibited by this talk.",
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "undesiredTimeslotTags" : {
+            "description" : "Timeslot tags undesired by this talk.",
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "requiredRoomTags" : {
+            "description" : "Room tags required by this talk.",
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "preferredRoomTags" : {
+            "description" : "Room tags preferred by this talk.",
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "prohibitedRoomTags" : {
+            "description" : "Room tags prohibited by this talk.",
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "undesiredRoomTags" : {
+            "description" : "Room tags undesired by this talk.",
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "mutuallyExclusiveTalksTags" : {
+            "description" : "Tags shared by talks that must not be scheduled at overlapping times.",
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "prerequisiteTalkCodes" : {
+            "description" : "Codes of the talks that must be scheduled before this talk.",
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "favoriteCount" : {
+            "format" : "int32",
+            "description" : "Number of attendees who marked this talk as favorite.",
+            "type" : "integer"
+          },
+          "crowdControlRisk" : {
+            "format" : "int32",
+            "description" : "Crowd control risk level of this talk.",
+            "type" : "integer"
+          },
+          "timeslotId" : {
+            "description" : "ID of the timeslot this talk is assigned to, or null if unassigned.",
+            "type" : "string"
+          },
+          "roomId" : {
+            "description" : "ID of the room this talk is assigned to, or null if unassigned.",
+            "type" : "string"
+          }
+        }
+      },
+      "TalkTypeDTO" : {
+        "description" : "A type of talk, e.g. Breakout or Lab, restricting compatible timeslots and rooms.",
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "description" : "Unique name of the talk type.",
+            "type" : "string"
+          }
+        }
+      },
+      "TimeslotDTO" : {
+        "description" : "A timeslot during which talks can be scheduled.",
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "description" : "Unique identifier of the timeslot.",
+            "type" : "string"
+          },
+          "startDateTime" : {
+            "description" : "Local start date-time in ISO-8601 format.",
+            "type" : "string"
+          },
+          "endDateTime" : {
+            "description" : "Local end date-time in ISO-8601 format.",
+            "type" : "string"
+          },
+          "talkTypeNames" : {
+            "description" : "Names of the talk types compatible with this timeslot.",
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "tags" : {
+            "description" : "Tags describing this timeslot.",
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "ValidationErrorInfo" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "details" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "ValidationIssueTypes" : {
+        "required" : [ "issueTypes" ],
+        "type" : "object",
+        "properties" : {
+          "issueTypes" : {
+            "description" : "List of all supported validation issue types together with their metadata.",
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IssueType"
+            }
+          }
+        }
+      },
+      "ValidationResultConferenceScheduleIssue" : {
+        "required" : [ "status" ],
+        "type" : "object",
+        "properties" : {
+          "status" : {
+            "description" : "Determines if the validated dataset is accepted for further processing",
+            "type" : "string",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/ValidationStatus"
+            } ]
+          },
+          "issues" : {
+            "description" : "Validation issues found",
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ConferenceScheduleIssue"
+            }
+          }
+        }
+      },
+      "ValidationStatus" : {
+        "enum" : [ "VALIDATION_NOT_SUPPORTED", "OK", "WARNINGS", "ERRORS" ],
+        "type" : "string"
+      }
+    }
+  }
+}
