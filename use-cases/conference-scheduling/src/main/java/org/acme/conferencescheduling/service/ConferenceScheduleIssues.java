@@ -14,6 +14,7 @@ import org.acme.conferencescheduling.dto.RoomIdDetail;
 import org.acme.conferencescheduling.dto.SpeakerIdDetail;
 import org.acme.conferencescheduling.dto.TalkIdDetail;
 import org.acme.conferencescheduling.dto.TimeslotIdDetail;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @SuppressWarnings("PMD.MissingStaticMethodInNonInstantiatableClass")
 public final class ConferenceScheduleIssues {
@@ -21,6 +22,7 @@ public final class ConferenceScheduleIssues {
     private ConferenceScheduleIssues() {
     }
 
+    @Schema(description = "A dataset validation issue reported for a conference schedule input.")
     public abstract static class ConferenceScheduleIssue extends AbstractIssue {
         protected ConferenceScheduleIssue(IssueCode code, IssueSeverity severity, List<IssueMetadata> metadata) {
             super(code, severity, metadata);

@@ -1,0 +1,106 @@
+# Spectral-compatible vacuum ruleset.
+# Enforces that every project-owned component schema and each of its properties
+# has a 'description' field. SDK-provided schemas are intentionally excluded.
+# All other built-in rules are explicitly disabled so the checks are focused.
+#
+# SDK schemas are identified by their name prefix and excluded via a JSONPath
+# filter expression using search(@property, ...). Any schema whose name does NOT
+# start with a known SDK prefix is treated as project-owned and must have
+# descriptions. This means the ruleset automatically covers renamed or newly
+# added domain classes without requiring any changes here.
+#
+# Known SDK name prefixes (kept in sync with timefold-sdk-model-parent releases):
+#   Dataset, Demo, Duration, Empty, Error, Log, Maps, Metadata, Model,
+#   Offset, Operation, Resources, Run, Score, Solver, Solving,
+#   ValidationError, ValidationResultSummary
+#
+# Run manually: npx @quobix/vacuum lint -r .vacuum-ruleset.yaml src/build/openapi.json
+# Run via Maven: mvn validate  (wired via exec-maven-plugin in pom.xml)
+extends:
+    - - vacuum:oas
+      - recommended
+rules:
+    # disable all built-in rules (including the generic component-description)
+    camel-case-properties: off
+    component-description: off # replaced below with a scoped custom rule
+    description-duplication: off
+    duplicate-paths: off
+    duplicated-entry-in-enum: off
+    info-description: off
+    info-license-spdx: off
+    migrate-zally-ignore: off
+    no-$ref-siblings: off
+    no-ambiguous-paths: off
+    no-eval-in-markdown: off
+    no-http-verbs-in-path: off
+    no-request-body: off
+    no-script-tags-in-markdown: off
+    no-unnecessary-combinator: off
+    nullable-enum-contains-null: off
+    oas-missing-type: off
+    oas-schema-check: off
+    oas2-anyOf: off
+    oas2-api-host: off
+    oas2-api-schemes: off
+    oas2-discriminator: off
+    oas2-host-not-example: off
+    oas2-host-trailing-slash: off
+    oas2-oneOf: off
+    oas2-operation-formData-consume-check: off
+    oas2-operation-security-defined: off
+    oas2-parameter-description: off
+    oas2-schema: off
+    oas2-unused-definition: off
+    oas3-api-servers: off
+    oas3-example-external-check: off
+    oas3-missing-example: off
+    oas3-no-$ref-siblings: off
+    oas3-operation-security-defined: off
+    oas3-parameter-description: off
+    oas3-schema: off
+    oas3-unused-component: off
+    oas3-valid-schema-example: off
+    operation-description: off
+    operation-operationId: off
+    operation-operationId-unique: off
+    operation-operationId-valid-in-url: off
+    operation-parameters: off
+    operation-success-response: off
+    operation-tag-defined: off
+    operation-tags: off
+    path-declarations-must-exist: off
+    path-item-refs: off
+    path-keys-no-trailing-slash: off
+    path-not-include-query: off
+    path-params: off
+    paths-kebab-case: off
+    typed-enum: off
+
+    # Circular $ref chains in schemas must be treated as build-breaking errors.
+    circular-references: error
+
+    # Every project-owned schema must have a top-level 'description'.
+    # SDK schemas are excluded by rejecting all names that start with a known SDK prefix.
+    # Any schema whose name does NOT match the prefix pattern is considered project-owned
+    # and is automatically checked — no changes needed here when classes are renamed or added.
+    project-schema-description:
+        description: "Every project-owned component schema must have a top-level 'description'."
+        howToFix: 'Add a @Schema(description = "...") annotation to the Java class.'
+        severity: error
+        given:
+            - "$.components.schemas[?!search(@property, '^(Dataset|Demo|Duration|Empty|Error|Issue|Log|Maps|Metadata|Model|Offset|Operation|Resources|Run|Score|Solving|Solver|StringDetail|Validation)')]"
+        then:
+            field: description
+            function: truthy
+
+    # Every property of a project-owned schema must also have a 'description'.
+    # SDK schemas are excluded using the same prefix filter as above.
+    project-schema-property-description:
+        description: "Every property in a project-owned schema must have a 'description'."
+        howToFix: 'Add a @Schema(description = "...") annotation to the field or getter in the Java source.'
+        severity: error
+        given:
+            - "$.components.schemas[?!search(@property, '^(Dataset|Demo|Duration|Empty|Error|Issue|Log|Maps|Metadata|Model|Offset|Operation|Resources|Run|Score|Solving|Solver|StringDetail|Validation)')].properties[*]"
+        then:
+            field: description
+            function: truthy

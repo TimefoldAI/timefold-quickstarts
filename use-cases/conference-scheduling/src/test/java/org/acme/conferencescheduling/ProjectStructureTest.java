@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 import ai.timefold.solver.service.definition.api.metrics.ModelInputMetrics;
+import ai.timefold.solver.service.definition.api.validation.AbstractIssue;
 import ai.timefold.solver.service.definition.api.metrics.ModelOutputMetrics;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -247,9 +248,11 @@ class ProjectStructureTest {
         return classes()
                 .that(not(resideInAPackage(BASE_PACKAGE + ".dto..")))
                 .and(not(resideInAPackage(BASE_PACKAGE + ".domain.justification..")))
+                // Validation issues are part of the wire format, so they need OpenAPI descriptions too.
+                .and(not(assignableTo(AbstractIssue.class)))
                 .should()
                 .notBeAnnotatedWith(Schema.class)
-                .as("Only DTO and domain.justification packages may use @Schema annotation");
+                .as("Only DTO, domain.justification and validation issue classes may use @Schema annotation");
     }
 
     @ArchTest
