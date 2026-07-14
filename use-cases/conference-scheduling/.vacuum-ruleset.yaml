@@ -14,8 +14,10 @@
 #   Offset, Operation, Resources, Run, Score, Solver, Solving,
 #   ValidationError, ValidationResultSummary
 #
-# Run manually: npx @quobix/vacuum lint -r .vacuum-ruleset.yaml src/build/openapi.json
-# Run via Maven: mvn validate  (wired via exec-maven-plugin in pom.xml)
+# Run in CI: .github/workflows/lint_openapi.yml lints the committed spec of every
+# model that ships a .vacuum-ruleset.yaml.
+# Run locally: install vacuum (https://quobix.com/vacuum/installing/), then
+#   vacuum lint --ruleset .vacuum-ruleset.yaml --details --fail-severity error src/build/openapi.json
 extends:
     - - vacuum:oas
       - recommended
