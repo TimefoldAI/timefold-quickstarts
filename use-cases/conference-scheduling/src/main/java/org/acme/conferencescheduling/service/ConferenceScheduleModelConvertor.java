@@ -193,8 +193,7 @@ public class ConferenceScheduleModelConvertor
                 continue;
             }
             SequencedSet<Talk> prerequisites = dto.prerequisiteTalkCodes().stream()
-                    .map(talkMap::get)
-                    .filter(java.util.Objects::nonNull)
+                    .map(code -> require(talkMap, code, "prerequisite talk"))
                     .collect(toCollection(LinkedHashSet::new));
             talkMap.get(dto.code()).setPrerequisiteTalks(prerequisites);
         }
