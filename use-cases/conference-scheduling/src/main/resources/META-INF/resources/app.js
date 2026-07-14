@@ -590,7 +590,7 @@ function analyze() {
             + " <b>Timefold Solver Enterprise Edition</b>, which is not on the classpath."
             + " If the latter, reach out to Timefold, obtain your license,"
             + " and then run the quickstart with an Enterprise profile to see Score analysis in action."));
-    }, "text");
+    });
 }
 
 function getScoreComponents(score) {
