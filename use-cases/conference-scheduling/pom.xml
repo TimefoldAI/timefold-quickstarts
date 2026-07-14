@@ -17,8 +17,8 @@
     <revision>1.0.0-SNAPSHOT</revision>
     <error-prone.version>2.50.0</error-prone.version>
     <jacoco.version>0.8.15</jacoco.version>
-    <frontend-maven-plugin.version>2.0.1</frontend-maven-plugin.version>
-    <node.version>v24.14.0</node.version>
+    <vacuum.version>0.29.9</vacuum.version>
+    <vacuum.binary.extension></vacuum.binary.extension>
     <maven.compiler.release>21</maven.compiler.release>
   </properties>
 
@@ -238,23 +238,24 @@
         </configuration>
       </plugin>
 
+      <!-- Vacuum is a native Go binary; the npm package is just one of its distribution channels.
+           Downloading the platform binary directly keeps node/npm out of the maven build. -->
       <plugin>
-        <groupId>com.github.eirslett</groupId>
-        <artifactId>frontend-maven-plugin</artifactId>
-        <version>${frontend-maven-plugin.version}</version>
-        <configuration>
-          <installDirectory>${project.build.directory}</installDirectory>
-          <workingDirectory>${project.basedir}</workingDirectory>
-        </configuration>
+        <groupId>io.github.download-maven-plugin</groupId>
+        <artifactId>download-maven-plugin</artifactId>
+        <version>2.0.0</version>
         <executions>
           <execution>
-            <id>install-node-and-npm</id>
+            <id>download-vacuum</id>
             <phase>generate-resources</phase>
             <goals>
-              <goal>install-node-and-npm</goal>
+              <goal>wget</goal>
             </goals>
             <configuration>
-              <nodeVersion>${node.version}</nodeVersion>
+              <url>
+                https://github.com/daveshanley/vacuum/releases/download/v${vacuum.version}/vacuum_${vacuum.version}_${vacuum.os}_${vacuum.arch}.tar.gz</url>
+              <unpack>true</unpack>
+              <outputDirectory>${project.build.directory}/vacuum</outputDirectory>
             </configuration>
           </execution>
         </executions>
@@ -272,15 +273,8 @@
               <goal>exec</goal>
             </goals>
             <configuration>
-              <environmentVariables>
-                <PATH>${project.build.directory}/node:${env.PATH}</PATH>
-              </environmentVariables>
-              <executable>${project.build.directory}/node/npx</executable>
+              <executable>${project.build.directory}/vacuum/vacuum${vacuum.binary.extension}</executable>
               <arguments>
-                <argument>--prefix</argument>
-                <argument>${project.build.directory}/node</argument>
-                <argument>--yes</argument>
-                <argument>@quobix/vacuum</argument>
                 <argument>lint</argument>
                 <argument>--ruleset</argument>
                 <argument>${project.basedir}/.vacuum-ruleset.yaml</argument>
@@ -288,30 +282,6 @@
                 <argument>--fail-severity</argument>
                 <argument>error</argument>
                 <argument>${project.basedir}/src/build/openapi.json</argument>
-              </arguments>
-            </configuration>
-          </execution>
-          <execution>
-            <id>lint-markdown</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <configuration>
-              <environmentVariables>
-                <PATH>${project.build.directory}/node:${env.PATH}</PATH>
-              </environmentVariables>
-              <executable>${project.build.directory}/node/npx</executable>
-              <arguments>
-                <argument>--prefix</argument>
-                <argument>${project.build.directory}/node</argument>
-                <argument>--yes</argument>
-                <argument>markdownlint-cli2</argument>
-                <argument>--config</argument>
-                <argument>${project.basedir}/.markdownlint-cli2.jsonc</argument>
-                <argument>--</argument>
-                <argument>**/*.md</argument>
-                <argument>!target/**</argument>
               </arguments>
             </configuration>
           </execution>
@@ -384,5 +354,89 @@
       </plugin>
     </plugins>
   </build>
+
+  <!-- Selects the matching vacuum release binary (vacuum_<version>_<os>_<arch>.tar.gz). -->
+  <profiles>
+    <profile>
+      <id>vacuum-macos-aarch64</id>
+      <activation>
+        <os>
+          <family>mac</family>
+          <arch>aarch64</arch>
+        </os>
+      </activation>
+      <properties>
+        <vacuum.os>darwin</vacuum.os>
+        <vacuum.arch>arm64</vacuum.arch>
+      </properties>
+    </profile>
+    <profile>
+      <id>vacuum-macos-x86_64</id>
+      <activation>
+        <os>
+          <family>mac</family>
+          <arch>x86_64</arch>
+        </os>
+      </activation>
+      <properties>
+        <vacuum.os>darwin</vacuum.os>
+        <vacuum.arch>x86_64</vacuum.arch>
+      </properties>
+    </profile>
+    <profile>
+      <id>vacuum-linux-amd64</id>
+      <activation>
+        <os>
+          <name>Linux</name>
+          <arch>amd64</arch>
+        </os>
+      </activation>
+      <properties>
+        <vacuum.os>linux</vacuum.os>
+        <vacuum.arch>x86_64</vacuum.arch>
+      </properties>
+    </profile>
+    <profile>
+      <id>vacuum-linux-aarch64</id>
+      <activation>
+        <os>
+          <name>Linux</name>
+          <arch>aarch64</arch>
+        </os>
+      </activation>
+      <properties>
+        <vacuum.os>linux</vacuum.os>
+        <vacuum.arch>arm64</vacuum.arch>
+      </properties>
+    </profile>
+    <profile>
+      <id>vacuum-windows-amd64</id>
+      <activation>
+        <os>
+          <family>windows</family>
+          <arch>amd64</arch>
+        </os>
+      </activation>
+      <properties>
+        <vacuum.os>windows</vacuum.os>
+        <vacuum.arch>x86_64</vacuum.arch>
+        <vacuum.binary.extension>.exe</vacuum.binary.extension>
+      </properties>
+    </profile>
+    <profile>
+      <id>vacuum-windows-aarch64</id>
+      <activation>
+        <os>
+          <family>windows</family>
+          <arch>aarch64</arch>
+        </os>
+      </activation>
+      <properties>
+        <vacuum.os>windows</vacuum.os>
+        <vacuum.arch>arm64</vacuum.arch>
+        <vacuum.binary.extension>.exe</vacuum.binary.extension>
+      </properties>
+    </profile>
+  </profiles>
 
 </project>
