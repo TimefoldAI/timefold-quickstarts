@@ -7,6 +7,6 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 @Tag(name = "School Timetabling",
         description = "School timetabling service assigning lessons to timeslots.") // OpenAPI documentation annotation
-@Path("/v1/timetables")
+@Path("/timetables")
 public interface TimetableResource extends ModelRest {
 }
