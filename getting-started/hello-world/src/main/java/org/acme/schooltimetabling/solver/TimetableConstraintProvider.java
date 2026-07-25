@@ -74,8 +74,8 @@ public class TimetableConstraintProvider implements ConstraintProvider {
         // A teacher prefers to teach in a single room.
         return constraintFactory
                 .forEachUniquePair(Lesson.class,
-                        Joiners.equal(Lesson::getTeacher))
-                .filter((lesson1, lesson2) -> lesson1.getRoom() != lesson2.getRoom())
+                        Joiners.equal(Lesson::getTeacher),
+                        Joiners.notEqual(Lesson::getRoom))
                 .penalize(HardSoftScore.ONE_SOFT)
                 .justifyWith((lesson1, lesson2, score) -> new TeacherRoomStabilityJustification(lesson1.getTeacher(), lesson1, lesson2))
                 .asConstraint("Teacher room stability");

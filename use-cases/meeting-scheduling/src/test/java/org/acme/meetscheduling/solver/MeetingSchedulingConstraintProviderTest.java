@@ -595,7 +595,7 @@ class MeetingSchedulingConstraintProviderTest {
         leftStartTimeGrain.setStartingMinuteOfDay(0);
         leftStartTimeGrain.setGrainIndex(0);
 
-        Room leftRoom = new Room();
+        Room leftRoom = new Room("1");
 
         MeetingAssignment leftAssignment = new MeetingAssignment("0", leftMeeting, leftStartTimeGrain, leftRoom);
 
@@ -604,7 +604,7 @@ class MeetingSchedulingConstraintProviderTest {
         rightStartTimeGrain.setStartingMinuteOfDay(8 * TimeGrain.GRAIN_LENGTH_IN_MINUTES);
         rightStartTimeGrain.setGrainIndex(8);
 
-        Room rightRoom = new Room();
+        Room rightRoom = new Room("2");
 
         MeetingAssignment rightAssignment = new MeetingAssignment("1", rightMeeting, rightStartTimeGrain, rightRoom);
 
@@ -636,7 +636,7 @@ class MeetingSchedulingConstraintProviderTest {
         leftStartTimeGrain.setStartingMinuteOfDay(0);
         leftStartTimeGrain.setGrainIndex(0);
 
-        Room leftRoom = new Room();
+        Room leftRoom = new Room("1");
 
         MeetingAssignment leftAssignment = new MeetingAssignment("0", leftMeeting, leftStartTimeGrain, leftRoom);
 
@@ -645,7 +645,7 @@ class MeetingSchedulingConstraintProviderTest {
         rightStartTimeGrain.setStartingMinuteOfDay(4 * TimeGrain.GRAIN_LENGTH_IN_MINUTES);
         rightStartTimeGrain.setGrainIndex(4);
 
-        Room rightRoom = new Room();
+        Room rightRoom = new Room("2");
 
         MeetingAssignment rightAssignment = new MeetingAssignment("1", rightMeeting, rightStartTimeGrain, rightRoom);
 

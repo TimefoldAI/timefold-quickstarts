@@ -4,6 +4,7 @@ import static ai.timefold.solver.core.api.score.stream.Joiners.equal;
 import static ai.timefold.solver.core.api.score.stream.Joiners.filtering;
 import static ai.timefold.solver.core.api.score.stream.Joiners.greaterThan;
 import static ai.timefold.solver.core.api.score.stream.Joiners.lessThan;
+import static ai.timefold.solver.core.api.score.stream.Joiners.notEqual;
 
 import java.util.function.Function;
 
@@ -74,8 +75,8 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
                         .filter(st -> st.getRoomGenderLimitation() == GenderLimitation.SAME_GENDER),
                         equal(Stay::getRoom),
                         lessThan(Stay::getId),
-                        filtering((left, right) -> left.getPatientGender() != right.getPatientGender()
-                                && left.calculateSameNightCount(right) > 0))
+                        notEqual(Stay::getPatientGender),
+                        filtering((left, right) -> left.calculateSameNightCount(right) > 0))
                 .penalize(HardMediumSoftScore.ofHard(1000),
                         Stay::calculateSameNightCount)
                 .asConstraint("differentGenderInSameGenderRoomInSameNight");

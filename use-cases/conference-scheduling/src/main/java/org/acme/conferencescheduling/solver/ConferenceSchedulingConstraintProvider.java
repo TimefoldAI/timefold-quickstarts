@@ -33,6 +33,7 @@ import static ai.timefold.solver.core.api.score.stream.Joiners.equal;
 import static ai.timefold.solver.core.api.score.stream.Joiners.filtering;
 import static ai.timefold.solver.core.api.score.stream.Joiners.greaterThan;
 import static ai.timefold.solver.core.api.score.stream.Joiners.lessThan;
+import static ai.timefold.solver.core.api.score.stream.Joiners.notEqual;
 import static ai.timefold.solver.core.api.score.stream.Joiners.overlapping;
 import static java.util.stream.Collectors.joining;
 import static org.acme.conferencescheduling.domain.ConferenceConstraintProperties.AUDIENCE_LEVEL_DIVERSITY;
@@ -401,8 +402,8 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
 
     Constraint audienceLevelDiversity(ConstraintFactory factory) {
         return factory.forEachUniquePair(Talk.class,
-                equal(Talk::getTimeslot))
-                .filter((talk1, talk2) -> talk1.getAudienceLevel() != talk2.getAudienceLevel())
+                equal(Talk::getTimeslot),
+                notEqual(Talk::getAudienceLevel))
                 .reward(HardSoftScore.ofSoft(1), (talk1, talk2) -> talk1.getTimeslot().getDurationInMinutes())
                 .justifyWith((talk, talk2, score) -> new DiversityTalkJustification("audience level", talk,
                         String.valueOf(talk.getAudienceLevel()), talk2, String.valueOf(talk2.getAudienceLevel())))

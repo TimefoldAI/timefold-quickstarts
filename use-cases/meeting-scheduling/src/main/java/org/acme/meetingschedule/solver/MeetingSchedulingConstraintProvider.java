@@ -4,6 +4,7 @@ import static ai.timefold.solver.core.api.score.stream.Joiners.equal;
 import static ai.timefold.solver.core.api.score.stream.Joiners.filtering;
 import static ai.timefold.solver.core.api.score.stream.Joiners.greaterThan;
 import static ai.timefold.solver.core.api.score.stream.Joiners.lessThan;
+import static ai.timefold.solver.core.api.score.stream.Joiners.notEqual;
 import static ai.timefold.solver.core.api.score.stream.Joiners.overlapping;
 
 import ai.timefold.solver.core.api.score.HardMediumSoftScore;
@@ -98,9 +99,7 @@ public class MeetingSchedulingConstraintProvider implements ConstraintProvider {
                 .filter(meetingAssignment -> meetingAssignment.getStartingTimeGrain() != null)
                 .join(TimeGrain.class,
                         equal(MeetingAssignment::getLastTimeGrainIndex, TimeGrain::getGrainIndex),
-                        filtering((meetingAssignment,
-                                timeGrain) -> !meetingAssignment.getStartingTimeGrain().getDayOfYear()
-                                        .equals(timeGrain.getDayOfYear())))
+                        notEqual(meetingAssignment -> meetingAssignment.getStartingTimeGrain().getDayOfYear(), TimeGrain::getDayOfYear))
                 .penalize(HardMediumSoftScore.ONE_HARD)
                 .asConstraint("Start and end on same day");
     }
@@ -201,8 +200,7 @@ public class MeetingSchedulingConstraintProvider implements ConstraintProvider {
         return constraintFactory.forEach(Attendance.class)
                 .join(Attendance.class,
                         equal(Attendance::getPerson),
-                        filtering((leftAttendance,
-                                rightAttendance) -> leftAttendance.getMeeting() != rightAttendance.getMeeting()))
+                        notEqual(Attendance::getMeeting))
                 .join(MeetingAssignment.class,
                         equal((leftAttendance, rightAttendance) -> leftAttendance.getMeeting(),
                                 MeetingAssignment::getMeeting))
@@ -211,8 +209,8 @@ public class MeetingSchedulingConstraintProvider implements ConstraintProvider {
                                 MeetingAssignment::getMeeting),
                         lessThan((leftAttendance, rightAttendance, leftAssignment) -> leftAssignment.getStartingTimeGrain(),
                                 MeetingAssignment::getStartingTimeGrain),
-                        filtering((leftAttendance, rightAttendance, leftAssignment,
-                                rightAssignment) -> leftAssignment.getRoom() != rightAssignment.getRoom()),
+                        notEqual((leftAttendance, rightAttendance, leftAssignment) -> leftAssignment.getRoom(),
+                                MeetingAssignment::getRoom),
                         filtering((leftAttendance, rightAttendance, leftAssignment,
                                 rightAssignment) -> rightAssignment.getGrainIndex() -
                                         leftAttendance.getMeeting().getDurationInGrains() -
