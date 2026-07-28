@@ -43,12 +43,7 @@ refreshSolution();
 function printSolutionScore(schedule) {
     const score = schedule.score;
     $("#info").text(`This dataset has ${schedule.trolleys.length} trolleys which need to execute ${schedule.pickTasks.length} picking tasks.`);
-
-    if (score == null) {
-        $("#score").text("Score: ?");
-    } else {
-        $("#score").text(`Score: ${score.hardScore}hard/${score.softScore}soft`);
-    }
+    $("#score").text("Score: " + (score == null ? "?" : score));
 }
 
 function updateWelcomeMessage(solverWasNeverStarted) {
@@ -621,7 +616,12 @@ function analyze() {
 }
 
 function getScoreComponents(score) {
-    let components = {hard: score.hardScore, medium: score?.mediumScore ?? 0, soft: score.softScore};
+    let components = {hard: 0, medium: 0, soft: 0};
+
+    $.each([...score.matchAll(/(-?\d*(\.\d+)?)(hard|medium|soft)/g)], (i, parts) => {
+        components[parts[3]] = parseFloat(parts[1], 10);
+    });
+
     return components;
 }
 
