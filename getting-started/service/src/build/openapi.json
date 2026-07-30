@@ -22,7 +22,7 @@
     "description" : "School timetabling service assigning lessons to timeslots."
   } ],
   "paths" : {
-    "/v1/v1/timetables" : {
+    "/v1/timetables" : {
       "post" : {
         "summary" : "Posts a dataset and optionally requests its solving. Unique identifier is returned that can be used for further operations on the dataset.",
         "operationId" : "schedule",
@@ -239,7 +239,7 @@
         }
       }
     },
-    "/v1/v1/timetables/validation-issue-types" : {
+    "/v1/timetables/validation-issue-types" : {
       "get" : {
         "summary" : "Get validation issue types supported by the model",
         "operationId" : "getValidationIssueTypes",
@@ -268,7 +268,7 @@
         }
       }
     },
-    "/v1/v1/timetables/validation-issue-types/{code}" : {
+    "/v1/timetables/validation-issue-types/{code}" : {
       "get" : {
         "summary" : "Get validation issue type by the code",
         "operationId" : "getValidationIssueTypeByCode",
@@ -316,7 +316,7 @@
         }
       }
     },
-    "/v1/v1/timetables/{id}" : {
+    "/v1/timetables/{id}" : {
       "delete" : {
         "summary" : "Terminate and return schedule with given identifier",
         "operationId" : "terminateSchedule",
@@ -530,7 +530,7 @@
         }
       }
     },
-    "/v1/v1/timetables/{id}/config" : {
+    "/v1/timetables/{id}/config" : {
       "get" : {
         "summary" : "Get the configuration used for the schedule",
         "operationId" : "getScheduleConfig",
@@ -578,7 +578,7 @@
         }
       }
     },
-    "/v1/v1/timetables/{id}/events" : {
+    "/v1/timetables/{id}/events" : {
       "get" : {
         "summary" : "Subscribes to events of given dataset (of type metadata) as long as it has not yet reached final state (completed, failed, incomplete or invalid)",
         "operationId" : "getMetadataEvents",
@@ -644,7 +644,7 @@
         }
       }
     },
-    "/v1/v1/timetables/{id}/from-input" : {
+    "/v1/timetables/{id}/from-input" : {
       "post" : {
         "summary" : "Request a problem to be solved, based on a previously solved dataset. A unique identifier is returned that can be used to get the schedule once solved",
         "operationId" : "fromInput",
@@ -819,7 +819,7 @@
         }
       }
     },
-    "/v1/v1/timetables/{id}/from-patch" : {
+    "/v1/timetables/{id}/from-patch" : {
       "post" : {
         "summary" : "Preview: Request a problem to be solved, based on a previous dataset that is patched with given operations. A unique identifier is returned that can be used to get the dataset",
         "description" : "Request a problem to be solved, based on a previous dataset that is patched with given operations. This operation is in preview and might be a subject to change. This operation is not be available for everyone (feature-flagged).",
@@ -995,7 +995,7 @@
         }
       }
     },
-    "/v1/v1/timetables/{id}/input" : {
+    "/v1/timetables/{id}/input" : {
       "get" : {
         "summary" : "Get input dataset",
         "operationId" : "getScheduleInput",
@@ -1043,7 +1043,7 @@
         }
       }
     },
-    "/v1/v1/timetables/{id}/logs" : {
+    "/v1/timetables/{id}/logs" : {
       "get" : {
         "summary" : "Get logs with given identifier",
         "operationId" : "getScheduleLogs",
@@ -1091,7 +1091,7 @@
         }
       }
     },
-    "/v1/v1/timetables/{id}/metadata" : {
+    "/v1/timetables/{id}/metadata" : {
       "get" : {
         "summary" : "Get schedule status with given identifier",
         "operationId" : "getMetadata",
@@ -1139,7 +1139,7 @@
         }
       }
     },
-    "/v1/v1/timetables/{id}/model-request" : {
+    "/v1/timetables/{id}/model-request" : {
       "get" : {
         "summary" : "Get complete input request for given schedule with given identifier",
         "operationId" : "getModelRequest",
@@ -1187,7 +1187,7 @@
         }
       }
     },
-    "/v1/v1/timetables/{id}/new-run" : {
+    "/v1/timetables/{id}/new-run" : {
       "post" : {
         "summary" : "(Deprecated endpoint, please use /{id}/from-input instead) Request a problem to be solved, based on a previously solved dataset. A unique identifier is returned that can be used to get the schedule once solved",
         "operationId" : "reschedule",
@@ -1334,7 +1334,7 @@
         }
       }
     },
-    "/v1/v1/timetables/{id}/run" : {
+    "/v1/timetables/{id}/run" : {
       "get" : {
         "summary" : "(Deprecated endpoint, please use /{id}/metadata instead) Get schedule status with given identifier",
         "operationId" : "getScheduleStatus",
@@ -1383,7 +1383,7 @@
         }
       }
     },
-    "/v1/v1/timetables/{id}/validation-result" : {
+    "/v1/timetables/{id}/validation-result" : {
       "get" : {
         "summary" : "Get validation result of a dataset with the given identifier",
         "operationId" : "getValidationResult",
