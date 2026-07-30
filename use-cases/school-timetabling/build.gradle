@@ -1,10 +1,10 @@
 plugins {
     id "java"
-    id "io.quarkus" version "3.36.3"
+    id "io.quarkus" version "3.37.4"
 }
 
-def quarkusVersion = "3.36.3"
-def timefoldVersion = "2.3.0"
+def quarkusVersion = "3.37.4"
+def timefoldVersion = "2.4.0"
 def profile = System.properties['profile'] ?: ''
 def enterprise = System.properties['enterprise'] ?: ''
 

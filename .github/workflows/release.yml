@@ -5,10 +5,6 @@ on:
       javaVersion:
         description: 'Timefold Solver version (e.g. 2.0.0)'
         required: true
-      developmentBranch:
-        description: 'Development branch to cut the release from'
-        default: development
-        required: true
       stableBranch:
         description: 'Stable branch to merge the development branch into'
         default: stable
@@ -17,15 +13,26 @@ jobs:
   build:
     env:
       MAVEN_ARGS: "--no-transfer-progress --batch-mode"
-      RELEASE_BRANCH_NAME: "release_branch_${{ github.event.inputs.javaVersion }}"
     runs-on: self-hosted
     steps:
+      - name: Resolve the release branch name
+        shell: bash
+        env:
+          VERSION: ${{ github.event.inputs.javaVersion }}
+        run: |
+          if [[ ! "$VERSION" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+            echo "Unsupported version format '$VERSION'. Expected semver-like major.minor.patch." >&2
+            exit 1
+          fi
+          release_branch="${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.x"
+          echo "RELEASE_BRANCH_NAME=$release_branch" >> "$GITHUB_ENV"
+
       - name: Checkout timefold-quickstarts
         uses: actions/checkout@v7
         with:
           repository: TimefoldAI/timefold-quickstarts
           path: ./timefold-quickstarts
-          ref: ${{ github.event.inputs.developmentBranch }}
+          ref: ${{ env.RELEASE_BRANCH_NAME }}
           fetch-depth: 0 # Otherwise merge will fail on account of not having history.
 
       - name: Checkout timefold-solver
@@ -35,10 +42,6 @@ jobs:
           path: ./timefold-solver
           fetch-depth: 0
           ref: v${{ github.event.inputs.javaVersion }}
-
-      - name: Delete release branch (if exists)
-        continue-on-error: true
-        run: git push -d origin $RELEASE_BRANCH_NAME
 
       - uses: actions/setup-java@v5
         with:
@@ -58,12 +61,11 @@ jobs:
         run: |
           git config user.name "Timefold Release Bot"
           git config user.email "release@timefold.ai"
-          git checkout -B $RELEASE_BRANCH_NAME
           export OLD_JAVA_VERSION="$(find . -name pom.xml -exec grep '<version.ai.timefold.solver>' {} \;|tail -n 1|cut -d\> -f1 --complement|cut -d\< -f1)"
           .github/scripts/change_versions.sh
 
       # This step will fail if the Solver binaries aren't already on Maven Central.
-      - name: Create release branch and build release
+      - name: Create a tag and build release
         working-directory: ./timefold-quickstarts
         env:
           JAVA_VERSION: ${{ github.event.inputs.javaVersion }}
@@ -100,27 +102,5 @@ jobs:
           export OLD_JAVA_VERSION="$(find . -name pom.xml -exec grep '<version.ai.timefold.solver>' {} \;|tail -n 1|cut -d\> -f1 --complement|cut -d\< -f1)"
           export NEW_JAVA_VERSION="999-SNAPSHOT"
           .github/scripts/change_versions.sh
-          git commit -am "build: move back to version $NEW_VERSION"
+          git commit -am "build: move back to version $NEW_JAVA_VERSION"
           git push origin $RELEASE_BRANCH_NAME
-
-      - name: Delete version branch (if exists)
-        continue-on-error: true
-        env:
-          JAVA_VERSION: ${{ github.event.inputs.javaVersion }}
-        run: |
-          version="${JAVA_VERSION%.*}.x"
-          git push -d origin $version  
-
-      - name: Update release branch
-        working-directory: ./timefold-quickstarts
-        shell: bash
-        env:
-          JAVA_VERSION: ${{ github.event.inputs.javaVersion }}
-        run: |
-          version="${JAVA_VERSION%.*}.x"
-          git config user.name "Timefold Release Bot"
-          git config user.email "release@timefold.ai"
-          git checkout $RELEASE_BRANCH_NAME
-          git branch -m $RELEASE_BRANCH_NAME $version
-          git push origin -u $version
-          git push -d origin $RELEASE_BRANCH_NAME
