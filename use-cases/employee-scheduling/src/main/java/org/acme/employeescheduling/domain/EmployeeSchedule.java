@@ -7,6 +7,7 @@ import ai.timefold.solver.core.api.domain.solution.PlanningEntityCollectionPrope
 import ai.timefold.solver.core.api.domain.solution.PlanningScore;
 import ai.timefold.solver.core.api.domain.solution.PlanningSolution;
 import ai.timefold.solver.core.api.domain.solution.ProblemFactCollectionProperty;
+import ai.timefold.solver.core.api.domain.solution.ProblemFactProperty;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
 import ai.timefold.solver.core.api.score.HardSoftBigDecimalScore;
 import ai.timefold.solver.core.api.solver.SolverStatus;
@@ -23,6 +24,9 @@ public class EmployeeSchedule {
 
     @ProblemFactCollectionProperty
     private List<MustWorkTogether> mustWorkTogetherList = new ArrayList<>();
+
+    @ProblemFactProperty
+    private ConstraintConfiguration constraintConfiguration = new ConstraintConfiguration();
 
     @PlanningScore
     private HardSoftBigDecimalScore score;
@@ -64,6 +68,14 @@ public class EmployeeSchedule {
 
     public void setMustWorkTogetherList(List<MustWorkTogether> mustWorkTogetherList) {
         this.mustWorkTogetherList = mustWorkTogetherList;
+    }
+
+    public ConstraintConfiguration getConstraintConfiguration() {
+        return constraintConfiguration;
+    }
+
+    public void setConstraintConfiguration(ConstraintConfiguration constraintConfiguration) {
+        this.constraintConfiguration = constraintConfiguration;
     }
 
     public HardSoftBigDecimalScore getScore() {
