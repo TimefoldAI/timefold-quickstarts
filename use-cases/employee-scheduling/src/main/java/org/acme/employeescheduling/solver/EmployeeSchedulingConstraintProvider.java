@@ -17,6 +17,7 @@ import ai.timefold.solver.core.api.score.stream.common.LoadBalance;
 
 import org.acme.employeescheduling.domain.Employee;
 import org.acme.employeescheduling.domain.Shift;
+import org.acme.employeescheduling.domain.MustWorkTogether;
 
 public class EmployeeSchedulingConstraintProvider implements ConstraintProvider {
 
@@ -41,6 +42,8 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                 atLeast10HoursBetweenTwoShifts(constraintFactory),
                 oneShiftPerDay(constraintFactory),
                 unavailableEmployee(constraintFactory),
+                mustWorkTogetherA(constraintFactory),
+                mustWorkTogetherB(constraintFactory),
 
                 // Soft constraints
                 undesiredDayForEmployee(constraintFactory),
@@ -119,6 +122,28 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                         (employee, shiftCount) -> shiftCount))
                 .penalizeBigDecimal(HardSoftBigDecimalScore.ONE_SOFT, LoadBalance::unfairness)
                 .asConstraint("Balance employee shift assignments");
+    }
+
+    Constraint mustWorkTogetherA(ConstraintFactory constraintFactory) {
+        return constraintFactory.forEach(Shift.class)
+                .join(MustWorkTogether.class,
+                      equal(Shift::getEmployee, MustWorkTogether::getEmployeeA))
+                .ifNotExists(Shift.class,
+                        equal((shiftA, mw) -> shiftA.getId(), Shift::getId),
+                        equal((shiftA, mw) -> mw.getEmployeeB(), Shift::getEmployee))
+                .penalize(HardSoftBigDecimalScore.ONE_HARD)
+                .asConstraint("Must work together - partner missing (A assigned, B missing)");
+    }
+
+    Constraint mustWorkTogetherB(ConstraintFactory constraintFactory) {
+        return constraintFactory.forEach(Shift.class)
+                .join(MustWorkTogether.class,
+                      equal(Shift::getEmployee, MustWorkTogether::getEmployeeB))
+                .ifNotExists(Shift.class,
+                        equal((shiftB, mw) -> shiftB.getId(), Shift::getId),
+                        equal((shiftB, mw) -> mw.getEmployeeA(), Shift::getEmployee))
+                .penalize(HardSoftBigDecimalScore.ONE_HARD)
+                .asConstraint("Must work together - partner missing (B assigned, A missing)");
     }
 
 }

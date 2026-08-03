@@ -1,6 +1,7 @@
 package org.acme.employeescheduling.domain;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import ai.timefold.solver.core.api.domain.solution.PlanningEntityCollectionProperty;
 import ai.timefold.solver.core.api.domain.solution.PlanningScore;
@@ -19,6 +20,9 @@ public class EmployeeSchedule {
 
     @PlanningEntityCollectionProperty
     private List<Shift> shifts;
+
+    @ProblemFactCollectionProperty
+    private List<MustWorkTogether> mustWorkTogetherList = new ArrayList<>();
 
     @PlanningScore
     private HardSoftBigDecimalScore score;
@@ -52,6 +56,14 @@ public class EmployeeSchedule {
 
     public void setShifts(List<Shift> shifts) {
         this.shifts = shifts;
+    }
+
+    public List<MustWorkTogether> getMustWorkTogetherList() {
+        return mustWorkTogetherList;
+    }
+
+    public void setMustWorkTogetherList(List<MustWorkTogether> mustWorkTogetherList) {
+        this.mustWorkTogetherList = mustWorkTogetherList;
     }
 
     public HardSoftBigDecimalScore getScore() {
