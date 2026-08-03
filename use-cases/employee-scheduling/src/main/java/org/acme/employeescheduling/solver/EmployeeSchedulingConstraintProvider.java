@@ -6,6 +6,8 @@ import static ai.timefold.solver.core.api.score.stream.Joiners.overlapping;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.temporal.WeekFields;
 import java.util.function.Function;
 
 import ai.timefold.solver.core.api.score.HardSoftBigDecimalScore;
@@ -20,6 +22,10 @@ import org.acme.employeescheduling.domain.Shift;
 import org.acme.employeescheduling.domain.MustWorkTogether;
 
 public class EmployeeSchedulingConstraintProvider implements ConstraintProvider {
+
+    // Configure limits here (minutes): default 40 hours/week and 160 hours/month
+    private static final int MAX_MINUTES_PER_WEEK = 40 * 60;
+    private static final int MAX_MINUTES_PER_MONTH = 160 * 60;
 
     private static int getMinuteOverlap(Shift shift1, Shift shift2) {
         // The overlap of two timeslot occurs in the range common to both timeslots.
@@ -44,6 +50,8 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                 unavailableEmployee(constraintFactory),
                 mustWorkTogetherA(constraintFactory),
                 mustWorkTogetherB(constraintFactory),
+                maxWeeklyHoursPerEmployee(constraintFactory),
+                maxMonthlyHoursPerEmployee(constraintFactory),
 
                 // Soft constraints
                 undesiredDayForEmployee(constraintFactory),
@@ -144,6 +152,30 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                         equal((shiftB, mw) -> mw.getEmployeeA(), Shift::getEmployee))
                 .penalize(HardSoftBigDecimalScore.ONE_HARD)
                 .asConstraint("Must work together - partner missing (B assigned, A missing)");
+    }
+
+    Constraint maxWeeklyHoursPerEmployee(ConstraintFactory constraintFactory) {
+        return constraintFactory.forEach(Shift.class)
+                .groupBy(
+                        Shift::getEmployee,
+                        shift -> shift.getStart().get(WeekFields.ISO.weekOfWeekBasedYear()),
+                        ConstraintCollectors.sumLong(shift -> Duration.between(shift.getStart(), shift.getEnd()).toMinutes()))
+                .filter((employee, week, totalMinutes) -> totalMinutes > MAX_MINUTES_PER_WEEK)
+                .penalize(HardSoftBigDecimalScore.ONE_HARD,
+                        (employee, week, totalMinutes) -> (int) (totalMinutes - MAX_MINUTES_PER_WEEK))
+                .asConstraint("Max weekly hours per employee");
+    }
+
+    Constraint maxMonthlyHoursPerEmployee(ConstraintFactory constraintFactory) {
+        return constraintFactory.forEach(Shift.class)
+                .groupBy(
+                        Shift::getEmployee,
+                        shift -> YearMonth.from(shift.getStart()),
+                        ConstraintCollectors.sumLong(shift -> Duration.between(shift.getStart(), shift.getEnd()).toMinutes()))
+                .filter((employee, month, totalMinutes) -> totalMinutes > MAX_MINUTES_PER_MONTH)
+                .penalize(HardSoftBigDecimalScore.ONE_HARD,
+                        (employee, month, totalMinutes) -> (int) (totalMinutes - MAX_MINUTES_PER_MONTH))
+                .asConstraint("Max monthly hours per employee");
     }
 
 }
