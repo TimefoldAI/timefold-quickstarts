@@ -18,6 +18,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.acme.employeescheduling.domain.ConstraintConfiguration;
 import org.acme.employeescheduling.domain.EmployeeSchedule;
 import org.acme.employeescheduling.rest.exception.EmployeeScheduleSolverException;
 import org.acme.employeescheduling.rest.exception.ErrorInfo;
@@ -184,6 +185,52 @@ public class EmployeeScheduleResource {
         EmployeeSchedule schedule = getEmployeeScheduleAndCheckForExceptions(jobId);
         SolverStatus solverStatus = solverManager.getSolverStatus(jobId);
         return new EmployeeSchedule(schedule.getScore(), solverStatus);
+    }
+
+    /**
+     * Update the ConstraintConfiguration for a running job (or stored job) so clients can switch
+     * goal constraints between NONE / SOFT / HARD at runtime. If the solver is running, it will be
+     * terminated and restarted so the new configuration takes effect.
+     */
+    @PUT
+    @Path("{jobId}/constraint-configuration")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updateConstraintConfiguration(
+            @PathParam("jobId") String jobId,
+            ConstraintConfiguration newCfg) {
+
+        Job job = jobIdToJob.get(jobId);
+        if (job == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(new ErrorInfo("Job not found")).build();
+        }
+        if (job.exception != null) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(new ErrorInfo("Job has failed with an exception")).build();
+        }
+
+        EmployeeSchedule schedule = job.schedule;
+        schedule.setConstraintConfiguration(newCfg);
+        // Replace stored job so problemFinder returns the updated schedule.
+        jobIdToJob.put(jobId, Job.ofSchedule(schedule));
+
+        // If solver is currently running, terminate and restart it so it sees the new config.
+        SolverStatus status = solverManager.getSolverStatus(jobId);
+        if (status == SolverStatus.SOLVING) {
+            solverManager.terminateEarly(jobId);
+            solverManager.solveBuilder()
+                    .withProblemId(jobId)
+                    .withProblemFinder(jobId_ -> jobIdToJob.get(jobId).schedule)
+                    .withBestSolutionEventConsumer(event -> jobIdToJob.put(jobId, Job.ofSchedule(event.solution())))
+                    .withExceptionHandler((jobId_, exception) -> {
+                        jobIdToJob.put(jobId, Job.ofException(exception));
+                        LOGGER.error("Failed solving jobId ({}).", jobId, exception);
+                    })
+                    .run();
+        }
+
+        return Response.ok(schedule).build();
     }
 
     private record Job(EmployeeSchedule schedule, Throwable exception) {
