@@ -170,10 +170,10 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                         shift -> shift.getStart().get(WeekFields.ISO.weekOfWeekBasedYear()),
                         ConstraintCollectors.sumLong(shift -> Duration.between(shift.getStart(), shift.getEnd()).toMinutes()))
                 .join(ConstraintConfiguration.class)
-                .filter((employee, week, totalMinutes, cfg) -> totalMinutes > MAX_MINUTES_PER_WEEK
+                .filter((employee, week, totalMinutes, cfg) -> totalMinutes > cfg.getMaxWeeklyMinutes()
                         && cfg.getMaxWeeklySeverity() == ConstraintConfiguration.Severity.HARD)
                 .penalize(HardSoftBigDecimalScore.ONE_HARD,
-                        (employee, week, totalMinutes, cfg) -> (int) (totalMinutes - MAX_MINUTES_PER_WEEK))
+                        (employee, week, totalMinutes, cfg) -> (int) (totalMinutes - cfg.getMaxWeeklyMinutes()))
                 .asConstraint("Max weekly hours per employee [HARD]");
     }
 
@@ -184,10 +184,10 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                         shift -> shift.getStart().get(WeekFields.ISO.weekOfWeekBasedYear()),
                         ConstraintCollectors.sumLong(shift -> Duration.between(shift.getStart(), shift.getEnd()).toMinutes()))
                 .join(ConstraintConfiguration.class)
-                .filter((employee, week, totalMinutes, cfg) -> totalMinutes > MAX_MINUTES_PER_WEEK
+                .filter((employee, week, totalMinutes, cfg) -> totalMinutes > cfg.getMaxWeeklyMinutes()
                         && cfg.getMaxWeeklySeverity() == ConstraintConfiguration.Severity.SOFT)
                 .penalize(HardSoftBigDecimalScore.ONE_SOFT,
-                        (employee, week, totalMinutes, cfg) -> (int) (totalMinutes - MAX_MINUTES_PER_WEEK))
+                        (employee, week, totalMinutes, cfg) -> (int) (totalMinutes - cfg.getMaxWeeklyMinutes()))
                 .asConstraint("Max weekly hours per employee [SOFT]");
     }
 
@@ -198,10 +198,10 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                         shift -> YearMonth.from(shift.getStart()),
                         ConstraintCollectors.sumLong(shift -> Duration.between(shift.getStart(), shift.getEnd()).toMinutes()))
                 .join(ConstraintConfiguration.class)
-                .filter((employee, month, totalMinutes, cfg) -> totalMinutes > MAX_MINUTES_PER_MONTH
+                .filter((employee, month, totalMinutes, cfg) -> totalMinutes > cfg.getMaxMonthlyMinutes()
                         && cfg.getMaxMonthlySeverity() == ConstraintConfiguration.Severity.HARD)
                 .penalize(HardSoftBigDecimalScore.ONE_HARD,
-                        (employee, month, totalMinutes, cfg) -> (int) (totalMinutes - MAX_MINUTES_PER_MONTH))
+                        (employee, month, totalMinutes, cfg) -> (int) (totalMinutes - cfg.getMaxMonthlyMinutes()))
                 .asConstraint("Max monthly hours per employee [HARD]");
     }
 
@@ -212,10 +212,10 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                         shift -> YearMonth.from(shift.getStart()),
                         ConstraintCollectors.sumLong(shift -> Duration.between(shift.getStart(), shift.getEnd()).toMinutes()))
                 .join(ConstraintConfiguration.class)
-                .filter((employee, month, totalMinutes, cfg) -> totalMinutes > MAX_MINUTES_PER_MONTH
+                .filter((employee, month, totalMinutes, cfg) -> totalMinutes > cfg.getMaxMonthlyMinutes()
                         && cfg.getMaxMonthlySeverity() == ConstraintConfiguration.Severity.SOFT)
                 .penalize(HardSoftBigDecimalScore.ONE_SOFT,
-                        (employee, month, totalMinutes, cfg) -> (int) (totalMinutes - MAX_MINUTES_PER_MONTH))
+                        (employee, month, totalMinutes, cfg) -> (int) (totalMinutes - cfg.getMaxMonthlyMinutes()))
                 .asConstraint("Max monthly hours per employee [SOFT]");
     }
 
