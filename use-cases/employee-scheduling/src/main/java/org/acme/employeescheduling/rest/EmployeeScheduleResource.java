@@ -217,7 +217,8 @@ public class EmployeeScheduleResource {
 
         // If solver is currently running, terminate and restart it so it sees the new config.
         SolverStatus status = solverManager.getSolverStatus(jobId);
-        if (status == SolverStatus.SOLVING) {
+        boolean isSolving = status != null && "SOLVING".equals(status.name());
+        if (isSolving) {
             solverManager.terminateEarly(jobId);
             solverManager.solveBuilder()
                     .withProblemId(jobId)
