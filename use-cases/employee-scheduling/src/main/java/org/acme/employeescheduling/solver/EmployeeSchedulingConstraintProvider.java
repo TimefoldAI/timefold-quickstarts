@@ -137,7 +137,7 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                 .asConstraint("Balance employee shift assignments");
     }
 
-    // Must work together - partner missing (A assigned, B missing) (HARD)
+    // Must work together - partner missing (A assigned - B missing) (HARD)
     Constraint mustWorkTogetherHard(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(Shift.class)
                 .join(MustWorkTogether.class,
@@ -152,10 +152,10 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                         overlapping((shiftA, mw, cfg) -> shiftA.getStart(), (shiftA, mw, cfg) -> shiftA.getEnd(),
                                     Shift::getStart, Shift::getEnd))
                 .penalize(HardSoftBigDecimalScore.ONE_HARD)
-                .asConstraint("Must work together - partner missing (A assigned, B missing) (HARD)");
+                .asConstraint("Must work together - partner missing (A assigned - B missing) (HARD)");
     }
 
-    // Must work together - partner missing (A assigned, B missing) (SOFT)
+    // Must work together - partner missing (A assigned - B missing) (SOFT)
     Constraint mustWorkTogetherSoft(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(Shift.class)
                 .join(MustWorkTogether.class,
@@ -167,7 +167,7 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                         overlapping((shiftA, mw, cfg) -> shiftA.getStart(), (shiftA, mw, cfg) -> shiftA.getEnd(),
                                     Shift::getStart, Shift::getEnd))
                 .penalize(HardSoftBigDecimalScore.ONE_SOFT)
-                .asConstraint("Must work together - partner missing (A assigned, B missing) (SOFT)");
+                .asConstraint("Must work together - partner missing (A assigned - B missing) (SOFT)");
     }
 
     Constraint maxWeeklyHoursHard(ConstraintFactory constraintFactory) {
