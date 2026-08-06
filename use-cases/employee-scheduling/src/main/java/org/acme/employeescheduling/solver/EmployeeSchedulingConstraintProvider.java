@@ -137,19 +137,25 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                 .asConstraint("Balance employee shift assignments");
     }
 
+    // Must work together - partner missing (A assigned, B missing) [HARD]
     Constraint mustWorkTogetherHard(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(Shift.class)
                 .join(MustWorkTogether.class,
                       equal(Shift::getEmployee, MustWorkTogether::getEmployeeA))
                 .join(ConstraintConfiguration.class)
                 .filter((shiftA, mw, cfg) -> cfg.getMustWorkTogetherSeverity() == ConstraintConfiguration.Severity.HARD)
+                // Look for any Shift for employeeB that overlaps in time with shiftA.
                 .ifNotExists(Shift.class,
-                        equal((shiftA, mw, cfg) -> shiftA.getId(), Shift::getId),
-                        equal((shiftA, mw, cfg) -> mw.getEmployeeB(), Shift::getEmployee))
+                        // employeeB must match Shift.employee
+                        equal((shiftA, mw, cfg) -> mw.getEmployeeB(), Shift::getEmployee),
+                        // and the times must overlap
+                        overlapping((shiftA, mw, cfg) -> shiftA.getStart(), (shiftA, mw, cfg) -> shiftA.getEnd(),
+                                    Shift::getStart, Shift::getEnd))
                 .penalize(HardSoftBigDecimalScore.ONE_HARD)
                 .asConstraint("Must work together - partner missing (A assigned, B missing) [HARD]");
     }
 
+    // Must work together - partner missing (A assigned, B missing) [SOFT]
     Constraint mustWorkTogetherSoft(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(Shift.class)
                 .join(MustWorkTogether.class,
@@ -157,8 +163,9 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                 .join(ConstraintConfiguration.class)
                 .filter((shiftA, mw, cfg) -> cfg.getMustWorkTogetherSeverity() == ConstraintConfiguration.Severity.SOFT)
                 .ifNotExists(Shift.class,
-                        equal((shiftA, mw, cfg) -> shiftA.getId(), Shift::getId),
-                        equal((shiftA, mw, cfg) -> mw.getEmployeeB(), Shift::getEmployee))
+                        equal((shiftA, mw, cfg) -> mw.getEmployeeB(), Shift::getEmployee),
+                        overlapping((shiftA, mw, cfg) -> shiftA.getStart(), (shiftA, mw, cfg) -> shiftA.getEnd(),
+                                    Shift::getStart, Shift::getEnd))
                 .penalize(HardSoftBigDecimalScore.ONE_SOFT)
                 .asConstraint("Must work together - partner missing (A assigned, B missing) [SOFT]");
     }
@@ -170,10 +177,10 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                         shift -> shift.getStart().get(WeekFields.ISO.weekOfWeekBasedYear()),
                         ConstraintCollectors.sumLong(shift -> Duration.between(shift.getStart(), shift.getEnd()).toMinutes()))
                 .join(ConstraintConfiguration.class)
-                .filter((employee, week, totalMinutes, cfg) -> totalMinutes > cfg.getMaxWeeklyMinutes()
+                .filter((employee, week, totalMinutes, cfg) -> totalMinutes > MAX_MINUTES_PER_WEEK
                         && cfg.getMaxWeeklySeverity() == ConstraintConfiguration.Severity.HARD)
                 .penalize(HardSoftBigDecimalScore.ONE_HARD,
-                        (employee, week, totalMinutes, cfg) -> (int) (totalMinutes - cfg.getMaxWeeklyMinutes()))
+                        (employee, week, totalMinutes, cfg) -> (int) (totalMinutes - MAX_MINUTES_PER_WEEK))
                 .asConstraint("Max weekly hours per employee [HARD]");
     }
 
@@ -184,10 +191,10 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                         shift -> shift.getStart().get(WeekFields.ISO.weekOfWeekBasedYear()),
                         ConstraintCollectors.sumLong(shift -> Duration.between(shift.getStart(), shift.getEnd()).toMinutes()))
                 .join(ConstraintConfiguration.class)
-                .filter((employee, week, totalMinutes, cfg) -> totalMinutes > cfg.getMaxWeeklyMinutes()
+                .filter((employee, week, totalMinutes, cfg) -> totalMinutes > MAX_MINUTES_PER_WEEK
                         && cfg.getMaxWeeklySeverity() == ConstraintConfiguration.Severity.SOFT)
                 .penalize(HardSoftBigDecimalScore.ONE_SOFT,
-                        (employee, week, totalMinutes, cfg) -> (int) (totalMinutes - cfg.getMaxWeeklyMinutes()))
+                        (employee, week, totalMinutes, cfg) -> (int) (totalMinutes - MAX_MINUTES_PER_WEEK))
                 .asConstraint("Max weekly hours per employee [SOFT]");
     }
 
@@ -198,10 +205,10 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                         shift -> YearMonth.from(shift.getStart()),
                         ConstraintCollectors.sumLong(shift -> Duration.between(shift.getStart(), shift.getEnd()).toMinutes()))
                 .join(ConstraintConfiguration.class)
-                .filter((employee, month, totalMinutes, cfg) -> totalMinutes > cfg.getMaxMonthlyMinutes()
+                .filter((employee, month, totalMinutes, cfg) -> totalMinutes > MAX_MINUTES_PER_MONTH
                         && cfg.getMaxMonthlySeverity() == ConstraintConfiguration.Severity.HARD)
                 .penalize(HardSoftBigDecimalScore.ONE_HARD,
-                        (employee, month, totalMinutes, cfg) -> (int) (totalMinutes - cfg.getMaxMonthlyMinutes()))
+                        (employee, month, totalMinutes, cfg) -> (int) (totalMinutes - MAX_MINUTES_PER_MONTH))
                 .asConstraint("Max monthly hours per employee [HARD]");
     }
 
@@ -212,10 +219,10 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                         shift -> YearMonth.from(shift.getStart()),
                         ConstraintCollectors.sumLong(shift -> Duration.between(shift.getStart(), shift.getEnd()).toMinutes()))
                 .join(ConstraintConfiguration.class)
-                .filter((employee, month, totalMinutes, cfg) -> totalMinutes > cfg.getMaxMonthlyMinutes()
+                .filter((employee, month, totalMinutes, cfg) -> totalMinutes > MAX_MINUTES_PER_MONTH
                         && cfg.getMaxMonthlySeverity() == ConstraintConfiguration.Severity.SOFT)
                 .penalize(HardSoftBigDecimalScore.ONE_SOFT,
-                        (employee, month, totalMinutes, cfg) -> (int) (totalMinutes - cfg.getMaxMonthlyMinutes()))
+                        (employee, month, totalMinutes, cfg) -> (int) (totalMinutes - MAX_MINUTES_PER_MONTH))
                 .asConstraint("Max monthly hours per employee [SOFT]");
     }
 
