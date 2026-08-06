@@ -9,6 +9,7 @@ import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
 import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
 import ai.timefold.solver.core.api.score.stream.Joiners;
 import org.acme.foodpackaging.domain.Job;
+import org.acme.common.ConstraintIdSanitizer;
 
 public class FoodPackagingConstraintProvider implements ConstraintProvider {
 
@@ -37,7 +38,7 @@ public class FoodPackagingConstraintProvider implements ConstraintProvider {
                 .filter(job -> job.getEndDateTime() != null && job.getMaxEndTime().isBefore(job.getEndDateTime()))
                 .penalize(HardMediumSoftScore.ONE_HARD,
                         job -> Duration.between(job.getMaxEndTime(), job.getEndDateTime()).toMinutes())
-                .asConstraint("Max end date time");
+                .asConstraint(ConstraintIdSanitizer.sanitize("Max end date time"));
     }
 
     protected Constraint operatorCleaningConflict(ConstraintFactory factory) {
@@ -51,7 +52,7 @@ public class FoodPackagingConstraintProvider implements ConstraintProvider {
                                 j1.getStartCleaningDateTime(), j1.getStartProductionDateTime(),
                                 j2.getStartCleaningDateTime(), j2.getStartProductionDateTime()
                         ))
-                .asConstraint("Operator cleaning conflict");
+                .asConstraint(ConstraintIdSanitizer.sanitize("Operator cleaning conflict"));
     }
 
     private static long overlapMinutes(LocalDateTime start1, LocalDateTime end1,
@@ -70,14 +71,14 @@ public class FoodPackagingConstraintProvider implements ConstraintProvider {
                 .filter(job -> job.getEndDateTime() != null && job.getIdealEndTime().isBefore(job.getEndDateTime()))
                 .penalize(HardMediumSoftScore.ONE_MEDIUM,
                         job -> Duration.between(job.getIdealEndTime(), job.getEndDateTime()).toMinutes())
-                .asConstraint("Ideal end date time");
+                .asConstraint(ConstraintIdSanitizer.sanitize("Ideal end date time"));
     }
 
     protected Constraint maximizeJobsAssigned(ConstraintFactory factory) {
         return factory.forEachIncludingUnassigned(Job.class)
                 .filter(job -> job.getLine() == null)
                 .penalize(HardMediumSoftScore.ONE_MEDIUM, job -> job.getDuration().toMinutes())
-                .asConstraint("Maximize jobs assigned");
+                .asConstraint(ConstraintIdSanitizer.sanitize("Maximize jobs assigned"));
     }
 
     // ************************************************************************
@@ -91,6 +92,6 @@ public class FoodPackagingConstraintProvider implements ConstraintProvider {
                     long minutes = Duration.between(job.getLine().getStartDateTime(), job.getEndDateTime()).toMinutes();
                     return minutes * minutes;
                 })
-                .asConstraint("Minimize make span");
+                .asConstraint(ConstraintIdSanitizer.sanitize("Minimize make span"));
     }
 }
