@@ -9,6 +9,7 @@ import ai.timefold.solver.core.api.score.stream.uni.UniConstraintStream;
 import org.acme.taskassigning.domain.Employee;
 import org.acme.taskassigning.domain.Priority;
 import org.acme.taskassigning.domain.Task;
+import org.acme.common.ConstraintIdSanitizer;
 
 public class TaskAssigningConstraintProvider implements ConstraintProvider {
 
@@ -35,14 +36,14 @@ public class TaskAssigningConstraintProvider implements ConstraintProvider {
                 .filter(task -> task.getMissingSkillCount() > 0)
                 .penalize(BendableScore.ofHard(BENDABLE_SCORE_HARD_LEVELS_SIZE, BENDABLE_SCORE_SOFT_LEVELS_SIZE, 0, 1),
                         Task::getMissingSkillCount)
-                .asConstraint("No missing skills");
+                .asConstraint(ConstraintIdSanitizer.sanitize("No missing skills"));
     }
 
     protected Constraint minimizeUnassignedTasks(ConstraintFactory constraintFactory) {
         return constraintFactory.forEachIncludingUnassigned(Task.class)
                 .filter(task -> task.getEmployee() == null)
                 .penalize(BendableScore.ofSoft(BENDABLE_SCORE_HARD_LEVELS_SIZE, BENDABLE_SCORE_SOFT_LEVELS_SIZE, 0, 1))
-                .asConstraint("Minimize unassigned tasks");
+                .asConstraint(ConstraintIdSanitizer.sanitize("Minimize unassigned tasks"));
     }
 
     private UniConstraintStream<Task> getTaskWithPriority(ConstraintFactory constraintFactory, Priority priority) {
@@ -55,27 +56,27 @@ public class TaskAssigningConstraintProvider implements ConstraintProvider {
         return constraintFactory.forEach(Employee.class)
                 .penalize(BendableScore.ofSoft(BENDABLE_SCORE_HARD_LEVELS_SIZE, BENDABLE_SCORE_SOFT_LEVELS_SIZE, 1, 1),
                         employee -> employee.getEndTime() * employee.getEndTime())
-                .asConstraint("Minimize makespan - latest ending employee first");
+                .asConstraint(ConstraintIdSanitizer.sanitize("Minimize makespan - latest ending employee first"));
     }
 
     protected Constraint criticalPriorityTaskEndTime(ConstraintFactory constraintFactory) {
         return getTaskWithPriority(constraintFactory, Priority.CRITICAL)
                 .penalize(BendableScore.ofSoft(BENDABLE_SCORE_HARD_LEVELS_SIZE, BENDABLE_SCORE_SOFT_LEVELS_SIZE, 2, 1),
                         task -> task.getEndTime() * 4)
-                .asConstraint("Critical priority task end time");
+                .asConstraint(ConstraintIdSanitizer.sanitize("Critical priority task end time"));
     }
 
     protected Constraint majorPriorityTaskEndTime(ConstraintFactory constraintFactory) {
         return getTaskWithPriority(constraintFactory, Priority.MAJOR)
                 .penalize(BendableScore.ofSoft(BENDABLE_SCORE_HARD_LEVELS_SIZE, BENDABLE_SCORE_SOFT_LEVELS_SIZE, 2, 1),
                         task -> task.getEndTime() * 2)
-                .asConstraint("Major priority task end time");
+                .asConstraint(ConstraintIdSanitizer.sanitize("Major priority task end time"));
     }
 
     protected Constraint minorPriorityTaskEndTime(ConstraintFactory constraintFactory) {
         return getTaskWithPriority(constraintFactory, Priority.MINOR)
                 .penalize(BendableScore.ofSoft(BENDABLE_SCORE_HARD_LEVELS_SIZE, BENDABLE_SCORE_SOFT_LEVELS_SIZE, 2, 1),
                         Task::getEndTime)
-                .asConstraint("Minor priority task end time");
+                .asConstraint(ConstraintIdSanitizer.sanitize("Minor priority task end time"));
     }
 }
