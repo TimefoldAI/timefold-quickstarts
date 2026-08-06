@@ -175,7 +175,7 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                 .groupBy(
                         Shift::getEmployee,
                         shift -> shift.getStart().get(WeekFields.ISO.weekOfWeekBasedYear()),
-                        ConstraintCollectors.sumLong(shift -> Duration.between(shift.getStart(), shift.getEnd()).toMinutes()))
+                        ConstraintCollectors.sum(shift -> Long.valueOf(Duration.between(shift.getStart(), shift.getEnd()).toMinutes())))
                 .join(ConstraintConfiguration.class)
                 .filter((employee, week, totalMinutes, cfg) -> totalMinutes > MAX_MINUTES_PER_WEEK
                         && cfg.getMaxWeeklySeverity() == ConstraintConfiguration.Severity.HARD)
@@ -189,7 +189,7 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                 .groupBy(
                         Shift::getEmployee,
                         shift -> shift.getStart().get(WeekFields.ISO.weekOfWeekBasedYear()),
-                        ConstraintCollectors.sumLong(shift -> Duration.between(shift.getStart(), shift.getEnd()).toMinutes()))
+                        ConstraintCollectors.sum(shift -> Long.valueOf(Duration.between(shift.getStart(), shift.getEnd()).toMinutes())))
                 .join(ConstraintConfiguration.class)
                 .filter((employee, week, totalMinutes, cfg) -> totalMinutes > MAX_MINUTES_PER_WEEK
                         && cfg.getMaxWeeklySeverity() == ConstraintConfiguration.Severity.SOFT)
@@ -203,7 +203,7 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                 .groupBy(
                         Shift::getEmployee,
                         shift -> YearMonth.from(shift.getStart()),
-                        ConstraintCollectors.sumLong(shift -> Duration.between(shift.getStart(), shift.getEnd()).toMinutes()))
+                        ConstraintCollectors.sum(shift -> Long.valueOf(Duration.between(shift.getStart(), shift.getEnd()).toMinutes())))
                 .join(ConstraintConfiguration.class)
                 .filter((employee, month, totalMinutes, cfg) -> totalMinutes > MAX_MINUTES_PER_MONTH
                         && cfg.getMaxMonthlySeverity() == ConstraintConfiguration.Severity.HARD)
@@ -217,7 +217,7 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                 .groupBy(
                         Shift::getEmployee,
                         shift -> YearMonth.from(shift.getStart()),
-                        ConstraintCollectors.sumLong(shift -> Duration.between(shift.getStart(), shift.getEnd()).toMinutes()))
+                        ConstraintCollectors.sum(shift -> Long.valueOf(Duration.between(shift.getStart(), shift.getEnd()).toMinutes())))
                 .join(ConstraintConfiguration.class)
                 .filter((employee, month, totalMinutes, cfg) -> totalMinutes > MAX_MINUTES_PER_MONTH
                         && cfg.getMaxMonthlySeverity() == ConstraintConfiguration.Severity.SOFT)
@@ -262,7 +262,7 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                 .groupBy(
                         Shift::getEmployee,
                         shift -> shift.getStart().get(WeekFields.ISO.weekOfWeekBasedYear()),
-                        ConstraintCollectors.sumLong(shift -> Duration.between(shift.getStart(), shift.getEnd()).toMinutes()))
+                        ConstraintCollectors.sum(shift -> Long.valueOf(Duration.between(shift.getStart(), shift.getEnd()).toMinutes())))
                 .join(ConstraintConfiguration.class)
                 .filter((employee, week, totalMinutes, cfg) -> cfg.getTargetMinutesPerWeek() > 0
                         && cfg.getTargetMinutesPerWeekSeverity() == ConstraintConfiguration.Severity.HARD)
@@ -277,7 +277,7 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                 .groupBy(
                         Shift::getEmployee,
                         shift -> shift.getStart().get(WeekFields.ISO.weekOfWeekBasedYear()),
-                        ConstraintCollectors.sumLong(shift -> Duration.between(shift.getStart(), shift.getEnd()).toMinutes()))
+                        ConstraintCollectors.sum(shift -> Long.valueOf(Duration.between(shift.getStart(), shift.getEnd()).toMinutes())))
                 .join(ConstraintConfiguration.class)
                 .filter((employee, week, totalMinutes, cfg) -> cfg.getTargetMinutesPerWeek() > 0
                         && cfg.getTargetMinutesPerWeekSeverity() == ConstraintConfiguration.Severity.SOFT)
