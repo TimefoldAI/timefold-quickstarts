@@ -31,6 +31,16 @@ public class ConstraintConfiguration {
      */
     private Severity targetMinutesPerWeekSeverity = Severity.SOFT;
 
+    /**
+     * Numeric limit for max weekly minutes. Defaults to 40 hours (in minutes).
+     */
+    private int maxWeeklyMinutes = 40 * 60;
+
+    /**
+     * Numeric limit for max monthly minutes. Defaults to 160 hours (in minutes).
+     */
+    private int maxMonthlyMinutes = 160 * 60;
+
     public ConstraintConfiguration() {
     }
 
@@ -88,5 +98,21 @@ public class ConstraintConfiguration {
 
     public void setTargetMinutesPerWeekSeverity(Severity targetMinutesPerWeekSeverity) {
         this.targetMinutesPerWeekSeverity = targetMinutesPerWeekSeverity;
+    }
+
+    public int getMaxWeeklyMinutes() {
+        return maxWeeklyMinutes;
+    }
+
+    public void setMaxWeeklyMinutes(int maxWeeklyMinutes) {
+        this.maxWeeklyMinutes = maxWeeklyMinutes;
+    }
+
+    public int getMaxMonthlyMinutes() {
+        return maxMonthlyMinutes;
+    }
+
+    public void setMaxMonthlyMinutes(int maxMonthlyMinutes) {
+        this.maxMonthlyMinutes = maxMonthlyMinutes;
     }
 }
