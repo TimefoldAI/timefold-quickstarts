@@ -5,6 +5,7 @@ import ai.timefold.solver.core.api.score.stream.Constraint;
 import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
 import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
 import org.acme.orderpicking.domain.PickTask;
+import org.acme.common.ConstraintIdSanitizer;
 
 import static ai.timefold.solver.core.api.score.stream.ConstraintCollectors.countDistinct;
 import static ai.timefold.solver.core.api.score.stream.ConstraintCollectors.sum;
@@ -54,7 +55,7 @@ public class OrderPickingConstraintProvider implements ConstraintProvider {
                 .filter((trolley, trolleyTotalBuckets) -> trolley.getBucketCount() < trolleyTotalBuckets)
                 .penalize(HardSoftScore.ONE_HARD,
                         (trolley, trolleyTotalBuckets) -> trolleyTotalBuckets - trolley.getBucketCount())
-                .asConstraint("Required number of buckets");
+                .asConstraint(ConstraintIdSanitizer.sanitize("Required number of buckets"));
     }
 
     /**
@@ -66,7 +67,7 @@ public class OrderPickingConstraintProvider implements ConstraintProvider {
                         countDistinct(PickTask::getTrolley))
                 .penalize(HardSoftScore.ONE_SOFT,
                         (order, trolleySpreadCount) -> trolleySpreadCount * 1000)
-                .asConstraint("Minimize order split by trolley");
+                .asConstraint(ConstraintIdSanitizer.sanitize("Minimize order split by trolley"));
     }
 
     /**
@@ -84,7 +85,7 @@ public class OrderPickingConstraintProvider implements ConstraintProvider {
                                     : pick.getTrolley().getLocation();
                             return calculateDistance(previousLocation, pick.getLocation());
                         })
-                .asConstraint("Minimize the distance from the previous trolley pick");
+                .asConstraint(ConstraintIdSanitizer.sanitize("Minimize the distance from the previous trolley pick"));
     }
 
     /**
@@ -98,7 +99,7 @@ public class OrderPickingConstraintProvider implements ConstraintProvider {
                 .filter(PickTask::isLast)
                 .penalize(HardSoftScore.ONE_SOFT,
                         pick -> calculateDistance(pick.getLocation(), pick.getTrolley().getLocation()))
-                .asConstraint("Minimize the distance from last trolley pick to the path origin");
+                .asConstraint(ConstraintIdSanitizer.sanitize("Minimize the distance from last trolley pick to the path origin"));
     }
 
     private long calculateOrderRequiredBuckets(long orderVolume, long bucketVolume) {
