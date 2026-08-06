@@ -7,12 +7,16 @@ import jakarta.enterprise.context.ApplicationScoped;
 
 /**
  * Simple demo data generator used by the web demo.
- * This file had an accidental diff/patch fragment which broke compilation; restore a minimal valid implementation.
+ * Restored a minimal valid implementation and a nested DemoData enum used by the demo resource.
  */
 @ApplicationScoped
 public class DemoDataGenerator {
 
-    public EmployeeSchedule generateDemoData(DemoDataParameters parameters) {
+    public static enum DemoData {
+        SMALL
+    }
+
+    public EmployeeSchedule generateDemoData(DemoData demoData) {
         EmployeeSchedule employeeSchedule = new EmployeeSchedule();
 
         // Provide empty collections so the JSON schema includes these fields in the demo responses.
