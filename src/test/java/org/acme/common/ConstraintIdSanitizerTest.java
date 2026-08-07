@@ -19,6 +19,7 @@ public class ConstraintIdSanitizerTest {
         String result = ConstraintIdSanitizer.sanitize(input);
         assertNotNull(result);
         assertFalse(result.contains(":"));
+        assertEquals("Goal- target shifts per employee per week (HARD)", result);
         assertTrue(result.matches("[A-Za-z0-9 _'()\\-\\.]*"));
     }
 
