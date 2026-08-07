@@ -10,6 +10,7 @@ import ai.timefold.solver.core.api.score.stream.Joiners;
 import org.acme.projectjobschedule.domain.Allocation;
 import org.acme.projectjobschedule.domain.JobType;
 import org.acme.projectjobschedule.domain.ResourceRequirement;
+import org.acme.common.ConstraintIdSanitizer;
 
 public class ProjectJobSchedulingConstraintProvider implements ConstraintProvider {
 
@@ -38,7 +39,7 @@ public class ProjectJobSchedulingConstraintProvider implements ConstraintProvide
                 .filter((resource, requirements) -> requirements > resource.getCapacity())
                 .penalize(HardMediumSoftScore.ONE_HARD,
                         (resource, requirements) -> requirements - resource.getCapacity())
-                .asConstraint("Non-renewable resource capacity");
+                .asConstraint(ConstraintIdSanitizer.sanitize("Non-renewable resource capacity"));
     }
 
     protected Constraint renewableResourceCapacity(ConstraintFactory constraintFactory) {
@@ -53,7 +54,7 @@ public class ProjectJobSchedulingConstraintProvider implements ConstraintProvide
                 .filter((resourceReq, date, totalRequirement) -> totalRequirement > resourceReq.getCapacity())
                 .penalize(HardMediumSoftScore.ONE_HARD,
                         (resourceReq, date, totalRequirement) -> totalRequirement - resourceReq.getCapacity())
-                .asConstraint("Renewable resource capacity");
+                .asConstraint(ConstraintIdSanitizer.sanitize("Renewable resource capacity"));
     }
 
     protected Constraint totalProjectDelay(ConstraintFactory constraintFactory) {
@@ -62,7 +63,7 @@ public class ProjectJobSchedulingConstraintProvider implements ConstraintProvide
                 .filter(allocation -> allocation.getEndDate() != null)
                 .filter(allocation -> allocation.getProjectDelay() > 0)
                 .penalize(HardMediumSoftScore.ONE_MEDIUM, Allocation::getProjectDelay)
-                .asConstraint("Total project delay");
+                .asConstraint(ConstraintIdSanitizer.sanitize("Total project delay"));
     }
 
     protected Constraint totalMakespan(ConstraintFactory constraintFactory) {
@@ -71,7 +72,7 @@ public class ProjectJobSchedulingConstraintProvider implements ConstraintProvide
                 .filter(allocation -> allocation.getEndDate() != null)
                 .groupBy(ConstraintCollectors.max(Allocation::getEndDate))
                 .penalize(HardMediumSoftScore.ONE_SOFT, maxEndDate -> maxEndDate)
-                .asConstraint("Total makespan");
+                .asConstraint(ConstraintIdSanitizer.sanitize("Total makespan"));
     }
 
 }
