@@ -17,6 +17,7 @@ import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
 import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
 import ai.timefold.solver.core.api.score.stream.common.LoadBalance;
 
+import org.acme.common.ConstraintIdSanitizer;
 import org.acme.employeescheduling.domain.Employee;
 import org.acme.employeescheduling.domain.Shift;
 import org.acme.employeescheduling.domain.MustWorkTogether;
@@ -69,7 +70,7 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
         return constraintFactory.forEach(Shift.class)
                 .filter(shift -> !shift.getEmployee().getSkills().contains(shift.getRequiredSkill()))
                 .penalize(HardSoftBigDecimalScore.ONE_HARD)
-                .asConstraint("Missing required skill");
+                .asConstraint(ConstraintIdSanitizer.sanitize("Missing required skill"));
     }
 
     Constraint noOverlappingShifts(ConstraintFactory constraintFactory) {
@@ -77,7 +78,7 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                 overlapping(Shift::getStart, Shift::getEnd))
                 .penalize(HardSoftBigDecimalScore.ONE_HARD,
                         EmployeeSchedulingConstraintProvider::getMinuteOverlap)
-                .asConstraint("Overlapping shift");
+                .asConstraint(ConstraintIdSanitizer.sanitize("Overlapping shift"));
     }
 
     Constraint atLeast10HoursBetweenTwoShifts(ConstraintFactory constraintFactory) {
@@ -90,14 +91,14 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                             int breakLength = (int) Duration.between(firstShift.getEnd(), secondShift.getStart()).toMinutes();
                             return (10 * 60) - breakLength;
                         })
-                .asConstraint("At least 10 hours between 2 shifts");
+                .asConstraint(ConstraintIdSanitizer.sanitize("At least 10 hours between 2 shifts"));
     }
 
     Constraint oneShiftPerDay(ConstraintFactory constraintFactory) {
         return constraintFactory.forEachUniquePair(Shift.class, equal(Shift::getEmployee),
                 equal(shift -> shift.getStart().toLocalDate()))
                 .penalize(HardSoftBigDecimalScore.ONE_HARD)
-                .asConstraint("Max one shift per day");
+                .asConstraint(ConstraintIdSanitizer.sanitize("Max one shift per day"));
     }
 
     Constraint unavailableEmployee(ConstraintFactory constraintFactory) {
@@ -106,7 +107,7 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                 .flattenLast(Employee::getUnavailableDates)
                 .filter(Shift::isOverlappingWithDate)
                 .penalize(HardSoftBigDecimalScore.ONE_HARD, Shift::getOverlappingDurationInMinutes)
-                .asConstraint("Unavailable employee");
+                .asConstraint(ConstraintIdSanitizer.sanitize("Unavailable employee"));
     }
 
     Constraint undesiredDayForEmployee(ConstraintFactory constraintFactory) {
@@ -115,7 +116,7 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                 .flattenLast(Employee::getUndesiredDates)
                 .filter(Shift::isOverlappingWithDate)
                 .penalize(HardSoftBigDecimalScore.ONE_SOFT, Shift::getOverlappingDurationInMinutes)
-                .asConstraint("Undesired day for employee");
+                .asConstraint(ConstraintIdSanitizer.sanitize("Undesired day for employee"));
     }
 
     Constraint desiredDayForEmployee(ConstraintFactory constraintFactory) {
@@ -124,7 +125,7 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                 .flattenLast(Employee::getDesiredDates)
                 .filter(Shift::isOverlappingWithDate)
                 .reward(HardSoftBigDecimalScore.ONE_SOFT, Shift::getOverlappingDurationInMinutes)
-                .asConstraint("Desired day for employee");
+                .asConstraint(ConstraintIdSanitizer.sanitize("Desired day for employee"));
     }
 
     Constraint balanceEmployeeShiftAssignments(ConstraintFactory constraintFactory) {
@@ -134,7 +135,7 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                 .groupBy(ConstraintCollectors.loadBalance((employee, shiftCount) -> employee,
                         (employee, shiftCount) -> shiftCount))
                 .penalizeBigDecimal(HardSoftBigDecimalScore.ONE_SOFT, LoadBalance::unfairness)
-                .asConstraint("Balance employee shift assignments");
+                .asConstraint(ConstraintIdSanitizer.sanitize("Balance employee shift assignments"));
     }
 
     // Must work together - partner missing (A assigned - B missing) (HARD)
@@ -152,7 +153,7 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                         overlapping((shiftA, mw, cfg) -> shiftA.getStart(), (shiftA, mw, cfg) -> shiftA.getEnd(),
                                     Shift::getStart, Shift::getEnd))
                 .penalize(HardSoftBigDecimalScore.ONE_HARD)
-                .asConstraint("Must work together - partner missing (A assigned - B missing) (HARD)");
+                .asConstraint(ConstraintIdSanitizer.sanitize("Must work together - partner missing (A assigned - B missing) (HARD)"));
     }
 
     // Must work together - partner missing (A assigned - B missing) (SOFT)
@@ -167,7 +168,7 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                         overlapping((shiftA, mw, cfg) -> shiftA.getStart(), (shiftA, mw, cfg) -> shiftA.getEnd(),
                                     Shift::getStart, Shift::getEnd))
                 .penalize(HardSoftBigDecimalScore.ONE_SOFT)
-                .asConstraint("Must work together - partner missing (A assigned - B missing) (SOFT)");
+                .asConstraint(ConstraintIdSanitizer.sanitize("Must work together - partner missing (A assigned - B missing) (SOFT)"));
     }
 
     Constraint maxWeeklyHoursHard(ConstraintFactory constraintFactory) {
@@ -186,7 +187,7 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                             long tot = totalMinutes == null ? 0L : totalMinutes.longValue();
                             return (int) (tot - cfg.getMaxWeeklyMinutes());
                         })
-                .asConstraint("Max weekly hours per employee (HARD)");
+                .asConstraint(ConstraintIdSanitizer.sanitize("Max weekly hours per employee (HARD)"));
     }
 
     Constraint maxWeeklyHoursSoft(ConstraintFactory constraintFactory) {
@@ -205,7 +206,7 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                             long tot = totalMinutes == null ? 0L : totalMinutes.longValue();
                             return (int) (tot - cfg.getMaxWeeklyMinutes());
                         })
-                .asConstraint("Max weekly hours per employee (SOFT)");
+                .asConstraint(ConstraintIdSanitizer.sanitize("Max weekly hours per employee (SOFT)"));
     }
 
     Constraint maxMonthlyHoursHard(ConstraintFactory constraintFactory) {
@@ -224,7 +225,7 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                             long tot = totalMinutes == null ? 0L : totalMinutes.longValue();
                             return (int) (tot - cfg.getMaxMonthlyMinutes());
                         })
-                .asConstraint("Max monthly hours per employee (HARD)");
+                .asConstraint(ConstraintIdSanitizer.sanitize("Max monthly hours per employee (HARD)"));
     }
 
     Constraint maxMonthlyHoursSoft(ConstraintFactory constraintFactory) {
@@ -243,7 +244,7 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                             long tot = totalMinutes == null ? 0L : totalMinutes.longValue();
                             return (int) (tot - cfg.getMaxMonthlyMinutes());
                         })
-                .asConstraint("Max monthly hours per employee (SOFT)");
+                .asConstraint(ConstraintIdSanitizer.sanitize("Max monthly hours per employee (SOFT)"));
     }
 
     // Goal: number of shifts per week (HARD)
@@ -258,7 +259,7 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                         && cfg.getTargetShiftsPerWeekSeverity() == ConstraintConfiguration.Severity.HARD)
                 .penalize(HardSoftBigDecimalScore.ONE_HARD,
                         (employee, week, shiftCount, cfg) -> (int) Math.abs(shiftCount - cfg.getTargetShiftsPerWeek()))
-                .asConstraint("Goal: target shifts per employee per week (HARD)");
+                .asConstraint(ConstraintIdSanitizer.sanitize("Goal: target shifts per employee per week (HARD)"));
     }
 
     // Goal: number of shifts per week (SOFT)
@@ -273,7 +274,7 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                         && cfg.getTargetShiftsPerWeekSeverity() == ConstraintConfiguration.Severity.SOFT)
                 .penalize(HardSoftBigDecimalScore.ONE_SOFT,
                         (employee, week, shiftCount, cfg) -> (int) Math.abs(shiftCount - cfg.getTargetShiftsPerWeek()))
-                .asConstraint("Goal: target shifts per employee per week (SOFT)");
+                .asConstraint(ConstraintIdSanitizer.sanitize("Goal: target shifts per employee per week (SOFT)"));
     }
 
     // Goal: minutes per week (HARD)
@@ -294,7 +295,7 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                             long tot = totalMinutes == null ? 0L : totalMinutes.longValue();
                             return (int) Math.abs(tot - cfg.getTargetMinutesPerWeek());
                         })
-                .asConstraint("Goal: target minutes per employee per week (HARD)");
+                .asConstraint(ConstraintIdSanitizer.sanitize("Goal: target minutes per employee per week (HARD)"));
     }
 
     // Goal: minutes per week (SOFT)
@@ -315,7 +316,7 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                             long tot = totalMinutes == null ? 0L : totalMinutes.longValue();
                             return (int) Math.abs(tot - cfg.getTargetMinutesPerWeek());
                         })
-                .asConstraint("Goal: target minutes per employee per week (SOFT)");
+                .asConstraint(ConstraintIdSanitizer.sanitize("Goal: target minutes per employee per week (SOFT)"));
     }
 
 }
