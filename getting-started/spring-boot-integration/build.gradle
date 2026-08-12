@@ -1,11 +1,11 @@
 plugins {
     id "org.springframework.boot" version "4.1.0"
     id "io.spring.dependency-management" version "1.1.7"
-    id 'org.graalvm.buildtools.native' version '1.1.4'
+    id 'org.graalvm.buildtools.native' version '1.1.8'
     id "java"
 }
 
-def timefoldVersion = "2.4.0"
+def timefoldVersion = "2.5.0"
 def profile = System.properties['profile'] ?: ''
 def enterprise = System.properties['enterprise'] ?: ''
 
@@ -45,7 +45,7 @@ dependencies {
     implementation ("org.springframework.boot:spring-boot-starter-webmvc")
 
     // Swagger
-    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3"
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:3.1.0"
 
     // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")

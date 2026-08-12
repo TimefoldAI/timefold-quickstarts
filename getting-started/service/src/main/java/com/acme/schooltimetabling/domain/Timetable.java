@@ -3,13 +3,13 @@ package com.acme.schooltimetabling.domain;
 import java.util.List;
 import java.util.Optional;
 
+import ai.timefold.solver.service.definition.api.AbstractSimpleModel;
 import ai.timefold.solver.core.api.domain.solution.ConstraintWeightOverrides;
 import ai.timefold.solver.core.api.domain.solution.PlanningEntityCollectionProperty;
 import ai.timefold.solver.core.api.domain.solution.PlanningSolution;
 import ai.timefold.solver.core.api.domain.solution.ProblemFactCollectionProperty;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
 import ai.timefold.solver.core.api.score.HardMediumSoftScore;
-import ai.timefold.solver.service.definition.api.AbstractSimpleModel;
 
 @PlanningSolution
 public class Timetable extends AbstractSimpleModel {
@@ -60,7 +60,7 @@ public class Timetable extends AbstractSimpleModel {
     @Override
     public ConstraintWeightOverrides<HardMediumSoftScore> getConstraintWeightOverrides() {
         return Optional.ofNullable(constraintWeightOverrides).orElse(ConstraintWeightOverrides.none());
-    }
+    } 
 
     public void setConstraintWeightOverrides(ConstraintWeightOverrides constraintWeightOverrides) {
         this.constraintWeightOverrides = constraintWeightOverrides;
