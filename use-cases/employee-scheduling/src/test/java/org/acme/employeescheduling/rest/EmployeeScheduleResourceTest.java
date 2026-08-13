@@ -24,6 +24,47 @@ import io.restassured.http.ContentType;
 class EmployeeScheduleResourceTest {
 
     @Test
+    void getAnalysisReturnsNotFoundForUnknownJobId() {
+        given()
+                .when().get("/schedules/unknown-job-id/analysis")
+                .then()
+                .statusCode(404);
+    }
+
+    @Test
+    @Timeout(600_000)
+    void getAnalysisReturnsScoreAnalysisForCompletedJob() {
+        EmployeeSchedule testSchedule = given()
+                .when().get("/demo-data/SMALL")
+                .then()
+                .statusCode(200)
+                .extract()
+                .as(EmployeeSchedule.class);
+
+        String jobId = given()
+                .contentType(ContentType.JSON)
+                .body(testSchedule)
+                .expect().contentType(ContentType.TEXT)
+                .when().post("/schedules")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString();
+
+        await()
+                .atMost(Duration.ofMinutes(5))
+                .pollInterval(Duration.ofMillis(500L))
+                .until(() -> SolverStatus.NOT_SOLVING.name().equals(
+                        get("/schedules/" + jobId + "/status")
+                                .jsonPath().get("solverStatus")));
+
+        given()
+                .when().get("/schedules/" + jobId + "/analysis")
+                .then()
+                .statusCode(200);
+    }
+
+    @Test
     @Timeout(600_000)
     void solveDemoDataUntilFeasible() {
 

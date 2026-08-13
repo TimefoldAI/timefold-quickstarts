@@ -118,7 +118,7 @@ public class EmployeeScheduleResource {
             @APIResponse(responseCode = "409", description = "Schedule is still solving.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
                             schema = @Schema(implementation = ErrorInfo.class))),
-            @APIResponse(responseCode = "500", description = "Exception during solving a schedule.",
+            @APIResponse(responseCode = "500", description = "Unexpected server error during score analysis.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON,
                             schema = @Schema(implementation = ErrorInfo.class)))
     })
@@ -132,15 +132,19 @@ public class EmployeeScheduleResource {
         if (job == null) {
             throw new EmployeeScheduleSolverException(jobId, Response.Status.NOT_FOUND, "No schedule found.");
         }
-        if (job.exception != null) {
-            throw new EmployeeScheduleSolverException(jobId, job.exception);
-        }
         SolverStatus solverStatus = solverManager.getSolverStatus(jobId);
         if (solverStatus != SolverStatus.NOT_SOLVING) {
             throw new EmployeeScheduleSolverException(jobId, Response.Status.CONFLICT,
-                    "Schedule is still solving. Try again once solverStatus is NOT_SOLVING.");
+                    "Schedule solving has not completed yet. Try again once solverStatus is NOT_SOLVING.");
+        }
+        if (job.exception != null) {
+            throw new EmployeeScheduleSolverException(jobId, job.exception);
         }
         EmployeeSchedule schedule = job.schedule;
+        if (schedule == null) {
+            throw new EmployeeScheduleSolverException(jobId, Response.Status.INTERNAL_SERVER_ERROR,
+                    "No schedule available for score analysis.");
+        }
         return fetchPolicy == null ? solutionManager.analyze(schedule) : solutionManager.analyze(schedule, fetchPolicy);
     }
 
