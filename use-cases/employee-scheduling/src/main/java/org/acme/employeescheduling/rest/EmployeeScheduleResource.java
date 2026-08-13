@@ -106,6 +106,48 @@ public class EmployeeScheduleResource {
         return fetchPolicy == null ? solutionManager.analyze(problem) : solutionManager.analyze(problem, fetchPolicy);
     }
 
+    @Operation(summary = "Get score analysis for a completed solve job.")
+    @APIResponses(value = {
+            @APIResponse(responseCode = "200",
+                    description = "Resulting score analysis for the completed schedule.",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = ScoreAnalysis.class))),
+            @APIResponse(responseCode = "404", description = "No schedule found.",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = ErrorInfo.class))),
+            @APIResponse(responseCode = "409", description = "Schedule is still solving.",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = ErrorInfo.class))),
+            @APIResponse(responseCode = "500", description = "Unexpected server error during score analysis.",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = ErrorInfo.class)))
+    })
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("{jobId}/analysis")
+    public ScoreAnalysis<HardSoftBigDecimalScore> getAnalysis(
+            @Parameter(description = "The job ID returned by the POST method.") @PathParam("jobId") String jobId,
+            @QueryParam("fetchPolicy") ScoreAnalysisFetchPolicy fetchPolicy) {
+        Job job = jobIdToJob.get(jobId);
+        if (job == null) {
+            throw new EmployeeScheduleSolverException(jobId, Response.Status.NOT_FOUND, "No schedule found.");
+        }
+        SolverStatus solverStatus = solverManager.getSolverStatus(jobId);
+        if (solverStatus != SolverStatus.NOT_SOLVING) {
+            throw new EmployeeScheduleSolverException(jobId, Response.Status.CONFLICT,
+                    "Schedule solving has not completed yet. Try again once solverStatus is NOT_SOLVING.");
+        }
+        if (job.exception != null) {
+            throw new EmployeeScheduleSolverException(jobId, job.exception);
+        }
+        EmployeeSchedule schedule = job.schedule;
+        if (schedule == null) {
+            throw new EmployeeScheduleSolverException(jobId, Response.Status.INTERNAL_SERVER_ERROR,
+                    "No schedule available for score analysis.");
+        }
+        return fetchPolicy == null ? solutionManager.analyze(schedule) : solutionManager.analyze(schedule, fetchPolicy);
+    }
+
     @Operation(
             summary = "Get the solution and score for a given job ID. This is the best solution so far, as it might still be running or not even started.")
     @APIResponses(value = {
