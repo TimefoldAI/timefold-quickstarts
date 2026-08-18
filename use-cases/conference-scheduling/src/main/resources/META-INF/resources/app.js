@@ -496,7 +496,7 @@ function analyze() {
         return;
     }
     $('#scoreAnalysisScoreLabel').text(`(${loadedSchedule.score})`);
-    $.get(api(`${MODEL_PATH}/${jobId}/score-analysis`), function (scoreAnalysis) {
+    $.get(api(`${MODEL_PATH}/${jobId}/score-analysis?includeJustifications=true`), function (scoreAnalysis) {
         let constraints = scoreAnalysis.constraints;
         constraints.sort((a, b) => {
             let aComponents = getScoreComponents(a.score), bComponents = getScoreComponents(b.score);
@@ -541,25 +541,28 @@ function analyze() {
         analysisTable.append(analysisTHead);
         const analysisTBody = $(`<tbody/>`)
         $.each(scoreAnalysis.constraints, (index, constraintAnalysis) => {
+            const matches = constraintAnalysis.matches ?? [];
+            const matchCount = constraintAnalysis.matchCount ?? matches.length;
             let icon = constraintAnalysis.type == "hard" && constraintAnalysis.implicitScore < 0 ? '<span class="fas fa-exclamation-triangle" style="color: red"></span>' : '';
-            if (!icon) icon = constraintAnalysis.matches.length == 0 ? '<span class="fas fa-check-circle" style="color: green"></span>' : '';
+            if (!icon) icon = matchCount == 0 ? '<span class="fas fa-check-circle" style="color: green"></span>' : '';
 
             let row = $(`<tr/>`);
             row.append($(`<td/>`).html(icon))
                 .append($(`<td/>`).text(constraintAnalysis.name).css({textAlign: 'left'}))
                 .append($(`<td/>`).text(constraintAnalysis.type))
-                .append($(`<td/>`).html(`<b>${constraintAnalysis.matches.length}</b>`))
+                .append($(`<td/>`).html(`<b>${matchCount}</b>`))
                 .append($(`<td/>`).text(constraintAnalysis.weight))
                 .append($(`<td/>`).text(constraintAnalysis.implicitScore));
 
             analysisTBody.append(row);
 
-            if (constraintAnalysis.matches.length > 0) {
+            if (matches.length > 0) {
                 let matchesRow = $(`<tr/>`).addClass("collapse").attr("id", "row" + index + "Collapse");
                 let matchesListGroup = $(`<ul/>`).addClass('list-group').addClass('list-group-flush').css({textAlign: 'left'});
 
-                $.each(constraintAnalysis.matches, (_, match) => {
-                    matchesListGroup.append($(`<li/>`).addClass('list-group-item').addClass('list-group-item-light').text(match.justification.description));
+                $.each(matches, (_, match) => {
+                    matchesListGroup.append($(`<li/>`).addClass('list-group-item').addClass('list-group-item-light')
+                        .text(match.justification?.description ?? match.score));
                 });
 
                 matchesRow.append($(`<td/>`));
