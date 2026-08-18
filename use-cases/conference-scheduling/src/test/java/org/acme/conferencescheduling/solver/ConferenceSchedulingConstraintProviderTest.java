@@ -1,14 +1,18 @@
 package org.acme.conferencescheduling.solver;
 
+import static java.util.Collections.emptySet;
+import static java.util.Collections.singleton;
+
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.SequencedSet;
 import java.util.Set;
 
-import ai.timefold.solver.core.api.score.stream.test.ConstraintVerifier;
-import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
+
+import ai.timefold.solver.core.api.score.stream.test.ConstraintVerifier;
+
 import org.acme.conferencescheduling.domain.ConferenceConstraintProperties;
 import org.acme.conferencescheduling.domain.ConferenceSchedule;
 import org.acme.conferencescheduling.domain.Room;
@@ -17,8 +21,7 @@ import org.acme.conferencescheduling.domain.Talk;
 import org.acme.conferencescheduling.domain.Timeslot;
 import org.junit.jupiter.api.Test;
 
-import static java.util.Collections.emptySet;
-import static java.util.Collections.singleton;
+import io.quarkus.test.junit.QuarkusTest;
 
 @QuarkusTest
 class ConferenceSchedulingConstraintProviderTest {

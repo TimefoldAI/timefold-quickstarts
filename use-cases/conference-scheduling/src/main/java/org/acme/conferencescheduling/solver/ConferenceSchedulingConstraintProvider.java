@@ -1,16 +1,5 @@
 package org.acme.conferencescheduling.solver;
 
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Objects;
-
-import ai.timefold.solver.core.api.score.HardMediumSoftScore;
-import ai.timefold.solver.core.api.score.stream.Constraint;
-import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
-import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
-import ai.timefold.solver.service.definition.api.description.ConstraintInfo;
-
 import static ai.timefold.solver.core.api.score.stream.ConstraintCollectors.compose;
 import static ai.timefold.solver.core.api.score.stream.ConstraintCollectors.countBi;
 import static ai.timefold.solver.core.api.score.stream.ConstraintCollectors.max;
@@ -24,6 +13,17 @@ import static ai.timefold.solver.core.api.score.stream.Joiners.greaterThan;
 import static ai.timefold.solver.core.api.score.stream.Joiners.lessThan;
 import static ai.timefold.solver.core.api.score.stream.Joiners.overlapping;
 import static java.util.stream.Collectors.joining;
+
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Objects;
+
+import ai.timefold.solver.core.api.score.HardMediumSoftScore;
+import ai.timefold.solver.core.api.score.stream.Constraint;
+import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
+import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
+import ai.timefold.solver.service.definition.api.description.ConstraintInfo;
 
 import org.acme.conferencescheduling.domain.ConferenceConstraintProperties;
 import org.acme.conferencescheduling.domain.Speaker;
@@ -49,7 +49,6 @@ import org.acme.conferencescheduling.domain.justification.UndesiredTagsJustifica
  * Every constraint carries a {@link ConstraintInfo} describing it and assigning it to a
  * {@link ConferenceScheduleConstraintGroup}, so the Timefold Platform can present the constraints grouped and explained.
  */
-@SuppressWarnings({ "NarrowCalculation", "PMD.AvoidDuplicateLiterals" })
 public class ConferenceSchedulingConstraintProvider implements ConstraintProvider {
 
     @Override
@@ -513,7 +512,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
     Constraint languageDiversity(ConstraintFactory factory) {
         return factory.forEachUniquePair(Talk.class,
                 equal(Talk::getTimeslot))
-                .filter((talk1, talk2) -> !talk1.getLanguage().equals(talk2.getLanguage()))
+                .filter((talk1, talk2) -> !Objects.equals(talk1.getLanguage(),talk2.getLanguage()))
                 .reward(HardMediumSoftScore.ofSoft(10), (talk1, talk2) -> talk1.getTimeslot().getDurationInMinutes())
                 .justifyWith((talk, talk2, score) -> new DiversityTalkJustification("language", talk, talk.getLanguage(), talk2,
                         talk2.getLanguage()))
