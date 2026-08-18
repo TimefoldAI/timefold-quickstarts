@@ -51,7 +51,9 @@ public record ConferenceScheduleInputMetrics(
 
     public ConferenceScheduleInputMetrics {
         if (talks < 0 || speakers < 0 || rooms < 0 || timeslots < 0 || talkTypes < 0) {
-            throw new IllegalArgumentException("Input metrics must not be negative.");
+            throw new IllegalArgumentException(
+                    "Input metrics must not be negative, but were talks (%d), speakers (%d), rooms (%d), timeslots (%d), talkTypes (%d)."
+                            .formatted(talks, speakers, rooms, timeslots, talkTypes));
         }
     }
 }
