@@ -15,6 +15,7 @@ import ai.timefold.solver.service.definition.api.domain.ModelConfig;
 
 import org.acme.conferencescheduling.domain.ConferenceSchedule;
 import org.acme.conferencescheduling.service.ConferenceScheduleModelConvertor;
+import org.acme.conferencescheduling.testhelpers.SolverTestDataFactory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 

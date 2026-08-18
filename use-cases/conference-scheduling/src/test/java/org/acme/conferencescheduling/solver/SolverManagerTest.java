@@ -14,6 +14,7 @@ import org.acme.conferencescheduling.domain.ConferenceSchedule;
 import org.acme.conferencescheduling.dto.ConferenceScheduleInputMetrics;
 import org.acme.conferencescheduling.dto.ConferenceScheduleOutputMetrics;
 import org.acme.conferencescheduling.service.ConferenceScheduleModelConvertor;
+import org.acme.conferencescheduling.testhelpers.SolverTestDataFactory;
 import org.junit.jupiter.api.Test;
 
 import io.quarkus.test.junit.QuarkusTest;

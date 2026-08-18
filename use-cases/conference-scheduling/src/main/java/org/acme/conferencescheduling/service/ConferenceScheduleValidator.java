@@ -17,22 +17,18 @@ import org.acme.conferencescheduling.dto.SpeakerDTO;
 import org.acme.conferencescheduling.dto.TalkDTO;
 import org.acme.conferencescheduling.dto.TalkTypeDTO;
 import org.acme.conferencescheduling.dto.TimeslotDTO;
-import org.acme.conferencescheduling.dto.validation.RoomIdDetail;
-import org.acme.conferencescheduling.dto.validation.SpeakerIdDetail;
-import org.acme.conferencescheduling.dto.validation.TalkIdDetail;
-import org.acme.conferencescheduling.dto.validation.TimeslotIdDetail;
-import org.acme.conferencescheduling.service.ConferenceScheduleIssues.DuplicateRoomIdIssue;
-import org.acme.conferencescheduling.service.ConferenceScheduleIssues.DuplicateSpeakerIdIssue;
-import org.acme.conferencescheduling.service.ConferenceScheduleIssues.DuplicateTalkIdIssue;
-import org.acme.conferencescheduling.service.ConferenceScheduleIssues.DuplicateTimeslotIdIssue;
-import org.acme.conferencescheduling.service.ConferenceScheduleIssues.NonExistingRoomReferenceIssue;
-import org.acme.conferencescheduling.service.ConferenceScheduleIssues.NonExistingSpeakerReferenceIssue;
-import org.acme.conferencescheduling.service.ConferenceScheduleIssues.NonExistingTalkTypeReferenceIssue;
-import org.acme.conferencescheduling.service.ConferenceScheduleIssues.NonExistingTimeslotReferenceIssue;
-import org.acme.conferencescheduling.service.ConferenceScheduleIssues.RoomIdMissingIssue;
-import org.acme.conferencescheduling.service.ConferenceScheduleIssues.SpeakerIdMissingIssue;
-import org.acme.conferencescheduling.service.ConferenceScheduleIssues.TalkIdMissingIssue;
-import org.acme.conferencescheduling.service.ConferenceScheduleIssues.TimeslotIdMissingIssue;
+import org.acme.conferencescheduling.service.validation.DuplicateRoomIdIssue;
+import org.acme.conferencescheduling.service.validation.DuplicateSpeakerIdIssue;
+import org.acme.conferencescheduling.service.validation.DuplicateTalkIdIssue;
+import org.acme.conferencescheduling.service.validation.DuplicateTimeslotIdIssue;
+import org.acme.conferencescheduling.service.validation.NonExistingRoomReferenceIssue;
+import org.acme.conferencescheduling.service.validation.NonExistingSpeakerReferenceIssue;
+import org.acme.conferencescheduling.service.validation.NonExistingTalkTypeReferenceIssue;
+import org.acme.conferencescheduling.service.validation.NonExistingTimeslotReferenceIssue;
+import org.acme.conferencescheduling.service.validation.RoomIdMissingIssue;
+import org.acme.conferencescheduling.service.validation.SpeakerIdMissingIssue;
+import org.acme.conferencescheduling.service.validation.TalkIdMissingIssue;
+import org.acme.conferencescheduling.service.validation.TimeslotIdMissingIssue;
 
 @ApplicationScoped
 public class ConferenceScheduleValidator
@@ -62,7 +58,7 @@ public class ConferenceScheduleValidator
             if (timeslot.id() == null || timeslot.id().isBlank()) {
                 validationBuilder.addIssue(new TimeslotIdMissingIssue());
             } else if (!timeslotIds.add(timeslot.id())) {
-                validationBuilder.addIssue(new DuplicateTimeslotIdIssue(new TimeslotIdDetail(timeslot.id())));
+                validationBuilder.addIssue(new DuplicateTimeslotIdIssue(timeslot.id()));
             }
         }
         return timeslotIds;
@@ -74,7 +70,7 @@ public class ConferenceScheduleValidator
             if (room.id() == null || room.id().isBlank()) {
                 validationBuilder.addIssue(new RoomIdMissingIssue());
             } else if (!roomIds.add(room.id())) {
-                validationBuilder.addIssue(new DuplicateRoomIdIssue(new RoomIdDetail(room.id())));
+                validationBuilder.addIssue(new DuplicateRoomIdIssue(room.id()));
             }
         }
         return roomIds;
@@ -86,7 +82,7 @@ public class ConferenceScheduleValidator
             if (speaker.id() == null || speaker.id().isBlank()) {
                 validationBuilder.addIssue(new SpeakerIdMissingIssue());
             } else if (!speakerIds.add(speaker.id())) {
-                validationBuilder.addIssue(new DuplicateSpeakerIdIssue(new SpeakerIdDetail(speaker.id())));
+                validationBuilder.addIssue(new DuplicateSpeakerIdIssue(speaker.id()));
             }
         }
         return speakerIds;
@@ -97,35 +93,27 @@ public class ConferenceScheduleValidator
         Set<String> talkCodes = new HashSet<>();
         for (TalkDTO talk : talks) {
             String talkCode = talk.code();
-            // A talk without a code cannot be pointed at, so its other issues are reported without a talk detail.
-            TalkIdDetail talkIdDetail = talkCode == null || talkCode.isBlank() ? null : new TalkIdDetail(talkCode);
-            if (talkIdDetail == null) {
+            // A talk without a code cannot be pointed at, so its other issues are reported without a talk ID.
+            String talkId = talkCode == null || talkCode.isBlank() ? null : talkCode;
+            if (talkId == null) {
                 validationBuilder.addIssue(new TalkIdMissingIssue());
-            } else if (!talkCodes.add(talkCode)) {
-                validationBuilder.addIssue(new DuplicateTalkIdIssue(talkIdDetail));
+            } else if (!talkCodes.add(talkId)) {
+                validationBuilder.addIssue(new DuplicateTalkIdIssue(talkId));
             }
             if (talk.timeslotId() != null && !timeslotIds.contains(talk.timeslotId())) {
-                validationBuilder.addIssue(talkIdDetail == null
-                        ? new NonExistingTimeslotReferenceIssue()
-                        : new NonExistingTimeslotReferenceIssue(talkIdDetail));
+                validationBuilder.addIssue(new NonExistingTimeslotReferenceIssue(talkId));
             }
             if (talk.roomId() != null && !roomIds.contains(talk.roomId())) {
-                validationBuilder.addIssue(talkIdDetail == null
-                        ? new NonExistingRoomReferenceIssue()
-                        : new NonExistingRoomReferenceIssue(talkIdDetail));
+                validationBuilder.addIssue(new NonExistingRoomReferenceIssue(talkId));
             }
             // A null or blank talk type name is just as invalid as an unknown one: the model requires a talk type.
             if (talk.talkTypeName() == null || talk.talkTypeName().isBlank()
                     || !talkTypeNames.contains(talk.talkTypeName())) {
-                validationBuilder.addIssue(talkIdDetail == null
-                        ? new NonExistingTalkTypeReferenceIssue()
-                        : new NonExistingTalkTypeReferenceIssue(talkIdDetail));
+                validationBuilder.addIssue(new NonExistingTalkTypeReferenceIssue(talkId));
             }
             for (String speakerId : talk.speakerIds()) {
                 if (!speakerIds.contains(speakerId)) {
-                    validationBuilder.addIssue(talkIdDetail == null
-                            ? new NonExistingSpeakerReferenceIssue()
-                            : new NonExistingSpeakerReferenceIssue(talkIdDetail));
+                    validationBuilder.addIssue(new NonExistingSpeakerReferenceIssue(talkId));
                 }
             }
         }

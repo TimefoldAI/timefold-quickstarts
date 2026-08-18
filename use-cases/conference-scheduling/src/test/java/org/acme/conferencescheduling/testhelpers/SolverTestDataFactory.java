@@ -1,4 +1,4 @@
-package org.acme.conferencescheduling.solver;
+package org.acme.conferencescheduling.testhelpers;
 
 import java.util.List;
 
