@@ -15,18 +15,6 @@ public record Room(
         Set<Timeslot> unavailableTimeslots,
         Set<String> tags) {
 
-    public Room(String id) {
-        this(id, id, 0, emptySet(), emptySet(), emptySet());
-    }
-
-    public Room(String id, String name) {
-        this(id, name, 0, emptySet(), emptySet(), emptySet());
-    }
-
-    public Room(String id, Set<Timeslot> unavailableTimeslots) {
-        this(id, id, 0, emptySet(), unavailableTimeslots, emptySet());
-    }
-
     public static Builder builder(String id) {
         return new Builder(id, id);
     }

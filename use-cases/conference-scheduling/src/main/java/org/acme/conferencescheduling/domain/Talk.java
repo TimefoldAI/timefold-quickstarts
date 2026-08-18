@@ -51,6 +51,16 @@ public class Talk {
     public Talk() {
     }
 
+    @ValueRangeProvider
+    public Set<Timeslot> getTimeslotRange() {
+        return talkType.compatibleTimeslots();
+    }
+
+    @ValueRangeProvider
+    public Set<Room> getRoomRange() {
+        return talkType.compatibleRooms();
+    }
+
     public static Builder builder(String code) {
         return new Builder(code);
     }
@@ -229,16 +239,6 @@ public class Talk {
             talk.room = room;
             return talk;
         }
-    }
-
-    @ValueRangeProvider
-    public Set<Timeslot> getTimeslotRange() {
-        return talkType.compatibleTimeslots();
-    }
-
-    @ValueRangeProvider
-    public Set<Room> getRoomRange() {
-        return talkType.compatibleRooms();
     }
 
     public int overlappingThemeTrackCount(Talk other) {
@@ -475,112 +475,56 @@ public class Talk {
         return code;
     }
 
-    public void setCode(String code) {
-        this.code = code;
-    }
-
     public String getTitle() {
         return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
     }
 
     public TalkType getTalkType() {
         return talkType;
     }
 
-    public void setTalkType(TalkType talkType) {
-        this.talkType = talkType;
-    }
-
     public List<Speaker> getSpeakers() {
         return speakers;
-    }
-
-    public void setSpeakers(List<Speaker> speakers) {
-        this.speakers = speakers;
     }
 
     public SequencedSet<String> getThemeTrackTags() {
         return themeTrackTags;
     }
 
-    public void setThemeTrackTags(SequencedSet<String> themeTrackTags) {
-        this.themeTrackTags = themeTrackTags;
-    }
-
     public SequencedSet<String> getSectorTags() {
         return sectorTags;
-    }
-
-    public void setSectorTags(SequencedSet<String> sectorTags) {
-        this.sectorTags = sectorTags;
     }
 
     public SequencedSet<String> getAudienceTypes() {
         return audienceTypes;
     }
 
-    public void setAudienceTypes(SequencedSet<String> audienceTypes) {
-        this.audienceTypes = audienceTypes;
-    }
-
     public int getAudienceLevel() {
         return audienceLevel;
-    }
-
-    public void setAudienceLevel(int audienceLevel) {
-        this.audienceLevel = audienceLevel;
     }
 
     public SequencedSet<String> getContentTags() {
         return contentTags;
     }
 
-    public void setContentTags(SequencedSet<String> contentTags) {
-        this.contentTags = contentTags;
-    }
-
     public String getLanguage() {
         return language;
-    }
-
-    public void setLanguage(String language) {
-        this.language = language;
     }
 
     public SequencedSet<String> getRequiredTimeslotTags() {
         return requiredTimeslotTags;
     }
 
-    public void setRequiredTimeslotTags(SequencedSet<String> requiredTimeslotTags) {
-        this.requiredTimeslotTags = requiredTimeslotTags;
-    }
-
     public SequencedSet<String> getPreferredTimeslotTags() {
         return preferredTimeslotTags;
-    }
-
-    public void setPreferredTimeslotTags(SequencedSet<String> preferredTimeslotTags) {
-        this.preferredTimeslotTags = preferredTimeslotTags;
     }
 
     public SequencedSet<String> getProhibitedTimeslotTags() {
         return prohibitedTimeslotTags;
     }
 
-    public void setProhibitedTimeslotTags(SequencedSet<String> prohibitedTimeslotTags) {
-        this.prohibitedTimeslotTags = prohibitedTimeslotTags;
-    }
-
     public SequencedSet<String> getUndesiredTimeslotTags() {
         return undesiredTimeslotTags;
-    }
-
-    public void setUndesiredTimeslotTags(SequencedSet<String> undesiredTimeslotTags) {
-        this.undesiredTimeslotTags = undesiredTimeslotTags;
     }
 
     public boolean isScheduled() {
@@ -591,64 +535,32 @@ public class Talk {
         return requiredRoomTags;
     }
 
-    public void setRequiredRoomTags(SequencedSet<String> requiredRoomTags) {
-        this.requiredRoomTags = requiredRoomTags;
-    }
-
     public SequencedSet<String> getPreferredRoomTags() {
         return preferredRoomTags;
-    }
-
-    public void setPreferredRoomTags(SequencedSet<String> preferredRoomTags) {
-        this.preferredRoomTags = preferredRoomTags;
     }
 
     public SequencedSet<String> getProhibitedRoomTags() {
         return prohibitedRoomTags;
     }
 
-    public void setProhibitedRoomTags(SequencedSet<String> prohibitedRoomTags) {
-        this.prohibitedRoomTags = prohibitedRoomTags;
-    }
-
     public SequencedSet<String> getUndesiredRoomTags() {
         return undesiredRoomTags;
-    }
-
-    public void setUndesiredRoomTags(SequencedSet<String> undesiredRoomTags) {
-        this.undesiredRoomTags = undesiredRoomTags;
     }
 
     public SequencedSet<String> getMutuallyExclusiveTalksTags() {
         return mutuallyExclusiveTalksTags;
     }
 
-    public void setMutuallyExclusiveTalksTags(SequencedSet<String> mutuallyExclusiveTalksTags) {
-        this.mutuallyExclusiveTalksTags = mutuallyExclusiveTalksTags;
-    }
-
     public SequencedSet<Talk> getPrerequisiteTalks() {
         return prerequisiteTalks;
-    }
-
-    public void setPrerequisiteTalks(SequencedSet<Talk> prerequisiteTalks) {
-        this.prerequisiteTalks = prerequisiteTalks;
     }
 
     public int getFavoriteCount() {
         return favoriteCount;
     }
 
-    public void setFavoriteCount(int favoriteCount) {
-        this.favoriteCount = favoriteCount;
-    }
-
     public int getCrowdControlRisk() {
         return crowdControlRisk;
-    }
-
-    public void setCrowdControlRisk(int crowdControlRisk) {
-        this.crowdControlRisk = crowdControlRisk;
     }
 
     public Timeslot getTimeslot() {

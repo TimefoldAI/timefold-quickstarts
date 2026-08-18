@@ -201,7 +201,9 @@ public class ConferenceScheduleModelConvertor
             SequencedSet<Talk> prerequisites = dto.prerequisiteTalkCodes().stream()
                     .map(code -> require(talkMap, code, "prerequisite talk"))
                     .collect(toCollection(LinkedHashSet::new));
-            talkMap.get(dto.code()).setPrerequisiteTalks(prerequisites);
+            // Prerequisites can only be resolved once every talk exists, so they are added to the talk's own
+            // (initially empty) set instead of being passed to the builder.
+            talkMap.get(dto.code()).getPrerequisiteTalks().addAll(prerequisites);
         }
     }
 
