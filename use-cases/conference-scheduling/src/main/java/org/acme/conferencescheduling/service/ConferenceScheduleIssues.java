@@ -10,13 +10,12 @@ import ai.timefold.solver.service.definition.api.validation.IssueSeverity;
 import ai.timefold.solver.service.definition.api.validation.IssueType;
 
 import org.acme.conferencescheduling.dto.ConferenceScheduleValidationIssue;
-import org.acme.conferencescheduling.dto.RoomIdDetail;
-import org.acme.conferencescheduling.dto.SpeakerIdDetail;
-import org.acme.conferencescheduling.dto.TalkIdDetail;
-import org.acme.conferencescheduling.dto.TimeslotIdDetail;
+import org.acme.conferencescheduling.dto.validation.RoomIdDetail;
+import org.acme.conferencescheduling.dto.validation.SpeakerIdDetail;
+import org.acme.conferencescheduling.dto.validation.TalkIdDetail;
+import org.acme.conferencescheduling.dto.validation.TimeslotIdDetail;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
-@SuppressWarnings("PMD.MissingStaticMethodInNonInstantiatableClass")
 public final class ConferenceScheduleIssues {
 
     private ConferenceScheduleIssues() {

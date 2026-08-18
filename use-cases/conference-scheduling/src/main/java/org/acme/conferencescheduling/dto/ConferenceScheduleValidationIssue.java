@@ -7,7 +7,6 @@ import ai.timefold.solver.service.definition.api.validation.IssueType;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Schema(description = "Validation issues that can be found in a conference scheduling problem.")
-@SuppressWarnings("ImmutableEnumChecker")
 public enum ConferenceScheduleValidationIssue {
     TALK_ID_MISSING(IssueCode.of("TALK_ID_MISSING"), IssueSeverity.ERROR,
             "Talk code must not be null or blank."),

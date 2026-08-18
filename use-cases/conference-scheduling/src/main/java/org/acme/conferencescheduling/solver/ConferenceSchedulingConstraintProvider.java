@@ -12,11 +12,9 @@ import static ai.timefold.solver.core.api.score.stream.Joiners.filtering;
 import static ai.timefold.solver.core.api.score.stream.Joiners.greaterThan;
 import static ai.timefold.solver.core.api.score.stream.Joiners.lessThan;
 import static ai.timefold.solver.core.api.score.stream.Joiners.overlapping;
-import static java.util.stream.Collectors.joining;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.Objects;
 
 import ai.timefold.solver.core.api.score.HardMediumSoftScore;
@@ -28,14 +26,42 @@ import ai.timefold.solver.service.definition.api.description.ConstraintInfo;
 import org.acme.conferencescheduling.domain.ConferenceConstraintProperties;
 import org.acme.conferencescheduling.domain.Speaker;
 import org.acme.conferencescheduling.domain.Talk;
-import org.acme.conferencescheduling.domain.justification.ConferenceSchedulingJustification;
-import org.acme.conferencescheduling.domain.justification.ConflictTalkJustification;
-import org.acme.conferencescheduling.domain.justification.DiversityTalkJustification;
-import org.acme.conferencescheduling.domain.justification.PreferredTagsJustification;
-import org.acme.conferencescheduling.domain.justification.ProhibitedTagsJustification;
-import org.acme.conferencescheduling.domain.justification.RequiredTagsJustification;
-import org.acme.conferencescheduling.domain.justification.UnavailableTimeslotJustification;
-import org.acme.conferencescheduling.domain.justification.UndesiredTagsJustification;
+import org.acme.conferencescheduling.domain.justification.CrowdControlTalkNotPairedJustification;
+import org.acme.conferencescheduling.domain.justification.MissingPreferredRoomTagsForSpeakersJustification;
+import org.acme.conferencescheduling.domain.justification.MissingPreferredRoomTagsForTalkJustification;
+import org.acme.conferencescheduling.domain.justification.MissingPreferredTimeslotTagsForSpeakersJustification;
+import org.acme.conferencescheduling.domain.justification.MissingPreferredTimeslotTagsForTalkJustification;
+import org.acme.conferencescheduling.domain.justification.MissingRequiredRoomTagsForSpeakersJustification;
+import org.acme.conferencescheduling.domain.justification.MissingRequiredRoomTagsForTalkJustification;
+import org.acme.conferencescheduling.domain.justification.MissingRequiredTimeslotTagsForSpeakersJustification;
+import org.acme.conferencescheduling.domain.justification.MissingRequiredTimeslotTagsForTalkJustification;
+import org.acme.conferencescheduling.domain.justification.MutuallyExclusiveTalksOverlappingJustification;
+import org.acme.conferencescheduling.domain.justification.PopularTalkInSmallerRoomJustification;
+import org.acme.conferencescheduling.domain.justification.ProhibitedRoomTagsForSpeakersJustification;
+import org.acme.conferencescheduling.domain.justification.ProhibitedRoomTagsForTalkJustification;
+import org.acme.conferencescheduling.domain.justification.ProhibitedTimeslotTagsForSpeakersJustification;
+import org.acme.conferencescheduling.domain.justification.ProhibitedTimeslotTagsForTalkJustification;
+import org.acme.conferencescheduling.domain.justification.RelatedTalksNotOnSameDayJustification;
+import org.acme.conferencescheduling.domain.justification.RoomUnavailableAtTalkTimeslotJustification;
+import org.acme.conferencescheduling.domain.justification.SharedContentAudienceLevelFlowViolationJustification;
+import org.acme.conferencescheduling.domain.justification.SpeakerAssignedToOverlappingTalksJustification;
+import org.acme.conferencescheduling.domain.justification.SpeakerConsecutiveTalksPauseTooShortJustification;
+import org.acme.conferencescheduling.domain.justification.SpeakerMakespanTooLongJustification;
+import org.acme.conferencescheduling.domain.justification.SpeakerUnavailableAtTalkTimeslotJustification;
+import org.acme.conferencescheduling.domain.justification.TalkScheduledBeforePrerequisiteTalkJustification;
+import org.acme.conferencescheduling.domain.justification.TalksOverlappingInSameRoomJustification;
+import org.acme.conferencescheduling.domain.justification.TalksWithDifferentAudienceLevelInSameTimeslotJustification;
+import org.acme.conferencescheduling.domain.justification.TalksWithSameAudienceTypeInSameTimeslotJustification;
+import org.acme.conferencescheduling.domain.justification.TalksWithSameContentOverlappingJustification;
+import org.acme.conferencescheduling.domain.justification.TalksWithSameLanguageInSameTimeslotJustification;
+import org.acme.conferencescheduling.domain.justification.TalksWithSameSectorOverlappingJustification;
+import org.acme.conferencescheduling.domain.justification.TalksWithSameThemeTrackAndAudienceTypeOverlappingJustification;
+import org.acme.conferencescheduling.domain.justification.TalksWithSameThemeTrackInDifferentRoomsJustification;
+import org.acme.conferencescheduling.domain.justification.TalksWithSameThemeTrackOverlappingJustification;
+import org.acme.conferencescheduling.domain.justification.UndesiredRoomTagsForSpeakersJustification;
+import org.acme.conferencescheduling.domain.justification.UndesiredRoomTagsForTalkJustification;
+import org.acme.conferencescheduling.domain.justification.UndesiredTimeslotTagsForSpeakersJustification;
+import org.acme.conferencescheduling.domain.justification.UndesiredTimeslotTagsForTalkJustification;
 
 /**
  * Provides the constraints for the conference scheduling problem.
@@ -105,7 +131,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
         return factory.forEach(Talk.class)
                 .filter(Talk::hasUnavailableRoom)
                 .penalize(HardMediumSoftScore.ofHard(100_000), Talk::getDurationInMinutes)
-                .justifyWith((talk, score) -> new UnavailableTimeslotJustification(talk))
+                .justifyWith((talk, score) -> RoomUnavailableAtTalkTimeslotJustification.of(talk))
                 .asConstraint(new ConstraintInfo(ConferenceConstraintProperties.ROOM_UNAVAILABLE_TIMESLOT,
                         ConferenceConstraintProperties.ROOM_UNAVAILABLE_TIMESLOT,
                         "A talk must not be scheduled in a room during a timeslot when that room is unavailable.",
@@ -118,8 +144,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 equal(Talk::getRoom),
                 overlapping(t -> t.getTimeslot().getStartDateTime(), t -> t.getTimeslot().getEndDateTime()))
                 .penalize(HardMediumSoftScore.ofHard(1_000), Talk::overlappingDurationInMinutes)
-                .justifyWith((talk, talk2, score) -> new ConflictTalkJustification("room", talk,
-                        List.of(talk.getRoom().getId()), talk2, List.of(talk2.getRoom().getId())))
+                .justifyWith((talk, talk2, score) -> TalksOverlappingInSameRoomJustification.of(talk, talk2))
                 .asConstraint(new ConstraintInfo(ConferenceConstraintProperties.ROOM_CONFLICT,
                         ConferenceConstraintProperties.ROOM_CONFLICT,
                         "Two talks must not share the same room at overlapping times.",
@@ -132,10 +157,10 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter(talk -> talk.getTimeslot() != null)
                 .join(Speaker.class,
                         containing(Talk::getSpeakers, speaker -> speaker),
-                        containedIn(Talk::getTimeslot, Speaker::getUnavailableTimeslots))
+                        containedIn(Talk::getTimeslot, Speaker::unavailableTimeslots))
                 .penalize(HardMediumSoftScore.ofHard(100), (talk, speaker) -> talk.getDurationInMinutes())
                 .justifyWith(
-                        (talk, speaker, score) -> new UnavailableTimeslotJustification(talk, speaker))
+                        (talk, speaker, score) -> SpeakerUnavailableAtTalkTimeslotJustification.of(talk, speaker))
                 .asConstraint(new ConstraintInfo(ConferenceConstraintProperties.SPEAKER_UNAVAILABLE_TIMESLOT,
                         ConferenceConstraintProperties.SPEAKER_UNAVAILABLE_TIMESLOT,
                         "A talk must not be scheduled in a timeslot when one of its speakers is unavailable.",
@@ -150,7 +175,8 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                         containing((talk1, talk2) -> talk1.getSpeakers(), speaker -> speaker),
                         containing((talk1, talk2) -> talk2.getSpeakers(), speaker -> speaker))
                 .penalize(HardMediumSoftScore.ofHard(10), (talk1, talk2, speaker) -> talk2.overlappingDurationInMinutes(talk1))
-                .justifyWith((talk, talk2, speaker, score) -> new ConflictTalkJustification(talk, talk2, speaker))
+                .justifyWith((talk, talk2, speaker, score) -> SpeakerAssignedToOverlappingTalksJustification.of(talk, talk2,
+                        speaker))
                 .asConstraint(new ConstraintInfo(ConferenceConstraintProperties.SPEAKER_CONFLICT,
                         ConferenceConstraintProperties.SPEAKER_CONFLICT,
                         "A speaker must not be assigned to two talks that overlap in time.",
@@ -165,8 +191,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                         containedIn(talk -> talk, Talk::getPrerequisiteTalks))
                 .penalize(HardMediumSoftScore.ofHard(10), Talk::combinedDurationInMinutes)
                 .justifyWith(
-                        (talk, talk2, score) -> new ConferenceSchedulingJustification(
-                                "Talk %s must be scheduled after talk %s.".formatted(talk2.getCode(), talk.getCode())))
+                        (talk, talk2, score) -> TalkScheduledBeforePrerequisiteTalkJustification.of(talk, talk2))
                 .asConstraint(new ConstraintInfo(ConferenceConstraintProperties.TALK_PREREQUISITE_TALKS,
                         ConferenceConstraintProperties.TALK_PREREQUISITE_TALKS,
                         "A talk must be scheduled after all of its prerequisite talks have finished.",
@@ -181,8 +206,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .penalize(HardMediumSoftScore.ofHard(1),
                         (talk1, talk2) -> talk1.overlappingMutuallyExclusiveTalksTagCount(talk2) *
                                 talk1.overlappingDurationInMinutes(talk2))
-                .justifyWith((talk, talk2, score) -> new ConflictTalkJustification("mutually-exclusive-talks tags", talk,
-                        talk.getMutuallyExclusiveTalksTags(), talk2, talk2.getMutuallyExclusiveTalksTags()))
+                .justifyWith((talk, talk2, score) -> MutuallyExclusiveTalksOverlappingJustification.of(talk, talk2))
                 .asConstraint(new ConstraintInfo(ConferenceConstraintProperties.TALK_MUTUALLY_EXCLUSIVE_TALKS_TAGS,
                         ConferenceConstraintProperties.TALK_MUTUALLY_EXCLUSIVE_TALKS_TAGS,
                         "Talks sharing a mutually-exclusive tag must not be scheduled at overlapping times.",
@@ -197,9 +221,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                                 config.getMinimumConsecutiveTalksPauseInMinutes())))
                 .penalize(HardMediumSoftScore.ofHard(1), Talk::combinedDurationInMinutes)
                 .justifyWith(
-                        (talk, talk2, score) -> new ConferenceSchedulingJustification(
-                                "Required minimum consecutive pauses between talks [%s, %s].".formatted(talk.getCode(),
-                                        talk2.getCode())))
+                        (talk, talk2, score) -> SpeakerConsecutiveTalksPauseTooShortJustification.of(talk, talk2))
                 .asConstraint(new ConstraintInfo(ConferenceConstraintProperties.CONSECUTIVE_TALKS_PAUSE,
                         ConferenceConstraintProperties.CONSECUTIVE_TALKS_PAUSE,
                         "A speaker must get the minimum pause between two of their consecutive talks.",
@@ -217,8 +239,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .groupBy((talk1, talk2) -> talk1, countBi())
                 .filter((talk, count) -> count != 1)
                 .penalize(HardMediumSoftScore.ofHard(1), (talk, count) -> talk.getDurationInMinutes())
-                .justifyWith((talk, integer, score) -> new ConferenceSchedulingJustification(
-                        "Required crowd control for talk %s".formatted(talk.getCode())))
+                .justifyWith((talk, count, score) -> CrowdControlTalkNotPairedJustification.of(talk, count))
                 .asConstraint(new ConstraintInfo(ConferenceConstraintProperties.CROWD_CONTROL,
                         ConferenceConstraintProperties.CROWD_CONTROL,
                         "A talk that needs crowd control must be paired with exactly one other such talk in the same timeslot.",
@@ -233,12 +254,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .penalize(HardMediumSoftScore.ofHard(1),
                         (talk, missingTagCount) -> missingTagCount * talk.getDurationInMinutes())
                 .justifyWith(
-                        (talk, integer, score) -> new RequiredTagsJustification("timeslot", talk.getSpeakers(),
-                                talk.getSpeakers().stream()
-                                        .flatMap(s -> s.getRequiredTimeslotTags().stream())
-                                        .distinct()
-                                        .toList(),
-                                talk.getTimeslot().getTags()))
+                        (talk, missingTagCount, score) -> MissingRequiredTimeslotTagsForSpeakersJustification.of(talk))
                 .asConstraint(new ConstraintInfo(ConferenceConstraintProperties.SPEAKER_REQUIRED_TIMESLOT_TAGS,
                         ConferenceConstraintProperties.SPEAKER_REQUIRED_TIMESLOT_TAGS,
                         "The talk's timeslot must carry every timeslot tag required by its speakers.",
@@ -252,12 +268,8 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk, prohibitedTagCount) -> prohibitedTagCount > 0)
                 .penalize(HardMediumSoftScore.ofHard(1),
                         (talk, prohibitedTagCount) -> prohibitedTagCount * talk.getDurationInMinutes())
-                .justifyWith((talk, integer, score) -> new ProhibitedTagsJustification("timeslot", talk.getSpeakers(),
-                        talk.getSpeakers().stream()
-                                .flatMap(s -> s.getProhibitedTimeslotTags().stream())
-                                .distinct()
-                                .toList(),
-                        talk.getTimeslot().getTags()))
+                .justifyWith(
+                        (talk, prohibitedTagCount, score) -> ProhibitedTimeslotTagsForSpeakersJustification.of(talk))
                 .asConstraint(new ConstraintInfo(ConferenceConstraintProperties.SPEAKER_PROHIBITED_TIMESLOT_TAGS,
                         ConferenceConstraintProperties.SPEAKER_PROHIBITED_TIMESLOT_TAGS,
                         "The talk's timeslot must not carry any timeslot tag prohibited by its speakers.",
@@ -271,9 +283,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk, missingTagCount) -> missingTagCount > 0)
                 .penalize(HardMediumSoftScore.ofHard(1),
                         (talk, missingTagCount) -> missingTagCount * talk.getDurationInMinutes())
-                .justifyWith((talk, integer, score) -> new RequiredTagsJustification("timeslot", talk,
-                        talk.getRequiredTimeslotTags(),
-                        talk.getTimeslot().getTags()))
+                .justifyWith((talk, missingTagCount, score) -> MissingRequiredTimeslotTagsForTalkJustification.of(talk))
                 .asConstraint(new ConstraintInfo(ConferenceConstraintProperties.TALK_REQUIRED_TIMESLOT_TAGS,
                         ConferenceConstraintProperties.TALK_REQUIRED_TIMESLOT_TAGS,
                         "The talk's timeslot must carry every timeslot tag the talk requires.",
@@ -287,9 +297,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk, prohibitedTagCount) -> prohibitedTagCount > 0)
                 .penalize(HardMediumSoftScore.ofHard(1),
                         (talk, prohibitedTagCount) -> prohibitedTagCount * talk.getDurationInMinutes())
-                .justifyWith((talk, integer, score) -> new ProhibitedTagsJustification("timeslot", talk,
-                        talk.getProhibitedTimeslotTags(),
-                        talk.getTimeslot().getTags()))
+                .justifyWith((talk, prohibitedTagCount, score) -> ProhibitedTimeslotTagsForTalkJustification.of(talk))
                 .asConstraint(new ConstraintInfo(ConferenceConstraintProperties.TALK_PROHIBITED_TIMESLOT_TAGS,
                         ConferenceConstraintProperties.TALK_PROHIBITED_TIMESLOT_TAGS,
                         "The talk's timeslot must not carry any timeslot tag the talk prohibits.",
@@ -303,12 +311,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk, missingTagCount) -> missingTagCount > 0)
                 .penalize(HardMediumSoftScore.ofHard(1),
                         (talk, missingTagCount) -> missingTagCount * talk.getDurationInMinutes())
-                .justifyWith((talk, integer, score) -> new RequiredTagsJustification("room", talk.getSpeakers(),
-                        talk.getSpeakers().stream()
-                                .flatMap(s -> s.getRequiredRoomTags().stream())
-                                .distinct()
-                                .toList(),
-                        talk.getRoom().getTags()))
+                .justifyWith((talk, missingTagCount, score) -> MissingRequiredRoomTagsForSpeakersJustification.of(talk))
                 .asConstraint(new ConstraintInfo(ConferenceConstraintProperties.SPEAKER_REQUIRED_ROOM_TAGS,
                         ConferenceConstraintProperties.SPEAKER_REQUIRED_ROOM_TAGS,
                         "The talk's room must carry every room tag required by its speakers.",
@@ -322,12 +325,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk, prohibitedTagCount) -> prohibitedTagCount > 0)
                 .penalize(HardMediumSoftScore.ofHard(1),
                         (talk, prohibitedTagCount) -> prohibitedTagCount * talk.getDurationInMinutes())
-                .justifyWith((talk, integer, score) -> new ProhibitedTagsJustification("room", talk.getSpeakers(),
-                        talk.getSpeakers().stream()
-                                .flatMap(s -> s.getPreferredRoomTags().stream())
-                                .distinct()
-                                .toList(),
-                        talk.getRoom().getTags()))
+                .justifyWith((talk, prohibitedTagCount, score) -> ProhibitedRoomTagsForSpeakersJustification.of(talk))
                 .asConstraint(new ConstraintInfo(ConferenceConstraintProperties.SPEAKER_PROHIBITED_ROOM_TAGS,
                         ConferenceConstraintProperties.SPEAKER_PROHIBITED_ROOM_TAGS,
                         "The talk's room must not carry any room tag prohibited by its speakers.",
@@ -341,9 +339,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk, missingTagCount) -> missingTagCount > 0)
                 .penalize(HardMediumSoftScore.ofHard(1),
                         (talk, missingTagCount) -> missingTagCount * talk.getDurationInMinutes())
-                .justifyWith((talk, integer, score) -> new RequiredTagsJustification("room", talk,
-                        talk.getRequiredRoomTags(),
-                        talk.getRoom().getTags()))
+                .justifyWith((talk, missingTagCount, score) -> MissingRequiredRoomTagsForTalkJustification.of(talk))
                 .asConstraint(new ConstraintInfo(ConferenceConstraintProperties.TALK_REQUIRED_ROOM_TAGS,
                         ConferenceConstraintProperties.TALK_REQUIRED_ROOM_TAGS,
                         "The talk's room must carry every room tag the talk requires.",
@@ -357,9 +353,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk, prohibitedTagCount) -> prohibitedTagCount > 0)
                 .penalize(HardMediumSoftScore.ofHard(1),
                         (talk, prohibitedTagCount) -> prohibitedTagCount * talk.getDurationInMinutes())
-                .justifyWith((talk, integer, score) -> new ProhibitedTagsJustification("room", talk,
-                        talk.getProhibitedRoomTags(),
-                        talk.getRoom().getTags()))
+                .justifyWith((talk, prohibitedTagCount, score) -> ProhibitedRoomTagsForTalkJustification.of(talk))
                 .asConstraint(new ConstraintInfo(ConferenceConstraintProperties.TALK_PROHIBITED_ROOM_TAGS,
                         ConferenceConstraintProperties.TALK_PROHIBITED_ROOM_TAGS,
                         "The talk's room must not carry any room tag the talk prohibits.",
@@ -378,8 +372,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .penalize(HardMediumSoftScore.ofSoft(10), (talk1, talk2) -> talk1.overlappingThemeTrackCount(talk2) *
                         talk1.overlappingDurationInMinutes(talk2))
                 .justifyWith(
-                        (talk, talk2, score) -> new ConflictTalkJustification("theme", talk, talk.getThemeTrackTags(), talk2,
-                                talk2.getThemeTrackTags()))
+                        (talk, talk2, score) -> TalksWithSameThemeTrackOverlappingJustification.of(talk, talk2))
                 .asConstraint(new ConstraintInfo(ConferenceConstraintProperties.THEME_TRACK_CONFLICT,
                         ConferenceConstraintProperties.THEME_TRACK_CONFLICT,
                         "Talks sharing a theme track should not overlap in time.",
@@ -395,13 +388,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .penalize(HardMediumSoftScore.ofSoft(10), (talk1, talk2) -> talk1.overlappingThemeTrackCount(talk2) *
                         talk1.combinedDurationInMinutes(talk2))
                 .justifyWith(
-                        (talk, talk2, score) -> new ConferenceSchedulingJustification(
-                                "Talks [%s, %s] with matching themes [%s] were scheduled for different rooms [%s, %s]."
-                                        .formatted(talk.getCode(), talk2.getCode(),
-                                                talk.getThemeTrackTags().stream()
-                                                        .filter(t -> talk2.getThemeTrackTags().contains(t))
-                                                        .collect(joining(", ")),
-                                                talk.getRoom().getId(), talk2.getRoom().getId())))
+                        (talk, talk2, score) -> TalksWithSameThemeTrackInDifferentRoomsJustification.of(talk, talk2))
                 .asConstraint(new ConstraintInfo(ConferenceConstraintProperties.THEME_TRACK_ROOM_STABILITY,
                         ConferenceConstraintProperties.THEME_TRACK_ROOM_STABILITY,
                         "Talks sharing a theme track on the same day should stay in the same room.",
@@ -415,8 +402,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 containingAnyOf(Talk::getSectorTags))
                 .penalize(HardMediumSoftScore.ofSoft(10), (talk1, talk2) -> talk1.overlappingSectorCount(talk2)
                         * talk1.overlappingDurationInMinutes(talk2))
-                .justifyWith((talk, talk2, score) -> new ConflictTalkJustification("sector", talk, talk.getSectorTags(), talk2,
-                        talk2.getSectorTags()))
+                .justifyWith((talk, talk2, score) -> TalksWithSameSectorOverlappingJustification.of(talk, talk2))
                 .asConstraint(new ConstraintInfo(ConferenceConstraintProperties.SECTOR_CONFLICT,
                         ConferenceConstraintProperties.SECTOR_CONFLICT,
                         "Talks sharing a sector should not overlap in time.",
@@ -430,8 +416,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 containingAnyOf(Talk::getAudienceTypes))
                 .reward(HardMediumSoftScore.ofSoft(1), (talk1, talk2) -> talk1.overlappingAudienceTypeCount(talk2)
                         * talk1.getTimeslot().getDurationInMinutes())
-                .justifyWith((talk, talk2, score) -> new DiversityTalkJustification("audience types", talk,
-                        talk.getAudienceTypes(), talk2, talk2.getAudienceTypes()))
+                .justifyWith((talk, talk2, score) -> TalksWithSameAudienceTypeInSameTimeslotJustification.of(talk, talk2))
                 .asConstraint(new ConstraintInfo(ConferenceConstraintProperties.AUDIENCE_TYPE_DIVERSITY,
                         ConferenceConstraintProperties.AUDIENCE_TYPE_DIVERSITY,
                         "Talks in the same timeslot are rewarded for sharing an audience type.",
@@ -447,9 +432,8 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .penalize(HardMediumSoftScore.ofSoft(1), (talk1, talk2) -> talk1.overlappingThemeTrackCount(talk2)
                         * talk1.overlappingAudienceTypeCount(talk2)
                         * talk1.overlappingDurationInMinutes(talk2))
-                .justifyWith((talk, talk2, score) -> new ConflictTalkJustification("theme", "audience type", talk,
-                        talk.getThemeTrackTags(), talk.getAudienceTypes(), talk2, talk2.getThemeTrackTags(),
-                        talk2.getAudienceTypes()))
+                .justifyWith((talk, talk2, score) -> TalksWithSameThemeTrackAndAudienceTypeOverlappingJustification.of(talk,
+                        talk2))
                 .asConstraint(new ConstraintInfo(ConferenceConstraintProperties.AUDIENCE_TYPE_THEME_TRACK_CONFLICT,
                         ConferenceConstraintProperties.AUDIENCE_TYPE_THEME_TRACK_CONFLICT,
                         "Overlapping talks that share both a theme track and an audience type should be avoided.",
@@ -462,8 +446,8 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 equal(Talk::getTimeslot))
                 .filter((talk1, talk2) -> talk1.getAudienceLevel() != talk2.getAudienceLevel())
                 .reward(HardMediumSoftScore.ofSoft(1), (talk1, talk2) -> talk1.getTimeslot().getDurationInMinutes())
-                .justifyWith((talk, talk2, score) -> new DiversityTalkJustification("audience level", talk,
-                        String.valueOf(talk.getAudienceLevel()), talk2, String.valueOf(talk2.getAudienceLevel())))
+                .justifyWith((talk, talk2, score) -> TalksWithDifferentAudienceLevelInSameTimeslotJustification.of(talk,
+                        talk2))
                 .asConstraint(new ConstraintInfo(ConferenceConstraintProperties.AUDIENCE_LEVEL_DIVERSITY,
                         ConferenceConstraintProperties.AUDIENCE_LEVEL_DIVERSITY,
                         "Talks in the same timeslot are rewarded for having different audience levels.",
@@ -480,12 +464,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                         containingAnyOf(Talk::getContentTags))
                 .penalize(HardMediumSoftScore.ofSoft(10), (talk1, talk2) -> talk1.overlappingContentCount(talk2)
                         * talk1.combinedDurationInMinutes(talk2))
-                .justifyWith((talk, talk2, score) -> new ConferenceSchedulingJustification(
-                        "Two talks [%s, %s] with the audience level [%s, %s] and matching content [%s] have a flow violation."
-                                .formatted(talk.getCode(), talk2.getCode(), String.valueOf(talk.getAudienceLevel()),
-                                        String.valueOf(talk2.getAudienceLevel()),
-                                        talk.getContentTags().stream().filter(c -> talk2.getContentTags().contains(c))
-                                                .collect(joining(", ")))))
+                .justifyWith((talk, talk2, score) -> SharedContentAudienceLevelFlowViolationJustification.of(talk, talk2))
                 .asConstraint(new ConstraintInfo(ConferenceConstraintProperties.CONTENT_AUDIENCE_LEVEL_FLOW_VIOLATION,
                         ConferenceConstraintProperties.CONTENT_AUDIENCE_LEVEL_FLOW_VIOLATION,
                         "A talk on shared content should not be scheduled before a lower-audience-level talk on that content.",
@@ -500,8 +479,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .penalize(HardMediumSoftScore.ofSoft(100), (talk1, talk2) -> talk1.overlappingContentCount(talk2)
                         * talk1.overlappingDurationInMinutes(talk2))
                 .justifyWith(
-                        (talk, talk2, score) -> new ConflictTalkJustification("content", talk, talk.getContentTags(), talk2,
-                                talk2.getContentTags()))
+                        (talk, talk2, score) -> TalksWithSameContentOverlappingJustification.of(talk, talk2))
                 .asConstraint(new ConstraintInfo(ConferenceConstraintProperties.CONTENT_CONFLICT,
                         ConferenceConstraintProperties.CONTENT_CONFLICT,
                         "Talks sharing content should not overlap in time.",
@@ -514,8 +492,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 equal(Talk::getTimeslot))
                 .filter((talk1, talk2) -> !Objects.equals(talk1.getLanguage(),talk2.getLanguage()))
                 .reward(HardMediumSoftScore.ofSoft(10), (talk1, talk2) -> talk1.getTimeslot().getDurationInMinutes())
-                .justifyWith((talk, talk2, score) -> new DiversityTalkJustification("language", talk, talk.getLanguage(), talk2,
-                        talk2.getLanguage()))
+                .justifyWith((talk, talk2, score) -> TalksWithSameLanguageInSameTimeslotJustification.of(talk, talk2))
                 .asConstraint(new ConstraintInfo(ConferenceConstraintProperties.LANGUAGE_DIVERSITY,
                         ConferenceConstraintProperties.LANGUAGE_DIVERSITY,
                         "Talks in the same timeslot are rewarded for using different languages.",
@@ -530,14 +507,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .penalize(HardMediumSoftScore.ofSoft(10),
                         (talk1, talk2) -> (talk2.overlappingThemeTrackCount(talk1) + talk2.overlappingContentCount(talk1))
                                 * talk1.combinedDurationInMinutes(talk2))
-                .justifyWith((talk, talk2, score) -> new ConferenceSchedulingJustification(
-                        "Two talks [%s, %s] with matching content [%s] or matching theme [%s] not scheduled at the same day."
-                                .formatted(
-                                        talk.getCode(), talk2.getCode(),
-                                        talk.getContentTags().stream().filter(c -> talk2.getContentTags().contains(c))
-                                                .collect(joining(", ")),
-                                        talk.getThemeTrackTags().stream().filter(t -> talk2.getThemeTrackTags().contains(t))
-                                                .collect(joining(", ")))))
+                .justifyWith((talk, talk2, score) -> RelatedTalksNotOnSameDayJustification.of(talk, talk2))
                 .asConstraint(new ConstraintInfo(ConferenceConstraintProperties.SAME_DAY_TALKS,
                         ConferenceConstraintProperties.SAME_DAY_TALKS,
                         "Talks sharing content or a theme track should be scheduled on the same day.",
@@ -549,13 +519,9 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
         return factory.forEach(Talk.class)
                 .join(Talk.class,
                         lessThan(Talk::getFavoriteCount),
-                        greaterThan(talk -> talk.getRoom().getCapacity()))
+                        greaterThan(talk -> talk.getRoom().capacity()))
                 .penalize(HardMediumSoftScore.ofSoft(10), Talk::combinedDurationInMinutes)
-                .justifyWith((talk, talk2, score) -> new ConferenceSchedulingJustification(
-                        "Two talks [%s, %s] with popularity [%d, %d] scheduled to rooms [%s, %s] with capacity [%d, %d]."
-                                .formatted(talk.getCode(), talk2.getCode(), talk.getFavoriteCount(), talk2.getFavoriteCount(),
-                                        talk.getRoom().getId(), talk2.getRoom().getId(), talk.getRoom().getCapacity(),
-                                        talk2.getRoom().getCapacity())))
+                .justifyWith((talk, talk2, score) -> PopularTalkInSmallerRoomJustification.of(talk, talk2))
                 .asConstraint(new ConstraintInfo(ConferenceConstraintProperties.POPULAR_TALKS,
                         ConferenceConstraintProperties.POPULAR_TALKS,
                         "A more popular talk should not be placed in a smaller room than a less popular one.",
@@ -569,12 +535,8 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk, missingTagCount) -> missingTagCount > 0)
                 .penalize(HardMediumSoftScore.ofSoft(20),
                         (talk, missingTagCount) -> missingTagCount * talk.getDurationInMinutes())
-                .justifyWith((talk, integer, score) -> new PreferredTagsJustification("timeslot", talk.getSpeakers(),
-                        talk.getSpeakers().stream()
-                                .flatMap(s -> s.getPreferredTimeslotTags().stream())
-                                .distinct()
-                                .toList(),
-                        talk.getTimeslot().getTags()))
+                .justifyWith(
+                        (talk, missingTagCount, score) -> MissingPreferredTimeslotTagsForSpeakersJustification.of(talk))
                 .asConstraint(new ConstraintInfo(ConferenceConstraintProperties.SPEAKER_PREFERRED_TIMESLOT_TAGS,
                         ConferenceConstraintProperties.SPEAKER_PREFERRED_TIMESLOT_TAGS,
                         "The talk's timeslot should carry the timeslot tags preferred by its speakers.",
@@ -588,12 +550,8 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk, undesiredTagCount) -> undesiredTagCount > 0)
                 .penalize(HardMediumSoftScore.ofSoft(20),
                         (talk, undesiredTagCount) -> undesiredTagCount * talk.getDurationInMinutes())
-                .justifyWith((talk, integer, score) -> new UndesiredTagsJustification("timeslot", talk.getSpeakers(),
-                        talk.getSpeakers().stream()
-                                .flatMap(s -> s.getUndesiredTimeslotTags().stream())
-                                .distinct()
-                                .toList(),
-                        talk.getTimeslot().getTags()))
+                .justifyWith(
+                        (talk, undesiredTagCount, score) -> UndesiredTimeslotTagsForSpeakersJustification.of(talk))
                 .asConstraint(new ConstraintInfo(ConferenceConstraintProperties.SPEAKER_UNDESIRED_TIMESLOT_TAGS,
                         ConferenceConstraintProperties.SPEAKER_UNDESIRED_TIMESLOT_TAGS,
                         "The talk's timeslot should avoid the timeslot tags undesired by its speakers.",
@@ -607,9 +565,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk, missingTagCount) -> missingTagCount > 0)
                 .penalize(HardMediumSoftScore.ofSoft(20),
                         (talk, missingTagCount) -> missingTagCount * talk.getDurationInMinutes())
-                .justifyWith((talk, integer, score) -> new PreferredTagsJustification("timeslot", talk,
-                        talk.getPreferredTimeslotTags(),
-                        talk.getTimeslot().getTags()))
+                .justifyWith((talk, missingTagCount, score) -> MissingPreferredTimeslotTagsForTalkJustification.of(talk))
                 .asConstraint(new ConstraintInfo(ConferenceConstraintProperties.TALK_PREFERRED_TIMESLOT_TAGS,
                         ConferenceConstraintProperties.TALK_PREFERRED_TIMESLOT_TAGS,
                         "The talk's timeslot should carry the timeslot tags the talk prefers.",
@@ -623,9 +579,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk, undesiredTagCount) -> undesiredTagCount > 0)
                 .penalize(HardMediumSoftScore.ofSoft(20),
                         (talk, undesiredTagCount) -> undesiredTagCount * talk.getDurationInMinutes())
-                .justifyWith((talk, integer, score) -> new UndesiredTagsJustification("timeslot", talk,
-                        talk.getPreferredTimeslotTags(),
-                        talk.getTimeslot().getTags()))
+                .justifyWith((talk, undesiredTagCount, score) -> UndesiredTimeslotTagsForTalkJustification.of(talk))
                 .asConstraint(new ConstraintInfo(ConferenceConstraintProperties.TALK_UNDESIRED_TIMESLOT_TAGS,
                         ConferenceConstraintProperties.TALK_UNDESIRED_TIMESLOT_TAGS,
                         "The talk's timeslot should avoid the timeslot tags the talk finds undesired.",
@@ -639,12 +593,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk, missingTagCount) -> missingTagCount > 0)
                 .penalize(HardMediumSoftScore.ofSoft(20),
                         (talk, missingTagCount) -> missingTagCount * talk.getDurationInMinutes())
-                .justifyWith((talk, integer, score) -> new PreferredTagsJustification("room", talk.getSpeakers(),
-                        talk.getSpeakers().stream()
-                                .flatMap(s -> s.getPreferredRoomTags().stream())
-                                .distinct()
-                                .toList(),
-                        talk.getRoom().getTags()))
+                .justifyWith((talk, missingTagCount, score) -> MissingPreferredRoomTagsForSpeakersJustification.of(talk))
                 .asConstraint(new ConstraintInfo(ConferenceConstraintProperties.SPEAKER_PREFERRED_ROOM_TAGS,
                         ConferenceConstraintProperties.SPEAKER_PREFERRED_ROOM_TAGS,
                         "The talk's room should carry the room tags preferred by its speakers.",
@@ -658,12 +607,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk, undesiredTagCount) -> undesiredTagCount > 0)
                 .penalize(HardMediumSoftScore.ofSoft(20),
                         (talk, undesiredTagCount) -> undesiredTagCount * talk.getDurationInMinutes())
-                .justifyWith((talk, integer, score) -> new UndesiredTagsJustification("room", talk.getSpeakers(),
-                        talk.getSpeakers().stream()
-                                .flatMap(s -> s.getUndesiredRoomTags().stream())
-                                .distinct()
-                                .toList(),
-                        talk.getRoom().getTags()))
+                .justifyWith((talk, undesiredTagCount, score) -> UndesiredRoomTagsForSpeakersJustification.of(talk))
                 .asConstraint(new ConstraintInfo(ConferenceConstraintProperties.SPEAKER_UNDESIRED_ROOM_TAGS,
                         ConferenceConstraintProperties.SPEAKER_UNDESIRED_ROOM_TAGS,
                         "The talk's room should avoid the room tags undesired by its speakers.",
@@ -677,9 +621,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk, missingTagCount) -> missingTagCount > 0)
                 .penalize(HardMediumSoftScore.ofSoft(20),
                         (talk, missingTagCount) -> missingTagCount * talk.getDurationInMinutes())
-                .justifyWith((talk, integer, score) -> new PreferredTagsJustification("room", talk,
-                        talk.getPreferredRoomTags(),
-                        talk.getRoom().getTags()))
+                .justifyWith((talk, missingTagCount, score) -> MissingPreferredRoomTagsForTalkJustification.of(talk))
                 .asConstraint(new ConstraintInfo(ConferenceConstraintProperties.TALK_PREFERRED_ROOM_TAGS,
                         ConferenceConstraintProperties.TALK_PREFERRED_ROOM_TAGS,
                         "The talk's room should carry the room tags the talk prefers.",
@@ -693,9 +635,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 .filter((talk, undesiredTagCount) -> undesiredTagCount > 0)
                 .penalize(HardMediumSoftScore.ofSoft(20),
                         (talk, undesiredTagCount) -> undesiredTagCount * talk.getDurationInMinutes())
-                .justifyWith((talk, integer, score) -> new UndesiredTagsJustification("room", talk,
-                        talk.getUndesiredRoomTags(),
-                        talk.getRoom().getTags()))
+                .justifyWith((talk, undesiredTagCount, score) -> UndesiredRoomTagsForTalkJustification.of(talk))
                 .asConstraint(new ConstraintInfo(ConferenceConstraintProperties.TALK_UNDESIRED_ROOM_TAGS,
                         ConferenceConstraintProperties.TALK_UNDESIRED_ROOM_TAGS,
                         "The talk's room should avoid the room tags the talk finds undesired.",
@@ -722,8 +662,8 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                 // Each such day counts for 8 hours.
                 .penalize(HardMediumSoftScore.ofSoft(20), (speaker, daysBetweenTalks) -> (daysBetweenTalks - 1) * 8 * 60)
                 .justifyWith(
-                        (speaker, integer, score) -> new ConferenceSchedulingJustification(
-                                "Required makespan for speaker %s".formatted(speaker.getName())))
+                        (speaker, daysBetweenTalks, score) -> SpeakerMakespanTooLongJustification.of(speaker,
+                                daysBetweenTalks))
                 .asConstraint(new ConstraintInfo(ConferenceConstraintProperties.SPEAKER_MAKESPAN,
                         ConferenceConstraintProperties.SPEAKER_MAKESPAN,
                         "A speaker's talks should be packed into as few days as possible.",

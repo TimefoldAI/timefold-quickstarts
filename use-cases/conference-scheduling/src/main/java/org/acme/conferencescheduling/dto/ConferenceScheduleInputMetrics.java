@@ -13,32 +13,32 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 public record ConferenceScheduleInputMetrics(
         @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT) @Schema(name = INPUT_METRIC_TALKS, title = "Talks",
                 format = DataFormat.Values.NUMBER, description = "The number of talks submitted in the input dataset.",
-                type = SchemaType.INTEGER, example = "15", minimum = "0", readOnly = true,
+                type = SchemaType.INTEGER, examples = "15", minimum = "0", readOnly = true,
                 extensions = {
                         @Extension(name = X_TF_PRIORITY, value = "1"),
                         @Extension(name = X_TF_EXAMPLE, value = "15") }) int talks,
         @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT) @Schema(name = INPUT_METRIC_SPEAKERS, title = "Speakers",
                 format = DataFormat.Values.NUMBER, description = "The number of speakers submitted in the input dataset.",
-                type = SchemaType.INTEGER, example = "12", minimum = "0", readOnly = true,
+                type = SchemaType.INTEGER, examples = "12", minimum = "0", readOnly = true,
                 extensions = { @Extension(name = X_TF_PRIORITY, value = "2"),
                         @Extension(name = X_TF_EXAMPLE, value = "12") }) int speakers,
         @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT) @Schema(name = INPUT_METRIC_ROOMS, title = "Rooms",
                 format = DataFormat.Values.NUMBER, description = "The number of rooms submitted in the input dataset.",
-                type = SchemaType.INTEGER, example = "5", minimum = "0", readOnly = true,
+                type = SchemaType.INTEGER, examples = "5", minimum = "0", readOnly = true,
                 extensions = { @Extension(name = X_TF_PRIORITY, value = "3"),
                         @Extension(name = X_TF_EXAMPLE, value = "5") }) int rooms,
         @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT) @Schema(name = INPUT_METRIC_TIMESLOTS, title = "Timeslots",
                 format = DataFormat.Values.NUMBER, description = "The number of timeslots submitted in the input dataset.",
-                type = SchemaType.INTEGER, example = "6", minimum = "0", readOnly = true,
+                type = SchemaType.INTEGER, examples = "6", minimum = "0", readOnly = true,
                 extensions = { @Extension(name = X_TF_PRIORITY, value = "4"),
                         @Extension(name = X_TF_EXAMPLE, value = "6") }) int timeslots,
         @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT) @Schema(name = INPUT_METRIC_TALK_TYPES, title = "Talk types",
                 format = DataFormat.Values.NUMBER, description = "The number of talk types submitted in the input dataset.",
-                type = SchemaType.INTEGER, example = "2", minimum = "0", readOnly = true,
+                type = SchemaType.INTEGER, examples = "2", minimum = "0", readOnly = true,
                 extensions = { @Extension(name = X_TF_PRIORITY, value = "5"),
                         @Extension(name = X_TF_EXAMPLE, value = "2") }) int talkTypes)
         implements
-            ModelInputMetrics{
+            ModelInputMetrics {
 
     private static final String X_TF_PRIORITY = "x-tf-priority";
     private static final String X_TF_EXAMPLE = "x-tf-example";

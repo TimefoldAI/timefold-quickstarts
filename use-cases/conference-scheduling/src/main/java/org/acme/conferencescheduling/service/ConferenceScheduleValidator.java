@@ -13,14 +13,14 @@ import ai.timefold.solver.service.definition.api.validation.ValidationBuilder;
 import org.acme.conferencescheduling.dto.ConferenceScheduleConfigOverrides;
 import org.acme.conferencescheduling.dto.ConferenceScheduleInput;
 import org.acme.conferencescheduling.dto.RoomDTO;
-import org.acme.conferencescheduling.dto.RoomIdDetail;
 import org.acme.conferencescheduling.dto.SpeakerDTO;
-import org.acme.conferencescheduling.dto.SpeakerIdDetail;
 import org.acme.conferencescheduling.dto.TalkDTO;
-import org.acme.conferencescheduling.dto.TalkIdDetail;
 import org.acme.conferencescheduling.dto.TalkTypeDTO;
 import org.acme.conferencescheduling.dto.TimeslotDTO;
-import org.acme.conferencescheduling.dto.TimeslotIdDetail;
+import org.acme.conferencescheduling.dto.validation.RoomIdDetail;
+import org.acme.conferencescheduling.dto.validation.SpeakerIdDetail;
+import org.acme.conferencescheduling.dto.validation.TalkIdDetail;
+import org.acme.conferencescheduling.dto.validation.TimeslotIdDetail;
 import org.acme.conferencescheduling.service.ConferenceScheduleIssues.DuplicateRoomIdIssue;
 import org.acme.conferencescheduling.service.ConferenceScheduleIssues.DuplicateSpeakerIdIssue;
 import org.acme.conferencescheduling.service.ConferenceScheduleIssues.DuplicateTalkIdIssue;
@@ -35,7 +35,6 @@ import org.acme.conferencescheduling.service.ConferenceScheduleIssues.TalkIdMiss
 import org.acme.conferencescheduling.service.ConferenceScheduleIssues.TimeslotIdMissingIssue;
 
 @ApplicationScoped
-@SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
 public class ConferenceScheduleValidator
         implements ModelValidator<ConferenceScheduleInput, ConferenceScheduleConfigOverrides> {
 

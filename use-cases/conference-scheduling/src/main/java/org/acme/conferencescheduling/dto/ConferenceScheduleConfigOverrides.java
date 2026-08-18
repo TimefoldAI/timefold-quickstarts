@@ -59,7 +59,7 @@ public record ConferenceScheduleConfigOverrides(
 
     /**
      * Creates an empty overrides instance: no weight is overridden, so the configuration profile
-     * (or each constraint's default) applies. Required by the SDK to generate the default config profile.
+     * (or each constraint's default) applies. Required by the Service Module to generate the default config profile.
      */
     public ConferenceScheduleConfigOverrides() {
         this(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,

@@ -19,9 +19,6 @@ public class Timeslot {
     // Cached
     private int durationInMinutes;
 
-    public Timeslot() {
-    }
-
     public Timeslot(String id, LocalDateTime startDateTime, LocalDateTime endDateTime, Set<TalkType> talkTypes,
             Set<String> tags) {
         this.id = id;
@@ -31,8 +28,6 @@ public class Timeslot {
         this.tags = tags;
         durationInMinutes = (startDateTime == null || endDateTime == null) ? 0
                 : (int) Duration.between(startDateTime, endDateTime).toMinutes();
-        // Update compatible timeslots
-        talkTypes.forEach(t -> t.addCompatibleTimeslot(this));
     }
 
     public boolean overlapsTime(Timeslot other) {

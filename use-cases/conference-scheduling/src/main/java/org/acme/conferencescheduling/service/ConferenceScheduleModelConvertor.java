@@ -62,16 +62,19 @@ public class ConferenceScheduleModelConvertor
             ModelConfig<ConferenceScheduleConfigOverrides> modelConfig,
             Optional<ConferenceScheduleOutput> lastModelOutput) {
         Map<String, TalkType> talkTypeMap = modelInput.talkTypes().stream()
-                .collect(Collectors.toMap(TalkTypeDTO::name, dto -> new TalkType(dto.name()), (a, b) -> a,
-                        java.util.LinkedHashMap::new));
+                .collect(Collectors.toMap(TalkTypeDTO::name, dto -> {
+                    return new TalkType(dto.name(), new LinkedHashSet<>(), new LinkedHashSet<>());
+                }, (a, b) -> a, java.util.LinkedHashMap::new));
 
         Map<String, Timeslot> timeslotMap = new java.util.LinkedHashMap<>();
         Set<Timeslot> timeslots = modelInput.timeslots().stream()
                 .map(dto -> {
+                    var relevantTalkTypes = talkTypes(dto.talkTypeNames(), talkTypeMap);
                     Timeslot timeslot = new Timeslot(dto.id(), LocalDateTime.parse(dto.startDateTime()),
-                            LocalDateTime.parse(dto.endDateTime()), talkTypes(dto.talkTypeNames(), talkTypeMap),
+                            LocalDateTime.parse(dto.endDateTime()), relevantTalkTypes,
                             new LinkedHashSet<>(dto.tags()));
                     timeslotMap.put(timeslot.getId(), timeslot);
+                    relevantTalkTypes.forEach(r -> r.compatibleTimeslots().add(timeslot));
                     return timeslot;
                 })
                 .collect(toCollection(LinkedHashSet::new));
@@ -79,11 +82,13 @@ public class ConferenceScheduleModelConvertor
         Map<String, Room> roomMap = new java.util.LinkedHashMap<>();
         Set<Room> rooms = modelInput.rooms().stream()
                 .map(dto -> {
+                    var relevantTalkTypes = talkTypes(dto.talkTypeNames(), talkTypeMap);
                     Room room = new Room(dto.id(), dto.name(), dto.capacity(),
-                            talkTypes(dto.talkTypeNames(), talkTypeMap),
+                            relevantTalkTypes,
                             timeslotsByIds(dto.unavailableTimeslotIds(), timeslotMap),
                             new LinkedHashSet<>(dto.tags()));
-                    roomMap.put(room.getId(), room);
+                    roomMap.put(room.id(), room);
+                    relevantTalkTypes.forEach(r -> r.compatibleRooms().add(room));
                     return room;
                 })
                 .collect(toCollection(LinkedHashSet::new));
@@ -92,7 +97,7 @@ public class ConferenceScheduleModelConvertor
         Set<Speaker> speakers = modelInput.speakers().stream()
                 .map(dto -> {
                     Speaker speaker = toSpeaker(dto, timeslotMap);
-                    speakerMap.put(speaker.getId(), speaker);
+                    speakerMap.put(speaker.id(), speaker);
                     return speaker;
                 })
                 .collect(toCollection(LinkedHashSet::new));
@@ -138,7 +143,8 @@ public class ConferenceScheduleModelConvertor
     }
 
     private static Speaker toSpeaker(SpeakerDTO dto, Map<String, Timeslot> timeslotMap) {
-        return Speaker.builder(dto.id(), dto.name())
+        return Speaker.builder(dto.id())
+                .name(dto.name())
                 .unavailableTimeslots(timeslotsByIds(dto.unavailableTimeslotIds(), timeslotMap))
                 .requiredTimeslotTags(new LinkedHashSet<>(dto.requiredTimeslotTags()))
                 .preferredTimeslotTags(new LinkedHashSet<>(dto.preferredTimeslotTags()))
@@ -274,7 +280,7 @@ public class ConferenceScheduleModelConvertor
     @Override
     public ConferenceScheduleOutput toModelOutput(ConferenceSchedule solverModel) {
         List<TalkTypeDTO> talkTypes = solverModel.getTalkTypes().stream()
-                .map(talkType -> new TalkTypeDTO(talkType.getName())).collect(Collectors.toList());
+                .map(talkType -> new TalkTypeDTO(talkType.name())).collect(Collectors.toList());
         List<TimeslotDTO> timeslots = solverModel.getTimeslots().stream().map(this::toDTO).collect(Collectors.toList());
         List<RoomDTO> rooms = solverModel.getRooms().stream().map(this::toDTO).collect(Collectors.toList());
         List<SpeakerDTO> speakers = solverModel.getSpeakers().stream().map(this::toDTO).collect(Collectors.toList());
@@ -284,36 +290,36 @@ public class ConferenceScheduleModelConvertor
     }
 
     private TimeslotDTO toDTO(Timeslot timeslot) {
-        List<String> talkTypeNames = timeslot.getTalkTypes().stream().map(TalkType::getName).collect(Collectors.toList());
+        List<String> talkTypeNames = timeslot.getTalkTypes().stream().map(TalkType::name).collect(Collectors.toList());
         return new TimeslotDTO(timeslot.getId(), timeslot.getStartDateTime().toString(),
                 timeslot.getEndDateTime().toString(), talkTypeNames, List.copyOf(timeslot.getTags()));
     }
 
     private RoomDTO toDTO(Room room) {
-        List<String> talkTypeNames = room.getTalkTypes().stream().map(TalkType::getName).collect(Collectors.toList());
+        List<String> talkTypeNames = room.talkTypes().stream().map(TalkType::name).collect(Collectors.toList());
         List<String> unavailableTimeslotIds =
-                room.getUnavailableTimeslots().stream().map(Timeslot::getId).collect(Collectors.toList());
-        return new RoomDTO(room.getId(), room.getName(), room.getCapacity(), talkTypeNames, unavailableTimeslotIds,
-                List.copyOf(room.getTags()));
+                room.unavailableTimeslots().stream().map(Timeslot::getId).collect(Collectors.toList());
+        return new RoomDTO(room.id(), room.name(), room.capacity(), talkTypeNames, unavailableTimeslotIds,
+                List.copyOf(room.tags()));
     }
 
     private SpeakerDTO toDTO(Speaker speaker) {
         List<String> unavailableTimeslotIds =
-                speaker.getUnavailableTimeslots().stream().map(Timeslot::getId).collect(Collectors.toList());
-        return new SpeakerDTO(speaker.getId(), speaker.getName(), unavailableTimeslotIds,
-                List.copyOf(speaker.getRequiredTimeslotTags()), List.copyOf(speaker.getPreferredTimeslotTags()),
-                List.copyOf(speaker.getProhibitedTimeslotTags()), List.copyOf(speaker.getUndesiredTimeslotTags()),
-                List.copyOf(speaker.getRequiredRoomTags()), List.copyOf(speaker.getPreferredRoomTags()),
-                List.copyOf(speaker.getProhibitedRoomTags()), List.copyOf(speaker.getUndesiredRoomTags()));
+                speaker.unavailableTimeslots().stream().map(Timeslot::getId).collect(Collectors.toList());
+        return new SpeakerDTO(speaker.id(), speaker.name(), unavailableTimeslotIds,
+                List.copyOf(speaker.requiredTimeslotTags()), List.copyOf(speaker.preferredTimeslotTags()),
+                List.copyOf(speaker.prohibitedTimeslotTags()), List.copyOf(speaker.undesiredTimeslotTags()),
+                List.copyOf(speaker.requiredRoomTags()), List.copyOf(speaker.preferredRoomTags()),
+                List.copyOf(speaker.prohibitedRoomTags()), List.copyOf(speaker.undesiredRoomTags()));
     }
 
     private TalkDTO toDTO(Talk talk) {
-        List<String> speakerIds = talk.getSpeakers().stream().map(Speaker::getId).collect(Collectors.toList());
+        List<String> speakerIds = talk.getSpeakers().stream().map(Speaker::id).collect(Collectors.toList());
         List<String> prerequisiteCodes =
                 talk.getPrerequisiteTalks().stream().map(Talk::getCode).collect(Collectors.toList());
         String timeslotId = talk.getTimeslot() == null ? null : talk.getTimeslot().getId();
-        String roomId = talk.getRoom() == null ? null : talk.getRoom().getId();
-        return new TalkDTO(talk.getCode(), talk.getTitle(), talk.getTalkType().getName(), speakerIds,
+        String roomId = talk.getRoom() == null ? null : talk.getRoom().id();
+        return new TalkDTO(talk.getCode(), talk.getTitle(), talk.getTalkType().name(), speakerIds,
                 List.copyOf(talk.getThemeTrackTags()), List.copyOf(talk.getSectorTags()),
                 List.copyOf(talk.getAudienceTypes()), talk.getAudienceLevel(), List.copyOf(talk.getContentTags()),
                 talk.getLanguage(), List.copyOf(talk.getRequiredTimeslotTags()),

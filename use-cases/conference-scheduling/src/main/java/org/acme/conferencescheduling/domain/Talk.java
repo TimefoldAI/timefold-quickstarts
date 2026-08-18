@@ -1,18 +1,19 @@
 package org.acme.conferencescheduling.domain;
 
+import static java.util.Collections.emptyList;
+
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.SequencedSet;
 import java.util.Set;
 
-import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.common.PlanningId;
+import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import static java.util.Collections.emptyList;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @PlanningEntity
 public class Talk {
@@ -21,23 +22,23 @@ public class Talk {
     private String code;
     private String title;
     private TalkType talkType;
-    private List<Speaker> speakers;
-    private SequencedSet<String> themeTrackTags;
-    private SequencedSet<String> sectorTags;
-    private SequencedSet<String> audienceTypes;
+    private List<Speaker> speakers = emptyList();
+    private SequencedSet<String> themeTrackTags = new LinkedHashSet<>();
+    private SequencedSet<String> sectorTags = new LinkedHashSet<>();
+    private SequencedSet<String> audienceTypes = new LinkedHashSet<>();
     private int audienceLevel;
-    private SequencedSet<String> contentTags;
+    private SequencedSet<String> contentTags = new LinkedHashSet<>();
     private String language;
-    private SequencedSet<String> requiredTimeslotTags;
-    private SequencedSet<String> preferredTimeslotTags;
-    private SequencedSet<String> prohibitedTimeslotTags;
-    private SequencedSet<String> undesiredTimeslotTags;
-    private SequencedSet<String> requiredRoomTags;
-    private SequencedSet<String> preferredRoomTags;
-    private SequencedSet<String> prohibitedRoomTags;
-    private SequencedSet<String> undesiredRoomTags;
-    private SequencedSet<String> mutuallyExclusiveTalksTags;
-    private SequencedSet<Talk> prerequisiteTalks;
+    private SequencedSet<String> requiredTimeslotTags = new LinkedHashSet<>();
+    private SequencedSet<String> preferredTimeslotTags = new LinkedHashSet<>();
+    private SequencedSet<String> prohibitedTimeslotTags = new LinkedHashSet<>();
+    private SequencedSet<String> undesiredTimeslotTags = new LinkedHashSet<>();
+    private SequencedSet<String> requiredRoomTags = new LinkedHashSet<>();
+    private SequencedSet<String> preferredRoomTags = new LinkedHashSet<>();
+    private SequencedSet<String> prohibitedRoomTags = new LinkedHashSet<>();
+    private SequencedSet<String> undesiredRoomTags = new LinkedHashSet<>();
+    private SequencedSet<String> mutuallyExclusiveTalksTags = new LinkedHashSet<>();
+    private SequencedSet<Talk> prerequisiteTalks = new LinkedHashSet<>();
     private int favoriteCount;
     private int crowdControlRisk;
 
@@ -50,47 +51,10 @@ public class Talk {
     public Talk() {
     }
 
-    public Talk(String code, Timeslot timeslot, Room room) {
-        this(code, timeslot, room, emptyList());
-    }
-
-    public Talk(String code, Timeslot timeslot, Room room, List<Speaker> speakers) {
-        this(builder(code).speakers(speakers));
-        this.timeslot = timeslot;
-        this.room = room;
-    }
-
-    private Talk(Builder builder) {
-        this.code = builder.code;
-        this.title = builder.title;
-        this.talkType = builder.talkType;
-        this.speakers = builder.speakers;
-        this.themeTrackTags = builder.themeTrackTags;
-        this.sectorTags = builder.sectorTags;
-        this.audienceTypes = builder.audienceTypes;
-        this.audienceLevel = builder.audienceLevel;
-        this.contentTags = builder.contentTags;
-        this.language = builder.language;
-        this.requiredTimeslotTags = builder.requiredTimeslotTags;
-        this.preferredTimeslotTags = builder.preferredTimeslotTags;
-        this.prohibitedTimeslotTags = builder.prohibitedTimeslotTags;
-        this.undesiredTimeslotTags = builder.undesiredTimeslotTags;
-        this.requiredRoomTags = builder.requiredRoomTags;
-        this.preferredRoomTags = builder.preferredRoomTags;
-        this.prohibitedRoomTags = builder.prohibitedRoomTags;
-        this.undesiredRoomTags = builder.undesiredRoomTags;
-        this.mutuallyExclusiveTalksTags = builder.mutuallyExclusiveTalksTags;
-        this.prerequisiteTalks = builder.prerequisiteTalks;
-        this.favoriteCount = builder.favoriteCount;
-        this.crowdControlRisk = builder.crowdControlRisk;
-    }
-
     public static Builder builder(String code) {
         return new Builder(code);
     }
 
-    // In a fluent builder, methods named after the fields they set are the whole point.
-    @SuppressWarnings("PMD.AvoidFieldNameMatchingMethodName")
     public static final class Builder {
 
         private final String code;
@@ -115,6 +79,8 @@ public class Talk {
         private SequencedSet<Talk> prerequisiteTalks = new LinkedHashSet<>();
         private int favoriteCount;
         private int crowdControlRisk;
+        private Timeslot timeslot;
+        private Room room;
 
         private Builder(String code) {
             this.code = code;
@@ -132,6 +98,16 @@ public class Talk {
 
         public Builder speakers(List<Speaker> speakers) {
             this.speakers = speakers;
+            return this;
+        }
+
+        public Builder timeslot(Timeslot timeslot) {
+            this.timeslot = timeslot;
+            return this;
+        }
+
+        public Builder room(Room room) {
+            this.room = room;
             return this;
         }
 
@@ -226,18 +202,43 @@ public class Talk {
         }
 
         public Talk build() {
-            return new Talk(this);
+            Talk talk = new Talk();
+            talk.code = code;
+            talk.title = title;
+            talk.talkType = talkType;
+            talk.speakers = speakers;
+            talk.themeTrackTags = themeTrackTags;
+            talk.sectorTags = sectorTags;
+            talk.audienceTypes = audienceTypes;
+            talk.audienceLevel = audienceLevel;
+            talk.contentTags = contentTags;
+            talk.language = language;
+            talk.requiredTimeslotTags = requiredTimeslotTags;
+            talk.preferredTimeslotTags = preferredTimeslotTags;
+            talk.prohibitedTimeslotTags = prohibitedTimeslotTags;
+            talk.undesiredTimeslotTags = undesiredTimeslotTags;
+            talk.requiredRoomTags = requiredRoomTags;
+            talk.preferredRoomTags = preferredRoomTags;
+            talk.prohibitedRoomTags = prohibitedRoomTags;
+            talk.undesiredRoomTags = undesiredRoomTags;
+            talk.mutuallyExclusiveTalksTags = mutuallyExclusiveTalksTags;
+            talk.prerequisiteTalks = prerequisiteTalks;
+            talk.favoriteCount = favoriteCount;
+            talk.crowdControlRisk = crowdControlRisk;
+            talk.timeslot = timeslot;
+            talk.room = room;
+            return talk;
         }
     }
 
     @ValueRangeProvider
     public Set<Timeslot> getTimeslotRange() {
-        return talkType.getCompatibleTimeslots();
+        return talkType.compatibleTimeslots();
     }
 
     @ValueRangeProvider
     public Set<Room> getRoomRange() {
-        return talkType.getCompatibleRooms();
+        return talkType.compatibleRooms();
     }
 
     public int overlappingThemeTrackCount(Talk other) {
@@ -320,7 +321,7 @@ public class Talk {
         if (room == null) {
             return 0;
         }
-        return missingCount(requiredRoomTags, room.getTags());
+        return missingCount(requiredRoomTags, room.tags());
 
     }
 
@@ -328,14 +329,14 @@ public class Talk {
         if (room == null) {
             return 0;
         }
-        return missingCount(preferredRoomTags, room.getTags());
+        return missingCount(preferredRoomTags, room.tags());
     }
 
     public int prevailingProhibitedRoomTagCount() {
         if (room == null) {
             return 0;
         }
-        return overlappingCount(prohibitedRoomTags, room.getTags());
+        return overlappingCount(prohibitedRoomTags, room.tags());
 
     }
 
@@ -343,7 +344,7 @@ public class Talk {
         if (room == null) {
             return 0;
         }
-        return overlappingCount(undesiredRoomTags, room.getTags());
+        return overlappingCount(undesiredRoomTags, room.tags());
     }
 
     public int missingSpeakerRequiredTimeslotTagCount() {
@@ -352,7 +353,7 @@ public class Talk {
         }
         int count = 0;
         for (Speaker speaker : speakers) {
-            count += missingCount(speaker.getRequiredTimeslotTags(), timeslot.getTags());
+            count += missingCount(speaker.requiredTimeslotTags(), timeslot.getTags());
         }
         return count;
     }
@@ -363,7 +364,7 @@ public class Talk {
         }
         int count = 0;
         for (Speaker speaker : speakers) {
-            count += missingCount(speaker.getPreferredTimeslotTags(), timeslot.getTags());
+            count += missingCount(speaker.preferredTimeslotTags(), timeslot.getTags());
         }
         return count;
     }
@@ -374,7 +375,7 @@ public class Talk {
         }
         int count = 0;
         for (Speaker speaker : speakers) {
-            count += overlappingCount(speaker.getProhibitedTimeslotTags(), timeslot.getTags());
+            count += overlappingCount(speaker.prohibitedTimeslotTags(), timeslot.getTags());
         }
         return count;
     }
@@ -385,7 +386,7 @@ public class Talk {
         }
         int count = 0;
         for (Speaker speaker : speakers) {
-            count += overlappingCount(speaker.getUndesiredTimeslotTags(), timeslot.getTags());
+            count += overlappingCount(speaker.undesiredTimeslotTags(), timeslot.getTags());
         }
         return count;
     }
@@ -396,7 +397,7 @@ public class Talk {
         }
         int count = 0;
         for (Speaker speaker : speakers) {
-            count += missingCount(speaker.getRequiredRoomTags(), room.getTags());
+            count += missingCount(speaker.requiredRoomTags(), room.tags());
         }
         return count;
     }
@@ -407,7 +408,7 @@ public class Talk {
         }
         int count = 0;
         for (Speaker speaker : speakers) {
-            count += missingCount(speaker.getPreferredRoomTags(), room.getTags());
+            count += missingCount(speaker.preferredRoomTags(), room.tags());
         }
         return count;
     }
@@ -418,7 +419,7 @@ public class Talk {
         }
         int count = 0;
         for (Speaker speaker : speakers) {
-            count += overlappingCount(speaker.getProhibitedRoomTags(), room.getTags());
+            count += overlappingCount(speaker.prohibitedRoomTags(), room.tags());
         }
         return count;
     }
@@ -429,7 +430,7 @@ public class Talk {
         }
         int count = 0;
         for (Speaker speaker : speakers) {
-            count += overlappingCount(speaker.getUndesiredRoomTags(), room.getTags());
+            count += overlappingCount(speaker.undesiredRoomTags(), room.tags());
         }
         return count;
     }
@@ -438,7 +439,7 @@ public class Talk {
         if (timeslot == null || room == null) {
             return false;
         }
-        return room.getUnavailableTimeslots().contains(timeslot);
+        return room.unavailableTimeslots().contains(timeslot);
     }
 
     public int overlappingMutuallyExclusiveTalksTagCount(Talk other) {

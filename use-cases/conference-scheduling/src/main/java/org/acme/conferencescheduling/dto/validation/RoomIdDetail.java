@@ -1,4 +1,6 @@
-package org.acme.conferencescheduling.dto;
+package org.acme.conferencescheduling.dto.validation;
+
+import static java.util.Objects.requireNonNull;
 
 import ai.timefold.solver.service.definition.api.validation.IssueMetadata;
 
@@ -9,7 +11,7 @@ public record RoomIdDetail(
         @Schema(description = "The ID of the room.") String roomId) implements IssueMetadata {
 
     public RoomIdDetail {
-        roomId = roomId == null ? "" : roomId;
+        roomId = requireNonNull(roomId);
     }
 
     @Override

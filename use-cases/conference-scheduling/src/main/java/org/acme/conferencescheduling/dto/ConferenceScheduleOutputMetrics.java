@@ -14,30 +14,30 @@ public record ConferenceScheduleOutputMetrics(
         @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT) @Schema(name = TOTAL_SCHEDULED_TALKS, title = "Scheduled talks",
                 format = DataFormat.Values.NUMBER,
                 description = "The number of talks assigned to both a timeslot and a room in this schedule.",
-                type = SchemaType.INTEGER, example = "15", minimum = "0", readOnly = true,
+                type = SchemaType.INTEGER, examples = "15", minimum = "0", readOnly = true,
                 extensions = {
                         @Extension(name = X_TF_PRIORITY, value = "1"),
                         @Extension(name = X_TF_EXAMPLE, value = "15") }) int totalScheduledTalks,
         @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT) @Schema(name = TOTAL_UNSCHEDULED_TALKS, title = "Unscheduled talks",
                 format = DataFormat.Values.NUMBER,
                 description = "The number of talks left without a timeslot or room in this schedule.",
-                type = SchemaType.INTEGER, example = "0", minimum = "0", readOnly = true,
+                type = SchemaType.INTEGER, examples = "0", minimum = "0", readOnly = true,
                 extensions = { @Extension(name = X_TF_PRIORITY, value = "2"),
                         @Extension(name = X_TF_EXAMPLE, value = "0") }) int totalUnscheduledTalks,
         @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT) @Schema(name = TOTAL_USED_ROOMS, title = "Used rooms",
                 format = DataFormat.Values.NUMBER,
                 description = "The number of distinct rooms used by at least one talk in this schedule.",
-                type = SchemaType.INTEGER, example = "5", minimum = "0", readOnly = true,
+                type = SchemaType.INTEGER, examples = "5", minimum = "0", readOnly = true,
                 extensions = { @Extension(name = X_TF_PRIORITY, value = "3"),
                         @Extension(name = X_TF_EXAMPLE, value = "5") }) int totalUsedRooms,
         @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT) @Schema(name = TOTAL_USED_TIMESLOTS, title = "Used timeslots",
                 format = DataFormat.Values.NUMBER,
                 description = "The number of distinct timeslots used by at least one talk in this schedule.",
-                type = SchemaType.INTEGER, example = "6", minimum = "0", readOnly = true,
+                type = SchemaType.INTEGER, examples = "6", minimum = "0", readOnly = true,
                 extensions = { @Extension(name = X_TF_PRIORITY, value = "4"),
                         @Extension(name = X_TF_EXAMPLE, value = "6") }) int totalUsedTimeslots)
         implements
-            ModelOutputMetrics{
+            ModelOutputMetrics {
 
     private static final String X_TF_PRIORITY = "x-tf-priority";
     private static final String X_TF_EXAMPLE = "x-tf-example";

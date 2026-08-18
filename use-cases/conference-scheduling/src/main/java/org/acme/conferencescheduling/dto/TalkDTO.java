@@ -1,15 +1,17 @@
 package org.acme.conferencescheduling.dto;
 
+import static org.acme.conferencescheduling.dto.DTOHelper.immutableCopy;
+
 import java.util.List;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Schema(description = "A talk to be assigned to a timeslot and a room.")
 public record TalkDTO(
-        @Schema(description = "Unique code of the talk.") String code,
-        @Schema(description = "Title of the talk.") String title,
-        @Schema(description = "Name of the talk type of this talk.") String talkTypeName,
-        @Schema(description = "IDs of the speakers presenting this talk.") List<String> speakerIds,
+        @Schema(description = "Unique code of the talk.", required = true) String code,
+        @Schema(description = "Title of the talk.", required = true) String title,
+        @Schema(description = "Name of the talk type of this talk.", required = true) String talkTypeName,
+        @Schema(description = "IDs of the speakers presenting this talk.", required = true) List<String> speakerIds,
         @Schema(description = "Theme track tags of this talk.") List<String> themeTrackTags,
         @Schema(description = "Sector tags of this talk.") List<String> sectorTags,
         @Schema(description = "Audience types of this talk.") List<String> audienceTypes,
@@ -32,15 +34,11 @@ public record TalkDTO(
         @Schema(description = "ID of the room this talk is assigned to, or null if unassigned.") String roomId) {
 
     public TalkDTO {
-        code = orEmpty(code);
-        title = orEmpty(title);
-        talkTypeName = orEmpty(talkTypeName);
         speakerIds = immutableCopy(speakerIds);
         themeTrackTags = immutableCopy(themeTrackTags);
         sectorTags = immutableCopy(sectorTags);
         audienceTypes = immutableCopy(audienceTypes);
         contentTags = immutableCopy(contentTags);
-        language = orEmpty(language);
         requiredTimeslotTags = immutableCopy(requiredTimeslotTags);
         preferredTimeslotTags = immutableCopy(preferredTimeslotTags);
         prohibitedTimeslotTags = immutableCopy(prohibitedTimeslotTags);
@@ -53,14 +51,6 @@ public record TalkDTO(
         prerequisiteTalkCodes = immutableCopy(prerequisiteTalkCodes);
         timeslotId = normalizeId(timeslotId);
         roomId = normalizeId(roomId);
-    }
-
-    private static String orEmpty(String value) {
-        return value == null ? "" : value;
-    }
-
-    private static List<String> immutableCopy(List<String> list) {
-        return list == null ? List.of() : List.copyOf(list);
     }
 
     private static String normalizeId(String id) {
@@ -104,8 +94,6 @@ public record TalkDTO(
                 .roomId(roomId);
     }
 
-    // In a fluent builder, methods named after the fields they set are the whole point.
-    @SuppressWarnings("PMD.AvoidFieldNameMatchingMethodName")
     public static final class Builder {
 
         private final String code;

@@ -7,94 +7,67 @@ import java.util.Set;
 
 import ai.timefold.solver.core.api.domain.common.PlanningId;
 
-public class Room {
-
-    @PlanningId
-    private String id;
-    private String name;
-    private int capacity;
-
-    private Set<TalkType> talkTypes;
-    private Set<Timeslot> unavailableTimeslots;
-    private Set<String> tags;
-
-    public Room() {
-    }
+public record Room(
+        @PlanningId String id,
+        String name,
+        int capacity,
+        Set<TalkType> talkTypes,
+        Set<Timeslot> unavailableTimeslots,
+        Set<String> tags) {
 
     public Room(String id) {
-        this(id, id, 0, emptySet(), emptySet());
+        this(id, id, 0, emptySet(), emptySet(), emptySet());
     }
 
     public Room(String id, String name) {
         this(id, name, 0, emptySet(), emptySet(), emptySet());
     }
 
-    public Room(String id, String name, int capacity, Set<TalkType> talkTypes, Set<String> tags) {
-        this(id, name, capacity, talkTypes, emptySet(), tags);
-    }
-
     public Room(String id, Set<Timeslot> unavailableTimeslots) {
-        this(id);
-        this.unavailableTimeslots = unavailableTimeslots;
+        this(id, id, 0, emptySet(), unavailableTimeslots, emptySet());
     }
 
-    public Room(String id, String name, int capacity, Set<TalkType> talkTypes, Set<Timeslot> unavailableTimeslots,
-            Set<String> tags) {
-        this.id = id;
-        this.name = name;
-        this.capacity = capacity;
-        this.talkTypes = talkTypes;
-        this.unavailableTimeslots = unavailableTimeslots;
-        this.tags = tags;
-        talkTypes.forEach(t -> t.addCompatibleRoom(this));
+    public static Builder builder(String id) {
+        return new Builder(id, id);
     }
 
-    public String getId() {
-        return id;
-    }
+    public static final class Builder {
 
-    public void setId(String id) {
-        this.id = id;
-    }
+        private final String id;
+        private final String name;
+        private int capacity = 0;
+        private Set<TalkType> talkTypes = emptySet();
+        private Set<Timeslot> unavailableTimeslots = emptySet();
+        private Set<String> tags = emptySet();
 
-    public String getName() {
-        return name;
-    }
+        private Builder(String id, String name) {
+            this.id = id;
+            this.name = name;
+        }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+        public Builder capacity(int capacity) {
+            this.capacity = capacity;
+            return this;
+        }
 
-    public int getCapacity() {
-        return capacity;
-    }
+        public Builder talkTypes(Set<TalkType> talkTypes) {
+            this.talkTypes = talkTypes;
+            return this;
+        }
 
-    public void setCapacity(int capacity) {
-        this.capacity = capacity;
-    }
+        public Builder unavailableTimeslots(Set<Timeslot> unavailableTimeslots) {
+            this.unavailableTimeslots = unavailableTimeslots;
+            return this;
+        }
 
-    public Set<TalkType> getTalkTypes() {
-        return talkTypes;
-    }
+        public Builder tags(Set<String> tags) {
+            this.tags = tags;
+            return this;
+        }
 
-    public void setTalkTypes(Set<TalkType> talkTypes) {
-        this.talkTypes = talkTypes;
-    }
-
-    public Set<Timeslot> getUnavailableTimeslots() {
-        return unavailableTimeslots;
-    }
-
-    public void setUnavailableTimeslots(Set<Timeslot> unavailableTimeslots) {
-        this.unavailableTimeslots = unavailableTimeslots;
-    }
-
-    public Set<String> getTags() {
-        return tags;
-    }
-
-    public void setTags(Set<String> tags) {
-        this.tags = tags;
+        public Room build() {
+            return new Room(id, name, capacity, talkTypes, unavailableTimeslots, tags);
+        }
     }
 
     @Override
@@ -105,12 +78,12 @@ public class Room {
         if (!(o instanceof Room room)) {
             return false;
         }
-        return Objects.equals(getId(), room.getId());
+        return Objects.equals(id, room.id);
     }
 
     @Override
     public int hashCode() {
-        return id.hashCode();
+        return Objects.hashCode(id);
     }
 
     @Override

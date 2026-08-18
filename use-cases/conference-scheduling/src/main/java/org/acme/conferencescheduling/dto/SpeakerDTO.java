@@ -1,13 +1,16 @@
 package org.acme.conferencescheduling.dto;
 
+import static java.util.Objects.requireNonNull;
+import static org.acme.conferencescheduling.dto.DTOHelper.immutableCopy;
+
 import java.util.List;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Schema(description = "A speaker who presents one or more talks.")
 public record SpeakerDTO(
-        @Schema(description = "Unique identifier of the speaker.") String id,
-        @Schema(description = "Display name of the speaker.") String name,
+        @Schema(description = "Unique identifier of the speaker.", required = true) String id,
+        @Schema(description = "Display name of the speaker.", required = true) String name,
         @Schema(description = "IDs of the timeslots during which this speaker is unavailable.") List<String> unavailableTimeslotIds,
         @Schema(description = "Timeslot tags required by this speaker.") List<String> requiredTimeslotTags,
         @Schema(description = "Timeslot tags preferred by this speaker.") List<String> preferredTimeslotTags,
@@ -19,7 +22,8 @@ public record SpeakerDTO(
         @Schema(description = "Room tags undesired by this speaker.") List<String> undesiredRoomTags) {
 
     public SpeakerDTO {
-        name = name == null ? "" : name;
+        id = requireNonNull(id);
+        name = requireNonNull(name);
         unavailableTimeslotIds = immutableCopy(unavailableTimeslotIds);
         requiredTimeslotTags = immutableCopy(requiredTimeslotTags);
         preferredTimeslotTags = immutableCopy(preferredTimeslotTags);
@@ -31,16 +35,10 @@ public record SpeakerDTO(
         undesiredRoomTags = immutableCopy(undesiredRoomTags);
     }
 
-    private static List<String> immutableCopy(List<String> list) {
-        return list == null ? List.of() : List.copyOf(list);
-    }
-
     public static Builder builder(String id, String name) {
         return new Builder(id, name);
     }
 
-    // In a fluent builder, methods named after the fields they set are the whole point.
-    @SuppressWarnings("PMD.AvoidFieldNameMatchingMethodName")
     public static final class Builder {
 
         private final String id;
@@ -60,7 +58,6 @@ public record SpeakerDTO(
             this.name = name;
         }
 
-        // CPD-OFF: builder boilerplate intentionally mirrors the TalkDTO builder.
         public Builder unavailableTimeslotIds(List<String> unavailableTimeslotIds) {
             this.unavailableTimeslotIds = unavailableTimeslotIds;
             return this;
@@ -105,8 +102,6 @@ public record SpeakerDTO(
             this.undesiredRoomTags = undesiredRoomTags;
             return this;
         }
-
-        // CPD-ON
 
         public SpeakerDTO build() {
             return new SpeakerDTO(id, name, unavailableTimeslotIds, requiredTimeslotTags, preferredTimeslotTags,
