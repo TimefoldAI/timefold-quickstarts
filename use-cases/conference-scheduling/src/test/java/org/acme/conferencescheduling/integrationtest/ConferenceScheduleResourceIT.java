@@ -1,4 +1,4 @@
-package org.acme.conferencescheduling.solver;
+package org.acme.conferencescheduling.integrationtest;
 
 import static io.restassured.RestAssured.get;
 import static io.restassured.RestAssured.given;

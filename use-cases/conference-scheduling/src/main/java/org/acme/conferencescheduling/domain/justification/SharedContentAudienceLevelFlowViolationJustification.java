@@ -21,7 +21,8 @@ public record SharedContentAudienceLevelFlowViolationJustification(
     public static SharedContentAudienceLevelFlowViolationJustification of(Talk talk, Talk higherLevelTalk) {
         return new SharedContentAudienceLevelFlowViolationJustification(talk.getCode(), talk.getAudienceLevel(),
                 talk.getTimeslot().getId(), higherLevelTalk.getCode(), higherLevelTalk.getAudienceLevel(),
-                higherLevelTalk.getTimeslot().getId(), JustificationHelper.shared(talk.getContentTags(), higherLevelTalk.getContentTags()));
+                higherLevelTalk.getTimeslot().getId(),
+                JustificationHelper.shared(talk.getContentTags(), higherLevelTalk.getContentTags()));
     }
 
     @Override

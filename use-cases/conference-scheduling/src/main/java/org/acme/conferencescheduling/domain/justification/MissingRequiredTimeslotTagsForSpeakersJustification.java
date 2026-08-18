@@ -18,7 +18,8 @@ public record MissingRequiredTimeslotTagsForSpeakersJustification(
 
     public static MissingRequiredTimeslotTagsForSpeakersJustification of(Talk talk) {
         List<String> requiredTags = JustificationHelper.speakerTags(talk.getSpeakers(), Speaker::requiredTimeslotTags);
-        return new MissingRequiredTimeslotTagsForSpeakersJustification(talk.getCode(), JustificationHelper.speakerIds(talk.getSpeakers()),
+        return new MissingRequiredTimeslotTagsForSpeakersJustification(talk.getCode(),
+                JustificationHelper.speakerIds(talk.getSpeakers()),
                 talk.getTimeslot().getId(), JustificationHelper.missing(requiredTags, talk.getTimeslot().getTags()),
                 List.copyOf(talk.getTimeslot().getTags()));
     }

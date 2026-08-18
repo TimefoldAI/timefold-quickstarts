@@ -96,24 +96,36 @@ public class ConferenceScheduleValidator
             Set<String> roomIds, Set<String> speakerIds, Set<String> talkTypeNames) {
         Set<String> talkCodes = new HashSet<>();
         for (TalkDTO talk : talks) {
-            if (talk.code() == null || talk.code().isBlank()) {
+            String talkCode = talk.code();
+            // A talk without a code cannot be pointed at, so its other issues are reported without a talk detail.
+            TalkIdDetail talkIdDetail = talkCode == null || talkCode.isBlank() ? null : new TalkIdDetail(talkCode);
+            if (talkIdDetail == null) {
                 validationBuilder.addIssue(new TalkIdMissingIssue());
-            } else if (!talkCodes.add(talk.code())) {
-                validationBuilder.addIssue(new DuplicateTalkIdIssue(new TalkIdDetail(talk.code())));
+            } else if (!talkCodes.add(talkCode)) {
+                validationBuilder.addIssue(new DuplicateTalkIdIssue(talkIdDetail));
             }
             if (talk.timeslotId() != null && !timeslotIds.contains(talk.timeslotId())) {
-                validationBuilder.addIssue(new NonExistingTimeslotReferenceIssue(new TalkIdDetail(talk.code())));
+                validationBuilder.addIssue(talkIdDetail == null
+                        ? new NonExistingTimeslotReferenceIssue()
+                        : new NonExistingTimeslotReferenceIssue(talkIdDetail));
             }
             if (talk.roomId() != null && !roomIds.contains(talk.roomId())) {
-                validationBuilder.addIssue(new NonExistingRoomReferenceIssue(new TalkIdDetail(talk.code())));
+                validationBuilder.addIssue(talkIdDetail == null
+                        ? new NonExistingRoomReferenceIssue()
+                        : new NonExistingRoomReferenceIssue(talkIdDetail));
             }
-            // A blank talk type name is just as invalid as an unknown one: the solver model requires a talk type.
-            if (talk.talkTypeName().isBlank() || !talkTypeNames.contains(talk.talkTypeName())) {
-                validationBuilder.addIssue(new NonExistingTalkTypeReferenceIssue(new TalkIdDetail(talk.code())));
+            // A null or blank talk type name is just as invalid as an unknown one: the model requires a talk type.
+            if (talk.talkTypeName() == null || talk.talkTypeName().isBlank()
+                    || !talkTypeNames.contains(talk.talkTypeName())) {
+                validationBuilder.addIssue(talkIdDetail == null
+                        ? new NonExistingTalkTypeReferenceIssue()
+                        : new NonExistingTalkTypeReferenceIssue(talkIdDetail));
             }
             for (String speakerId : talk.speakerIds()) {
                 if (!speakerIds.contains(speakerId)) {
-                    validationBuilder.addIssue(new NonExistingSpeakerReferenceIssue(new TalkIdDetail(talk.code())));
+                    validationBuilder.addIssue(talkIdDetail == null
+                            ? new NonExistingSpeakerReferenceIssue()
+                            : new NonExistingSpeakerReferenceIssue(talkIdDetail));
                 }
             }
         }

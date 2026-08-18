@@ -62,10 +62,6 @@ public class ConferenceSchedule implements SolverModel<HardMediumSoftScore>,
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public ConferenceConstraintProperties getConstraintProperties() {
         return constraintProperties;
     }
@@ -78,40 +74,20 @@ public class ConferenceSchedule implements SolverModel<HardMediumSoftScore>,
         return talkTypes;
     }
 
-    public void setTalkTypes(Set<TalkType> talkTypes) {
-        this.talkTypes = talkTypes;
-    }
-
     public Set<Timeslot> getTimeslots() {
         return timeslots;
-    }
-
-    public void setTimeslots(Set<Timeslot> timeslots) {
-        this.timeslots = timeslots;
     }
 
     public Set<Room> getRooms() {
         return rooms;
     }
 
-    public void setRooms(Set<Room> rooms) {
-        this.rooms = rooms;
-    }
-
     public Set<Speaker> getSpeakers() {
         return speakers;
     }
 
-    public void setSpeakers(Set<Speaker> speakers) {
-        this.speakers = speakers;
-    }
-
     public Set<Talk> getTalks() {
         return talks;
-    }
-
-    public void setTalks(Set<Talk> talks) {
-        this.talks = talks;
     }
 
     @Override
@@ -145,10 +121,5 @@ public class ConferenceSchedule implements SolverModel<HardMediumSoftScore>,
         int usedRooms = (int) talks.stream().filter(Talk::isScheduled).map(Talk::getRoom).distinct().count();
         int usedTimeslots = (int) talks.stream().filter(Talk::isScheduled).map(Talk::getTimeslot).distinct().count();
         return new ConferenceScheduleOutputMetrics(scheduledTalks, unscheduledTalks, usedRooms, usedTimeslots);
-    }
-
-    @Override
-    public String toString() {
-        return name;
     }
 }

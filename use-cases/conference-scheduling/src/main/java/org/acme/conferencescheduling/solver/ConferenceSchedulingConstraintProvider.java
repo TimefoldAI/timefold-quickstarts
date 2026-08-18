@@ -490,7 +490,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
     Constraint languageDiversity(ConstraintFactory factory) {
         return factory.forEachUniquePair(Talk.class,
                 equal(Talk::getTimeslot))
-                .filter((talk1, talk2) -> !Objects.equals(talk1.getLanguage(),talk2.getLanguage()))
+                .filter((talk1, talk2) -> !Objects.equals(talk1.getLanguage(), talk2.getLanguage()))
                 .reward(HardMediumSoftScore.ofSoft(10), (talk1, talk2) -> talk1.getTimeslot().getDurationInMinutes())
                 .justifyWith((talk, talk2, score) -> TalksWithSameLanguageInSameTimeslotJustification.of(talk, talk2))
                 .asConstraint(new ConstraintInfo(ConferenceConstraintProperties.LANGUAGE_DIVERSITY,

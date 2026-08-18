@@ -18,7 +18,8 @@ public record UndesiredTimeslotTagsForSpeakersJustification(
 
     public static UndesiredTimeslotTagsForSpeakersJustification of(Talk talk) {
         List<String> undesiredTags = JustificationHelper.speakerTags(talk.getSpeakers(), Speaker::undesiredTimeslotTags);
-        return new UndesiredTimeslotTagsForSpeakersJustification(talk.getCode(), JustificationHelper.speakerIds(talk.getSpeakers()),
+        return new UndesiredTimeslotTagsForSpeakersJustification(talk.getCode(),
+                JustificationHelper.speakerIds(talk.getSpeakers()),
                 talk.getTimeslot().getId(), JustificationHelper.shared(undesiredTags, talk.getTimeslot().getTags()),
                 List.copyOf(talk.getTimeslot().getTags()));
     }

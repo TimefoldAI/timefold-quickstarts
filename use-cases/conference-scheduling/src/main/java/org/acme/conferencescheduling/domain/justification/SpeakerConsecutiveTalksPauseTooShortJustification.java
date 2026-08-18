@@ -20,7 +20,8 @@ public record SpeakerConsecutiveTalksPauseTooShortJustification(
         List<Speaker> sharedSpeakers = talk.getSpeakers().stream()
                 .filter(otherTalk.getSpeakers()::contains)
                 .toList();
-        return new SpeakerConsecutiveTalksPauseTooShortJustification(JustificationHelper.speakerIds(sharedSpeakers), talk.getCode(),
+        return new SpeakerConsecutiveTalksPauseTooShortJustification(JustificationHelper.speakerIds(sharedSpeakers),
+                talk.getCode(),
                 talk.getTimeslot().getId(), otherTalk.getCode(), otherTalk.getTimeslot().getId());
     }
 

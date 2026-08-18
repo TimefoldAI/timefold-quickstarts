@@ -18,7 +18,8 @@ public record ProhibitedTimeslotTagsForSpeakersJustification(
 
     public static ProhibitedTimeslotTagsForSpeakersJustification of(Talk talk) {
         List<String> prohibitedTags = JustificationHelper.speakerTags(talk.getSpeakers(), Speaker::prohibitedTimeslotTags);
-        return new ProhibitedTimeslotTagsForSpeakersJustification(talk.getCode(), JustificationHelper.speakerIds(talk.getSpeakers()),
+        return new ProhibitedTimeslotTagsForSpeakersJustification(talk.getCode(),
+                JustificationHelper.speakerIds(talk.getSpeakers()),
                 talk.getTimeslot().getId(), JustificationHelper.shared(prohibitedTags, talk.getTimeslot().getTags()),
                 List.copyOf(talk.getTimeslot().getTags()));
     }
