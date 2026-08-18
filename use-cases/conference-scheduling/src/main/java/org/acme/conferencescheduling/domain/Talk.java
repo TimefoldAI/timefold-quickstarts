@@ -13,8 +13,6 @@ import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 @PlanningEntity
 public class Talk {
 

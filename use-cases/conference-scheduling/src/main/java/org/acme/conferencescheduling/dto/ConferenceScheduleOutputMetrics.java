@@ -49,7 +49,9 @@ public record ConferenceScheduleOutputMetrics(
 
     public ConferenceScheduleOutputMetrics {
         if (totalScheduledTalks < 0 || totalUnscheduledTalks < 0 || totalUsedRooms < 0 || totalUsedTimeslots < 0) {
-            throw new IllegalArgumentException("Output metrics must not be negative.");
+            throw new IllegalArgumentException(
+                    "Output metrics must not be negative, but were totalScheduledTalks (%d), totalUnscheduledTalks (%d), totalUsedRooms (%d), totalUsedTimeslots (%d)."
+                            .formatted(totalScheduledTalks, totalUnscheduledTalks, totalUsedRooms, totalUsedTimeslots));
         }
     }
 }

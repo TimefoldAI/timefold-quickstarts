@@ -10,7 +10,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 @Schema(description = "A speaker who presents one or more talks.")
 public record SpeakerDTO(
         @Schema(description = "Unique identifier of the speaker.", required = true) String id,
-        @Schema(description = "Display name of the speaker.", required = true) String name,
+        @Schema(description = "Display name of the speaker.") String name,
         @Schema(description = "IDs of the timeslots during which this speaker is unavailable.") List<String> unavailableTimeslotIds,
         @Schema(description = "Timeslot tags required by this speaker.") List<String> requiredTimeslotTags,
         @Schema(description = "Timeslot tags preferred by this speaker.") List<String> preferredTimeslotTags,
@@ -22,8 +22,6 @@ public record SpeakerDTO(
         @Schema(description = "Room tags undesired by this speaker.") List<String> undesiredRoomTags) {
 
     public SpeakerDTO {
-        id = requireNonNull(id);
-        name = requireNonNull(name);
         unavailableTimeslotIds = immutableCopy(unavailableTimeslotIds);
         requiredTimeslotTags = immutableCopy(requiredTimeslotTags);
         preferredTimeslotTags = immutableCopy(preferredTimeslotTags);
