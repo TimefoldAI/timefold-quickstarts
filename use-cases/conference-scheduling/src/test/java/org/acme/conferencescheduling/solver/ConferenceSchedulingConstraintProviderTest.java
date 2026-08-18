@@ -2,6 +2,9 @@ package org.acme.conferencescheduling.solver;
 
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
+import static org.acme.conferencescheduling.testhelpers.TestRoomBuilder.aRoom;
+import static org.acme.conferencescheduling.testhelpers.TestSpeakerBuilder.aSpeaker;
+import static org.acme.conferencescheduling.testhelpers.TestTalkBuilder.aTalk;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
@@ -58,10 +61,10 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void roomUnavailableTimeslot() {
-        Room room1 = Room.builder("1").unavailableTimeslots(sequencedSet(MONDAY_9_TO_10)).build();
-        Room room2 = Room.builder("2").unavailableTimeslots(sequencedSet(MONDAY_10_05_TO_11)).build();
-        Talk talk1 = Talk.builder("1").timeslot(MONDAY_9_TO_10).room(room1).build();
-        Talk talk2 = Talk.builder("2").timeslot(MONDAY_9_TO_10).room(room2).build();
+        Room room1 = aRoom("1").unavailableTimeslots(sequencedSet(MONDAY_9_TO_10)).build();
+        Room room2 = aRoom("2").unavailableTimeslots(sequencedSet(MONDAY_10_05_TO_11)).build();
+        Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(room1).build();
+        Talk talk2 = aTalk("2").timeslot(MONDAY_9_TO_10).room(room2).build();
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::roomUnavailableTimeslot)
                 .given(talk1, talk2)
@@ -70,10 +73,10 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void roomConflict() {
-        Room room1 = Room.builder("1").unavailableTimeslots(sequencedSet(MONDAY_9_TO_10)).build();
-        Talk talk1 = Talk.builder("1").timeslot(MONDAY_9_TO_10).room(room1).build();
-        Talk talk2 = Talk.builder("2").timeslot(MONDAY_9_TO_10).room(room1).build();
-        Talk talk3 = Talk.builder("3").timeslot(MONDAY_10_05_TO_11).room(room1).build();
+        Room room1 = aRoom("1").unavailableTimeslots(sequencedSet(MONDAY_9_TO_10)).build();
+        Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(room1).build();
+        Talk talk2 = aTalk("2").timeslot(MONDAY_9_TO_10).room(room1).build();
+        Talk talk3 = aTalk("3").timeslot(MONDAY_10_05_TO_11).room(room1).build();
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::roomConflict)
                 .given(talk1, talk2, talk3)
@@ -82,11 +85,11 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void speakerUnavailableTimeslot() {
-        Room room = Room.builder("0").build();
-        Speaker speaker1 = Speaker.builder("1").unavailableTimeslots(sequencedSet(MONDAY_9_TO_10)).build();
-        Speaker speaker2 = Speaker.builder("2").unavailableTimeslots(sequencedSet(MONDAY_10_05_TO_11)).build();
-        Talk talk1 = Talk.builder("1").timeslot(MONDAY_9_TO_10).room(room).speakers(List.of(speaker1)).build();
-        Talk talk2 = Talk.builder("2").timeslot(MONDAY_9_TO_10).room(room).speakers(List.of(speaker2)).build();
+        Room room = aRoom("0").build();
+        Speaker speaker1 = aSpeaker("1").unavailableTimeslots(sequencedSet(MONDAY_9_TO_10)).build();
+        Speaker speaker2 = aSpeaker("2").unavailableTimeslots(sequencedSet(MONDAY_10_05_TO_11)).build();
+        Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(room).speakers(List.of(speaker1)).build();
+        Talk talk2 = aTalk("2").timeslot(MONDAY_9_TO_10).room(room).speakers(List.of(speaker2)).build();
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::speakerUnavailableTimeslot)
                 .given(talk1, talk2, speaker1, speaker2)
@@ -95,11 +98,11 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void speakerConflict() {
-        Room room = Room.builder("0").build();
-        Speaker speaker = Speaker.builder("1").build();
-        Talk talk1 = Talk.builder("1").timeslot(MONDAY_9_TO_10).room(room).speakers(List.of(speaker)).build();
-        Talk talk2 = Talk.builder("2").timeslot(MONDAY_9_TO_10).room(room).speakers(List.of(speaker)).build();
-        Talk talk3 = Talk.builder("3").timeslot(MONDAY_10_05_TO_11).room(room).speakers(List.of(speaker)).build();
+        Room room = aRoom("0").build();
+        Speaker speaker = aSpeaker("1").build();
+        Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(room).speakers(List.of(speaker)).build();
+        Talk talk2 = aTalk("2").timeslot(MONDAY_9_TO_10).room(room).speakers(List.of(speaker)).build();
+        Talk talk3 = aTalk("3").timeslot(MONDAY_10_05_TO_11).room(room).speakers(List.of(speaker)).build();
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::speakerConflict)
                 .given(speaker, talk1, talk2, talk3)
@@ -108,10 +111,10 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void talkPrerequisiteTalks() {
-        Room room = Room.builder("0").build();
-        Talk talk1 = Talk.builder("1").timeslot(MONDAY_9_TO_10).room(room).build();
-        Talk talk2 = Talk.builder("2").timeslot(MONDAY_9_TO_10).room(room).prerequisiteTalks(sequencedSet(talk1)).build();
-        Talk talk3 = Talk.builder("3").timeslot(MONDAY_10_05_TO_11).room(room).prerequisiteTalks(sequencedSet(talk1)).build();
+        Room room = aRoom("0").build();
+        Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(room).build();
+        Talk talk2 = aTalk("2").timeslot(MONDAY_9_TO_10).room(room).prerequisiteTalks(sequencedSet(talk1)).build();
+        Talk talk3 = aTalk("3").timeslot(MONDAY_10_05_TO_11).room(room).prerequisiteTalks(sequencedSet(talk1)).build();
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::talkPrerequisiteTalks)
                 .given(talk1, talk2, talk3)
@@ -120,11 +123,11 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void talkMutuallyExclusiveTalksTags() {
-        Room room = Room.builder("0").build();
-        Talk talk1 = Talk.builder("1").timeslot(MONDAY_9_TO_10).room(room).build();
-        Talk talk2 = Talk.builder("2").timeslot(MONDAY_9_TO_10).room(room).mutuallyExclusiveTalksTags(sequencedSet("a", "b"))
+        Room room = aRoom("0").build();
+        Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(room).build();
+        Talk talk2 = aTalk("2").timeslot(MONDAY_9_TO_10).room(room).mutuallyExclusiveTalksTags(sequencedSet("a", "b"))
                 .build();
-        Talk talk3 = Talk.builder("3").timeslot(MONDAY_9_TO_10).room(room)
+        Talk talk3 = aTalk("3").timeslot(MONDAY_9_TO_10).room(room)
                 .mutuallyExclusiveTalksTags(sequencedSet("a", "b", "c")).build();
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::talkMutuallyExclusiveTalksTags)
@@ -134,13 +137,13 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void consecutiveTalksPause() {
-        Room room = Room.builder("0").build();
-        Speaker speaker1 = Speaker.builder("1").build();
-        Speaker speaker2 = Speaker.builder("2").build();
-        Talk talk1 = Talk.builder("1").timeslot(MONDAY_9_TO_10).room(room).speakers(List.of(speaker1)).build();
-        Talk talk2 = Talk.builder("2").timeslot(MONDAY_10_05_TO_11).room(room).speakers(List.of(speaker1)).build();
-        Talk talk3 = Talk.builder("3").timeslot(MONDAY_11_10_TO_12).room(room).speakers(List.of(speaker1)).build();
-        Talk talk4 = Talk.builder("4").timeslot(MONDAY_9_TO_10).room(room).speakers(List.of(speaker2)).build();
+        Room room = aRoom("0").build();
+        Speaker speaker1 = aSpeaker("1").build();
+        Speaker speaker2 = aSpeaker("2").build();
+        Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(room).speakers(List.of(speaker1)).build();
+        Talk talk2 = aTalk("2").timeslot(MONDAY_10_05_TO_11).room(room).speakers(List.of(speaker1)).build();
+        Talk talk3 = aTalk("3").timeslot(MONDAY_11_10_TO_12).room(room).speakers(List.of(speaker1)).build();
+        Talk talk4 = aTalk("4").timeslot(MONDAY_9_TO_10).room(room).speakers(List.of(speaker2)).build();
         ConferenceConstraintProperties configuration = new ConferenceConstraintProperties();
         configuration.setMinimumConsecutiveTalksPauseInMinutes(11);
 
@@ -152,13 +155,13 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void crowdControl() {
-        Room room = Room.builder("0").build();
-        Talk talk1 = Talk.builder("1").timeslot(MONDAY_9_TO_10).room(room).crowdControlRisk(1).build();
-        Talk talk2 = Talk.builder("2").timeslot(MONDAY_9_TO_10).room(room).crowdControlRisk(1).build();
-        Talk talk3 = Talk.builder("3").timeslot(MONDAY_9_TO_10).room(room).crowdControlRisk(1).build();
-        Talk talk4 = Talk.builder("4").timeslot(MONDAY_10_05_TO_11).room(room).crowdControlRisk(1).build();
-        Talk talk5 = Talk.builder("5").timeslot(MONDAY_10_05_TO_11).room(room).crowdControlRisk(1).build();
-        Talk noRiskTalk = Talk.builder("6").timeslot(MONDAY_10_05_TO_11).room(room).build();
+        Room room = aRoom("0").build();
+        Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(room).crowdControlRisk(1).build();
+        Talk talk2 = aTalk("2").timeslot(MONDAY_9_TO_10).room(room).crowdControlRisk(1).build();
+        Talk talk3 = aTalk("3").timeslot(MONDAY_9_TO_10).room(room).crowdControlRisk(1).build();
+        Talk talk4 = aTalk("4").timeslot(MONDAY_10_05_TO_11).room(room).crowdControlRisk(1).build();
+        Talk talk5 = aTalk("5").timeslot(MONDAY_10_05_TO_11).room(room).crowdControlRisk(1).build();
+        Talk noRiskTalk = aTalk("6").timeslot(MONDAY_10_05_TO_11).room(room).build();
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::crowdControl)
                 .given(talk1, talk2, talk3, talk4, talk5, noRiskTalk)
@@ -167,12 +170,12 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void speakerRequiredTimeslotTags() {
-        Room room = Room.builder("0").build();
-        Speaker speaker1 = Speaker.builder("1").requiredTimeslotTags(sequencedSet("a")).build();
-        Speaker speaker2 = Speaker.builder("2").requiredTimeslotTags(sequencedSet("x")).build();
-        Talk talk1 = Talk.builder("1").timeslot(MONDAY_9_TO_10).room(room).speakers(List.of(speaker1))
+        Room room = aRoom("0").build();
+        Speaker speaker1 = aSpeaker("1").requiredTimeslotTags(sequencedSet("a")).build();
+        Speaker speaker2 = aSpeaker("2").requiredTimeslotTags(sequencedSet("x")).build();
+        Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(room).speakers(List.of(speaker1))
                 .requiredTimeslotTags(sequencedSet("a", "b")).build();
-        Talk talk2 = Talk.builder("2").timeslot(MONDAY_10_05_TO_11).room(room).speakers(List.of(speaker2)).build();
+        Talk talk2 = aTalk("2").timeslot(MONDAY_10_05_TO_11).room(room).speakers(List.of(speaker2)).build();
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::speakerRequiredTimeslotTags)
                 .given(talk1, talk2)
@@ -181,12 +184,12 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void speakerProhibitedTimeslotTags() {
-        Room room = Room.builder("0").build();
-        Speaker speaker1 = Speaker.builder("1").prohibitedTimeslotTags(sequencedSet("a")).build();
-        Speaker speaker2 = Speaker.builder("2").prohibitedTimeslotTags(sequencedSet("x")).build();
-        Talk talk1 = Talk.builder("1").timeslot(MONDAY_9_TO_10).room(room).speakers(List.of(speaker1))
+        Room room = aRoom("0").build();
+        Speaker speaker1 = aSpeaker("1").prohibitedTimeslotTags(sequencedSet("a")).build();
+        Speaker speaker2 = aSpeaker("2").prohibitedTimeslotTags(sequencedSet("x")).build();
+        Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(room).speakers(List.of(speaker1))
                 .prohibitedTimeslotTags(sequencedSet("a", "b")).build();
-        Talk talk2 = Talk.builder("2").timeslot(MONDAY_10_05_TO_11).room(room).speakers(List.of(speaker2)).build();
+        Talk talk2 = aTalk("2").timeslot(MONDAY_10_05_TO_11).room(room).speakers(List.of(speaker2)).build();
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::speakerProhibitedTimeslotTags)
                 .given(talk1, talk2)
@@ -195,9 +198,9 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void talkRequiredTimeslotTags() {
-        Room room = Room.builder("0").build();
-        Talk talk1 = Talk.builder("1").timeslot(MONDAY_9_TO_10).room(room).requiredTimeslotTags(sequencedSet("a", "b")).build();
-        Talk talk2 = Talk.builder("2").timeslot(MONDAY_10_05_TO_11).room(room).build();
+        Room room = aRoom("0").build();
+        Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(room).requiredTimeslotTags(sequencedSet("a", "b")).build();
+        Talk talk2 = aTalk("2").timeslot(MONDAY_10_05_TO_11).room(room).build();
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::talkRequiredTimeslotTags)
                 .given(talk1, talk2)
@@ -206,10 +209,10 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void talkProhibitedTimeslotTags() {
-        Room room = Room.builder("0").build();
+        Room room = aRoom("0").build();
         Talk talk1 =
-                Talk.builder("1").timeslot(MONDAY_9_TO_10).room(room).prohibitedTimeslotTags(sequencedSet("a", "b")).build();
-        Talk talk2 = Talk.builder("2").timeslot(MONDAY_10_05_TO_11).room(room).build();
+                aTalk("1").timeslot(MONDAY_9_TO_10).room(room).prohibitedTimeslotTags(sequencedSet("a", "b")).build();
+        Talk talk2 = aTalk("2").timeslot(MONDAY_10_05_TO_11).room(room).build();
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::talkProhibitedTimeslotTags)
                 .given(talk1, talk2)
@@ -218,11 +221,11 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void speakerRequiredRoomTags() {
-        Room room = Room.builder("0").tags(sequencedSet("a")).build();
-        Speaker speaker1 = Speaker.builder("1").requiredRoomTags(sequencedSet("a")).build();
-        Speaker speaker2 = Speaker.builder("2").requiredRoomTags(sequencedSet("x")).build();
-        Talk talk1 = Talk.builder("1").timeslot(MONDAY_9_TO_10).room(room).speakers(List.of(speaker1)).build();
-        Talk talk2 = Talk.builder("2").timeslot(MONDAY_10_05_TO_11).room(room).speakers(List.of(speaker2)).build();
+        Room room = aRoom("0").tags(sequencedSet("a")).build();
+        Speaker speaker1 = aSpeaker("1").requiredRoomTags(sequencedSet("a")).build();
+        Speaker speaker2 = aSpeaker("2").requiredRoomTags(sequencedSet("x")).build();
+        Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(room).speakers(List.of(speaker1)).build();
+        Talk talk2 = aTalk("2").timeslot(MONDAY_10_05_TO_11).room(room).speakers(List.of(speaker2)).build();
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::speakerRequiredRoomTags)
                 .given(talk1, talk2)
@@ -231,11 +234,11 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void speakerProhibitedRoomTags() {
-        Room room = Room.builder("0").tags(sequencedSet("a")).build();
-        Speaker speaker1 = Speaker.builder("1").prohibitedRoomTags(sequencedSet("a")).build();
-        Speaker speaker2 = Speaker.builder("2").prohibitedRoomTags(sequencedSet("x")).build();
-        Talk talk1 = Talk.builder("1").timeslot(MONDAY_9_TO_10).room(room).speakers(List.of(speaker1)).build();
-        Talk talk2 = Talk.builder("2").timeslot(MONDAY_10_05_TO_11).room(room).speakers(List.of(speaker2)).build();
+        Room room = aRoom("0").tags(sequencedSet("a")).build();
+        Speaker speaker1 = aSpeaker("1").prohibitedRoomTags(sequencedSet("a")).build();
+        Speaker speaker2 = aSpeaker("2").prohibitedRoomTags(sequencedSet("x")).build();
+        Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(room).speakers(List.of(speaker1)).build();
+        Talk talk2 = aTalk("2").timeslot(MONDAY_10_05_TO_11).room(room).speakers(List.of(speaker2)).build();
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::speakerProhibitedRoomTags)
                 .given(talk1, talk2)
@@ -244,9 +247,9 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void talkRequiredRoomTags() {
-        Room room = Room.builder("0").tags(sequencedSet("a")).build();
-        Talk talk1 = Talk.builder("1").timeslot(MONDAY_9_TO_10).room(room).requiredRoomTags(sequencedSet("a", "b")).build();
-        Talk talk2 = Talk.builder("2").timeslot(MONDAY_10_05_TO_11).room(room).build();
+        Room room = aRoom("0").tags(sequencedSet("a")).build();
+        Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(room).requiredRoomTags(sequencedSet("a", "b")).build();
+        Talk talk2 = aTalk("2").timeslot(MONDAY_10_05_TO_11).room(room).build();
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::talkRequiredRoomTags)
                 .given(talk1, talk2)
@@ -255,9 +258,9 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void talkProhibitedRoomTags() {
-        Room room = Room.builder("0").tags(sequencedSet("a")).build();
-        Talk talk1 = Talk.builder("1").timeslot(MONDAY_9_TO_10).room(room).prohibitedRoomTags(sequencedSet("a", "b")).build();
-        Talk talk2 = Talk.builder("2").timeslot(MONDAY_10_05_TO_11).room(room).build();
+        Room room = aRoom("0").tags(sequencedSet("a")).build();
+        Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(room).prohibitedRoomTags(sequencedSet("a", "b")).build();
+        Talk talk2 = aTalk("2").timeslot(MONDAY_10_05_TO_11).room(room).build();
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::talkProhibitedRoomTags)
                 .given(talk1, talk2)
@@ -270,11 +273,11 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void themeTrackConflict() {
-        Room room = Room.builder("0").build();
-        Talk talk1 = Talk.builder("1").timeslot(MONDAY_9_TO_10).room(room).themeTrackTags(sequencedSet("a")).build();
-        Talk talk2 = Talk.builder("2").timeslot(MONDAY_9_TO_10).room(room).themeTrackTags(sequencedSet("a")).build();
-        Talk talk3 = Talk.builder("3").timeslot(MONDAY_9_TO_10).room(room).themeTrackTags(sequencedSet("b")).build();
-        Talk talk4 = Talk.builder("4").timeslot(MONDAY_10_05_TO_11).room(room).themeTrackTags(sequencedSet("a")).build();
+        Room room = aRoom("0").build();
+        Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(room).themeTrackTags(sequencedSet("a")).build();
+        Talk talk2 = aTalk("2").timeslot(MONDAY_9_TO_10).room(room).themeTrackTags(sequencedSet("a")).build();
+        Talk talk3 = aTalk("3").timeslot(MONDAY_9_TO_10).room(room).themeTrackTags(sequencedSet("b")).build();
+        Talk talk4 = aTalk("4").timeslot(MONDAY_10_05_TO_11).room(room).themeTrackTags(sequencedSet("a")).build();
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::themeTrackConflict)
                 .given(talk1, talk2, talk3, talk4)
@@ -283,12 +286,12 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void themeTrackRoomStability() {
-        Room room1 = Room.builder("0").build();
-        Room room2 = Room.builder("1").build();
-        Talk talk1 = Talk.builder("1").timeslot(MONDAY_9_TO_10).room(room1).themeTrackTags(sequencedSet("a")).build();
-        Talk talk2 = Talk.builder("2").timeslot(MONDAY_10_05_TO_11).room(room2).themeTrackTags(sequencedSet("a")).build();
-        Talk talk3 = Talk.builder("3").timeslot(MONDAY_11_10_TO_12).room(room1).themeTrackTags(sequencedSet("b")).build();
-        Talk talk4 = Talk.builder("4").timeslot(TUESDAY_9_TO_10).room(room2).themeTrackTags(sequencedSet("a")).build();
+        Room room1 = aRoom("0").build();
+        Room room2 = aRoom("1").build();
+        Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(room1).themeTrackTags(sequencedSet("a")).build();
+        Talk talk2 = aTalk("2").timeslot(MONDAY_10_05_TO_11).room(room2).themeTrackTags(sequencedSet("a")).build();
+        Talk talk3 = aTalk("3").timeslot(MONDAY_11_10_TO_12).room(room1).themeTrackTags(sequencedSet("b")).build();
+        Talk talk4 = aTalk("4").timeslot(TUESDAY_9_TO_10).room(room2).themeTrackTags(sequencedSet("a")).build();
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::themeTrackRoomStability)
                 .given(talk1, talk2, talk3, talk4)
@@ -297,11 +300,11 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void sectorConflict() {
-        Room room = Room.builder("0").build();
-        Talk talk1 = Talk.builder("1").timeslot(MONDAY_9_TO_10).room(room).sectorTags(sequencedSet("a")).build();
-        Talk talk2 = Talk.builder("2").timeslot(MONDAY_9_TO_10).room(room).sectorTags(sequencedSet("a")).build();
-        Talk talk3 = Talk.builder("3").timeslot(MONDAY_9_TO_10).room(room).sectorTags(sequencedSet("b")).build();
-        Talk talk4 = Talk.builder("4").timeslot(MONDAY_10_05_TO_11).room(room).sectorTags(sequencedSet("a")).build();
+        Room room = aRoom("0").build();
+        Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(room).sectorTags(sequencedSet("a")).build();
+        Talk talk2 = aTalk("2").timeslot(MONDAY_9_TO_10).room(room).sectorTags(sequencedSet("a")).build();
+        Talk talk3 = aTalk("3").timeslot(MONDAY_9_TO_10).room(room).sectorTags(sequencedSet("b")).build();
+        Talk talk4 = aTalk("4").timeslot(MONDAY_10_05_TO_11).room(room).sectorTags(sequencedSet("a")).build();
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::sectorConflict)
                 .given(talk1, talk2, talk3, talk4)
@@ -310,11 +313,11 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void audienceTypeDiversity() {
-        Room room = Room.builder("0").build();
-        Talk talk1 = Talk.builder("1").timeslot(MONDAY_9_TO_10).room(room).audienceTypes(sequencedSet("a")).build();
-        Talk talk2 = Talk.builder("2").timeslot(MONDAY_9_TO_10).room(room).audienceTypes(sequencedSet("a")).build();
-        Talk talk3 = Talk.builder("3").timeslot(MONDAY_9_TO_10).room(room).audienceTypes(sequencedSet("b")).build();
-        Talk talk4 = Talk.builder("4").timeslot(MONDAY_10_05_TO_11).room(room).audienceTypes(sequencedSet("b")).build();
+        Room room = aRoom("0").build();
+        Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(room).audienceTypes(sequencedSet("a")).build();
+        Talk talk2 = aTalk("2").timeslot(MONDAY_9_TO_10).room(room).audienceTypes(sequencedSet("a")).build();
+        Talk talk3 = aTalk("3").timeslot(MONDAY_9_TO_10).room(room).audienceTypes(sequencedSet("b")).build();
+        Talk talk4 = aTalk("4").timeslot(MONDAY_10_05_TO_11).room(room).audienceTypes(sequencedSet("b")).build();
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::audienceTypeDiversity)
                 .given(talk1, talk2, talk3, talk4)
@@ -323,18 +326,18 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void audienceTypeThemeTrackConflict() {
-        Room room = Room.builder("0").build();
-        Talk talk1 = Talk.builder("1").timeslot(MONDAY_9_TO_10).room(room).audienceTypes(sequencedSet("a"))
+        Room room = aRoom("0").build();
+        Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(room).audienceTypes(sequencedSet("a"))
                 .themeTrackTags(sequencedSet("b")).build();
-        Talk talk2 = Talk.builder("2").timeslot(MONDAY_9_TO_10).room(room).audienceTypes(sequencedSet("a"))
+        Talk talk2 = aTalk("2").timeslot(MONDAY_9_TO_10).room(room).audienceTypes(sequencedSet("a"))
                 .themeTrackTags(sequencedSet("a")).build();
-        Talk talk3 = Talk.builder("3").timeslot(MONDAY_9_TO_10).room(room).audienceTypes(sequencedSet("b"))
+        Talk talk3 = aTalk("3").timeslot(MONDAY_9_TO_10).room(room).audienceTypes(sequencedSet("b"))
                 .themeTrackTags(sequencedSet("a")).build();
-        Talk talk4 = Talk.builder("4").timeslot(MONDAY_10_05_TO_11).room(room).audienceTypes(sequencedSet("a"))
+        Talk talk4 = aTalk("4").timeslot(MONDAY_10_05_TO_11).room(room).audienceTypes(sequencedSet("a"))
                 .themeTrackTags(sequencedSet("a")).build();
-        Talk talk5 = Talk.builder("5").timeslot(MONDAY_9_TO_10).room(room).audienceTypes(sequencedSet("a"))
+        Talk talk5 = aTalk("5").timeslot(MONDAY_9_TO_10).room(room).audienceTypes(sequencedSet("a"))
                 .themeTrackTags(sequencedSet("b")).build();
-        Talk talk6 = Talk.builder("6").timeslot(MONDAY_9_TO_10).room(room).audienceTypes(sequencedSet("a"))
+        Talk talk6 = aTalk("6").timeslot(MONDAY_9_TO_10).room(room).audienceTypes(sequencedSet("a"))
                 .themeTrackTags(sequencedSet("c")).build();
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::audienceTypeThemeTrackConflict)
@@ -344,11 +347,11 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void audienceLevelDiversity() {
-        Room room = Room.builder("0").build();
-        Talk talk1 = Talk.builder("1").timeslot(MONDAY_9_TO_10).room(room).audienceLevel(1).build();
-        Talk talk2 = Talk.builder("2").timeslot(MONDAY_9_TO_10).room(room).audienceLevel(1).build();
-        Talk talk3 = Talk.builder("3").timeslot(MONDAY_9_TO_10).room(room).audienceLevel(2).build();
-        Talk talk4 = Talk.builder("4").timeslot(MONDAY_11_10_TO_12).room(room).audienceLevel(1).build();
+        Room room = aRoom("0").build();
+        Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(room).audienceLevel(1).build();
+        Talk talk2 = aTalk("2").timeslot(MONDAY_9_TO_10).room(room).audienceLevel(1).build();
+        Talk talk3 = aTalk("3").timeslot(MONDAY_9_TO_10).room(room).audienceLevel(2).build();
+        Talk talk4 = aTalk("4").timeslot(MONDAY_11_10_TO_12).room(room).audienceLevel(1).build();
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::audienceLevelDiversity)
                 .given(talk1, talk2, talk3, talk4)
@@ -357,14 +360,14 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void contentAudienceLevelFlowViolation() {
-        Room room = Room.builder("0").build();
+        Room room = aRoom("0").build();
         Talk talk1 =
-                Talk.builder("1").timeslot(MONDAY_9_TO_10).room(room).audienceLevel(1).contentTags(sequencedSet("a")).build();
+                aTalk("1").timeslot(MONDAY_9_TO_10).room(room).audienceLevel(1).contentTags(sequencedSet("a")).build();
         Talk talk2 =
-                Talk.builder("2").timeslot(MONDAY_9_TO_10).room(room).audienceLevel(2).contentTags(sequencedSet("a")).build();
+                aTalk("2").timeslot(MONDAY_9_TO_10).room(room).audienceLevel(2).contentTags(sequencedSet("a")).build();
         Talk talk3 =
-                Talk.builder("3").timeslot(MONDAY_9_TO_10).room(room).audienceLevel(3).contentTags(sequencedSet("b")).build();
-        Talk talk4 = Talk.builder("4").timeslot(MONDAY_10_05_TO_11).room(room).audienceLevel(1).contentTags(sequencedSet("a"))
+                aTalk("3").timeslot(MONDAY_9_TO_10).room(room).audienceLevel(3).contentTags(sequencedSet("b")).build();
+        Talk talk4 = aTalk("4").timeslot(MONDAY_10_05_TO_11).room(room).audienceLevel(1).contentTags(sequencedSet("a"))
                 .build();
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::contentAudienceLevelFlowViolation)
@@ -375,11 +378,11 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void contentConflict() {
-        Room room = Room.builder("0").build();
-        Talk talk1 = Talk.builder("1").timeslot(MONDAY_9_TO_10).room(room).contentTags(sequencedSet("a")).build();
-        Talk talk2 = Talk.builder("2").timeslot(MONDAY_9_TO_10).room(room).contentTags(sequencedSet("a")).build();
-        Talk talk3 = Talk.builder("3").timeslot(MONDAY_9_TO_10).room(room).contentTags(sequencedSet("b")).build();
-        Talk talk4 = Talk.builder("4").timeslot(MONDAY_10_05_TO_11).room(room).contentTags(sequencedSet("a")).build();
+        Room room = aRoom("0").build();
+        Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(room).contentTags(sequencedSet("a")).build();
+        Talk talk2 = aTalk("2").timeslot(MONDAY_9_TO_10).room(room).contentTags(sequencedSet("a")).build();
+        Talk talk3 = aTalk("3").timeslot(MONDAY_9_TO_10).room(room).contentTags(sequencedSet("b")).build();
+        Talk talk4 = aTalk("4").timeslot(MONDAY_10_05_TO_11).room(room).contentTags(sequencedSet("a")).build();
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::contentConflict)
                 .given(talk1, talk2, talk3, talk4)
@@ -388,11 +391,11 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void languageDiversity() {
-        Room room = Room.builder("0").build();
-        Talk talk1 = Talk.builder("1").timeslot(MONDAY_9_TO_10).room(room).language("a").build();
-        Talk talk2 = Talk.builder("2").timeslot(MONDAY_9_TO_10).room(room).language("a").build();
-        Talk talk3 = Talk.builder("3").timeslot(MONDAY_9_TO_10).room(room).language("b").build();
-        Talk talk4 = Talk.builder("4").timeslot(MONDAY_10_05_TO_11).room(room).language("a").build();
+        Room room = aRoom("0").build();
+        Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(room).language("a").build();
+        Talk talk2 = aTalk("2").timeslot(MONDAY_9_TO_10).room(room).language("a").build();
+        Talk talk3 = aTalk("3").timeslot(MONDAY_9_TO_10).room(room).language("b").build();
+        Talk talk4 = aTalk("4").timeslot(MONDAY_10_05_TO_11).room(room).language("a").build();
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::languageDiversity)
                 .given(talk1, talk2, talk3, talk4)
@@ -401,18 +404,18 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void sameDayTalks() {
-        Room room = Room.builder("0").build();
-        Talk talk1 = Talk.builder("1").timeslot(MONDAY_9_TO_10).room(room).contentTags(sequencedSet("a"))
+        Room room = aRoom("0").build();
+        Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(room).contentTags(sequencedSet("a"))
                 .themeTrackTags(sequencedSet("a")).build();
-        Talk talk2 = Talk.builder("2").timeslot(TUESDAY_9_TO_10).room(room).contentTags(sequencedSet("b"))
+        Talk talk2 = aTalk("2").timeslot(TUESDAY_9_TO_10).room(room).contentTags(sequencedSet("b"))
                 .themeTrackTags(sequencedSet("a")).build();
-        Talk talk3 = Talk.builder("3").timeslot(TUESDAY_9_TO_10).room(room).contentTags(sequencedSet("a"))
+        Talk talk3 = aTalk("3").timeslot(TUESDAY_9_TO_10).room(room).contentTags(sequencedSet("a"))
                 .themeTrackTags(sequencedSet("a")).build();
-        Talk talk4 = Talk.builder("4").timeslot(MONDAY_9_TO_10).room(room).contentTags(sequencedSet("a"))
+        Talk talk4 = aTalk("4").timeslot(MONDAY_9_TO_10).room(room).contentTags(sequencedSet("a"))
                 .themeTrackTags(sequencedSet("b")).build();
-        Talk talk5 = Talk.builder("5").timeslot(TUESDAY_9_TO_10).room(room).contentTags(sequencedSet("b"))
+        Talk talk5 = aTalk("5").timeslot(TUESDAY_9_TO_10).room(room).contentTags(sequencedSet("b"))
                 .themeTrackTags(sequencedSet("b")).build();
-        Talk talk6 = Talk.builder("6").timeslot(TUESDAY_9_TO_10).room(room).contentTags(sequencedSet("a"))
+        Talk talk6 = aTalk("6").timeslot(TUESDAY_9_TO_10).room(room).contentTags(sequencedSet("a"))
                 .themeTrackTags(sequencedSet("b")).build();
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::sameDayTalks)
@@ -422,11 +425,11 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void popularTalks() {
-        Room smallerRoom = Room.builder("0").capacity(10).build();
-        Room biggerRoom = Room.builder("1").capacity(20).build();
-        Talk talk1 = Talk.builder("1").timeslot(MONDAY_9_TO_10).room(smallerRoom).favoriteCount(2).build();
-        Talk talk2 = Talk.builder("2").timeslot(MONDAY_9_TO_10).room(biggerRoom).favoriteCount(2).build();
-        Talk talk3 = Talk.builder("3").timeslot(MONDAY_9_TO_10).room(biggerRoom).favoriteCount(1).build();
+        Room smallerRoom = aRoom("0").capacity(10).build();
+        Room biggerRoom = aRoom("1").capacity(20).build();
+        Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(smallerRoom).favoriteCount(2).build();
+        Talk talk2 = aTalk("2").timeslot(MONDAY_9_TO_10).room(biggerRoom).favoriteCount(2).build();
+        Talk talk3 = aTalk("3").timeslot(MONDAY_9_TO_10).room(biggerRoom).favoriteCount(1).build();
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::popularTalks)
                 .given(talk1, talk2, talk3)
@@ -435,13 +438,13 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void speakerPreferredTimeslotTags() {
-        Room room = Room.builder("0").build();
-        Speaker speaker1 = Speaker.builder("1").preferredTimeslotTags(sequencedSet("a")).build();
-        Speaker speaker2 = Speaker.builder("1").preferredTimeslotTags(sequencedSet("x")).build();
+        Room room = aRoom("0").build();
+        Speaker speaker1 = aSpeaker("1").preferredTimeslotTags(sequencedSet("a")).build();
+        Speaker speaker2 = aSpeaker("1").preferredTimeslotTags(sequencedSet("x")).build();
 
-        Talk talk1 = Talk.builder("1").timeslot(MONDAY_9_TO_10).room(room).speakers(List.of(speaker1))
+        Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(room).speakers(List.of(speaker1))
                 .preferredTimeslotTags(sequencedSet("a", "b")).build();
-        Talk talk2 = Talk.builder("2").timeslot(MONDAY_10_05_TO_11).room(room).speakers(List.of(speaker2)).build();
+        Talk talk2 = aTalk("2").timeslot(MONDAY_10_05_TO_11).room(room).speakers(List.of(speaker2)).build();
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::speakerPreferredTimeslotTags)
                 .given(talk1, talk2)
@@ -450,13 +453,13 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void speakerUndesiredTimeslotTags() {
-        Room room = Room.builder("0").build();
-        Speaker speaker1 = Speaker.builder("1").undesiredTimeslotTags(sequencedSet("a")).build();
-        Speaker speaker2 = Speaker.builder("1").undesiredTimeslotTags(sequencedSet("x")).build();
+        Room room = aRoom("0").build();
+        Speaker speaker1 = aSpeaker("1").undesiredTimeslotTags(sequencedSet("a")).build();
+        Speaker speaker2 = aSpeaker("1").undesiredTimeslotTags(sequencedSet("x")).build();
 
-        Talk talk1 = Talk.builder("1").timeslot(MONDAY_9_TO_10).room(room).speakers(List.of(speaker1))
+        Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(room).speakers(List.of(speaker1))
                 .undesiredRoomTags(sequencedSet("a", "b")).build();
-        Talk talk2 = Talk.builder("2").timeslot(MONDAY_10_05_TO_11).room(room).speakers(List.of(speaker2)).build();
+        Talk talk2 = aTalk("2").timeslot(MONDAY_10_05_TO_11).room(room).speakers(List.of(speaker2)).build();
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::speakerUndesiredTimeslotTags)
                 .given(talk1, talk2)
@@ -465,10 +468,10 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void talkPreferredTimeslotTags() {
-        Room room = Room.builder("0").build();
+        Room room = aRoom("0").build();
         Talk talk1 =
-                Talk.builder("1").timeslot(MONDAY_9_TO_10).room(room).preferredTimeslotTags(sequencedSet("a", "b")).build();
-        Talk talk2 = Talk.builder("2").timeslot(MONDAY_10_05_TO_11).room(room).build();
+                aTalk("1").timeslot(MONDAY_9_TO_10).room(room).preferredTimeslotTags(sequencedSet("a", "b")).build();
+        Talk talk2 = aTalk("2").timeslot(MONDAY_10_05_TO_11).room(room).build();
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::talkPreferredTimeslotTags)
                 .given(talk1, talk2)
@@ -477,10 +480,10 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void talkUndesiredTimeslotTags() {
-        Room room = Room.builder("0").build();
+        Room room = aRoom("0").build();
         Talk talk1 =
-                Talk.builder("1").timeslot(MONDAY_9_TO_10).room(room).undesiredTimeslotTags(sequencedSet("a", "b")).build();
-        Talk talk2 = Talk.builder("2").timeslot(MONDAY_10_05_TO_11).room(room).build();
+                aTalk("1").timeslot(MONDAY_9_TO_10).room(room).undesiredTimeslotTags(sequencedSet("a", "b")).build();
+        Talk talk2 = aTalk("2").timeslot(MONDAY_10_05_TO_11).room(room).build();
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::talkUndesiredTimeslotTags)
                 .given(talk1, talk2)
@@ -489,12 +492,12 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void speakerPreferredRoomTags() {
-        Room room = Room.builder("0").tags(sequencedSet("a")).build();
-        Speaker speaker1 = Speaker.builder("1").preferredRoomTags(sequencedSet("a")).build();
-        Speaker speaker2 = Speaker.builder("2").preferredRoomTags(sequencedSet("x")).build();
+        Room room = aRoom("0").tags(sequencedSet("a")).build();
+        Speaker speaker1 = aSpeaker("1").preferredRoomTags(sequencedSet("a")).build();
+        Speaker speaker2 = aSpeaker("2").preferredRoomTags(sequencedSet("x")).build();
 
-        Talk talk1 = Talk.builder("1").timeslot(MONDAY_9_TO_10).room(room).speakers(List.of(speaker1)).build();
-        Talk talk2 = Talk.builder("2").timeslot(MONDAY_10_05_TO_11).room(room).speakers(List.of(speaker2)).build();
+        Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(room).speakers(List.of(speaker1)).build();
+        Talk talk2 = aTalk("2").timeslot(MONDAY_10_05_TO_11).room(room).speakers(List.of(speaker2)).build();
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::speakerPreferredRoomTags)
                 .given(talk1, talk2)
@@ -503,12 +506,12 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void speakerUndesiredRoomTags() {
-        Room room = Room.builder("0").tags(sequencedSet("a")).build();
-        Speaker speaker1 = Speaker.builder("1").undesiredRoomTags(sequencedSet("a")).build();
-        Speaker speaker2 = Speaker.builder("2").undesiredRoomTags(sequencedSet("x")).build();
+        Room room = aRoom("0").tags(sequencedSet("a")).build();
+        Speaker speaker1 = aSpeaker("1").undesiredRoomTags(sequencedSet("a")).build();
+        Speaker speaker2 = aSpeaker("2").undesiredRoomTags(sequencedSet("x")).build();
 
-        Talk talk1 = Talk.builder("1").timeslot(MONDAY_9_TO_10).room(room).speakers(List.of(speaker1)).build();
-        Talk talk2 = Talk.builder("2").timeslot(MONDAY_10_05_TO_11).room(room).speakers(List.of(speaker2)).build();
+        Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(room).speakers(List.of(speaker1)).build();
+        Talk talk2 = aTalk("2").timeslot(MONDAY_10_05_TO_11).room(room).speakers(List.of(speaker2)).build();
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::speakerUndesiredRoomTags)
                 .given(talk1, talk2)
@@ -517,9 +520,9 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void talkPreferredRoomTags() {
-        Room room = Room.builder("0").tags(sequencedSet("a")).build();
-        Talk talk1 = Talk.builder("1").timeslot(MONDAY_9_TO_10).room(room).preferredRoomTags(sequencedSet("a", "b")).build();
-        Talk talk2 = Talk.builder("2").timeslot(MONDAY_10_05_TO_11).room(room).build();
+        Room room = aRoom("0").tags(sequencedSet("a")).build();
+        Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(room).preferredRoomTags(sequencedSet("a", "b")).build();
+        Talk talk2 = aTalk("2").timeslot(MONDAY_10_05_TO_11).room(room).build();
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::talkPreferredRoomTags)
                 .given(talk1, talk2)
@@ -528,9 +531,9 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void talkUndesiredRoomTags() {
-        Room room = Room.builder("0").tags(sequencedSet("a")).build();
-        Talk talk1 = Talk.builder("1").timeslot(MONDAY_9_TO_10).room(room).undesiredRoomTags(sequencedSet("a", "b")).build();
-        Talk talk2 = Talk.builder("2").timeslot(MONDAY_10_05_TO_11).room(room).build();
+        Room room = aRoom("0").tags(sequencedSet("a")).build();
+        Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(room).undesiredRoomTags(sequencedSet("a", "b")).build();
+        Talk talk2 = aTalk("2").timeslot(MONDAY_10_05_TO_11).room(room).build();
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::talkUndesiredRoomTags)
                 .given(talk1, talk2)
@@ -539,13 +542,13 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void speakerMakespan() {
-        Room room = Room.builder("0").tags(sequencedSet("a")).build();
-        Speaker speaker1 = Speaker.builder("1").unavailableTimeslots(sequencedSet(MONDAY_9_TO_10)).build();
-        Speaker speaker2 = Speaker.builder("2").unavailableTimeslots(sequencedSet(MONDAY_10_05_TO_11)).build();
+        Room room = aRoom("0").tags(sequencedSet("a")).build();
+        Speaker speaker1 = aSpeaker("1").unavailableTimeslots(sequencedSet(MONDAY_9_TO_10)).build();
+        Speaker speaker2 = aSpeaker("2").unavailableTimeslots(sequencedSet(MONDAY_10_05_TO_11)).build();
 
-        Talk talk1 = Talk.builder("1").timeslot(MONDAY_9_TO_10).room(room).speakers(List.of(speaker1, speaker2)).build();
-        Talk talk2 = Talk.builder("2").timeslot(TUESDAY_9_TO_10).room(room).speakers(List.of(speaker1, speaker2)).build();
-        Talk talk3 = Talk.builder("3").timeslot(WEDNESDAY_9_TO_10).room(room).speakers(List.of(speaker1)).build();
+        Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(room).speakers(List.of(speaker1, speaker2)).build();
+        Talk talk2 = aTalk("2").timeslot(TUESDAY_9_TO_10).room(room).speakers(List.of(speaker1, speaker2)).build();
+        Talk talk3 = aTalk("3").timeslot(WEDNESDAY_9_TO_10).room(room).speakers(List.of(speaker1)).build();
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::speakerMakespan)
                 .given(speaker1, speaker2, talk1, talk2, talk3)

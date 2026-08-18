@@ -143,18 +143,17 @@ public class ConferenceScheduleModelConvertor
     }
 
     private static Speaker toSpeaker(SpeakerDTO dto, Map<String, Timeslot> timeslotMap) {
-        return Speaker.builder(dto.id())
-                .name(dto.name())
-                .unavailableTimeslots(timeslotsByIds(dto.unavailableTimeslotIds(), timeslotMap))
-                .requiredTimeslotTags(new LinkedHashSet<>(dto.requiredTimeslotTags()))
-                .preferredTimeslotTags(new LinkedHashSet<>(dto.preferredTimeslotTags()))
-                .prohibitedTimeslotTags(new LinkedHashSet<>(dto.prohibitedTimeslotTags()))
-                .undesiredTimeslotTags(new LinkedHashSet<>(dto.undesiredTimeslotTags()))
-                .requiredRoomTags(new LinkedHashSet<>(dto.requiredRoomTags()))
-                .preferredRoomTags(new LinkedHashSet<>(dto.preferredRoomTags()))
-                .prohibitedRoomTags(new LinkedHashSet<>(dto.prohibitedRoomTags()))
-                .undesiredRoomTags(new LinkedHashSet<>(dto.undesiredRoomTags()))
-                .build();
+        return new Speaker(dto.id(),
+                dto.name(),
+                timeslotsByIds(dto.unavailableTimeslotIds(), timeslotMap),
+                new LinkedHashSet<>(dto.requiredTimeslotTags()),
+                new LinkedHashSet<>(dto.preferredTimeslotTags()),
+                new LinkedHashSet<>(dto.prohibitedTimeslotTags()),
+                new LinkedHashSet<>(dto.undesiredTimeslotTags()),
+                new LinkedHashSet<>(dto.requiredRoomTags()),
+                new LinkedHashSet<>(dto.preferredRoomTags()),
+                new LinkedHashSet<>(dto.prohibitedRoomTags()),
+                new LinkedHashSet<>(dto.undesiredRoomTags()));
     }
 
     private static Talk toTalk(TalkDTO dto, Map<String, TalkType> talkTypeMap, Map<String, Speaker> speakerMap,
@@ -162,28 +161,29 @@ public class ConferenceScheduleModelConvertor
         List<Speaker> speakers = dto.speakerIds().stream()
                 .map(speakerId -> require(speakerMap, speakerId, "speaker"))
                 .collect(Collectors.toList());
-        Talk talk = Talk.builder(dto.code())
-                .title(dto.title())
-                .talkType(require(talkTypeMap, dto.talkTypeName(), "talk type"))
-                .speakers(speakers)
-                .themeTrackTags(new LinkedHashSet<>(dto.themeTrackTags()))
-                .sectorTags(new LinkedHashSet<>(dto.sectorTags()))
-                .audienceTypes(new LinkedHashSet<>(dto.audienceTypes()))
-                .audienceLevel(dto.audienceLevel())
-                .contentTags(new LinkedHashSet<>(dto.contentTags()))
-                .language(dto.language())
-                .requiredTimeslotTags(new LinkedHashSet<>(dto.requiredTimeslotTags()))
-                .preferredTimeslotTags(new LinkedHashSet<>(dto.preferredTimeslotTags()))
-                .prohibitedTimeslotTags(new LinkedHashSet<>(dto.prohibitedTimeslotTags()))
-                .undesiredTimeslotTags(new LinkedHashSet<>(dto.undesiredTimeslotTags()))
-                .requiredRoomTags(new LinkedHashSet<>(dto.requiredRoomTags()))
-                .preferredRoomTags(new LinkedHashSet<>(dto.preferredRoomTags()))
-                .prohibitedRoomTags(new LinkedHashSet<>(dto.prohibitedRoomTags()))
-                .undesiredRoomTags(new LinkedHashSet<>(dto.undesiredRoomTags()))
-                .mutuallyExclusiveTalksTags(new LinkedHashSet<>(dto.mutuallyExclusiveTalksTags()))
-                .favoriteCount(dto.favoriteCount())
-                .crowdControlRisk(dto.crowdControlRisk())
-                .build();
+        // Prerequisites are resolved in applyPrerequisites(), once every talk exists, so an empty set is passed here.
+        Talk talk = new Talk(dto.code(),
+                dto.title(),
+                require(talkTypeMap, dto.talkTypeName(), "talk type"),
+                speakers,
+                new LinkedHashSet<>(dto.themeTrackTags()),
+                new LinkedHashSet<>(dto.sectorTags()),
+                new LinkedHashSet<>(dto.audienceTypes()),
+                dto.audienceLevel(),
+                new LinkedHashSet<>(dto.contentTags()),
+                dto.language(),
+                new LinkedHashSet<>(dto.requiredTimeslotTags()),
+                new LinkedHashSet<>(dto.preferredTimeslotTags()),
+                new LinkedHashSet<>(dto.prohibitedTimeslotTags()),
+                new LinkedHashSet<>(dto.undesiredTimeslotTags()),
+                new LinkedHashSet<>(dto.requiredRoomTags()),
+                new LinkedHashSet<>(dto.preferredRoomTags()),
+                new LinkedHashSet<>(dto.prohibitedRoomTags()),
+                new LinkedHashSet<>(dto.undesiredRoomTags()),
+                new LinkedHashSet<>(dto.mutuallyExclusiveTalksTags()),
+                new LinkedHashSet<>(),
+                dto.favoriteCount(),
+                dto.crowdControlRisk());
         if (dto.timeslotId() != null) {
             talk.setTimeslot(require(timeslotMap, dto.timeslotId(), "timeslot"));
         }
@@ -202,7 +202,7 @@ public class ConferenceScheduleModelConvertor
                     .map(code -> require(talkMap, code, "prerequisite talk"))
                     .collect(toCollection(LinkedHashSet::new));
             // Prerequisites can only be resolved once every talk exists, so they are added to the talk's own
-            // (initially empty) set instead of being passed to the builder.
+            // (initially empty) set instead of being passed to the constructor.
             talkMap.get(dto.code()).getPrerequisiteTalks().addAll(prerequisites);
         }
     }

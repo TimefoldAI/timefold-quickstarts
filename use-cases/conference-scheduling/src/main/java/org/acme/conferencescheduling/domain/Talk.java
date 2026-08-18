@@ -51,6 +51,39 @@ public class Talk {
     public Talk() {
     }
 
+    public Talk(String code, String title, TalkType talkType, List<Speaker> speakers,
+            SequencedSet<String> themeTrackTags, SequencedSet<String> sectorTags, SequencedSet<String> audienceTypes,
+            int audienceLevel, SequencedSet<String> contentTags, String language,
+            SequencedSet<String> requiredTimeslotTags, SequencedSet<String> preferredTimeslotTags,
+            SequencedSet<String> prohibitedTimeslotTags, SequencedSet<String> undesiredTimeslotTags,
+            SequencedSet<String> requiredRoomTags, SequencedSet<String> preferredRoomTags,
+            SequencedSet<String> prohibitedRoomTags, SequencedSet<String> undesiredRoomTags,
+            SequencedSet<String> mutuallyExclusiveTalksTags, SequencedSet<Talk> prerequisiteTalks, int favoriteCount,
+            int crowdControlRisk) {
+        this.code = code;
+        this.title = title;
+        this.talkType = talkType;
+        this.speakers = speakers;
+        this.themeTrackTags = themeTrackTags;
+        this.sectorTags = sectorTags;
+        this.audienceTypes = audienceTypes;
+        this.audienceLevel = audienceLevel;
+        this.contentTags = contentTags;
+        this.language = language;
+        this.requiredTimeslotTags = requiredTimeslotTags;
+        this.preferredTimeslotTags = preferredTimeslotTags;
+        this.prohibitedTimeslotTags = prohibitedTimeslotTags;
+        this.undesiredTimeslotTags = undesiredTimeslotTags;
+        this.requiredRoomTags = requiredRoomTags;
+        this.preferredRoomTags = preferredRoomTags;
+        this.prohibitedRoomTags = prohibitedRoomTags;
+        this.undesiredRoomTags = undesiredRoomTags;
+        this.mutuallyExclusiveTalksTags = mutuallyExclusiveTalksTags;
+        this.prerequisiteTalks = prerequisiteTalks;
+        this.favoriteCount = favoriteCount;
+        this.crowdControlRisk = crowdControlRisk;
+    }
+
     @ValueRangeProvider
     public Set<Timeslot> getTimeslotRange() {
         return talkType.compatibleTimeslots();
@@ -59,186 +92,6 @@ public class Talk {
     @ValueRangeProvider
     public Set<Room> getRoomRange() {
         return talkType.compatibleRooms();
-    }
-
-    public static Builder builder(String code) {
-        return new Builder(code);
-    }
-
-    public static final class Builder {
-
-        private final String code;
-        private String title;
-        private TalkType talkType;
-        private List<Speaker> speakers = emptyList();
-        private SequencedSet<String> themeTrackTags = new LinkedHashSet<>();
-        private SequencedSet<String> sectorTags = new LinkedHashSet<>();
-        private SequencedSet<String> audienceTypes = new LinkedHashSet<>();
-        private int audienceLevel;
-        private SequencedSet<String> contentTags = new LinkedHashSet<>();
-        private String language;
-        private SequencedSet<String> requiredTimeslotTags = new LinkedHashSet<>();
-        private SequencedSet<String> preferredTimeslotTags = new LinkedHashSet<>();
-        private SequencedSet<String> prohibitedTimeslotTags = new LinkedHashSet<>();
-        private SequencedSet<String> undesiredTimeslotTags = new LinkedHashSet<>();
-        private SequencedSet<String> requiredRoomTags = new LinkedHashSet<>();
-        private SequencedSet<String> preferredRoomTags = new LinkedHashSet<>();
-        private SequencedSet<String> prohibitedRoomTags = new LinkedHashSet<>();
-        private SequencedSet<String> undesiredRoomTags = new LinkedHashSet<>();
-        private SequencedSet<String> mutuallyExclusiveTalksTags = new LinkedHashSet<>();
-        private SequencedSet<Talk> prerequisiteTalks = new LinkedHashSet<>();
-        private int favoriteCount;
-        private int crowdControlRisk;
-        private Timeslot timeslot;
-        private Room room;
-
-        private Builder(String code) {
-            this.code = code;
-        }
-
-        public Builder title(String title) {
-            this.title = title;
-            return this;
-        }
-
-        public Builder talkType(TalkType talkType) {
-            this.talkType = talkType;
-            return this;
-        }
-
-        public Builder speakers(List<Speaker> speakers) {
-            this.speakers = speakers;
-            return this;
-        }
-
-        public Builder timeslot(Timeslot timeslot) {
-            this.timeslot = timeslot;
-            return this;
-        }
-
-        public Builder room(Room room) {
-            this.room = room;
-            return this;
-        }
-
-        public Builder themeTrackTags(SequencedSet<String> themeTrackTags) {
-            this.themeTrackTags = themeTrackTags;
-            return this;
-        }
-
-        public Builder sectorTags(SequencedSet<String> sectorTags) {
-            this.sectorTags = sectorTags;
-            return this;
-        }
-
-        public Builder audienceTypes(SequencedSet<String> audienceTypes) {
-            this.audienceTypes = audienceTypes;
-            return this;
-        }
-
-        public Builder audienceLevel(int audienceLevel) {
-            this.audienceLevel = audienceLevel;
-            return this;
-        }
-
-        public Builder contentTags(SequencedSet<String> contentTags) {
-            this.contentTags = contentTags;
-            return this;
-        }
-
-        public Builder language(String language) {
-            this.language = language;
-            return this;
-        }
-
-        public Builder requiredTimeslotTags(SequencedSet<String> requiredTimeslotTags) {
-            this.requiredTimeslotTags = requiredTimeslotTags;
-            return this;
-        }
-
-        public Builder preferredTimeslotTags(SequencedSet<String> preferredTimeslotTags) {
-            this.preferredTimeslotTags = preferredTimeslotTags;
-            return this;
-        }
-
-        public Builder prohibitedTimeslotTags(SequencedSet<String> prohibitedTimeslotTags) {
-            this.prohibitedTimeslotTags = prohibitedTimeslotTags;
-            return this;
-        }
-
-        public Builder undesiredTimeslotTags(SequencedSet<String> undesiredTimeslotTags) {
-            this.undesiredTimeslotTags = undesiredTimeslotTags;
-            return this;
-        }
-
-        public Builder requiredRoomTags(SequencedSet<String> requiredRoomTags) {
-            this.requiredRoomTags = requiredRoomTags;
-            return this;
-        }
-
-        public Builder preferredRoomTags(SequencedSet<String> preferredRoomTags) {
-            this.preferredRoomTags = preferredRoomTags;
-            return this;
-        }
-
-        public Builder prohibitedRoomTags(SequencedSet<String> prohibitedRoomTags) {
-            this.prohibitedRoomTags = prohibitedRoomTags;
-            return this;
-        }
-
-        public Builder undesiredRoomTags(SequencedSet<String> undesiredRoomTags) {
-            this.undesiredRoomTags = undesiredRoomTags;
-            return this;
-        }
-
-        public Builder mutuallyExclusiveTalksTags(SequencedSet<String> mutuallyExclusiveTalksTags) {
-            this.mutuallyExclusiveTalksTags = mutuallyExclusiveTalksTags;
-            return this;
-        }
-
-        public Builder prerequisiteTalks(SequencedSet<Talk> prerequisiteTalks) {
-            this.prerequisiteTalks = prerequisiteTalks;
-            return this;
-        }
-
-        public Builder favoriteCount(int favoriteCount) {
-            this.favoriteCount = favoriteCount;
-            return this;
-        }
-
-        public Builder crowdControlRisk(int crowdControlRisk) {
-            this.crowdControlRisk = crowdControlRisk;
-            return this;
-        }
-
-        public Talk build() {
-            Talk talk = new Talk();
-            talk.code = code;
-            talk.title = title;
-            talk.talkType = talkType;
-            talk.speakers = speakers;
-            talk.themeTrackTags = themeTrackTags;
-            talk.sectorTags = sectorTags;
-            talk.audienceTypes = audienceTypes;
-            talk.audienceLevel = audienceLevel;
-            talk.contentTags = contentTags;
-            talk.language = language;
-            talk.requiredTimeslotTags = requiredTimeslotTags;
-            talk.preferredTimeslotTags = preferredTimeslotTags;
-            talk.prohibitedTimeslotTags = prohibitedTimeslotTags;
-            talk.undesiredTimeslotTags = undesiredTimeslotTags;
-            talk.requiredRoomTags = requiredRoomTags;
-            talk.preferredRoomTags = preferredRoomTags;
-            talk.prohibitedRoomTags = prohibitedRoomTags;
-            talk.undesiredRoomTags = undesiredRoomTags;
-            talk.mutuallyExclusiveTalksTags = mutuallyExclusiveTalksTags;
-            talk.prerequisiteTalks = prerequisiteTalks;
-            talk.favoriteCount = favoriteCount;
-            talk.crowdControlRisk = crowdControlRisk;
-            talk.timeslot = timeslot;
-            talk.room = room;
-            return talk;
-        }
     }
 
     public int overlappingThemeTrackCount(Talk other) {
@@ -446,7 +299,6 @@ public class Talk {
         return overlappingCount(mutuallyExclusiveTalksTags, other.mutuallyExclusiveTalksTags);
     }
 
-    @JsonIgnore
     public Integer getDurationInMinutes() {
         return timeslot == null ? null : timeslot.getDurationInMinutes();
     }
