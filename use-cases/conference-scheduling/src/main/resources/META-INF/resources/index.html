@@ -3,9 +3,8 @@
     <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
     <meta content="width=device-width, initial-scale=1" name="viewport">
     <title>Conference Scheduling - Timefold Solver on Quarkus</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
-    <style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css" integrity="sha512-QeR2VH+lsBE5LSAe1Q5EnTBbe7XTBubt8dG93Y7gidSgdMCr8nVqKcfKAMyN96SV8KDbZVTDXChatu5G2KQGzg==" crossorigin="anonymous" referrerpolicy="no-referrer" />    <style>
         :root {
             --ts-violet-1-rgb: #3E00FF;
             --ts-violet-2-rgb: #3423A6;
@@ -69,7 +68,7 @@
             <button id="solveButton" type="button" class="btn btn-success">
                 <span class="fas fa-play"></span> Solve
             </button>
-            <button id="stopSolvingButton" type="button" class="btn btn-danger">
+            <button id="stopSolvingButton" type="button" class="btn btn-danger" style="display: none">
                 <span class="fas fa-stop"></span> Stop solving
             </button>
             <span id="score" class="score ms-2 align-middle fw-bold">Score: ?</span>
@@ -248,9 +247,9 @@
 </div>
 
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@js-joda/core@5.6.3/dist/js-joda.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@4.0.0/dist/jquery.min.js" integrity="sha256-OaVG6prZf4v69dPg6PhVattBXkcOWQB62pdZ3ORyrao=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@js-joda/core@6.1.0/dist/js-joda.min.js" integrity="sha256-Uu/3Fv5M3qvr/wX1tKoqAPNE8tiS0vOUm3YdWU1cVAI=" crossorigin="anonymous"></script>
 <script src="app.js"></script>
 </body>
 </html>

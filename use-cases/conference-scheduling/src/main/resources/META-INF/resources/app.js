@@ -25,6 +25,8 @@ const timeFormatter = JSJoda.DateTimeFormatter.ofPattern('HH:mm');
 let jobId = null;
 let loadedSchedule = null;
 let viewType = "R";
+// Set when stop is pressed before the POST that creates the run has returned a jobId.
+let stopRequested = false;
 
 // Lookup maps rebuilt on every render (the DTO flattens references to IDs).
 let speakerNameById = new Map();
@@ -113,7 +115,7 @@ function setupAjax() {
     // Extend jQuery to support $.put() and $.delete()
     jQuery.each(["put", "delete"], function (i, method) {
         jQuery[method] = function (url, data, callback, type) {
-            if (jQuery.isFunction(data)) {
+            if (typeof data === "function") {
                 type = type || callback;
                 callback = data;
                 data = undefined;
@@ -169,9 +171,20 @@ function getStatus() {
 }
 
 function solve() {
+    // Swap in the stop button right away, rather than waiting for the demo-data GET
+    // and the POST to return.
+    stopRequested = false;
+    showStopSolvingButton(true);
     $.get(api(DEMO_DATA_PATH), function (modelRequest) {
         $.post(api(MODEL_PATH), JSON.stringify(modelRequest), function (metadata) {
             jobId = metadata.id;
+            if (stopRequested) {
+                // Stop was pressed while the run was still starting up: honour it now
+                // that there is a jobId to stop.
+                stopRequested = false;
+                stopSolving();
+                return;
+            }
             refreshSolvingButtons(metadata.solverStatus || "SOLVING_ACTIVE");
             if (autoRefreshIntervalId == null) {
                 autoRefreshIntervalId = setInterval(getStatus, 2000);
@@ -187,6 +200,12 @@ function solve() {
 }
 
 function stopSolving() {
+    if (jobId == null) {
+        // The run is still being created, so there is nothing to DELETE yet. Keep the
+        // stop button showing and let solve() stop the run as soon as it has an id.
+        stopRequested = true;
+        return;
+    }
     $.delete(api(`${MODEL_PATH}/${jobId}`), function () {
         refreshSolvingButtons("SOLVING_COMPLETED");
         getStatus();
@@ -195,22 +214,33 @@ function stopSolving() {
     });
 }
 
+// SolvingStatus values that mean the run is over and nothing is in flight.
+const TERMINAL_SOLVER_STATUSES = [
+    "DATASET_INVALID", "SOLVING_COMPLETED", "SOLVING_INCOMPLETE", "SOLVING_FAILED"];
+
 function isSolving(solverStatus) {
-    return solverStatus === "SOLVING_ACTIVE" || solverStatus === "SOLVING_SCHEDULED"
-        || solverStatus === "SOLVING_STARTED";
+    // Anything non-terminal means work is queued or running, including the DATASET_*
+    // states a run passes through before solving actually starts. Treating those as
+    // "not solving" made the button flip back to Solve right after the POST returned.
+    return solverStatus != null && !TERMINAL_SOLVER_STATUSES.includes(solverStatus);
 }
 
-function refreshSolvingButtons(solverStatus) {
-    if (isSolving(solverStatus)) {
+function showStopSolvingButton(solving) {
+    if (solving) {
         $("#solveButton").hide();
         $("#stopSolvingButton").show();
     } else {
         $("#solveButton").show();
         $("#stopSolvingButton").hide();
-        if (autoRefreshIntervalId != null) {
-            clearInterval(autoRefreshIntervalId);
-            autoRefreshIntervalId = null;
-        }
+    }
+}
+
+function refreshSolvingButtons(solverStatus) {
+    const solving = isSolving(solverStatus);
+    showStopSolvingButton(solving);
+    if (!solving && autoRefreshIntervalId != null) {
+        clearInterval(autoRefreshIntervalId);
+        autoRefreshIntervalId = null;
     }
 }
 
