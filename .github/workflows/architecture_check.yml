@@ -1,0 +1,59 @@
+name: Architecture Check
+
+on:
+  push:
+    branches: [stable, development, '*.x']
+    paths:
+      - 'use-cases/**'
+      - '.github/scripts/ArchitectureCheck.java'
+      - '.github/workflows/architecture_check.yml'
+  pull_request:
+    branches: [stable, development, '*.x']
+    paths:
+      - 'use-cases/**'
+      - '.github/scripts/ArchitectureCheck.java'
+      - '.github/workflows/architecture_check.yml'
+
+jobs:
+  archunit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout timefold-quickstarts
+        uses: actions/checkout@v7
+      - name: Checkout timefold-solver
+        uses: actions/checkout@v7
+        with:
+          repository: TimefoldAI/timefold-solver
+          ref: main
+          path: ./timefold-solver
+      - name: Setup Java and Maven
+        uses: actions/setup-java@v5
+        with:
+          java-version: 21
+          distribution: temurin
+          cache: maven
+      - name: Setup JBang
+        uses: jbangdev/setup-jbang@v0.1.1
+      - name: Quickly build timefold-solver
+        working-directory: ./timefold-solver
+        run: mvn -B -Dquickly -DskipTests clean install
+      # Runs the ArchUnit rules of .github/scripts/ArchitectureCheck.java against
+      # every Models Service SDK quickstart, identified by its pom.xml declaring
+      # timefold-solver-service-parent as its parent.
+      - name: Check architecture of SDK models
+        run: |
+          models=""
+          for pom in use-cases/*/pom.xml; do
+            grep -q "<artifactId>timefold-solver-service-parent</artifactId>" "$pom" || continue
+            model_dir="$(dirname "$pom")"
+            echo "::group::compile $model_dir"
+            mvn -B -q -f "$model_dir" test-compile
+            echo "::endgroup::"
+            models="$models $model_dir"
+          done
+          if [ -z "$models" ]; then
+            echo "::error::no Models Service SDK quickstart found under use-cases/"
+            exit 1
+          fi
+          jbang .github/scripts/ArchitectureCheck.java $models
