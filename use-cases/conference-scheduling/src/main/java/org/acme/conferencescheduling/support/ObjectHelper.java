@@ -2,8 +2,10 @@ package org.acme.conferencescheduling.support;
 
 import java.util.List;
 
-public class ObjectHelper {
-    public static List<String> immutableCopy(List<String> list) {
+public final class ObjectHelper {
+    private ObjectHelper() {} // static helper
+
+    public static <T> List<T>  immutableCopy(List<T> list) {
         return list == null ? List.of() : List.copyOf(list);
     }
 }

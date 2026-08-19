@@ -6,6 +6,8 @@ import ai.timefold.solver.service.definition.api.ModelOutput;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
+import static org.acme.conferencescheduling.support.ObjectHelper.immutableCopy;
+
 @Schema(description = "The conference scheduling planning problem output.")
 public record ConferenceScheduleOutput(
         @Schema(description = "Name of the conference.", required = true) String name,
@@ -16,4 +18,13 @@ public record ConferenceScheduleOutput(
         @Schema(description = "Speakers presenting the talks.", required = true) List<SpeakerDTO> speakers,
         @Schema(description = "Talks with their assigned timeslot and room.", required = true) List<TalkDTO> talks,
         @Schema(description = "The score of the solution.", required = true) String score) implements ModelOutput {
+
+    public ConferenceScheduleOutput {
+        talkTypes = immutableCopy(talkTypes);
+        timeslots = immutableCopy(timeslots);
+        rooms = immutableCopy(rooms);
+        speakers = immutableCopy(speakers);
+        talks = immutableCopy(talks);
+    }
+
 }
