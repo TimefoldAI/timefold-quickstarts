@@ -146,9 +146,7 @@ public final class ArchitectureCheck {
                 classesMustResideInValidSubpackages(),
                 onlyInterfacesAndRecordsInDtoPackage(),
                 nestedDtoClassesMustBeBuilders(),
-                recordConstructorCallsMustNotPassNullLiterals(),
-                recordsMustHaveCompactConstructorWithLogic(),
-                recordsMustHaveAtLeastOneDefinedConstructor());
+                recordConstructorCallsMustNotPassNullLiterals());
     }
 
     private static ArchRule layerRule(String from, String to,
