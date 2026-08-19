@@ -4,9 +4,9 @@
     "title" : "Conference Scheduling",
     "description" : "",
     "contact" : {
-      "name" : "Your Name",
-      "url" : "https://example.com",
-      "email" : "info@example.com"
+      "name" : "A.C.M.E.",
+      "url" : "https://acme.com",
+      "email" : "example@acme.com"
     },
     "version" : "v1"
   },
@@ -1629,6 +1629,7 @@
       },
       "ConferenceScheduleInput" : {
         "description" : "The conference scheduling planning problem input.",
+        "required" : [ "name", "talkTypes", "timeslots", "rooms", "speakers", "talks" ],
         "type" : "object",
         "properties" : {
           "name" : {
@@ -1747,10 +1748,36 @@
             "enum" : [ "ERROR", "WARNING" ],
             "type" : "string"
           }
-        }
+        },
+        "oneOf" : [ {
+          "$ref" : "#/components/schemas/DuplicateRoomIdIssue"
+        }, {
+          "$ref" : "#/components/schemas/DuplicateSpeakerIdIssue"
+        }, {
+          "$ref" : "#/components/schemas/DuplicateTalkIdIssue"
+        }, {
+          "$ref" : "#/components/schemas/DuplicateTimeslotIdIssue"
+        }, {
+          "$ref" : "#/components/schemas/NonExistingRoomReferenceIssue"
+        }, {
+          "$ref" : "#/components/schemas/NonExistingSpeakerReferenceIssue"
+        }, {
+          "$ref" : "#/components/schemas/NonExistingTalkTypeReferenceIssue"
+        }, {
+          "$ref" : "#/components/schemas/NonExistingTimeslotReferenceIssue"
+        }, {
+          "$ref" : "#/components/schemas/RoomIdMissingIssue"
+        }, {
+          "$ref" : "#/components/schemas/SpeakerIdMissingIssue"
+        }, {
+          "$ref" : "#/components/schemas/TalkIdMissingIssue"
+        }, {
+          "$ref" : "#/components/schemas/TimeslotIdMissingIssue"
+        } ]
       },
       "ConferenceScheduleOutput" : {
         "description" : "The conference scheduling planning problem output.",
+        "required" : [ "name", "talkTypes", "timeslots", "rooms", "speakers", "talks", "score" ],
         "type" : "object",
         "properties" : {
           "name" : {
@@ -1889,6 +1916,54 @@
           }
         }
       },
+      "DuplicateRoomIdIssue" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/ConferenceScheduleIssue"
+        } ],
+        "properties" : {
+          "roomId" : {
+            "description" : "The ID of the duplicated room.",
+            "type" : "string"
+          }
+        }
+      },
+      "DuplicateSpeakerIdIssue" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/ConferenceScheduleIssue"
+        } ],
+        "properties" : {
+          "speakerId" : {
+            "description" : "The ID of the duplicated speaker.",
+            "type" : "string"
+          }
+        }
+      },
+      "DuplicateTalkIdIssue" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/ConferenceScheduleIssue"
+        } ],
+        "properties" : {
+          "talkId" : {
+            "description" : "The code of the duplicated talk.",
+            "type" : "string"
+          }
+        }
+      },
+      "DuplicateTimeslotIdIssue" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/ConferenceScheduleIssue"
+        } ],
+        "properties" : {
+          "timeslotId" : {
+            "description" : "The ID of the duplicated timeslot.",
+            "type" : "string"
+          }
+        }
+      },
       "Duration" : {
         "format" : "duration",
         "type" : "string",
@@ -2003,6 +2078,11 @@
         },
         "additionalProperties" : false
       },
+      "LocalDate" : {
+        "format" : "date",
+        "type" : "string",
+        "example" : "2022-03-10"
+      },
       "LogInfo" : {
         "type" : "object",
         "properties" : {
@@ -2026,6 +2106,9 @@
           },
           "transportType" : {
             "type" : "string"
+          },
+          "useTraffic" : {
+            "type" : "boolean"
           }
         }
       },
@@ -2443,6 +2526,54 @@
           }
         }
       },
+      "NonExistingRoomReferenceIssue" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/ConferenceScheduleIssue"
+        } ],
+        "properties" : {
+          "talkId" : {
+            "description" : "The code of the talk with the dangling reference, if it has one.",
+            "type" : "string"
+          }
+        }
+      },
+      "NonExistingSpeakerReferenceIssue" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/ConferenceScheduleIssue"
+        } ],
+        "properties" : {
+          "talkId" : {
+            "description" : "The code of the talk with the dangling reference, if it has one.",
+            "type" : "string"
+          }
+        }
+      },
+      "NonExistingTalkTypeReferenceIssue" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/ConferenceScheduleIssue"
+        } ],
+        "properties" : {
+          "talkId" : {
+            "description" : "The code of the talk with the dangling reference, if it has one.",
+            "type" : "string"
+          }
+        }
+      },
+      "NonExistingTimeslotReferenceIssue" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/ConferenceScheduleIssue"
+        } ],
+        "properties" : {
+          "talkId" : {
+            "description" : "The code of the talk with the dangling reference, if it has one.",
+            "type" : "string"
+          }
+        }
+      },
       "OffsetDateTime" : {
         "format" : "date-time",
         "type" : "string",
@@ -2469,6 +2600,7 @@
       },
       "RoomDTO" : {
         "description" : "A room in which talks can be scheduled.",
+        "required" : [ "id", "name", "capacity" ],
         "type" : "object",
         "properties" : {
           "id" : {
@@ -2506,6 +2638,12 @@
             }
           }
         }
+      },
+      "RoomIdMissingIssue" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/ConferenceScheduleIssue"
+        } ]
       },
       "RunConfiguration" : {
         "type" : "object",
@@ -2601,6 +2739,7 @@
       },
       "SpeakerDTO" : {
         "description" : "A speaker who presents one or more talks.",
+        "required" : [ "id" ],
         "type" : "object",
         "properties" : {
           "id" : {
@@ -2676,8 +2815,15 @@
           }
         }
       },
+      "SpeakerIdMissingIssue" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/ConferenceScheduleIssue"
+        } ]
+      },
       "TalkDTO" : {
         "description" : "A talk to be assigned to a timeslot and a room.",
+        "required" : [ "code", "title", "talkTypeName", "speakerIds" ],
         "type" : "object",
         "properties" : {
           "code" : {
@@ -2826,8 +2972,15 @@
           }
         }
       },
+      "TalkIdMissingIssue" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/ConferenceScheduleIssue"
+        } ]
+      },
       "TalkTypeDTO" : {
         "description" : "A type of talk, e.g. Breakout or Lab, restricting compatible timeslots and rooms.",
+        "required" : [ "name" ],
         "type" : "object",
         "properties" : {
           "name" : {
@@ -2838,6 +2991,7 @@
       },
       "TimeslotDTO" : {
         "description" : "A timeslot during which talks can be scheduled.",
+        "required" : [ "id" ],
         "type" : "object",
         "properties" : {
           "id" : {
@@ -2867,6 +3021,12 @@
             }
           }
         }
+      },
+      "TimeslotIdMissingIssue" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/ConferenceScheduleIssue"
+        } ]
       },
       "ValidationErrorInfo" : {
         "type" : "object",
