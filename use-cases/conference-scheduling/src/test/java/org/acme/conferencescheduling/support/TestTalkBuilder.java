@@ -1,4 +1,4 @@
-package org.acme.conferencescheduling.testhelpers;
+package org.acme.conferencescheduling.support;
 
 import static java.util.Collections.emptyList;
 

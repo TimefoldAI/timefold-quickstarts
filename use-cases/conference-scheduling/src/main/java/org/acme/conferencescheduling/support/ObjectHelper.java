@@ -1,8 +1,8 @@
-package org.acme.conferencescheduling.dto;
+package org.acme.conferencescheduling.support;
 
 import java.util.List;
 
-public class DTOHelper {
+public class ObjectHelper {
     public static List<String> immutableCopy(List<String> list) {
         return list == null ? List.of() : List.copyOf(list);
     }

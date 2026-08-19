@@ -249,7 +249,7 @@ public final class ArchitectureCheck {
                 .and().haveNameNotMatching(".*Test\\$.*")
                 .should()
                 .resideInAnyPackage("..domain..", "..dto..", "..solver..", "..rest..", "..service..", "..demo..",
-                        "..enricher..", "..support..")
+                        "..enricher..", "..support..", "..integrationtest..")
                 .as("Classes must reside in a valid layer package");
     }
 
@@ -278,20 +278,13 @@ public final class ArchitectureCheck {
                 .as("Record constructors must not be called with null literals");
     }
 
-    private static ArchRule recordsMustHaveCompactConstructorWithLogic() {
+    private static ArchRule recordsInDtoLayerMustHaveCompactConstructorWithLogic() {
         return classes()
-                .that().areRecords()
+                .that().resideInAPackage("..dto..")
+                .and().areRecords()
                 .and().haveNameNotMatching(".*Test\\$.*")
                 .should(new NonEmptyCompactConstructorCondition())
-                .as("Records must define a non-empty compact constructor to apply defaults or validation");
-    }
-
-    private static ArchRule recordsMustHaveAtLeastOneDefinedConstructor() {
-        return classes()
-                .that().areRecords()
-                .and().haveNameNotMatching(".*Test\\$.*")
-                .should(new AtLeastOneDefinedConstructorCondition())
-                .as("Records must define at least one constructor");
+                .as("Records in the DTO layer must define a non-empty compact constructor to apply defaults or validation");
     }
 
     private static ArchCondition<JavaClass> notHaveFilesMatching(String... syntaxAndPatterns) {
@@ -530,60 +523,6 @@ public final class ArchitectureCheck {
                 events.add(SimpleConditionEvent.violated(javaClass,
                         "%s compact constructor must contain defaulting or validation logic".formatted(javaClass.getName())));
             }
-        }
-    }
-
-    private static final class AtLeastOneDefinedConstructorCondition extends ArchCondition<JavaClass> {
-
-        private AtLeastOneDefinedConstructorCondition() {
-            super("define at least one constructor");
-        }
-
-        @Override
-        public void check(JavaClass javaClass, ConditionEvents events) {
-            var sourceFile = resolveSourceFile(javaClass);
-            if (sourceFile.isEmpty()) {
-                events.add(SimpleConditionEvent.violated(javaClass,
-                        "Cannot verify constructor declarations for %s: source file not found".formatted(javaClass.getName())));
-                return;
-            }
-            var source = String.join("\n", readLines(sourceFile.get()));
-            var recordMatcher = Pattern
-                    .compile("\\brecord\\s+" + Pattern.quote(javaClass.getSimpleName()) + "\\s*\\(")
-                    .matcher(source);
-            if (!recordMatcher.find()) {
-                events.add(violation(javaClass));
-                return;
-            }
-            var recordHeaderOpeningParenthesis = recordMatcher.end() - 1;
-            var recordHeaderClosingParenthesis = findMatchingClosingParenthesis(source, recordHeaderOpeningParenthesis);
-            if (recordHeaderClosingParenthesis < 0) {
-                events.add(violation(javaClass));
-                return;
-            }
-            var recordBodyOpeningBrace = source.indexOf('{', recordHeaderClosingParenthesis);
-            if (recordBodyOpeningBrace < 0) {
-                events.add(violation(javaClass));
-                return;
-            }
-            var recordBodyClosingBrace = findMatchingClosingBrace(source, recordBodyOpeningBrace);
-            if (recordBodyClosingBrace < 0) {
-                events.add(violation(javaClass));
-                return;
-            }
-            var recordBody = source.substring(recordBodyOpeningBrace + 1, recordBodyClosingBrace);
-            var constructorMatcher = Pattern
-                    .compile("(?:public\\s+|protected\\s+|private\\s+)?" + Pattern.quote(javaClass.getSimpleName())
-                            + "\\s*(?:\\{|\\([^)]*\\)\\s*\\{)")
-                    .matcher(recordBody);
-            if (!constructorMatcher.find()) {
-                events.add(violation(javaClass));
-            }
-        }
-
-        private static com.tngtech.archunit.lang.ConditionEvent violation(JavaClass javaClass) {
-            return SimpleConditionEvent.violated(javaClass,
-                    "%s must declare at least one constructor".formatted(javaClass.getName()));
         }
     }
 

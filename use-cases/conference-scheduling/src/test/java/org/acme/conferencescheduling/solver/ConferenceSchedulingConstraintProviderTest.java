@@ -2,9 +2,9 @@ package org.acme.conferencescheduling.solver;
 
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
-import static org.acme.conferencescheduling.testhelpers.TestRoomBuilder.aRoom;
-import static org.acme.conferencescheduling.testhelpers.TestSpeakerBuilder.aSpeaker;
-import static org.acme.conferencescheduling.testhelpers.TestTalkBuilder.aTalk;
+import static org.acme.conferencescheduling.support.TestRoomBuilder.aRoom;
+import static org.acme.conferencescheduling.support.TestSpeakerBuilder.aSpeaker;
+import static org.acme.conferencescheduling.support.TestTalkBuilder.aTalk;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;

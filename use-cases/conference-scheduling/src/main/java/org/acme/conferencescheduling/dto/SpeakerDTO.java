@@ -1,6 +1,6 @@
 package org.acme.conferencescheduling.dto;
 
-import static org.acme.conferencescheduling.dto.DTOHelper.immutableCopy;
+import static org.acme.conferencescheduling.support.ObjectHelper.immutableCopy;
 
 import java.util.List;
 

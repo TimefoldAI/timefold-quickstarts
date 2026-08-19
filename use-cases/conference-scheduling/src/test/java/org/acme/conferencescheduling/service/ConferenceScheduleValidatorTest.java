@@ -1,19 +1,19 @@
 package org.acme.conferencescheduling.service;
 
-import static org.acme.conferencescheduling.testhelpers.SolverTestDataFactory.LAB;
-import static org.acme.conferencescheduling.testhelpers.SolverTestDataFactory.SPEAKERS;
-import static org.acme.conferencescheduling.testhelpers.SolverTestDataFactory.TALK_TYPES;
-import static org.acme.conferencescheduling.testhelpers.SolverTestDataFactory.TIMESLOTS;
-import static org.acme.conferencescheduling.testhelpers.SolverTestDataFactory.createProblem;
-import static org.acme.conferencescheduling.testhelpers.SolverTestDataFactory.input;
-import static org.acme.conferencescheduling.testhelpers.SolverTestDataFactory.inputWithRooms;
-import static org.acme.conferencescheduling.testhelpers.SolverTestDataFactory.inputWithSpeakers;
-import static org.acme.conferencescheduling.testhelpers.SolverTestDataFactory.inputWithTalks;
-import static org.acme.conferencescheduling.testhelpers.SolverTestDataFactory.inputWithTimeslots;
-import static org.acme.conferencescheduling.testhelpers.SolverTestDataFactory.room;
-import static org.acme.conferencescheduling.testhelpers.SolverTestDataFactory.speaker;
-import static org.acme.conferencescheduling.testhelpers.SolverTestDataFactory.talk;
-import static org.acme.conferencescheduling.testhelpers.SolverTestDataFactory.timeslot;
+import static org.acme.conferencescheduling.support.SolverTestDataFactory.LAB;
+import static org.acme.conferencescheduling.support.SolverTestDataFactory.SPEAKERS;
+import static org.acme.conferencescheduling.support.SolverTestDataFactory.TALK_TYPES;
+import static org.acme.conferencescheduling.support.SolverTestDataFactory.TIMESLOTS;
+import static org.acme.conferencescheduling.support.SolverTestDataFactory.createProblem;
+import static org.acme.conferencescheduling.support.SolverTestDataFactory.input;
+import static org.acme.conferencescheduling.support.SolverTestDataFactory.inputWithRooms;
+import static org.acme.conferencescheduling.support.SolverTestDataFactory.inputWithSpeakers;
+import static org.acme.conferencescheduling.support.SolverTestDataFactory.inputWithTalks;
+import static org.acme.conferencescheduling.support.SolverTestDataFactory.inputWithTimeslots;
+import static org.acme.conferencescheduling.support.SolverTestDataFactory.room;
+import static org.acme.conferencescheduling.support.SolverTestDataFactory.speaker;
+import static org.acme.conferencescheduling.support.SolverTestDataFactory.talk;
+import static org.acme.conferencescheduling.support.SolverTestDataFactory.timeslot;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collection;
