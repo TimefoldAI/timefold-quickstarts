@@ -1,14 +1,12 @@
 package org.acme.conferencescheduling.dto;
 
-import java.util.Collections;
+import static org.acme.conferencescheduling.support.ObjectHelper.immutableCopy;
+
 import java.util.List;
 
 import ai.timefold.solver.service.definition.api.ModelInput;
 
-import org.acme.conferencescheduling.support.ObjectHelper;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
-
-import static org.acme.conferencescheduling.support.ObjectHelper.immutableCopy;
 
 @Schema(description = "The conference scheduling planning problem input.")
 public record ConferenceScheduleInput(
