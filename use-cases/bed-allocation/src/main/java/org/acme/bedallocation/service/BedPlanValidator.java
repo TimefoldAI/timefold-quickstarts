@@ -45,12 +45,18 @@ public class BedPlanValidator implements ModelValidator<BedPlanInput, BedPlanCon
                 validationBuilder.addIssue(new DepartmentIdMissingIssue());
             } else if (!departmentIds.add(department.id())) {
                 validationBuilder.addIssue(new DuplicateDepartmentIdIssue(department.id()));
+                // A duplicate department is a repeated entry (e.g. the same department submitted twice), so
+                // its rooms/beds were already validated the first time around - re-validating them here would
+                // just report the same rooms/beds as duplicates too, drowning out the actual issue.
+                continue;
             }
             for (RoomDTO room : department.rooms()) {
                 if (room.id() == null || room.id().isBlank()) {
                     validationBuilder.addIssue(new RoomIdMissingIssue());
                 } else if (!roomIds.add(room.id())) {
                     validationBuilder.addIssue(new DuplicateRoomIdIssue(room.id()));
+                    // Same reasoning as above, one level down: skip this duplicate room's beds.
+                    continue;
                 }
                 for (BedDTO bed : room.beds()) {
                     if (bed.id() == null || bed.id().isBlank()) {

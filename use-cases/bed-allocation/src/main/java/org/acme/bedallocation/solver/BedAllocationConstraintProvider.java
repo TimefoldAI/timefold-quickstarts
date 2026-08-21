@@ -139,7 +139,7 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
 
     public Constraint departmentSpecialtyNotFirstPriority(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(Stay.class)
-                .filter(st -> st.getSpecialtyPriority() > 1)
+                .filter(st -> st.hasDepartmentSpecialty() && st.getSpecialtyPriority() > 1)
                 .penalize(HardMediumSoftScore.ofSoft(10), stay -> (stay.getSpecialtyPriority() - 1) * stay.getNightCount())
                 .asConstraint(BedPlanConstraintProperties.DEPARTMENT_SPECIALTY_NOT_FIRST_PRIORITY);
     }
