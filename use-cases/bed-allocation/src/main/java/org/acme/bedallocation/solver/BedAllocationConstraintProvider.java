@@ -106,10 +106,11 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
 
     public Constraint requiredPatientEquipment(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(Stay.class)
-                .filter(st -> !st.getRoom().equipments().containsAll(st.getPatientRequiredEquipments()))
+                .filter(st -> st.getBed() != null
+                        && !st.getRoom().equipments().containsAll(st.getPatientRequiredEquipments()))
                 .penalize(HardMediumSoftScore.ofHard(50),
                         st -> st.getNightCount() * (int) st.getPatientRequiredEquipments().stream()
-                                .filter(equipment -> st.getRoom().equipments().contains(equipment)).count())
+                                .filter(equipment -> !st.getRoom().equipments().contains(equipment)).count())
                 .asConstraint(BedPlanConstraintProperties.REQUIRED_PATIENT_EQUIPMENT);
     }
 
@@ -146,8 +147,9 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
 
     public Constraint preferredPatientEquipment(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(Stay.class)
-                .filter(bedDesignation -> !bedDesignation.getRoom().equipments().containsAll(
-                        bedDesignation.getPatientPreferredEquipments()))
+                .filter(bedDesignation -> bedDesignation.getBed() != null
+                        && !bedDesignation.getRoom().equipments().containsAll(
+                                bedDesignation.getPatientPreferredEquipments()))
                 .penalize(HardMediumSoftScore.ofSoft(50),
                         st -> st.getNightCount() * (int) st.getPatientPreferredEquipments().stream()
                                 .filter(equipment -> !st.getRoom().equipments().contains(equipment)).count())

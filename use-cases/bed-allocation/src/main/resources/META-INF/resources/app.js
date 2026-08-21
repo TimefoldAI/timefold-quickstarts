@@ -7,7 +7,6 @@ const PLATFORM = (function () {
         onPlatform: q.has('onPlatform'),
         runId: q.get('runId'),
         apiUrl: q.has('apiUrl') ? decodeURIComponent(q.get('apiUrl')).replace(/\/+$/, '') : null,
-        apiKey: q.has('apiKey') ? q.get('apiKey') : null,
     };
 })();
 
