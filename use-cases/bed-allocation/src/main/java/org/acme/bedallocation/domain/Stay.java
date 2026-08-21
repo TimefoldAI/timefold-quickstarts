@@ -3,14 +3,13 @@ package org.acme.bedallocation.domain;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 import java.time.LocalDate;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.common.PlanningId;
+import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @PlanningEntity
 public class Stay {
@@ -26,17 +25,11 @@ public class Stay {
     private LocalDate arrivalDate;
     private LocalDate departureDate;
     private String specialty;
+
     @PlanningVariable(allowsUnassigned = true)
     private Bed bed;
 
     public Stay() {
-    }
-
-    public Stay(String id, String patientName) {
-        this.id = id;
-        this.patientName = patientName;
-        this.patientRequiredEquipments = new LinkedList<>();
-        this.patientPreferredEquipments = new LinkedList<>();
     }
 
     public Stay(String id, LocalDate arrivalDate, LocalDate departureDate, String specialty, Bed bed) {
@@ -45,78 +38,92 @@ public class Stay {
         this.departureDate = departureDate;
         this.specialty = specialty;
         this.bed = bed;
-        this.patientRequiredEquipments = new LinkedList<>();
-        this.patientPreferredEquipments = new LinkedList<>();
+        this.patientRequiredEquipments = new ArrayList<>();
+        this.patientPreferredEquipments = new ArrayList<>();
     }
 
-    @JsonIgnore
+    public Stay(String id, String patientName, Gender patientGender, int patientAge,
+            Integer patientPreferredMaximumRoomCapacity, List<String> patientRequiredEquipments,
+            List<String> patientPreferredEquipments, LocalDate arrivalDate, LocalDate departureDate, String specialty,
+            Bed bed) {
+        this.id = id;
+        this.patientName = patientName;
+        this.patientGender = patientGender;
+        this.patientAge = patientAge;
+        this.patientPreferredMaximumRoomCapacity = patientPreferredMaximumRoomCapacity;
+        this.patientRequiredEquipments = patientRequiredEquipments;
+        this.patientPreferredEquipments = patientPreferredEquipments;
+        this.arrivalDate = arrivalDate;
+        this.departureDate = departureDate;
+        this.specialty = specialty;
+        this.bed = bed;
+    }
+
     public int getNightCount() {
-        return (int) DAYS.between(arrivalDate, departureDate) + 1; // TODO is + 1 still desired?
+        return (int) DAYS.between(arrivalDate, departureDate) + 1;
     }
 
     public int calculateSameNightCount(Stay other) {
         LocalDate maxArrivalDate = arrivalDate.compareTo(other.arrivalDate) < 0 ? other.arrivalDate : arrivalDate;
         LocalDate minDepartureDate = departureDate.compareTo(other.departureDate) < 0 ? departureDate : other.departureDate;
-        return Math.max(0, (int) DAYS.between(maxArrivalDate, minDepartureDate) + 1); // TODO is + 1 still desired?
+        return Math.max(0, (int) DAYS.between(maxArrivalDate, minDepartureDate) + 1);
     }
 
-    @JsonIgnore
     public boolean hasDepartmentSpecialty() {
-        return getDepartment().getSpecialtyToPriority().containsKey(specialty);
+        return getDepartment().specialtyToPriority().containsKey(specialty);
     }
 
-    @JsonIgnore
     public int getSpecialtyPriority() {
-        return getDepartment().getSpecialtyToPriority().get(specialty);
+        return getDepartment().specialtyToPriority().get(specialty);
     }
 
-    @JsonIgnore
     public Room getRoom() {
         if (bed == null) {
             return null;
         }
-        return bed.getRoom();
+        return bed.room();
     }
 
-    @JsonIgnore
     public int getRoomCapacity() {
         if (bed == null) {
             return Integer.MIN_VALUE;
         }
-        return bed.getRoom().getCapacity();
+        return bed.room().capacity();
     }
 
-    @JsonIgnore
     public Department getDepartment() {
         if (bed == null) {
             return null;
         }
-        return bed.getRoom().getDepartment();
+        return bed.room().department();
     }
 
-    @JsonIgnore
     public GenderLimitation getRoomGenderLimitation() {
         if (bed == null) {
             return null;
         }
-        return bed.getRoom().getGenderLimitation();
-    }
-
-    public void addRequiredEquipment(String equipment) {
-        if (!patientRequiredEquipments.contains(equipment)) {
-            this.patientRequiredEquipments.add(equipment);
-        }
-    }
-
-    public void addPreferredEquipment(String equipment) {
-        if (!patientPreferredEquipments.contains(equipment)) {
-            this.patientPreferredEquipments.add(equipment);
-        }
+        return bed.room().genderLimitation();
     }
 
     @Override
     public String toString() {
         return patientName + "(" + arrivalDate + "-" + departureDate + ")";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Stay stay)) {
+            return false;
+        }
+        return Objects.equals(id, stay.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 
     // ************************************************************************
@@ -135,20 +142,20 @@ public class Stay {
         this.patientName = patientName;
     }
 
-    public void setPatientGender(Gender patientGender) {
-        this.patientGender = patientGender;
-    }
-
     public Gender getPatientGender() {
         return patientGender;
     }
 
-    public void setPatientAge(int patientAge) {
-        this.patientAge = patientAge;
+    public void setPatientGender(Gender patientGender) {
+        this.patientGender = patientGender;
     }
 
     public int getPatientAge() {
         return patientAge;
+    }
+
+    public void setPatientAge(int patientAge) {
+        this.patientAge = patientAge;
     }
 
     public Integer getPatientPreferredMaximumRoomCapacity() {

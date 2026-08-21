@@ -1,66 +1,55 @@
 package org.acme.bedallocation.domain;
 
 import java.util.List;
+import java.util.Objects;
 
+import ai.timefold.solver.core.api.domain.solution.ConstraintWeightOverrides;
 import ai.timefold.solver.core.api.domain.solution.PlanningEntityCollectionProperty;
 import ai.timefold.solver.core.api.domain.solution.PlanningScore;
 import ai.timefold.solver.core.api.domain.solution.PlanningSolution;
 import ai.timefold.solver.core.api.domain.solution.ProblemFactCollectionProperty;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
 import ai.timefold.solver.core.api.score.HardMediumSoftScore;
-import ai.timefold.solver.core.api.solver.SolverStatus;
+import ai.timefold.solver.service.definition.api.SolverModel;
+import ai.timefold.solver.service.definition.api.metrics.InputMetricsAware;
+import ai.timefold.solver.service.definition.api.metrics.OutputMetricsAware;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import org.acme.bedallocation.dto.BedPlanInputMetrics;
+import org.acme.bedallocation.dto.BedPlanOutputMetrics;
 
 @PlanningSolution
-public class BedPlan {
+public class BedPlan implements SolverModel<HardMediumSoftScore>,
+        InputMetricsAware<BedPlanInputMetrics>, OutputMetricsAware<BedPlanOutputMetrics> {
 
     @ProblemFactCollectionProperty
     private List<Department> departments;
-    @PlanningEntityCollectionProperty
-    private List<Stay> stays;
-    @JsonIgnore
     @ProblemFactCollectionProperty
     private List<Room> rooms;
-    @JsonIgnore
     @ProblemFactCollectionProperty
     @ValueRangeProvider
     private List<Bed> beds;
+    @PlanningEntityCollectionProperty
+    private List<Stay> stays;
 
     @PlanningScore
     private HardMediumSoftScore score;
 
-    private SolverStatus solverStatus;
+    private ConstraintWeightOverrides<HardMediumSoftScore> constraintWeightOverrides = ConstraintWeightOverrides.none();
 
-    // No-arg constructor required for Timefold
     public BedPlan() {
     }
 
-    @JsonCreator
-    public BedPlan(@JsonProperty("departments") List<Department> departments, @JsonProperty("stays") List<Stay> stays) {
+    public BedPlan(List<Department> departments, List<Room> rooms, List<Bed> beds, List<Stay> stays) {
         this.departments = departments;
+        this.rooms = rooms;
+        this.beds = beds;
         this.stays = stays;
-        this.rooms = departments.stream()
-                .filter(d -> d.getRooms() != null)
-                .flatMap(d -> d.getRooms().stream())
-                .toList();
-        this.beds = departments.stream()
-                .filter(d -> d.getRooms() != null)
-                .flatMap(d -> d.getRooms().stream())
-                .flatMap(r -> r.getBeds().stream())
-                .toList();
-    }
-
-    public BedPlan(HardMediumSoftScore score, SolverStatus solverStatus) {
-        this.score = score;
-        this.solverStatus = solverStatus;
     }
 
     // ************************************************************************
     // Getters and setters
     // ************************************************************************
+
     public List<Department> getDepartments() {
         return departments;
     }
@@ -93,6 +82,7 @@ public class BedPlan {
         this.stays = stays;
     }
 
+    @Override
     public HardMediumSoftScore getScore() {
         return score;
     }
@@ -101,12 +91,26 @@ public class BedPlan {
         this.score = score;
     }
 
-    public SolverStatus getSolverStatus() {
-        return solverStatus;
+    @Override
+    public ConstraintWeightOverrides<HardMediumSoftScore> getConstraintWeightOverrides() {
+        return constraintWeightOverrides;
     }
 
-    public void setSolverStatus(SolverStatus solverStatus) {
-        this.solverStatus = solverStatus;
+    public void setConstraintWeightOverrides(ConstraintWeightOverrides<HardMediumSoftScore> constraintWeightOverrides) {
+        this.constraintWeightOverrides = constraintWeightOverrides;
     }
 
+    @Override
+    public BedPlanInputMetrics getInputMetrics() {
+        return new BedPlanInputMetrics(stays.size(), departments.size(), rooms.size(), beds.size());
+    }
+
+    @Override
+    public BedPlanOutputMetrics getOutputMetrics() {
+        int assignedStays = (int) stays.stream().filter(stay -> stay.getBed() != null).count();
+        int unassignedStays = stays.size() - assignedStays;
+        int usedBeds = (int) stays.stream().map(Stay::getBed).filter(Objects::nonNull).distinct().count();
+        int usedRooms = (int) stays.stream().map(Stay::getRoom).filter(Objects::nonNull).distinct().count();
+        return new BedPlanOutputMetrics(assignedStays, unassignedStays, usedRooms, usedBeds);
+    }
 }
