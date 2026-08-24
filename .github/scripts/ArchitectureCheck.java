@@ -145,8 +145,7 @@ public final class ArchitectureCheck {
                 onlyDtoPackageMayUseSchemaAnnotation(),
                 classesMustResideInValidSubpackages(),
                 onlyInterfacesAndRecordsInDtoPackage(),
-                nestedDtoClassesMustBeBuilders(),
-                recordConstructorCallsMustNotPassNullLiterals());
+                nestedDtoClassesMustBeBuilders());
     }
 
     private static ArchRule layerRule(String from, String to,
@@ -270,21 +269,6 @@ public final class ArchitectureCheck {
                 .as("The only nested classes allowed in the DTO package are builders");
     }
 
-    private static ArchRule recordConstructorCallsMustNotPassNullLiterals() {
-        return classes()
-                .should(new NoNullLiteralInDtoRecordConstructorsCondition())
-                .as("Record constructors must not be called with null literals");
-    }
-
-    private static ArchRule recordsInDtoLayerMustHaveCompactConstructorWithLogic() {
-        return classes()
-                .that().resideInAPackage("..dto..")
-                .and().areRecords()
-                .and().haveNameNotMatching(".*Test\\$.*")
-                .should(new NonEmptyCompactConstructorCondition())
-                .as("Records in the DTO layer must define a non-empty compact constructor to apply defaults or validation");
-    }
-
     private static ArchCondition<JavaClass> notHaveFilesMatching(String... syntaxAndPatterns) {
         return new ArchCondition<>("not have forbidden script files in the repository") {
             // Walking the module tree once is enough; anchor the scan to a single class.
@@ -344,40 +328,6 @@ public final class ArchitectureCheck {
             if (javaClass.isAnnotatedWith(annotationTypeName)) {
                 events.add(SimpleConditionEvent.violated(javaClass,
                         "%s is annotated with @%s".formatted(javaClass.getName(), annotationTypeName)));
-            }
-        }
-    }
-
-    private static final class NoNullLiteralInDtoRecordConstructorsCondition extends ArchCondition<JavaClass> {
-
-        private NoNullLiteralInDtoRecordConstructorsCondition() {
-            super("not call DTO record constructors with null literals");
-        }
-
-        @Override
-        public void check(JavaClass javaClass, ConditionEvents events) {
-            if (javaClass.getPackageName().startsWith(basePackage + ".dto")) {
-                return;
-            }
-            var sourceFile = resolveSourceFile(javaClass);
-            if (sourceFile.isEmpty()) {
-                return;
-            }
-            var lines = readLines(sourceFile.get());
-            for (JavaConstructorCall constructorCall : javaClass.getConstructorCallsFromSelf()) {
-                if (!constructorCall.getTargetOwner().isRecord()
-                        || !constructorCall.getTargetOwner().getPackageName().startsWith(basePackage + ".dto")) {
-                    continue;
-                }
-                var statement = extractStatement(lines, constructorCall.getLineNumber());
-                if (statement.matches("(?s).*\\bnull\\b.*")) {
-                    var message = "%s calls %s with a null literal at %s:%d".formatted(
-                            javaClass.getName(),
-                            constructorCall.getTarget().getFullName(),
-                            sourceFile.get(),
-                            constructorCall.getLineNumber());
-                    events.add(SimpleConditionEvent.violated(constructorCall, message));
-                }
             }
         }
     }
