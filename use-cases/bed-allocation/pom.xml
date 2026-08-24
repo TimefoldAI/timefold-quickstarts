@@ -16,6 +16,10 @@
   <properties>
     <revision>1.0.0-SNAPSHOT</revision>
     <maven.compiler.release>21</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <version.io.quarkus>3.38.3</version.io.quarkus>
+    <version.ai.timefold.solver>999-SNAPSHOT</version.ai.timefold.solver>
   </properties>
 
 </project>
