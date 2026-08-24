@@ -424,15 +424,20 @@ function analyze() {
                 matchesRow.append($(`<td/>`).attr('colspan', '6').append(matchesListGroup));
                 analysisTBody.append(matchesRow);
 
-                row.append($(`<td/>`).append($(`<a/>`).attr("data-toggle", "collapse").attr('href', "#row" + index + "Collapse").append($(`<span/>`).addClass('fas').addClass('fa-chevron-down')).click(e => {
-                    matchesRow.collapse('toggle');
-                    let target = $(e.target);
-                    if (target.hasClass('fa-chevron-down')) {
-                        target.removeClass('fa-chevron-down').addClass('fa-chevron-up');
-                    } else {
-                        target.removeClass('fa-chevron-up').addClass('fa-chevron-down');
-                    }
-                })));
+                row.append($(`<td/>`).append($(`<a/>`)
+                    .attr('href', "#row" + index + "Collapse")
+                    .append($(`<span/>`).addClass('fas').addClass('fa-chevron-down'))
+                    .click(e => {
+                        e.preventDefault();
+                        const collapseEl = matchesRow.get(0);
+                        bootstrap.Collapse.getOrCreateInstance(collapseEl).toggle();
+                        let icon = $(e.currentTarget).find('span.fas');
+                        if (icon.hasClass('fa-chevron-down')) {
+                            icon.removeClass('fa-chevron-down').addClass('fa-chevron-up');
+                        } else {
+                            icon.removeClass('fa-chevron-up').addClass('fa-chevron-down');
+                        }
+                    })));
             } else {
                 row.append($(`<td/>`));
             }
