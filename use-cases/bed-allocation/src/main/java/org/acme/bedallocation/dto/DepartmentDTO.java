@@ -15,50 +15,26 @@ public record DepartmentDTO(
         @Schema(description = "Rooms belonging to this department.", required = true) List<RoomDTO> rooms) {
 
     public DepartmentDTO {
-        specialtyToPriority = specialtyToPriority == null ? Map.of() : Map.copyOf(specialtyToPriority);
-        rooms = rooms == null ? List.of() : List.copyOf(rooms);
+        rooms = rooms == null ? List.of() : rooms;
     }
 
-    public static Builder builder(String id, String name) {
-        return new Builder(id, name);
+    public DepartmentDTO(String id, String name) {
+        this(id, name, null, null, null, null);
     }
 
-    public static final class Builder {
+    public DepartmentDTO withMinimumAge(Integer minimumAge) {
+        return new DepartmentDTO(id, name, minimumAge, maximumAge, specialtyToPriority, rooms);
+    }
 
-        private final String id;
-        private final String name;
-        private Integer minimumAge;
-        private Integer maximumAge;
-        private Map<String, Integer> specialtyToPriority;
-        private List<RoomDTO> rooms;
+    public DepartmentDTO withMaximumAge(Integer maximumAge) {
+        return new DepartmentDTO(id, name, minimumAge, maximumAge, specialtyToPriority, rooms);
+    }
 
-        private Builder(String id, String name) {
-            this.id = id;
-            this.name = name;
-        }
+    public DepartmentDTO withSpecialtyToPriority(Map<String, Integer> specialtyToPriority) {
+        return new DepartmentDTO(id, name, minimumAge, maximumAge, specialtyToPriority, rooms);
+    }
 
-        public Builder minimumAge(Integer minimumAge) {
-            this.minimumAge = minimumAge;
-            return this;
-        }
-
-        public Builder maximumAge(Integer maximumAge) {
-            this.maximumAge = maximumAge;
-            return this;
-        }
-
-        public Builder specialtyToPriority(Map<String, Integer> specialtyToPriority) {
-            this.specialtyToPriority = specialtyToPriority;
-            return this;
-        }
-
-        public Builder rooms(List<RoomDTO> rooms) {
-            this.rooms = rooms;
-            return this;
-        }
-
-        public DepartmentDTO build() {
-            return new DepartmentDTO(id, name, minimumAge, maximumAge, specialtyToPriority, rooms);
-        }
+    public DepartmentDTO withRooms(List<RoomDTO> rooms) {
+        return new DepartmentDTO(id, name, minimumAge, maximumAge, specialtyToPriority, rooms);
     }
 }

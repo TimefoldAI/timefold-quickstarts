@@ -70,13 +70,10 @@ public final class DemoDataBuilder {
         RoomDTO room14 = room("R14", 2, "ANY_GENDER", List.of(TELEMETRY, TELEVISION, OXYGEN, NITROGEN));
         RoomDTO room15 = room("R15", 2, "SAME_GENDER", List.of());
 
-        DepartmentDTO department = DepartmentDTO.builder("1", "General Ward")
-                .minimumAge(1)
-                .maximumAge(100)
-                .specialtyToPriority(Map.of(CARDIOLOGY, 1, NEUROLOGY, 2, ONCOLOGY, 2))
-                .rooms(List.of(room1, room2, room3, room4, room5, room6, room7, room8, room9, room10,
-                        room11, room12, room13, room14, room15))
-                .build();
+        DepartmentDTO department = new DepartmentDTO("1", "General Ward", 1, 100,
+                Map.of(CARDIOLOGY, 1, NEUROLOGY, 2, ONCOLOGY, 2),
+                List.of(room1, room2, room3, room4, room5, room6, room7, room8, room9, room10,
+                        room11, room12, room13, room14, room15));
 
         List<StayDTO> stays = List.of(
                 stay("stay-1", "Bob", "MALE", 5, 1, List.of(), List.of(TELEMETRY),
@@ -300,8 +297,7 @@ public final class DemoDataBuilder {
                 stay("stay-110", "Alice", "FEMALE", 55, 1, List.of(), List.of(TELEVISION),
                         firstMonday.plusDays(17), firstMonday.plusDays(18), ONCOLOGY),
                 stay("stay-111", "Carol", "FEMALE", 58, 2, List.of(), List.of(OXYGEN),
-                        firstMonday.plusDays(20), firstMonday.plusDays(23), CARDIOLOGY)
-        );
+                        firstMonday.plusDays(20), firstMonday.plusDays(23), CARDIOLOGY));
 
         return new BedPlanInput(List.of(department), stays);
     }
@@ -317,14 +313,8 @@ public final class DemoDataBuilder {
             Integer patientPreferredMaximumRoomCapacity, List<String> patientRequiredEquipments,
             List<String> patientPreferredEquipments, LocalDate arrivalDate, LocalDate departureDate,
             String specialty) {
-        return StayDTO.builder(id, arrivalDate.toString(), departureDate.toString())
-                .patientName(patientName)
-                .patientGender(patientGender)
-                .patientAge(patientAge)
-                .patientPreferredMaximumRoomCapacity(patientPreferredMaximumRoomCapacity)
-                .patientRequiredEquipments(patientRequiredEquipments)
-                .patientPreferredEquipments(patientPreferredEquipments)
-                .specialty(specialty)
-                .build();
+        return new StayDTO(id, patientName, patientGender, patientAge, patientPreferredMaximumRoomCapacity,
+                patientRequiredEquipments, patientPreferredEquipments, arrivalDate.toString(), departureDate.toString(),
+                specialty, null);
     }
 }

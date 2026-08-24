@@ -50,7 +50,7 @@ public final class BedPlanTestDataFactory {
     }
 
     public static DepartmentDTO department(String id, List<RoomDTO> rooms) {
-        return DepartmentDTO.builder(id, "Department " + id).rooms(rooms).build();
+        return new DepartmentDTO(id, "Department " + id).withRooms(rooms);
     }
 
     public static DepartmentDTO department(List<RoomDTO> rooms) {
@@ -70,11 +70,10 @@ public final class BedPlanTestDataFactory {
     }
 
     public static StayDTO stay(String id) {
-        return StayDTO.builder(id, "2024-01-01", "2024-01-03")
-                .patientName("Patient " + id)
-                .patientGender("MALE")
-                .patientAge(30)
-                .build();
+        return new StayDTO(id, "2024-01-01", "2024-01-03")
+                .withPatientName("Patient " + id)
+                .withPatientGender("MALE")
+                .withPatientAge(30);
     }
 
     public static StayDTO stayWithBedId(String id, String bedId) {

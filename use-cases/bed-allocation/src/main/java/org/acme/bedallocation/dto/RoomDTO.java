@@ -1,7 +1,5 @@
 package org.acme.bedallocation.dto;
 
-import static org.acme.bedallocation.support.ObjectHelper.immutableCopy;
-
 import java.util.List;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -17,7 +15,6 @@ public record RoomDTO(
         @Schema(description = "Beds in this room.", required = true) List<BedDTO> beds) {
 
     public RoomDTO {
-        equipments = immutableCopy(equipments);
-        beds = immutableCopy(beds);
+        beds = beds == null ? List.of() : beds;
     }
 }

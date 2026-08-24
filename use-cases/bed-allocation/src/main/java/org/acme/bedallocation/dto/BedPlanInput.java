@@ -1,7 +1,5 @@
 package org.acme.bedallocation.dto;
 
-import static org.acme.bedallocation.support.ObjectHelper.immutableCopy;
-
 import java.util.List;
 
 import ai.timefold.solver.service.definition.api.ModelInput;
@@ -18,8 +16,8 @@ public record BedPlanInput(
             ModelInput {
 
     public BedPlanInput {
-        departments = immutableCopy(departments);
-        stays = immutableCopy(stays);
+        departments = departments == null ? List.of() : departments;
+        stays = stays == null ? List.of() : stays;
     }
 
     public BedPlanInput withStays(List<StayDTO> stays) {

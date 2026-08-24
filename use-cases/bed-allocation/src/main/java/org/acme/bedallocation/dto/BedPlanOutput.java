@@ -1,6 +1,6 @@
 package org.acme.bedallocation.dto;
 
-import static org.acme.bedallocation.support.ObjectHelper.immutableCopy;
+import static java.util.Objects.requireNonNull;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ public record BedPlanOutput(
         @Schema(description = "The score of the solution.", required = true) String score) implements ModelOutput {
 
     public BedPlanOutput {
-        departments = immutableCopy(departments);
-        stays = immutableCopy(stays);
+        departments = requireNonNull(departments);
+        stays = requireNonNull(stays);
     }
 }
