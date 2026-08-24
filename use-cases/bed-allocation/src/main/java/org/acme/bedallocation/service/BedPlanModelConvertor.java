@@ -7,7 +7,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -65,7 +64,7 @@ public class BedPlanModelConvertor
 
             for (RoomDTO roomDto : departmentDto.rooms()) {
                 Room room = new Room(roomDto.id(), roomDto.name(), department, roomDto.capacity(),
-                        GenderLimitation.valueOf(roomDto.genderLimitation()), Set.copyOf(roomDto.equipments()),
+                        GenderLimitation.valueOf(roomDto.genderLimitation()), roomDto.equipments(),
                         new ArrayList<>());
                 department.rooms().add(room);
                 roomMap.put(room.id(), room);
@@ -92,9 +91,13 @@ public class BedPlanModelConvertor
     private static Stay toStay(StayDTO dto, Map<String, Bed> bedMap) {
         Bed bed = dto.bedId() == null ? null : require(bedMap, dto.bedId(), "bed");
         return new Stay(dto.id(), dto.patientName(), Gender.valueOf(dto.patientGender()), dto.patientAge(),
-                dto.patientPreferredMaximumRoomCapacity(), new ArrayList<>(dto.patientRequiredEquipments()),
-                new ArrayList<>(dto.patientPreferredEquipments()), LocalDate.parse(dto.arrivalDate()),
+                dto.patientPreferredMaximumRoomCapacity(), orEmpty(dto.patientRequiredEquipments()),
+                orEmpty(dto.patientPreferredEquipments()), LocalDate.parse(dto.arrivalDate()),
                 LocalDate.parse(dto.departureDate()), dto.specialty(), bed);
+    }
+
+    private static List<String> orEmpty(List<String> equipments) {
+        return equipments == null ? List.of() : equipments;
     }
 
     /**
@@ -113,7 +116,7 @@ public class BedPlanModelConvertor
         if (modelConfig == null || modelConfig.overrides() == null) {
             return;
         }
-        BedPlanConfigOverrides overrides = modelConfig.overrides();
+        var overrides = modelConfig.overrides();
         // Only apply weights that are actually set (non-null) in the merged overrides. A null weight means the
         // input did not override it, so the configuration profile value (or the constraint's default) is kept.
         Map<String, HardMediumSoftScore> weights = new HashMap<>();
@@ -139,7 +142,7 @@ public class BedPlanModelConvertor
         if (lastModelOutput.isEmpty()) {
             return;
         }
-        Map<String, Stay> stayMap = stays.stream().collect(Collectors.toMap(Stay::getId, stay -> stay));
+        var stayMap = stays.stream().collect(Collectors.toMap(Stay::getId, stay -> stay));
         for (StayDTO solved : lastModelOutput.get().stays()) {
             Stay stay = stayMap.get(solved.id());
             if (stay == null || solved.bedId() == null) {
@@ -154,22 +157,22 @@ public class BedPlanModelConvertor
 
     @Override
     public BedPlanOutput toModelOutput(BedPlan solverModel) {
-        List<DepartmentDTO> departments = solverModel.getDepartments().stream().map(this::toDTO).collect(Collectors.toList());
-        List<StayDTO> stays = solverModel.getStays().stream().map(this::toDTO).collect(Collectors.toList());
+        var departments = solverModel.getDepartments().stream().map(this::toDTO).collect(Collectors.toList());
+        var stays = solverModel.getStays().stream().map(this::toDTO).collect(Collectors.toList());
         String score = solverModel.getScore() == null ? "" : solverModel.getScore().toString();
         return new BedPlanOutput(departments, stays, score);
     }
 
     private DepartmentDTO toDTO(Department department) {
-        List<RoomDTO> rooms = department.rooms().stream().map(this::toDTO).toList();
+        var rooms = department.rooms().stream().map(this::toDTO).toList();
         return new DepartmentDTO(department.id(), department.name(), department.minimumAge(), department.maximumAge(),
-                Map.copyOf(department.specialtyToPriority()), rooms);
+                department.specialtyToPriority(), rooms);
     }
 
     private RoomDTO toDTO(Room room) {
-        List<BedDTO> beds = room.beds().stream().map(this::toDTO).toList();
+        var beds = room.beds().stream().map(this::toDTO).toList();
         return new RoomDTO(room.id(), room.name(), room.capacity(), room.genderLimitation().name(),
-                Set.copyOf(room.equipments()), beds);
+                room.equipments(), beds);
     }
 
     private BedDTO toDTO(Bed bed) {
@@ -177,10 +180,10 @@ public class BedPlanModelConvertor
     }
 
     private StayDTO toDTO(Stay stay) {
-        String bedId = stay.getBed() == null ? null : stay.getBed().id();
+        var bedId = stay.getBed() == null ? null : stay.getBed().id();
         return new StayDTO(stay.getId(), stay.getPatientName(), stay.getPatientGender().name(), stay.getPatientAge(),
-                stay.getPatientPreferredMaximumRoomCapacity(), List.copyOf(stay.getPatientRequiredEquipments()),
-                List.copyOf(stay.getPatientPreferredEquipments()), stay.getArrivalDate().toString(),
+                stay.getPatientPreferredMaximumRoomCapacity(), stay.getPatientRequiredEquipments(),
+                stay.getPatientPreferredEquipments(), stay.getArrivalDate().toString(),
                 stay.getDepartureDate().toString(), stay.getSpecialty(), bedId);
     }
 }
