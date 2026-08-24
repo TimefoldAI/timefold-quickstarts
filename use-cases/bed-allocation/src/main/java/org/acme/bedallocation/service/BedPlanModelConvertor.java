@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -64,7 +65,7 @@ public class BedPlanModelConvertor
 
             for (RoomDTO roomDto : departmentDto.rooms()) {
                 Room room = new Room(roomDto.id(), roomDto.name(), department, roomDto.capacity(),
-                        GenderLimitation.valueOf(roomDto.genderLimitation()), List.copyOf(roomDto.equipments()),
+                        GenderLimitation.valueOf(roomDto.genderLimitation()), Set.copyOf(roomDto.equipments()),
                         new ArrayList<>());
                 department.rooms().add(room);
                 roomMap.put(room.id(), room);
@@ -160,15 +161,15 @@ public class BedPlanModelConvertor
     }
 
     private DepartmentDTO toDTO(Department department) {
-        List<RoomDTO> rooms = department.rooms().stream().map(this::toDTO).collect(Collectors.toList());
+        List<RoomDTO> rooms = department.rooms().stream().map(this::toDTO).toList();
         return new DepartmentDTO(department.id(), department.name(), department.minimumAge(), department.maximumAge(),
                 Map.copyOf(department.specialtyToPriority()), rooms);
     }
 
     private RoomDTO toDTO(Room room) {
-        List<BedDTO> beds = room.beds().stream().map(this::toDTO).collect(Collectors.toList());
+        List<BedDTO> beds = room.beds().stream().map(this::toDTO).toList();
         return new RoomDTO(room.id(), room.name(), room.capacity(), room.genderLimitation().name(),
-                List.copyOf(room.equipments()), beds);
+                Set.copyOf(room.equipments()), beds);
     }
 
     private BedDTO toDTO(Bed bed) {

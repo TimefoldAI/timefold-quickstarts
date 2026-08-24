@@ -2,6 +2,7 @@ package org.acme.bedallocation.domain;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import ai.timefold.solver.core.api.domain.common.PlanningId;
 
@@ -11,7 +12,7 @@ public record Room(
         Department department,
         int capacity,
         GenderLimitation genderLimitation,
-        List<String> equipments,
+        Set<String> equipments,
         List<Bed> beds) {
 
     @Override
@@ -32,6 +33,6 @@ public record Room(
 
     @Override
     public String toString() {
-        return name;
+        return id;
     }
 }

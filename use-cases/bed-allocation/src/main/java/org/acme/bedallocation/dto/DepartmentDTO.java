@@ -13,28 +13,4 @@ public record DepartmentDTO(
         @Schema(description = "Maximum patient age accepted by this department, or null if there is none.") Integer maximumAge,
         @Schema(description = "Priority (1 is highest) of each specialty treated by this department.") Map<String, Integer> specialtyToPriority,
         @Schema(description = "Rooms belonging to this department.", required = true) List<RoomDTO> rooms) {
-
-    public DepartmentDTO {
-        rooms = rooms == null ? List.of() : rooms;
-    }
-
-    public DepartmentDTO(String id, String name) {
-        this(id, name, null, null, null, null);
-    }
-
-    public DepartmentDTO withMinimumAge(Integer minimumAge) {
-        return new DepartmentDTO(id, name, minimumAge, maximumAge, specialtyToPriority, rooms);
-    }
-
-    public DepartmentDTO withMaximumAge(Integer maximumAge) {
-        return new DepartmentDTO(id, name, minimumAge, maximumAge, specialtyToPriority, rooms);
-    }
-
-    public DepartmentDTO withSpecialtyToPriority(Map<String, Integer> specialtyToPriority) {
-        return new DepartmentDTO(id, name, minimumAge, maximumAge, specialtyToPriority, rooms);
-    }
-
-    public DepartmentDTO withRooms(List<RoomDTO> rooms) {
-        return new DepartmentDTO(id, name, minimumAge, maximumAge, specialtyToPriority, rooms);
-    }
 }

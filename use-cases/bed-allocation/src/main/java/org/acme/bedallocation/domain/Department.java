@@ -32,6 +32,6 @@ public record Department(
 
     @Override
     public String toString() {
-        return name;
+        return id;
     }
 }

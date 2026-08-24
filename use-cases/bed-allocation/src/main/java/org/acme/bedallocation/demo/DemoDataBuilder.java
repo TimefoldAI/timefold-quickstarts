@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.acme.bedallocation.dto.BedDTO;
 import org.acme.bedallocation.dto.BedPlanInput;
@@ -14,21 +15,7 @@ import org.acme.bedallocation.dto.StayDTO;
 
 /**
  * Builds a fully hand-picked demo dataset (no randomness) that is deliberately hardcoded to be
- * feasible: every stay can be assigned to a bed without violating any hard constraint. A previous
- * randomized version occasionally generated demand for a piece of equipment (e.g. telemetry) that
- * exceeded how many beds happened to offer it that day, which left some patients permanently
- * unassigned - correctly so, since the solver always prefers that medium violation over a hard one,
- * but it made for a confusing demo. Hardcoding removes that risk entirely instead of trying to tune
- * randomization to avoid it.
- * <p>
- * Every room-bed is its own independent timeline ("lane"), reused by five back-to-back
- * (non-overlapping) stays. Each stay's required equipment is always a subset of its room's
- * equipment, and rooms 5, 10, 11, 12 and 15 - the ones with a gender restriction - are each
- * populated with only the one gender they allow, so those hard constraints can never fire either.
- * On top of that, roughly a third of the stays deliberately prefer a smaller room than they get, a
- * quarter prefer equipment their room doesn't have, and many have a specialty that isn't their
- * department's first priority - none of that blocks feasibility (it's all soft-scoring), but it
- * keeps the score-analysis view honest instead of showing a trivial "everything satisfied" result.
+ * feasible: every stay can be assigned to a bed without violating any hard constraint.
  */
 public final class DemoDataBuilder {
 
@@ -49,26 +36,24 @@ public final class DemoDataBuilder {
     }
 
     public BedPlanInput build() {
-        // Anchored to the next Monday (never today), so the demo always starts a full week and
-        // never looks stale; every offset below is a fixed number of days - there is no randomness
-        // anywhere in this class.
+        // Anchored to the next Monday (never today)
         LocalDate firstMonday = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.MONDAY));
 
-        RoomDTO room1 = room("R1", 1, "ANY_GENDER", List.of(TELEMETRY, OXYGEN));
-        RoomDTO room2 = room("R2", 1, "ANY_GENDER", List.of(TELEVISION, NITROGEN));
-        RoomDTO room3 = room("R3", 2, "ANY_GENDER", List.of(TELEMETRY, TELEVISION, OXYGEN, NITROGEN));
-        RoomDTO room4 = room("R4", 1, "ANY_GENDER", List.of());
-        RoomDTO room5 = room("R5", 2, "SAME_GENDER", List.of());
-        RoomDTO room6 = room("R6", 1, "ANY_GENDER", List.of(OXYGEN, NITROGEN));
-        RoomDTO room7 = room("R7", 1, "ANY_GENDER", List.of(TELEMETRY, TELEVISION));
-        RoomDTO room8 = room("R8", 2, "ANY_GENDER", List.of(TELEMETRY, TELEVISION, OXYGEN, NITROGEN));
-        RoomDTO room9 = room("R9", 1, "ANY_GENDER", List.of());
-        RoomDTO room10 = room("R10", 2, "SAME_GENDER", List.of());
-        RoomDTO room11 = room("R11", 2, "MALE_ONLY", List.of(OXYGEN, TELEMETRY));
-        RoomDTO room12 = room("R12", 2, "FEMALE_ONLY", List.of(TELEVISION, NITROGEN));
-        RoomDTO room13 = room("R13", 1, "ANY_GENDER", List.of(OXYGEN, TELEMETRY, NITROGEN));
-        RoomDTO room14 = room("R14", 2, "ANY_GENDER", List.of(TELEMETRY, TELEVISION, OXYGEN, NITROGEN));
-        RoomDTO room15 = room("R15", 2, "SAME_GENDER", List.of());
+        RoomDTO room1 = room("R1", 1, "ANY_GENDER", Set.of(TELEMETRY, OXYGEN));
+        RoomDTO room2 = room("R2", 1, "ANY_GENDER", Set.of(TELEVISION, NITROGEN));
+        RoomDTO room3 = room("R3", 2, "ANY_GENDER", Set.of(TELEMETRY, TELEVISION, OXYGEN, NITROGEN));
+        RoomDTO room4 = room("R4", 1, "ANY_GENDER", Set.of());
+        RoomDTO room5 = room("R5", 2, "SAME_GENDER", Set.of());
+        RoomDTO room6 = room("R6", 1, "ANY_GENDER", Set.of(OXYGEN, NITROGEN));
+        RoomDTO room7 = room("R7", 1, "ANY_GENDER", Set.of(TELEMETRY, TELEVISION));
+        RoomDTO room8 = room("R8", 2, "ANY_GENDER", Set.of(TELEMETRY, TELEVISION, OXYGEN, NITROGEN));
+        RoomDTO room9 = room("R9", 1, "ANY_GENDER", Set.of());
+        RoomDTO room10 = room("R10", 2, "SAME_GENDER", Set.of());
+        RoomDTO room11 = room("R11", 2, "MALE_ONLY", Set.of(OXYGEN, TELEMETRY));
+        RoomDTO room12 = room("R12", 2, "FEMALE_ONLY", Set.of(TELEVISION, NITROGEN));
+        RoomDTO room13 = room("R13", 1, "ANY_GENDER", Set.of(OXYGEN, TELEMETRY, NITROGEN));
+        RoomDTO room14 = room("R14", 2, "ANY_GENDER", Set.of(TELEMETRY, TELEVISION, OXYGEN, NITROGEN));
+        RoomDTO room15 = room("R15", 2, "SAME_GENDER", Set.of());
 
         DepartmentDTO department = new DepartmentDTO("1", "General Ward", 1, 100,
                 Map.of(CARDIOLOGY, 1, NEUROLOGY, 2, ONCOLOGY, 2),
@@ -302,7 +287,7 @@ public final class DemoDataBuilder {
         return new BedPlanInput(List.of(department), stays);
     }
 
-    private static RoomDTO room(String id, int capacity, String genderLimitation, List<String> equipments) {
+    private static RoomDTO room(String id, int capacity, String genderLimitation, Set<String> equipments) {
         List<BedDTO> beds = capacity == 1
                 ? List.of(new BedDTO(id + "-bed0", 0))
                 : List.of(new BedDTO(id + "-bed0", 0), new BedDTO(id + "-bed1", 1));

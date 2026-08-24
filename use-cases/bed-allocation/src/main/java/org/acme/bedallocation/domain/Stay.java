@@ -32,16 +32,6 @@ public class Stay {
     public Stay() {
     }
 
-    public Stay(String id, LocalDate arrivalDate, LocalDate departureDate, String specialty, Bed bed) {
-        this.id = id;
-        this.arrivalDate = arrivalDate;
-        this.departureDate = departureDate;
-        this.specialty = specialty;
-        this.bed = bed;
-        this.patientRequiredEquipments = new ArrayList<>();
-        this.patientPreferredEquipments = new ArrayList<>();
-    }
-
     public Stay(String id, String patientName, Gender patientGender, int patientAge,
             Integer patientPreferredMaximumRoomCapacity, List<String> patientRequiredEquipments,
             List<String> patientPreferredEquipments, LocalDate arrivalDate, LocalDate departureDate, String specialty,
@@ -64,8 +54,8 @@ public class Stay {
     }
 
     public int calculateSameNightCount(Stay other) {
-        LocalDate maxArrivalDate = arrivalDate.compareTo(other.arrivalDate) < 0 ? other.arrivalDate : arrivalDate;
-        LocalDate minDepartureDate = departureDate.compareTo(other.departureDate) < 0 ? departureDate : other.departureDate;
+        LocalDate maxArrivalDate = arrivalDate.isBefore(other.arrivalDate) ? other.arrivalDate : arrivalDate;
+        LocalDate minDepartureDate = departureDate.isBefore(other.departureDate) ? departureDate : other.departureDate;
         return Math.max(0, (int) DAYS.between(maxArrivalDate, minDepartureDate) + 1);
     }
 
@@ -126,10 +116,6 @@ public class Stay {
         return Objects.hashCode(id);
     }
 
-    // ************************************************************************
-    // Getters and setters
-    // ************************************************************************
-
     public String getId() {
         return id;
     }
@@ -138,72 +124,36 @@ public class Stay {
         return patientName;
     }
 
-    public void setPatientName(String patientName) {
-        this.patientName = patientName;
-    }
-
     public Gender getPatientGender() {
         return patientGender;
-    }
-
-    public void setPatientGender(Gender patientGender) {
-        this.patientGender = patientGender;
     }
 
     public int getPatientAge() {
         return patientAge;
     }
 
-    public void setPatientAge(int patientAge) {
-        this.patientAge = patientAge;
-    }
-
     public Integer getPatientPreferredMaximumRoomCapacity() {
         return patientPreferredMaximumRoomCapacity;
-    }
-
-    public void setPatientPreferredMaximumRoomCapacity(Integer patientPreferredMaximumRoomCapacity) {
-        this.patientPreferredMaximumRoomCapacity = patientPreferredMaximumRoomCapacity;
     }
 
     public List<String> getPatientRequiredEquipments() {
         return patientRequiredEquipments;
     }
 
-    public void setPatientRequiredEquipments(List<String> patientRequiredEquipments) {
-        this.patientRequiredEquipments = patientRequiredEquipments;
-    }
-
     public List<String> getPatientPreferredEquipments() {
         return patientPreferredEquipments;
-    }
-
-    public void setPatientPreferredEquipments(List<String> patientPreferredEquipments) {
-        this.patientPreferredEquipments = patientPreferredEquipments;
     }
 
     public LocalDate getArrivalDate() {
         return arrivalDate;
     }
 
-    public void setArrivalDate(LocalDate arrivalDate) {
-        this.arrivalDate = arrivalDate;
-    }
-
     public LocalDate getDepartureDate() {
         return departureDate;
     }
 
-    public void setDepartureDate(LocalDate departureDate) {
-        this.departureDate = departureDate;
-    }
-
     public String getSpecialty() {
         return specialty;
-    }
-
-    public void setSpecialty(String specialty) {
-        this.specialty = specialty;
     }
 
     public Bed getBed() {

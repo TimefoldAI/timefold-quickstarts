@@ -16,15 +16,15 @@ import org.acme.bedallocation.dto.BedPlanInput;
 import org.acme.bedallocation.dto.DepartmentDTO;
 import org.acme.bedallocation.dto.RoomDTO;
 import org.acme.bedallocation.dto.StayDTO;
-import org.acme.bedallocation.service.validation.BedIdMissingIssue;
-import org.acme.bedallocation.service.validation.DepartmentIdMissingIssue;
-import org.acme.bedallocation.service.validation.DuplicateBedIdIssue;
-import org.acme.bedallocation.service.validation.DuplicateDepartmentIdIssue;
-import org.acme.bedallocation.service.validation.DuplicateRoomIdIssue;
-import org.acme.bedallocation.service.validation.DuplicateStayIdIssue;
-import org.acme.bedallocation.service.validation.NonExistingBedReferenceIssue;
-import org.acme.bedallocation.service.validation.RoomIdMissingIssue;
-import org.acme.bedallocation.service.validation.StayIdMissingIssue;
+import org.acme.bedallocation.service.validation.BedPlanIssue.BedIdMissingIssue;
+import org.acme.bedallocation.service.validation.BedPlanIssue.DepartmentIdMissingIssue;
+import org.acme.bedallocation.service.validation.BedPlanIssue.DuplicateBedIdIssue;
+import org.acme.bedallocation.service.validation.BedPlanIssue.DuplicateDepartmentIdIssue;
+import org.acme.bedallocation.service.validation.BedPlanIssue.DuplicateRoomIdIssue;
+import org.acme.bedallocation.service.validation.BedPlanIssue.DuplicateStayIdIssue;
+import org.acme.bedallocation.service.validation.BedPlanIssue.NonExistingBedReferenceIssue;
+import org.acme.bedallocation.service.validation.BedPlanIssue.RoomIdMissingIssue;
+import org.acme.bedallocation.service.validation.BedPlanIssue.StayIdMissingIssue;
 
 @ApplicationScoped
 public class BedPlanValidator implements ModelValidator<BedPlanInput, BedPlanConfigOverrides> {

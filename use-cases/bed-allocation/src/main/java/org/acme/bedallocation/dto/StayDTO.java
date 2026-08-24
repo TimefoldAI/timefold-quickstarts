@@ -18,55 +18,6 @@ public record StayDTO(
         @Schema(description = "Medical specialty required during the stay.") String specialty,
         @Schema(description = "ID of the bed this stay is assigned to, or null if unassigned.") String bedId) {
 
-    public StayDTO {
-        patientRequiredEquipments = patientRequiredEquipments == null ? List.of() : patientRequiredEquipments;
-        patientPreferredEquipments = patientPreferredEquipments == null ? List.of() : patientPreferredEquipments;
-        bedId = normalizeId(bedId);
-    }
-
-    public StayDTO(String id, String arrivalDate, String departureDate) {
-        this(id, null, null, 0, null, null, null, arrivalDate, departureDate, null, null);
-    }
-
-    private static String normalizeId(String id) {
-        return id != null && id.isBlank() ? null : id;
-    }
-
-    public StayDTO withPatientName(String patientName) {
-        return new StayDTO(id, patientName, patientGender, patientAge, patientPreferredMaximumRoomCapacity,
-                patientRequiredEquipments, patientPreferredEquipments, arrivalDate, departureDate, specialty, bedId);
-    }
-
-    public StayDTO withPatientGender(String patientGender) {
-        return new StayDTO(id, patientName, patientGender, patientAge, patientPreferredMaximumRoomCapacity,
-                patientRequiredEquipments, patientPreferredEquipments, arrivalDate, departureDate, specialty, bedId);
-    }
-
-    public StayDTO withPatientAge(int patientAge) {
-        return new StayDTO(id, patientName, patientGender, patientAge, patientPreferredMaximumRoomCapacity,
-                patientRequiredEquipments, patientPreferredEquipments, arrivalDate, departureDate, specialty, bedId);
-    }
-
-    public StayDTO withPatientPreferredMaximumRoomCapacity(Integer patientPreferredMaximumRoomCapacity) {
-        return new StayDTO(id, patientName, patientGender, patientAge, patientPreferredMaximumRoomCapacity,
-                patientRequiredEquipments, patientPreferredEquipments, arrivalDate, departureDate, specialty, bedId);
-    }
-
-    public StayDTO withPatientRequiredEquipments(List<String> patientRequiredEquipments) {
-        return new StayDTO(id, patientName, patientGender, patientAge, patientPreferredMaximumRoomCapacity,
-                patientRequiredEquipments, patientPreferredEquipments, arrivalDate, departureDate, specialty, bedId);
-    }
-
-    public StayDTO withPatientPreferredEquipments(List<String> patientPreferredEquipments) {
-        return new StayDTO(id, patientName, patientGender, patientAge, patientPreferredMaximumRoomCapacity,
-                patientRequiredEquipments, patientPreferredEquipments, arrivalDate, departureDate, specialty, bedId);
-    }
-
-    public StayDTO withSpecialty(String specialty) {
-        return new StayDTO(id, patientName, patientGender, patientAge, patientPreferredMaximumRoomCapacity,
-                patientRequiredEquipments, patientPreferredEquipments, arrivalDate, departureDate, specialty, bedId);
-    }
-
     public StayDTO withBedId(String bedId) {
         return new StayDTO(id, patientName, patientGender, patientAge, patientPreferredMaximumRoomCapacity,
                 patientRequiredEquipments, patientPreferredEquipments, arrivalDate, departureDate, specialty, bedId);
