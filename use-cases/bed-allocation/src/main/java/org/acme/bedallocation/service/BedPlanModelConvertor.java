@@ -1,6 +1,5 @@
 package org.acme.bedallocation.service;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -20,8 +19,6 @@ import org.acme.bedallocation.domain.Bed;
 import org.acme.bedallocation.domain.BedPlan;
 import org.acme.bedallocation.domain.BedPlanConstraintProperties;
 import org.acme.bedallocation.domain.Department;
-import org.acme.bedallocation.domain.Gender;
-import org.acme.bedallocation.domain.GenderLimitation;
 import org.acme.bedallocation.domain.Room;
 import org.acme.bedallocation.domain.Stay;
 import org.acme.bedallocation.dto.BedDTO;
@@ -57,14 +54,17 @@ public class BedPlanModelConvertor
         Map<String, Bed> bedMap = new LinkedHashMap<>();
 
         for (DepartmentDTO departmentDto : modelInput.departments()) {
+            Map<String, Integer> specialityToPrioMap =
+                    departmentDto.specialtyToPriority() == null ? departmentDto.specialtyToPriority() : new HashMap<>();
+
             Department department = new Department(departmentDto.id(), departmentDto.name(),
                     departmentDto.minimumAge(), departmentDto.maximumAge(),
-                    new HashMap<>(departmentDto.specialtyToPriority()), new ArrayList<>());
+                    specialityToPrioMap, new ArrayList<>());
             departmentMap.put(department.id(), department);
 
             for (RoomDTO roomDto : departmentDto.rooms()) {
                 Room room = new Room(roomDto.id(), roomDto.name(), department, roomDto.capacity(),
-                        GenderLimitation.valueOf(roomDto.genderLimitation()), roomDto.equipments(),
+                        roomDto.genderLimitation(), roomDto.equipments(),
                         new ArrayList<>());
                 department.rooms().add(room);
                 roomMap.put(room.id(), room);
@@ -90,10 +90,10 @@ public class BedPlanModelConvertor
 
     private static Stay toStay(StayDTO dto, Map<String, Bed> bedMap) {
         Bed bed = dto.bedId() == null ? null : require(bedMap, dto.bedId(), "bed");
-        return new Stay(dto.id(), dto.patientName(), Gender.valueOf(dto.patientGender()), dto.patientAge(),
+        return new Stay(dto.id(), dto.patientName(), dto.patientGender(), dto.patientAge(),
                 dto.patientPreferredMaximumRoomCapacity(), orEmpty(dto.patientRequiredEquipments()),
-                orEmpty(dto.patientPreferredEquipments()), LocalDate.parse(dto.arrivalDate()),
-                LocalDate.parse(dto.departureDate()), dto.specialty(), bed);
+                orEmpty(dto.patientPreferredEquipments()), dto.arrivalDate(),
+                dto.departureDate(), dto.specialty(), bed);
     }
 
     private static List<String> orEmpty(List<String> equipments) {
@@ -171,7 +171,7 @@ public class BedPlanModelConvertor
 
     private RoomDTO toDTO(Room room) {
         var beds = room.beds().stream().map(this::toDTO).toList();
-        return new RoomDTO(room.id(), room.name(), room.capacity(), room.genderLimitation().name(),
+        return new RoomDTO(room.id(), room.name(), room.capacity(), room.genderLimitation(),
                 room.equipments(), beds);
     }
 
@@ -181,9 +181,9 @@ public class BedPlanModelConvertor
 
     private StayDTO toDTO(Stay stay) {
         var bedId = stay.getBed() == null ? null : stay.getBed().id();
-        return new StayDTO(stay.getId(), stay.getPatientName(), stay.getPatientGender().name(), stay.getPatientAge(),
+        return new StayDTO(stay.getId(), stay.getPatientName(), stay.getPatientGender(), stay.getPatientAge(),
                 stay.getPatientPreferredMaximumRoomCapacity(), stay.getPatientRequiredEquipments(),
-                stay.getPatientPreferredEquipments(), stay.getArrivalDate().toString(),
-                stay.getDepartureDate().toString(), stay.getSpecialty(), bedId);
+                stay.getPatientPreferredEquipments(), stay.getArrivalDate(),
+                stay.getDepartureDate(), stay.getSpecialty(), bedId);
     }
 }

@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
 
 import ai.timefold.solver.service.definition.api.domain.ModelConfig;
 import ai.timefold.solver.service.definition.api.validation.ModelValidator;
@@ -16,52 +19,46 @@ import org.acme.bedallocation.dto.BedPlanInput;
 import org.acme.bedallocation.dto.DepartmentDTO;
 import org.acme.bedallocation.dto.RoomDTO;
 import org.acme.bedallocation.dto.StayDTO;
-import org.acme.bedallocation.service.validation.BedPlanIssue.BedIdMissingIssue;
-import org.acme.bedallocation.service.validation.BedPlanIssue.DepartmentIdMissingIssue;
 import org.acme.bedallocation.service.validation.BedPlanIssue.DuplicateBedIdIssue;
 import org.acme.bedallocation.service.validation.BedPlanIssue.DuplicateDepartmentIdIssue;
 import org.acme.bedallocation.service.validation.BedPlanIssue.DuplicateRoomIdIssue;
 import org.acme.bedallocation.service.validation.BedPlanIssue.DuplicateStayIdIssue;
 import org.acme.bedallocation.service.validation.BedPlanIssue.NonExistingBedReferenceIssue;
-import org.acme.bedallocation.service.validation.BedPlanIssue.RoomIdMissingIssue;
-import org.acme.bedallocation.service.validation.BedPlanIssue.StayIdMissingIssue;
+import org.acme.bedallocation.service.validation.OpenApiSpecIssue;
 
 @ApplicationScoped
 public class BedPlanValidator implements ModelValidator<BedPlanInput, BedPlanConfigOverrides> {
 
+    @Inject
+    Validator validator;
+
     @Override
     public void validate(ValidationBuilder validationBuilder, BedPlanInput modelInput,
             ModelConfig<BedPlanConfigOverrides> modelConfig) {
+        // This Bean Validation API call will be moved to the Service module.
+        for (ConstraintViolation<BedPlanInput> violation : validator.validate(modelInput)) {
+            validationBuilder.addIssue(new OpenApiSpecIssue(violation.getPropertyPath() + ": " + violation.getMessage()));
+        }
         Set<String> bedIds = validateDepartments(validationBuilder, modelInput.departments());
         validateStays(validationBuilder, modelInput.stays(), bedIds);
     }
 
-    private static Set<String> validateDepartments(ValidationBuilder validationBuilder, List<DepartmentDTO> departments) {
+    private Set<String> validateDepartments(ValidationBuilder validationBuilder, List<DepartmentDTO> departments) {
         Set<String> departmentIds = new HashSet<>();
         Set<String> roomIds = new HashSet<>();
         Set<String> bedIds = new HashSet<>();
         for (DepartmentDTO department : departments) {
-            if (department.id() == null || department.id().isBlank()) {
-                validationBuilder.addIssue(new DepartmentIdMissingIssue());
-            } else if (!departmentIds.add(department.id())) {
+            if (hasId(department.id()) && !departmentIds.add(department.id())) {
                 validationBuilder.addIssue(new DuplicateDepartmentIdIssue(department.id()));
-                // A duplicate department is a repeated entry (e.g. the same department submitted twice), so
-                // its rooms/beds were already validated the first time around - re-validating them here would
-                // just report the same rooms/beds as duplicates too, drowning out the actual issue.
                 continue;
             }
             for (RoomDTO room : department.rooms()) {
-                if (room.id() == null || room.id().isBlank()) {
-                    validationBuilder.addIssue(new RoomIdMissingIssue());
-                } else if (!roomIds.add(room.id())) {
+                if (hasId(room.id()) && !roomIds.add(room.id())) {
                     validationBuilder.addIssue(new DuplicateRoomIdIssue(room.id()));
-                    // Same reasoning as above, one level down: skip this duplicate room's beds.
                     continue;
                 }
                 for (BedDTO bed : room.beds()) {
-                    if (bed.id() == null || bed.id().isBlank()) {
-                        validationBuilder.addIssue(new BedIdMissingIssue());
-                    } else if (!bedIds.add(bed.id())) {
+                    if (hasId(bed.id()) && !bedIds.add(bed.id())) {
                         validationBuilder.addIssue(new DuplicateBedIdIssue(bed.id()));
                     }
                 }
@@ -70,17 +67,19 @@ public class BedPlanValidator implements ModelValidator<BedPlanInput, BedPlanCon
         return bedIds;
     }
 
-    private static void validateStays(ValidationBuilder validationBuilder, List<StayDTO> stays, Set<String> bedIds) {
+    private void validateStays(ValidationBuilder validationBuilder, List<StayDTO> stays, Set<String> bedIds) {
         Set<String> stayIds = new HashSet<>();
         for (StayDTO stay : stays) {
-            if (stay.id() == null || stay.id().isBlank()) {
-                validationBuilder.addIssue(new StayIdMissingIssue());
-            } else if (!stayIds.add(stay.id())) {
+            if (hasId(stay.id()) && !stayIds.add(stay.id())) {
                 validationBuilder.addIssue(new DuplicateStayIdIssue(stay.id()));
             }
             if (stay.bedId() != null && !bedIds.contains(stay.bedId())) {
                 validationBuilder.addIssue(new NonExistingBedReferenceIssue(stay.id()));
             }
         }
+    }
+
+    private static boolean hasId(String id) {
+        return id != null && !id.isBlank();
     }
 }

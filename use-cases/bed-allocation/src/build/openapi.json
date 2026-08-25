@@ -1528,20 +1528,16 @@
         "properties" : {
           "id" : {
             "description" : "Unique identifier of the bed.",
+            "pattern" : "\\S",
             "type" : "string"
           },
           "indexInRoom" : {
             "format" : "int32",
             "description" : "Index of this bed within its room.",
+            "minimum" : 0,
             "type" : "integer"
           }
         }
-      },
-      "BedIdMissingIssue" : {
-        "type" : "object",
-        "allOf" : [ {
-          "$ref" : "#/components/schemas/BedPlanIssue"
-        } ]
       },
       "BedPlanConfigOverrides" : {
         "description" : "Soft constraint weights. Set a weight to 0 to disable the corresponding constraint. A weight left unset (null) is not overridden here, so the value from the configuration profile (or the constraint's default) applies. This makes it possible to override some weights via the input while leaving others to the configuration profile.",
@@ -1550,21 +1546,25 @@
           "preferredMaximumRoomCapacityWeight" : {
             "format" : "int64",
             "description" : "Soft weight of the preferredMaximumRoomCapacity constraint.",
+            "minimum" : 0,
             "type" : "integer"
           },
           "departmentSpecialtyWeight" : {
             "format" : "int64",
             "description" : "Soft weight of the departmentSpecialty constraint.",
+            "minimum" : 0,
             "type" : "integer"
           },
           "departmentSpecialtyNotFirstPriorityWeight" : {
             "format" : "int64",
             "description" : "Soft weight of the departmentSpecialtyNotFirstPriority constraint.",
+            "minimum" : 0,
             "type" : "integer"
           },
           "preferredPatientEquipmentWeight" : {
             "format" : "int64",
             "description" : "Soft weight of the preferredPatientEquipment constraint.",
+            "minimum" : 0,
             "type" : "integer"
           }
         }
@@ -1576,6 +1576,7 @@
         "properties" : {
           "departments" : {
             "description" : "Departments, each grouping the rooms and beds available for scheduling.",
+            "minItems" : 1,
             "type" : "array",
             "items" : {
               "$ref" : "#/components/schemas/DepartmentDTO"
@@ -1583,6 +1584,7 @@
           },
           "stays" : {
             "description" : "Patient stays that must each be assigned to a bed.",
+            "minItems" : 1,
             "type" : "array",
             "items" : {
               "$ref" : "#/components/schemas/StayDTO"
@@ -1656,19 +1658,13 @@
           }
         },
         "oneOf" : [ {
-          "$ref" : "#/components/schemas/DepartmentIdMissingIssue"
+          "$ref" : "#/components/schemas/OpenApiSpecIssue"
         }, {
           "$ref" : "#/components/schemas/DuplicateDepartmentIdIssue"
         }, {
-          "$ref" : "#/components/schemas/RoomIdMissingIssue"
-        }, {
           "$ref" : "#/components/schemas/DuplicateRoomIdIssue"
         }, {
-          "$ref" : "#/components/schemas/BedIdMissingIssue"
-        }, {
           "$ref" : "#/components/schemas/DuplicateBedIdIssue"
-        }, {
-          "$ref" : "#/components/schemas/StayIdMissingIssue"
         }, {
           "$ref" : "#/components/schemas/DuplicateStayIdIssue"
         }, {
@@ -1832,20 +1828,26 @@
         "properties" : {
           "id" : {
             "description" : "Unique identifier of the department.",
+            "pattern" : "\\S",
             "type" : "string"
           },
           "name" : {
             "description" : "Display name of the department.",
+            "pattern" : "\\S",
             "type" : "string"
           },
           "minimumAge" : {
             "format" : "int32",
             "description" : "Minimum patient age accepted by this department, or null if there is none.",
+            "maximum" : 150,
+            "minimum" : 0,
             "type" : "integer"
           },
           "maximumAge" : {
             "format" : "int32",
             "description" : "Maximum patient age accepted by this department, or null if there is none.",
+            "maximum" : 150,
+            "minimum" : 0,
             "type" : "integer"
           },
           "specialtyToPriority" : {
@@ -1858,18 +1860,13 @@
           },
           "rooms" : {
             "description" : "Rooms belonging to this department.",
+            "minItems" : 1,
             "type" : "array",
             "items" : {
               "$ref" : "#/components/schemas/RoomDTO"
             }
           }
         }
-      },
-      "DepartmentIdMissingIssue" : {
-        "type" : "object",
-        "allOf" : [ {
-          "$ref" : "#/components/schemas/BedPlanIssue"
-        } ]
       },
       "DepartmentMaximumAgeJustification" : {
         "type" : "object",
@@ -2053,6 +2050,14 @@
           }
         }
       },
+      "Gender" : {
+        "enum" : [ "MALE", "FEMALE" ],
+        "type" : "string"
+      },
+      "GenderLimitation" : {
+        "enum" : [ "ANY_GENDER", "MALE_ONLY", "FEMALE_ONLY", "SAME_GENDER" ],
+        "type" : "string"
+      },
       "IssueCode" : {
         "type" : "object",
         "properties" : {
@@ -2144,6 +2149,11 @@
           }
         },
         "additionalProperties" : false
+      },
+      "LocalDate" : {
+        "format" : "date",
+        "type" : "string",
+        "example" : "2022-03-10"
       },
       "LogInfo" : {
         "type" : "object",
@@ -2685,6 +2695,12 @@
         "type" : "string",
         "example" : "2022-03-10T12:15:50-04:00"
       },
+      "OpenApiSpecIssue" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/BedPlanIssue"
+        } ]
+      },
       "OperationOnPost" : {
         "enum" : [ "NONE", "SOLVE" ],
         "type" : "string"
@@ -2733,20 +2749,26 @@
         "properties" : {
           "id" : {
             "description" : "Unique identifier of the room.",
+            "pattern" : "\\S",
             "type" : "string"
           },
           "name" : {
             "description" : "Display name of the room.",
+            "pattern" : "\\S",
             "type" : "string"
           },
           "capacity" : {
             "format" : "int32",
             "description" : "Number of beds in the room.",
+            "minimum" : 1,
             "type" : "integer"
           },
           "genderLimitation" : {
             "description" : "Gender restriction of the room: ANY_GENDER, MALE_ONLY, FEMALE_ONLY or SAME_GENDER.",
-            "type" : "string"
+            "type" : "string",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/GenderLimitation"
+            } ]
           },
           "equipments" : {
             "description" : "Medical equipment available in this room.",
@@ -2764,12 +2786,6 @@
             }
           }
         }
-      },
-      "RoomIdMissingIssue" : {
-        "type" : "object",
-        "allOf" : [ {
-          "$ref" : "#/components/schemas/BedPlanIssue"
-        } ]
       },
       "RunConfiguration" : {
         "type" : "object",
@@ -2889,24 +2905,31 @@
       },
       "StayDTO" : {
         "description" : "A patient stay that must be assigned to a bed.",
-        "required" : [ "id", "patientGender", "patientAge", "arrivalDate", "departureDate" ],
+        "required" : [ "id", "patientName", "patientAge", "arrivalDate", "departureDate" ],
         "type" : "object",
         "properties" : {
           "id" : {
             "description" : "Unique identifier of the stay.",
+            "pattern" : "\\S",
             "type" : "string"
           },
           "patientName" : {
             "description" : "Name of the patient.",
+            "pattern" : "\\S",
             "type" : "string"
           },
           "patientGender" : {
             "description" : "Gender of the patient: MALE or FEMALE.",
-            "type" : "string"
+            "type" : "string",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/Gender"
+            } ]
           },
           "patientAge" : {
             "format" : "int32",
             "description" : "Age of the patient in years.",
+            "maximum" : 150,
+            "minimum" : 0,
             "type" : "integer"
           },
           "patientPreferredMaximumRoomCapacity" : {
@@ -2930,11 +2953,17 @@
           },
           "arrivalDate" : {
             "description" : "First night of the stay, in ISO-8601 date format.",
-            "type" : "string"
+            "type" : "string",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/LocalDate"
+            } ]
           },
           "departureDate" : {
             "description" : "Last night of the stay, in ISO-8601 date format.",
-            "type" : "string"
+            "type" : "string",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/LocalDate"
+            } ]
           },
           "specialty" : {
             "description" : "Medical specialty required during the stay.",
@@ -2945,12 +2974,6 @@
             "type" : "string"
           }
         }
-      },
-      "StayIdMissingIssue" : {
-        "type" : "object",
-        "allOf" : [ {
-          "$ref" : "#/components/schemas/BedPlanIssue"
-        } ]
       },
       "UnassignedStayJustification" : {
         "type" : "object",

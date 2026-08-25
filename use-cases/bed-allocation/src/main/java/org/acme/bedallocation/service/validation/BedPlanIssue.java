@@ -12,13 +12,10 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Schema(description = "A dataset validation issue reported for a bed allocation input.",
         oneOf = {
-                BedPlanIssue.DepartmentIdMissingIssue.class,
+                OpenApiSpecIssue.class,
                 BedPlanIssue.DuplicateDepartmentIdIssue.class,
-                BedPlanIssue.RoomIdMissingIssue.class,
                 BedPlanIssue.DuplicateRoomIdIssue.class,
-                BedPlanIssue.BedIdMissingIssue.class,
                 BedPlanIssue.DuplicateBedIdIssue.class,
-                BedPlanIssue.StayIdMissingIssue.class,
                 BedPlanIssue.DuplicateStayIdIssue.class,
                 BedPlanIssue.NonExistingBedReferenceIssue.class
         })
@@ -26,17 +23,6 @@ public abstract class BedPlanIssue extends AbstractIssue {
 
     protected BedPlanIssue(IssueCode code, IssueSeverity severity, List<IssueMetadata> metadata) {
         super(code, severity, metadata);
-    }
-
-    @Schema(allOf = { BedPlanIssue.class })
-    public static class DepartmentIdMissingIssue extends BedPlanIssue {
-
-        public static final IssueCode ISSUE_CODE = IssueCode.of("DEPARTMENT_ID_MISSING");
-        public static final IssueMessage ISSUE_MESSAGE = new IssueMessage("Department ID must not be null or blank.");
-
-        public DepartmentIdMissingIssue() {
-            super(ISSUE_CODE, IssueSeverity.ERROR, List.of(ISSUE_MESSAGE));
-        }
     }
 
     @Schema(allOf = { BedPlanIssue.class })
@@ -59,17 +45,6 @@ public abstract class BedPlanIssue extends AbstractIssue {
 
         public String getDepartmentId() {
             return departmentId;
-        }
-    }
-
-    @Schema(allOf = { BedPlanIssue.class })
-    public static class RoomIdMissingIssue extends BedPlanIssue {
-
-        public static final IssueCode ISSUE_CODE = IssueCode.of("ROOM_ID_MISSING");
-        public static final IssueMessage ISSUE_MESSAGE = new IssueMessage("Room ID must not be null or blank.");
-
-        public RoomIdMissingIssue() {
-            super(ISSUE_CODE, IssueSeverity.ERROR, List.of(ISSUE_MESSAGE));
         }
     }
 
@@ -97,17 +72,6 @@ public abstract class BedPlanIssue extends AbstractIssue {
     }
 
     @Schema(allOf = { BedPlanIssue.class })
-    public static class BedIdMissingIssue extends BedPlanIssue {
-
-        public static final IssueCode ISSUE_CODE = IssueCode.of("BED_ID_MISSING");
-        public static final IssueMessage ISSUE_MESSAGE = new IssueMessage("Bed ID must not be null or blank.");
-
-        public BedIdMissingIssue() {
-            super(ISSUE_CODE, IssueSeverity.ERROR, List.of(ISSUE_MESSAGE));
-        }
-    }
-
-    @Schema(allOf = { BedPlanIssue.class })
     public static class DuplicateBedIdIssue extends BedPlanIssue {
 
         public static final IssueCode ISSUE_CODE = IssueCode.of("DUPLICATE_BED_ID");
@@ -127,17 +91,6 @@ public abstract class BedPlanIssue extends AbstractIssue {
 
         public String getBedId() {
             return bedId;
-        }
-    }
-
-    @Schema(allOf = { BedPlanIssue.class })
-    public static class StayIdMissingIssue extends BedPlanIssue {
-
-        public static final IssueCode ISSUE_CODE = IssueCode.of("STAY_ID_MISSING");
-        public static final IssueMessage ISSUE_MESSAGE = new IssueMessage("Stay ID must not be null or blank.");
-
-        public StayIdMissingIssue() {
-            super(ISSUE_CODE, IssueSeverity.ERROR, List.of(ISSUE_MESSAGE));
         }
     }
 

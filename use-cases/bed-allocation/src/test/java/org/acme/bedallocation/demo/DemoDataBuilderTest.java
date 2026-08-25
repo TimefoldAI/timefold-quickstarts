@@ -3,8 +3,6 @@ package org.acme.bedallocation.demo;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.time.LocalDate;
-
 import org.acme.bedallocation.dto.BedPlanInput;
 import org.junit.jupiter.api.Test;
 
@@ -29,7 +27,7 @@ class DemoDataBuilderTest {
 
             // Departure is always at least a day after arrival (never the same day) and stays span
             // between 1 and 5 days.
-            long dayCount = DAYS.between(LocalDate.parse(stay.arrivalDate()), LocalDate.parse(stay.departureDate()));
+            long dayCount = DAYS.between(stay.arrivalDate(), stay.departureDate());
             assertThat(dayCount).isBetween(1L, 5L);
         });
     }

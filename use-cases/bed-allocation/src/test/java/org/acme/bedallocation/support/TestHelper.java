@@ -260,8 +260,8 @@ public final class TestHelper {
 
         private final String id;
         private String name;
-        private int capacity;
-        private String genderLimitation = "ANY_GENDER";
+        private int capacity = 1;
+        private GenderLimitation genderLimitation = GenderLimitation.ANY_GENDER;
         private Set<String> equipments = Set.of();
         private List<BedDTO> beds = List.of();
 
@@ -280,7 +280,7 @@ public final class TestHelper {
             return this;
         }
 
-        public RoomDTOBuilder genderLimitation(String genderLimitation) {
+        public RoomDTOBuilder genderLimitation(GenderLimitation genderLimitation) {
             this.genderLimitation = genderLimitation;
             return this;
         }
@@ -349,13 +349,13 @@ public final class TestHelper {
 
         private final String id;
         private String patientName;
-        private String patientGender = "MALE";
+        private Gender patientGender = Gender.MALE;
         private int patientAge = 30;
         private Integer patientPreferredMaximumRoomCapacity;
         private List<String> patientRequiredEquipments = List.of();
         private List<String> patientPreferredEquipments = List.of();
-        private String arrivalDate = "2024-01-01";
-        private String departureDate = "2024-01-03";
+        private LocalDate arrivalDate = LocalDate.parse("2024-01-01");
+        private LocalDate departureDate = LocalDate.parse("2024-01-03");
         private String specialty;
         private String bedId;
 
@@ -369,7 +369,7 @@ public final class TestHelper {
             return this;
         }
 
-        public StayDTOBuilder patientGender(String patientGender) {
+        public StayDTOBuilder patientGender(Gender patientGender) {
             this.patientGender = patientGender;
             return this;
         }
@@ -394,12 +394,12 @@ public final class TestHelper {
             return this;
         }
 
-        public StayDTOBuilder arrivalDate(String arrivalDate) {
+        public StayDTOBuilder arrivalDate(LocalDate arrivalDate) {
             this.arrivalDate = arrivalDate;
             return this;
         }
 
-        public StayDTOBuilder departureDate(String departureDate) {
+        public StayDTOBuilder departureDate(LocalDate departureDate) {
             this.departureDate = departureDate;
             return this;
         }
