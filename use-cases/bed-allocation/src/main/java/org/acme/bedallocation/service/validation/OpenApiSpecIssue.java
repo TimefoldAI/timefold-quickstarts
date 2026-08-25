@@ -14,7 +14,7 @@ public class OpenApiSpecIssue extends BedPlanIssue {
     public static final IssueCode ISSUE_CODE = IssueCode.of("OpenAPI spec issue");
 
     public OpenApiSpecIssue() {
-        this(null);
+        this("Input conflicts with OpenAPI specification.");
     }
 
     public OpenApiSpecIssue(String message) {
