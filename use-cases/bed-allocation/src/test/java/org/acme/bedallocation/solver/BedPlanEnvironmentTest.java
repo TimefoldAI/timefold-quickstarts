@@ -72,7 +72,7 @@ class BedPlanEnvironmentTest {
     }
 
     private static RoomDTO room(String id) {
-        return aRoomDTO(id).beds(List.of(aBedDTO(id + "-bed0").build(), aBedDTO(id + "-bed1").indexInRoom(1).build()))
+        return aRoomDTO(id).beds(List.of(aBedDTO(id + "-bed0").build(), aBedDTO(id + "-bed1").build()))
                 .build();
     }
 }

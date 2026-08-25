@@ -6,8 +6,7 @@ import ai.timefold.solver.core.api.domain.common.PlanningId;
 
 public record Bed(
         @PlanningId String id,
-        Room room,
-        int indexInRoom) {
+        Room room) {
 
     @Override
     public boolean equals(Object o) {
@@ -27,6 +26,6 @@ public record Bed(
 
     @Override
     public String toString() {
-        return "%s(%d)".formatted(room, indexInRoom);
+        return id;
     }
 }

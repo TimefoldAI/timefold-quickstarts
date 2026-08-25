@@ -245,9 +245,9 @@ function renderScheduleByRoom(schedule) {
             nestedLevels: [...room.beds.map(b => b.id)]
         };
         byRoomGroupData.add(roomData);
-        room.beds.forEach(bed => byRoomGroupData.add({
+        room.beds.forEach((bed, index) => byRoomGroupData.add({
             id: bed.id,
-            content: `Bed ${bed.indexInRoom + 1}`,
+            content: `Bed ${index + 1}`,
             treeLevel: 2
         }));
     });

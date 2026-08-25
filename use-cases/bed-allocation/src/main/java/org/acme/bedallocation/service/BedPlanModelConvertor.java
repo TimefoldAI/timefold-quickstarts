@@ -71,7 +71,7 @@ public class BedPlanModelConvertor
                 roomMap.put(room.id(), room);
 
                 for (BedDTO bedDto : roomDto.beds()) {
-                    Bed bed = new Bed(bedDto.id(), room, bedDto.indexInRoom());
+                    Bed bed = new Bed(bedDto.id(), room);
                     room.beds().add(bed);
                     bedMap.put(bed.id(), bed);
                 }
@@ -177,7 +177,7 @@ public class BedPlanModelConvertor
     }
 
     private BedDTO toDTO(Bed bed) {
-        return new BedDTO(bed.id(), bed.indexInRoom());
+        return new BedDTO(bed.id());
     }
 
     private StayDTO toDTO(Stay stay) {

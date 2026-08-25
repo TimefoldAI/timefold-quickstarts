@@ -12,6 +12,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 public class OpenApiSpecIssue extends BedPlanIssue {
 
     public static final IssueCode ISSUE_CODE = IssueCode.of("OPEN_API_SPEC_ISSUE");
+
     public OpenApiSpecIssue() {
         this("Input conflicts with OpenAPI specification.");
     }

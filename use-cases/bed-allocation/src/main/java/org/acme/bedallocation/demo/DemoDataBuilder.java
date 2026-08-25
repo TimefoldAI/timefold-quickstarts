@@ -298,8 +298,8 @@ public final class DemoDataBuilder {
 
     private static RoomDTO room(String id, int capacity, GenderLimitation genderLimitation, Set<String> equipments) {
         List<BedDTO> beds = capacity == 1
-                ? List.of(new BedDTO(id + "-bed0", null))
-                : List.of(new BedDTO(id + "-bed0", 0), new BedDTO(id + "-bed1", null));
+                ? List.of(new BedDTO(id + "-bed0"))
+                : List.of(new BedDTO(id + "-bed0"), new BedDTO(id + "-bed1"));
         return new RoomDTO(id, "Room " + id.substring(1), capacity, genderLimitation, equipments, beds);
     }
 

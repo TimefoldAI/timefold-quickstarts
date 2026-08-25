@@ -34,9 +34,9 @@ class BedPlanValidatorTest {
     private static final Validator BEAN_VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
 
     private static final List<RoomDTO> ROOMS = List.of(
-            aRoomDTO("r1").beds(List.of(aBedDTO("r1-bed0").build(), aBedDTO("r1-bed1").indexInRoom(1).build())).build(),
-            aRoomDTO("r2").beds(List.of(aBedDTO("r2-bed0").build(), aBedDTO("r2-bed1").indexInRoom(1).build())).build(),
-            aRoomDTO("r3").beds(List.of(aBedDTO("r3-bed0").build(), aBedDTO("r3-bed1").indexInRoom(1).build())).build());
+            aRoomDTO("r1").beds(List.of(aBedDTO("r1-bed0").build(), aBedDTO("r1-bed1").build())).build(),
+            aRoomDTO("r2").beds(List.of(aBedDTO("r2-bed0").build(), aBedDTO("r2-bed1").build())).build(),
+            aRoomDTO("r3").beds(List.of(aBedDTO("r3-bed0").build(), aBedDTO("r3-bed1").build())).build());
 
     private static final DepartmentDTO DEPARTMENT = aDepartmentDTO("d1").rooms(ROOMS).build();
 

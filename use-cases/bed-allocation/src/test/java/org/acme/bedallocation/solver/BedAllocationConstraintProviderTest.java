@@ -122,7 +122,7 @@ class BedAllocationConstraintProviderTest {
                 .build();
 
         // Assign male
-        Bed bed2 = aBed("1-bed1").room(room).indexInRoom(1).build();
+        Bed bed2 = aBed("1-bed1").room(room).build();
         Stay stayMale = aStay("1", bed2)
                 .patientGender(Gender.MALE)
                 .build();

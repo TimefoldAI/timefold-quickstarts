@@ -59,7 +59,6 @@ public final class TestHelper {
 
         private final String id;
         private Room room;
-        private int indexInRoom;
 
         private BedBuilder(String id) {
             this.id = id;
@@ -70,13 +69,8 @@ public final class TestHelper {
             return this;
         }
 
-        public BedBuilder indexInRoom(int indexInRoom) {
-            this.indexInRoom = indexInRoom;
-            return this;
-        }
-
         public Bed build() {
-            Bed bed = new Bed(id, room, indexInRoom);
+            Bed bed = new Bed(id, room);
             if (room != null) {
                 room.beds().add(bed);
             }
@@ -240,19 +234,13 @@ public final class TestHelper {
     public static final class BedDTOBuilder {
 
         private final String id;
-        private int indexInRoom;
 
         private BedDTOBuilder(String id) {
             this.id = id;
         }
 
-        public BedDTOBuilder indexInRoom(int indexInRoom) {
-            this.indexInRoom = indexInRoom;
-            return this;
-        }
-
         public BedDTO build() {
-            return new BedDTO(id, indexInRoom);
+            return new BedDTO(id);
         }
     }
 

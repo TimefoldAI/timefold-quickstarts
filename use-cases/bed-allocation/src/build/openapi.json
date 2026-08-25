@@ -1530,12 +1530,6 @@
             "description" : "Unique identifier of the bed.",
             "pattern" : "\\S",
             "type" : "string"
-          },
-          "indexInRoom" : {
-            "format" : "int32",
-            "description" : "Index of this bed within its room.",
-            "minimum" : 0,
-            "type" : "integer"
           }
         }
       },
