@@ -6,6 +6,7 @@ import java.util.Set;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 import org.acme.bedallocation.domain.GenderLimitation;
@@ -18,5 +19,5 @@ public record RoomDTO(
         @Schema(description = "Number of beds in the room.") @NotNull @Min(1) Integer capacity,
         @Schema(description = "Gender restriction of the room: ANY_GENDER, MALE_ONLY, FEMALE_ONLY or SAME_GENDER.") @NotNull @Valid GenderLimitation genderLimitation,
         @Schema(description = "Medical equipment available in this room.") Set<String> equipments,
-        @Schema(description = "Beds in this room.", required = true) List<@Valid BedDTO> beds) {
+        @Schema(description = "Beds in this room.") @NotEmpty List<@Valid BedDTO> beds) {
 }
