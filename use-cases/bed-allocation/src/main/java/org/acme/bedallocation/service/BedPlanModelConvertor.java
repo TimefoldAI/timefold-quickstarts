@@ -3,12 +3,14 @@ package org.acme.bedallocation.service;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Collections.unmodifiableSet;
+import static java.util.Objects.requireNonNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -58,7 +60,7 @@ public class BedPlanModelConvertor
         Map<String, Bed> bedMap = new LinkedHashMap<>();
 
         for (var departmentInputDto : modelInput.departments()) {
-            Map<String, Integer> specialityToPrioMap = orEmpty(departmentInputDto.specialtyToPriority());
+            Map<String, Integer> specialityToPrioMap = departmentInputDto.specialtyToPriority();
 
             var department = new Department(departmentInputDto.id(), departmentInputDto.name(),
                     departmentInputDto.minimumAge(), departmentInputDto.maximumAge(),
@@ -66,7 +68,7 @@ public class BedPlanModelConvertor
 
             for (RoomInputDTO roomDto : departmentInputDto.rooms()) {
                 var room = new Room(roomDto.id(), roomDto.name(), department, roomDto.capacity(),
-                        roomDto.genderLimitation(), orEmpty(roomDto.equipments()));
+                        roomDto.genderLimitation(), roomDto.equipments());
 
                 for (var bedInputDto : roomDto.beds()) {
                     var bed = new Bed(bedInputDto.id(), room);
@@ -94,35 +96,11 @@ public class BedPlanModelConvertor
     }
 
     private static Stay toStay(StayInputDTO dto, Map<String, Bed> bedMap) {
-        var bed = dto.bedId() == null ? null : require(bedMap, dto.bedId(), "bed");
+        var bed = dto.bedId() == null ? null : requireNonNull(bedMap.get(dto.bedId()));
         return new Stay(dto.id(), dto.patientName(), dto.patientGender(), dto.patientAge(),
-                dto.patientPreferredMaximumRoomCapacity(), orEmpty(dto.patientRequiredEquipments()),
-                orEmpty(dto.patientPreferredEquipments()), dto.arrivalDate(),
+                dto.patientPreferredMaximumRoomCapacity(), dto.patientRequiredEquipments(),
+                dto.patientPreferredEquipments(), dto.arrivalDate(),
                 dto.departureDate(), dto.specialty(), bed, Boolean.TRUE.equals(dto.pinned()));
-    }
-
-    private static <T> List<T> orEmpty(List<T> list) {
-        return list == null ? List.of() : unmodifiableList(list);
-    }
-
-    private static <T> Set<T> orEmpty(Set<T> set) {
-        return set == null ? Set.of() : unmodifiableSet(set);
-    }
-
-    private static <T, Y> Map<T, Y> orEmpty(Map<T, Y> map) {
-        return map == null ? Map.of() : unmodifiableMap(map);
-    }
-
-    /**
-     * Fails fast with an actionable message instead of letting an unknown reference
-     * turn into a null in the solver model and a delayed NullPointerException.
-     */
-    private static <T> T require(Map<String, T> map, String key, String kind) {
-        T value = map.get(key);
-        if (value == null) {
-            throw new IllegalArgumentException("Unknown %s '%s'.".formatted(kind, key));
-        }
-        return value;
     }
 
     private static void applyConstraintWeightOverrides(BedPlan bedPlan, ModelConfig<BedPlanConfigOverrides> modelConfig) {
