@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
+import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.domain.JavaConstructorCall;
@@ -125,7 +126,8 @@ public final class ArchitectureCheck {
         return List.of(
                 layerRule("domain", "dto", not(resideInAPackage(basePackage + ".dto.."))
                         .or(assignableTo(MODEL_INPUT_METRICS)).or(assignableTo(MODEL_OUTPUT_METRICS))),
-                layerRule("dto", "domain", not(resideInAPackage(basePackage + ".domain.."))),
+                layerRule("dto", "domain", not(resideInAPackage(basePackage + ".domain.."))
+                        .or(domainEnums())),
                 layerRule("dto", "solver", not(resideInAPackage(basePackage + ".solver.."))),
                 layerRule("dto", "service", not(resideInAPackage(basePackage + ".service.."))),
                 layerRule("domain", "service", not(resideInAPackage(basePackage + ".service.."))),
@@ -155,6 +157,15 @@ public final class ArchitectureCheck {
                 .should()
                 .onlyDependOnClassesThat(allowed)
                 .as("%s layer must not depend on %s layer".formatted(capitalize(from), capitalize(to)));
+    }
+
+    private static DescribedPredicate<JavaClass> domainEnums() {
+        return resideInAPackage(basePackage + ".domain..").and(new DescribedPredicate<JavaClass>("are enums") {
+            @Override
+            public boolean test(JavaClass javaClass) {
+                return javaClass.isEnum();
+            }
+        });
     }
 
     private static ArchRule solverMustNotDependOnDemo() {
