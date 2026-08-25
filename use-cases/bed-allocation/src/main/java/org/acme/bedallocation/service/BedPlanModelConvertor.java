@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -65,7 +66,7 @@ public class BedPlanModelConvertor
 
             for (RoomDTO roomDto : departmentDto.rooms()) {
                 Room room = new Room(roomDto.id(), roomDto.name(), department, roomDto.capacity(),
-                        roomDto.genderLimitation(), roomDto.equipments(),
+                        roomDto.genderLimitation(), orEmptySet(roomDto.equipments()),
                         new ArrayList<>());
                 department.rooms().add(room);
                 roomMap.put(room.id(), room);
@@ -97,8 +98,12 @@ public class BedPlanModelConvertor
                 dto.departureDate(), dto.specialty(), bed, Boolean.TRUE.equals(dto.pinned()));
     }
 
-    private static List<String> orEmpty(List<String> equipments) {
-        return equipments == null ? List.of() : equipments;
+    private static List<String> orEmpty(List<String> list) {
+        return list == null ? List.of() : list;
+    }
+
+    private static Set<String> orEmptySet(Set<String> set) {
+        return set == null ? Set.of() : set;
     }
 
     /**

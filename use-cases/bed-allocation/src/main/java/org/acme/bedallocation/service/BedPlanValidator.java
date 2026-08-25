@@ -39,8 +39,8 @@ public class BedPlanValidator implements ModelValidator<BedPlanInput, BedPlanCon
         for (ConstraintViolation<BedPlanInput> violation : validator.validate(modelInput)) {
             validationBuilder.addIssue(new OpenApiSpecIssue(violation.getPropertyPath() + ": " + violation.getMessage()));
         }
-        Set<String> bedIds = validateDepartments(validationBuilder, modelInput.departments());
-        validateStays(validationBuilder, modelInput.stays(), bedIds);
+        Set<String> bedIds = validateDepartments(validationBuilder, orEmpty(modelInput.departments()));
+        validateStays(validationBuilder, orEmpty(modelInput.stays()), bedIds);
     }
 
     private Set<String> validateDepartments(ValidationBuilder validationBuilder, List<DepartmentDTO> departments) {
@@ -52,12 +52,12 @@ public class BedPlanValidator implements ModelValidator<BedPlanInput, BedPlanCon
                 validationBuilder.addIssue(new DuplicateDepartmentIdIssue(department.id()));
                 continue;
             }
-            for (RoomDTO room : department.rooms()) {
+            for (RoomDTO room : orEmpty(department.rooms())) {
                 if (hasId(room.id()) && !roomIds.add(room.id())) {
                     validationBuilder.addIssue(new DuplicateRoomIdIssue(room.id()));
                     continue;
                 }
-                for (BedDTO bed : room.beds()) {
+                for (BedDTO bed : orEmpty(room.beds())) {
                     if (hasId(bed.id()) && !bedIds.add(bed.id())) {
                         validationBuilder.addIssue(new DuplicateBedIdIssue(bed.id()));
                     }
@@ -65,6 +65,10 @@ public class BedPlanValidator implements ModelValidator<BedPlanInput, BedPlanCon
             }
         }
         return bedIds;
+    }
+
+    private static <T> List<T> orEmpty(List<T> list) {
+        return list == null ? List.of() : list;
     }
 
     private void validateStays(ValidationBuilder validationBuilder, List<StayDTO> stays, Set<String> bedIds) {
