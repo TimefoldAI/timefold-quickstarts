@@ -1,4 +1,4 @@
-package org.acme.bedallocation.dto;
+package org.acme.bedallocation.dto.output;
 
 import ai.timefold.solver.service.definition.api.domain.DataFormat;
 import ai.timefold.solver.service.definition.api.metrics.ModelOutputMetrics;

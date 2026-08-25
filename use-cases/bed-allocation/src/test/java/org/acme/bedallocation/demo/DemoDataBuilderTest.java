@@ -3,7 +3,7 @@ package org.acme.bedallocation.demo;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.acme.bedallocation.dto.BedPlanInput;
+import org.acme.bedallocation.dto.input.BedPlanInput;
 import org.junit.jupiter.api.Test;
 
 class DemoDataBuilderTest {

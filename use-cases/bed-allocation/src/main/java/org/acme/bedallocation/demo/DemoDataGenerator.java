@@ -8,8 +8,8 @@ import ai.timefold.solver.service.definition.api.domain.ModelConfig;
 import ai.timefold.solver.service.definition.api.domain.ModelRequest;
 import ai.timefold.solver.service.definition.api.domain.RunConfiguration;
 
-import org.acme.bedallocation.dto.BedPlanConfigOverrides;
-import org.acme.bedallocation.dto.BedPlanInput;
+import org.acme.bedallocation.dto.input.BedPlanConfigOverrides;
+import org.acme.bedallocation.dto.input.BedPlanInput;
 
 // Basic Demo Data Generator, If you want to add more demo datasets, implement DemoDataGenerator directly.
 @ApplicationScoped

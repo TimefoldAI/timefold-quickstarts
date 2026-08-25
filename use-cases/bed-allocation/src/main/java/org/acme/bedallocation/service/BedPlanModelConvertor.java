@@ -26,13 +26,12 @@ import org.acme.bedallocation.domain.BedPlanConstraintProperties;
 import org.acme.bedallocation.domain.Department;
 import org.acme.bedallocation.domain.Room;
 import org.acme.bedallocation.domain.Stay;
-import org.acme.bedallocation.dto.BedDTO;
-import org.acme.bedallocation.dto.BedPlanConfigOverrides;
-import org.acme.bedallocation.dto.BedPlanInput;
-import org.acme.bedallocation.dto.BedPlanOutput;
-import org.acme.bedallocation.dto.DepartmentDTO;
-import org.acme.bedallocation.dto.RoomDTO;
-import org.acme.bedallocation.dto.StayDTO;
+import org.acme.bedallocation.dto.input.BedPlanConfigOverrides;
+import org.acme.bedallocation.dto.input.BedPlanInput;
+import org.acme.bedallocation.dto.input.RoomInputDTO;
+import org.acme.bedallocation.dto.input.StayInputDTO;
+import org.acme.bedallocation.dto.output.BedPlanOutput;
+import org.acme.bedallocation.dto.output.StayOutputDTO;
 
 @ApplicationScoped
 public class BedPlanModelConvertor
@@ -40,11 +39,11 @@ public class BedPlanModelConvertor
 
     @Override
     public BedPlanInput applyOutputToInput(BedPlanInput modelInput, BedPlanOutput modelOutput) {
-        Map<String, StayDTO> outputStays =
-                modelOutput.stays().stream().collect(Collectors.toMap(StayDTO::id, stay -> stay));
-        List<StayDTO> updatedStays = modelInput.stays().stream()
+        Map<String, StayOutputDTO> outputStays =
+                modelOutput.stays().stream().collect(Collectors.toMap(StayOutputDTO::id, stay -> stay));
+        List<StayInputDTO> updatedStays = modelInput.stays().stream()
                 .map(stay -> {
-                    StayDTO solved = outputStays.get(stay.id());
+                    StayOutputDTO solved = outputStays.get(stay.id());
                     return solved == null ? stay : stay.withBedId(solved.bedId());
                 })
                 .collect(Collectors.toList());
@@ -58,29 +57,29 @@ public class BedPlanModelConvertor
         Map<String, Room> roomMap = new LinkedHashMap<>();
         Map<String, Bed> bedMap = new LinkedHashMap<>();
 
-        for (DepartmentDTO departmentDto : modelInput.departments()) {
-            Map<String, Integer> specialityToPrioMap = orEmpty(departmentDto.specialtyToPriority());
+        for (var departmentInputDto : modelInput.departments()) {
+            Map<String, Integer> specialityToPrioMap = orEmpty(departmentInputDto.specialtyToPriority());
 
-            Department department = new Department(departmentDto.id(), departmentDto.name(),
-                    departmentDto.minimumAge(), departmentDto.maximumAge(),
+            var department = new Department(departmentInputDto.id(), departmentInputDto.name(),
+                    departmentInputDto.minimumAge(), departmentInputDto.maximumAge(),
                     specialityToPrioMap);
             departmentMap.put(department.id(), department);
 
-            for (RoomDTO roomDto : departmentDto.rooms()) {
-                Room room = new Room(roomDto.id(), roomDto.name(), department, roomDto.capacity(),
+            for (RoomInputDTO roomDto : departmentInputDto.rooms()) {
+                var room = new Room(roomDto.id(), roomDto.name(), department, roomDto.capacity(),
                         roomDto.genderLimitation(), orEmpty(roomDto.equipments()));
                 roomMap.put(room.id(), room);
 
-                for (BedDTO bedDto : roomDto.beds()) {
-                    Bed bed = new Bed(bedDto.id(), room);
+                for (var bedInputDto : roomDto.beds()) {
+                    var bed = new Bed(bedInputDto.id(), room);
                     bedMap.put(bed.id(), bed);
                 }
             }
         }
 
-        List<Stay> stays = modelInput.stays().stream()
+        var stays = modelInput.stays().stream()
                 .map(dto -> toStay(dto, bedMap))
-                .collect(Collectors.toCollection(ArrayList::new));
+                .toList();
 
         BedPlan bedPlan = new BedPlan(new ArrayList<>(departmentMap.values()), new ArrayList<>(roomMap.values()),
                 new ArrayList<>(bedMap.values()), stays);
@@ -89,8 +88,8 @@ public class BedPlanModelConvertor
         return bedPlan;
     }
 
-    private static Stay toStay(StayDTO dto, Map<String, Bed> bedMap) {
-        Bed bed = dto.bedId() == null ? null : require(bedMap, dto.bedId(), "bed");
+    private static Stay toStay(StayInputDTO dto, Map<String, Bed> bedMap) {
+        var bed = dto.bedId() == null ? null : require(bedMap, dto.bedId(), "bed");
         return new Stay(dto.id(), dto.patientName(), dto.patientGender(), dto.patientAge(),
                 dto.patientPreferredMaximumRoomCapacity(), orEmpty(dto.patientRequiredEquipments()),
                 orEmpty(dto.patientPreferredEquipments()), dto.arrivalDate(),
@@ -152,7 +151,7 @@ public class BedPlanModelConvertor
             return;
         }
         var stayMap = stays.stream().collect(Collectors.toMap(Stay::getId, stay -> stay));
-        for (StayDTO solved : lastModelOutput.get().stays()) {
+        for (var solved : lastModelOutput.get().stays()) {
             Stay stay = stayMap.get(solved.id());
             if (stay == null || solved.bedId() == null) {
                 continue;
@@ -166,41 +165,8 @@ public class BedPlanModelConvertor
 
     @Override
     public BedPlanOutput toModelOutput(BedPlan solverModel) {
-        var departments = solverModel.getDepartments().stream().map(d -> toDTO(d, solverModel)).collect(Collectors.toList());
-        var stays = solverModel.getStays().stream().map(this::toDTO).collect(Collectors.toList());
-        String score = solverModel.getScore() == null ? "" : solverModel.getScore().toString();
-        return new BedPlanOutput(departments, stays, score);
-    }
-
-    private DepartmentDTO toDTO(Department department, BedPlan solverModel) {
-        var rooms = solverModel.getRooms()
-                .stream()
-                .filter(r -> r.department().id().equals(department.id()))
-                .map(r -> toDTO(r, solverModel))
-                .toList();
-        return new DepartmentDTO(department.id(), department.name(), department.minimumAge(), department.maximumAge(),
-                department.specialtyToPriority(), rooms);
-    }
-
-    private RoomDTO toDTO(Room room, BedPlan solverModel) {
-        var beds = solverModel.getBeds()
-                .stream()
-                .filter(b -> b.room().id().equals(room.id()))
-                .map(this::toDTO)
-                .toList();
-        return new RoomDTO(room.id(), room.name(), room.capacity(), room.genderLimitation(),
-                room.equipments(), beds);
-    }
-
-    private BedDTO toDTO(Bed bed) {
-        return new BedDTO(bed.id());
-    }
-
-    private StayDTO toDTO(Stay stay) {
-        var bedId = stay.getBed() == null ? null : stay.getBed().id();
-        return new StayDTO(stay.getId(), stay.getPatientName(), stay.getPatientGender(), stay.getPatientAge(),
-                stay.getPatientPreferredMaximumRoomCapacity(), stay.getPatientRequiredEquipments(),
-                stay.getPatientPreferredEquipments(), stay.getArrivalDate(),
-                stay.getDepartureDate(), stay.getSpecialty(), bedId, stay.isPinned());
+        var stays = solverModel.getStays().stream()
+                .map(s -> new StayOutputDTO(s.getId(), s.getBed() == null ? null : s.getBed().id())).toList();
+        return new BedPlanOutput(stays);
     }
 }

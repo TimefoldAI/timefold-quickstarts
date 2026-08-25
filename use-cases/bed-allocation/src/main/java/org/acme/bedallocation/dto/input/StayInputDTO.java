@@ -1,4 +1,4 @@
-package org.acme.bedallocation.dto;
+package org.acme.bedallocation.dto.input;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -13,7 +13,7 @@ import org.acme.bedallocation.domain.Gender;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Schema(description = "A patient stay that must be assigned to a bed.")
-public record StayDTO(
+public record StayInputDTO(
         @Schema(description = "Unique identifier of the stay.") @NotBlank String id,
         @Schema(description = "Name of the patient.") @NotBlank String patientName,
         @Schema(description = "Gender of the patient: MALE or FEMALE.") @NotNull @Valid Gender patientGender,
@@ -27,8 +27,8 @@ public record StayDTO(
         @Schema(description = "ID of the bed this stay is assigned to, or null if unassigned.") String bedId,
         @Schema(description = "Whether this stay's bed assignment is pinned and must not be changed by the solver.") Boolean pinned) {
 
-    public StayDTO withBedId(String bedId) {
-        return new StayDTO(id, patientName, patientGender, patientAge, patientPreferredMaximumRoomCapacity,
+    public StayInputDTO withBedId(String bedId) {
+        return new StayInputDTO(id, patientName, patientGender, patientAge, patientPreferredMaximumRoomCapacity,
                 patientRequiredEquipments, patientPreferredEquipments, arrivalDate, departureDate, specialty, bedId,
                 pinned);
     }

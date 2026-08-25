@@ -1,4 +1,4 @@
-package org.acme.bedallocation.dto;
+package org.acme.bedallocation.dto.input;
 
 import jakarta.validation.constraints.Min;
 

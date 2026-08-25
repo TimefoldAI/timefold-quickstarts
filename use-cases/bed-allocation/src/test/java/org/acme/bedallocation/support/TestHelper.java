@@ -11,10 +11,10 @@ import org.acme.bedallocation.domain.Gender;
 import org.acme.bedallocation.domain.GenderLimitation;
 import org.acme.bedallocation.domain.Room;
 import org.acme.bedallocation.domain.Stay;
-import org.acme.bedallocation.dto.BedDTO;
-import org.acme.bedallocation.dto.DepartmentDTO;
-import org.acme.bedallocation.dto.RoomDTO;
-import org.acme.bedallocation.dto.StayDTO;
+import org.acme.bedallocation.dto.input.BedInputDTO;
+import org.acme.bedallocation.dto.input.DepartmentInputDTO;
+import org.acme.bedallocation.dto.input.RoomInputDTO;
+import org.acme.bedallocation.dto.input.StayInputDTO;
 
 // To keep our production classes as simple as possible, we've added these methods to help construct the data needed for testing.
 public final class TestHelper {
@@ -235,8 +235,8 @@ public final class TestHelper {
             this.id = id;
         }
 
-        public BedDTO build() {
-            return new BedDTO(id);
+        public BedInputDTO build() {
+            return new BedInputDTO(id);
         }
     }
 
@@ -247,7 +247,7 @@ public final class TestHelper {
         private int capacity = 1;
         private GenderLimitation genderLimitation = GenderLimitation.ANY_GENDER;
         private Set<String> equipments = Set.of();
-        private List<BedDTO> beds = List.of(aBedDTO("b1").build());
+        private List<BedInputDTO> beds = List.of(aBedDTO("b1").build());
 
         private RoomDTOBuilder(String id) {
             this.id = id;
@@ -274,14 +274,14 @@ public final class TestHelper {
             return this;
         }
 
-        public RoomDTOBuilder beds(List<BedDTO> beds) {
+        public RoomDTOBuilder beds(List<BedInputDTO> beds) {
             this.beds = beds;
             this.capacity = beds.size();
             return this;
         }
 
-        public RoomDTO build() {
-            return new RoomDTO(id, name, capacity, genderLimitation, equipments, beds);
+        public RoomInputDTO build() {
+            return new RoomInputDTO(id, name, capacity, genderLimitation, equipments, beds);
         }
     }
 
@@ -292,7 +292,7 @@ public final class TestHelper {
         private Integer minimumAge;
         private Integer maximumAge;
         private Map<String, Integer> specialtyToPriority = Map.of();
-        private List<RoomDTO> rooms = List.of();
+        private List<RoomInputDTO> rooms = List.of();
 
         private DepartmentDTOBuilder(String id) {
             this.id = id;
@@ -319,13 +319,13 @@ public final class TestHelper {
             return this;
         }
 
-        public DepartmentDTOBuilder rooms(List<RoomDTO> rooms) {
+        public DepartmentDTOBuilder rooms(List<RoomInputDTO> rooms) {
             this.rooms = rooms;
             return this;
         }
 
-        public DepartmentDTO build() {
-            return new DepartmentDTO(id, name, minimumAge, maximumAge, specialtyToPriority, rooms);
+        public DepartmentInputDTO build() {
+            return new DepartmentInputDTO(id, name, minimumAge, maximumAge, specialtyToPriority, rooms);
         }
     }
 
@@ -404,8 +404,8 @@ public final class TestHelper {
             return this;
         }
 
-        public StayDTO build() {
-            return new StayDTO(id, patientName, patientGender, patientAge, patientPreferredMaximumRoomCapacity,
+        public StayInputDTO build() {
+            return new StayInputDTO(id, patientName, patientGender, patientAge, patientPreferredMaximumRoomCapacity,
                     patientRequiredEquipments, patientPreferredEquipments, arrivalDate, departureDate, specialty, bedId,
                     pinned);
         }

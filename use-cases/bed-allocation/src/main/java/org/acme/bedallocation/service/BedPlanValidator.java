@@ -13,12 +13,11 @@ import ai.timefold.solver.service.definition.api.domain.ModelConfig;
 import ai.timefold.solver.service.definition.api.validation.ModelValidator;
 import ai.timefold.solver.service.definition.api.validation.ValidationBuilder;
 
-import org.acme.bedallocation.dto.BedDTO;
-import org.acme.bedallocation.dto.BedPlanConfigOverrides;
-import org.acme.bedallocation.dto.BedPlanInput;
-import org.acme.bedallocation.dto.DepartmentDTO;
-import org.acme.bedallocation.dto.RoomDTO;
-import org.acme.bedallocation.dto.StayDTO;
+import org.acme.bedallocation.dto.input.BedInputDTO;
+import org.acme.bedallocation.dto.input.BedPlanConfigOverrides;
+import org.acme.bedallocation.dto.input.BedPlanInput;
+import org.acme.bedallocation.dto.input.DepartmentInputDTO;
+import org.acme.bedallocation.dto.input.StayInputDTO;
 import org.acme.bedallocation.service.validation.BedPlanIssue.DuplicateBedIdIssue;
 import org.acme.bedallocation.service.validation.BedPlanIssue.DuplicateDepartmentIdIssue;
 import org.acme.bedallocation.service.validation.BedPlanIssue.DuplicateRoomIdIssue;
@@ -43,21 +42,21 @@ public class BedPlanValidator implements ModelValidator<BedPlanInput, BedPlanCon
         validateStays(validationBuilder, orEmpty(modelInput.stays()), bedIds);
     }
 
-    private Set<String> validateDepartments(ValidationBuilder validationBuilder, List<DepartmentDTO> departments) {
+    private Set<String> validateDepartments(ValidationBuilder validationBuilder, List<DepartmentInputDTO> departments) {
         Set<String> departmentIds = new HashSet<>();
         Set<String> roomIds = new HashSet<>();
         Set<String> bedIds = new HashSet<>();
-        for (DepartmentDTO department : departments) {
+        for (var department : departments) {
             if (hasId(department.id()) && !departmentIds.add(department.id())) {
                 validationBuilder.addIssue(new DuplicateDepartmentIdIssue(department.id()));
                 continue;
             }
-            for (RoomDTO room : orEmpty(department.rooms())) {
+            for (var room : orEmpty(department.rooms())) {
                 if (hasId(room.id()) && !roomIds.add(room.id())) {
                     validationBuilder.addIssue(new DuplicateRoomIdIssue(room.id()));
                     continue;
                 }
-                for (BedDTO bed : orEmpty(room.beds())) {
+                for (BedInputDTO bed : orEmpty(room.beds())) {
                     if (hasId(bed.id()) && !bedIds.add(bed.id())) {
                         validationBuilder.addIssue(new DuplicateBedIdIssue(bed.id()));
                     }
@@ -71,9 +70,9 @@ public class BedPlanValidator implements ModelValidator<BedPlanInput, BedPlanCon
         return list == null ? List.of() : list;
     }
 
-    private void validateStays(ValidationBuilder validationBuilder, List<StayDTO> stays, Set<String> bedIds) {
+    private void validateStays(ValidationBuilder validationBuilder, List<StayInputDTO> stays, Set<String> bedIds) {
         Set<String> stayIds = new HashSet<>();
-        for (StayDTO stay : stays) {
+        for (var stay : stays) {
             if (hasId(stay.id()) && !stayIds.add(stay.id())) {
                 validationBuilder.addIssue(new DuplicateStayIdIssue(stay.id()));
             }

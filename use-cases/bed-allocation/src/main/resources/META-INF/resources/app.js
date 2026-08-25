@@ -89,7 +89,24 @@ function setupAjax() {
 
 // ── ModelRest plumbing ──
 // demo-data → ModelRequest {modelInput,...}; POST model → metadata {id, solverStatus};
-// GET model/{id} → ModelResponse {metadata:{solverStatus}, modelOutput}.
+// GET model/{id} → ModelResponse {metadata:{solverStatus, score}, modelOutput}.
+//
+// modelOutput only carries the possible assignments (stays: [{id, bedId}]), not the
+// full problem, so loadedSchedule keeps the full modelInput (departments + stay details)
+// and mergeModelOutput() only overlays the bedId per stay and the score from metadata.
+
+function mergeModelOutput(modelOutput, metadata) {
+    if (loadedSchedule == null) {
+        return;
+    }
+    if (modelOutput != null && modelOutput.stays != null) {
+        const bedIdByStayId = new Map(modelOutput.stays.map(stay => [stay.id, stay.bedId]));
+        loadedSchedule.stays = loadedSchedule.stays.map(stay => bedIdByStayId.has(stay.id)
+            ? {...stay, bedId: bedIdByStayId.get(stay.id)}
+            : stay);
+    }
+    loadedSchedule.score = metadata != null ? metadata.score : loadedSchedule.score;
+}
 
 function loadPlatformRun() {
     if (!PLATFORM.runId) {
@@ -120,7 +137,7 @@ function getStatus() {
         });
     } else {
         $.get(api(`${MODEL_PATH}/${jobId}`), function (data) {
-            loadedSchedule = data.modelOutput || loadedSchedule;
+            mergeModelOutput(data.modelOutput, data.metadata);
             renderSchedule(loadedSchedule);
             refreshSolvingButtons(data.metadata.solverStatus);
         }).fail(function (xhr) {
@@ -136,6 +153,8 @@ function solve() {
     stopRequested = false;
     showStopSolvingButton(true);
     $.get(api(DEMO_DATA_PATH), function (modelRequest) {
+        loadedSchedule = modelRequest.modelInput;
+        renderSchedule(loadedSchedule);
         $.post(api(MODEL_PATH), JSON.stringify(modelRequest), function (metadata) {
             jobId = metadata.id;
             if (stopRequested) {

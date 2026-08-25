@@ -14,8 +14,8 @@ import ai.timefold.solver.service.definition.api.SolverModel;
 import ai.timefold.solver.service.definition.api.metrics.InputMetricsAware;
 import ai.timefold.solver.service.definition.api.metrics.OutputMetricsAware;
 
-import org.acme.bedallocation.dto.BedPlanInputMetrics;
-import org.acme.bedallocation.dto.BedPlanOutputMetrics;
+import org.acme.bedallocation.dto.input.BedPlanInputMetrics;
+import org.acme.bedallocation.dto.output.BedPlanOutputMetrics;
 
 @PlanningSolution
 public class BedPlan implements SolverModel<HardMediumSoftScore>,
