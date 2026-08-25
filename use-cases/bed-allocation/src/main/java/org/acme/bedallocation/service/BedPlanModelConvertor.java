@@ -94,7 +94,7 @@ public class BedPlanModelConvertor
         return new Stay(dto.id(), dto.patientName(), dto.patientGender(), dto.patientAge(),
                 dto.patientPreferredMaximumRoomCapacity(), orEmpty(dto.patientRequiredEquipments()),
                 orEmpty(dto.patientPreferredEquipments()), dto.arrivalDate(),
-                dto.departureDate(), dto.specialty(), bed);
+                dto.departureDate(), dto.specialty(), bed, Boolean.TRUE.equals(dto.pinned()));
     }
 
     private static List<String> orEmpty(List<String> equipments) {
@@ -185,6 +185,6 @@ public class BedPlanModelConvertor
         return new StayDTO(stay.getId(), stay.getPatientName(), stay.getPatientGender(), stay.getPatientAge(),
                 stay.getPatientPreferredMaximumRoomCapacity(), stay.getPatientRequiredEquipments(),
                 stay.getPatientPreferredEquipments(), stay.getArrivalDate(),
-                stay.getDepartureDate(), stay.getSpecialty(), bedId);
+                stay.getDepartureDate(), stay.getSpecialty(), bedId, stay.isPinned());
     }
 }

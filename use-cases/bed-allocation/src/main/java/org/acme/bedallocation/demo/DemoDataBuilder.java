@@ -309,6 +309,6 @@ public final class DemoDataBuilder {
             String specialty) {
         return new StayDTO(id, patientName, patientGender, patientAge, patientPreferredMaximumRoomCapacity,
                 patientRequiredEquipments, patientPreferredEquipments, arrivalDate, departureDate,
-                specialty, null);
+                specialty, null, false);
     }
 }

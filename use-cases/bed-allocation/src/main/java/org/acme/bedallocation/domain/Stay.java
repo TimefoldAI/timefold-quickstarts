@@ -8,6 +8,7 @@ import java.util.Objects;
 
 import ai.timefold.solver.core.api.domain.common.PlanningId;
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
+import ai.timefold.solver.core.api.domain.entity.PlanningPin;
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
 
 @PlanningEntity
@@ -25,6 +26,9 @@ public class Stay {
     private LocalDate departureDate;
     private String specialty;
 
+    @PlanningPin
+    private boolean pinned;
+
     @PlanningVariable(allowsUnassigned = true)
     private Bed bed;
 
@@ -34,7 +38,7 @@ public class Stay {
     public Stay(String id, String patientName, Gender patientGender, int patientAge,
             Integer patientPreferredMaximumRoomCapacity, List<String> patientRequiredEquipments,
             List<String> patientPreferredEquipments, LocalDate arrivalDate, LocalDate departureDate, String specialty,
-            Bed bed) {
+            Bed bed, boolean pinned) {
         this.id = id;
         this.patientName = patientName;
         this.patientGender = patientGender;
@@ -46,6 +50,7 @@ public class Stay {
         this.departureDate = departureDate;
         this.specialty = specialty;
         this.bed = bed;
+        this.pinned = pinned;
     }
 
     public int getNightCount() {
@@ -161,5 +166,9 @@ public class Stay {
 
     public void setBed(Bed bed) {
         this.bed = bed;
+    }
+
+    public boolean isPinned() {
+        return pinned;
     }
 }

@@ -184,6 +184,7 @@ public final class TestHelper {
         private Integer patientPreferredMaximumRoomCapacity;
         private List<String> patientRequiredEquipments;
         private List<String> patientPreferredEquipments;
+        private boolean pinned;
 
         private StayBuilder(String id, Bed bed) {
             this.id = id;
@@ -225,9 +226,15 @@ public final class TestHelper {
             return this;
         }
 
+        public StayBuilder pinned(boolean pinned) {
+            this.pinned = pinned;
+            return this;
+        }
+
         public Stay build() {
             return new Stay(id, patientName, patientGender, patientAge, patientPreferredMaximumRoomCapacity,
-                    patientRequiredEquipments, patientPreferredEquipments, arrivalDate, departureDate, specialty, bed);
+                    patientRequiredEquipments, patientPreferredEquipments, arrivalDate, departureDate, specialty, bed,
+                    pinned);
         }
     }
 
@@ -346,6 +353,7 @@ public final class TestHelper {
         private LocalDate departureDate = LocalDate.parse("2024-01-03");
         private String specialty;
         private String bedId;
+        private boolean pinned;
 
         private StayDTOBuilder(String id) {
             this.id = id;
@@ -402,9 +410,15 @@ public final class TestHelper {
             return this;
         }
 
+        public StayDTOBuilder pinned(boolean pinned) {
+            this.pinned = pinned;
+            return this;
+        }
+
         public StayDTO build() {
             return new StayDTO(id, patientName, patientGender, patientAge, patientPreferredMaximumRoomCapacity,
-                    patientRequiredEquipments, patientPreferredEquipments, arrivalDate, departureDate, specialty, bedId);
+                    patientRequiredEquipments, patientPreferredEquipments, arrivalDate, departureDate, specialty, bedId,
+                    pinned);
         }
     }
 }

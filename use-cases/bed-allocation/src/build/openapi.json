@@ -2966,6 +2966,10 @@
           "bedId" : {
             "description" : "ID of the bed this stay is assigned to, or null if unassigned.",
             "type" : "string"
+          },
+          "pinned" : {
+            "description" : "Whether this stay's bed assignment is pinned and must not be changed by the solver.",
+            "type" : "boolean"
           }
         }
       },
