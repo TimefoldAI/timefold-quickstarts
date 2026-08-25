@@ -16,7 +16,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 public record StayDTO(
         @Schema(description = "Unique identifier of the stay.") @NotBlank String id,
         @Schema(description = "Name of the patient.") @NotBlank String patientName,
-        @Schema(description = "Gender of the patient: MALE or FEMALE.") @Valid Gender patientGender,
+        @Schema(description = "Gender of the patient: MALE or FEMALE.") @NotNull @Valid Gender patientGender,
         @Schema(description = "Age of the patient in years.") @NotNull @Min(0) @Max(150) Integer patientAge,
         @Schema(description = "Maximum room capacity preferred by the patient, or null if there is no preference.") Integer patientPreferredMaximumRoomCapacity,
         @Schema(description = "Medical equipment required by the patient.") List<String> patientRequiredEquipments,
