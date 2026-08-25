@@ -340,7 +340,7 @@ public final class TestHelper {
         private List<String> patientPreferredEquipments = List.of();
         private LocalDate arrivalDate = LocalDate.parse("2024-01-01");
         private LocalDate departureDate = LocalDate.parse("2024-01-03");
-        private String specialty = "TEST_SPECIALITY";
+        private String specialty = "TEST_SPECIALTY";
         private String bedId;
         private boolean pinned;
 
