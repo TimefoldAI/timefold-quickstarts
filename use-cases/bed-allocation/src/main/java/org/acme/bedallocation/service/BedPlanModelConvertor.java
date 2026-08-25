@@ -30,6 +30,10 @@ import org.acme.bedallocation.dto.DepartmentDTO;
 import org.acme.bedallocation.dto.RoomDTO;
 import org.acme.bedallocation.dto.StayDTO;
 
+import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.unmodifiableMap;
+import static java.util.Collections.unmodifiableSet;
+
 @ApplicationScoped
 public class BedPlanModelConvertor
         implements ModelConvertor<HardMediumSoftScore, BedPlanInput, BedPlanConfigOverrides, BedPlan, BedPlanOutput> {
@@ -55,9 +59,7 @@ public class BedPlanModelConvertor
         Map<String, Bed> bedMap = new LinkedHashMap<>();
 
         for (DepartmentDTO departmentDto : modelInput.departments()) {
-            Map<String, Integer> specialityToPrioMap = departmentDto.specialtyToPriority() == null
-                    ? new HashMap<>()
-                    : new HashMap<>(departmentDto.specialtyToPriority());
+            Map<String, Integer> specialityToPrioMap = orEmpty(departmentDto.specialtyToPriority());
 
             Department department = new Department(departmentDto.id(), departmentDto.name(),
                     departmentDto.minimumAge(), departmentDto.maximumAge(),
@@ -66,7 +68,7 @@ public class BedPlanModelConvertor
 
             for (RoomDTO roomDto : departmentDto.rooms()) {
                 Room room = new Room(roomDto.id(), roomDto.name(), department, roomDto.capacity(),
-                        roomDto.genderLimitation(), orEmptySet(roomDto.equipments()));
+                        roomDto.genderLimitation(), orEmpty(roomDto.equipments()));
                 roomMap.put(room.id(), room);
 
                 for (BedDTO bedDto : roomDto.beds()) {
@@ -95,12 +97,16 @@ public class BedPlanModelConvertor
                 dto.departureDate(), dto.specialty(), bed, Boolean.TRUE.equals(dto.pinned()));
     }
 
-    private static List<String> orEmpty(List<String> list) {
-        return list == null ? List.of() : list;
+    private static <T> List<T> orEmpty(List<T> list) {
+        return list == null ? List.of() : unmodifiableList(list);
     }
 
-    private static Set<String> orEmptySet(Set<String> set) {
-        return set == null ? Set.of() : set;
+    private static <T> Set<T> orEmpty(Set<T> set) {
+        return set == null ? Set.of() : unmodifiableSet(set);
+    }
+
+    private static <T,Y> Map<T,Y> orEmpty(Map<T,Y> map) {
+        return map == null ? Map.of() : unmodifiableMap(map);
     }
 
     /**
