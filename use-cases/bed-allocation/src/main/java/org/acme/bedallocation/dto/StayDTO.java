@@ -22,8 +22,8 @@ public record StayDTO(
         @Schema(description = "Medical equipment required by the patient.") List<String> patientRequiredEquipments,
         @Schema(description = "Medical equipment preferred by the patient.") List<String> patientPreferredEquipments,
         @Schema(description = "First night of the stay, in ISO-8601 date format.") @NotNull LocalDate arrivalDate,
-        @Schema(description = "Last night of the stay, in ISO-8601 date format.") @NotNull LocalDate departureDate,
-        @Schema(description = "Medical specialty required during the stay.") String specialty,
+        @Schema(description = "Departure date (exclusive end date; first night not included), in ISO-8601 date format.") @NotNull LocalDate departureDate,
+        @Schema(description = "Medical specialty required during the stay.") String specialty
         @Schema(description = "ID of the bed this stay is assigned to, or null if unassigned.") String bedId,
         @Schema(description = "Whether this stay's bed assignment is pinned and must not be changed by the solver.") Boolean pinned) {
 
