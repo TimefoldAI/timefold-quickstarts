@@ -1,5 +1,9 @@
 package org.acme.bedallocation.service;
 
+import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.unmodifiableMap;
+import static java.util.Collections.unmodifiableSet;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -29,10 +33,6 @@ import org.acme.bedallocation.dto.BedPlanOutput;
 import org.acme.bedallocation.dto.DepartmentDTO;
 import org.acme.bedallocation.dto.RoomDTO;
 import org.acme.bedallocation.dto.StayDTO;
-
-import static java.util.Collections.unmodifiableList;
-import static java.util.Collections.unmodifiableMap;
-import static java.util.Collections.unmodifiableSet;
 
 @ApplicationScoped
 public class BedPlanModelConvertor
@@ -105,7 +105,7 @@ public class BedPlanModelConvertor
         return set == null ? Set.of() : unmodifiableSet(set);
     }
 
-    private static <T,Y> Map<T,Y> orEmpty(Map<T,Y> map) {
+    private static <T, Y> Map<T, Y> orEmpty(Map<T, Y> map) {
         return map == null ? Map.of() : unmodifiableMap(map);
     }
 

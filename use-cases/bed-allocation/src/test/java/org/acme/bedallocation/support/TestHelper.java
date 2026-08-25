@@ -247,7 +247,7 @@ public final class TestHelper {
         private int capacity = 1;
         private GenderLimitation genderLimitation = GenderLimitation.ANY_GENDER;
         private Set<String> equipments = Set.of();
-        private List<BedDTO> beds = List.of();
+        private List<BedDTO> beds = List.of(aBedDTO("b1").build());
 
         private RoomDTOBuilder(String id) {
             this.id = id;
@@ -340,7 +340,7 @@ public final class TestHelper {
         private List<String> patientPreferredEquipments = List.of();
         private LocalDate arrivalDate = LocalDate.parse("2024-01-01");
         private LocalDate departureDate = LocalDate.parse("2024-01-03");
-        private String specialty;
+        private String specialty = "TEST_SPECIALITY";
         private String bedId;
         private boolean pinned;
 
