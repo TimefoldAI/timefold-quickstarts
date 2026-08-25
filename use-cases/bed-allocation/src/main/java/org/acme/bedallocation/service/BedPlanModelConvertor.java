@@ -61,19 +61,16 @@ public class BedPlanModelConvertor
 
             Department department = new Department(departmentDto.id(), departmentDto.name(),
                     departmentDto.minimumAge(), departmentDto.maximumAge(),
-                    specialityToPrioMap, new ArrayList<>());
+                    specialityToPrioMap);
             departmentMap.put(department.id(), department);
 
             for (RoomDTO roomDto : departmentDto.rooms()) {
                 Room room = new Room(roomDto.id(), roomDto.name(), department, roomDto.capacity(),
-                        roomDto.genderLimitation(), orEmptySet(roomDto.equipments()),
-                        new ArrayList<>());
-                department.rooms().add(room);
+                        roomDto.genderLimitation(), orEmptySet(roomDto.equipments()));
                 roomMap.put(room.id(), room);
 
                 for (BedDTO bedDto : roomDto.beds()) {
                     Bed bed = new Bed(bedDto.id(), room);
-                    room.beds().add(bed);
                     bedMap.put(bed.id(), bed);
                 }
             }
@@ -163,20 +160,28 @@ public class BedPlanModelConvertor
 
     @Override
     public BedPlanOutput toModelOutput(BedPlan solverModel) {
-        var departments = solverModel.getDepartments().stream().map(this::toDTO).collect(Collectors.toList());
+        var departments = solverModel.getDepartments().stream().map(d -> toDTO(d, solverModel)).collect(Collectors.toList());
         var stays = solverModel.getStays().stream().map(this::toDTO).collect(Collectors.toList());
         String score = solverModel.getScore() == null ? "" : solverModel.getScore().toString();
         return new BedPlanOutput(departments, stays, score);
     }
 
-    private DepartmentDTO toDTO(Department department) {
-        var rooms = department.rooms().stream().map(this::toDTO).toList();
+    private DepartmentDTO toDTO(Department department, BedPlan solverModel) {
+        var rooms = solverModel.getRooms()
+                .stream()
+                .filter(r -> r.department().id().equals(department.id()))
+                .map(r -> toDTO(r, solverModel))
+                .toList();
         return new DepartmentDTO(department.id(), department.name(), department.minimumAge(), department.maximumAge(),
                 department.specialtyToPriority(), rooms);
     }
 
-    private RoomDTO toDTO(Room room) {
-        var beds = room.beds().stream().map(this::toDTO).toList();
+    private RoomDTO toDTO(Room room, BedPlan solverModel) {
+        var beds = solverModel.getBeds()
+                .stream()
+                .filter(b -> b.room().id().equals(room.id()))
+                .map(this::toDTO)
+                .toList();
         return new RoomDTO(room.id(), room.name(), room.capacity(), room.genderLimitation(),
                 room.equipments(), beds);
     }

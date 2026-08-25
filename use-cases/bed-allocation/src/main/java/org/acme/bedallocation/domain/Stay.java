@@ -54,13 +54,13 @@ public class Stay {
     }
 
     public int getNightCount() {
-        return (int) DAYS.between(arrivalDate, departureDate);
+        return (int) DAYS.between(arrivalDate, departureDate) + 1;
     }
 
     public int calculateSameNightCount(Stay other) {
         LocalDate maxArrivalDate = arrivalDate.isBefore(other.arrivalDate) ? other.arrivalDate : arrivalDate;
         LocalDate minDepartureDate = departureDate.isBefore(other.departureDate) ? departureDate : other.departureDate;
-        return Math.max(0, (int) DAYS.between(maxArrivalDate, minDepartureDate));
+        return Math.max(0, (int) DAYS.between(maxArrivalDate, minDepartureDate) + 1);
     }
 
     public boolean hasDepartmentSpecialty() {

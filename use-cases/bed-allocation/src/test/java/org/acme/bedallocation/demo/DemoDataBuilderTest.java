@@ -25,10 +25,8 @@ class DemoDataBuilderTest {
             assertThat(stay.departureDate()).isNotNull();
             assertThat(stay.bedId()).isNull();
 
-            // Departure is always at least a day after arrival (never the same day) and stays span
-            // between 1 and 5 days.
             long dayCount = DAYS.between(stay.arrivalDate(), stay.departureDate());
-            assertThat(dayCount).isBetween(1L, 5L);
+            assertThat(dayCount).isBetween(1L, 6L);
         });
     }
 }

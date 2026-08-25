@@ -1,7 +1,6 @@
 package org.acme.bedallocation.support;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -70,11 +69,7 @@ public final class TestHelper {
         }
 
         public Bed build() {
-            Bed bed = new Bed(id, room);
-            if (room != null) {
-                room.beds().add(bed);
-            }
-            return bed;
+            return new Bed(id, room);
         }
     }
 
@@ -86,7 +81,6 @@ public final class TestHelper {
         private int capacity;
         private GenderLimitation genderLimitation = GenderLimitation.ANY_GENDER;
         private Set<String> equipments = Set.of();
-        private final List<Bed> beds = new ArrayList<>();
 
         private RoomBuilder(String id) {
             this.id = id;
@@ -119,11 +113,7 @@ public final class TestHelper {
         }
 
         public Room build() {
-            Room room = new Room(id, name, department, capacity, genderLimitation, equipments, beds);
-            if (department != null) {
-                department.rooms().add(room);
-            }
-            return room;
+            return new Room(id, name, department, capacity, genderLimitation, equipments);
         }
     }
 
@@ -134,7 +124,6 @@ public final class TestHelper {
         private Integer minimumAge;
         private Integer maximumAge;
         private Map<String, Integer> specialtyToPriority = Map.of();
-        private final List<Room> rooms = new ArrayList<>();
 
         private DepartmentBuilder(String id) {
             this.id = id;
@@ -162,7 +151,7 @@ public final class TestHelper {
         }
 
         public Department build() {
-            return new Department(id, name, minimumAge, maximumAge, specialtyToPriority, rooms);
+            return new Department(id, name, minimumAge, maximumAge, specialtyToPriority);
         }
     }
 
