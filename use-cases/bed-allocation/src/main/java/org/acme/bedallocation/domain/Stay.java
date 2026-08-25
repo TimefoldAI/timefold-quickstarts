@@ -64,7 +64,8 @@ public class Stay {
     }
 
     public boolean hasDepartmentSpecialty() {
-        return getDepartment().specialtyToPriority().containsKey(specialty);
+        Department department = getDepartment();
+        return department != null && department.specialtyToPriority().containsKey(specialty);
     }
 
     public int getSpecialtyPriority() {
