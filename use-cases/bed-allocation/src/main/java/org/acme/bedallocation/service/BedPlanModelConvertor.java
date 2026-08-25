@@ -54,8 +54,9 @@ public class BedPlanModelConvertor
         Map<String, Bed> bedMap = new LinkedHashMap<>();
 
         for (DepartmentDTO departmentDto : modelInput.departments()) {
-            Map<String, Integer> specialityToPrioMap =
-                    departmentDto.specialtyToPriority() == null ? departmentDto.specialtyToPriority() : new HashMap<>();
+            Map<String, Integer> specialityToPrioMap = departmentDto.specialtyToPriority() == null
+                    ? new HashMap<>()
+                    : new HashMap<>(departmentDto.specialtyToPriority());
 
             Department department = new Department(departmentDto.id(), departmentDto.name(),
                     departmentDto.minimumAge(), departmentDto.maximumAge(),
