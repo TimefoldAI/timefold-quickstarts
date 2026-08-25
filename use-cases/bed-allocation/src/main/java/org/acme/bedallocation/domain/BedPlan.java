@@ -46,40 +46,20 @@ public class BedPlan implements SolverModel<HardMediumSoftScore>,
         this.stays = stays;
     }
 
-    // ************************************************************************
-    // Getters and setters
-    // ************************************************************************
-
     public List<Department> getDepartments() {
         return departments;
-    }
-
-    public void setDepartments(List<Department> departments) {
-        this.departments = departments;
     }
 
     public List<Room> getRooms() {
         return rooms;
     }
 
-    public void setRooms(List<Room> rooms) {
-        this.rooms = rooms;
-    }
-
     public List<Bed> getBeds() {
         return beds;
     }
 
-    public void setBeds(List<Bed> beds) {
-        this.beds = beds;
-    }
-
     public List<Stay> getStays() {
         return stays;
-    }
-
-    public void setStays(List<Stay> stays) {
-        this.stays = stays;
     }
 
     @Override

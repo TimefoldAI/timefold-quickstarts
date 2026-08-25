@@ -3,6 +3,8 @@ package org.acme.bedallocation.dto.input;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -19,8 +21,8 @@ public record StayInputDTO(
         @Schema(description = "Gender of the patient: MALE or FEMALE.") @NotNull @Valid Gender patientGender,
         @Schema(description = "Age of the patient in years.") @NotNull @Min(0) @Max(150) Integer patientAge,
         @Schema(description = "Maximum room capacity preferred by the patient, or null if there is no preference.") Integer patientPreferredMaximumRoomCapacity,
-        @Schema(description = "Medical equipment required by the patient.") List<String> patientRequiredEquipments,
-        @Schema(description = "Medical equipment preferred by the patient.") List<String> patientPreferredEquipments,
+        @Schema(description = "Medical equipment required by the patient.") @JsonSetter(nulls = Nulls.AS_EMPTY) List<String> patientRequiredEquipments,
+        @Schema(description = "Medical equipment preferred by the patient.") @JsonSetter(nulls = Nulls.AS_EMPTY) List<String> patientPreferredEquipments,
         @Schema(description = "First night of the stay, in ISO-8601 date format.") @NotNull LocalDate arrivalDate,
         @Schema(description = "Departure date, in ISO-8601 date format.") @NotNull LocalDate departureDate,
         @Schema(description = "Medical specialty required during the stay.") @NotBlank String specialty,

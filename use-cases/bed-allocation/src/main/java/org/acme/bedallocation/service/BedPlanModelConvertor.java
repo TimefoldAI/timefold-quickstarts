@@ -53,8 +53,8 @@ public class BedPlanModelConvertor
     @Override
     public BedPlan toSolverModel(BedPlanInput modelInput, ModelConfig<BedPlanConfigOverrides> modelConfig,
             Optional<BedPlanOutput> lastModelOutput) {
-        Map<String, Department> departmentMap = new LinkedHashMap<>();
-        Map<String, Room> roomMap = new LinkedHashMap<>();
+        List<Department> departments = new ArrayList<>();
+        List<Room> rooms = new ArrayList<>();
         Map<String, Bed> bedMap = new LinkedHashMap<>();
 
         for (var departmentInputDto : modelInput.departments()) {
@@ -63,12 +63,10 @@ public class BedPlanModelConvertor
             var department = new Department(departmentInputDto.id(), departmentInputDto.name(),
                     departmentInputDto.minimumAge(), departmentInputDto.maximumAge(),
                     specialityToPrioMap);
-            departmentMap.put(department.id(), department);
 
             for (RoomInputDTO roomDto : departmentInputDto.rooms()) {
                 var room = new Room(roomDto.id(), roomDto.name(), department, roomDto.capacity(),
                         roomDto.genderLimitation(), orEmpty(roomDto.equipments()));
-                roomMap.put(room.id(), room);
 
                 for (var bedInputDto : roomDto.beds()) {
                     var bed = new Bed(bedInputDto.id(), room);
@@ -81,11 +79,18 @@ public class BedPlanModelConvertor
                 .map(dto -> toStay(dto, bedMap))
                 .toList();
 
-        BedPlan bedPlan = new BedPlan(new ArrayList<>(departmentMap.values()), new ArrayList<>(roomMap.values()),
-                new ArrayList<>(bedMap.values()), stays);
+        BedPlan bedPlan = new BedPlan(departments, rooms, new ArrayList<>(bedMap.values()), stays);
         applyConstraintWeightOverrides(bedPlan, modelConfig);
         applyLastOutput(stays, bedMap, lastModelOutput);
         return bedPlan;
+    }
+
+
+    @Override
+    public BedPlanOutput toModelOutput(BedPlan solverModel) {
+        var stays = solverModel.getStays().stream()
+                .map(s -> new StayOutputDTO(s.getId(), s.getBed() == null ? null : s.getBed().id())).toList();
+        return new BedPlanOutput(stays);
     }
 
     private static Stay toStay(StayInputDTO dto, Map<String, Bed> bedMap) {
@@ -153,7 +158,7 @@ public class BedPlanModelConvertor
         var stayMap = stays.stream().collect(Collectors.toMap(Stay::getId, stay -> stay));
         for (var solved : lastModelOutput.get().stays()) {
             Stay stay = stayMap.get(solved.id());
-            if (stay == null || solved.bedId() == null) {
+            if (stay == null || stay.getBed() != null || stay.isPinned() || solved.bedId() == null) {
                 continue;
             }
             Bed bed = bedMap.get(solved.bedId());
@@ -161,12 +166,5 @@ public class BedPlanModelConvertor
                 stay.setBed(bed);
             }
         }
-    }
-
-    @Override
-    public BedPlanOutput toModelOutput(BedPlan solverModel) {
-        var stays = solverModel.getStays().stream()
-                .map(s -> new StayOutputDTO(s.getId(), s.getBed() == null ? null : s.getBed().id())).toList();
-        return new BedPlanOutput(stays);
     }
 }
