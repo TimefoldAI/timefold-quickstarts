@@ -28,12 +28,11 @@ import org.acme.conferencescheduling.domain.TalkType;
 import org.acme.conferencescheduling.domain.Timeslot;
 import org.acme.conferencescheduling.dto.input.ConferenceScheduleConfigOverrides;
 import org.acme.conferencescheduling.dto.input.ConferenceScheduleInput;
-import org.acme.conferencescheduling.dto.input.RoomDTO;
 import org.acme.conferencescheduling.dto.input.SpeakerDTO;
 import org.acme.conferencescheduling.dto.input.TalkDTO;
 import org.acme.conferencescheduling.dto.input.TalkTypeDTO;
-import org.acme.conferencescheduling.dto.input.TimeslotDTO;
 import org.acme.conferencescheduling.dto.output.ConferenceScheduleOutput;
+import org.acme.conferencescheduling.dto.output.TalkAssignmentDTO;
 
 @ApplicationScoped
 public class ConferenceScheduleModelConvertor
@@ -43,11 +42,11 @@ public class ConferenceScheduleModelConvertor
     @Override
     public ConferenceScheduleInput applyOutputToInput(ConferenceScheduleInput modelInput,
             ConferenceScheduleOutput modelOutput) {
-        Map<String, TalkDTO> outputTalks = modelOutput.talks().stream()
-                .collect(Collectors.toMap(TalkDTO::code, talk -> talk));
+        Map<String, TalkAssignmentDTO> outputTalks = modelOutput.talks().stream()
+                .collect(Collectors.toMap(TalkAssignmentDTO::code, talk -> talk));
         List<TalkDTO> updatedTalks = modelInput.talks().stream()
                 .map(talk -> {
-                    TalkDTO solved = outputTalks.get(talk.code());
+                    TalkAssignmentDTO solved = outputTalks.get(talk.code());
                     if (solved == null) {
                         return talk;
                     }
@@ -70,8 +69,7 @@ public class ConferenceScheduleModelConvertor
         Set<Timeslot> timeslots = modelInput.timeslots().stream()
                 .map(dto -> {
                     var relevantTalkTypes = talkTypes(dto.talkTypeNames(), talkTypeMap);
-                    Timeslot timeslot = new Timeslot(dto.id(), LocalDateTime.parse(dto.startDateTime()),
-                            LocalDateTime.parse(dto.endDateTime()), relevantTalkTypes,
+                    Timeslot timeslot = new Timeslot(dto.id(), dto.startDateTime(), dto.endDateTime(), relevantTalkTypes,
                             new LinkedHashSet<>(dto.tags()));
                     timeslotMap.put(timeslot.getId(), timeslot);
                     relevantTalkTypes.forEach(r -> r.compatibleTimeslots().add(timeslot));
@@ -265,7 +263,7 @@ public class ConferenceScheduleModelConvertor
         if (lastModelOutput.isEmpty()) {
             return;
         }
-        for (TalkDTO solved : lastModelOutput.get().talks()) {
+        for (TalkAssignmentDTO solved : lastModelOutput.get().talks()) {
             Talk talk = talkMap.get(solved.code());
             if (talk == null) {
                 continue;
@@ -281,54 +279,14 @@ public class ConferenceScheduleModelConvertor
 
     @Override
     public ConferenceScheduleOutput toModelOutput(ConferenceSchedule solverModel) {
-        List<TalkTypeDTO> talkTypes = solverModel.getTalkTypes().stream()
-                .map(talkType -> new TalkTypeDTO(talkType.name())).collect(Collectors.toList());
-        List<TimeslotDTO> timeslots = solverModel.getTimeslots().stream().map(this::toDTO).collect(Collectors.toList());
-        List<RoomDTO> rooms = solverModel.getRooms().stream().map(this::toDTO).collect(Collectors.toList());
-        List<SpeakerDTO> speakers = solverModel.getSpeakers().stream().map(this::toDTO).collect(Collectors.toList());
-        List<TalkDTO> talks = solverModel.getTalks().stream().map(this::toDTO).collect(Collectors.toList());
-        String score = solverModel.getScore() == null ? "" : solverModel.getScore().toString();
-        return new ConferenceScheduleOutput(solverModel.getName(), talkTypes, timeslots, rooms, speakers, talks, score);
+        List<TalkAssignmentDTO> talks = solverModel.getTalks().stream().map(this::toAssignmentDTO)
+                .collect(Collectors.toList());
+        return new ConferenceScheduleOutput(talks);
     }
 
-    private TimeslotDTO toDTO(Timeslot timeslot) {
-        List<String> talkTypeNames = timeslot.getTalkTypes().stream().map(TalkType::name).collect(Collectors.toList());
-        return new TimeslotDTO(timeslot.getId(), timeslot.getStartDateTime().toString(),
-                timeslot.getEndDateTime().toString(), talkTypeNames, List.copyOf(timeslot.getTags()));
-    }
-
-    private RoomDTO toDTO(Room room) {
-        List<String> talkTypeNames = room.talkTypes().stream().map(TalkType::name).collect(Collectors.toList());
-        List<String> unavailableTimeslotIds =
-                room.unavailableTimeslots().stream().map(Timeslot::getId).collect(Collectors.toList());
-        return new RoomDTO(room.id(), room.name(), room.capacity(), talkTypeNames, unavailableTimeslotIds,
-                List.copyOf(room.tags()));
-    }
-
-    private SpeakerDTO toDTO(Speaker speaker) {
-        List<String> unavailableTimeslotIds =
-                speaker.unavailableTimeslots().stream().map(Timeslot::getId).collect(Collectors.toList());
-        return new SpeakerDTO(speaker.id(), speaker.name(), unavailableTimeslotIds,
-                List.copyOf(speaker.requiredTimeslotTags()), List.copyOf(speaker.preferredTimeslotTags()),
-                List.copyOf(speaker.prohibitedTimeslotTags()), List.copyOf(speaker.undesiredTimeslotTags()),
-                List.copyOf(speaker.requiredRoomTags()), List.copyOf(speaker.preferredRoomTags()),
-                List.copyOf(speaker.prohibitedRoomTags()), List.copyOf(speaker.undesiredRoomTags()));
-    }
-
-    private TalkDTO toDTO(Talk talk) {
-        List<String> speakerIds = talk.getSpeakers().stream().map(Speaker::id).collect(Collectors.toList());
-        List<String> prerequisiteCodes =
-                talk.getPrerequisiteTalks().stream().map(Talk::getCode).collect(Collectors.toList());
+    private TalkAssignmentDTO toAssignmentDTO(Talk talk) {
         String timeslotId = talk.getTimeslot() == null ? null : talk.getTimeslot().getId();
         String roomId = talk.getRoom() == null ? null : talk.getRoom().id();
-        return new TalkDTO(talk.getCode(), talk.getTitle(), talk.getTalkType().name(), speakerIds,
-                List.copyOf(talk.getThemeTrackTags()), List.copyOf(talk.getSectorTags()),
-                List.copyOf(talk.getAudienceTypes()), talk.getAudienceLevel(), List.copyOf(talk.getContentTags()),
-                talk.getLanguage(), List.copyOf(talk.getRequiredTimeslotTags()),
-                List.copyOf(talk.getPreferredTimeslotTags()), List.copyOf(talk.getProhibitedTimeslotTags()),
-                List.copyOf(talk.getUndesiredTimeslotTags()), List.copyOf(talk.getRequiredRoomTags()),
-                List.copyOf(talk.getPreferredRoomTags()), List.copyOf(talk.getProhibitedRoomTags()),
-                List.copyOf(talk.getUndesiredRoomTags()), List.copyOf(talk.getMutuallyExclusiveTalksTags()),
-                prerequisiteCodes, talk.getFavoriteCount(), talk.getCrowdControlRisk(), timeslotId, roomId);
+        return new TalkAssignmentDTO(talk.getCode(), timeslotId, roomId);
     }
 }

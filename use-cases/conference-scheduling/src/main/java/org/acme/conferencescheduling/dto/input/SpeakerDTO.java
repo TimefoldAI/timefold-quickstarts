@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.Nulls;
 @Schema(description = "A speaker who presents one or more talks.")
 public record SpeakerDTO(
         @Schema(description = "Unique identifier of the speaker.") @NotBlank String id,
-        @Schema(description = "Display name of the speaker.") String name,
+        @Schema(description = "Display name of the speaker.") @NotBlank String name,
         @Schema(description = "IDs of the timeslots during which this speaker is unavailable.") @JsonSetter(
                 nulls = Nulls.AS_EMPTY) List<String> unavailableTimeslotIds,
         @Schema(description = "Timeslot tags required by this speaker.") @JsonSetter(

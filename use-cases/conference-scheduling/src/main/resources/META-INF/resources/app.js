@@ -128,7 +128,25 @@ function setupAjax() {
 
 // ── ModelRest plumbing ──
 // demo-data → ModelRequest {modelInput,...}; POST model → metadata {id, solverStatus};
-// GET model/{id} → ModelResponse {metadata:{solverStatus}, modelOutput}.
+// GET model/{id} → ModelResponse {metadata:{solverStatus, score}, modelOutput}.
+//
+// modelOutput only carries the talk assignments (talks: [{code, timeslotId, roomId}]), not the
+// full problem, so loadedSchedule keeps the full modelInput (talk types, timeslots, rooms,
+// speakers, talk details) and mergeModelOutput() only overlays the timeslotId/roomId per talk
+// code and the score from metadata.
+
+function mergeModelOutput(modelOutput, metadata) {
+    if (loadedSchedule == null) {
+        return;
+    }
+    if (modelOutput != null && modelOutput.talks != null) {
+        const assignmentByCode = new Map(modelOutput.talks.map(talk => [talk.code, talk]));
+        loadedSchedule.talks = loadedSchedule.talks.map(talk => assignmentByCode.has(talk.code)
+            ? {...talk, timeslotId: assignmentByCode.get(talk.code).timeslotId, roomId: assignmentByCode.get(talk.code).roomId}
+            : talk);
+    }
+    loadedSchedule.score = metadata != null ? metadata.score : loadedSchedule.score;
+}
 
 function loadPlatformRun() {
     if (!PLATFORM.runId) {
@@ -159,7 +177,7 @@ function getStatus() {
         });
     } else {
         $.get(api(`${MODEL_PATH}/${jobId}`), function (data) {
-            loadedSchedule = data.modelOutput || loadedSchedule;
+            mergeModelOutput(data.modelOutput, data.metadata);
             renderSchedule(loadedSchedule);
             refreshSolvingButtons(data.metadata.solverStatus);
         }).fail(function (xhr) {

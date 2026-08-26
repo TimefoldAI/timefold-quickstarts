@@ -220,10 +220,10 @@ class ConferenceScheduleValidatorTest {
     }
 
     @Test
-    void talkWithoutSpeakersIsAccepted() {
+    void talkWithoutSpeakersIsReportedAsMissing() {
         ValidationResult<Issue> result = validate(inputWithTalks(talk("T1")));
 
-        assertThat(result.issues()).isEmpty();
+        singleIssue(result, OpenApiSpecIssue.class);
     }
 
     // ------------------------------------------------------------------------
@@ -242,15 +242,16 @@ class ConferenceScheduleValidatorTest {
     void talkWithNullTalkTypeIsReported() {
         ValidationResult<Issue> result = validate(inputWithTalks(talkOfType("T1", null, "s1")));
 
-        NonExistingTalkTypeReferenceIssue issue = singleIssue(result, NonExistingTalkTypeReferenceIssue.class);
-        assertThat(issue.getTalkId()).isEqualTo("T1");
+        // A null talk type name fails both the @NotBlank constraint and the talk-type-exists check.
+        assertThat(codesOf(result)).containsExactlyInAnyOrder("OPEN_API_SPEC_ISSUE", "NON_EXISTING_TALK_TYPE_REFERENCE");
     }
 
     @Test
     void talkWithBlankTalkTypeIsReported() {
         ValidationResult<Issue> result = validate(inputWithTalks(talkOfType("T1", "  ", "s1")));
 
-        singleIssue(result, "NON_EXISTING_TALK_TYPE_REFERENCE");
+        // A blank talk type name fails both the @NotBlank constraint and the talk-type-exists check.
+        assertThat(codesOf(result)).containsExactlyInAnyOrder("OPEN_API_SPEC_ISSUE", "NON_EXISTING_TALK_TYPE_REFERENCE");
     }
 
     @Test
