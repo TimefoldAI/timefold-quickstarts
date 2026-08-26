@@ -2,7 +2,6 @@ package org.acme.conferencescheduling.service;
 
 import static java.util.stream.Collectors.toCollection;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -50,7 +49,7 @@ public class ConferenceScheduleModelConvertor
                     if (solved == null) {
                         return talk;
                     }
-                    return talk.withTimeslotId(solved.timeslotId()).withRoomId(solved.roomId());
+                    return talk.withAssignment(solved.roomId(), solved.timeslotId());
                 })
                 .collect(Collectors.toList());
         return modelInput.withTalks(updatedTalks);
@@ -144,14 +143,14 @@ public class ConferenceScheduleModelConvertor
         return new Speaker(dto.id(),
                 dto.name(),
                 timeslotsByIds(dto.unavailableTimeslotIds(), timeslotMap),
-                new LinkedHashSet<>(dto.requiredTimeslotTags()),
-                new LinkedHashSet<>(dto.preferredTimeslotTags()),
-                new LinkedHashSet<>(dto.prohibitedTimeslotTags()),
-                new LinkedHashSet<>(dto.undesiredTimeslotTags()),
-                new LinkedHashSet<>(dto.requiredRoomTags()),
-                new LinkedHashSet<>(dto.preferredRoomTags()),
-                new LinkedHashSet<>(dto.prohibitedRoomTags()),
-                new LinkedHashSet<>(dto.undesiredRoomTags()));
+                new LinkedHashSet<>(dto.timeslotTags().required()),
+                new LinkedHashSet<>(dto.timeslotTags().preferred()),
+                new LinkedHashSet<>(dto.timeslotTags().prohibited()),
+                new LinkedHashSet<>(dto.timeslotTags().undesired()),
+                new LinkedHashSet<>(dto.roomTags().required()),
+                new LinkedHashSet<>(dto.roomTags().preferred()),
+                new LinkedHashSet<>(dto.roomTags().prohibited()),
+                new LinkedHashSet<>(dto.roomTags().undesired()));
     }
 
     private static Talk toTalk(TalkDTO dto, Map<String, TalkType> talkTypeMap, Map<String, Speaker> speakerMap,
@@ -170,14 +169,14 @@ public class ConferenceScheduleModelConvertor
                 dto.audienceLevel(),
                 new LinkedHashSet<>(dto.contentTags()),
                 dto.language(),
-                new LinkedHashSet<>(dto.requiredTimeslotTags()),
-                new LinkedHashSet<>(dto.preferredTimeslotTags()),
-                new LinkedHashSet<>(dto.prohibitedTimeslotTags()),
-                new LinkedHashSet<>(dto.undesiredTimeslotTags()),
-                new LinkedHashSet<>(dto.requiredRoomTags()),
-                new LinkedHashSet<>(dto.preferredRoomTags()),
-                new LinkedHashSet<>(dto.prohibitedRoomTags()),
-                new LinkedHashSet<>(dto.undesiredRoomTags()),
+                new LinkedHashSet<>(dto.timeslotTags().required()),
+                new LinkedHashSet<>(dto.timeslotTags().preferred()),
+                new LinkedHashSet<>(dto.timeslotTags().prohibited()),
+                new LinkedHashSet<>(dto.timeslotTags().undesired()),
+                new LinkedHashSet<>(dto.roomTags().required()),
+                new LinkedHashSet<>(dto.roomTags().preferred()),
+                new LinkedHashSet<>(dto.roomTags().prohibited()),
+                new LinkedHashSet<>(dto.roomTags().undesired()),
                 new LinkedHashSet<>(dto.mutuallyExclusiveTalksTags()),
                 new LinkedHashSet<>(),
                 dto.favoriteCount(),

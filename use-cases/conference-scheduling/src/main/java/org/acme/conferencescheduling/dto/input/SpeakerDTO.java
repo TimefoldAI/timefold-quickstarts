@@ -2,6 +2,7 @@ package org.acme.conferencescheduling.dto.input;
 
 import java.util.List;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -15,20 +16,6 @@ public record SpeakerDTO(
         @Schema(description = "Display name of the speaker.") @NotBlank String name,
         @Schema(description = "IDs of the timeslots during which this speaker is unavailable.") @JsonSetter(
                 nulls = Nulls.AS_EMPTY) List<String> unavailableTimeslotIds,
-        @Schema(description = "Timeslot tags required by this speaker.") @JsonSetter(
-                nulls = Nulls.AS_EMPTY) List<String> requiredTimeslotTags,
-        @Schema(description = "Timeslot tags preferred by this speaker.") @JsonSetter(
-                nulls = Nulls.AS_EMPTY) List<String> preferredTimeslotTags,
-        @Schema(description = "Timeslot tags prohibited by this speaker.") @JsonSetter(
-                nulls = Nulls.AS_EMPTY) List<String> prohibitedTimeslotTags,
-        @Schema(description = "Timeslot tags undesired by this speaker.") @JsonSetter(
-                nulls = Nulls.AS_EMPTY) List<String> undesiredTimeslotTags,
-        @Schema(description = "Room tags required by this speaker.") @JsonSetter(
-                nulls = Nulls.AS_EMPTY) List<String> requiredRoomTags,
-        @Schema(description = "Room tags preferred by this speaker.") @JsonSetter(
-                nulls = Nulls.AS_EMPTY) List<String> preferredRoomTags,
-        @Schema(description = "Room tags prohibited by this speaker.") @JsonSetter(
-                nulls = Nulls.AS_EMPTY) List<String> prohibitedRoomTags,
-        @Schema(description = "Room tags undesired by this speaker.") @JsonSetter(
-                nulls = Nulls.AS_EMPTY) List<String> undesiredRoomTags) {
+        @Schema(description = "Timeslot tag preferences of this speaker.") @Valid TagPreferencesDTO timeslotTags,
+        @Schema(description = "Room tag preferences of this speaker.") @Valid TagPreferencesDTO roomTags) {
 }

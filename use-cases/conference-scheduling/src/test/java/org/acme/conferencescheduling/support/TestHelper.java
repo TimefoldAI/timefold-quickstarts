@@ -4,6 +4,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.SequencedSet;
@@ -18,6 +19,7 @@ import org.acme.conferencescheduling.domain.Timeslot;
 import org.acme.conferencescheduling.dto.input.ConferenceScheduleInput;
 import org.acme.conferencescheduling.dto.input.RoomDTO;
 import org.acme.conferencescheduling.dto.input.SpeakerDTO;
+import org.acme.conferencescheduling.dto.input.TagPreferencesDTO;
 import org.acme.conferencescheduling.dto.input.TalkDTO;
 import org.acme.conferencescheduling.dto.input.TalkTypeDTO;
 import org.acme.conferencescheduling.dto.input.TimeslotDTO;
@@ -28,6 +30,8 @@ public final class TestHelper {
     public static final String CONFERENCE_NAME = "Test conference";
     public static final String BREAKOUT = "Breakout";
     public static final String LAB = "Lab";
+
+    private static final TagPreferencesDTO EMPTY_TAGS = new TagPreferencesDTO(List.of(), List.of(), List.of(), List.of());
 
     public static final List<TalkTypeDTO> TALK_TYPES = List.of(new TalkTypeDTO(BREAKOUT), new TalkTypeDTO(LAB));
 
@@ -44,6 +48,11 @@ public final class TestHelper {
             speaker("s1", "Amy"),
             speaker("s2", "Bob"),
             speaker("s3", "Cara"));
+
+    public static final List<TalkDTO> TALKS = List.of(
+            talk("S01", "s1"),
+            talk("S02", "s2"),
+            talk("S03", "s3"));
 
     private TestHelper() {
     }
@@ -72,8 +81,7 @@ public final class TestHelper {
      * @return a complete, feasible problem with every talk still unassigned
      */
     public static ConferenceScheduleInput createProblem() {
-        return input(TALK_TYPES, TIMESLOTS, ROOMS, SPEAKERS,
-                List.of(talk("S01", "s1"), talk("S02", "s2"), talk("S03", "s3")));
+        return input(TALK_TYPES, TIMESLOTS, ROOMS, SPEAKERS, TALKS);
     }
 
     public static ConferenceScheduleInput input(List<TalkTypeDTO> talkTypes, List<TimeslotDTO> timeslots,
@@ -82,15 +90,16 @@ public final class TestHelper {
     }
 
     public static ConferenceScheduleInput inputWithTimeslots(TimeslotDTO... timeslots) {
-        return input(TALK_TYPES, List.of(timeslots), ROOMS, SPEAKERS, List.of());
+        return input(TALK_TYPES, List.of(timeslots), ROOMS, SPEAKERS, TALKS);
     }
 
     public static ConferenceScheduleInput inputWithRooms(RoomDTO... rooms) {
-        return input(TALK_TYPES, TIMESLOTS, List.of(rooms), SPEAKERS, List.of());
+        return input(TALK_TYPES, TIMESLOTS, List.of(rooms), SPEAKERS, TALKS);
     }
 
     public static ConferenceScheduleInput inputWithSpeakers(SpeakerDTO... speakers) {
-        return input(TALK_TYPES, TIMESLOTS, ROOMS, List.of(speakers), List.of());
+        return input(TALK_TYPES, TIMESLOTS, ROOMS, List.of(speakers),
+                List.of(talk("TEST", Arrays.stream(speakers).toList().get(0).id())));
     }
 
     public static ConferenceScheduleInput inputWithTalks(TalkDTO... talks) {
@@ -102,7 +111,7 @@ public final class TestHelper {
     }
 
     public static TimeslotDTO timeslot(String id, String start, String end) {
-        return new TimeslotDTO(id, start, end, List.of(BREAKOUT), List.of());
+        return new TimeslotDTO(id, LocalDateTime.parse(start), LocalDateTime.parse(end), List.of(BREAKOUT), List.of());
     }
 
     public static RoomDTO room(String id) {
@@ -118,20 +127,31 @@ public final class TestHelper {
     }
 
     public static SpeakerDTO speaker(String id, String name) {
-        return new SpeakerDTO(id, name, List.of(), List.of(), List.of(), List.of(), List.of(), List.of(), List.of(),
-                List.of(), List.of());
+        return new SpeakerDTO(id, name, List.of(), EMPTY_TAGS, EMPTY_TAGS);
+    }
+
+    private static TalkDTO talk(String code, String talkType, List<String> speakerIds, int audienceLevel,
+            String language, int favoriteCount, int crowdControlRisk, String timeslotId, String roomId) {
+        return new TalkDTO(code, "Title " + code, talkType, speakerIds, List.of(), List.of(), List.of(), List.of(),
+                audienceLevel, language, EMPTY_TAGS, EMPTY_TAGS, List.of(), List.of(), favoriteCount, crowdControlRisk,
+                timeslotId, roomId);
     }
 
     public static TalkDTO talk(String code, String... speakerIds) {
-        return new TalkDTO(code, "Title " + code, BREAKOUT, List.of(speakerIds), List.of(), List.of(), List.of(), 1,
-                List.of(), "en", List.of(), List.of(), List.of(), List.of(), List.of(), List.of(), List.of(),
-                List.of(), List.of(), List.of(), 1, 0, null, null);
+        return talk(code, BREAKOUT, List.of(speakerIds), 1, "en", 1, 0, null, null);
     }
 
     public static TalkDTO talkOfType(String code, String talkType, String... speakerIds) {
-        return new TalkDTO(code, "Title " + code, talkType, List.of(speakerIds), List.of(), List.of(), List.of(), 0,
-                List.of(), null, List.of(), List.of(), List.of(), List.of(), List.of(), List.of(), List.of(),
-                List.of(), List.of(), List.of(), 0, 0, null, null);
+        return talk(code, talkType, List.of(speakerIds), 0, null, 0, 0, null, null);
+    }
+
+    public static TalkDTO assignedTalk(String code, String timeslotId, String roomId, String... speakerIds) {
+        return talk(code, BREAKOUT, List.of(speakerIds), 1, "en", 1, 0, timeslotId, roomId);
+    }
+
+    public static TalkDTO assignedTalkOfType(String code, String talkType, String timeslotId, String roomId,
+            String... speakerIds) {
+        return talk(code, talkType, List.of(speakerIds), 0, null, 0, 0, timeslotId, roomId);
     }
 
     /**

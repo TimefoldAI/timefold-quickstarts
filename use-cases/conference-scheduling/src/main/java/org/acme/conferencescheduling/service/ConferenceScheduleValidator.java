@@ -40,10 +40,18 @@ public class ConferenceScheduleValidator
     @Override
     public void validate(ValidationBuilder validationBuilder, ConferenceScheduleInput modelInput,
             ModelConfig<ConferenceScheduleConfigOverrides> modelConfig) {
-        // This Bean Validation API call will be moved to the Service module.
+        // Phase 1: OpenAPI spec compliance (Bean Validation). This call will be moved to the Service module.
         for (ConstraintViolation<ConferenceScheduleInput> violation : validator.validate(modelInput)) {
             validationBuilder.addIssue(new OpenApiSpecIssue(violation.getPropertyPath() + ": " + violation.getMessage()));
         }
+        if (!validationBuilder.isValid()) {
+            // Phase 2 assumes its input already satisfies the OpenAPI contract (non-blank ids, non-empty
+            // required lists, ...); running it against a structurally invalid input would just pile on
+            // confusing, derivative issues.
+            return;
+        }
+
+        // Phase 2: domain-specific checks (duplicate and dangling references).
         Set<String> talkTypeNames = collectTalkTypeNames(orEmpty(modelInput.talkTypes()));
         Set<String> timeslotIds = validateTimeslots(validationBuilder, orEmpty(modelInput.timeslots()));
         Set<String> roomIds = validateRooms(validationBuilder, orEmpty(modelInput.rooms()));

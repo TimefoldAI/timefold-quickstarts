@@ -4,6 +4,8 @@ import static org.acme.conferencescheduling.support.TestHelper.LAB;
 import static org.acme.conferencescheduling.support.TestHelper.SPEAKERS;
 import static org.acme.conferencescheduling.support.TestHelper.TALK_TYPES;
 import static org.acme.conferencescheduling.support.TestHelper.TIMESLOTS;
+import static org.acme.conferencescheduling.support.TestHelper.assignedTalk;
+import static org.acme.conferencescheduling.support.TestHelper.assignedTalkOfType;
 import static org.acme.conferencescheduling.support.TestHelper.createProblem;
 import static org.acme.conferencescheduling.support.TestHelper.input;
 import static org.acme.conferencescheduling.support.TestHelper.inputWithRooms;
@@ -19,7 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -59,14 +60,6 @@ class ConferenceScheduleValidatorTest {
 
         assertThat(result.issues()).isEmpty();
         assertThat(result.status()).isEqualTo(ValidationStatus.OK);
-        assertThat(result.isValid()).isTrue();
-    }
-
-    @Test
-    void emptyInputHasNoIssues() {
-        ValidationResult<Issue> result = validate(input(List.of(), List.of(), List.of(), List.of(), List.of()));
-
-        assertThat(result.issues()).isEmpty();
         assertThat(result.isValid()).isTrue();
     }
 
@@ -176,7 +169,7 @@ class ConferenceScheduleValidatorTest {
 
     @Test
     void talkReferencingNonExistingTimeslotIsReported() {
-        ValidationResult<Issue> result = validate(inputWithTalks(talk("T1", "s1").withTimeslotId("does-not-exist")));
+        ValidationResult<Issue> result = validate(inputWithTalks(assignedTalk("T1", "does-not-exist", null, "s1")));
 
         NonExistingTimeslotReferenceIssue issue = singleIssue(result, NonExistingTimeslotReferenceIssue.class);
         assertThat(issue.getTalkId()).isEqualTo("T1");
@@ -184,7 +177,7 @@ class ConferenceScheduleValidatorTest {
 
     @Test
     void talkReferencingNonExistingRoomIsReported() {
-        ValidationResult<Issue> result = validate(inputWithTalks(talk("T1", "s1").withRoomId("does-not-exist")));
+        ValidationResult<Issue> result = validate(inputWithTalks(assignedTalk("T1", null, "does-not-exist", "s1")));
 
         NonExistingRoomReferenceIssue issue = singleIssue(result, NonExistingRoomReferenceIssue.class);
         assertThat(issue.getTalkId()).isEqualTo("T1");
@@ -192,14 +185,14 @@ class ConferenceScheduleValidatorTest {
 
     @Test
     void talkReferencingExistingTimeslotAndRoomIsAccepted() {
-        ValidationResult<Issue> result = validate(inputWithTalks(talk("T1", "s1").withTimeslotId("ts1").withRoomId("r1")));
+        ValidationResult<Issue> result = validate(inputWithTalks(assignedTalk("T1", "ts1", "r1", "s1")));
 
         assertThat(result.issues()).isEmpty();
     }
 
     @Test
     void unassignedTalkIsAccepted() {
-        ValidationResult<Issue> result = validate(inputWithTalks(talk("T1", "s1").withTimeslotId(null).withRoomId(null)));
+        ValidationResult<Issue> result = validate(inputWithTalks(talk("T1", "s1")));
 
         assertThat(result.issues()).isEmpty();
     }
@@ -242,16 +235,18 @@ class ConferenceScheduleValidatorTest {
     void talkWithNullTalkTypeIsReported() {
         ValidationResult<Issue> result = validate(inputWithTalks(talkOfType("T1", null, "s1")));
 
-        // A null talk type name fails both the @NotBlank constraint and the talk-type-exists check.
-        assertThat(codesOf(result)).containsExactlyInAnyOrder("OPEN_API_SPEC_ISSUE", "NON_EXISTING_TALK_TYPE_REFERENCE");
+        // A null talk type name fails the @NotBlank constraint, which stops phase 2: the
+        // talk-type-exists check never runs.
+        singleIssue(result, OpenApiSpecIssue.class);
     }
 
     @Test
     void talkWithBlankTalkTypeIsReported() {
         ValidationResult<Issue> result = validate(inputWithTalks(talkOfType("T1", "  ", "s1")));
 
-        // A blank talk type name fails both the @NotBlank constraint and the talk-type-exists check.
-        assertThat(codesOf(result)).containsExactlyInAnyOrder("OPEN_API_SPEC_ISSUE", "NON_EXISTING_TALK_TYPE_REFERENCE");
+        // A blank talk type name fails the @NotBlank constraint, which stops phase 2: the
+        // talk-type-exists check never runs.
+        singleIssue(result, OpenApiSpecIssue.class);
     }
 
     @Test
@@ -267,19 +262,18 @@ class ConferenceScheduleValidatorTest {
 
     @Test
     void issuesOfDifferentKindsAreAllReported() {
+        // No OpenAPI issue here, so phase 2 runs in full and every kind of domain issue can accumulate.
         ConferenceScheduleInput input = input(TALK_TYPES,
                 List.of(timeslot("ts1"), timeslot("ts1")),
-                List.of(room(null)),
+                List.of(room("r1"), room("r1")),
                 List.of(speaker("s1"), speaker("s1")),
-                List.of(talkOfType("T1", "Keynote", "unknown-speaker")
-                        .withTimeslotId("unknown-timeslot")
-                        .withRoomId("unknown-room")));
+                List.of(assignedTalkOfType("T1", "Keynote", "unknown-timeslot", "unknown-room", "unknown-speaker")));
 
         ValidationResult<Issue> result = validate(input);
 
         assertThat(codesOf(result)).containsExactlyInAnyOrder(
                 "DUPLICATE_TIMESLOT_ID",
-                "OPEN_API_SPEC_ISSUE",
+                "DUPLICATE_ROOM_ID",
                 "DUPLICATE_SPEAKER_ID",
                 "NON_EXISTING_TIMESLOT_REFERENCE",
                 "NON_EXISTING_ROOM_REFERENCE",
@@ -290,35 +284,29 @@ class ConferenceScheduleValidatorTest {
     }
 
     @Test
-    void talkWithoutCodeStillReportsItsOtherIssuesButWithoutATalkDetail() {
-        ConferenceScheduleInput input = inputWithTalks(talkOfType(null, "Keynote", "unknown-speaker")
-                .withTimeslotId("unknown-timeslot")
-                .withRoomId("unknown-room"));
+    void talkWithoutCodeIsReportedButPhaseTwoIsSkipped() {
+        ConferenceScheduleInput input = inputWithTalks(
+                assignedTalkOfType(null, "Keynote", "unknown-timeslot", "unknown-room", "unknown-speaker"));
 
         ValidationResult<Issue> result = validate(input);
 
-        assertThat(codesOf(result)).containsExactlyInAnyOrder(
-                "OPEN_API_SPEC_ISSUE",
-                "NON_EXISTING_TIMESLOT_REFERENCE",
-                "NON_EXISTING_ROOM_REFERENCE",
-                "NON_EXISTING_TALK_TYPE_REFERENCE",
-                "NON_EXISTING_SPEAKER_REFERENCE");
-        assertThat(talkIdsOf(result)).isEmpty();
+        // A missing code fails the OpenAPI check, which stops phase 2: none of this talk's other
+        // problems (unknown type, timeslot, room or speaker) get validated.
+        singleIssue(result, OpenApiSpecIssue.class);
     }
 
     @Test
-    void talkWithBlankCodeStillReportsItsOtherIssuesButWithoutATalkDetail() {
+    void talkWithBlankCodeIsReportedButPhaseTwoIsSkipped() {
         ValidationResult<Issue> result = validate(inputWithTalks(talk("  ", "unknown-speaker")));
 
-        assertThat(codesOf(result)).containsExactlyInAnyOrder("OPEN_API_SPEC_ISSUE", "NON_EXISTING_SPEAKER_REFERENCE");
-        assertThat(talkIdsOf(result)).isEmpty();
+        singleIssue(result, OpenApiSpecIssue.class);
     }
 
     @Test
     void talkIssuesAreReportedAgainstTheRoomsAndTimeslotsThatSurvivedValidation() {
         // A room with a duplicate ID is still a known room, so referencing it is not a dangling reference.
         ConferenceScheduleInput input = input(TALK_TYPES, TIMESLOTS, List.of(room("r1"), room("r1")), SPEAKERS,
-                List.of(talk("T1", "s1").withRoomId("r1")));
+                List.of(assignedTalk("T1", null, "r1", "s1")));
 
         ValidationResult<Issue> result = validate(input);
 
@@ -357,23 +345,5 @@ class ConferenceScheduleValidatorTest {
 
     private static List<String> codesOf(ValidationResult<Issue> result) {
         return result.issues().stream().map(issue -> issue.getCode().value()).toList();
-    }
-
-    private static List<String> talkIdsOf(ValidationResult<Issue> result) {
-        return result.issues().stream()
-                .map(ConferenceScheduleValidatorTest::talkIdOf)
-                .filter(Objects::nonNull)
-                .toList();
-    }
-
-    private static String talkIdOf(Issue issue) {
-        return switch (issue) {
-            case DuplicateTalkIdIssue talkIssue -> talkIssue.getTalkId();
-            case NonExistingTimeslotReferenceIssue talkIssue -> talkIssue.getTalkId();
-            case NonExistingRoomReferenceIssue talkIssue -> talkIssue.getTalkId();
-            case NonExistingSpeakerReferenceIssue talkIssue -> talkIssue.getTalkId();
-            case NonExistingTalkTypeReferenceIssue talkIssue -> talkIssue.getTalkId();
-            default -> null;
-        };
     }
 }

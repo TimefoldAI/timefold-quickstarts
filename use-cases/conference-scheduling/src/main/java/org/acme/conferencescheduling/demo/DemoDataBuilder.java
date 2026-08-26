@@ -9,6 +9,7 @@ import java.util.List;
 import org.acme.conferencescheduling.dto.input.ConferenceScheduleInput;
 import org.acme.conferencescheduling.dto.input.RoomDTO;
 import org.acme.conferencescheduling.dto.input.SpeakerDTO;
+import org.acme.conferencescheduling.dto.input.TagPreferencesDTO;
 import org.acme.conferencescheduling.dto.input.TalkDTO;
 import org.acme.conferencescheduling.dto.input.TalkTypeDTO;
 import org.acme.conferencescheduling.dto.input.TimeslotDTO;
@@ -40,8 +41,8 @@ public final class DemoDataBuilder {
                 buildTalks());
     }
 
-    private static String dateTime(int hour, int minute) {
-        return LocalDateTime.of(CONFERENCE_DATE, LocalTime.of(hour, minute)).toString();
+    private static LocalDateTime dateTime(int hour, int minute) {
+        return LocalDateTime.of(CONFERENCE_DATE, LocalTime.of(hour, minute));
     }
 
     private static List<TimeslotDTO> buildTimeslots() {
@@ -70,8 +71,9 @@ public final class DemoDataBuilder {
     }
 
     private static SpeakerDTO speaker(String id, String name, List<String> undesiredTimeslotTags) {
-        return new SpeakerDTO(id, name, List.of(), List.of(), List.of(), List.of(), undesiredTimeslotTags,
-                List.of(), List.of(), List.of(), List.of());
+        return new SpeakerDTO(id, name, List.of(),
+                new TagPreferencesDTO(List.of(), List.of(), List.of(), undesiredTimeslotTags),
+                new TagPreferencesDTO(List.of(), List.of(), List.of(), List.of()));
     }
 
     private static List<SpeakerDTO> buildSpeakers() {
@@ -103,12 +105,13 @@ public final class DemoDataBuilder {
         return new TalkDTO(code, title, talkType, speakerIds,
                 List.of(THEME_TAGS.get(index % THEME_TAGS.size())),
                 List.of(SECTOR_TAGS.get(index % SECTOR_TAGS.size())),
+                List.of(CONTENT_TAGS.get(index % CONTENT_TAGS.size())),
                 List.of(AUDIENCE_TAGS.get(index % AUDIENCE_TAGS.size())),
                 audienceLevel,
-                List.of(CONTENT_TAGS.get(index % CONTENT_TAGS.size())),
-                "en", List.of(), List.of(), List.of(), List.of(), requiredRoomTags, List.of(), List.of(),
-                undesiredRoomTags, mutuallyExclusiveTalksTags, prerequisiteTalkCodes, favoriteCount, crowdControlRisk,
-                null, null);
+                "en",
+                new TagPreferencesDTO(List.of(), List.of(), List.of(), List.of()),
+                new TagPreferencesDTO(requiredRoomTags, List.of(), List.of(), undesiredRoomTags),
+                mutuallyExclusiveTalksTags, prerequisiteTalkCodes, favoriteCount, crowdControlRisk, null, null);
     }
 
     private static List<TalkDTO> buildTalks() {

@@ -1,6 +1,7 @@
 package org.acme.conferencescheduling.dto.input;
 
 import jakarta.validation.constraints.NotBlank;
+
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Schema(description = "A type of talk, e.g. Breakout or Lab, restricting compatible timeslots and rooms.")
