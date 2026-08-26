@@ -1,7 +1,5 @@
 package org.acme.conferencescheduling.dto;
 
-import static org.acme.conferencescheduling.support.ObjectHelper.immutableCopy;
-
 import java.util.List;
 
 import ai.timefold.solver.service.definition.api.ModelInput;
@@ -20,14 +18,6 @@ public record ConferenceScheduleInput(
                 required = true) List<TalkDTO> talks)
         implements
             ModelInput {
-
-    public ConferenceScheduleInput {
-        talkTypes = immutableCopy(talkTypes);
-        timeslots = immutableCopy(timeslots);
-        rooms = immutableCopy(rooms);
-        speakers = immutableCopy(speakers);
-        talks = immutableCopy(talks);
-    }
 
     public ConferenceScheduleInput withTalks(List<TalkDTO> talks) {
         return new ConferenceScheduleInput(name, talkTypes, timeslots, rooms, speakers, talks);

@@ -65,37 +65,4 @@ public record ConferenceScheduleConfigOverrides(
         this(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
                 null, null);
     }
-
-    public ConferenceScheduleConfigOverrides {
-        themeTrackConflictWeight = nonNegative(themeTrackConflictWeight);
-        themeTrackRoomStabilityWeight = nonNegative(themeTrackRoomStabilityWeight);
-        sectorConflictWeight = nonNegative(sectorConflictWeight);
-        audienceTypeDiversityWeight = nonNegative(audienceTypeDiversityWeight);
-        audienceTypeThemeTrackConflictWeight = nonNegative(audienceTypeThemeTrackConflictWeight);
-        audienceLevelDiversityWeight = nonNegative(audienceLevelDiversityWeight);
-        contentAudienceLevelFlowViolationWeight = nonNegative(contentAudienceLevelFlowViolationWeight);
-        contentConflictWeight = nonNegative(contentConflictWeight);
-        languageDiversityWeight = nonNegative(languageDiversityWeight);
-        sameDayTalksWeight = nonNegative(sameDayTalksWeight);
-        popularTalksWeight = nonNegative(popularTalksWeight);
-        speakerPreferredTimeslotTagsWeight = nonNegative(speakerPreferredTimeslotTagsWeight);
-        speakerUndesiredTimeslotTagsWeight = nonNegative(speakerUndesiredTimeslotTagsWeight);
-        talkPreferredTimeslotTagsWeight = nonNegative(talkPreferredTimeslotTagsWeight);
-        talkUndesiredTimeslotTagsWeight = nonNegative(talkUndesiredTimeslotTagsWeight);
-        speakerPreferredRoomTagsWeight = nonNegative(speakerPreferredRoomTagsWeight);
-        speakerUndesiredRoomTagsWeight = nonNegative(speakerUndesiredRoomTagsWeight);
-        talkPreferredRoomTagsWeight = nonNegative(talkPreferredRoomTagsWeight);
-        talkUndesiredRoomTagsWeight = nonNegative(talkUndesiredRoomTagsWeight);
-        speakerMakespanWeight = nonNegative(speakerMakespanWeight);
-    }
-
-    /**
-     * Clamps a negative weight to 0 (disabled) and keeps null as "not overridden".
-     */
-    private static Long nonNegative(Long weight) {
-        if (weight == null) {
-            return null;
-        }
-        return Math.max(weight, 0L);
-    }
 }

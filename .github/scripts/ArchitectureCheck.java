@@ -144,14 +144,15 @@ public final class ArchitectureCheck {
                 dtoRecordsMustNotCreateMutableArrayLists(),
                 testUtilityClassesMustResideInSupportPackage(),
                 everyModuleMustHaveATestHelperInSupportPackage(),
-                testClassesMustBuildDomainObjectsViaTestHelper(),
+                testClassesMustBuildDomainAndDtoObjectsViaTestHelper(),
                 everyModuleMustHaveASingleJustificationFile(),
                 dtoTypesMustEndWithDto(),
                 withMethodsMustBeUsed(),
                 onlyDtoPackageMayUseSchemaAnnotation(),
                 classesMustResideInValidSubpackages(),
                 onlyInterfacesAndRecordsInDtoPackage(),
-                nestedDtoClassesMustBeBuilders());
+                dtoPackageMustNotDeclareNestedClasses(),
+                dtoRecordsMustDeclareOnlyTheCanonicalConstructor());
     }
 
     private static ArchRule layerRule(String from, String to,
@@ -235,10 +236,10 @@ public final class ArchitectureCheck {
                 .as("Every module must provide a TestHelper class in a support package to build valid domain objects for tests");
     }
 
-    private static ArchRule testClassesMustBuildDomainObjectsViaTestHelper() {
+    private static ArchRule testClassesMustBuildDomainAndDtoObjectsViaTestHelper() {
         return classes()
                 .should(new DomainConstructionOutsideSupportCondition())
-                .as("Test classes must build domain objects via the support package's TestHelper instead of calling domain constructors directly");
+                .as("Test classes must build domain and DTO objects via the support package's TestHelper instead of calling their constructors directly");
     }
 
     private static ArchRule everyModuleMustHaveASingleJustificationFile() {
@@ -293,13 +294,23 @@ public final class ArchitectureCheck {
                 .as("The DTO package may only contain interfaces, records and enums");
     }
 
-    private static ArchRule nestedDtoClassesMustBeBuilders() {
+    private static ArchRule dtoPackageMustNotDeclareNestedClasses() {
         return classes()
                 .that().resideInAPackage("..dto..")
-                .and().areNotTopLevelClasses()
-                .should().haveSimpleName("Builder")
-                .allowEmptyShould(true)
-                .as("The only nested classes allowed in the DTO package are builders");
+                .should().notBeNestedClasses()
+                .as("DTO types must be simple: no nested classes (e.g. no builder pattern) in the DTO package");
+    }
+
+    // While we could technically use the records compact constructor to normalize input, that could hide some issues from the Validator layer of the models.
+    // As the "Metric" classes are not deserialized (only serialized), we do allow a canonical constructor there for input validation.
+    private static ArchRule dtoRecordsMustDeclareOnlyTheCanonicalConstructor() {
+        return classes()
+                .that().areRecords()
+                .and().resideInAPackage(basePackage + ".dto..")
+                .and().haveSimpleNameNotEndingWith("Metrics")
+                .should(new DtoRecordConstructorCondition())
+                .as("DTO records must rely on the implicit canonical constructor; no compact, additional or explicit constructors "
+                        + "(Input/OutputMetrics types may still use a compact constructor for validation)");
     }
 
     private static ArchCondition<JavaClass> notHaveFilesMatching(String... syntaxAndPatterns) {
@@ -402,6 +413,45 @@ public final class ArchitectureCheck {
             if (NULL_TO_EMPTY_STRING_PATTERN.matcher(source).find()) {
                 events.add(SimpleConditionEvent.violated(javaClass,
                         "%s converts null strings to empty strings in %s".formatted(javaClass.getName(), sourceFile.get())));
+            }
+        }
+    }
+
+    private static final class DtoRecordConstructorCondition extends ArchCondition<JavaClass> {
+
+        // The Service Module reflectively instantiates ModelConfigOverrides implementations with a
+        // no-argument constructor at build time to generate the default config profile.
+        private static final String MODEL_CONFIG_OVERRIDES = "ai.timefold.solver.service.definition.api.ModelConfigOverrides";
+
+        private DtoRecordConstructorCondition() {
+            super("declare no explicit constructor");
+        }
+
+        @Override
+        public void check(JavaClass javaClass, ConditionEvents events) {
+            var constructors = javaClass.getConstructors();
+            var hasZeroArgumentConstructor = constructors.stream().anyMatch(c -> c.getParameters().isEmpty());
+            if (constructors.size() == 2 && hasZeroArgumentConstructor
+                    && assignableTo(MODEL_CONFIG_OVERRIDES).test(javaClass)) {
+                return; // the framework-required default-config-profile constructor
+            }
+            if (constructors.size() > 1) {
+                events.add(SimpleConditionEvent.violated(javaClass,
+                        "%s declares %d constructors; DTO records must rely on the implicit canonical constructor and use Bean Validation annotations instead"
+                                .formatted(javaClass.getName(), constructors.size())));
+                return;
+            }
+            var sourceFile = resolveSourceFile(javaClass);
+            if (sourceFile.isEmpty()) {
+                return;
+            }
+            var source = String.join("\n", readLines(sourceFile.get()));
+            var explicitConstructorPattern = Pattern.compile("\\b(?:public|protected|private)\\s+"
+                    + Pattern.quote(javaClass.getSimpleName()) + "\\s*(?:\\([^)]*\\))?\\s*\\{");
+            if (explicitConstructorPattern.matcher(source).find()) {
+                events.add(SimpleConditionEvent.violated(javaClass,
+                        "%s declares an explicit (compact or canonical) constructor in %s; DTO records must rely on the implicit canonical constructor and use Bean Validation annotations instead"
+                                .formatted(javaClass.getName(), sourceFile.get())));
             }
         }
     }
@@ -528,21 +578,22 @@ public final class ArchitectureCheck {
     private static final class DomainConstructionOutsideSupportCondition extends ArchCondition<JavaClass> {
 
         private DomainConstructionOutsideSupportCondition() {
-            super("build domain objects via the support package's TestHelper");
+            super("build domain and DTO objects via the support package's TestHelper");
         }
 
         @Override
         public void check(JavaClass javaClass, ConditionEvents events) {
             var sourceFile = resolveSourceFile(javaClass);
             if (sourceFile.isEmpty() || !sourceFile.get().startsWith(moduleRoot.resolve("src/test/java"))) {
-                return; // only test sources are constrained; production code may construct domain objects freely
+                return; // only test sources are constrained; production code may construct domain/dto objects freely
             }
             if (javaClass.getPackageName().contains(".support")) {
-                return; // support package helpers are allowed to construct domain objects
+                return; // support package helpers are allowed to construct domain and dto objects
             }
+            var domainOrDto = resideInAPackage(basePackage + ".domain..").or(resideInAPackage(basePackage + ".dto.."));
             for (JavaConstructorCall call : javaClass.getConstructorCallsFromSelf()) {
                 var targetOwner = call.getTargetOwner();
-                if (resideInAPackage(basePackage + ".domain..").test(targetOwner)) {
+                if (domainOrDto.test(targetOwner)) {
                     events.add(SimpleConditionEvent.violated(javaClass,
                             "%s constructs %s directly in %s; build it via the support package's TestHelper instead"
                                     .formatted(javaClass.getName(), targetOwner.getName(), sourceFile.get())));

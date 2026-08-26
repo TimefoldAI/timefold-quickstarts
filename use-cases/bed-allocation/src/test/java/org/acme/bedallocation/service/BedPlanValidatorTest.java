@@ -4,6 +4,7 @@ import static org.acme.bedallocation.support.TestHelper.aBedDTO;
 import static org.acme.bedallocation.support.TestHelper.aDepartmentDTO;
 import static org.acme.bedallocation.support.TestHelper.aRoomDTO;
 import static org.acme.bedallocation.support.TestHelper.aStayDTO;
+import static org.acme.bedallocation.support.TestHelper.input;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collection;
@@ -55,7 +56,7 @@ class BedPlanValidatorTest {
                 aStayDTO("s2").build(),
                 aStayDTO("s3").build(),
                 aStayDTO("s4").build());
-        BedPlanInput input = new BedPlanInput(List.of(DEPARTMENT), stays);
+        BedPlanInput input = input(List.of(DEPARTMENT), stays);
 
         ValidationResult<Issue> result = validate(input);
         assertThat(result.issues()).isEmpty();
@@ -64,13 +65,13 @@ class BedPlanValidatorTest {
     @Test
     void missingDepartmentId() {
         DepartmentInputDTO department = aDepartmentDTO(null).rooms(ROOMS).build();
-        BedPlanInput input = new BedPlanInput(List.of(department), VALID_STAYS);
+        BedPlanInput input = input(List.of(department), VALID_STAYS);
         assertSingleIssue(validate(input), OpenApiSpecIssue.class);
     }
 
     @Test
     void duplicateDepartmentId() {
-        BedPlanInput input = new BedPlanInput(List.of(DEPARTMENT, DEPARTMENT), VALID_STAYS);
+        BedPlanInput input = input(List.of(DEPARTMENT, DEPARTMENT), VALID_STAYS);
         assertSingleIssue(validate(input), DuplicateDepartmentIdIssue.class);
     }
 
@@ -78,7 +79,7 @@ class BedPlanValidatorTest {
     void missingRoomId() {
         RoomInputDTO room = aRoomDTO(null).build();
         DepartmentInputDTO department = aDepartmentDTO("d1").rooms(List.of(room)).build();
-        BedPlanInput input = new BedPlanInput(List.of(department), VALID_STAYS);
+        BedPlanInput input = input(List.of(department), VALID_STAYS);
         assertSingleIssue(validate(input), OpenApiSpecIssue.class);
     }
 
@@ -86,7 +87,7 @@ class BedPlanValidatorTest {
     void duplicateRoomId() {
         RoomInputDTO room = aRoomDTO("r1").build();
         DepartmentInputDTO department = aDepartmentDTO("d1").rooms(List.of(room, room)).build();
-        BedPlanInput input = new BedPlanInput(List.of(department), VALID_STAYS);
+        BedPlanInput input = input(List.of(department), VALID_STAYS);
         assertSingleIssue(validate(input), DuplicateRoomIdIssue.class);
     }
 
@@ -94,7 +95,7 @@ class BedPlanValidatorTest {
     void missingBedId() {
         RoomInputDTO room = aRoomDTO("r1").beds(List.of(aBedDTO(null).build())).build();
         DepartmentInputDTO department = aDepartmentDTO("d1").rooms(List.of(room)).build();
-        BedPlanInput input = new BedPlanInput(List.of(department), VALID_STAYS);
+        BedPlanInput input = input(List.of(department), VALID_STAYS);
         assertSingleIssue(validate(input), OpenApiSpecIssue.class);
     }
 
@@ -102,28 +103,28 @@ class BedPlanValidatorTest {
     void duplicateBedId() {
         RoomInputDTO room = aRoomDTO("r1").beds(List.of(aBedDTO("b1").build(), aBedDTO("b1").build())).build();
         DepartmentInputDTO department = aDepartmentDTO("d1").rooms(List.of(room)).build();
-        BedPlanInput input = new BedPlanInput(List.of(department), VALID_STAYS);
+        BedPlanInput input = input(List.of(department), VALID_STAYS);
         assertSingleIssue(validate(input), DuplicateBedIdIssue.class);
     }
 
     @Test
     void missingStayId() {
         StayInputDTO stayWithoutId = aStayDTO(null).build();
-        BedPlanInput input = new BedPlanInput(List.of(DEPARTMENT), List.of(stayWithoutId));
+        BedPlanInput input = input(List.of(DEPARTMENT), List.of(stayWithoutId));
         assertSingleIssue(validate(input), OpenApiSpecIssue.class);
     }
 
     @Test
     void duplicateStayId() {
         StayInputDTO stay = aStayDTO("s1").build();
-        BedPlanInput input = new BedPlanInput(List.of(DEPARTMENT), List.of(stay, stay));
+        BedPlanInput input = input(List.of(DEPARTMENT), List.of(stay, stay));
         assertSingleIssue(validate(input), DuplicateStayIdIssue.class);
     }
 
     @Test
     void nonExistingBedReference() {
         StayInputDTO stay = aStayDTO("s1").bedId("does-not-exist").build();
-        BedPlanInput input = new BedPlanInput(List.of(DEPARTMENT), List.of(stay));
+        BedPlanInput input = input(List.of(DEPARTMENT), List.of(stay));
         assertSingleIssue(validate(input), NonExistingBedReferenceIssue.class);
     }
 

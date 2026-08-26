@@ -12,6 +12,7 @@ import org.acme.bedallocation.domain.GenderLimitation;
 import org.acme.bedallocation.domain.Room;
 import org.acme.bedallocation.domain.Stay;
 import org.acme.bedallocation.dto.input.BedInputDTO;
+import org.acme.bedallocation.dto.input.BedPlanInput;
 import org.acme.bedallocation.dto.input.DepartmentInputDTO;
 import org.acme.bedallocation.dto.input.RoomInputDTO;
 import org.acme.bedallocation.dto.input.StayInputDTO;
@@ -20,6 +21,10 @@ import org.acme.bedallocation.dto.input.StayInputDTO;
 public final class TestHelper {
 
     private TestHelper() {
+    }
+
+    public static BedPlanInput input(List<DepartmentInputDTO> departments, List<StayInputDTO> stays) {
+        return new BedPlanInput(departments, stays);
     }
 
     public static BedBuilder aBed(String id) {

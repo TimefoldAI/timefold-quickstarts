@@ -4,6 +4,7 @@ import static org.acme.bedallocation.support.TestHelper.aBedDTO;
 import static org.acme.bedallocation.support.TestHelper.aDepartmentDTO;
 import static org.acme.bedallocation.support.TestHelper.aRoomDTO;
 import static org.acme.bedallocation.support.TestHelper.aStayDTO;
+import static org.acme.bedallocation.support.TestHelper.input;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Duration;
@@ -68,7 +69,7 @@ class BedPlanEnvironmentTest {
         DepartmentInputDTO department = aDepartmentDTO("d1").rooms(rooms).build();
         List<StayInputDTO> stays = List.of(aStayDTO("s1").build(), aStayDTO("s2").build(), aStayDTO("s3").build(),
                 aStayDTO("s4").build());
-        return new BedPlanInput(List.of(department), stays);
+        return input(List.of(department), stays);
     }
 
     private static RoomInputDTO room(String id) {

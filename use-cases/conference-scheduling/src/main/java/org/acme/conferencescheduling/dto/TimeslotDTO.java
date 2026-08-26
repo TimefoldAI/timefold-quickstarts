@@ -1,7 +1,5 @@
 package org.acme.conferencescheduling.dto;
 
-import static org.acme.conferencescheduling.support.ObjectHelper.immutableCopy;
-
 import java.util.List;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -13,9 +11,4 @@ public record TimeslotDTO(
         @Schema(description = "Local end date-time in ISO-8601 format.") String endDateTime,
         @Schema(description = "Names of the talk types compatible with this timeslot.") List<String> talkTypeNames,
         @Schema(description = "Tags describing this timeslot.") List<String> tags) {
-
-    public TimeslotDTO {
-        talkTypeNames = immutableCopy(talkTypeNames);
-        tags = immutableCopy(tags);
-    }
 }

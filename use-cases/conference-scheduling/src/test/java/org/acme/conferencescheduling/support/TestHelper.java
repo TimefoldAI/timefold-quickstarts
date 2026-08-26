@@ -118,16 +118,20 @@ public final class TestHelper {
     }
 
     public static SpeakerDTO speaker(String id, String name) {
-        return SpeakerDTO.builder(id, name).build();
+        return new SpeakerDTO(id, name, List.of(), List.of(), List.of(), List.of(), List.of(), List.of(), List.of(),
+                List.of(), List.of());
     }
 
     public static TalkDTO talk(String code, String... speakerIds) {
-        return TalkDTO.builder(code, "Title " + code, BREAKOUT)
-                .speakerIds(List.of(speakerIds))
-                .audienceLevel(1)
-                .language("en")
-                .favoriteCount(1)
-                .build();
+        return new TalkDTO(code, "Title " + code, BREAKOUT, List.of(speakerIds), List.of(), List.of(), List.of(), 1,
+                List.of(), "en", List.of(), List.of(), List.of(), List.of(), List.of(), List.of(), List.of(),
+                List.of(), List.of(), List.of(), 1, 0, null, null);
+    }
+
+    public static TalkDTO talkOfType(String code, String talkType, String... speakerIds) {
+        return new TalkDTO(code, "Title " + code, talkType, List.of(speakerIds), List.of(), List.of(), List.of(), 0,
+                List.of(), null, List.of(), List.of(), List.of(), List.of(), List.of(), List.of(), List.of(),
+                List.of(), List.of(), List.of(), 0, 0, null, null);
     }
 
     /**

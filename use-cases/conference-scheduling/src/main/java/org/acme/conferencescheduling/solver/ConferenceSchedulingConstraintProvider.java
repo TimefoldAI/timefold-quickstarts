@@ -26,8 +26,42 @@ import ai.timefold.solver.service.definition.api.description.ConstraintInfo;
 import org.acme.conferencescheduling.domain.ConferenceConstraintProperties;
 import org.acme.conferencescheduling.domain.Speaker;
 import org.acme.conferencescheduling.domain.Talk;
-import org.acme.conferencescheduling.domain.justification.ConferenceSchedulingJustification;
-import org.acme.conferencescheduling.domain.justification.ConferenceSchedulingJustification.*;
+import org.acme.conferencescheduling.domain.justification.ConferenceSchedulingJustification.CrowdControlTalkNotPairedJustification;
+import org.acme.conferencescheduling.domain.justification.ConferenceSchedulingJustification.MissingPreferredRoomTagsForSpeakersJustification;
+import org.acme.conferencescheduling.domain.justification.ConferenceSchedulingJustification.MissingPreferredRoomTagsForTalkJustification;
+import org.acme.conferencescheduling.domain.justification.ConferenceSchedulingJustification.MissingPreferredTimeslotTagsForSpeakersJustification;
+import org.acme.conferencescheduling.domain.justification.ConferenceSchedulingJustification.MissingPreferredTimeslotTagsForTalkJustification;
+import org.acme.conferencescheduling.domain.justification.ConferenceSchedulingJustification.MissingRequiredRoomTagsForSpeakersJustification;
+import org.acme.conferencescheduling.domain.justification.ConferenceSchedulingJustification.MissingRequiredRoomTagsForTalkJustification;
+import org.acme.conferencescheduling.domain.justification.ConferenceSchedulingJustification.MissingRequiredTimeslotTagsForSpeakersJustification;
+import org.acme.conferencescheduling.domain.justification.ConferenceSchedulingJustification.MissingRequiredTimeslotTagsForTalkJustification;
+import org.acme.conferencescheduling.domain.justification.ConferenceSchedulingJustification.MutuallyExclusiveTalksOverlappingJustification;
+import org.acme.conferencescheduling.domain.justification.ConferenceSchedulingJustification.PopularTalkInSmallerRoomJustification;
+import org.acme.conferencescheduling.domain.justification.ConferenceSchedulingJustification.ProhibitedRoomTagsForSpeakersJustification;
+import org.acme.conferencescheduling.domain.justification.ConferenceSchedulingJustification.ProhibitedRoomTagsForTalkJustification;
+import org.acme.conferencescheduling.domain.justification.ConferenceSchedulingJustification.ProhibitedTimeslotTagsForSpeakersJustification;
+import org.acme.conferencescheduling.domain.justification.ConferenceSchedulingJustification.ProhibitedTimeslotTagsForTalkJustification;
+import org.acme.conferencescheduling.domain.justification.ConferenceSchedulingJustification.RelatedTalksNotOnSameDayJustification;
+import org.acme.conferencescheduling.domain.justification.ConferenceSchedulingJustification.RoomUnavailableAtTalkTimeslotJustification;
+import org.acme.conferencescheduling.domain.justification.ConferenceSchedulingJustification.SharedContentAudienceLevelFlowViolationJustification;
+import org.acme.conferencescheduling.domain.justification.ConferenceSchedulingJustification.SpeakerAssignedToOverlappingTalksJustification;
+import org.acme.conferencescheduling.domain.justification.ConferenceSchedulingJustification.SpeakerConsecutiveTalksPauseTooShortJustification;
+import org.acme.conferencescheduling.domain.justification.ConferenceSchedulingJustification.SpeakerMakespanTooLongJustification;
+import org.acme.conferencescheduling.domain.justification.ConferenceSchedulingJustification.SpeakerUnavailableAtTalkTimeslotJustification;
+import org.acme.conferencescheduling.domain.justification.ConferenceSchedulingJustification.TalkScheduledBeforePrerequisiteTalkJustification;
+import org.acme.conferencescheduling.domain.justification.ConferenceSchedulingJustification.TalksOverlappingInSameRoomJustification;
+import org.acme.conferencescheduling.domain.justification.ConferenceSchedulingJustification.TalksWithDifferentAudienceLevelInSameTimeslotJustification;
+import org.acme.conferencescheduling.domain.justification.ConferenceSchedulingJustification.TalksWithSameAudienceTypeInSameTimeslotJustification;
+import org.acme.conferencescheduling.domain.justification.ConferenceSchedulingJustification.TalksWithSameContentOverlappingJustification;
+import org.acme.conferencescheduling.domain.justification.ConferenceSchedulingJustification.TalksWithSameLanguageInSameTimeslotJustification;
+import org.acme.conferencescheduling.domain.justification.ConferenceSchedulingJustification.TalksWithSameSectorOverlappingJustification;
+import org.acme.conferencescheduling.domain.justification.ConferenceSchedulingJustification.TalksWithSameThemeTrackAndAudienceTypeOverlappingJustification;
+import org.acme.conferencescheduling.domain.justification.ConferenceSchedulingJustification.TalksWithSameThemeTrackInDifferentRoomsJustification;
+import org.acme.conferencescheduling.domain.justification.ConferenceSchedulingJustification.TalksWithSameThemeTrackOverlappingJustification;
+import org.acme.conferencescheduling.domain.justification.ConferenceSchedulingJustification.UndesiredRoomTagsForSpeakersJustification;
+import org.acme.conferencescheduling.domain.justification.ConferenceSchedulingJustification.UndesiredRoomTagsForTalkJustification;
+import org.acme.conferencescheduling.domain.justification.ConferenceSchedulingJustification.UndesiredTimeslotTagsForSpeakersJustification;
+import org.acme.conferencescheduling.domain.justification.ConferenceSchedulingJustification.UndesiredTimeslotTagsForTalkJustification;
 
 /**
  * Provides the constraints for the conference scheduling problem.
@@ -125,8 +159,7 @@ public class ConferenceSchedulingConstraintProvider implements ConstraintProvide
                         containing(Talk::getSpeakers, speaker -> speaker),
                         containedIn(Talk::getTimeslot, Speaker::unavailableTimeslots))
                 .penalize(HardMediumSoftScore.ofHard(100), (talk, speaker) -> talk.getDurationInMinutes())
-                .justifyWith(
-                        (talk, speaker, score) -> ConferenceSchedulingJustification.SpeakerUnavailableAtTalkTimeslotJustification.of(talk, speaker))
+                .justifyWith((talk, speaker, score) -> SpeakerUnavailableAtTalkTimeslotJustification.of(talk, speaker))
                 .asConstraint(new ConstraintInfo(ConferenceConstraintProperties.SPEAKER_UNAVAILABLE_TIMESLOT,
                         ConferenceConstraintProperties.SPEAKER_UNAVAILABLE_TIMESLOT,
                         "A talk must not be scheduled in a timeslot when one of its speakers is unavailable.",
