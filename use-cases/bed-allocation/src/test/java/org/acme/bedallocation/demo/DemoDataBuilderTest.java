@@ -16,7 +16,7 @@ class DemoDataBuilderTest {
         assertThat(problem.departments().get(0).rooms()).hasSize(15);
         assertThat(problem.departments().get(0).minimumAge()).isEqualTo(1);
         assertThat(problem.departments().get(0).maximumAge()).isEqualTo(100);
-        assertThat(problem.stays()).hasSize(111);
+        assertThat(problem.stays()).hasSize(109);
         int bedCount = problem.departments().get(0).rooms().stream().mapToInt(room -> room.beds().size()).sum();
         assertThat(bedCount).isEqualTo(23);
         problem.stays().forEach(stay -> {

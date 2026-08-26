@@ -65,10 +65,13 @@ public class BedPlanModelConvertor
             var department = new Department(departmentInputDto.id(), departmentInputDto.name(),
                     departmentInputDto.minimumAge(), departmentInputDto.maximumAge(),
                     specialityToPrioMap);
+            departments.add(department);
 
             for (RoomInputDTO roomDto : departmentInputDto.rooms()) {
                 var room = new Room(roomDto.id(), roomDto.name(), department, roomDto.capacity(),
                         roomDto.genderLimitation(), roomDto.equipments());
+
+                rooms.add(room);
 
                 for (var bedInputDto : roomDto.beds()) {
                     var bed = new Bed(bedInputDto.id(), room);
@@ -129,6 +132,7 @@ public class BedPlanModelConvertor
         }
     }
 
+    // lastModelOutput is used to recover a run that stopped halfway. I should override the input assignment.
     private static void applyLastOutput(List<Stay> stays, Map<String, Bed> bedMap, Optional<BedPlanOutput> lastModelOutput) {
         if (lastModelOutput.isEmpty()) {
             return;
@@ -136,7 +140,7 @@ public class BedPlanModelConvertor
         var stayMap = stays.stream().collect(Collectors.toMap(Stay::getId, stay -> stay));
         for (var solved : lastModelOutput.get().stays()) {
             Stay stay = stayMap.get(solved.id());
-            if (stay == null || stay.getBed() != null || stay.isPinned() || solved.bedId() == null) {
+            if (stay == null || solved.bedId() == null) {
                 continue;
             }
             Bed bed = bedMap.get(solved.bedId());
