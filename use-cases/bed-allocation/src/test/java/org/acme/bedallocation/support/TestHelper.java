@@ -120,9 +120,9 @@ public final class TestHelper {
     public static final class DepartmentBuilder {
 
         private final String id;
-        private String name;
-        private Integer minimumAge;
-        private Integer maximumAge;
+        private String name = "TEST_NAME";
+        private Integer minimumAge = 18;
+        private Integer maximumAge = 80;
         private Map<String, Integer> specialtyToPriority = Map.of();
 
         private DepartmentBuilder(String id) {
@@ -167,13 +167,13 @@ public final class TestHelper {
         private LocalDate arrivalDate = ZERO_NIGHT;
         private LocalDate departureDate = FIVE_NIGHT;
         private String specialty = DEFAULT_SPECIALTY;
-        private String patientName;
-        private Gender patientGender;
-        private int patientAge;
+        private String patientName = "TEST_NAME";
+        private Gender patientGender = Gender.MALE;
+        private int patientAge = 22;
         private Integer patientPreferredMaximumRoomCapacity;
-        private List<String> patientRequiredEquipments;
-        private List<String> patientPreferredEquipments;
-        private boolean pinned;
+        private List<String> patientRequiredEquipments = List.of();
+        private List<String> patientPreferredEquipments = List.of();
+        private boolean pinned = false;
 
         private StayBuilder(String id, Bed bed) {
             this.id = id;
@@ -243,7 +243,7 @@ public final class TestHelper {
     public static final class RoomDTOBuilder {
 
         private final String id;
-        private String name;
+        private String name = "TEST_NAME";
         private int capacity = 1;
         private GenderLimitation genderLimitation = GenderLimitation.ANY_GENDER;
         private Set<String> equipments = Set.of();
@@ -289,8 +289,8 @@ public final class TestHelper {
 
         private final String id;
         private String name;
-        private Integer minimumAge;
-        private Integer maximumAge;
+        private Integer minimumAge = 18;
+        private Integer maximumAge = 88;
         private Map<String, Integer> specialtyToPriority = Map.of();
         private List<RoomInputDTO> rooms = List.of();
 
@@ -335,7 +335,7 @@ public final class TestHelper {
         private String patientName;
         private Gender patientGender = Gender.MALE;
         private int patientAge = 30;
-        private Integer patientPreferredMaximumRoomCapacity;
+        private Integer patientPreferredMaximumRoomCapacity = null;
         private List<String> patientRequiredEquipments = List.of();
         private List<String> patientPreferredEquipments = List.of();
         private LocalDate arrivalDate = LocalDate.parse("2024-01-01");
