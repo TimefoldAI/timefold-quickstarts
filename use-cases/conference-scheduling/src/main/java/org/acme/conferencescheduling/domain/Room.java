@@ -9,7 +9,6 @@ public record Room(
         @PlanningId String id,
         String name,
         int capacity,
-        Set<TalkType> talkTypes,
         Set<Timeslot> unavailableTimeslots,
         Set<String> tags) {
 

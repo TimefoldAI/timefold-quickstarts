@@ -68,7 +68,7 @@ public class ConferenceScheduleModelConvertor
         Set<Timeslot> timeslots = modelInput.timeslots().stream()
                 .map(dto -> {
                     var relevantTalkTypes = talkTypes(dto.talkTypeNames(), talkTypeMap);
-                    Timeslot timeslot = new Timeslot(dto.id(), dto.startDateTime(), dto.endDateTime(), relevantTalkTypes,
+                    Timeslot timeslot = new Timeslot(dto.id(), dto.startDateTime(), dto.endDateTime(),
                             new LinkedHashSet<>(dto.tags()));
                     timeslotMap.put(timeslot.getId(), timeslot);
                     relevantTalkTypes.forEach(r -> r.compatibleTimeslots().add(timeslot));
@@ -81,7 +81,6 @@ public class ConferenceScheduleModelConvertor
                 .map(dto -> {
                     var relevantTalkTypes = talkTypes(dto.talkTypeNames(), talkTypeMap);
                     Room room = new Room(dto.id(), dto.name(), dto.capacity(),
-                            relevantTalkTypes,
                             timeslotsByIds(dto.unavailableTimeslotIds(), timeslotMap),
                             new LinkedHashSet<>(dto.tags()));
                     roomMap.put(room.id(), room);

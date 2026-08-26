@@ -13,18 +13,15 @@ public class Timeslot {
     private String id;
     private LocalDateTime startDateTime;
     private LocalDateTime endDateTime;
-    private Set<TalkType> talkTypes;
     private Set<String> tags;
 
     // Cached
     private int durationInMinutes;
 
-    public Timeslot(String id, LocalDateTime startDateTime, LocalDateTime endDateTime, Set<TalkType> talkTypes,
-            Set<String> tags) {
+    public Timeslot(String id, LocalDateTime startDateTime, LocalDateTime endDateTime, Set<String> tags) {
         this.id = id;
         this.startDateTime = startDateTime;
         this.endDateTime = endDateTime;
-        this.talkTypes = talkTypes;
         this.tags = tags;
         durationInMinutes = (startDateTime == null || endDateTime == null) ? 0
                 : (int) Duration.between(startDateTime, endDateTime).toMinutes();
@@ -92,14 +89,6 @@ public class Timeslot {
 
     public void setEndDateTime(LocalDateTime endDateTime) {
         this.endDateTime = endDateTime;
-    }
-
-    public Set<TalkType> getTalkTypes() {
-        return talkTypes;
-    }
-
-    public void setTalkTypes(Set<TalkType> talkTypes) {
-        this.talkTypes = talkTypes;
     }
 
     public Set<String> getTags() {

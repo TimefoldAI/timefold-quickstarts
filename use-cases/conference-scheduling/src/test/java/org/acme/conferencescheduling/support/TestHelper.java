@@ -165,7 +165,6 @@ public final class TestHelper {
         private final String id;
         private String name;
         private int capacity = 0;
-        private Set<TalkType> talkTypes = emptySet();
         private Set<Timeslot> unavailableTimeslots = emptySet();
         private Set<String> tags = emptySet();
 
@@ -184,11 +183,6 @@ public final class TestHelper {
             return this;
         }
 
-        public RoomBuilder talkTypes(Set<TalkType> talkTypes) {
-            this.talkTypes = talkTypes;
-            return this;
-        }
-
         public RoomBuilder unavailableTimeslots(Set<Timeslot> unavailableTimeslots) {
             this.unavailableTimeslots = unavailableTimeslots;
             return this;
@@ -200,7 +194,7 @@ public final class TestHelper {
         }
 
         public Room build() {
-            return new Room(id, name, capacity, talkTypes, unavailableTimeslots, tags);
+            return new Room(id, name, capacity, unavailableTimeslots, tags);
         }
     }
 
@@ -462,7 +456,6 @@ public final class TestHelper {
         private final String id;
         private LocalDateTime startDateTime = DEFAULT_START;
         private LocalDateTime endDateTime = DEFAULT_START.plusHours(1);
-        private Set<TalkType> talkTypes = emptySet();
         private Set<String> tags = emptySet();
 
         private TimeslotBuilder(String id) {
@@ -479,18 +472,13 @@ public final class TestHelper {
             return this;
         }
 
-        public TimeslotBuilder talkTypes(Set<TalkType> talkTypes) {
-            this.talkTypes = talkTypes;
-            return this;
-        }
-
         public TimeslotBuilder tags(Set<String> tags) {
             this.tags = tags;
             return this;
         }
 
         public Timeslot build() {
-            return new Timeslot(id, startDateTime, endDateTime, talkTypes, tags);
+            return new Timeslot(id, startDateTime, endDateTime, tags);
         }
     }
 
