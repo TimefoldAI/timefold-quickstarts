@@ -1,9 +1,14 @@
-package org.acme.conferencescheduling.dto;
+package org.acme.conferencescheduling.dto.output;
 
 import java.util.List;
 
 import ai.timefold.solver.service.definition.api.ModelOutput;
 
+import org.acme.conferencescheduling.dto.input.RoomDTO;
+import org.acme.conferencescheduling.dto.input.SpeakerDTO;
+import org.acme.conferencescheduling.dto.input.TalkDTO;
+import org.acme.conferencescheduling.dto.input.TalkTypeDTO;
+import org.acme.conferencescheduling.dto.input.TimeslotDTO;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Schema(description = "The conference scheduling planning problem output.")

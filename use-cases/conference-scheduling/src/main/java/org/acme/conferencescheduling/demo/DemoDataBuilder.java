@@ -6,12 +6,12 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.acme.conferencescheduling.dto.ConferenceScheduleInput;
-import org.acme.conferencescheduling.dto.RoomDTO;
-import org.acme.conferencescheduling.dto.SpeakerDTO;
-import org.acme.conferencescheduling.dto.TalkDTO;
-import org.acme.conferencescheduling.dto.TalkTypeDTO;
-import org.acme.conferencescheduling.dto.TimeslotDTO;
+import org.acme.conferencescheduling.dto.input.ConferenceScheduleInput;
+import org.acme.conferencescheduling.dto.input.RoomDTO;
+import org.acme.conferencescheduling.dto.input.SpeakerDTO;
+import org.acme.conferencescheduling.dto.input.TalkDTO;
+import org.acme.conferencescheduling.dto.input.TalkTypeDTO;
+import org.acme.conferencescheduling.dto.input.TimeslotDTO;
 
 public final class DemoDataBuilder {
 

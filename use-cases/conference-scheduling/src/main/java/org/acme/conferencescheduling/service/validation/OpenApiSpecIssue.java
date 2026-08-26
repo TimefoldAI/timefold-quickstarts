@@ -9,12 +9,15 @@ import ai.timefold.solver.service.definition.api.validation.metadata.IssueMessag
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Schema(allOf = { ConferenceScheduleIssue.class })
-public class TimeslotIdMissingIssue extends ConferenceScheduleIssue {
+public class OpenApiSpecIssue extends ConferenceScheduleIssue {
 
-    public static final IssueCode ISSUE_CODE = IssueCode.of("TIMESLOT_ID_MISSING");
-    public static final IssueMessage ISSUE_MESSAGE = new IssueMessage("Timeslot ID must not be null or blank.");
+    public static final IssueCode ISSUE_CODE = IssueCode.of("OPEN_API_SPEC_ISSUE");
 
-    public TimeslotIdMissingIssue() {
-        super(ISSUE_CODE, IssueSeverity.ERROR, List.of(ISSUE_MESSAGE));
+    public OpenApiSpecIssue() {
+        this("Input conflicts with OpenAPI specification.");
+    }
+
+    public OpenApiSpecIssue(String message) {
+        super(ISSUE_CODE, IssueSeverity.ERROR, List.of(new IssueMessage(message)));
     }
 }

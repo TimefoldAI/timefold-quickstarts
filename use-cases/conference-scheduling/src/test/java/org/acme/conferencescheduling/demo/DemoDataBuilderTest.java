@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import org.acme.conferencescheduling.dto.ConferenceScheduleInput;
+import org.acme.conferencescheduling.dto.input.ConferenceScheduleInput;
 import org.junit.jupiter.api.Test;
 
 class DemoDataBuilderTest {

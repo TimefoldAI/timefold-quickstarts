@@ -1,4 +1,4 @@
-package org.acme.conferencescheduling.dto;
+package org.acme.conferencescheduling.dto.input;
 
 import ai.timefold.solver.service.definition.api.domain.DataFormat;
 import ai.timefold.solver.service.definition.api.metrics.ModelInputMetrics;

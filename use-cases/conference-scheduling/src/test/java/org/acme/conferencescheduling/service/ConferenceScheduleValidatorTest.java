@@ -21,28 +21,37 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+
 import ai.timefold.solver.service.definition.api.domain.ModelConfig;
 import ai.timefold.solver.service.definition.api.validation.Issue;
-import ai.timefold.solver.service.definition.api.validation.IssueCode;
 import ai.timefold.solver.service.definition.api.validation.IssueSeverity;
 import ai.timefold.solver.service.definition.api.validation.ValidationBuilder;
 import ai.timefold.solver.service.definition.api.validation.ValidationStatus;
 import ai.timefold.solver.service.definition.api.validation.dto.ValidationResult;
 
-import org.acme.conferencescheduling.dto.ConferenceScheduleInput;
-import org.acme.conferencescheduling.service.validation.DuplicateRoomIdIssue;
-import org.acme.conferencescheduling.service.validation.DuplicateSpeakerIdIssue;
-import org.acme.conferencescheduling.service.validation.DuplicateTalkIdIssue;
-import org.acme.conferencescheduling.service.validation.DuplicateTimeslotIdIssue;
-import org.acme.conferencescheduling.service.validation.NonExistingRoomReferenceIssue;
-import org.acme.conferencescheduling.service.validation.NonExistingSpeakerReferenceIssue;
-import org.acme.conferencescheduling.service.validation.NonExistingTalkTypeReferenceIssue;
-import org.acme.conferencescheduling.service.validation.NonExistingTimeslotReferenceIssue;
+import org.acme.conferencescheduling.dto.input.ConferenceScheduleInput;
+import org.acme.conferencescheduling.service.validation.ConferenceScheduleIssue.DuplicateRoomIdIssue;
+import org.acme.conferencescheduling.service.validation.ConferenceScheduleIssue.DuplicateSpeakerIdIssue;
+import org.acme.conferencescheduling.service.validation.ConferenceScheduleIssue.DuplicateTalkIdIssue;
+import org.acme.conferencescheduling.service.validation.ConferenceScheduleIssue.DuplicateTimeslotIdIssue;
+import org.acme.conferencescheduling.service.validation.ConferenceScheduleIssue.NonExistingRoomReferenceIssue;
+import org.acme.conferencescheduling.service.validation.ConferenceScheduleIssue.NonExistingSpeakerReferenceIssue;
+import org.acme.conferencescheduling.service.validation.ConferenceScheduleIssue.NonExistingTalkTypeReferenceIssue;
+import org.acme.conferencescheduling.service.validation.ConferenceScheduleIssue.NonExistingTimeslotReferenceIssue;
+import org.acme.conferencescheduling.service.validation.OpenApiSpecIssue;
 import org.junit.jupiter.api.Test;
 
 class ConferenceScheduleValidatorTest {
 
+    private static final Validator BEAN_VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
+
     private final ConferenceScheduleValidator validator = new ConferenceScheduleValidator();
+
+    ConferenceScheduleValidatorTest() {
+        validator.validator = BEAN_VALIDATOR;
+    }
 
     @Test
     void validInputHasNoIssues() {
@@ -69,7 +78,7 @@ class ConferenceScheduleValidatorTest {
     void nullTimeslotIdIsReportedAsMissing() {
         ValidationResult<Issue> result = validate(inputWithTimeslots(timeslot(null)));
 
-        Issue issue = singleIssue(result, "TIMESLOT_ID_MISSING");
+        Issue issue = singleIssue(result, OpenApiSpecIssue.class);
         assertThat(issue.getSeverity()).isEqualTo(IssueSeverity.ERROR);
         assertThat(result.status()).isEqualTo(ValidationStatus.ERRORS);
         assertThat(result.isValid()).isFalse();
@@ -79,7 +88,7 @@ class ConferenceScheduleValidatorTest {
     void blankTimeslotIdIsReportedAsMissing() {
         ValidationResult<Issue> result = validate(inputWithTimeslots(timeslot("  ")));
 
-        singleIssue(result, "TIMESLOT_ID_MISSING");
+        singleIssue(result, OpenApiSpecIssue.class);
     }
 
     @Test
@@ -98,14 +107,14 @@ class ConferenceScheduleValidatorTest {
     void nullRoomIdIsReportedAsMissing() {
         ValidationResult<Issue> result = validate(inputWithRooms(room(null)));
 
-        singleIssue(result, "ROOM_ID_MISSING");
+        singleIssue(result, OpenApiSpecIssue.class);
     }
 
     @Test
     void blankRoomIdIsReportedAsMissing() {
         ValidationResult<Issue> result = validate(inputWithRooms(room("  ")));
 
-        singleIssue(result, "ROOM_ID_MISSING");
+        singleIssue(result, OpenApiSpecIssue.class);
     }
 
     @Test
@@ -124,7 +133,7 @@ class ConferenceScheduleValidatorTest {
     void blankSpeakerIdIsReportedAsMissing() {
         ValidationResult<Issue> result = validate(inputWithSpeakers(speaker("  ")));
 
-        singleIssue(result, "SPEAKER_ID_MISSING");
+        singleIssue(result, OpenApiSpecIssue.class);
     }
 
     @Test
@@ -143,14 +152,14 @@ class ConferenceScheduleValidatorTest {
     void nullTalkCodeIsReportedAsMissing() {
         ValidationResult<Issue> result = validate(inputWithTalks(talk(null, "s1")));
 
-        singleIssue(result, "TALK_ID_MISSING");
+        singleIssue(result, OpenApiSpecIssue.class);
     }
 
     @Test
     void blankTalkCodeIsReportedAsMissing() {
         ValidationResult<Issue> result = validate(inputWithTalks(talk("  ", "s1")));
 
-        singleIssue(result, "TALK_ID_MISSING");
+        singleIssue(result, OpenApiSpecIssue.class);
     }
 
     @Test
@@ -269,7 +278,7 @@ class ConferenceScheduleValidatorTest {
 
         assertThat(codesOf(result)).containsExactlyInAnyOrder(
                 "DUPLICATE_TIMESLOT_ID",
-                "ROOM_ID_MISSING",
+                "OPEN_API_SPEC_ISSUE",
                 "DUPLICATE_SPEAKER_ID",
                 "NON_EXISTING_TIMESLOT_REFERENCE",
                 "NON_EXISTING_ROOM_REFERENCE",
@@ -288,7 +297,7 @@ class ConferenceScheduleValidatorTest {
         ValidationResult<Issue> result = validate(input);
 
         assertThat(codesOf(result)).containsExactlyInAnyOrder(
-                "TALK_ID_MISSING",
+                "OPEN_API_SPEC_ISSUE",
                 "NON_EXISTING_TIMESLOT_REFERENCE",
                 "NON_EXISTING_ROOM_REFERENCE",
                 "NON_EXISTING_TALK_TYPE_REFERENCE",
@@ -300,7 +309,7 @@ class ConferenceScheduleValidatorTest {
     void talkWithBlankCodeStillReportsItsOtherIssuesButWithoutATalkDetail() {
         ValidationResult<Issue> result = validate(inputWithTalks(talk("  ", "unknown-speaker")));
 
-        assertThat(codesOf(result)).containsExactlyInAnyOrder("TALK_ID_MISSING", "NON_EXISTING_SPEAKER_REFERENCE");
+        assertThat(codesOf(result)).containsExactlyInAnyOrder("OPEN_API_SPEC_ISSUE", "NON_EXISTING_SPEAKER_REFERENCE");
         assertThat(talkIdsOf(result)).isEmpty();
     }
 
@@ -333,20 +342,16 @@ class ConferenceScheduleValidatorTest {
         return validationBuilder.build();
     }
 
-    private static Issue singleIssue(ValidationResult<Issue> result, String expectedCode) {
-        Collection<Issue> issues = result.issues();
-        assertThat(issues).hasSize(1);
-        Issue issue = issues.iterator().next();
-        assertThat(issue.getCode()).isEqualTo(IssueCode.of(expectedCode));
-        return issue;
-    }
-
     private static <T extends Issue> T singleIssue(ValidationResult<Issue> result, Class<T> expectedType) {
         Collection<Issue> issues = result.issues();
         assertThat(issues).hasSize(1);
         Issue issue = issues.iterator().next();
         assertThat(issue).isInstanceOf(expectedType);
         return expectedType.cast(issue);
+    }
+
+    private static void singleIssue(ValidationResult<Issue> result, String expectedCode) {
+        assertThat(codesOf(result)).containsExactly(expectedCode);
     }
 
     private static List<String> codesOf(ValidationResult<Issue> result) {

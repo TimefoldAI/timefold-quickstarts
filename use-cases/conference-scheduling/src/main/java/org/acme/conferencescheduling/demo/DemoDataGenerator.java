@@ -8,8 +8,8 @@ import ai.timefold.solver.service.definition.api.domain.ModelConfig;
 import ai.timefold.solver.service.definition.api.domain.ModelRequest;
 import ai.timefold.solver.service.definition.api.domain.RunConfiguration;
 
-import org.acme.conferencescheduling.dto.ConferenceScheduleConfigOverrides;
-import org.acme.conferencescheduling.dto.ConferenceScheduleInput;
+import org.acme.conferencescheduling.dto.input.ConferenceScheduleConfigOverrides;
+import org.acme.conferencescheduling.dto.input.ConferenceScheduleInput;
 
 @ApplicationScoped
 public class DemoDataGenerator

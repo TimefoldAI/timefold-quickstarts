@@ -13,8 +13,8 @@ import ai.timefold.solver.service.definition.api.SolverModel;
 import ai.timefold.solver.service.definition.api.metrics.InputMetricsAware;
 import ai.timefold.solver.service.definition.api.metrics.OutputMetricsAware;
 
-import org.acme.conferencescheduling.dto.ConferenceScheduleInputMetrics;
-import org.acme.conferencescheduling.dto.ConferenceScheduleOutputMetrics;
+import org.acme.conferencescheduling.dto.input.ConferenceScheduleInputMetrics;
+import org.acme.conferencescheduling.dto.output.ConferenceScheduleOutputMetrics;
 
 @PlanningSolution
 public class ConferenceSchedule implements SolverModel<HardMediumSoftScore>,

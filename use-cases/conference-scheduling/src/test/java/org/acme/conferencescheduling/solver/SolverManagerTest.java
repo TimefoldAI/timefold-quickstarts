@@ -11,8 +11,8 @@ import ai.timefold.solver.core.api.solver.SolverManager;
 import ai.timefold.solver.service.definition.api.domain.ModelConfig;
 
 import org.acme.conferencescheduling.domain.ConferenceSchedule;
-import org.acme.conferencescheduling.dto.ConferenceScheduleInputMetrics;
-import org.acme.conferencescheduling.dto.ConferenceScheduleOutputMetrics;
+import org.acme.conferencescheduling.dto.input.ConferenceScheduleInputMetrics;
+import org.acme.conferencescheduling.dto.output.ConferenceScheduleOutputMetrics;
 import org.acme.conferencescheduling.service.ConferenceScheduleModelConvertor;
 import org.acme.conferencescheduling.support.TestHelper;
 import org.junit.jupiter.api.Test;

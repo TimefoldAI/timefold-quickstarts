@@ -1,4 +1,4 @@
-package org.acme.conferencescheduling.dto;
+package org.acme.conferencescheduling.dto.input;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 

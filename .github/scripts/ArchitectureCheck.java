@@ -152,7 +152,9 @@ public final class ArchitectureCheck {
                 classesMustResideInValidSubpackages(),
                 onlyInterfacesAndRecordsInDtoPackage(),
                 dtoPackageMustNotDeclareNestedClasses(),
-                dtoRecordsMustDeclareOnlyTheCanonicalConstructor());
+                dtoRecordsMustDeclareOnlyTheCanonicalConstructor(),
+                dtoTypesMustResideInInputOrOutputSubpackage(),
+                layerRule("dto.input", "dto.output", not(resideInAPackage(basePackage + ".dto.output.."))));
     }
 
     private static ArchRule layerRule(String from, String to,
@@ -311,6 +313,13 @@ public final class ArchitectureCheck {
                 .should(new DtoRecordConstructorCondition())
                 .as("DTO records must rely on the implicit canonical constructor; no compact, additional or explicit constructors "
                         + "(Input/OutputMetrics types may still use a compact constructor for validation)");
+    }
+
+    private static ArchRule dtoTypesMustResideInInputOrOutputSubpackage() {
+        return classes()
+                .that().resideInAPackage(basePackage + ".dto..")
+                .should().resideInAnyPackage(basePackage + ".dto.input..", basePackage + ".dto.output..")
+                .as("DTO types must reside in a dto.input or dto.output subpackage, not directly in the dto package");
     }
 
     private static ArchCondition<JavaClass> notHaveFilesMatching(String... syntaxAndPatterns) {
