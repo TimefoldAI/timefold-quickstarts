@@ -15,7 +15,7 @@ import ai.timefold.solver.service.definition.api.domain.ModelConfig;
 
 import org.acme.conferencescheduling.domain.ConferenceSchedule;
 import org.acme.conferencescheduling.service.ConferenceScheduleModelConvertor;
-import org.acme.conferencescheduling.support.SolverTestDataFactory;
+import org.acme.conferencescheduling.support.TestHelper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
@@ -42,7 +42,7 @@ class ConferenceScheduleEnvironmentTest {
     }
 
     void solve(EnvironmentMode environmentMode) {
-        var input = SolverTestDataFactory.createProblem();
+        var input = TestHelper.createProblem();
         ConferenceSchedule problem = modelConvertor.toSolverModel(input, ModelConfig.empty(), Optional.empty());
 
         SolverConfig updatedConfig = solverConfig.copyConfig();

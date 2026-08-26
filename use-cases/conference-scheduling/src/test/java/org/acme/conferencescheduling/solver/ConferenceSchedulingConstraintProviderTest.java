@@ -1,10 +1,11 @@
 package org.acme.conferencescheduling.solver;
 
-import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
-import static org.acme.conferencescheduling.support.TestRoomBuilder.aRoom;
-import static org.acme.conferencescheduling.support.TestSpeakerBuilder.aSpeaker;
-import static org.acme.conferencescheduling.support.TestTalkBuilder.aTalk;
+import static org.acme.conferencescheduling.support.TestHelper.aConfiguration;
+import static org.acme.conferencescheduling.support.TestHelper.aRoom;
+import static org.acme.conferencescheduling.support.TestHelper.aSpeaker;
+import static org.acme.conferencescheduling.support.TestHelper.aTalk;
+import static org.acme.conferencescheduling.support.TestHelper.aTimeslot;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
@@ -31,16 +32,29 @@ class ConferenceSchedulingConstraintProviderTest {
 
     private static final LocalDateTime START = LocalDateTime.of(2000, 2, 1, 9, 0);
 
-    private static final Timeslot MONDAY_9_TO_10 = new Timeslot("1", START, START.plusHours(1), emptySet(), sequencedSet("a"));
-    private static final Timeslot MONDAY_10_05_TO_11 = new Timeslot("2", MONDAY_9_TO_10.getEndDateTime().plusMinutes(5),
-            MONDAY_9_TO_10.getEndDateTime().plusHours(1), emptySet(), sequencedSet("b"));
-    private static final Timeslot MONDAY_11_10_TO_12 = new Timeslot("3", MONDAY_10_05_TO_11.getEndDateTime().plusMinutes(10),
-            MONDAY_10_05_TO_11.getEndDateTime().plusHours(1), emptySet(), sequencedSet("c"));
-    private static final Timeslot TUESDAY_9_TO_10 =
-            new Timeslot("4", START.plusDays(1), START.plusDays(1).plusHours(1), emptySet(), singleton("c"));
+    private static final Timeslot MONDAY_9_TO_10 =
+            aTimeslot("1").startDateTime(START).endDateTime(START.plusHours(1)).tags(sequencedSet("a")).build();
+    private static final Timeslot MONDAY_10_05_TO_11 = aTimeslot("2")
+            .startDateTime(MONDAY_9_TO_10.getEndDateTime().plusMinutes(5))
+            .endDateTime(MONDAY_9_TO_10.getEndDateTime().plusHours(1))
+            .tags(sequencedSet("b"))
+            .build();
+    private static final Timeslot MONDAY_11_10_TO_12 = aTimeslot("3")
+            .startDateTime(MONDAY_10_05_TO_11.getEndDateTime().plusMinutes(10))
+            .endDateTime(MONDAY_10_05_TO_11.getEndDateTime().plusHours(1))
+            .tags(sequencedSet("c"))
+            .build();
+    private static final Timeslot TUESDAY_9_TO_10 = aTimeslot("4")
+            .startDateTime(START.plusDays(1))
+            .endDateTime(START.plusDays(1).plusHours(1))
+            .tags(singleton("c"))
+            .build();
 
-    private static final Timeslot WEDNESDAY_9_TO_10 =
-            new Timeslot("5", START.plusDays(2), START.plusDays(1).plusHours(1), emptySet(), sequencedSet("c"));
+    private static final Timeslot WEDNESDAY_9_TO_10 = aTimeslot("5")
+            .startDateTime(START.plusDays(2))
+            .endDateTime(START.plusDays(1).plusHours(1))
+            .tags(sequencedSet("c"))
+            .build();
 
     private final ConstraintVerifier<ConferenceSchedulingConstraintProvider, ConferenceSchedule> constraintVerifier;
 
@@ -144,8 +158,7 @@ class ConferenceSchedulingConstraintProviderTest {
         Talk talk2 = aTalk("2").timeslot(MONDAY_10_05_TO_11).room(room).speakers(List.of(speaker1)).build();
         Talk talk3 = aTalk("3").timeslot(MONDAY_11_10_TO_12).room(room).speakers(List.of(speaker1)).build();
         Talk talk4 = aTalk("4").timeslot(MONDAY_9_TO_10).room(room).speakers(List.of(speaker2)).build();
-        ConferenceConstraintProperties configuration = new ConferenceConstraintProperties();
-        configuration.setMinimumConsecutiveTalksPauseInMinutes(11);
+        ConferenceConstraintProperties configuration = aConfiguration().minimumConsecutiveTalksPauseInMinutes(11).build();
 
         constraintVerifier.verifyThat(ConferenceSchedulingConstraintProvider::consecutiveTalksPause)
                 .given(configuration, talk1, talk2, talk3, talk4)

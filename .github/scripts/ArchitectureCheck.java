@@ -19,6 +19,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
@@ -142,6 +143,9 @@ public final class ArchitectureCheck {
                 justificationRecordsMustNotReplaceNullStringsWithEmptyStrings(),
                 dtoRecordsMustNotCreateMutableArrayLists(),
                 testUtilityClassesMustResideInSupportPackage(),
+                everyModuleMustHaveATestHelperInSupportPackage(),
+                testClassesMustBuildDomainObjectsViaTestHelper(),
+                everyModuleMustHaveASingleJustificationFile(),
                 dtoTypesMustEndWithDto(),
                 withMethodsMustBeUsed(),
                 onlyDtoPackageMayUseSchemaAnnotation(),
@@ -223,6 +227,24 @@ public final class ArchitectureCheck {
         return classes()
                 .should(new TestUtilitiesMustResideInSupportPackageCondition())
                 .as("Test utility classes must reside in a dedicated support package");
+    }
+
+    private static ArchRule everyModuleMustHaveATestHelperInSupportPackage() {
+        return classes()
+                .should(new TestHelperExistsCondition())
+                .as("Every module must provide a TestHelper class in a support package to build valid domain objects for tests");
+    }
+
+    private static ArchRule testClassesMustBuildDomainObjectsViaTestHelper() {
+        return classes()
+                .should(new DomainConstructionOutsideSupportCondition())
+                .as("Test classes must build domain objects via the support package's TestHelper instead of calling domain constructors directly");
+    }
+
+    private static ArchRule everyModuleMustHaveASingleJustificationFile() {
+        return classes()
+                .should(new SingleJustificationFileCondition())
+                .as("The domain.justification package must contain exactly one file, hosting every justification implementation as a nested type");
     }
 
     private static ArchRule dtoTypesMustEndWithDto() {
@@ -428,6 +450,103 @@ public final class ArchitectureCheck {
                 events.add(SimpleConditionEvent.violated(javaClass,
                         "%s is a test utility in %s and should be moved to a support package"
                                 .formatted(javaClass.getName(), sourceFile.get())));
+            }
+        }
+    }
+
+    private static final class TestHelperExistsCondition extends ArchCondition<JavaClass> {
+
+        // Walking the module tree once is enough; anchor the scan to a single class.
+        private boolean scanned;
+
+        private TestHelperExistsCondition() {
+            super("provide a TestHelper class in a support package");
+        }
+
+        @Override
+        public void check(JavaClass javaClass, ConditionEvents events) {
+            if (scanned) {
+                return;
+            }
+            scanned = true;
+            var testSourceRoot = moduleRoot.resolve("src/test/java");
+            var hasTestHelper = false;
+            if (Files.isDirectory(testSourceRoot)) {
+                var pathMatcher = FileSystems.getDefault().getPathMatcher("glob:**/support/TestHelper.java");
+                try (var pathStream = Files.walk(testSourceRoot)) {
+                    hasTestHelper = pathStream.anyMatch(pathMatcher::matches);
+                } catch (IOException e) {
+                    throw new UncheckedIOException("Failed to scan " + testSourceRoot, e);
+                }
+            }
+            if (!hasTestHelper) {
+                events.add(SimpleConditionEvent.violated(javaClass,
+                        "No TestHelper class found under %s/**/support/TestHelper.java".formatted(testSourceRoot)));
+            }
+        }
+    }
+
+    private static final class SingleJustificationFileCondition extends ArchCondition<JavaClass> {
+
+        // Walking the module tree once is enough; anchor the scan to a single class.
+        private boolean scanned;
+
+        private SingleJustificationFileCondition() {
+            super("contain exactly one file in the domain.justification package");
+        }
+
+        @Override
+        public void check(JavaClass javaClass, ConditionEvents events) {
+            if (scanned) {
+                return;
+            }
+            scanned = true;
+            var justificationDir = moduleRoot.resolve("src/main/java")
+                    .resolve(basePackage.replace('.', '/'))
+                    .resolve("domain/justification");
+            if (!Files.isDirectory(justificationDir)) {
+                events.add(SimpleConditionEvent.violated(javaClass,
+                        "No domain.justification package found under " + justificationDir));
+                return;
+            }
+            List<Path> justificationFiles;
+            try (var pathStream = Files.list(justificationDir)) {
+                justificationFiles = pathStream.filter(path -> path.toString().endsWith(".java")).sorted().toList();
+            } catch (IOException e) {
+                throw new UncheckedIOException("Failed to scan " + justificationDir, e);
+            }
+            if (justificationFiles.size() != 1) {
+                events.add(SimpleConditionEvent.violated(javaClass,
+                        "Expected exactly one file in %s, found %d: %s".formatted(justificationDir,
+                                justificationFiles.size(),
+                                justificationFiles.stream().map(path -> path.getFileName().toString())
+                                        .collect(Collectors.joining(", ")))));
+            }
+        }
+    }
+
+    private static final class DomainConstructionOutsideSupportCondition extends ArchCondition<JavaClass> {
+
+        private DomainConstructionOutsideSupportCondition() {
+            super("build domain objects via the support package's TestHelper");
+        }
+
+        @Override
+        public void check(JavaClass javaClass, ConditionEvents events) {
+            var sourceFile = resolveSourceFile(javaClass);
+            if (sourceFile.isEmpty() || !sourceFile.get().startsWith(moduleRoot.resolve("src/test/java"))) {
+                return; // only test sources are constrained; production code may construct domain objects freely
+            }
+            if (javaClass.getPackageName().contains(".support")) {
+                return; // support package helpers are allowed to construct domain objects
+            }
+            for (JavaConstructorCall call : javaClass.getConstructorCallsFromSelf()) {
+                var targetOwner = call.getTargetOwner();
+                if (resideInAPackage(basePackage + ".domain..").test(targetOwner)) {
+                    events.add(SimpleConditionEvent.violated(javaClass,
+                            "%s constructs %s directly in %s; build it via the support package's TestHelper instead"
+                                    .formatted(javaClass.getName(), targetOwner.getName(), sourceFile.get())));
+                }
             }
         }
     }

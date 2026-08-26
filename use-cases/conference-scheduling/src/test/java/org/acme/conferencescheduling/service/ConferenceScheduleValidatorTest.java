@@ -1,19 +1,19 @@
 package org.acme.conferencescheduling.service;
 
-import static org.acme.conferencescheduling.support.SolverTestDataFactory.LAB;
-import static org.acme.conferencescheduling.support.SolverTestDataFactory.SPEAKERS;
-import static org.acme.conferencescheduling.support.SolverTestDataFactory.TALK_TYPES;
-import static org.acme.conferencescheduling.support.SolverTestDataFactory.TIMESLOTS;
-import static org.acme.conferencescheduling.support.SolverTestDataFactory.createProblem;
-import static org.acme.conferencescheduling.support.SolverTestDataFactory.input;
-import static org.acme.conferencescheduling.support.SolverTestDataFactory.inputWithRooms;
-import static org.acme.conferencescheduling.support.SolverTestDataFactory.inputWithSpeakers;
-import static org.acme.conferencescheduling.support.SolverTestDataFactory.inputWithTalks;
-import static org.acme.conferencescheduling.support.SolverTestDataFactory.inputWithTimeslots;
-import static org.acme.conferencescheduling.support.SolverTestDataFactory.room;
-import static org.acme.conferencescheduling.support.SolverTestDataFactory.speaker;
-import static org.acme.conferencescheduling.support.SolverTestDataFactory.talk;
-import static org.acme.conferencescheduling.support.SolverTestDataFactory.timeslot;
+import static org.acme.conferencescheduling.support.TestHelper.LAB;
+import static org.acme.conferencescheduling.support.TestHelper.SPEAKERS;
+import static org.acme.conferencescheduling.support.TestHelper.TALK_TYPES;
+import static org.acme.conferencescheduling.support.TestHelper.TIMESLOTS;
+import static org.acme.conferencescheduling.support.TestHelper.createProblem;
+import static org.acme.conferencescheduling.support.TestHelper.input;
+import static org.acme.conferencescheduling.support.TestHelper.inputWithRooms;
+import static org.acme.conferencescheduling.support.TestHelper.inputWithSpeakers;
+import static org.acme.conferencescheduling.support.TestHelper.inputWithTalks;
+import static org.acme.conferencescheduling.support.TestHelper.inputWithTimeslots;
+import static org.acme.conferencescheduling.support.TestHelper.room;
+import static org.acme.conferencescheduling.support.TestHelper.speaker;
+import static org.acme.conferencescheduling.support.TestHelper.talk;
+import static org.acme.conferencescheduling.support.TestHelper.timeslot;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collection;
