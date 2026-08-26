@@ -1,0 +1,310 @@
+package org.acme.bedallocation.demo;
+
+import static org.acme.bedallocation.domain.Gender.FEMALE;
+import static org.acme.bedallocation.domain.Gender.MALE;
+import static org.acme.bedallocation.domain.GenderLimitation.ANY_GENDER;
+import static org.acme.bedallocation.domain.GenderLimitation.FEMALE_ONLY;
+import static org.acme.bedallocation.domain.GenderLimitation.MALE_ONLY;
+import static org.acme.bedallocation.domain.GenderLimitation.SAME_GENDER;
+
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.acme.bedallocation.domain.Gender;
+import org.acme.bedallocation.domain.GenderLimitation;
+import org.acme.bedallocation.dto.input.BedInputDTO;
+import org.acme.bedallocation.dto.input.BedPlanInput;
+import org.acme.bedallocation.dto.input.DepartmentInputDTO;
+import org.acme.bedallocation.dto.input.RoomInputDTO;
+import org.acme.bedallocation.dto.input.StayInputDTO;
+
+/**
+ * Builds a fully hand-picked demo dataset (no randomness) that is deliberately hardcoded to be
+ * feasible: every stay can be assigned to a bed without violating any hard constraint.
+ */
+public final class DemoDataBuilder {
+
+    private static final String TELEMETRY = "telemetry";
+    private static final String TELEVISION = "television";
+    private static final String OXYGEN = "oxygen";
+    private static final String NITROGEN = "nitrogen";
+
+    private static final String CARDIOLOGY = "Cardiology";
+    private static final String NEUROLOGY = "Neurology";
+    private static final String ONCOLOGY = "Oncology";
+
+    private DemoDataBuilder() {
+    }
+
+    public static DemoDataBuilder builder() {
+        return new DemoDataBuilder();
+    }
+
+    public BedPlanInput build() {
+        // Anchored to the next Monday (never today)
+        LocalDate firstMonday = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.MONDAY));
+
+        RoomInputDTO room1 = room("R1", 1, ANY_GENDER, Set.of(TELEMETRY, OXYGEN));
+        RoomInputDTO room2 = room("R2", 1, ANY_GENDER, Set.of(TELEVISION, NITROGEN));
+        RoomInputDTO room3 = room("R3", 2, ANY_GENDER, Set.of(TELEMETRY, TELEVISION, OXYGEN, NITROGEN));
+        RoomInputDTO room4 = room("R4", 1, ANY_GENDER, Set.of());
+        RoomInputDTO room5 = room("R5", 2, SAME_GENDER, Set.of());
+        RoomInputDTO room6 = room("R6", 1, ANY_GENDER, Set.of(OXYGEN, NITROGEN));
+        RoomInputDTO room7 = room("R7", 1, ANY_GENDER, Set.of(TELEMETRY, TELEVISION));
+        RoomInputDTO room8 = room("R8", 2, ANY_GENDER, Set.of(TELEMETRY, TELEVISION, OXYGEN, NITROGEN));
+        RoomInputDTO room9 = room("R9", 1, ANY_GENDER, Set.of());
+        RoomInputDTO room10 = room("R10", 2, SAME_GENDER, Set.of());
+        RoomInputDTO room11 = room("R11", 2, MALE_ONLY, Set.of(OXYGEN, TELEMETRY));
+        RoomInputDTO room12 = room("R12", 2, FEMALE_ONLY, Set.of(TELEVISION, NITROGEN));
+        RoomInputDTO room13 = room("R13", 1, ANY_GENDER, Set.of(OXYGEN, TELEMETRY, NITROGEN));
+        RoomInputDTO room14 = room("R14", 2, ANY_GENDER, Set.of(TELEMETRY, TELEVISION, OXYGEN, NITROGEN));
+        RoomInputDTO room15 = room("R15", 2, SAME_GENDER, Set.of());
+
+        DepartmentInputDTO department = new DepartmentInputDTO("1", "General Ward", 1, 100,
+                Map.of(CARDIOLOGY, 1, NEUROLOGY, 2, ONCOLOGY, 2),
+                List.of(room1, room2, room3, room4, room5, room6, room7, room8, room9, room10,
+                        room11, room12, room13, room14, room15));
+
+        List<StayInputDTO> stays = List.of(
+                stay("stay-1", "Bob", MALE, 5, 1, List.of(), List.of(TELEMETRY),
+                        firstMonday, firstMonday.plusDays(2), CARDIOLOGY),
+                stay("stay-2", "Alice", FEMALE, 12, 1, List.of(OXYGEN), List.of(TELEVISION),
+                        firstMonday.plusDays(4), firstMonday.plusDays(8), NEUROLOGY),
+                stay("stay-3", "David", MALE, 19, 1, List.of(TELEMETRY, OXYGEN), List.of(TELEVISION),
+                        firstMonday.plusDays(10), firstMonday.plusDays(13), ONCOLOGY),
+                stay("stay-4", "Carol", FEMALE, 25, 1, List.of(), List.of(NITROGEN),
+                        firstMonday.plusDays(16), firstMonday.plusDays(22), CARDIOLOGY),
+                stay("stay-5", "Frank", MALE, 28, 1, List.of(TELEMETRY), List.of(TELEVISION),
+                        firstMonday.plusDays(25), firstMonday.plusDays(30), NEUROLOGY),
+                stay("stay-6", "Eve", FEMALE, 33, 1, List.of(NITROGEN), List.of(TELEVISION),
+                        firstMonday, firstMonday.plusDays(4), ONCOLOGY),
+                stay("stay-7", "Hank", MALE, 36, 1, List.of(TELEVISION, NITROGEN), List.of(OXYGEN),
+                        firstMonday.plusDays(6), firstMonday.plusDays(9), CARDIOLOGY),
+                stay("stay-8", "Grace", FEMALE, 41, 1, List.of(), List.of(NITROGEN),
+                        firstMonday.plusDays(12), firstMonday.plusDays(18), NEUROLOGY),
+                stay("stay-9", "Jack", MALE, 44, 1, List.of(TELEVISION), List.of(TELEMETRY),
+                        firstMonday.plusDays(21), firstMonday.plusDays(26), ONCOLOGY),
+                stay("stay-10", "Ivy", FEMALE, 47, 1, List.of(NITROGEN, TELEVISION), List.of(TELEMETRY),
+                        firstMonday.plusDays(29), firstMonday.plusDays(31), CARDIOLOGY),
+                stay("stay-11", "Leo", MALE, 50, 2, List.of(OXYGEN, NITROGEN), List.of(TELEMETRY),
+                        firstMonday, firstMonday.plusDays(3), NEUROLOGY),
+                stay("stay-12", "Karen", FEMALE, 52, 1, List.of(NITROGEN, TELEMETRY, TELEVISION), List.of(OXYGEN),
+                        firstMonday.plusDays(5), firstMonday.plusDays(11), ONCOLOGY),
+                stay("stay-13", "Oscar", MALE, 54, 2, List.of(TELEMETRY, TELEVISION, OXYGEN, NITROGEN), List.of(),
+                        firstMonday.plusDays(14), firstMonday.plusDays(19), CARDIOLOGY),
+                stay("stay-14", "Mona", FEMALE, 55, 2, List.of(), List.of(TELEVISION),
+                        firstMonday.plusDays(22), firstMonday.plusDays(24), NEUROLOGY),
+                stay("stay-15", "Quinn", MALE, 58, 1, List.of(OXYGEN), List.of(TELEMETRY),
+                        firstMonday.plusDays(26), firstMonday.plusDays(30), ONCOLOGY),
+                stay("stay-16", "Nora", FEMALE, 60, 2, List.of(NITROGEN, TELEMETRY, TELEVISION), List.of(OXYGEN),
+                        firstMonday, firstMonday.plusDays(6), CARDIOLOGY),
+                stay("stay-17", "Priya", FEMALE, 66, 1, List.of(), List.of(TELEVISION),
+                        firstMonday.plusDays(17), firstMonday.plusDays(19), ONCOLOGY),
+                stay("stay-18", "Victor", MALE, 68, 2, List.of(OXYGEN), List.of(TELEMETRY),
+                        firstMonday.plusDays(21), firstMonday.plusDays(25), CARDIOLOGY),
+                stay("stay-19", "Rosa", FEMALE, 70, 2, List.of(NITROGEN, TELEMETRY), List.of(TELEVISION),
+                        firstMonday.plusDays(27), firstMonday.plusDays(30), NEUROLOGY),
+                stay("stay-20", "Zack", MALE, 72, 1, List.of(), List.of(TELEMETRY),
+                        firstMonday, firstMonday.plusDays(5), ONCOLOGY),
+                stay("stay-21", "Tina", FEMALE, 75, 1, List.of(), List.of(TELEVISION),
+                        firstMonday.plusDays(8), firstMonday.plusDays(10), CARDIOLOGY),
+                stay("stay-22", "Aaron", MALE, 80, 1, List.of(), List.of(OXYGEN),
+                        firstMonday.plusDays(12), firstMonday.plusDays(16), NEUROLOGY),
+                stay("stay-23", "Uma", FEMALE, 88, 1, List.of(), List.of(NITROGEN),
+                        firstMonday.plusDays(18), firstMonday.plusDays(21), ONCOLOGY),
+                stay("stay-24", "Caleb", MALE, 92, 1, List.of(), List.of(TELEMETRY),
+                        firstMonday.plusDays(23), firstMonday.plusDays(29), CARDIOLOGY),
+                stay("stay-25", "Wendy", FEMALE, 5, 2, List.of(), List.of(TELEVISION),
+                        firstMonday, firstMonday.plusDays(2), NEUROLOGY),
+                stay("stay-26", "Xandra", FEMALE, 12, 1, List.of(), List.of(OXYGEN),
+                        firstMonday.plusDays(4), firstMonday.plusDays(8), ONCOLOGY),
+                stay("stay-27", "Yara", FEMALE, 19, 2, List.of(), List.of(NITROGEN),
+                        firstMonday.plusDays(10), firstMonday.plusDays(13), CARDIOLOGY),
+                stay("stay-28", "Bella", FEMALE, 25, 2, List.of(), List.of(TELEMETRY),
+                        firstMonday.plusDays(16), firstMonday.plusDays(22), NEUROLOGY),
+                stay("stay-29", "Dana", FEMALE, 28, 1, List.of(), List.of(TELEVISION),
+                        firstMonday.plusDays(25), firstMonday.plusDays(30), ONCOLOGY),
+                stay("stay-30", "Fiona", FEMALE, 33, 2, List.of(), List.of(OXYGEN),
+                        firstMonday, firstMonday.plusDays(4), CARDIOLOGY),
+                stay("stay-31", "Gina", FEMALE, 36, 2, List.of(), List.of(NITROGEN),
+                        firstMonday.plusDays(6), firstMonday.plusDays(9), NEUROLOGY),
+                stay("stay-32", "Iris", FEMALE, 41, 1, List.of(), List.of(TELEMETRY),
+                        firstMonday.plusDays(12), firstMonday.plusDays(18), ONCOLOGY),
+                stay("stay-33", "Kira", FEMALE, 44, 2, List.of(), List.of(TELEVISION),
+                        firstMonday.plusDays(21), firstMonday.plusDays(26), CARDIOLOGY),
+                stay("stay-34", "Mira", FEMALE, 47, 2, List.of(), List.of(OXYGEN),
+                        firstMonday.plusDays(29), firstMonday.plusDays(31), NEUROLOGY),
+                stay("stay-35", "Olga", FEMALE, 50, 1, List.of(NITROGEN), List.of(TELEMETRY),
+                        firstMonday, firstMonday.plusDays(3), ONCOLOGY),
+                stay("stay-36", "Ethan", MALE, 52, 1, List.of(OXYGEN, NITROGEN), List.of(TELEMETRY),
+                        firstMonday.plusDays(5), firstMonday.plusDays(11), CARDIOLOGY),
+                stay("stay-37", "Queenie", FEMALE, 54, 1, List.of(), List.of(TELEVISION),
+                        firstMonday.plusDays(14), firstMonday.plusDays(19), NEUROLOGY),
+                stay("stay-38", "Hugo", MALE, 55, 1, List.of(OXYGEN), List.of(TELEMETRY),
+                        firstMonday.plusDays(22), firstMonday.plusDays(24), ONCOLOGY),
+                stay("stay-39", "Sofia", FEMALE, 58, 1, List.of(NITROGEN, OXYGEN), List.of(TELEMETRY),
+                        firstMonday.plusDays(26), firstMonday.plusDays(30), CARDIOLOGY),
+                stay("stay-40", "Jorge", MALE, 60, 1, List.of(TELEMETRY, TELEVISION), List.of(OXYGEN),
+                        firstMonday, firstMonday.plusDays(6), NEUROLOGY),
+                stay("stay-41", "Ursula", FEMALE, 63, 1, List.of(), List.of(TELEVISION),
+                        firstMonday.plusDays(9), firstMonday.plusDays(14), ONCOLOGY),
+                stay("stay-42", "Liam", MALE, 66, 1, List.of(TELEMETRY), List.of(OXYGEN),
+                        firstMonday.plusDays(17), firstMonday.plusDays(19), CARDIOLOGY),
+                stay("stay-43", "Noah", MALE, 70, 1, List.of(), List.of(TELEMETRY),
+                        firstMonday.plusDays(27), firstMonday.plusDays(30), ONCOLOGY),
+                stay("stay-44", "Delia", FEMALE, 72, 2, List.of(TELEVISION, OXYGEN, NITROGEN, TELEMETRY), List.of(),
+                        firstMonday, firstMonday.plusDays(5), CARDIOLOGY),
+                stay("stay-45", "Pablo", MALE, 75, 2, List.of(), List.of(OXYGEN),
+                        firstMonday.plusDays(8), firstMonday.plusDays(10), NEUROLOGY),
+                stay("stay-46", "Elena", FEMALE, 80, 1, List.of(NITROGEN), List.of(TELEMETRY),
+                        firstMonday.plusDays(12), firstMonday.plusDays(16), ONCOLOGY),
+                stay("stay-47", "Ravi", MALE, 88, 2, List.of(TELEMETRY, TELEVISION), List.of(OXYGEN),
+                        firstMonday.plusDays(18), firstMonday.plusDays(21), CARDIOLOGY),
+                stay("stay-48", "Helga", FEMALE, 92, 2, List.of(TELEVISION, OXYGEN, NITROGEN), List.of(TELEMETRY),
+                        firstMonday.plusDays(23), firstMonday.plusDays(29), NEUROLOGY),
+                stay("stay-49", "Theo", MALE, 5, 1, List.of(), List.of(OXYGEN),
+                        firstMonday, firstMonday.plusDays(2), ONCOLOGY),
+                stay("stay-50", "Alice", FEMALE, 12, 2, List.of(NITROGEN), List.of(TELEMETRY),
+                        firstMonday.plusDays(4), firstMonday.plusDays(8), CARDIOLOGY),
+                stay("stay-51", "Vince", MALE, 19, 2, List.of(TELEMETRY, TELEVISION), List.of(OXYGEN),
+                        firstMonday.plusDays(10), firstMonday.plusDays(13), NEUROLOGY),
+                stay("stay-52", "Carol", FEMALE, 25, 1, List.of(TELEVISION, OXYGEN, NITROGEN), List.of(TELEMETRY),
+                        firstMonday.plusDays(16), firstMonday.plusDays(22), ONCOLOGY),
+                stay("stay-53", "Eve", FEMALE, 33, 1, List.of(), List.of(NITROGEN),
+                        firstMonday, firstMonday.plusDays(4), NEUROLOGY),
+                stay("stay-54", "Aiden", MALE, 36, 1, List.of(), List.of(TELEMETRY),
+                        firstMonday.plusDays(6), firstMonday.plusDays(9), ONCOLOGY),
+                stay("stay-55", "Grace", FEMALE, 41, 1, List.of(), List.of(TELEVISION),
+                        firstMonday.plusDays(12), firstMonday.plusDays(18), CARDIOLOGY),
+                stay("stay-56", "Carlos", MALE, 44, 1, List.of(), List.of(OXYGEN),
+                        firstMonday.plusDays(21), firstMonday.plusDays(26), NEUROLOGY),
+                stay("stay-57", "Ivy", FEMALE, 47, 1, List.of(), List.of(NITROGEN),
+                        firstMonday.plusDays(29), firstMonday.plusDays(31), ONCOLOGY),
+                stay("stay-58", "Elian", MALE, 50, 2, List.of(), List.of(TELEMETRY),
+                        firstMonday, firstMonday.plusDays(3), CARDIOLOGY),
+                stay("stay-59", "Felix", MALE, 52, 2, List.of(), List.of(TELEVISION),
+                        firstMonday.plusDays(5), firstMonday.plusDays(11), NEUROLOGY),
+                stay("stay-60", "Gustavo", MALE, 54, 1, List.of(), List.of(OXYGEN),
+                        firstMonday.plusDays(14), firstMonday.plusDays(19), ONCOLOGY),
+                stay("stay-61", "Ian", MALE, 55, 2, List.of(), List.of(NITROGEN),
+                        firstMonday.plusDays(22), firstMonday.plusDays(24), CARDIOLOGY),
+                stay("stay-62", "Marcus", MALE, 58, 2, List.of(), List.of(TELEMETRY),
+                        firstMonday.plusDays(26), firstMonday.plusDays(30), NEUROLOGY),
+                stay("stay-63", "Bob", MALE, 60, 1, List.of(), List.of(TELEVISION),
+                        firstMonday, firstMonday.plusDays(6), ONCOLOGY),
+                stay("stay-64", "David", MALE, 63, 2, List.of(), List.of(OXYGEN),
+                        firstMonday.plusDays(9), firstMonday.plusDays(14), CARDIOLOGY),
+                stay("stay-65", "Frank", MALE, 66, 2, List.of(), List.of(NITROGEN),
+                        firstMonday.plusDays(17), firstMonday.plusDays(19), NEUROLOGY),
+                stay("stay-66", "Hank", MALE, 68, 1, List.of(), List.of(TELEMETRY),
+                        firstMonday.plusDays(21), firstMonday.plusDays(25), ONCOLOGY),
+                stay("stay-67", "Jack", MALE, 70, 2, List.of(), List.of(TELEVISION),
+                        firstMonday.plusDays(27), firstMonday.plusDays(30), CARDIOLOGY),
+                stay("stay-68", "Leo", MALE, 72, 2, List.of(OXYGEN, TELEMETRY), List.of(TELEVISION),
+                        firstMonday, firstMonday.plusDays(5), NEUROLOGY),
+                stay("stay-69", "Oscar", MALE, 75, 1, List.of(), List.of(NITROGEN),
+                        firstMonday.plusDays(8), firstMonday.plusDays(10), ONCOLOGY),
+                stay("stay-70", "Quinn", MALE, 80, 2, List.of(OXYGEN), List.of(TELEMETRY),
+                        firstMonday.plusDays(12), firstMonday.plusDays(16), CARDIOLOGY),
+                stay("stay-71", "Victor", MALE, 92, 1, List.of(), List.of(OXYGEN),
+                        firstMonday.plusDays(23), firstMonday.plusDays(29), ONCOLOGY),
+                stay("stay-72", "Zack", MALE, 5, 2, List.of(), List.of(NITROGEN),
+                        firstMonday, firstMonday.plusDays(2), CARDIOLOGY),
+                stay("stay-73", "Aaron", MALE, 12, 2, List.of(OXYGEN), List.of(TELEMETRY),
+                        firstMonday.plusDays(4), firstMonday.plusDays(8), NEUROLOGY),
+                stay("stay-74", "Caleb", MALE, 19, 1, List.of(TELEMETRY, OXYGEN), List.of(TELEVISION),
+                        firstMonday.plusDays(10), firstMonday.plusDays(13), ONCOLOGY),
+                stay("stay-75", "Ethan", MALE, 25, 2, List.of(), List.of(OXYGEN),
+                        firstMonday.plusDays(16), firstMonday.plusDays(22), CARDIOLOGY),
+                stay("stay-76", "Hugo", MALE, 28, 2, List.of(TELEMETRY), List.of(NITROGEN),
+                        firstMonday.plusDays(25), firstMonday.plusDays(30), NEUROLOGY),
+                stay("stay-77", "Karen", FEMALE, 33, 1, List.of(TELEVISION), List.of(TELEMETRY),
+                        firstMonday, firstMonday.plusDays(4), ONCOLOGY),
+                stay("stay-78", "Mona", FEMALE, 36, 2, List.of(NITROGEN, TELEVISION), List.of(TELEMETRY),
+                        firstMonday.plusDays(6), firstMonday.plusDays(9), CARDIOLOGY),
+                stay("stay-79", "Nora", FEMALE, 41, 2, List.of(), List.of(OXYGEN),
+                        firstMonday.plusDays(12), firstMonday.plusDays(18), NEUROLOGY),
+                stay("stay-80", "Priya", FEMALE, 44, 1, List.of(NITROGEN), List.of(TELEMETRY),
+                        firstMonday.plusDays(21), firstMonday.plusDays(26), ONCOLOGY),
+                stay("stay-81", "Rosa", FEMALE, 47, 2, List.of(TELEVISION, NITROGEN), List.of(TELEMETRY),
+                        firstMonday.plusDays(29), firstMonday.plusDays(31), CARDIOLOGY),
+                stay("stay-82", "Tina", FEMALE, 50, 2, List.of(NITROGEN, TELEVISION), List.of(TELEMETRY),
+                        firstMonday, firstMonday.plusDays(3), NEUROLOGY),
+                stay("stay-83", "Uma", FEMALE, 52, 1, List.of(), List.of(OXYGEN),
+                        firstMonday.plusDays(5), firstMonday.plusDays(11), ONCOLOGY),
+                stay("stay-84", "Wendy", FEMALE, 54, 2, List.of(NITROGEN), List.of(TELEMETRY),
+                        firstMonday.plusDays(14), firstMonday.plusDays(19), CARDIOLOGY),
+                stay("stay-85", "Xandra", FEMALE, 55, 2, List.of(TELEVISION, NITROGEN), List.of(TELEMETRY),
+                        firstMonday.plusDays(22), firstMonday.plusDays(24), NEUROLOGY),
+                stay("stay-86", "Yara", FEMALE, 58, 1, List.of(), List.of(TELEVISION),
+                        firstMonday.plusDays(26), firstMonday.plusDays(30), ONCOLOGY),
+                stay("stay-87", "Jorge", MALE, 60, 1, List.of(OXYGEN, TELEMETRY), List.of(TELEVISION),
+                        firstMonday, firstMonday.plusDays(6), CARDIOLOGY),
+                stay("stay-88", "Bella", FEMALE, 63, 1, List.of(TELEMETRY, NITROGEN, OXYGEN), List.of(TELEVISION),
+                        firstMonday.plusDays(9), firstMonday.plusDays(14), NEUROLOGY),
+                stay("stay-89", "Liam", MALE, 66, 1, List.of(), List.of(TELEMETRY),
+                        firstMonday.plusDays(17), firstMonday.plusDays(19), ONCOLOGY),
+                stay("stay-90", "Dana", FEMALE, 68, 1, List.of(OXYGEN), List.of(TELEVISION),
+                        firstMonday.plusDays(21), firstMonday.plusDays(25), CARDIOLOGY),
+                stay("stay-91", "Noah", MALE, 70, 1, List.of(TELEMETRY, NITROGEN), List.of(OXYGEN),
+                        firstMonday.plusDays(27), firstMonday.plusDays(30), NEUROLOGY),
+                stay("stay-92", "Fiona", FEMALE, 72, 1, List.of(NITROGEN, TELEMETRY, TELEVISION, OXYGEN), List.of(),
+                        firstMonday, firstMonday.plusDays(5), ONCOLOGY),
+                stay("stay-93", "Pablo", MALE, 75, 2, List.of(), List.of(TELEMETRY),
+                        firstMonday.plusDays(8), firstMonday.plusDays(10), CARDIOLOGY),
+                stay("stay-94", "Gina", FEMALE, 80, 2, List.of(TELEVISION), List.of(TELEMETRY),
+                        firstMonday.plusDays(12), firstMonday.plusDays(16), NEUROLOGY),
+                stay("stay-95", "Ravi", MALE, 88, 1, List.of(OXYGEN, NITROGEN), List.of(TELEMETRY),
+                        firstMonday.plusDays(18), firstMonday.plusDays(21), ONCOLOGY),
+                stay("stay-96", "Iris", FEMALE, 92, 2, List.of(NITROGEN, TELEMETRY, TELEVISION), List.of(OXYGEN),
+                        firstMonday.plusDays(23), firstMonday.plusDays(29), CARDIOLOGY),
+                stay("stay-97", "Theo", MALE, 5, 2, List.of(), List.of(TELEMETRY),
+                        firstMonday, firstMonday.plusDays(2), NEUROLOGY),
+                stay("stay-98", "Kira", FEMALE, 12, 1, List.of(TELEVISION), List.of(TELEMETRY),
+                        firstMonday.plusDays(4), firstMonday.plusDays(8), ONCOLOGY),
+                stay("stay-99", "Vince", MALE, 19, 2, List.of(OXYGEN, NITROGEN), List.of(TELEMETRY),
+                        firstMonday.plusDays(10), firstMonday.plusDays(13), CARDIOLOGY),
+                stay("stay-100", "Mira", FEMALE, 25, 2, List.of(NITROGEN, TELEMETRY, TELEVISION), List.of(OXYGEN),
+                        firstMonday.plusDays(16), firstMonday.plusDays(22), NEUROLOGY),
+                stay("stay-101", "Olga", FEMALE, 33, 2, List.of(), List.of(TELEVISION),
+                        firstMonday, firstMonday.plusDays(4), CARDIOLOGY),
+                stay("stay-102", "Queenie", FEMALE, 36, 2, List.of(), List.of(OXYGEN),
+                        firstMonday.plusDays(6), firstMonday.plusDays(9), NEUROLOGY),
+                stay("stay-103", "Sofia", FEMALE, 41, 1, List.of(), List.of(NITROGEN),
+                        firstMonday.plusDays(12), firstMonday.plusDays(18), ONCOLOGY),
+                stay("stay-104", "Ursula", FEMALE, 44, 2, List.of(), List.of(TELEMETRY),
+                        firstMonday.plusDays(21), firstMonday.plusDays(26), CARDIOLOGY),
+                stay("stay-105", "Delia", FEMALE, 50, 1, List.of(), List.of(OXYGEN),
+                        firstMonday, firstMonday.plusDays(3), ONCOLOGY),
+                stay("stay-106", "Elena", FEMALE, 52, 2, List.of(), List.of(NITROGEN),
+                        firstMonday.plusDays(5), firstMonday.plusDays(11), CARDIOLOGY),
+                stay("stay-107", "Helga", FEMALE, 54, 2, List.of(), List.of(TELEMETRY),
+                        firstMonday.plusDays(14), firstMonday.plusDays(19), NEUROLOGY),
+                stay("stay-108", "Alice", FEMALE, 55, 1, List.of(), List.of(TELEVISION),
+                        firstMonday.plusDays(22), firstMonday.plusDays(24), ONCOLOGY),
+                stay("stay-109", "Carol", FEMALE, 58, 2, List.of(), List.of(OXYGEN),
+                        firstMonday.plusDays(26), firstMonday.plusDays(30), CARDIOLOGY));
+
+        return new BedPlanInput(List.of(department), stays);
+    }
+
+    private static RoomInputDTO room(String id, int capacity, GenderLimitation genderLimitation, Set<String> equipments) {
+        List<BedInputDTO> beds = capacity == 1
+                ? List.of(new BedInputDTO(id + "-bed0"))
+                : List.of(new BedInputDTO(id + "-bed0"), new BedInputDTO(id + "-bed1"));
+        return new RoomInputDTO(id, "Room " + id.substring(1), capacity, genderLimitation, equipments, beds);
+    }
+
+    private static StayInputDTO stay(String id, String patientName, Gender patientGender, int patientAge,
+            Integer patientPreferredMaximumRoomCapacity, List<String> patientRequiredEquipments,
+            List<String> patientPreferredEquipments, LocalDate arrivalDate, LocalDate departureDate,
+            String specialty) {
+        return new StayInputDTO(id, patientName, patientGender, patientAge, patientPreferredMaximumRoomCapacity,
+                patientRequiredEquipments, patientPreferredEquipments, arrivalDate, departureDate,
+                specialty, null, false);
+    }
+}

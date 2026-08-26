@@ -1,3 +1,23 @@
+// ── Platform context ──
+// When embedded in the Timefold Platform, the iframe URL carries these query params.
+// Standalone (local dev), none are present and the app behaves as before.
+const PLATFORM = (function () {
+    const q = new URL(window.location.href).searchParams;
+    return {
+        onPlatform: q.has('onPlatform'),
+        runId: q.get('runId'),
+        apiUrl: q.has('apiUrl') ? decodeURIComponent(q.get('apiUrl')).replace(/\/+$/, '') : null,
+    };
+})();
+
+// Build an API URL: prefix the platform base when embedded, else root-relative (local dev).
+function api(path) {
+    return PLATFORM.apiUrl ? PLATFORM.apiUrl + path : path;
+}
+
+const MODEL_PATH = '/v1/schedules';
+const DEMO_DATA_PATH = '/v1/demo-data/BASIC';
+
 var autoRefreshIntervalId = null;
 
 const byRoomPanel = document.getElementById("byRoomPanel");
@@ -12,9 +32,11 @@ var byRoomGroupData = new vis.DataSet();
 var byRoomItemData = new vis.DataSet();
 var byRoomTimeline = new vis.Timeline(byRoomPanel, byRoomItemData, byRoomGroupData, byRoomTimelineOptions);
 
-let scheduleId = null;
+let jobId = null;
 let loadedSchedule = null;
 let viewType = "R";
+// Set when stop is pressed before the POST that creates the run has returned a jobId.
+let stopRequested = false;
 
 $(document).ready(function () {
     $("#solveButton").click(function () {
@@ -29,44 +51,31 @@ $(document).ready(function () {
     $("#byRoomTab").click(function () {
         viewType = "R";
         byRoomTimeline.redraw();
-        refreshSchedule();
+        renderSchedule(loadedSchedule);
     });
-
-    addImportDropdownItem();
-    addExportDropdownItem();
 
     setupAjax();
-    refreshSchedule();
+    if (PLATFORM.onPlatform) {
+        document.body.classList.add('on-platform');
+        loadPlatformRun();
+    } else {
+        getStatus();
+    }
 });
-
-function addImportDropdownItem() {
-    $("#testDataButton")
-        .append($('<hr class="dropdown-divider">'))
-        .append($('<a id="importTestData" class="dropdown-item" href="#">Import</a>'));
-    $("#uploadModalImportButton").click(importLocalFile);
-    $("#importTestData").click(function () {
-        scheduleId = null;
-        demoDataId = null;
-        $('#uploadModal').modal('show');
-    });
-}
-
-function addExportDropdownItem() {
-    $("#testDataButton")
-        .append($('<a id="exportData" class="dropdown-item" href="#" download="result.json">Export</a>'));
-}
 
 function setupAjax() {
     $.ajaxSetup({
         headers: {
-            'Content-Type': 'application/json', 'Accept': 'application/json,text/plain', // plain text is required by solve() returning UUID of the solver job
+            'Content-Type': 'application/json',
+            'Accept': 'application/json,text/plain',
+            ...(PLATFORM.apiKey ? {'X-API-KEY': PLATFORM.apiKey} : {})
         }
     });
 
     // Extend jQuery to support $.put() and $.delete()
     jQuery.each(["put", "delete"], function (i, method) {
         jQuery[method] = function (url, data, callback, type) {
-            if (jQuery.isFunction(data)) {
+            if (typeof data === "function") {
                 type = type || callback;
                 callback = data;
                 data = undefined;
@@ -78,27 +87,149 @@ function setupAjax() {
     });
 }
 
-function refreshSchedule() {
-    let path = "/schedules/" + scheduleId;
-    if (scheduleId === null) {
-        path = "/demo-data";
-    }
+// ── ModelRest plumbing ──
+// demo-data → ModelRequest {modelInput,...}; POST model → metadata {id, solverStatus};
+// GET model/{id} → ModelResponse {metadata:{solverStatus, score}, modelOutput}.
+//
+// modelOutput only carries the possible assignments (stays: [{id, bedId}]), not the
+// full problem, so loadedSchedule keeps the full modelInput (departments + stay details)
+// and mergeModelOutput() only overlays the bedId per stay and the score from metadata.
 
-    $.getJSON(path, function (schedule) {
-        loadedSchedule = schedule;
-        $('#exportData').attr('href', 'data:text/plain;charset=utf-8,' + JSON.stringify(loadedSchedule));
-        renderSchedule(schedule);
-    })
-        .fail(function (xhr, ajaxOptions, thrownError) {
-            showError("Getting the schedule has failed.", xhr);
-            refreshSolvingButtons(false);
+function mergeModelOutput(modelOutput, metadata) {
+    if (loadedSchedule == null) {
+        return;
+    }
+    if (modelOutput != null && modelOutput.stays != null) {
+        const bedIdByStayId = new Map(modelOutput.stays.map(stay => [stay.id, stay.bedId]));
+        loadedSchedule.stays = loadedSchedule.stays.map(stay => bedIdByStayId.has(stay.id)
+            ? {...stay, bedId: bedIdByStayId.get(stay.id)}
+            : stay);
+    }
+    loadedSchedule.score = metadata != null ? metadata.score : loadedSchedule.score;
+}
+
+function loadPlatformRun() {
+    if (!PLATFORM.runId) {
+        showError("No runId provided by platform.", {status: 0, statusText: "missing runId"});
+        return;
+    }
+    jobId = PLATFORM.runId;
+    $.get(api(`${MODEL_PATH}/${jobId}/model-request`), function (req) {
+        loadedSchedule = req.modelInput || req;
+        renderSchedule(loadedSchedule);
+        getStatus();
+        if (autoRefreshIntervalId == null) {
+            autoRefreshIntervalId = setInterval(getStatus, 2000);
+        }
+    }).fail(function (xhr) {
+        showError("Failed to load run input from platform.", xhr);
+    });
+}
+
+function getStatus() {
+    if (jobId == null) {
+        $.get(api(DEMO_DATA_PATH), function (data) {
+            loadedSchedule = data.modelInput;
+            renderSchedule(loadedSchedule);
+        }).fail(function (xhr) {
+            showError("Getting the demo data has failed.", xhr);
+            refreshSolvingButtons("SOLVING_COMPLETED");
         });
+    } else {
+        $.get(api(`${MODEL_PATH}/${jobId}`), function (data) {
+            mergeModelOutput(data.modelOutput, data.metadata);
+            renderSchedule(loadedSchedule);
+            refreshSolvingButtons(data.metadata.solverStatus);
+        }).fail(function (xhr) {
+            showError("Getting the schedule has failed.", xhr);
+            refreshSolvingButtons("SOLVING_COMPLETED");
+        });
+    }
+}
+
+function solve() {
+    // Swap in the stop button right away, rather than waiting for the demo-data GET
+    // and the POST to return.
+    stopRequested = false;
+    showStopSolvingButton(true);
+    $.get(api(DEMO_DATA_PATH), function (modelRequest) {
+        loadedSchedule = modelRequest.modelInput;
+        renderSchedule(loadedSchedule);
+        $.post(api(MODEL_PATH), JSON.stringify(modelRequest), function (metadata) {
+            jobId = metadata.id;
+            if (stopRequested) {
+                // Stop was pressed while the run was still starting up: honour it now
+                // that there is a jobId to stop.
+                stopRequested = false;
+                stopSolving();
+                return;
+            }
+            refreshSolvingButtons(metadata.solverStatus || "SOLVING_ACTIVE");
+            if (autoRefreshIntervalId == null) {
+                autoRefreshIntervalId = setInterval(getStatus, 2000);
+            }
+        }).fail(function (xhr) {
+            showError("Start solving failed.", xhr);
+            refreshSolvingButtons("SOLVING_COMPLETED");
+        });
+    }).fail(function (xhr) {
+        showError("Start solving failed.", xhr);
+        refreshSolvingButtons("SOLVING_COMPLETED");
+    });
+}
+
+function stopSolving() {
+    if (jobId == null) {
+        // The run is still being created, so there is nothing to DELETE yet. Keep the
+        // stop button showing and let solve() stop the run as soon as it has an id.
+        stopRequested = true;
+        return;
+    }
+    $.delete(api(`${MODEL_PATH}/${jobId}`), function () {
+        refreshSolvingButtons("SOLVING_COMPLETED");
+        getStatus();
+    }).fail(function (xhr) {
+        showError("Stop solving failed.", xhr);
+    });
+}
+
+// SolvingStatus values that mean the run is over and nothing is in flight.
+const TERMINAL_SOLVER_STATUSES = [
+    "DATASET_INVALID", "SOLVING_COMPLETED", "SOLVING_INCOMPLETE", "SOLVING_FAILED"];
+
+function isSolving(solverStatus) {
+    // Anything non-terminal means work is queued or running, including the DATASET_*
+    // states a run passes through before solving actually starts. Treating those as
+    // "not solving" made the button flip back to Solve right after the POST returned.
+    return solverStatus != null && !TERMINAL_SOLVER_STATUSES.includes(solverStatus);
+}
+
+function showStopSolvingButton(solving) {
+    if (solving) {
+        $("#solveButton").hide();
+        $("#stopSolvingButton").show();
+    } else {
+        $("#solveButton").show();
+        $("#stopSolvingButton").hide();
+    }
+}
+
+function refreshSolvingButtons(solverStatus) {
+    const solving = isSolving(solverStatus);
+    showStopSolvingButton(solving);
+    if (!solving && autoRefreshIntervalId != null) {
+        clearInterval(autoRefreshIntervalId);
+        autoRefreshIntervalId = null;
+    }
 }
 
 function renderSchedule(schedule) {
-    refreshSolvingButtons(schedule.solverStatus != null && schedule.solverStatus !== "NOT_SOLVING");
-    $("#score").text("Score: " + (schedule.score == null ? "?" : schedule.score));
-    $("#info").text(`This dataset has ${schedule.stays.length} stays and ${schedule.departments.flatMap(d => d.rooms).length} beds across ${schedule.departments.length} departments.`);
+    if (schedule == null) {
+        return;
+    }
+    const beds = schedule.departments.flatMap(d => d.rooms).flatMap(r => r.beds);
+    $("#score").text("Score: " + (schedule.score == null || schedule.score === "" ? "?" : schedule.score));
+    $("#info").text(`This dataset has ${schedule.stays.length} stays and ${beds.length} beds across ${schedule.departments.length} departments.`);
 
     if (viewType === "R") {
         renderScheduleByRoom(schedule);
@@ -108,7 +239,6 @@ function renderSchedule(schedule) {
 function renderScheduleByRoom(schedule) {
     const unassignedPatients = $("#unassignedPatients");
     unassignedPatients.children().remove();
-    let unassignedJobsCount = 0;
     byRoomGroupData.clear();
     byRoomItemData.clear();
 
@@ -134,22 +264,18 @@ function renderScheduleByRoom(schedule) {
             nestedLevels: [...room.beds.map(b => b.id)]
         };
         byRoomGroupData.add(roomData);
-        room.beds.forEach(bed => byRoomGroupData.add({
+        room.beds.forEach((bed, index) => byRoomGroupData.add({
             id: bed.id,
-            content: `Bed ${bed.indexInRoom + 1}`,
+            content: `Bed ${index + 1}`,
             treeLevel: 2
         }));
     });
-
-    const bedMap = new Map();
-    schedule.departments.flatMap(d => d.rooms).flatMap(r => r.beds).forEach(b => bedMap.set(b.id, b));
 
     $.each(schedule.stays, (_, stay) => {
         const bgcolor = stay.patientGender === 'MALE' ? '#729FCF' : '#FCE94F';
         const color = stay.patientGender === 'MALE' ? 'white' : 'black';
 
-        if (stay.bed == null) {
-            unassignedJobsCount++;
+        if (stay.bedId == null) {
             const unassignedPatientElement = $(`<div class="card-body p-2"/>`)
                 .append($(`<h5 class="card-title mb-1"/>`).text(`${stay.patientName} (${stay.patientGender.substring(0, 1)})`))
                 .append($(`<p class="card-text ms-2 mb-0"/>`).text(`${JSJoda.LocalDate.parse(stay.arrivalDate)
@@ -211,7 +337,7 @@ function renderScheduleByRoom(schedule) {
 
             byRoomItemData.add({
                 id: stay.id,
-                group: stay.bed,
+                group: stay.bedId,
                 content: byPatientElement.html(),
                 start: stay.arrivalDate,
                 end: stay.departureDate,
@@ -235,107 +361,118 @@ function renderScheduleByRoom(schedule) {
     byRoomTimeline.setWindow(allDates[0], allDates[allDates.length - 1]);
 }
 
-function solve() {
-    $.post("/schedules", JSON.stringify(loadedSchedule), function (data) {
-        scheduleId = data;
-        refreshSolvingButtons(true);
-    }).fail(function (xhr, ajaxOptions, thrownError) {
-        showError("Start solving failed.", xhr);
-        refreshSolvingButtons(false);
-    }, "text");
-}
-
 function analyze() {
     new bootstrap.Modal("#scoreAnalysisModal").show()
     const scoreAnalysisModalContent = $("#scoreAnalysisModalContent");
     scoreAnalysisModalContent.children().remove();
-    if (loadedSchedule.score == null) {
+    if (jobId == null || loadedSchedule == null || loadedSchedule.score == null || loadedSchedule.score === "") {
         scoreAnalysisModalContent.text("No score to analyze yet, please first press the 'solve' button.");
-    } else {
-        $('#scoreAnalysisScoreLabel').text(`(${loadedSchedule.score})`);
-        $.put("/schedules/analyze", JSON.stringify(loadedSchedule), function (scoreAnalysis) {
-            let constraints = scoreAnalysis.constraints;
-            constraints.sort((a, b) => {
-                let aComponents = getScoreComponents(a.score), bComponents = getScoreComponents(b.score);
-                if (aComponents.hard < 0 && bComponents.hard > 0) return -1;
-                if (aComponents.hard > 0 && bComponents.soft < 0) return 1;
-                if (Math.abs(aComponents.hard) > Math.abs(bComponents.hard)) {
+        return;
+    }
+    $('#scoreAnalysisScoreLabel').text(`(${loadedSchedule.score})`);
+    $.get(api(`${MODEL_PATH}/${jobId}/score-analysis?includeJustifications=true`), function (scoreAnalysis) {
+        let constraints = scoreAnalysis.constraints;
+        constraints.sort((a, b) => {
+            let aComponents = getScoreComponents(a.score), bComponents = getScoreComponents(b.score);
+            if (aComponents.hard < 0 && bComponents.hard > 0) return -1;
+            if (aComponents.hard > 0 && bComponents.soft < 0) return 1;
+            if (Math.abs(aComponents.hard) > Math.abs(bComponents.hard)) {
+                return -1;
+            } else {
+                if (aComponents.medium < 0 && bComponents.medium > 0) return -1;
+                if (aComponents.medium > 0 && bComponents.medium < 0) return 1;
+                if (Math.abs(aComponents.medium) > Math.abs(bComponents.medium)) {
                     return -1;
                 } else {
-                    if (aComponents.medium < 0 && bComponents.medium > 0) return -1;
-                    if (aComponents.medium > 0 && bComponents.medium < 0) return 1;
-                    if (Math.abs(aComponents.medium) > Math.abs(bComponents.medium)) {
-                        return -1;
-                    } else {
-                        if (aComponents.soft < 0 && bComponents.soft > 0) return -1;
-                        if (aComponents.soft > 0 && bComponents.soft < 0) return 1;
+                    if (aComponents.soft < 0 && bComponents.soft > 0) return -1;
+                    if (aComponents.soft > 0 && bComponents.soft < 0) return 1;
 
-                        return Math.abs(bComponents.soft) - Math.abs(aComponents.soft);
-                    }
+                    return Math.abs(bComponents.soft) - Math.abs(aComponents.soft);
                 }
-            });
-            constraints.map((e) => {
-                let components = getScoreComponents(e.weight);
-                e.type = components.hard != 0 ? 'hard' : (components.medium != 0 ? 'medium' : 'soft');
-                e.weight = components[e.type];
-                let scores = getScoreComponents(e.score);
-                e.implicitScore = scores.hard != 0 ? scores.hard : (scores.medium != 0 ? scores.medium : scores.soft);
-            });
-            scoreAnalysis.constraints = constraints;
-
-            scoreAnalysisModalContent.children().remove();
-            scoreAnalysisModalContent.text("");
-
-            const analysisTable = $(`<table class="table"/>`).css({textAlign: 'center'});
-            const analysisTHead = $(`<thead/>`).append($(`<tr/>`)
-                .append($(`<th></th>`))
-                .append($(`<th>Constraint</th>`).css({textAlign: 'left'}))
-                .append($(`<th>Type</th>`))
-                .append($(`<th># Matches</th>`))
-                .append($(`<th>Weight</th>`))
-                .append($(`<th>Score</th>`))
-                .append($(`<th></th>`)));
-            analysisTable.append(analysisTHead);
-            const analysisTBody = $(`<tbody/>`)
-            $.each(scoreAnalysis.constraints, (index, constraintAnalysis) => {
-                let icon = constraintAnalysis.type == "hard" && constraintAnalysis.implicitScore < 0 ? '<span class="fas fa-exclamation-triangle" style="color: red"></span>' : '';
-                if (!icon) icon = constraintAnalysis.matches.length == 0 ? '<span class="fas fa-check-circle" style="color: green"></span>' : '';
-
-                let row = $(`<tr/>`);
-                row.append($(`<td/>`).html(icon))
-                    .append($(`<td/>`).text(constraintAnalysis.id).css({textAlign: 'left'}))
-                    .append($(`<td/>`).text(constraintAnalysis.type))
-                    .append($(`<td/>`).html(`<b>${constraintAnalysis.matches.length}</b>`))
-                    .append($(`<td/>`).text(constraintAnalysis.weight))
-                    .append($(`<td/>`).text(constraintAnalysis.implicitScore));
-                analysisTBody.append(row);
-                row.append($(`<td/>`));
-            });
-            analysisTable.append(analysisTBody);
-            scoreAnalysisModalContent.append(analysisTable);
-        }).fail(function (xhr, ajaxOptions, thrownError) {
-            scoreAnalysisModalContent.children().remove();
-            scoreAnalysisModalContent.append($("<p/>").html(
-                "The server returned an error."
-                + " This may be due to a misconfiguration, or because Score Analysis requires"
-                + " <b>Timefold Solver Enterprise Edition</b>, which is not on the classpath."
-                + " If the latter, reach out to Timefold, obtain your license,"
-                + " and then run the quickstart with an Enterprise profile to see Score analysis in action."));
-        }, "text");
-    }
-}
-
-function publish() {
-    $("#publishButton").hide();
-    $("#publishLoadingButton").show();
-    $.put(`/schedules/${scheduleId}/publish`, function (schedule) {
-        loadedSchedule = schedule;
-        renderSchedule(schedule);
-    })
-        .fail(function (xhr, ajaxOptions, thrownError) {
-            showError("Publish failed.", xhr);
-            refreshSolvingButtons(false);
+            }
         });
+        constraints.map((e) => {
+            let components = getScoreComponents(e.weight);
+            e.type = components.hard != 0 ? 'hard' : (components.medium != 0 ? 'medium' : 'soft');
+            e.weight = components[e.type];
+            let scores = getScoreComponents(e.score);
+            e.implicitScore = scores.hard != 0 ? scores.hard : (scores.medium != 0 ? scores.medium : scores.soft);
+        });
+        scoreAnalysis.constraints = constraints;
+
+        scoreAnalysisModalContent.children().remove();
+        scoreAnalysisModalContent.text("");
+
+        const analysisTable = $(`<table class="table"/>`).css({textAlign: 'center'});
+        const analysisTHead = $(`<thead/>`).append($(`<tr/>`)
+            .append($(`<th></th>`))
+            .append($(`<th>Constraint</th>`).css({textAlign: 'left'}))
+            .append($(`<th>Type</th>`))
+            .append($(`<th># Matches</th>`))
+            .append($(`<th>Weight</th>`))
+            .append($(`<th>Score</th>`))
+            .append($(`<th></th>`)));
+        analysisTable.append(analysisTHead);
+        const analysisTBody = $(`<tbody/>`)
+        $.each(scoreAnalysis.constraints, (index, constraintAnalysis) => {
+            const matches = constraintAnalysis.matches ?? [];
+            const matchCount = constraintAnalysis.matchCount ?? matches.length;
+            let icon = constraintAnalysis.type == "hard" && constraintAnalysis.implicitScore < 0 ? '<span class="fas fa-exclamation-triangle" style="color: red"></span>' : '';
+            if (!icon) icon = matchCount == 0 ? '<span class="fas fa-check-circle" style="color: green"></span>' : '';
+
+            let row = $(`<tr/>`);
+            row.append($(`<td/>`).html(icon))
+                .append($(`<td/>`).text(constraintAnalysis.name).css({textAlign: 'left'}))
+                .append($(`<td/>`).text(constraintAnalysis.type))
+                .append($(`<td/>`).html(`<b>${matchCount}</b>`))
+                .append($(`<td/>`).text(constraintAnalysis.weight))
+                .append($(`<td/>`).text(constraintAnalysis.implicitScore));
+
+            analysisTBody.append(row);
+
+            if (matches.length > 0) {
+                let matchesRow = $(`<tr/>`).addClass("collapse").attr("id", "row" + index + "Collapse");
+                let matchesListGroup = $(`<ul/>`).addClass('list-group').addClass('list-group-flush').css({textAlign: 'left'});
+
+                $.each(matches, (_, match) => {
+                    matchesListGroup.append($(`<li/>`).addClass('list-group-item').addClass('list-group-item-light')
+                        .text(match.justification?.description ?? match.score));
+                });
+
+                matchesRow.append($(`<td/>`));
+                matchesRow.append($(`<td/>`).attr('colspan', '6').append(matchesListGroup));
+                analysisTBody.append(matchesRow);
+
+                row.append($(`<td/>`).append($(`<a/>`)
+                    .attr('href', "#row" + index + "Collapse")
+                    .append($(`<span/>`).addClass('fas').addClass('fa-chevron-down'))
+                    .click(e => {
+                        e.preventDefault();
+                        const collapseEl = matchesRow.get(0);
+                        bootstrap.Collapse.getOrCreateInstance(collapseEl).toggle();
+                        let icon = $(e.currentTarget).find('span.fas');
+                        if (icon.hasClass('fa-chevron-down')) {
+                            icon.removeClass('fa-chevron-down').addClass('fa-chevron-up');
+                        } else {
+                            icon.removeClass('fa-chevron-up').addClass('fa-chevron-down');
+                        }
+                    })));
+            } else {
+                row.append($(`<td/>`));
+            }
+
+        });
+        analysisTable.append(analysisTBody);
+        scoreAnalysisModalContent.append(analysisTable);
+    }).fail(function (xhr, ajaxOptions, thrownError) {
+        scoreAnalysisModalContent.children().remove();
+        scoreAnalysisModalContent.append($("<p/>").html(
+            "The server returned an error."
+            + " This may be due to a misconfiguration, or because Score Analysis requires"
+            + " <b>Timefold Solver Enterprise Edition</b>, which is not on the classpath."
+            + " If the latter, reach out to Timefold, obtain your license,"
+            + " and then run the quickstart with an Enterprise profile to see Score analysis in action."));
+    });
 }
 
 function getScoreComponents(score) {
@@ -348,55 +485,6 @@ function getScoreComponents(score) {
     return components;
 }
 
-function refreshSolvingButtons(solving) {
-    if (solving) {
-        $("#solveButton").hide();
-        $("#stopSolvingButton").show();
-        if (autoRefreshIntervalId == null) {
-            autoRefreshIntervalId = setInterval(refreshSchedule, 2000);
-        }
-    } else {
-        $("#solveButton").show();
-        $("#stopSolvingButton").hide();
-        if (autoRefreshIntervalId != null) {
-            clearInterval(autoRefreshIntervalId);
-            autoRefreshIntervalId = null;
-        }
-    }
-}
-
-function stopSolving() {
-    $.delete("/schedules/" + scheduleId, function () {
-        refreshSolvingButtons(false);
-        refreshSchedule();
-    }).fail(function (xhr, ajaxOptions, thrownError) {
-        showError("Stop solving failed.", xhr);
-    });
-}
-
-function importLocalFile() {
-    var file = document.querySelector('input[type=file]').files[0];
-    var reader = new FileReader();
-
-    reader.addEventListener("load", function () {
-        // convert image file to base64 string
-        var data = atob(reader.result.toString().replace(/^data:(.*,)?/, ''));
-        $("#importedFile").val('');
-
-        try {
-            loadedSchedule = JSON.parse(data);
-            renderSchedule(loadedSchedule);
-            $('#exportData').attr('href', 'data:text/plain;charset=utf-8,' + JSON.stringify(loadedSchedule));
-        } catch (error) {
-            console.error(error);
-            showSimpleError("Failed loading a bed plan.\nCheck if the content of the file represents a valid bed plan.");
-        }
-        $('#uploadModal').modal('hide');
-    }, false);
-
-    reader.readAsDataURL(file);
-}
-
 function copyTextToClipboard(id) {
     var text = $("#" + id).text().trim();
 
@@ -406,29 +494,6 @@ function copyTextToClipboard(id) {
     dummy.select();
     document.execCommand("copy");
     document.body.removeChild(dummy);
-}
-
-function compareTimeslots(t1, t2) {
-    const LocalDateTime = JSJoda.LocalDateTime;
-    let diff = LocalDateTime.parse(t1.startDateTime).compareTo(LocalDateTime.parse(t2.startDateTime));
-    if (diff === 0) {
-        diff = LocalDateTime.parse(t1.endDateTime).compareTo(LocalDateTime.parse(t2.endDateTime));
-    }
-    return diff;
-}
-
-function showSimpleError(title) {
-    const notification = $(`<div class="toast" role="alert" aria-live="assertive" aria-atomic="true" style="min-width: 50rem"/>`)
-        .append($(`<div class="toast-header bg-danger">
-                 <strong class="me-auto text-dark">Error</strong>
-                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-               </div>`))
-        .append($(`<div class="toast-body"/>`)
-            .append($(`<p/>`).text(title))
-        );
-    $("#notificationPanel").append(notification);
-    notification.toast({delay: 30000});
-    notification.toast('show');
 }
 
 function showError(title, xhr) {
