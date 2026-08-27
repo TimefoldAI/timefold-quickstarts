@@ -39,7 +39,7 @@ public final class TestHelper {
         return new DepartmentBuilder(id);
     }
 
-    public static StayBuilder aStay(String id, Bed bed) {
+    public static StayBuilder aStay(String id, BedBuilder bed) {
         return new StayBuilder(id, bed);
     }
 
@@ -62,19 +62,19 @@ public final class TestHelper {
     public static final class BedBuilder {
 
         private final String id;
-        private Room room;
+        private RoomBuilder room;
 
         private BedBuilder(String id) {
             this.id = id;
         }
 
-        public BedBuilder room(Room room) {
+        public BedBuilder room(RoomBuilder room) {
             this.room = room;
             return this;
         }
 
         public Bed build() {
-            return new Bed(id, room);
+            return new Bed(id, room == null ? null : room.build());
         }
     }
 
@@ -82,7 +82,7 @@ public final class TestHelper {
 
         private final String id;
         private String name;
-        private Department department;
+        private DepartmentBuilder department;
         private int capacity;
         private GenderLimitation genderLimitation = GenderLimitation.ANY_GENDER;
         private Set<String> equipments = Set.of();
@@ -97,7 +97,7 @@ public final class TestHelper {
             return this;
         }
 
-        public RoomBuilder department(Department department) {
+        public RoomBuilder department(DepartmentBuilder department) {
             this.department = department;
             return this;
         }
@@ -118,7 +118,8 @@ public final class TestHelper {
         }
 
         public Room build() {
-            return new Room(id, name, department, capacity, genderLimitation, equipments);
+            return new Room(id, name, department == null ? null : department.build(), capacity, genderLimitation,
+                    equipments);
         }
     }
 
@@ -167,7 +168,7 @@ public final class TestHelper {
         private static final String DEFAULT_SPECIALTY = "default";
 
         private final String id;
-        private final Bed bed;
+        private final BedBuilder bed;
 
         private LocalDate arrivalDate = ZERO_NIGHT;
         private LocalDate departureDate = FIVE_NIGHT;
@@ -180,7 +181,7 @@ public final class TestHelper {
         private List<String> patientPreferredEquipments = List.of();
         private boolean pinned = false;
 
-        private StayBuilder(String id, Bed bed) {
+        private StayBuilder(String id, BedBuilder bed) {
             this.id = id;
             this.bed = bed;
         }
@@ -227,8 +228,8 @@ public final class TestHelper {
 
         public Stay build() {
             return new Stay(id, patientName, patientGender, patientAge, patientPreferredMaximumRoomCapacity,
-                    patientRequiredEquipments, patientPreferredEquipments, arrivalDate, departureDate, specialty, bed,
-                    pinned);
+                    patientRequiredEquipments, patientPreferredEquipments, arrivalDate, departureDate, specialty,
+                    bed == null ? null : bed.build(), pinned);
         }
     }
 
@@ -252,7 +253,7 @@ public final class TestHelper {
         private int capacity = 1;
         private GenderLimitation genderLimitation = GenderLimitation.ANY_GENDER;
         private Set<String> equipments = Set.of();
-        private List<BedInputDTO> beds = List.of(aBedDTO("b1").build());
+        private List<BedDTOBuilder> beds = List.of(aBedDTO("b1"));
 
         private RoomDTOBuilder(String id) {
             this.id = id;
@@ -279,14 +280,15 @@ public final class TestHelper {
             return this;
         }
 
-        public RoomDTOBuilder beds(List<BedInputDTO> beds) {
+        public RoomDTOBuilder beds(List<BedDTOBuilder> beds) {
             this.beds = beds;
             this.capacity = beds.size();
             return this;
         }
 
         public RoomInputDTO build() {
-            return new RoomInputDTO(id, name, capacity, genderLimitation, equipments, beds);
+            List<BedInputDTO> builtBeds = beds.stream().map(BedDTOBuilder::build).toList();
+            return new RoomInputDTO(id, name, capacity, genderLimitation, equipments, builtBeds);
         }
     }
 
@@ -297,7 +299,7 @@ public final class TestHelper {
         private Integer minimumAge = 18;
         private Integer maximumAge = 88;
         private Map<String, Integer> specialtyToPriority = Map.of();
-        private List<RoomInputDTO> rooms = List.of();
+        private List<RoomDTOBuilder> rooms = List.of();
 
         private DepartmentDTOBuilder(String id) {
             this.id = id;
@@ -324,13 +326,14 @@ public final class TestHelper {
             return this;
         }
 
-        public DepartmentDTOBuilder rooms(List<RoomInputDTO> rooms) {
+        public DepartmentDTOBuilder rooms(List<RoomDTOBuilder> rooms) {
             this.rooms = rooms;
             return this;
         }
 
         public DepartmentInputDTO build() {
-            return new DepartmentInputDTO(id, name, minimumAge, maximumAge, specialtyToPriority, rooms);
+            List<RoomInputDTO> builtRooms = rooms.stream().map(RoomDTOBuilder::build).toList();
+            return new DepartmentInputDTO(id, name, minimumAge, maximumAge, specialtyToPriority, builtRooms);
         }
     }
 

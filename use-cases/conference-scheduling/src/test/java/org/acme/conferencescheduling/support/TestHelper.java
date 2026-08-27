@@ -291,7 +291,7 @@ public final class TestHelper {
         private final String code;
         private String title;
         private TalkType talkType;
-        private List<Speaker> speakers = emptyList();
+        private List<SpeakerBuilder> speakers = emptyList();
         private SequencedSet<String> themeTrackTags = new LinkedHashSet<>();
         private SequencedSet<String> sectorTags = new LinkedHashSet<>();
         private SequencedSet<String> audienceTypes = new LinkedHashSet<>();
@@ -311,7 +311,7 @@ public final class TestHelper {
         private int favoriteCount;
         private int crowdControlRisk;
         private Timeslot timeslot = aTimeslot("ts1").build();
-        private Room room;
+        private RoomBuilder room;
 
         private TalkBuilder(String code) {
             this.code = code;
@@ -327,7 +327,7 @@ public final class TestHelper {
             return this;
         }
 
-        public TalkBuilder speakers(List<Speaker> speakers) {
+        public TalkBuilder speakers(List<SpeakerBuilder> speakers) {
             this.speakers = speakers;
             return this;
         }
@@ -337,7 +337,7 @@ public final class TestHelper {
             return this;
         }
 
-        public TalkBuilder room(Room room) {
+        public TalkBuilder room(RoomBuilder room) {
             this.room = room;
             return this;
         }
@@ -433,12 +433,14 @@ public final class TestHelper {
         }
 
         public Talk build() {
-            Talk talk = new Talk(code, title, talkType, speakers, themeTrackTags, sectorTags, audienceTypes, audienceLevel,
-                    contentTags, language, requiredTimeslotTags, preferredTimeslotTags, prohibitedTimeslotTags,
-                    undesiredTimeslotTags, requiredRoomTags, preferredRoomTags, prohibitedRoomTags, undesiredRoomTags,
-                    mutuallyExclusiveTalksTags, prerequisiteTalks, favoriteCount, crowdControlRisk);
+            List<Speaker> builtSpeakers = speakers.stream().map(SpeakerBuilder::build).toList();
+            Talk talk = new Talk(code, title, talkType, builtSpeakers, themeTrackTags, sectorTags, audienceTypes,
+                    audienceLevel, contentTags, language, requiredTimeslotTags, preferredTimeslotTags,
+                    prohibitedTimeslotTags, undesiredTimeslotTags, requiredRoomTags, preferredRoomTags,
+                    prohibitedRoomTags, undesiredRoomTags, mutuallyExclusiveTalksTags, prerequisiteTalks, favoriteCount,
+                    crowdControlRisk);
             talk.setTimeslot(timeslot);
-            talk.setRoom(room);
+            talk.setRoom(room == null ? null : room.build());
             return talk;
         }
     }

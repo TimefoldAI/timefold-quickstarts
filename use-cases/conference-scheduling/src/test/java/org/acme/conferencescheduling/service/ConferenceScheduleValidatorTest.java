@@ -235,8 +235,6 @@ class ConferenceScheduleValidatorTest {
     void talkWithNullTalkTypeIsReported() {
         ValidationResult<Issue> result = validate(inputWithTalks(talkOfType("T1", null, "s1")));
 
-        // A null talk type name fails the @NotBlank constraint, which stops phase 2: the
-        // talk-type-exists check never runs.
         singleIssue(result, OpenApiSpecIssue.class);
     }
 
@@ -244,8 +242,6 @@ class ConferenceScheduleValidatorTest {
     void talkWithBlankTalkTypeIsReported() {
         ValidationResult<Issue> result = validate(inputWithTalks(talkOfType("T1", "  ", "s1")));
 
-        // A blank talk type name fails the @NotBlank constraint, which stops phase 2: the
-        // talk-type-exists check never runs.
         singleIssue(result, OpenApiSpecIssue.class);
     }
 

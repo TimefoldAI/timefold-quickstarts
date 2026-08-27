@@ -13,12 +13,9 @@ import jakarta.inject.Inject;
 
 import ai.timefold.solver.core.api.score.stream.test.ConstraintVerifier;
 
-import org.acme.bedallocation.domain.Bed;
 import org.acme.bedallocation.domain.BedPlan;
-import org.acme.bedallocation.domain.Department;
 import org.acme.bedallocation.domain.Gender;
 import org.acme.bedallocation.domain.GenderLimitation;
-import org.acme.bedallocation.domain.Room;
 import org.acme.bedallocation.domain.Stay;
 import org.junit.jupiter.api.Test;
 
@@ -32,8 +29,8 @@ class BedAllocationConstraintProviderTest {
 
     @Test
     void femaleInMaleRoom() {
-        Room room = aRoom("1").genderLimitation(GenderLimitation.MALE_ONLY).build();
-        Bed bed = aBed("1-bed0").room(room).build();
+        var room = aRoom("1").genderLimitation(GenderLimitation.MALE_ONLY);
+        var bed = aBed("1-bed0").room(room);
 
         Stay genderAdmission = aStay("0", bed)
                 .patientGender(Gender.FEMALE)
@@ -46,8 +43,8 @@ class BedAllocationConstraintProviderTest {
 
     @Test
     void maleInFemaleRoom() {
-        Room room = aRoom("1").genderLimitation(GenderLimitation.FEMALE_ONLY).build();
-        Bed bed = aBed("1-bed0").room(room).build();
+        var room = aRoom("1").genderLimitation(GenderLimitation.FEMALE_ONLY);
+        var bed = aBed("1-bed0").room(room);
 
         Stay genderAdmission = aStay("0", bed)
                 .patientGender(Gender.MALE)
@@ -60,8 +57,8 @@ class BedAllocationConstraintProviderTest {
 
     @Test
     void sameBedInSameNight() {
-        Room room = aRoom("1").build();
-        Bed bed = aBed("1-bed0").room(room).build();
+        var room = aRoom("1");
+        var bed = aBed("1-bed0").room(room);
 
         Stay stay = aStay("0", bed).build();
         Stay sameBedAndNightsStay = aStay("2", bed).build();
@@ -73,34 +70,34 @@ class BedAllocationConstraintProviderTest {
 
     @Test
     void departmentMinimumAge() {
-        Department department = aDepartment("1").name("Adult department").minimumAge(18).build();
-        Room room = aRoom("1").department(department).build();
-        Bed bed = aBed("1-bed0").room(room).build();
+        var department = aDepartment("1").name("Adult department").minimumAge(18);
+        var room = aRoom("1").department(department);
+        var bed = aBed("1-bed0").room(room);
 
         Stay admission = aStay("0", bed).patientAge(5).build();
 
         constraintVerifier.verifyThat(BedAllocationConstraintProvider::departmentMinimumAge)
-                .given(admission, department)
+                .given(admission, department.build())
                 .penalizesBy(6);
     }
 
     @Test
     void departmentMaximumAge() {
-        Department department = aDepartment("2").name("Underage department").maximumAge(18).build();
-        Room room = aRoom("2").department(department).build();
-        Bed bed = aBed("2-bed0").room(room).build();
+        var department = aDepartment("2").name("Underage department").maximumAge(18);
+        var room = aRoom("2").department(department);
+        var bed = aBed("2-bed0").room(room);
 
         Stay admission = aStay("0", bed).patientAge(42).build();
 
         constraintVerifier.verifyThat(BedAllocationConstraintProvider::departmentMaximumAge)
-                .given(admission, department)
+                .given(admission, department.build())
                 .penalizesBy(6);
     }
 
     @Test
     void requiredPatientEquipment() {
-        Room room = aRoom("1").equipments(Set.of("TELEMETRY")).build();
-        Bed bed = aBed("1-bed0").room(room).build();
+        var room = aRoom("1").equipments(Set.of("TELEMETRY"));
+        var bed = aBed("1-bed0").room(room);
 
         Stay admission = aStay("0", bed)
                 .patientRequiredEquipments(List.of("TELEVISION", "TELEMETRY"))
@@ -113,16 +110,16 @@ class BedAllocationConstraintProviderTest {
 
     @Test
     void differentGenderInSameGenderRoomInSameNight() {
-        Room room = aRoom("1").genderLimitation(GenderLimitation.SAME_GENDER).build();
+        var room = aRoom("1").genderLimitation(GenderLimitation.SAME_GENDER);
 
         // Assign female
-        Bed bed1 = aBed("1-bed0").room(room).build();
+        var bed1 = aBed("1-bed0").room(room);
         Stay stayFemale = aStay("0", bed1)
                 .patientGender(Gender.FEMALE)
                 .build();
 
         // Assign male
-        Bed bed2 = aBed("1-bed1").room(room).build();
+        var bed2 = aBed("1-bed1").room(room);
         Stay stayMale = aStay("1", bed2)
                 .patientGender(Gender.MALE)
                 .build();
@@ -145,8 +142,8 @@ class BedAllocationConstraintProviderTest {
 
     @Test
     void preferredMaximumRoomCapacity() {
-        Room room = aRoom("1").capacity(6).build();
-        Bed assignedBedInExceedCapacity = aBed("1-bed0").room(room).build();
+        var room = aRoom("1").capacity(6);
+        var assignedBedInExceedCapacity = aBed("1-bed0").room(room);
 
         Stay stay = aStay("0", assignedBedInExceedCapacity)
                 .patientPreferredMaximumRoomCapacity(3)
@@ -160,8 +157,8 @@ class BedAllocationConstraintProviderTest {
 
     @Test
     void preferredPatientEquipment() {
-        Room room = aRoom("1").equipments(Set.of("TELEMETRY")).build();
-        Bed bed = aBed("1-bed0").room(room).build();
+        var room = aRoom("1").equipments(Set.of("TELEMETRY"));
+        var bed = aBed("1-bed0").room(room);
 
         Stay stay = aStay("0", bed)
                 .patientPreferredEquipments(List.of("TELEVISION", "TELEMETRY"))
@@ -174,9 +171,9 @@ class BedAllocationConstraintProviderTest {
 
     @Test
     void departmentSpecialty() {
-        Department department = aDepartment("0").specialtyToPriority(Map.of("spec1", 1)).build();
-        Room roomInDep = aRoom("1").department(department).build();
-        Bed bedInRoomInDep = aBed("1-bed0").room(roomInDep).build();
+        var department = aDepartment("0").specialtyToPriority(Map.of("spec1", 1));
+        var roomInDep = aRoom("1").department(department);
+        var bedInRoomInDep = aBed("1-bed0").room(roomInDep);
 
         // Stay with 1st spec
         Stay staySpec1 = aStay("0", bedInRoomInDep).specialty("spec1").build();
@@ -191,9 +188,9 @@ class BedAllocationConstraintProviderTest {
 
     @Test
     void departmentSpecialtyNotFirstPriorityConstraint() {
-        Department department = aDepartment("0").specialtyToPriority(Map.of("spec1", 2, "spec2", 1)).build();
-        Room roomInDep = aRoom("1").department(department).build();
-        Bed bedInDep = aBed("1-bed0").room(roomInDep).build();
+        var department = aDepartment("0").specialtyToPriority(Map.of("spec1", 2, "spec2", 1));
+        var roomInDep = aRoom("1").department(department);
+        var bedInDep = aBed("1-bed0").room(roomInDep);
 
         // Stay with 1st spec
         Stay stay1 = aStay("0", bedInDep).specialty("spec1").build();

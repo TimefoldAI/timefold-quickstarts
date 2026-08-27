@@ -22,9 +22,9 @@ import ai.timefold.solver.service.definition.api.domain.ModelConfig;
 import org.acme.bedallocation.domain.BedPlan;
 import org.acme.bedallocation.dto.input.BedPlanInput;
 import org.acme.bedallocation.dto.input.DepartmentInputDTO;
-import org.acme.bedallocation.dto.input.RoomInputDTO;
 import org.acme.bedallocation.dto.input.StayInputDTO;
 import org.acme.bedallocation.service.BedPlanModelConvertor;
+import org.acme.bedallocation.support.TestHelper.RoomDTOBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
@@ -65,15 +65,14 @@ class BedPlanEnvironmentTest {
     }
 
     private static BedPlanInput createProblem() {
-        List<RoomInputDTO> rooms = List.of(room("r1"), room("r2"), room("r3"));
+        List<RoomDTOBuilder> rooms = List.of(room("r1"), room("r2"), room("r3"));
         DepartmentInputDTO department = aDepartmentDTO("d1").rooms(rooms).build();
         List<StayInputDTO> stays = List.of(aStayDTO("s1").build(), aStayDTO("s2").build(), aStayDTO("s3").build(),
                 aStayDTO("s4").build());
         return input(List.of(department), stays);
     }
 
-    private static RoomInputDTO room(String id) {
-        return aRoomDTO(id).beds(List.of(aBedDTO(id + "-bed0").build(), aBedDTO(id + "-bed1").build()))
-                .build();
+    private static RoomDTOBuilder room(String id) {
+        return aRoomDTO(id).beds(List.of(aBedDTO(id + "-bed0"), aBedDTO(id + "-bed1")));
     }
 }
