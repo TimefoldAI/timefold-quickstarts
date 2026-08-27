@@ -25,7 +25,6 @@ public class ConferenceSchedule implements SolverModel<HardMediumSoftScore>,
     @ProblemFactProperty
     private ConferenceConstraintProperties constraintProperties;
 
-    @ProblemFactCollectionProperty
     private Set<TalkType> talkTypes;
 
     @ProblemFactCollectionProperty

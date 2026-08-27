@@ -3,10 +3,8 @@ package org.acme.conferencescheduling.domain;
 import java.util.Objects;
 import java.util.Set;
 
-import ai.timefold.solver.core.api.domain.common.PlanningId;
-
 public record Room(
-        @PlanningId String id,
+        String id,
         String name,
         int capacity,
         Set<Timeslot> unavailableTimeslots,

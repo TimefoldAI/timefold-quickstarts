@@ -8,9 +8,7 @@ import java.util.Set;
 import ai.timefold.solver.core.api.domain.common.PlanningId;
 
 public class Timeslot {
-
-    @PlanningId
-    private String id;
+    private @PlanningId String id;
     private LocalDateTime startDateTime;
     private LocalDateTime endDateTime;
     private Set<String> tags;
@@ -71,40 +69,20 @@ public class Timeslot {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public LocalDateTime getStartDateTime() {
         return startDateTime;
-    }
-
-    public void setStartDateTime(LocalDateTime startDateTime) {
-        this.startDateTime = startDateTime;
     }
 
     public LocalDateTime getEndDateTime() {
         return endDateTime;
     }
 
-    public void setEndDateTime(LocalDateTime endDateTime) {
-        this.endDateTime = endDateTime;
-    }
-
     public Set<String> getTags() {
         return tags;
     }
 
-    public void setTags(Set<String> tags) {
-        this.tags = tags;
-    }
-
     public int getDurationInMinutes() {
         return durationInMinutes;
-    }
-
-    public void setDurationInMinutes(int durationInMinutes) {
-        this.durationInMinutes = durationInMinutes;
     }
 
     @Override

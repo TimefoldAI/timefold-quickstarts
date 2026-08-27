@@ -42,7 +42,9 @@ public final class TestHelper {
 
     public static final List<RoomDTO> ROOMS = List.of(
             room("r1", "Room A"),
-            room("r2", "Room B"));
+            room("r2", "Room B"),
+            room("r3", "Room C"),
+            room("r4", "Room D"));
 
     public static final List<SpeakerDTO> SPEAKERS = List.of(
             speaker("s1", "Amy"),

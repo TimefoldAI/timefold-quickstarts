@@ -42,21 +42,38 @@ class BedPlanEnvironmentTest {
 
     @Test
     void solveFullAssert() {
-        solve(EnvironmentMode.FULL_ASSERT);
+        solve(EnvironmentMode.FULL_ASSERT, null);
     }
 
     @Test
     void solveStepAssert() {
-        solve(EnvironmentMode.STEP_ASSERT);
+        solve(EnvironmentMode.STEP_ASSERT, null);
     }
 
-    void solve(EnvironmentMode environmentMode) {
+    // Multithreaded solving is a Timefold Solver Enterprise Edition feature, so these only run
+    // when the enterprise Maven profile (-Denterprise) is active.
+    @Test
+    @EnabledIfSystemProperty(named = "timefold.solver.enterprise", matches = "true")
+    void solveFullAssertMultithreaded() {
+        solve(EnvironmentMode.FULL_ASSERT, SolverConfig.MOVE_THREAD_COUNT_AUTO);
+    }
+
+    @Test
+    @EnabledIfSystemProperty(named = "timefold.solver.enterprise", matches = "true")
+    void solveStepAssertMultithreaded() {
+        solve(EnvironmentMode.STEP_ASSERT, SolverConfig.MOVE_THREAD_COUNT_AUTO);
+    }
+
+    void solve(EnvironmentMode environmentMode, String moveThreadCount) {
         var input = createProblem();
         BedPlan problem = modelConvertor.toSolverModel(input, ModelConfig.empty(), Optional.empty());
 
         SolverConfig updatedConfig = solverConfig.copyConfig();
         updatedConfig.withEnvironmentMode(environmentMode).withTerminationSpentLimit(Duration.ofSeconds(30))
                 .getTerminationConfig().withBestScoreLimit(null);
+        if (moveThreadCount != null) {
+            updatedConfig.withMoveThreadCount(moveThreadCount);
+        }
         SolverFactory<BedPlan> solverFactory = SolverFactory.create(updatedConfig);
 
         Solver<BedPlan> solver = solverFactory.buildSolver();
