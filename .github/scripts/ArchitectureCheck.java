@@ -8,6 +8,7 @@ import static com.tngtech.archunit.core.domain.JavaClass.Predicates.assignableTo
 import static com.tngtech.archunit.core.domain.JavaClass.Predicates.resideInAPackage;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -52,6 +53,8 @@ public final class ArchitectureCheck {
     private static final String SCHEMA_ANNOTATION = "org.eclipse.microprofile.openapi.annotations.media.Schema";
     private static final String PLANNING_ID = "ai.timefold.solver.core.api.domain.common.PlanningId";
     private static final String PLANNING_SOLUTION = "ai.timefold.solver.core.api.domain.solution.PlanningSolution";
+    private static final String ABSTRACT_BASIC_DEMO_DATA_GENERATOR =
+            "ai.timefold.solver.service.definition.api.data.AbstractBasicDemoDataGenerator";
 
     // Set per model before the rules run; the source-scanning conditions need them.
     private static Path moduleRoot;
@@ -159,7 +162,21 @@ public final class ArchitectureCheck {
                 dtoRecordsMustDeclareOnlyTheCanonicalConstructor(),
                 dtoTypesMustResideInInputOrOutputSubpackage(),
                 layerRule("dto.input", "dto.output", not(resideInAPackage(basePackage + ".dto.output.."))),
-                identifierFieldsMustHaveMatchingEqualsAndHashCode());
+                identifierFieldsMustHaveMatchingEqualsAndHashCode(),
+                demoDataGeneratorsMustNotExtendAbstractBasicDemoDataGenerator());
+    }
+
+    /*
+     * AbstractBasicDemoDataGenerator.demoMetaData() is final and always returns the fixed
+     * DEFAULT_BASIC_META_DATA singleton, so a subclass has no way to set its own demo data
+     * description (short or long). Implement the DemoDataGenerator interface directly instead,
+     * where demoMetaData() can be overridden to supply a real description.
+     */
+    private static ArchRule demoDataGeneratorsMustNotExtendAbstractBasicDemoDataGenerator() {
+        return noClasses()
+                .should().beAssignableTo(ABSTRACT_BASIC_DEMO_DATA_GENERATOR)
+                .as("Classes must not extend AbstractBasicDemoDataGenerator, since it cannot set a demo data "
+                        + "description; implement DemoDataGenerator directly instead");
     }
 
     private static ArchRule layerRule(String from, String to,
