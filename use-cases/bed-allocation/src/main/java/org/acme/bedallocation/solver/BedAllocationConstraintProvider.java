@@ -11,6 +11,7 @@ import ai.timefold.solver.core.api.score.HardMediumSoftScore;
 import ai.timefold.solver.core.api.score.stream.Constraint;
 import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
 import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
+import ai.timefold.solver.service.definition.api.description.ConstraintInfo;
 
 import org.acme.bedallocation.domain.BedPlanConstraintProperties;
 import org.acme.bedallocation.domain.Department;
@@ -62,7 +63,10 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
                 .penalize(HardMediumSoftScore.ofHard(1000),
                         Stay::calculateSameNightCount)
                 .justifyWith((left, right, score) -> SameBedInSameNightJustification.of(left, right))
-                .asConstraint(BedPlanConstraintProperties.SAME_BED_IN_SAME_NIGHT);
+                .asConstraint(new ConstraintInfo(BedPlanConstraintProperties.SAME_BED_IN_SAME_NIGHT,
+                        BedPlanConstraintProperties.SAME_BED_IN_SAME_NIGHT,
+                        "Two patient stays must not occupy the same bed on overlapping nights.",
+                        BedPlanConstraintGroup.BED_CONFLICTS));
     }
 
     public Constraint femaleInMaleRoom(ConstraintFactory constraintFactory) {
@@ -71,7 +75,10 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
                         && st.getRoomGenderLimitation() == GenderLimitation.MALE_ONLY)
                 .penalize(HardMediumSoftScore.ofHard(50), Stay::getNightCount)
                 .justifyWith((st, score) -> FemaleInMaleRoomJustification.of(st))
-                .asConstraint(BedPlanConstraintProperties.FEMALE_IN_MALE_ROOM);
+                .asConstraint(new ConstraintInfo(BedPlanConstraintProperties.FEMALE_IN_MALE_ROOM,
+                        BedPlanConstraintProperties.FEMALE_IN_MALE_ROOM,
+                        "A female patient must not be assigned to a male-only room.",
+                        BedPlanConstraintGroup.GENDER_RULES));
     }
 
     public Constraint maleInFemaleRoom(ConstraintFactory constraintFactory) {
@@ -80,7 +87,10 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
                         && st.getRoomGenderLimitation() == GenderLimitation.FEMALE_ONLY)
                 .penalize(HardMediumSoftScore.ofHard(50), Stay::getNightCount)
                 .justifyWith((st, score) -> MaleInFemaleRoomJustification.of(st))
-                .asConstraint(BedPlanConstraintProperties.MALE_IN_FEMALE_ROOM);
+                .asConstraint(new ConstraintInfo(BedPlanConstraintProperties.MALE_IN_FEMALE_ROOM,
+                        BedPlanConstraintProperties.MALE_IN_FEMALE_ROOM,
+                        "A male patient must not be assigned to a female-only room.",
+                        BedPlanConstraintGroup.GENDER_RULES));
     }
 
     public Constraint differentGenderInSameGenderRoomInSameNight(ConstraintFactory constraintFactory) {
@@ -95,7 +105,11 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
                 .penalize(HardMediumSoftScore.ofHard(1000),
                         Stay::calculateSameNightCount)
                 .justifyWith((left, right, score) -> DifferentGenderInSameGenderRoomJustification.of(left, right))
-                .asConstraint(BedPlanConstraintProperties.DIFFERENT_GENDER_IN_SAME_GENDER_ROOM_IN_SAME_NIGHT);
+                .asConstraint(new ConstraintInfo(
+                        BedPlanConstraintProperties.DIFFERENT_GENDER_IN_SAME_GENDER_ROOM_IN_SAME_NIGHT,
+                        BedPlanConstraintProperties.DIFFERENT_GENDER_IN_SAME_GENDER_ROOM_IN_SAME_NIGHT,
+                        "Patients of different genders must not share a same-gender room on overlapping nights.",
+                        BedPlanConstraintGroup.GENDER_RULES));
     }
 
     public Constraint departmentMinimumAge(ConstraintFactory constraintFactory) {
@@ -107,7 +121,10 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
                 .penalize(HardMediumSoftScore.ofHard(100),
                         (d, st) -> st.getNightCount())
                 .justifyWith((d, st, score) -> DepartmentMinimumAgeJustification.of(d, st))
-                .asConstraint(BedPlanConstraintProperties.DEPARTMENT_MINIMUM_AGE);
+                .asConstraint(new ConstraintInfo(BedPlanConstraintProperties.DEPARTMENT_MINIMUM_AGE,
+                        BedPlanConstraintProperties.DEPARTMENT_MINIMUM_AGE,
+                        "A patient must not be younger than the department's minimum age.",
+                        BedPlanConstraintGroup.ELIGIBILITY_RULES));
     }
 
     public Constraint departmentMaximumAge(ConstraintFactory constraintFactory) {
@@ -119,7 +136,10 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
                 .penalize(HardMediumSoftScore.ofHard(100),
                         (d, st) -> st.getNightCount())
                 .justifyWith((d, st, score) -> DepartmentMaximumAgeJustification.of(d, st))
-                .asConstraint(BedPlanConstraintProperties.DEPARTMENT_MAXIMUM_AGE);
+                .asConstraint(new ConstraintInfo(BedPlanConstraintProperties.DEPARTMENT_MAXIMUM_AGE,
+                        BedPlanConstraintProperties.DEPARTMENT_MAXIMUM_AGE,
+                        "A patient must not be older than the department's maximum age.",
+                        BedPlanConstraintGroup.ELIGIBILITY_RULES));
     }
 
     public Constraint requiredPatientEquipment(ConstraintFactory constraintFactory) {
@@ -130,7 +150,10 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
                         st -> st.getNightCount() * (int) st.getPatientRequiredEquipments().stream()
                                 .filter(equipment -> !st.getRoom().equipments().contains(equipment)).count())
                 .justifyWith((st, score) -> MissingRequiredEquipmentJustification.of(st))
-                .asConstraint(BedPlanConstraintProperties.REQUIRED_PATIENT_EQUIPMENT);
+                .asConstraint(new ConstraintInfo(BedPlanConstraintProperties.REQUIRED_PATIENT_EQUIPMENT,
+                        BedPlanConstraintProperties.REQUIRED_PATIENT_EQUIPMENT,
+                        "A patient's assigned room must have every piece of equipment the patient requires.",
+                        BedPlanConstraintGroup.ELIGIBILITY_RULES));
     }
 
     // Medium constraints
@@ -139,7 +162,10 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
                 .filter(st -> st.getBed() == null)
                 .penalize(HardMediumSoftScore.ONE_MEDIUM, Stay::getNightCount)
                 .justifyWith((st, score) -> UnassignedStayJustification.of(st))
-                .asConstraint(BedPlanConstraintProperties.ASSIGN_EVERY_PATIENT_TO_A_BED);
+                .asConstraint(new ConstraintInfo(BedPlanConstraintProperties.ASSIGN_EVERY_PATIENT_TO_A_BED,
+                        BedPlanConstraintProperties.ASSIGN_EVERY_PATIENT_TO_A_BED,
+                        "Every patient stay should be assigned to a bed.",
+                        BedPlanConstraintGroup.BED_ASSIGNMENT));
     }
 
     // Soft constraints
@@ -149,7 +175,10 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
                         && st.getPatientPreferredMaximumRoomCapacity() < st.getRoomCapacity())
                 .penalize(HardMediumSoftScore.ofSoft(8), Stay::getNightCount)
                 .justifyWith((st, score) -> PreferredMaximumRoomCapacityJustification.of(st))
-                .asConstraint(BedPlanConstraintProperties.PREFERRED_MAXIMUM_ROOM_CAPACITY);
+                .asConstraint(new ConstraintInfo(BedPlanConstraintProperties.PREFERRED_MAXIMUM_ROOM_CAPACITY,
+                        BedPlanConstraintProperties.PREFERRED_MAXIMUM_ROOM_CAPACITY,
+                        "A patient's assigned room should not exceed their preferred maximum room capacity.",
+                        BedPlanConstraintGroup.PATIENT_PREFERENCES));
     }
 
     public Constraint departmentSpecialty(ConstraintFactory constraintFactory) {
@@ -157,7 +186,10 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
                 .filter(st -> !st.hasDepartmentSpecialty())
                 .penalize(HardMediumSoftScore.ofSoft(10), Stay::getNightCount)
                 .justifyWith((st, score) -> MissingDepartmentSpecialtyJustification.of(st))
-                .asConstraint(BedPlanConstraintProperties.DEPARTMENT_SPECIALTY);
+                .asConstraint(new ConstraintInfo(BedPlanConstraintProperties.DEPARTMENT_SPECIALTY,
+                        BedPlanConstraintProperties.DEPARTMENT_SPECIALTY,
+                        "A patient's assigned department should offer the patient's required specialty.",
+                        BedPlanConstraintGroup.PATIENT_PREFERENCES));
     }
 
     public Constraint departmentSpecialtyNotFirstPriority(ConstraintFactory constraintFactory) {
@@ -165,7 +197,10 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
                 .filter(st -> st.hasDepartmentSpecialty() && st.getSpecialtyPriority() > 1)
                 .penalize(HardMediumSoftScore.ofSoft(10), stay -> (stay.getSpecialtyPriority() - 1) * stay.getNightCount())
                 .justifyWith((st, score) -> DepartmentSpecialtyNotFirstPriorityJustification.of(st))
-                .asConstraint(BedPlanConstraintProperties.DEPARTMENT_SPECIALTY_NOT_FIRST_PRIORITY);
+                .asConstraint(new ConstraintInfo(BedPlanConstraintProperties.DEPARTMENT_SPECIALTY_NOT_FIRST_PRIORITY,
+                        BedPlanConstraintProperties.DEPARTMENT_SPECIALTY_NOT_FIRST_PRIORITY,
+                        "A patient's required specialty should be the department's first-priority specialty.",
+                        BedPlanConstraintGroup.PATIENT_PREFERENCES));
     }
 
     public Constraint preferredPatientEquipment(ConstraintFactory constraintFactory) {
@@ -177,6 +212,9 @@ public class BedAllocationConstraintProvider implements ConstraintProvider {
                         st -> st.getNightCount() * (int) st.getPatientPreferredEquipments().stream()
                                 .filter(equipment -> !st.getRoom().equipments().contains(equipment)).count())
                 .justifyWith((st, score) -> MissingPreferredEquipmentJustification.of(st))
-                .asConstraint(BedPlanConstraintProperties.PREFERRED_PATIENT_EQUIPMENT);
+                .asConstraint(new ConstraintInfo(BedPlanConstraintProperties.PREFERRED_PATIENT_EQUIPMENT,
+                        BedPlanConstraintProperties.PREFERRED_PATIENT_EQUIPMENT,
+                        "A patient's assigned room should have every piece of equipment the patient prefers.",
+                        BedPlanConstraintGroup.PATIENT_PREFERENCES));
     }
 }

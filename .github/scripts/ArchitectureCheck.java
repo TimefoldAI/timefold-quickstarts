@@ -28,6 +28,7 @@ import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.domain.JavaConstructorCall;
 import com.tngtech.archunit.core.domain.JavaField;
 import com.tngtech.archunit.core.domain.JavaMethod;
+import com.tngtech.archunit.core.domain.JavaMethodCall;
 import com.tngtech.archunit.core.domain.JavaModifier;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.lang.ArchCondition;
@@ -163,7 +164,8 @@ public final class ArchitectureCheck {
                 dtoTypesMustResideInInputOrOutputSubpackage(),
                 layerRule("dto.input", "dto.output", not(resideInAPackage(basePackage + ".dto.output.."))),
                 identifierFieldsMustHaveMatchingEqualsAndHashCode(),
-                demoDataGeneratorsMustNotExtendAbstractBasicDemoDataGenerator());
+                demoDataGeneratorsMustNotExtendAbstractBasicDemoDataGenerator(),
+                constraintsMustNotUseBareStringAsConstraint());
     }
 
     /*
@@ -177,6 +179,22 @@ public final class ArchitectureCheck {
                 .should().beAssignableTo(ABSTRACT_BASIC_DEMO_DATA_GENERATOR)
                 .as("Classes must not extend AbstractBasicDemoDataGenerator, since it cannot set a demo data "
                         + "description; implement DemoDataGenerator directly instead");
+    }
+
+    /*
+     * ConstraintBuilder#asConstraint(String) is a default method that just wraps the name into a bare
+     * DefaultConstraintMetadata: no description, no constraint group. asConstraint(ConstraintMetadata)
+     * (typically called with a ConstraintInfo, which also carries a ConstraintGroupInfo) is the only
+     * way to give a constraint a description and put it in a group. Flagging the bare-String overload
+     * directly, since a constraint that "just" reused an existing string constant for its name would
+     * otherwise be indistinguishable from one that took the time to add a real description and group.
+     */
+    private static ArchRule constraintsMustNotUseBareStringAsConstraint() {
+        return classes()
+                .should(new NoBareStringAsConstraintCondition())
+                .as("Constraints must not use asConstraint(String); use asConstraint(ConstraintMetadata) "
+                        + "(e.g. a ConstraintInfo with a ConstraintGroupInfo) instead, so every constraint "
+                        + "carries a description and belongs to a constraint group");
     }
 
     private static ArchRule layerRule(String from, String to,
@@ -411,6 +429,35 @@ public final class ArchitectureCheck {
                 events.add(SimpleConditionEvent.violated(javaClass,
                         "%s is annotated with @%s".formatted(javaClass.getName(), annotationTypeName)));
             }
+        }
+    }
+
+    private static final class NoBareStringAsConstraintCondition extends ArchCondition<JavaClass> {
+
+        private NoBareStringAsConstraintCondition() {
+            super("not call asConstraint(String)");
+        }
+
+        @Override
+        public void check(JavaClass javaClass, ConditionEvents events) {
+            for (JavaMethod method : javaClass.getMethods()) {
+                for (JavaMethodCall call : method.getMethodCallsFromSelf()) {
+                    if (isBareStringAsConstraintCall(call)) {
+                        events.add(SimpleConditionEvent.violated(javaClass,
+                                "%s calls asConstraint(String) in %s(); use asConstraint(ConstraintMetadata) instead"
+                                        .formatted(javaClass.getName(), method.getName())));
+                    }
+                }
+            }
+        }
+
+        private static boolean isBareStringAsConstraintCall(JavaMethodCall call) {
+            var target = call.getTarget();
+            if (!target.getName().equals("asConstraint")) {
+                return false;
+            }
+            var rawParameterTypes = target.getRawParameterTypes();
+            return rawParameterTypes.size() == 1 && rawParameterTypes.get(0).getName().equals("java.lang.String");
         }
     }
 
