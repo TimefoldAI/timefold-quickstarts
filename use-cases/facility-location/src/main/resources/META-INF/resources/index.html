@@ -18,74 +18,150 @@
       --bs-link-color: var(--ts-violet-1-rgb);
       --bs-link-hover-color: var(--ts-violet-2-rgb);
     }
+    .nav-pills {
+      --bs-nav-pills-link-active-bg: var(--ts-violet-1-rgb);
+    }
   </style>
 </head>
 <body>
 
 <header class="bg-white shadow">
   <div class="container-fluid">
-    <div id="notificationPanel" style="position: absolute; top: .5rem;"></div>
-    <nav class="navbar sticky-top  navbar-expand-lg navbar-light" style="background-color: white; ">
+    <nav class="navbar navbar-expand-lg mb-3">
       <a class="navbar-brand" style="width: 200px;overflow: hidden;">
         <img src="https://timefold.ai/uploads/images/Brand-Assets/timefold-solver-logo.png" alt="Timefold Solver logo" width="200px" style="margin-top:-20px;margin-bottom:-20px">
       </a>
       <a class="navbar-brand d-none d-lg-block">Facility Location Solver Quickstart</a>
+      <div class="ms-auto">
+        <div class="d-flex align-items-center" id="navbarNav">
+          <ul class="nav nav-pills">
+            <li class="nav-item active" id="navUIItem">
+              <button class="nav-link active" id="navUI" data-bs-toggle="pill" data-bs-target="#demo" type="button">Demo UI</button>
+            </li>
+            <li class="nav-item" id="navRestItem">
+              <button class="nav-link" id="navRest" data-bs-toggle="pill" data-bs-target="#rest" type="button">Guide</button>
+            </li>
+            <li class="nav-item" id="navOpenApiItem">
+              <button class="nav-link" id="navOpenApi" data-bs-toggle="pill" data-bs-target="#openapi" type="button">REST API</button>
+            </li>
+            <li class="nav-item" id="navNextStepsItem">
+              <a style="text-decoration: none; font-weight: 600;" href="https://solver.timefold.ai/quickstart-next-steps?utm_source=github&utm_medium=quickstart&utm_campaign=timefold-quickstarts&utm_content=facility-location-java">
+                <button class="nav-link" id="nextStepsItem" data-bs-toggle="pill" type="button">Next Steps</button>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
     </nav>
   </div>
 </header>
 
-<div class="container-fluid px-1">
-  <div class="row">
-    <div class="col-7 col-lg-8 col-xl-9">
-      <div id="map" style="width: 100%; height: 100vh;"></div>
+<div class="tab-content">
+  <div id="demo" class="tab-pane fade show active container-fluid px-1">
+    <div class="sticky-top d-flex justify-content-center align-items-center">
+      <div id="notificationPanel" style="position: absolute; top: .5rem;"></div>
     </div>
-    <div class="col-5 col-lg-4 col-xl-3" style="height: 100vh; overflow-y: scroll;">
-      <div class="row pt-2 row-cols-1">
-        <div class="col mb-3">
-          <button id="solveButton" type="button" class="btn btn-success">
-            <i class="fas fa-play"></i> Solve
-          </button>
-          <button id="stopSolvingButton" type="button" class="btn btn-danger">
-            <i class="fas fa-stop"></i> Stop solving
-          </button>
-        </div>
-        <div class="col">
-          <h5>
-            Solution summary
-            <a id="analyzeButton" class="float-justify" href="#" role="button">
-              <i class="fas fa-info-circle"></i>
-            </a>
-          </h5>
-          <table class="table">
-            <tr>
-              <td>Score:</td>
-              <td><span id="score">unknown</span></td>
-            </tr>
-            <tr>
-              <td>Total cost:</td>
-              <td><span id="cost">unknown</span> (<span id="cost-percentage">unknown</span>%)</td>
-            </tr>
-            <tr>
-              <td>Total distance:</td>
-              <td><span id="distance">unknown</span></td>
-            </tr>
-          </table>
-        </div>
-        <div class="col">
-          <h5>Facility list</h5>
-          <table class="table-sm w-100">
-            <thead>
-            <tr>
-              <th style="width: 1rem"></th>
-              <th>Name</th>
-              <th>Usage</th>
-              <th class="text-end">Setup cost</th>
-            </tr>
-            </thead>
-            <tbody id="facilities"></tbody>
-          </table>
+    <div class="row">
+      <div class="col-7 col-lg-8 col-xl-9">
+        <div id="map" style="width: 100%; height: 100vh;"></div>
+      </div>
+      <div class="col-5 col-lg-4 col-xl-3" style="height: 100vh; overflow-y: scroll;">
+        <div class="row pt-2 row-cols-1">
+          <div class="col mb-3">
+            <button id="solveButton" type="button" class="btn btn-success">
+              <i class="fas fa-play"></i> Solve
+            </button>
+            <button id="stopSolvingButton" type="button" class="btn btn-danger">
+              <i class="fas fa-stop"></i> Stop solving
+            </button>
+          </div>
+          <div class="col">
+            <h5>
+              Solution summary
+              <a id="analyzeButton" class="float-justify" href="#" role="button">
+                <i class="fas fa-info-circle"></i>
+              </a>
+            </h5>
+            <table class="table">
+              <tr>
+                <td>Score:</td>
+                <td><span id="score">unknown</span></td>
+              </tr>
+              <tr>
+                <td>Total cost:</td>
+                <td><span id="cost">unknown</span> (<span id="cost-percentage">unknown</span>%)</td>
+              </tr>
+              <tr>
+                <td>Total distance:</td>
+                <td><span id="distance">unknown</span></td>
+              </tr>
+            </table>
+          </div>
+          <div class="col">
+            <h5>Facility list</h5>
+            <table class="table-sm w-100">
+              <thead>
+              <tr>
+                <th style="width: 1rem"></th>
+                <th>Name</th>
+                <th>Usage</th>
+                <th class="text-end">Setup cost</th>
+              </tr>
+              </thead>
+              <tbody id="facilities"></tbody>
+            </table>
+          </div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <div id="rest" class="tab-pane fade container-fluid">
+    <h1>REST API Guide</h1>
+
+    <h2>Facility location solver integration via cURL</h2>
+    <p>Demo data is generated at startup. The solver keeps a single in-memory problem; endpoints below operate on that problem.</p>
+
+    <h3>1. Get the current status and solution</h3>
+    <pre>
+            <button class="btn btn-outline-dark btn-sm float-end"
+                    onclick="copyTextToClipboard('curl1')">Copy</button>
+            <code id="curl1">curl -X GET -H 'Accept:application/json' http://localhost:8080/flp/status</code>
+    </pre>
+
+    <h3>2. Start solving</h3>
+    <pre>
+            <button class="btn btn-outline-dark btn-sm float-end"
+                    onclick="copyTextToClipboard('curl2')">Copy</button>
+            <code id="curl2">curl -X POST http://localhost:8080/flp/solve</code>
+    </pre>
+
+    <h3>3. Poll until solving finishes</h3>
+    <pre>
+            <button class="btn btn-outline-dark btn-sm float-end"
+                    onclick="copyTextToClipboard('curl3')">Copy</button>
+            <code id="curl3">curl -X GET -H 'Accept:application/json' http://localhost:8080/flp/status</code>
+    </pre>
+
+    <h3>4. Fetch the analysis of the solution</h3>
+    <pre>
+            <button class="btn btn-outline-dark btn-sm float-end"
+                    onclick="copyTextToClipboard('curl4')">Copy</button>
+            <code id="curl4">curl -X PUT -H 'Content-Type:application/json' http://localhost:8080/flp/analyze</code>
+    </pre>
+
+    <h3>5. Terminate solving early</h3>
+    <pre>
+            <button class="btn btn-outline-dark btn-sm float-end"
+                    onclick="copyTextToClipboard('curl5')">Copy</button>
+            <code id="curl5">curl -X POST http://localhost:8080/flp/stopSolving</code>
+    </pre>
+  </div>
+
+  <div id="openapi" class="tab-pane fade container-fluid">
+    <div class="ratio ratio-1x1">
+      <!-- "scrolling" attribute is obsolete, but e.g. Chrome does not support "overflow:hidden" -->
+      <iframe src="/q/swagger-ui" style="overflow:hidden;" scrolling="no"></iframe>
     </div>
   </div>
 </div>
@@ -105,7 +181,7 @@
   <div id="applicationInfo" class="container text-center"></div>
 </footer>
 
-<div class="modal fadebd-example-modal-lg" id="scoreAnalysisModal" tabindex="-1"
+<div class="modal fade bd-example-modal-lg" id="scoreAnalysisModal" tabindex="-1"
      aria-labelledby="scoreAnalysisModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
