@@ -21,7 +21,7 @@ public class DemoDataGenerator implements ai.timefold.solver.service.definition.
 
     private static final DemoMetaData BASIC_META_DATA = new DemoMetaData(BASIC_DEMO_DATA_ID,
             "Demonstrates a conference scheduling problem with talk, speaker, room, and audience tags.",
-            "Schedules 15 talks by 12 speakers into 6 timeslots across 5 rooms. Talks and speakers carry theme, "
+            "Schedules 20 talks by 12 speakers into 6 timeslots across 7 rooms. Talks and speakers carry theme, "
                     + "sector, audience, and content tags that drive requirements, preferences, diversity, and "
                     + "conflict rules. Once solved, talks are placed so speaker and room conflicts are avoided "
                     + "and tag-based preferences (required rooms, preferred timeslots, audience-level flow) are "
