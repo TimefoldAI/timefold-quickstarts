@@ -38,7 +38,7 @@ public class Timeslot {
         }
         OffsetDateTime startMaximum = startDateTime.isBefore(other.startDateTime) ? other.startDateTime : startDateTime;
         OffsetDateTime endMinimum = endDateTime.isBefore(other.endDateTime) ? endDateTime : other.endDateTime;
-        return (int) Duration.between(startMaximum, endMinimum).toMinutes();
+        return Math.max(0, (int) Duration.between(startMaximum, endMinimum).toMinutes());
     }
 
     public boolean startsAfter(Timeslot other) {
