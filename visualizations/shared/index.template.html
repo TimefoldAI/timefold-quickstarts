@@ -2,9 +2,9 @@
   This file is a template, not a page: visualizations/sync.sh renders it into
   each quickstart's index.html, substituting the {{PLACEHOLDER}}s below with
   that quickstart's metadata, configured in sync.sh - there is no per-quickstart
-  markup here. <timefold-quickstart-visualization> is the one "slot": the
-  quickstart's own visualize.js defines that custom element and builds
-  whatever demo-specific markup (tabs, tables, ...) it needs into it.
+  markup here. #visualization is the one "slot": the quickstart's own
+  visualize.js fills it via setVisualizationSlot(html) (quickstart-page.js)
+  with whatever demo-specific markup (tabs, tables, ...) it needs.
 
   Do not hand-edit a generated index.html - edit this template (for shell
   markup shared by every quickstart), sync.sh (for that quickstart's
@@ -71,7 +71,7 @@
         <div id="notificationPanel" style="position: absolute; top: .5rem;"></div>
     </div>
 
-    <timefold-quickstart-visualization></timefold-quickstart-visualization>
+    <div id="visualization"></div>
 </div>
 <footer class="bg-black">
     <div class="container">

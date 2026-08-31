@@ -1,3 +1,11 @@
+// ── Visualization slot ──
+// index.template.html has a single #visualization slot; a quickstart's visualize.js
+// fills it with its own demo-specific markup (tabs, tables, ...) via this, before wiring
+// up any event handlers against that markup or constructing QuickstartPage.
+function setVisualizationSlot(html) {
+    document.getElementById('visualization').innerHTML = html;
+}
+
 // ── Quickstart page controller ──
 
 class QuickstartPage {
@@ -6,7 +14,7 @@ class QuickstartPage {
             throw new Error('QuickstartPage requires a renderSchedule(schedule) callback.');
         }
         if (!renderInfo) {
-            throw new Error('QuickstartPage requires a renderInfo(schedule) callback.');
+            throw new Error('QuickstartPage requires a renderInfo(schedule) => string callback.');
         }
         if (!mergeModelOutput) {
             throw new Error('QuickstartPage requires a mergeModelOutput(schedule, modelOutput) callback.');
@@ -69,7 +77,7 @@ class QuickstartPage {
             this.loadedSchedule = req.modelInput || req;
             this.renderScore();
             this.renderSchedule(this.loadedSchedule);
-            this.renderInfo(this.loadedSchedule);
+            $("#info").text(this.renderInfo(this.loadedSchedule));
             this.getStatus();
             if (this.autoRefreshIntervalId == null) {
                 this.autoRefreshIntervalId = setInterval(() => this.getStatus(), 2000);
@@ -118,7 +126,7 @@ class QuickstartPage {
                 this.loadedSchedule = data.modelInput;
                 this.renderScore();
                 this.renderSchedule(this.loadedSchedule);
-                this.renderInfo(this.loadedSchedule);
+                $("#info").text(this.renderInfo(this.loadedSchedule));
             }, (xhr) => {
                 this.showError("Getting the demo data has failed.", xhr);
                 this.refreshSolvingButtons("SOLVING_COMPLETED");
@@ -128,7 +136,7 @@ class QuickstartPage {
                 this.mergeModelOutput(this.loadedSchedule, data.modelOutput);
                 this.renderScore(data.metadata);
                 this.renderSchedule(this.loadedSchedule);
-                this.renderInfo(this.loadedSchedule);
+                $("#info").text(this.renderInfo(this.loadedSchedule));
                 this.refreshSolvingButtons(data.metadata.solverStatus);
             }, (xhr) => {
                 this.showError("Getting the schedule has failed.", xhr);

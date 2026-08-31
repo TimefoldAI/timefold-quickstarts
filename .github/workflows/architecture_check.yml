@@ -5,16 +5,46 @@ on:
     branches: [stable, development, '*.x']
     paths:
       - 'use-cases/**'
+      - 'visualizations/**'
       - '.github/scripts/ArchitectureCheck.java'
+      - '.github/scripts/CheckSharedUiSync.java'
       - '.github/workflows/architecture_check.yml'
   pull_request:
     branches: [stable, development, '*.x']
     paths:
       - 'use-cases/**'
+      - 'visualizations/**'
       - '.github/scripts/ArchitectureCheck.java'
+      - '.github/scripts/CheckSharedUiSync.java'
       - '.github/workflows/architecture_check.yml'
 
 jobs:
+  shared-ui-sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout timefold-quickstarts
+        uses: actions/checkout@v7
+      - name: Setup JBang
+        uses: jbangdev/setup-jbang@2b1b465a7b75f4222b81426f23a01e013aa7b95c # v0.1.1
+      # Every quickstart's META-INF/resources/shared/ folder is a physical copy of
+      # visualizations/shared/, made by visualizations/sync.sh (see that script for why).
+      # This catches someone hand-editing a quickstart's copy instead of the shared source.
+      # Scoped to the same Models Service SDK quickstarts as the archunit job below,
+      # identified the same way (pom.xml declaring timefold-solver-service-parent as parent).
+      - name: Check shared UI files are in sync
+        run: |
+          models=""
+          for pom in use-cases/*/pom.xml; do
+            grep -q "<artifactId>timefold-solver-service-parent</artifactId>" "$pom" || continue
+            models="$models $(dirname "$pom")"
+          done
+          if [ -z "$models" ]; then
+            echo "::error::no Models Service SDK quickstart found under use-cases/"
+            exit 1
+          fi
+          jbang .github/scripts/CheckSharedUiSync.java $models
+
   archunit:
     runs-on: ubuntu-latest
     timeout-minutes: 30

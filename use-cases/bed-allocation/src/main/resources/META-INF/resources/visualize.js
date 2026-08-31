@@ -1,11 +1,9 @@
-// index.template.html has a single <timefold-quickstart-visualization> slot;
-// this custom element fills it with the demo's own markup before the rest of
-// this script runs (customElements.define() upgrades - and so synchronously
-// runs connectedCallback on - the element already parsed into the page), then
-// owns rendering the schedule into that markup for the rest of its lifetime.
-customElements.define('timefold-quickstart-visualization', class extends HTMLElement {
-    connectedCallback() {
-        this.innerHTML = `
+// index.template.html has a single #visualization slot; this fills it with the
+// demo's own markup via setVisualizationSlot(), then owns rendering the
+// schedule into that markup for the rest of the page's lifetime.
+const app = {
+    start() {
+        setVisualizationSlot(`
     <div class="mb-2 d-flex justify-content-end">
         <ul class="nav nav-pills" role="tablist">
             <li class="nav-item" role="presentation">
@@ -23,12 +21,12 @@ customElements.define('timefold-quickstart-visualization', class extends HTMLEle
 
     <h2 class="my-4">Unassigned stays</h2>
     <div id="unassignedPatients" class="row row-cols-3 g-3 mb-4"></div>
-`;
+`);
 
         this.viewType = "R";
         this.byRoomGroupData = new vis.DataSet();
         this.byRoomItemData = new vis.DataSet();
-        this.byRoomTimeline = new vis.Timeline(this.querySelector("#byRoomPanel"), this.byRoomItemData, this.byRoomGroupData, {
+        this.byRoomTimeline = new vis.Timeline(document.getElementById("byRoomPanel"), this.byRoomItemData, this.byRoomGroupData, {
             timeAxis: {scale: "day"},
             orientation: {axis: "top"},
             stack: false,
@@ -36,7 +34,7 @@ customElements.define('timefold-quickstart-visualization', class extends HTMLEle
             zoomMin: 3 * 1000 * 60 * 60 * 24 // Three day in milliseconds
         });
 
-        this.querySelector("#byRoomTab").addEventListener('click', () => {
+        document.getElementById("byRoomTab").addEventListener('click', () => {
             this.viewType = "R";
             this.byRoomTimeline.redraw();
             this.renderSchedule(this.quickstartPage.loadedSchedule);
@@ -48,7 +46,7 @@ customElements.define('timefold-quickstart-visualization', class extends HTMLEle
             renderInfo: (schedule) => this.renderInfo(schedule),
             mergeModelOutput: (schedule, modelOutput) => this.mergeModelOutput(schedule, modelOutput),
         });
-    }
+    },
 
     // modelOutput only carries the possible assignments (stays: [{id, bedId}]), not the
     // full problem, so schedule (the QuickstartPage's loadedSchedule) keeps the full
@@ -63,7 +61,7 @@ customElements.define('timefold-quickstart-visualization', class extends HTMLEle
                 ? {...stay, bedId: bedIdByStayId.get(stay.id)}
                 : stay);
         }
-    }
+    },
 
     renderSchedule(schedule) {
         if (schedule == null) {
@@ -72,15 +70,15 @@ customElements.define('timefold-quickstart-visualization', class extends HTMLEle
         if (this.viewType === "R") {
             this.renderScheduleByRoom(schedule);
         }
-    }
+    },
 
     renderInfo(schedule) {
         if (schedule == null) {
-            return;
+            return "";
         }
         const beds = schedule.departments.flatMap(d => d.rooms).flatMap(r => r.beds);
-        $("#info").text(`${schedule.stays.length} stays · ${beds.length} beds · ${schedule.departments.length} departments`);
-    }
+        return `${schedule.stays.length} stays · ${beds.length} beds · ${schedule.departments.length} departments`;
+    },
 
     renderScheduleByRoom(schedule) {
         const unassignedPatients = $("#unassignedPatients");
@@ -205,5 +203,7 @@ customElements.define('timefold-quickstart-visualization', class extends HTMLEle
         const allDates = [...new Set([...arrivalDates, ...departureDates])]
             .sort((a, b) => JSJoda.LocalDate.parse(a).compareTo(JSJoda.LocalDate.parse(b)));
         this.byRoomTimeline.setWindow(allDates[0], allDates[allDates.length - 1]);
-    }
-});
+    },
+};
+
+app.start();

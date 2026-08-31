@@ -1,8 +1,6 @@
-// index.template.html has a single <timefold-quickstart-visualization> slot;
-// this custom element fills it with the demo's own markup before the rest of
-// this script runs (customElements.define() upgrades - and so synchronously
-// runs connectedCallback on - the element already parsed into the page), then
-// owns rendering the schedule into that markup for the rest of its lifetime.
+// index.template.html has a single #visualization slot; this fills it with the
+// demo's own markup via setVisualizationSlot(), then owns rendering the
+// schedule into that markup for the rest of the page's lifetime.
 
 const timeFormatter = JSJoda.DateTimeFormatter.ofPattern('HH:mm');
 
@@ -36,9 +34,9 @@ function renderUnassignedBanner(unassignedTalks) {
     }
 }
 
-customElements.define('timefold-quickstart-visualization', class extends HTMLElement {
-    connectedCallback() {
-        this.innerHTML = `
+const app = {
+    start() {
+        setVisualizationSlot(`
     <div class="mb-2 d-flex justify-content-end">
         <div>
             <ul class="nav nav-pills" role="tablist">
@@ -116,34 +114,34 @@ customElements.define('timefold-quickstart-visualization', class extends HTMLEle
 
     <h2 class="my-4">Unassigned talks</h2>
     <div id="unassignedTalks" class="row row-cols-3 g-3 mb-4"></div>
-`;
+`);
 
         this.viewType = "R";
         // Lookup maps rebuilt on every render (the DTO flattens references to IDs).
         this.speakerNameById = new Map();
         this.roomById = new Map();
 
-        this.querySelector("#byRoomTab").addEventListener('click', () => {
+        document.getElementById("byRoomTab").addEventListener('click', () => {
             this.viewType = "R";
             this.renderSchedule(this.quickstartPage.loadedSchedule);
         });
-        this.querySelector("#bySpeakerTab").addEventListener('click', () => {
+        document.getElementById("bySpeakerTab").addEventListener('click', () => {
             this.viewType = "S";
             this.renderSchedule(this.quickstartPage.loadedSchedule);
         });
-        this.querySelector("#byThemeTrackTab").addEventListener('click', () => {
+        document.getElementById("byThemeTrackTab").addEventListener('click', () => {
             this.viewType = "TH";
             this.renderSchedule(this.quickstartPage.loadedSchedule);
         });
-        this.querySelector("#bySectorsTab").addEventListener('click', () => {
+        document.getElementById("bySectorsTab").addEventListener('click', () => {
             this.viewType = "SC";
             this.renderSchedule(this.quickstartPage.loadedSchedule);
         });
-        this.querySelector("#byAudienceTypeTab").addEventListener('click', () => {
+        document.getElementById("byAudienceTypeTab").addEventListener('click', () => {
             this.viewType = "AT";
             this.renderSchedule(this.quickstartPage.loadedSchedule);
         });
-        this.querySelector("#byAudienceLevelTab").addEventListener('click', () => {
+        document.getElementById("byAudienceLevelTab").addEventListener('click', () => {
             this.viewType = "AL";
             this.renderSchedule(this.quickstartPage.loadedSchedule);
         });
@@ -154,7 +152,7 @@ customElements.define('timefold-quickstart-visualization', class extends HTMLEle
             renderInfo: (schedule) => this.renderInfo(schedule),
             mergeModelOutput: (schedule, modelOutput) => this.mergeModelOutput(schedule, modelOutput),
         });
-    }
+    },
 
     // modelOutput only carries the talk assignments (talks: [{code, timeslotId, roomId}]), not the
     // full problem, so schedule (the QuickstartPage's loadedSchedule) keeps the full modelInput
@@ -170,7 +168,7 @@ customElements.define('timefold-quickstart-visualization', class extends HTMLEle
                 ? {...talk, timeslotId: assignmentByCode.get(talk.code).timeslotId, roomId: assignmentByCode.get(talk.code).roomId}
                 : talk);
         }
-    }
+    },
 
     renderSchedule(schedule) {
         if (schedule == null) {
@@ -194,18 +192,18 @@ customElements.define('timefold-quickstart-visualization', class extends HTMLEle
         } else if (this.viewType === "AL") {
             this.renderScheduleByAudienceLevel(schedule);
         }
-    }
+    },
 
     renderInfo(schedule) {
         if (schedule == null) {
-            return;
+            return "";
         }
-        $("#info").text(`${schedule.talks.length} talks · ${schedule.speakers.length} speakers · ${schedule.timeslots.length} timeslots · ${schedule.rooms.length} rooms`);
-    }
+        return `${schedule.talks.length} talks · ${schedule.speakers.length} speakers · ${schedule.timeslots.length} timeslots · ${schedule.rooms.length} rooms`;
+    },
 
     talkSpeakerNames(talk) {
         return (talk.speakerIds || []).map(id => this.speakerNameById.get(id) ?? id).join(", ");
-    }
+    },
 
     renderScheduleByRoom(schedule) {
         const scheduleByRoom = $("#scheduleByRoom");
@@ -264,7 +262,7 @@ customElements.define('timefold-quickstart-visualization', class extends HTMLEle
         });
 
         renderUnassignedBanner(unassignedTalks);
-    }
+    },
 
     renderScheduleBySpeaker(schedule) {
         const scheduleBySpeaker = $("#scheduleBySpeaker");
@@ -321,31 +319,31 @@ customElements.define('timefold-quickstart-visualization', class extends HTMLEle
         });
 
         renderUnassignedBanner(unassignedTalks);
-    }
+    },
 
     renderScheduleByThemeTrack(schedule) {
         const allTalkThemes = schedule.talks.flatMap(t => t.themeTrackTags).sort();
         const themes = [...new Set(allTalkThemes)];
         this.renderScheduleByValues(schedule, "#scheduleByThemeTrack", "Theme Track Tag", "theme", "themeTrackTags", themes);
-    }
+    },
 
     renderScheduleBySectors(schedule) {
         const allTalkSectors = schedule.talks.flatMap(t => t.sectorTags).sort();
         const sectors = [...new Set(allTalkSectors)];
         this.renderScheduleByValues(schedule, "#scheduleBySectors", "Sector Tag", "sector", "sectorTags", sectors);
-    }
+    },
 
     renderScheduleByAudienceType(schedule) {
         const allAudienceTypes = schedule.talks.flatMap(t => t.audienceTypes).sort();
         const audienceTypes = [...new Set(allAudienceTypes)];
         this.renderScheduleByValues(schedule, "#scheduleByAudienceType", "Audience Type Tag", "audience_type", "audienceTypes", audienceTypes);
-    }
+    },
 
     renderScheduleByAudienceLevel(schedule) {
         const allAudienceLevels = schedule.talks.map(t => t.audienceLevel).sort();
         const audienceLevels = [...new Set(allAudienceLevels)];
         this.renderScheduleByValues(schedule, "#scheduleByAudienceLevel", "Audience Level", "audience_level", "audienceLevel", audienceLevels, true);
-    }
+    },
 
     renderScheduleByValues(schedule, tableKey, rowTitle, rowKey, key, values, singleValue = false) {
         const scheduleByValue = $(tableKey);
@@ -424,5 +422,7 @@ customElements.define('timefold-quickstart-visualization', class extends HTMLEle
         });
 
         renderUnassignedBanner(unassignedTalks);
-    }
-});
+    },
+};
+
+app.start();
