@@ -159,6 +159,7 @@ public final class ArchitectureCheck {
                 everyModuleMustHaveATestHelperInSupportPackage(),
                 testClassesMustBuildDomainAndDtoObjectsViaTestHelper(),
                 everyModuleMustHaveASingleJustificationFile(),
+                everyModuleMustHaveASingleIssueFile(),
                 dtoTypesMustEndWithDto(),
                 withMethodsMustBeUsed(),
                 onlyDtoPackageMayUseSchemaAnnotation(),
@@ -310,8 +311,14 @@ public final class ArchitectureCheck {
 
     private static ArchRule everyModuleMustHaveASingleJustificationFile() {
         return classes()
-                .should(new SingleJustificationFileCondition())
+                .should(new SinglePackageFileCondition("domain/justification"))
                 .as("The domain.justification package must contain exactly one file, hosting every justification implementation as a nested type");
+    }
+
+    private static ArchRule everyModuleMustHaveASingleIssueFile() {
+        return classes()
+                .should(new SinglePackageFileCondition("service/validation"))
+                .as("The service.validation package must contain exactly one file, hosting every validation issue implementation as a nested type");
     }
 
     private static ArchRule dtoTypesMustEndWithDto() {
@@ -1045,13 +1052,16 @@ public final class ArchitectureCheck {
         }
     }
 
-    private static final class SingleJustificationFileCondition extends ArchCondition<JavaClass> {
+    private static final class SinglePackageFileCondition extends ArchCondition<JavaClass> {
+
+        private final String relativePackagePath;
 
         // Walking the module tree once is enough; anchor the scan to a single class.
         private boolean scanned;
 
-        private SingleJustificationFileCondition() {
-            super("contain exactly one file in the domain.justification package");
+        private SinglePackageFileCondition(String relativePackagePath) {
+            super("contain exactly one file in the %s package".formatted(toPackageName(relativePackagePath)));
+            this.relativePackagePath = relativePackagePath;
         }
 
         @Override
@@ -1060,27 +1070,31 @@ public final class ArchitectureCheck {
                 return;
             }
             scanned = true;
-            var justificationDir = moduleRoot.resolve("src/main/java")
+            var packageName = toPackageName(relativePackagePath);
+            var dir = moduleRoot.resolve("src/main/java")
                     .resolve(basePackage.replace('.', '/'))
-                    .resolve("domain/justification");
-            if (!Files.isDirectory(justificationDir)) {
+                    .resolve(relativePackagePath);
+            if (!Files.isDirectory(dir)) {
                 events.add(SimpleConditionEvent.violated(javaClass,
-                        "No domain.justification package found under " + justificationDir));
+                        "No %s package found under %s".formatted(packageName, dir)));
                 return;
             }
-            List<Path> justificationFiles;
-            try (var pathStream = Files.list(justificationDir)) {
-                justificationFiles = pathStream.filter(path -> path.toString().endsWith(".java")).sorted().toList();
+            List<Path> files;
+            try (var pathStream = Files.list(dir)) {
+                files = pathStream.filter(path -> path.toString().endsWith(".java")).sorted().toList();
             } catch (IOException e) {
-                throw new UncheckedIOException("Failed to scan " + justificationDir, e);
+                throw new UncheckedIOException("Failed to scan " + dir, e);
             }
-            if (justificationFiles.size() != 1) {
+            if (files.size() != 1) {
                 events.add(SimpleConditionEvent.violated(javaClass,
-                        "Expected exactly one file in %s, found %d: %s".formatted(justificationDir,
-                                justificationFiles.size(),
-                                justificationFiles.stream().map(path -> path.getFileName().toString())
+                        "Expected exactly one file in %s, found %d: %s".formatted(dir, files.size(),
+                                files.stream().map(path -> path.getFileName().toString())
                                         .collect(Collectors.joining(", ")))));
             }
+        }
+
+        private static String toPackageName(String relativePackagePath) {
+            return relativePackagePath.replace('/', '.');
         }
     }
 
