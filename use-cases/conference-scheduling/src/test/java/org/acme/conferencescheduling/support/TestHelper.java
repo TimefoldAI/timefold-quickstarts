@@ -1,7 +1,6 @@
 package org.acme.conferencescheduling.support;
 
 import static java.util.Collections.emptyList;
-import static java.util.Collections.emptySet;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -9,7 +8,6 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.SequencedSet;
-import java.util.Set;
 
 import org.acme.conferencescheduling.domain.ConferenceConstraintProperties;
 import org.acme.conferencescheduling.domain.Room;
@@ -166,8 +164,8 @@ public final class TestHelper {
         private final String id;
         private String name;
         private int capacity = 0;
-        private Set<Timeslot> unavailableTimeslots = emptySet();
-        private Set<String> tags = emptySet();
+        private List<Timeslot> unavailableTimeslots = List.of();
+        private List<String> tags = List.of();
 
         private RoomBuilder(String id) {
             this.id = id;
@@ -184,12 +182,12 @@ public final class TestHelper {
             return this;
         }
 
-        public RoomBuilder unavailableTimeslots(Set<Timeslot> unavailableTimeslots) {
+        public RoomBuilder unavailableTimeslots(List<Timeslot> unavailableTimeslots) {
             this.unavailableTimeslots = unavailableTimeslots;
             return this;
         }
 
-        public RoomBuilder tags(Set<String> tags) {
+        public RoomBuilder tags(List<String> tags) {
             this.tags = tags;
             return this;
         }
@@ -459,7 +457,7 @@ public final class TestHelper {
         private final String id;
         private OffsetDateTime startDateTime = DEFAULT_START;
         private OffsetDateTime endDateTime = DEFAULT_START.plusHours(1);
-        private Set<String> tags = emptySet();
+        private List<String> tags = List.of();
 
         private TimeslotBuilder(String id) {
             this.id = id;
@@ -475,7 +473,7 @@ public final class TestHelper {
             return this;
         }
 
-        public TimeslotBuilder tags(Set<String> tags) {
+        public TimeslotBuilder tags(List<String> tags) {
             this.tags = tags;
             return this;
         }

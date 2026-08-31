@@ -322,7 +322,7 @@ public interface ConferenceSchedulingJustification extends ModelConstraintJustif
             return new MissingRequiredTimeslotTagsForSpeakersJustification(talk.getCode(),
                     speakerIds(talk.getSpeakers()),
                     talk.getTimeslot().getId(), missing(requiredTags, talk.getTimeslot().getTags()),
-                    List.copyOf(talk.getTimeslot().getTags()));
+                    talk.getTimeslot().getTags());
         }
 
         @Override
@@ -348,7 +348,7 @@ public interface ConferenceSchedulingJustification extends ModelConstraintJustif
             return new ProhibitedTimeslotTagsForSpeakersJustification(talk.getCode(),
                     speakerIds(talk.getSpeakers()),
                     talk.getTimeslot().getId(), shared(prohibitedTags, talk.getTimeslot().getTags()),
-                    List.copyOf(talk.getTimeslot().getTags()));
+                    talk.getTimeslot().getTags());
         }
 
         @Override
@@ -371,7 +371,7 @@ public interface ConferenceSchedulingJustification extends ModelConstraintJustif
         public static MissingRequiredTimeslotTagsForTalkJustification of(Talk talk) {
             return new MissingRequiredTimeslotTagsForTalkJustification(talk.getCode(), talk.getTimeslot().getId(),
                     missing(talk.getRequiredTimeslotTags(), talk.getTimeslot().getTags()),
-                    List.copyOf(talk.getTimeslot().getTags()));
+                    talk.getTimeslot().getTags());
         }
 
         @Override
@@ -394,7 +394,7 @@ public interface ConferenceSchedulingJustification extends ModelConstraintJustif
         public static ProhibitedTimeslotTagsForTalkJustification of(Talk talk) {
             return new ProhibitedTimeslotTagsForTalkJustification(talk.getCode(), talk.getTimeslot().getId(),
                     shared(talk.getProhibitedTimeslotTags(), talk.getTimeslot().getTags()),
-                    List.copyOf(talk.getTimeslot().getTags()));
+                    talk.getTimeslot().getTags());
         }
 
         @Override
@@ -420,7 +420,7 @@ public interface ConferenceSchedulingJustification extends ModelConstraintJustif
             return new MissingRequiredRoomTagsForSpeakersJustification(talk.getCode(),
                     speakerIds(talk.getSpeakers()),
                     talk.getRoom().id(), missing(requiredTags, talk.getRoom().tags()),
-                    List.copyOf(talk.getRoom().tags()));
+                    talk.getRoom().tags());
         }
 
         @Override
@@ -446,7 +446,7 @@ public interface ConferenceSchedulingJustification extends ModelConstraintJustif
             return new ProhibitedRoomTagsForSpeakersJustification(talk.getCode(),
                     speakerIds(talk.getSpeakers()),
                     talk.getRoom().id(), shared(prohibitedTags, talk.getRoom().tags()),
-                    List.copyOf(talk.getRoom().tags()));
+                    talk.getRoom().tags());
         }
 
         @Override
@@ -469,7 +469,7 @@ public interface ConferenceSchedulingJustification extends ModelConstraintJustif
         public static MissingRequiredRoomTagsForTalkJustification of(Talk talk) {
             return new MissingRequiredRoomTagsForTalkJustification(talk.getCode(), talk.getRoom().id(),
                     missing(talk.getRequiredRoomTags(), talk.getRoom().tags()),
-                    List.copyOf(talk.getRoom().tags()));
+                    talk.getRoom().tags());
         }
 
         @Override
@@ -492,7 +492,7 @@ public interface ConferenceSchedulingJustification extends ModelConstraintJustif
         public static ProhibitedRoomTagsForTalkJustification of(Talk talk) {
             return new ProhibitedRoomTagsForTalkJustification(talk.getCode(), talk.getRoom().id(),
                     shared(talk.getProhibitedRoomTags(), talk.getRoom().tags()),
-                    List.copyOf(talk.getRoom().tags()));
+                    talk.getRoom().tags());
         }
 
         @Override
@@ -795,7 +795,7 @@ public interface ConferenceSchedulingJustification extends ModelConstraintJustif
             return new MissingPreferredTimeslotTagsForSpeakersJustification(talk.getCode(),
                     speakerIds(talk.getSpeakers()),
                     talk.getTimeslot().getId(), missing(preferredTags, talk.getTimeslot().getTags()),
-                    List.copyOf(talk.getTimeslot().getTags()));
+                    talk.getTimeslot().getTags());
         }
 
         @Override
@@ -821,7 +821,7 @@ public interface ConferenceSchedulingJustification extends ModelConstraintJustif
             return new UndesiredTimeslotTagsForSpeakersJustification(talk.getCode(),
                     speakerIds(talk.getSpeakers()),
                     talk.getTimeslot().getId(), shared(undesiredTags, talk.getTimeslot().getTags()),
-                    List.copyOf(talk.getTimeslot().getTags()));
+                    talk.getTimeslot().getTags());
         }
 
         @Override
@@ -844,7 +844,7 @@ public interface ConferenceSchedulingJustification extends ModelConstraintJustif
         public static MissingPreferredTimeslotTagsForTalkJustification of(Talk talk) {
             return new MissingPreferredTimeslotTagsForTalkJustification(talk.getCode(), talk.getTimeslot().getId(),
                     missing(talk.getPreferredTimeslotTags(), talk.getTimeslot().getTags()),
-                    List.copyOf(talk.getTimeslot().getTags()));
+                    talk.getTimeslot().getTags());
         }
 
         @Override
@@ -867,7 +867,7 @@ public interface ConferenceSchedulingJustification extends ModelConstraintJustif
         public static UndesiredTimeslotTagsForTalkJustification of(Talk talk) {
             return new UndesiredTimeslotTagsForTalkJustification(talk.getCode(), talk.getTimeslot().getId(),
                     shared(talk.getUndesiredTimeslotTags(), talk.getTimeslot().getTags()),
-                    List.copyOf(talk.getTimeslot().getTags()));
+                    talk.getTimeslot().getTags());
         }
 
         @Override
@@ -893,7 +893,7 @@ public interface ConferenceSchedulingJustification extends ModelConstraintJustif
             return new MissingPreferredRoomTagsForSpeakersJustification(talk.getCode(),
                     speakerIds(talk.getSpeakers()),
                     talk.getRoom().id(), missing(preferredTags, talk.getRoom().tags()),
-                    List.copyOf(talk.getRoom().tags()));
+                    talk.getRoom().tags());
         }
 
         @Override
@@ -918,7 +918,7 @@ public interface ConferenceSchedulingJustification extends ModelConstraintJustif
             List<String> undesiredTags = speakerTags(talk.getSpeakers(), Speaker::undesiredRoomTags);
             return new UndesiredRoomTagsForSpeakersJustification(talk.getCode(), speakerIds(talk.getSpeakers()),
                     talk.getRoom().id(), shared(undesiredTags, talk.getRoom().tags()),
-                    List.copyOf(talk.getRoom().tags()));
+                    talk.getRoom().tags());
         }
 
         @Override
@@ -941,7 +941,7 @@ public interface ConferenceSchedulingJustification extends ModelConstraintJustif
         public static MissingPreferredRoomTagsForTalkJustification of(Talk talk) {
             return new MissingPreferredRoomTagsForTalkJustification(talk.getCode(), talk.getRoom().id(),
                     missing(talk.getPreferredRoomTags(), talk.getRoom().tags()),
-                    List.copyOf(talk.getRoom().tags()));
+                    talk.getRoom().tags());
         }
 
         @Override
@@ -964,7 +964,7 @@ public interface ConferenceSchedulingJustification extends ModelConstraintJustif
         public static UndesiredRoomTagsForTalkJustification of(Talk talk) {
             return new UndesiredRoomTagsForTalkJustification(talk.getCode(), talk.getRoom().id(),
                     shared(talk.getUndesiredRoomTags(), talk.getRoom().tags()),
-                    List.copyOf(talk.getRoom().tags()));
+                    talk.getRoom().tags());
         }
 
         @Override

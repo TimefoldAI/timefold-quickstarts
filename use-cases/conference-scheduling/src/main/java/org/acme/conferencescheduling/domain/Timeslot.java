@@ -2,8 +2,8 @@ package org.acme.conferencescheduling.domain;
 
 import java.time.Duration;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import ai.timefold.solver.core.api.domain.common.PlanningId;
 
@@ -11,12 +11,12 @@ public class Timeslot {
     private @PlanningId String id;
     private OffsetDateTime startDateTime;
     private OffsetDateTime endDateTime;
-    private Set<String> tags;
+    private List<String> tags;
 
     // Cached
     private int durationInMinutes;
 
-    public Timeslot(String id, OffsetDateTime startDateTime, OffsetDateTime endDateTime, Set<String> tags) {
+    public Timeslot(String id, OffsetDateTime startDateTime, OffsetDateTime endDateTime, List<String> tags) {
         this.id = id;
         this.startDateTime = startDateTime;
         this.endDateTime = endDateTime;
@@ -77,7 +77,7 @@ public class Timeslot {
         return endDateTime;
     }
 
-    public Set<String> getTags() {
+    public List<String> getTags() {
         return tags;
     }
 

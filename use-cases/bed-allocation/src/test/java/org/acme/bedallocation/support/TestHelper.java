@@ -3,7 +3,6 @@ package org.acme.bedallocation.support;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.acme.bedallocation.domain.Bed;
 import org.acme.bedallocation.domain.Department;
@@ -85,7 +84,7 @@ public final class TestHelper {
         private DepartmentBuilder department;
         private int capacity;
         private GenderLimitation genderLimitation = GenderLimitation.ANY_GENDER;
-        private Set<String> equipments = Set.of();
+        private List<String> equipments = List.of();
 
         private RoomBuilder(String id) {
             this.id = id;
@@ -112,7 +111,7 @@ public final class TestHelper {
             return this;
         }
 
-        public RoomBuilder equipments(Set<String> equipments) {
+        public RoomBuilder equipments(List<String> equipments) {
             this.equipments = equipments;
             return this;
         }
@@ -252,7 +251,7 @@ public final class TestHelper {
         private String name = "TEST_NAME";
         private int capacity = 1;
         private GenderLimitation genderLimitation = GenderLimitation.ANY_GENDER;
-        private Set<String> equipments = Set.of();
+        private List<String> equipments = List.of();
         private List<BedDTOBuilder> beds = List.of(aBedDTO("b1"));
 
         private RoomDTOBuilder(String id) {
@@ -275,7 +274,7 @@ public final class TestHelper {
             return this;
         }
 
-        public RoomDTOBuilder equipments(Set<String> equipments) {
+        public RoomDTOBuilder equipments(List<String> equipments) {
             this.equipments = equipments;
             return this;
         }

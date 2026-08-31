@@ -1,6 +1,6 @@
 package org.acme.conferencescheduling.domain;
 
-import java.util.Set;
+import java.util.List;
 
 import ai.timefold.solver.core.api.domain.solution.ConstraintWeightOverrides;
 import ai.timefold.solver.core.api.domain.solution.PlanningEntityCollectionProperty;
@@ -25,19 +25,19 @@ public class ConferenceSchedule implements SolverModel<HardMediumSoftScore>,
     @ProblemFactProperty
     private ConferenceConstraintProperties constraintProperties;
 
-    private Set<TalkType> talkTypes;
+    private List<TalkType> talkTypes;
 
     @ProblemFactCollectionProperty
-    private Set<Timeslot> timeslots;
+    private List<Timeslot> timeslots;
 
     @ProblemFactCollectionProperty
-    private Set<Room> rooms;
+    private List<Room> rooms;
 
     @ProblemFactCollectionProperty
-    private Set<Speaker> speakers;
+    private List<Speaker> speakers;
 
     @PlanningEntityCollectionProperty
-    private Set<Talk> talks;
+    private List<Talk> talks;
 
     @PlanningScore
     private HardMediumSoftScore score;
@@ -47,8 +47,8 @@ public class ConferenceSchedule implements SolverModel<HardMediumSoftScore>,
     public ConferenceSchedule() {
     }
 
-    public ConferenceSchedule(String name, Set<TalkType> talkTypes, Set<Timeslot> timeslots, Set<Room> rooms,
-            Set<Speaker> speakers, Set<Talk> talks) {
+    public ConferenceSchedule(String name, List<TalkType> talkTypes, List<Timeslot> timeslots, List<Room> rooms,
+            List<Speaker> speakers, List<Talk> talks) {
         this.name = name;
         this.talkTypes = talkTypes;
         this.timeslots = timeslots;
@@ -69,23 +69,23 @@ public class ConferenceSchedule implements SolverModel<HardMediumSoftScore>,
         this.constraintProperties = constraintProperties;
     }
 
-    public Set<TalkType> getTalkTypes() {
+    public List<TalkType> getTalkTypes() {
         return talkTypes;
     }
 
-    public Set<Timeslot> getTimeslots() {
+    public List<Timeslot> getTimeslots() {
         return timeslots;
     }
 
-    public Set<Room> getRooms() {
+    public List<Room> getRooms() {
         return rooms;
     }
 
-    public Set<Speaker> getSpeakers() {
+    public List<Speaker> getSpeakers() {
         return speakers;
     }
 
-    public Set<Talk> getTalks() {
+    public List<Talk> getTalks() {
         return talks;
     }
 

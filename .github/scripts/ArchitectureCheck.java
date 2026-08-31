@@ -151,6 +151,7 @@ public final class ArchitectureCheck {
                 layerRule("demo", "rest", not(resideInAPackage(basePackage + ".rest.."))),
                 repositoryMustNotContainPythonOrAwkScripts(),
                 domainSettersMustReturnVoid(),
+                domainFieldsMustNotUsePlainSet(),
                 justificationRecordsMustNotDefineZeroArgumentConstructors(),
                 justificationRecordsMustNotReplaceNullStringsWithEmptyStrings(),
                 dtoRecordsMustNotCreateMutableArrayLists(),
@@ -245,6 +246,22 @@ public final class ArchitectureCheck {
                 .and().areDeclaredInClassesThat().resideInAPackage(basePackage + ".domain..")
                 .should().haveRawReturnType(void.class)
                 .as("Domain setters must follow the JavaBean contract and return void");
+    }
+
+    /*
+     * java.util.Set makes no guarantee about iteration order (HashSet in particular reorders on rehash),
+     * so two solves of the same problem can iterate a domain Set field in a different order and diverge in
+     * subtle, hard-to-reproduce ways (e.g. move selection order, tie-breaking). SequencedSet (e.g.
+     * LinkedHashSet) or a List both fix the order to insertion order, so either is an acceptable fix; this
+     * rule only inspects field/record component declarations, not method signatures: a field is where the
+     * divergence actually originates.
+     */
+    private static ArchRule domainFieldsMustNotUsePlainSet() {
+        return classes()
+                .that().resideInAPackage(basePackage + ".domain..")
+                .should(new NoPlainSetFieldCondition())
+                .as("Domain fields and record components must use SequencedSet or a List instead of Set, since "
+                        + "Set's undefined iteration order can make the solver non-reproducible in subtle ways");
     }
 
     private static ArchRule justificationRecordsMustNotDefineZeroArgumentConstructors() {
@@ -487,6 +504,32 @@ public final class ArchitectureCheck {
                 events.add(SimpleConditionEvent.violated(javaClass,
                         "%s is annotated with @%s".formatted(javaClass.getName(), annotationTypeName)));
             }
+        }
+    }
+
+    private static final class NoPlainSetFieldCondition extends ArchCondition<JavaClass> {
+
+        private static final String SET_TYPE = "java.util.Set";
+        private static final String SEQUENCED_SET_TYPE = "java.util.SequencedSet";
+
+        private NoPlainSetFieldCondition() {
+            super("not declare a field or record component of type java.util.Set");
+        }
+
+        @Override
+        public void check(JavaClass javaClass, ConditionEvents events) {
+            for (JavaField field : javaClass.getFields()) {
+                if (isPlainSetType(field)) {
+                    events.add(SimpleConditionEvent.violated(javaClass,
+                            "%s declares field '%s' of type Set; use SequencedSet or a List instead so iteration order is well-defined"
+                                    .formatted(javaClass.getName(), field.getName())));
+                }
+            }
+        }
+
+        private static boolean isPlainSetType(JavaField field) {
+            var rawType = field.getRawType();
+            return rawType.isAssignableTo(SET_TYPE) && !rawType.isAssignableTo(SEQUENCED_SET_TYPE);
         }
     }
 

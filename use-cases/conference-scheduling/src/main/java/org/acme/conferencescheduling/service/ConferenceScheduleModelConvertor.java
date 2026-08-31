@@ -2,6 +2,7 @@ package org.acme.conferencescheduling.service;
 
 import static java.util.stream.Collectors.toCollection;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.SequencedSet;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -29,7 +31,6 @@ import org.acme.conferencescheduling.dto.input.ConferenceScheduleConfigOverrides
 import org.acme.conferencescheduling.dto.input.ConferenceScheduleInput;
 import org.acme.conferencescheduling.dto.input.SpeakerDTO;
 import org.acme.conferencescheduling.dto.input.TalkDTO;
-import org.acme.conferencescheduling.dto.input.TalkTypeDTO;
 import org.acme.conferencescheduling.dto.output.ConferenceScheduleOutput;
 import org.acme.conferencescheduling.dto.output.TalkAssignmentDTO;
 
@@ -59,57 +60,58 @@ public class ConferenceScheduleModelConvertor
     public ConferenceSchedule toSolverModel(ConferenceScheduleInput modelInput,
             ModelConfig<ConferenceScheduleConfigOverrides> modelConfig,
             Optional<ConferenceScheduleOutput> lastModelOutput) {
-        Map<String, TalkType> talkTypeMap = modelInput.talkTypes().stream()
-                .collect(Collectors.toMap(TalkTypeDTO::name, dto -> {
-                    return new TalkType(dto.name(), new LinkedHashSet<>(), new LinkedHashSet<>());
-                }, (a, b) -> a, java.util.LinkedHashMap::new));
+        List<TalkType> talkTypeList = modelInput.talkTypes().stream()
+                .map(dto -> new TalkType(dto.name(), new ArrayList<>(), new ArrayList<>()))
+                .toList();
+        Map<String, TalkType> talkTypeMap = talkTypeList.stream()
+                .collect(Collectors.toMap(TalkType::name, Function.identity(), (a, b) -> a, java.util.LinkedHashMap::new));
 
         Map<String, Timeslot> timeslotMap = new java.util.LinkedHashMap<>();
-        Set<Timeslot> timeslots = modelInput.timeslots().stream()
+        List<Timeslot> timeslots = modelInput.timeslots().stream()
                 .map(dto -> {
                     var relevantTalkTypes = talkTypes(dto.talkTypeNames(), talkTypeMap);
-                    Timeslot timeslot = new Timeslot(dto.id(), dto.startDateTime(), dto.endDateTime(),
-                            new LinkedHashSet<>(dto.tags()));
+                    Timeslot timeslot = new Timeslot(dto.id(), dto.startDateTime(), dto.endDateTime(), dto.tags());
                     timeslotMap.put(timeslot.getId(), timeslot);
                     relevantTalkTypes.forEach(r -> r.compatibleTimeslots().add(timeslot));
                     return timeslot;
                 })
-                .collect(toCollection(LinkedHashSet::new));
+                .toList();
 
         Map<String, Room> roomMap = new java.util.LinkedHashMap<>();
-        Set<Room> rooms = modelInput.rooms().stream()
+        List<Room> rooms = modelInput.rooms().stream()
                 .map(dto -> {
                     var relevantTalkTypes = talkTypes(dto.talkTypeNames(), talkTypeMap);
-                    Room room = new Room(dto.id(), dto.name(), dto.capacity(),
-                            timeslotsByIds(dto.unavailableTimeslotIds(), timeslotMap),
-                            new LinkedHashSet<>(dto.tags()));
+                    List<Timeslot> unavailableTimeslots = dto.unavailableTimeslotIds().stream()
+                            .map(id -> require(timeslotMap, id, "timeslot"))
+                            .toList();
+                    Room room = new Room(dto.id(), dto.name(), dto.capacity(), unavailableTimeslots, dto.tags());
                     roomMap.put(room.id(), room);
                     relevantTalkTypes.forEach(r -> r.compatibleRooms().add(room));
                     return room;
                 })
-                .collect(toCollection(LinkedHashSet::new));
+                .toList();
 
         Map<String, Speaker> speakerMap = new java.util.LinkedHashMap<>();
-        Set<Speaker> speakers = modelInput.speakers().stream()
+        List<Speaker> speakers = modelInput.speakers().stream()
                 .map(dto -> {
                     Speaker speaker = toSpeaker(dto, timeslotMap);
                     speakerMap.put(speaker.id(), speaker);
                     return speaker;
                 })
-                .collect(toCollection(LinkedHashSet::new));
+                .toList();
 
         Map<String, Talk> talkMap = new java.util.LinkedHashMap<>();
-        Set<Talk> talks = modelInput.talks().stream()
+        List<Talk> talks = modelInput.talks().stream()
                 .map(dto -> {
                     Talk talk = toTalk(dto, talkTypeMap, speakerMap, timeslotMap, roomMap);
                     talkMap.put(talk.getCode(), talk);
                     return talk;
                 })
-                .collect(toCollection(LinkedHashSet::new));
+                .toList();
         applyPrerequisites(modelInput.talks(), talkMap);
 
         ConferenceSchedule schedule = new ConferenceSchedule(modelInput.name(),
-                new LinkedHashSet<>(talkTypeMap.values()), timeslots, rooms, speakers, talks);
+                talkTypeList, timeslots, rooms, speakers, talks);
         schedule.setConstraintProperties(new ConferenceConstraintProperties());
         applyConstraintWeightOverrides(schedule, modelConfig);
         applyLastOutput(talkMap, timeslotMap, roomMap, lastModelOutput);

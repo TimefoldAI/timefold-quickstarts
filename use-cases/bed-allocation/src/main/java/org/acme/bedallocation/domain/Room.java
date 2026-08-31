@@ -1,7 +1,7 @@
 package org.acme.bedallocation.domain;
 
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 public record Room(
         String id,
@@ -9,7 +9,7 @@ public record Room(
         Department department,
         int capacity,
         GenderLimitation genderLimitation,
-        Set<String> equipments) {
+        List<String> equipments) {
 
     @Override
     public boolean equals(Object o) {

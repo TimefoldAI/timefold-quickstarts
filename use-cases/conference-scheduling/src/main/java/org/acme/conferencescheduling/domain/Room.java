@@ -1,7 +1,7 @@
 package org.acme.conferencescheduling.domain;
 
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import ai.timefold.solver.core.api.domain.common.PlanningId;
 
@@ -9,8 +9,8 @@ public record Room(
         @PlanningId String id,
         String name,
         int capacity,
-        Set<Timeslot> unavailableTimeslots,
-        Set<String> tags) {
+        List<Timeslot> unavailableTimeslots,
+        List<String> tags) {
 
     @Override
     public boolean equals(Object o) {

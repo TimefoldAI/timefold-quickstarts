@@ -7,7 +7,6 @@ import static org.acme.bedallocation.support.TestHelper.aStay;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import jakarta.inject.Inject;
 
@@ -96,7 +95,7 @@ class BedAllocationConstraintProviderTest {
 
     @Test
     void requiredPatientEquipment() {
-        var room = aRoom("1").equipments(Set.of("TELEMETRY"));
+        var room = aRoom("1").equipments(List.of("TELEMETRY"));
         var bed = aBed("1-bed0").room(room);
 
         Stay admission = aStay("0", bed)
@@ -157,7 +156,7 @@ class BedAllocationConstraintProviderTest {
 
     @Test
     void preferredPatientEquipment() {
-        var room = aRoom("1").equipments(Set.of("TELEMETRY"));
+        var room = aRoom("1").equipments(List.of("TELEMETRY"));
         var bed = aBed("1-bed0").room(room);
 
         Stay stay = aStay("0", bed)

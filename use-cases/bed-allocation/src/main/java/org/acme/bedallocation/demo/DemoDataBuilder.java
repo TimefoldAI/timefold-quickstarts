@@ -12,7 +12,6 @@ import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.acme.bedallocation.domain.Gender;
 import org.acme.bedallocation.domain.GenderLimitation;
@@ -48,21 +47,21 @@ public final class DemoDataBuilder {
         // Anchored to the next Monday (never today)
         LocalDate firstMonday = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.MONDAY));
 
-        RoomInputDTO room1 = room("R1", 1, ANY_GENDER, Set.of(TELEMETRY, OXYGEN));
-        RoomInputDTO room2 = room("R2", 1, ANY_GENDER, Set.of(TELEVISION, NITROGEN));
-        RoomInputDTO room3 = room("R3", 2, ANY_GENDER, Set.of(TELEMETRY, TELEVISION, OXYGEN, NITROGEN));
-        RoomInputDTO room4 = room("R4", 1, ANY_GENDER, Set.of());
-        RoomInputDTO room5 = room("R5", 2, SAME_GENDER, Set.of());
-        RoomInputDTO room6 = room("R6", 1, ANY_GENDER, Set.of(OXYGEN, NITROGEN));
-        RoomInputDTO room7 = room("R7", 1, ANY_GENDER, Set.of(TELEMETRY, TELEVISION));
-        RoomInputDTO room8 = room("R8", 2, ANY_GENDER, Set.of(TELEMETRY, TELEVISION, OXYGEN, NITROGEN));
-        RoomInputDTO room9 = room("R9", 1, ANY_GENDER, Set.of());
-        RoomInputDTO room10 = room("R10", 2, SAME_GENDER, Set.of());
-        RoomInputDTO room11 = room("R11", 2, MALE_ONLY, Set.of(OXYGEN, TELEMETRY));
-        RoomInputDTO room12 = room("R12", 2, FEMALE_ONLY, Set.of(TELEVISION, NITROGEN));
-        RoomInputDTO room13 = room("R13", 1, ANY_GENDER, Set.of(OXYGEN, TELEMETRY, NITROGEN));
-        RoomInputDTO room14 = room("R14", 2, ANY_GENDER, Set.of(TELEMETRY, TELEVISION, OXYGEN, NITROGEN));
-        RoomInputDTO room15 = room("R15", 2, SAME_GENDER, Set.of());
+        RoomInputDTO room1 = room("R1", 1, ANY_GENDER, List.of(TELEMETRY, OXYGEN));
+        RoomInputDTO room2 = room("R2", 1, ANY_GENDER, List.of(TELEVISION, NITROGEN));
+        RoomInputDTO room3 = room("R3", 2, ANY_GENDER, List.of(TELEMETRY, TELEVISION, OXYGEN, NITROGEN));
+        RoomInputDTO room4 = room("R4", 1, ANY_GENDER, List.of());
+        RoomInputDTO room5 = room("R5", 2, SAME_GENDER, List.of());
+        RoomInputDTO room6 = room("R6", 1, ANY_GENDER, List.of(OXYGEN, NITROGEN));
+        RoomInputDTO room7 = room("R7", 1, ANY_GENDER, List.of(TELEMETRY, TELEVISION));
+        RoomInputDTO room8 = room("R8", 2, ANY_GENDER, List.of(TELEMETRY, TELEVISION, OXYGEN, NITROGEN));
+        RoomInputDTO room9 = room("R9", 1, ANY_GENDER, List.of());
+        RoomInputDTO room10 = room("R10", 2, SAME_GENDER, List.of());
+        RoomInputDTO room11 = room("R11", 2, MALE_ONLY, List.of(OXYGEN, TELEMETRY));
+        RoomInputDTO room12 = room("R12", 2, FEMALE_ONLY, List.of(TELEVISION, NITROGEN));
+        RoomInputDTO room13 = room("R13", 1, ANY_GENDER, List.of(OXYGEN, TELEMETRY, NITROGEN));
+        RoomInputDTO room14 = room("R14", 2, ANY_GENDER, List.of(TELEMETRY, TELEVISION, OXYGEN, NITROGEN));
+        RoomInputDTO room15 = room("R15", 2, SAME_GENDER, List.of());
 
         DepartmentInputDTO department = new DepartmentInputDTO("1", "General Ward", 1, 100,
                 Map.of(CARDIOLOGY, 1, NEUROLOGY, 2, ONCOLOGY, 2),
@@ -292,7 +291,7 @@ public final class DemoDataBuilder {
         return new BedPlanInput(List.of(department), stays);
     }
 
-    private static RoomInputDTO room(String id, int capacity, GenderLimitation genderLimitation, Set<String> equipments) {
+    private static RoomInputDTO room(String id, int capacity, GenderLimitation genderLimitation, List<String> equipments) {
         List<BedInputDTO> beds = capacity == 1
                 ? List.of(new BedInputDTO(id + "-bed0"))
                 : List.of(new BedInputDTO(id + "-bed0"), new BedInputDTO(id + "-bed1"));

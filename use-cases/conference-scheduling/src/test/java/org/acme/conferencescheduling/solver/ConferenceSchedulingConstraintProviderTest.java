@@ -1,6 +1,5 @@
 package org.acme.conferencescheduling.solver;
 
-import static java.util.Collections.singleton;
 import static org.acme.conferencescheduling.support.TestHelper.aConfiguration;
 import static org.acme.conferencescheduling.support.TestHelper.aRoom;
 import static org.acme.conferencescheduling.support.TestHelper.aSpeaker;
@@ -32,27 +31,27 @@ class ConferenceSchedulingConstraintProviderTest {
     private static final OffsetDateTime START = OffsetDateTime.of(2000, 2, 1, 9, 0, 0, 0, ZoneOffset.UTC);
 
     private static final Timeslot MONDAY_9_TO_10 =
-            aTimeslot("1").startDateTime(START).endDateTime(START.plusHours(1)).tags(sequencedSet("a")).build();
+            aTimeslot("1").startDateTime(START).endDateTime(START.plusHours(1)).tags(list("a")).build();
     private static final Timeslot MONDAY_10_05_TO_11 = aTimeslot("2")
             .startDateTime(MONDAY_9_TO_10.getEndDateTime().plusMinutes(5))
             .endDateTime(MONDAY_9_TO_10.getEndDateTime().plusHours(1))
-            .tags(sequencedSet("b"))
+            .tags(list("b"))
             .build();
     private static final Timeslot MONDAY_11_10_TO_12 = aTimeslot("3")
             .startDateTime(MONDAY_10_05_TO_11.getEndDateTime().plusMinutes(10))
             .endDateTime(MONDAY_10_05_TO_11.getEndDateTime().plusHours(1))
-            .tags(sequencedSet("c"))
+            .tags(list("c"))
             .build();
     private static final Timeslot TUESDAY_9_TO_10 = aTimeslot("4")
             .startDateTime(START.plusDays(1))
             .endDateTime(START.plusDays(1).plusHours(1))
-            .tags(singleton("c"))
+            .tags(list("c"))
             .build();
 
     private static final Timeslot WEDNESDAY_9_TO_10 = aTimeslot("5")
             .startDateTime(START.plusDays(2))
             .endDateTime(START.plusDays(1).plusHours(1))
-            .tags(sequencedSet("c"))
+            .tags(list("c"))
             .build();
 
     private final ConstraintVerifier<ConferenceSchedulingConstraintProvider, ConferenceSchedule> constraintVerifier;
@@ -68,14 +67,19 @@ class ConferenceSchedulingConstraintProviderTest {
         return new LinkedHashSet<>(Set.of(values));
     }
 
+    @SafeVarargs
+    private static <T> List<T> list(T... values) {
+        return List.of(values);
+    }
+
     // ************************************************************************
     // Hard constraints
     // ************************************************************************
 
     @Test
     void roomUnavailableTimeslot() {
-        var room1 = aRoom("1").unavailableTimeslots(sequencedSet(MONDAY_9_TO_10));
-        var room2 = aRoom("2").unavailableTimeslots(sequencedSet(MONDAY_10_05_TO_11));
+        var room1 = aRoom("1").unavailableTimeslots(list(MONDAY_9_TO_10));
+        var room2 = aRoom("2").unavailableTimeslots(list(MONDAY_10_05_TO_11));
         Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(room1).build();
         Talk talk2 = aTalk("2").timeslot(MONDAY_9_TO_10).room(room2).build();
 
@@ -86,7 +90,7 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void roomConflict() {
-        var room1 = aRoom("1").unavailableTimeslots(sequencedSet(MONDAY_9_TO_10));
+        var room1 = aRoom("1").unavailableTimeslots(list(MONDAY_9_TO_10));
         Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(room1).build();
         Talk talk2 = aTalk("2").timeslot(MONDAY_9_TO_10).room(room1).build();
         Talk talk3 = aTalk("3").timeslot(MONDAY_10_05_TO_11).room(room1).build();
@@ -233,7 +237,7 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void speakerRequiredRoomTags() {
-        var room = aRoom("0").tags(sequencedSet("a"));
+        var room = aRoom("0").tags(list("a"));
         var speaker1 = aSpeaker("1").requiredRoomTags(sequencedSet("a"));
         var speaker2 = aSpeaker("2").requiredRoomTags(sequencedSet("x"));
         Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(room).speakers(List.of(speaker1)).build();
@@ -246,7 +250,7 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void speakerProhibitedRoomTags() {
-        var room = aRoom("0").tags(sequencedSet("a"));
+        var room = aRoom("0").tags(list("a"));
         var speaker1 = aSpeaker("1").prohibitedRoomTags(sequencedSet("a"));
         var speaker2 = aSpeaker("2").prohibitedRoomTags(sequencedSet("x"));
         Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(room).speakers(List.of(speaker1)).build();
@@ -259,7 +263,7 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void talkRequiredRoomTags() {
-        var room = aRoom("0").tags(sequencedSet("a"));
+        var room = aRoom("0").tags(list("a"));
         Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(room).requiredRoomTags(sequencedSet("a", "b")).build();
         Talk talk2 = aTalk("2").timeslot(MONDAY_10_05_TO_11).room(room).build();
 
@@ -270,7 +274,7 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void talkProhibitedRoomTags() {
-        var room = aRoom("0").tags(sequencedSet("a"));
+        var room = aRoom("0").tags(list("a"));
         Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(room).prohibitedRoomTags(sequencedSet("a", "b")).build();
         Talk talk2 = aTalk("2").timeslot(MONDAY_10_05_TO_11).room(room).build();
 
@@ -504,7 +508,7 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void speakerPreferredRoomTags() {
-        var room = aRoom("0").tags(sequencedSet("a"));
+        var room = aRoom("0").tags(list("a"));
         var speaker1 = aSpeaker("1").preferredRoomTags(sequencedSet("a"));
         var speaker2 = aSpeaker("2").preferredRoomTags(sequencedSet("x"));
 
@@ -518,7 +522,7 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void speakerUndesiredRoomTags() {
-        var room = aRoom("0").tags(sequencedSet("a"));
+        var room = aRoom("0").tags(list("a"));
         var speaker1 = aSpeaker("1").undesiredRoomTags(sequencedSet("a"));
         var speaker2 = aSpeaker("2").undesiredRoomTags(sequencedSet("x"));
 
@@ -532,7 +536,7 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void talkPreferredRoomTags() {
-        var room = aRoom("0").tags(sequencedSet("a"));
+        var room = aRoom("0").tags(list("a"));
         Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(room).preferredRoomTags(sequencedSet("a", "b")).build();
         Talk talk2 = aTalk("2").timeslot(MONDAY_10_05_TO_11).room(room).build();
 
@@ -543,7 +547,7 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void talkUndesiredRoomTags() {
-        var room = aRoom("0").tags(sequencedSet("a"));
+        var room = aRoom("0").tags(list("a"));
         Talk talk1 = aTalk("1").timeslot(MONDAY_9_TO_10).room(room).undesiredRoomTags(sequencedSet("a", "b")).build();
         Talk talk2 = aTalk("2").timeslot(MONDAY_10_05_TO_11).room(room).build();
 
@@ -554,7 +558,7 @@ class ConferenceSchedulingConstraintProviderTest {
 
     @Test
     void speakerMakespan() {
-        var room = aRoom("0").tags(sequencedSet("a"));
+        var room = aRoom("0").tags(list("a"));
         var speaker1 = aSpeaker("1").unavailableTimeslots(sequencedSet(MONDAY_9_TO_10));
         var speaker2 = aSpeaker("2").unavailableTimeslots(sequencedSet(MONDAY_10_05_TO_11));
 

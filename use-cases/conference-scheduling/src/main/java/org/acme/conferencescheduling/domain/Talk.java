@@ -2,11 +2,11 @@ package org.acme.conferencescheduling.domain;
 
 import static java.util.Collections.emptyList;
 
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.SequencedSet;
-import java.util.Set;
 
 import ai.timefold.solver.core.api.domain.common.PlanningId;
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
@@ -83,12 +83,12 @@ public class Talk {
     }
 
     @ValueRangeProvider
-    public Set<Timeslot> getTimeslotRange() {
+    public List<Timeslot> getTimeslotRange() {
         return talkType.compatibleTimeslots();
     }
 
     @ValueRangeProvider
-    public Set<Room> getRoomRange() {
+    public List<Room> getRoomRange() {
         return talkType.compatibleRooms();
     }
 
@@ -96,7 +96,7 @@ public class Talk {
         return overlappingCount(themeTrackTags, other.themeTrackTags);
     }
 
-    private static <T> int overlappingCount(Set<T> left, Set<T> right) {
+    private static <T> int overlappingCount(Collection<T> left, Collection<T> right) {
         if (left.isEmpty() || right.isEmpty()) {
             return 0;
         }
@@ -131,7 +131,7 @@ public class Talk {
 
     }
 
-    private static <T> int missingCount(Set<T> required, Set<T> available) {
+    private static <T> int missingCount(Collection<T> required, Collection<T> available) {
         if (required.isEmpty()) {
             return 0; // If no items are required, none can be missing.
         }
