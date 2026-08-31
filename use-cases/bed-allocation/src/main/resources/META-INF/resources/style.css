@@ -1,0 +1,7 @@
+.vis-time-axis .vis-grid.vis-saturday,
+.vis-time-axis .vis-grid.vis-sunday {
+    background: #D3D7CFFF;
+}
+.vis-item-content {
+    width: 100%;
+}
