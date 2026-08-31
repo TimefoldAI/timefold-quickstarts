@@ -11,23 +11,23 @@ It shows different use cases and basic implementations to get you started on you
 
 ## Overview
 
-| Use Case                                                                | Notable Solver Concepts                                 |
-|-------------------------------------------------------------------------|---------------------------------------------------------|
-| 🚚 <a href="#-vehicle-routing">Vehicle Routing</a>                      | Chained Through Time, Shadow Variables                  |
-| 🧑 <a href="#-employee-scheduling">Employee Scheduling</a>              | Load Balancing                                          |
-| 🛠️ <a href="#-maintenance-scheduling">Maintenance Scheduling</a>       | TimeGrain, Shadow Variable, Variable Listener           |
-| 📦 <a href="#-food-packaging">Food Packaging</a>                        | Mixed Model, Shadow Variables, Pinning                  |
-| 🛒 <a href="#-order-picking">Order Picking</a>                          | Chained Planning Variable, Shadow Variables             |
-| 🏫 <a href="#-school-timetabling">School Timetabling</a>                | Timeslot                                                |
-| 🏭 <a href="#-facility-location-problem">Facility Location Problem</a>  | Shadow Variable                                         |
-| 🎤 <a href="#-conference-scheduling">Conference Scheduling</a>          | Timeslot, Justifications                                |
-| 🛏️ <a href="#-bed-allocation-scheduling">Bed Allocation Scheduling</a> | Service Model, Allows Unassigned, Pinning |
-| 🛫 <a href="#-flight-crew-scheduling">Flight Crew Scheduling</a>        |                                                         |
-| 👥 <a href="#-meeting-scheduling">Meeting Scheduling</a>                | TimeGrain                                               |
-| ✅ <a href="#-task-assigning">Task Assigning</a>                         | Bendable Score, Chained Through Time, Allows Unassigned |
-| 📆 <a href="#-project-job-scheduling">Project Job Scheduling</a>        | Shadow Variables, Variable Listener, Strenght Comparator |
-| 🏆 <a href="#-sports-league-scheduling">Sports League Scheduling</a>    | Consecutive Sequences                                   |
-| 🏅 <a href="#-tournament-scheduling">Tournament Scheduling</a>          | Pinning, Load Balancing                                 |
+| Use Case                                                                | Notable Solver Concepts                                       |
+|-------------------------------------------------------------------------|---------------------------------------------------------------|
+| 🚚 <a href="#-vehicle-routing">Vehicle Routing</a>                      | Chained Through Time, Shadow Variables                        |
+| 🧑 <a href="#-employee-scheduling">Employee Scheduling</a>              | Load Balancing                                                |
+| 🛠️ <a href="#-maintenance-scheduling">Maintenance Scheduling</a>       | TimeGrain, Shadow Variable, Variable Listener                 |
+| 📦 <a href="#-food-packaging">Food Packaging</a>                        | Mixed Model, Shadow Variables, Pinning                        |
+| 🛒 <a href="#-order-picking">Order Picking</a>                          | Chained Planning Variable, Shadow Variables                   |
+| 🏫 <a href="#-school-timetabling">School Timetabling</a>                | Timeslot                                                      |
+| 🏭 <a href="#-facility-location-problem">Facility Location Problem</a>  | Shadow Variable                                               |
+| 🎤 <a href="#-conference-scheduling">Conference Scheduling</a>          | Service Model, ValueRange on Entity, Timeslot, Justifications |
+| 🛏️ <a href="#-bed-allocation-scheduling">Bed Allocation Scheduling</a> | Service Model, Allows Unassigned, Pinning                     |
+| 🛫 <a href="#-flight-crew-scheduling">Flight Crew Scheduling</a>        |                                                               |
+| 👥 <a href="#-meeting-scheduling">Meeting Scheduling</a>                | TimeGrain                                                     |
+| ✅ <a href="#-task-assigning">Task Assigning</a>                         | Bendable Score, Chained Through Time, Allows Unassigned       |
+| 📆 <a href="#-project-job-scheduling">Project Job Scheduling</a>        | Shadow Variables, Variable Listener, Strenght Comparator      |
+| 🏆 <a href="#-sports-league-scheduling">Sports League Scheduling</a>    | Consecutive Sequences                                         |
+| 🏅 <a href="#-tournament-scheduling">Tournament Scheduling</a>          | Pinning, Load Balancing                                       |
 
 > [!NOTE]
 > The implementations in this repository serve as a starting point and/or inspiration when creating your own application.

@@ -128,7 +128,25 @@ function setupAjax() {
 
 // ── ModelRest plumbing ──
 // demo-data → ModelRequest {modelInput,...}; POST model → metadata {id, solverStatus};
-// GET model/{id} → ModelResponse {metadata:{solverStatus}, modelOutput}.
+// GET model/{id} → ModelResponse {metadata:{solverStatus, score}, modelOutput}.
+//
+// modelOutput only carries the talk assignments (talks: [{code, timeslotId, roomId}]), not the
+// full problem, so loadedSchedule keeps the full modelInput (talk types, timeslots, rooms,
+// speakers, talk details) and mergeModelOutput() only overlays the timeslotId/roomId per talk
+// code and the score from metadata.
+
+function mergeModelOutput(modelOutput, metadata) {
+    if (loadedSchedule == null) {
+        return;
+    }
+    if (modelOutput != null && modelOutput.talks != null) {
+        const assignmentByCode = new Map(modelOutput.talks.map(talk => [talk.code, talk]));
+        loadedSchedule.talks = loadedSchedule.talks.map(talk => assignmentByCode.has(talk.code)
+            ? {...talk, timeslotId: assignmentByCode.get(talk.code).timeslotId, roomId: assignmentByCode.get(talk.code).roomId}
+            : talk);
+    }
+    loadedSchedule.score = metadata != null ? metadata.score : loadedSchedule.score;
+}
 
 function loadPlatformRun() {
     if (!PLATFORM.runId) {
@@ -159,7 +177,7 @@ function getStatus() {
         });
     } else {
         $.get(api(`${MODEL_PATH}/${jobId}`), function (data) {
-            loadedSchedule = data.modelOutput || loadedSchedule;
+            mergeModelOutput(data.modelOutput, data.metadata);
             renderSchedule(loadedSchedule);
             refreshSolvingButtons(data.metadata.solverStatus);
         }).fail(function (xhr) {
@@ -303,17 +321,17 @@ function renderScheduleByRoom(schedule) {
 
     const tbodyByRoom = $("<tbody>").appendTo(scheduleByRoom);
 
-    const LocalDateTime = JSJoda.LocalDateTime;
+    const OffsetDateTime = JSJoda.OffsetDateTime;
 
     $.each(schedule.timeslots.sort((a, b) => compareTimeslots(a, b)), (index, timeslot) => {
         const rowByRoom = $("<tr>").appendTo(tbodyByRoom);
         rowByRoom
             .append($(`<th class="align-middle"/>`)
                 .append($("<span/>").text(`
-                    ${LocalDateTime.parse(timeslot.startDateTime).dayOfWeek().name().charAt(0) + LocalDateTime.parse(timeslot.startDateTime).dayOfWeek().name().slice(1).toLowerCase()}
-                    ${LocalDateTime.parse(timeslot.startDateTime).format(timeFormatter)}
+                    ${OffsetDateTime.parse(timeslot.startDateTime).dayOfWeek().name().charAt(0) + OffsetDateTime.parse(timeslot.startDateTime).dayOfWeek().name().slice(1).toLowerCase()}
+                    ${OffsetDateTime.parse(timeslot.startDateTime).format(timeFormatter)}
                     -
-                    ${LocalDateTime.parse(timeslot.endDateTime).format(timeFormatter)}
+                    ${OffsetDateTime.parse(timeslot.endDateTime).format(timeFormatter)}
                 `)));
         $.each(schedule.rooms, (index, room) => {
             rowByRoom.append($("<td/>").prop("id", `timeslot${timeslot.id}room${room.id}`));
@@ -338,10 +356,10 @@ function renderScheduleByRoom(schedule) {
 }
 
 function compareTimeslots(t1, t2) {
-    const LocalDateTime = JSJoda.LocalDateTime;
-    let diff = LocalDateTime.parse(t1.startDateTime).compareTo(LocalDateTime.parse(t2.startDateTime));
+    const OffsetDateTime = JSJoda.OffsetDateTime;
+    let diff = OffsetDateTime.parse(t1.startDateTime).compareTo(OffsetDateTime.parse(t2.startDateTime));
     if (diff === 0) {
-        diff = LocalDateTime.parse(t1.endDateTime).compareTo(LocalDateTime.parse(t2.endDateTime));
+        diff = OffsetDateTime.parse(t1.endDateTime).compareTo(OffsetDateTime.parse(t2.endDateTime));
     }
     return diff;
 }
@@ -362,14 +380,14 @@ function renderScheduleBySpeaker(schedule) {
     const headerRowBySpeaker = $("<tr>").appendTo(theadBySpeaker);
     headerRowBySpeaker.append($("<th>Speaker</th>"));
 
-    const LocalDateTime = JSJoda.LocalDateTime;
+    const OffsetDateTime = JSJoda.OffsetDateTime;
 
     $.each(schedule.timeslots.sort((a, b) => compareTimeslots(a, b)), (index, timeslot) => {
         headerRowBySpeaker
             .append($("<th/>")
                 .append($("<span/>").text(`
-                    ${LocalDateTime.parse(timeslot.startDateTime).dayOfWeek().name().charAt(0) + LocalDateTime.parse(timeslot.startDateTime).dayOfWeek().name().slice(1).toLowerCase()}
-                    ${LocalDateTime.parse(timeslot.startDateTime).format(timeFormatter)} - ${LocalDateTime.parse(timeslot.endDateTime).format(timeFormatter)}`))
+                    ${OffsetDateTime.parse(timeslot.startDateTime).dayOfWeek().name().charAt(0) + OffsetDateTime.parse(timeslot.startDateTime).dayOfWeek().name().slice(1).toLowerCase()}
+                    ${OffsetDateTime.parse(timeslot.startDateTime).format(timeFormatter)} - ${OffsetDateTime.parse(timeslot.endDateTime).format(timeFormatter)}`))
             );
     });
 
@@ -444,16 +462,16 @@ function renderScheduleByValues(schedule, tableKey, rowTitle, rowKey, key, value
     const headerRowByValue = $("<tr>").appendTo(theadByValue);
     headerRowByValue.append($(`<th>${rowTitle}</th>`));
 
-    const LocalDateTime = JSJoda.LocalDateTime;
+    const OffsetDateTime = JSJoda.OffsetDateTime;
 
     $.each(schedule.timeslots.sort((a, b) => compareTimeslots(a, b)), (index, timeslot) => {
         headerRowByValue
             .append($("<th/>")
                 .append($("<span/>").text(`
-                    ${LocalDateTime.parse(timeslot.startDateTime).dayOfWeek().name().charAt(0) + LocalDateTime.parse(timeslot.startDateTime).dayOfWeek().name().slice(1).toLowerCase()}
-                    ${LocalDateTime.parse(timeslot.startDateTime).format(timeFormatter)}
+                    ${OffsetDateTime.parse(timeslot.startDateTime).dayOfWeek().name().charAt(0) + OffsetDateTime.parse(timeslot.startDateTime).dayOfWeek().name().slice(1).toLowerCase()}
+                    ${OffsetDateTime.parse(timeslot.startDateTime).format(timeFormatter)}
                     -
-                    ${LocalDateTime.parse(timeslot.endDateTime).format(timeFormatter)}
+                    ${OffsetDateTime.parse(timeslot.endDateTime).format(timeFormatter)}
                 `))
                 .append($(`<button type="button" class="ms-2 mb-1 btn btn-light btn-sm p-1"/>`))
             );

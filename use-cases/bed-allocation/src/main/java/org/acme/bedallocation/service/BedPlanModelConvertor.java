@@ -1,8 +1,5 @@
 package org.acme.bedallocation.service;
 
-import static java.util.Collections.unmodifiableList;
-import static java.util.Collections.unmodifiableMap;
-import static java.util.Collections.unmodifiableSet;
 import static java.util.Objects.requireNonNull;
 
 import java.util.ArrayList;
@@ -10,9 +7,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -89,7 +84,6 @@ public class BedPlanModelConvertor
         applyLastOutput(stays, bedMap, lastModelOutput);
         return bedPlan;
     }
-
 
     @Override
     public BedPlanOutput toModelOutput(BedPlan solverModel) {

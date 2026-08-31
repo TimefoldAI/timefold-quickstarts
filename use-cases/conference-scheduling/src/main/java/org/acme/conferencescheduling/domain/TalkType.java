@@ -1,12 +1,12 @@
 package org.acme.conferencescheduling.domain;
 
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 public record TalkType(
         String name,
-        Set<Timeslot> compatibleTimeslots,
-        Set<Room> compatibleRooms) {
+        List<Timeslot> compatibleTimeslots,
+        List<Room> compatibleRooms) {
 
     @Override
     public boolean equals(Object o) {

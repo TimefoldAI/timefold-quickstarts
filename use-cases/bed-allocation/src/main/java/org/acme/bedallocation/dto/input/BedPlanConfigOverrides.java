@@ -1,7 +1,5 @@
 package org.acme.bedallocation.dto.input;
 
-import jakarta.validation.constraints.Min;
-
 import ai.timefold.solver.service.definition.api.ModelConfigOverrides;
 import ai.timefold.solver.service.definition.api.domain.ConstraintReference;
 
@@ -17,13 +15,17 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record BedPlanConfigOverrides(
         @ConstraintReference(BedPlanConstraintProperties.PREFERRED_MAXIMUM_ROOM_CAPACITY) @Schema(
-                description = "Soft weight of the preferredMaximumRoomCapacity constraint.") @Min(0) Long preferredMaximumRoomCapacityWeight,
+                description = "Soft weight of the preferredMaximumRoomCapacity constraint.",
+                minimum = "0") Long preferredMaximumRoomCapacityWeight,
         @ConstraintReference(BedPlanConstraintProperties.DEPARTMENT_SPECIALTY) @Schema(
-                description = "Soft weight of the departmentSpecialty constraint.") @Min(0) Long departmentSpecialtyWeight,
+                description = "Soft weight of the departmentSpecialty constraint.",
+                minimum = "0") Long departmentSpecialtyWeight,
         @ConstraintReference(BedPlanConstraintProperties.DEPARTMENT_SPECIALTY_NOT_FIRST_PRIORITY) @Schema(
-                description = "Soft weight of the departmentSpecialtyNotFirstPriority constraint.") @Min(0) Long departmentSpecialtyNotFirstPriorityWeight,
+                description = "Soft weight of the departmentSpecialtyNotFirstPriority constraint.",
+                minimum = "0") Long departmentSpecialtyNotFirstPriorityWeight,
         @ConstraintReference(BedPlanConstraintProperties.PREFERRED_PATIENT_EQUIPMENT) @Schema(
-                description = "Soft weight of the preferredPatientEquipment constraint.") @Min(0) Long preferredPatientEquipmentWeight)
+                description = "Soft weight of the preferredPatientEquipment constraint.",
+                minimum = "0") Long preferredPatientEquipmentWeight)
         implements
             ModelConfigOverrides {
 
