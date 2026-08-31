@@ -26,8 +26,8 @@ public record TalkDTO(
         @Schema(description = "Codes of the talks that must be scheduled before this talk.") List<String> prerequisiteTalkCodes,
         @Schema(description = "Number of attendees who marked this talk as favorite.", minimum = "0") int favoriteCount,
         @Schema(description = "Crowd control risk level of this talk.", minimum = "0") int crowdControlRisk,
-        @Schema(description = "ID of the timeslot this talk is assigned to, or null if unassigned.") String timeslotId,
-        @Schema(description = "ID of the room this talk is assigned to, or null if unassigned.") String roomId) {
+        @Schema(description = "ID of the timeslot this talk is assigned to, or null if unassigned.", minLength = 1) String timeslotId,
+        @Schema(description = "ID of the room this talk is assigned to, or null if unassigned.", minLength = 1) String roomId) {
 
     public TalkDTO {
         themeTrackTags = themeTrackTags != null ? themeTrackTags : emptyList();

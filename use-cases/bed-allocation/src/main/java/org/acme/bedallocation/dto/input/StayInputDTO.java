@@ -21,7 +21,7 @@ public record StayInputDTO(
         @Schema(description = "First night of the stay, in ISO-8601 date format.", required = true) LocalDate arrivalDate,
         @Schema(description = "Departure date, in ISO-8601 date format.", required = true) LocalDate departureDate,
         @Schema(description = "Medical specialty required during the stay.", required = true, minLength = 1) String specialty,
-        @Schema(description = "ID of the bed this stay is assigned to, or null if unassigned.") String bedId,
+        @Schema(description = "ID of the bed this stay is assigned to, or null if unassigned.", minLength = 1) String bedId,
         @Schema(description = "Whether this stay's bed assignment is pinned and must not be changed by the solver.") Boolean pinned) {
 
     public StayInputDTO {
