@@ -96,9 +96,9 @@ public interface ConferenceSchedulingJustification extends ModelConstraintJustif
                 .toList();
     }
 
-    private static List<String> speakerIds(Collection<Speaker> speakers) {
+    private static List<String> speakerNames(Collection<Speaker> speakers) {
         return speakers.stream()
-                .map(Speaker::id)
+                .map(Speaker::name)
                 .toList();
     }
 
@@ -271,7 +271,7 @@ public interface ConferenceSchedulingJustification extends ModelConstraintJustif
             List<Speaker> sharedSpeakers = talk.getSpeakers().stream()
                     .filter(otherTalk.getSpeakers()::contains)
                     .toList();
-            return new SpeakerConsecutiveTalksPauseTooShortJustification(speakerIds(sharedSpeakers),
+            return new SpeakerConsecutiveTalksPauseTooShortJustification(speakerNames(sharedSpeakers),
                     talk.getCode(),
                     talk.getTimeslot().getId(), otherTalk.getCode(), otherTalk.getTimeslot().getId());
         }
@@ -320,7 +320,7 @@ public interface ConferenceSchedulingJustification extends ModelConstraintJustif
         public static MissingRequiredTimeslotTagsForSpeakersJustification of(Talk talk) {
             List<String> requiredTags = speakerTags(talk.getSpeakers(), Speaker::requiredTimeslotTags);
             return new MissingRequiredTimeslotTagsForSpeakersJustification(talk.getCode(),
-                    speakerIds(talk.getSpeakers()),
+                    speakerNames(talk.getSpeakers()),
                     talk.getTimeslot().getId(), missing(requiredTags, talk.getTimeslot().getTags()),
                     talk.getTimeslot().getTags());
         }
@@ -346,7 +346,7 @@ public interface ConferenceSchedulingJustification extends ModelConstraintJustif
         public static ProhibitedTimeslotTagsForSpeakersJustification of(Talk talk) {
             List<String> prohibitedTags = speakerTags(talk.getSpeakers(), Speaker::prohibitedTimeslotTags);
             return new ProhibitedTimeslotTagsForSpeakersJustification(talk.getCode(),
-                    speakerIds(talk.getSpeakers()),
+                    speakerNames(talk.getSpeakers()),
                     talk.getTimeslot().getId(), shared(prohibitedTags, talk.getTimeslot().getTags()),
                     talk.getTimeslot().getTags());
         }
@@ -418,7 +418,7 @@ public interface ConferenceSchedulingJustification extends ModelConstraintJustif
         public static MissingRequiredRoomTagsForSpeakersJustification of(Talk talk) {
             List<String> requiredTags = speakerTags(talk.getSpeakers(), Speaker::requiredRoomTags);
             return new MissingRequiredRoomTagsForSpeakersJustification(talk.getCode(),
-                    speakerIds(talk.getSpeakers()),
+                    speakerNames(talk.getSpeakers()),
                     talk.getRoom().id(), missing(requiredTags, talk.getRoom().tags()),
                     talk.getRoom().tags());
         }
@@ -444,7 +444,7 @@ public interface ConferenceSchedulingJustification extends ModelConstraintJustif
         public static ProhibitedRoomTagsForSpeakersJustification of(Talk talk) {
             List<String> prohibitedTags = speakerTags(talk.getSpeakers(), Speaker::prohibitedRoomTags);
             return new ProhibitedRoomTagsForSpeakersJustification(talk.getCode(),
-                    speakerIds(talk.getSpeakers()),
+                    speakerNames(talk.getSpeakers()),
                     talk.getRoom().id(), shared(prohibitedTags, talk.getRoom().tags()),
                     talk.getRoom().tags());
         }
@@ -793,7 +793,7 @@ public interface ConferenceSchedulingJustification extends ModelConstraintJustif
         public static MissingPreferredTimeslotTagsForSpeakersJustification of(Talk talk) {
             List<String> preferredTags = speakerTags(talk.getSpeakers(), Speaker::preferredTimeslotTags);
             return new MissingPreferredTimeslotTagsForSpeakersJustification(talk.getCode(),
-                    speakerIds(talk.getSpeakers()),
+                    speakerNames(talk.getSpeakers()),
                     talk.getTimeslot().getId(), missing(preferredTags, talk.getTimeslot().getTags()),
                     talk.getTimeslot().getTags());
         }
@@ -819,7 +819,7 @@ public interface ConferenceSchedulingJustification extends ModelConstraintJustif
         public static UndesiredTimeslotTagsForSpeakersJustification of(Talk talk) {
             List<String> undesiredTags = speakerTags(talk.getSpeakers(), Speaker::undesiredTimeslotTags);
             return new UndesiredTimeslotTagsForSpeakersJustification(talk.getCode(),
-                    speakerIds(talk.getSpeakers()),
+                    speakerNames(talk.getSpeakers()),
                     talk.getTimeslot().getId(), shared(undesiredTags, talk.getTimeslot().getTags()),
                     talk.getTimeslot().getTags());
         }
@@ -891,7 +891,7 @@ public interface ConferenceSchedulingJustification extends ModelConstraintJustif
         public static MissingPreferredRoomTagsForSpeakersJustification of(Talk talk) {
             List<String> preferredTags = speakerTags(talk.getSpeakers(), Speaker::preferredRoomTags);
             return new MissingPreferredRoomTagsForSpeakersJustification(talk.getCode(),
-                    speakerIds(talk.getSpeakers()),
+                    speakerNames(talk.getSpeakers()),
                     talk.getRoom().id(), missing(preferredTags, talk.getRoom().tags()),
                     talk.getRoom().tags());
         }
@@ -916,7 +916,7 @@ public interface ConferenceSchedulingJustification extends ModelConstraintJustif
 
         public static UndesiredRoomTagsForSpeakersJustification of(Talk talk) {
             List<String> undesiredTags = speakerTags(talk.getSpeakers(), Speaker::undesiredRoomTags);
-            return new UndesiredRoomTagsForSpeakersJustification(talk.getCode(), speakerIds(talk.getSpeakers()),
+            return new UndesiredRoomTagsForSpeakersJustification(talk.getCode(), speakerNames(talk.getSpeakers()),
                     talk.getRoom().id(), shared(undesiredTags, talk.getRoom().tags()),
                     talk.getRoom().tags());
         }

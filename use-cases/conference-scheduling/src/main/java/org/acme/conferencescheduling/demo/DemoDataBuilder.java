@@ -63,7 +63,9 @@ public final class DemoDataBuilder {
         rooms.add(new RoomDTO("R2", "Room B", 240, List.of(BREAKOUT), List.of(), List.of()));
         rooms.add(new RoomDTO("R3", "Room C", 630, List.of(BREAKOUT), List.of(), List.of(RECORDED, LARGE)));
         rooms.add(new RoomDTO("R4", "Room D", 70, List.of(BREAKOUT), List.of(), List.of(RECORDED)));
-        rooms.add(new RoomDTO("R5", "Room E (LAB)", 490, List.of(LAB), List.of(), List.of(RECORDED)));
+        rooms.add(new RoomDTO("R5", "Room E", 70, List.of(BREAKOUT), List.of(), List.of(RECORDED)));
+        rooms.add(new RoomDTO("R6", "Room F (LAB)", 490, List.of(LAB), List.of(), List.of(RECORDED)));
+        rooms.add(new RoomDTO("R7", "Room G (LAB)", 490, List.of(LAB), List.of(), List.of(RECORDED)));
         return rooms;
     }
 
@@ -135,6 +137,13 @@ public final class DemoDataBuilder {
         talks.add(talk(12, "S13", "Talk Thirteen", BREAKOUT, List.of("8"), 3, 494, 0));
         talks.add(talk(13, "S14", "Talk Fourteen", BREAKOUT, List.of("9"), 3, 500, 0));
         talks.add(talk(14, "S15", "Talk Fifteen", BREAKOUT, List.of("10"), 2, 658, 0));
+        talks.add(talk(15, "S16", "Talk Sixteen", LAB, List.of("1", "3"), 2, 620, 0));
+        talks.add(talk(16, "S17", "Talk Seventeen", LAB, List.of("5"), 3, 410, 1,
+                List.of(), List.of(RECORDED), List.of(), List.of()));
+        talks.add(talk(17, "S18", "Talk Eighteen", BREAKOUT, List.of("4"), 1, 700, 1));
+        talks.add(talk(18, "S19", "Talk Nineteen", BREAKOUT, List.of("6"), 2, 320, 0));
+        talks.add(talk(19, "S20", "Talk Twenty", BREAKOUT, List.of("7", "9"), 3, 890, 0,
+                List.of(), List.of(), List.of("Constraints"), List.of()));
         return talks;
     }
 }
