@@ -160,7 +160,8 @@ public final class ArchitectureCheck {
                 classesMustResideInValidSubpackages(),
                 onlyInterfacesEnumsAndRecordsInDtoPackage(),
                 dtoPackageMustNotDeclareNestedClasses(),
-                dtoRecordsMustDeclareOnlyTheCanonicalConstructor(),
+                dtoRecordsMustDeclareCompactConstructorWhenNormalizingFields(),
+                dtoClassesMustNotUseJsonSetter(),
                 dtoTypesMustResideInInputOrOutputSubpackage(),
                 layerRule("dto.input", "dto.output", not(resideInAPackage(basePackage + ".dto.output.."))),
                 identifierFieldsMustHaveMatchingEqualsAndHashCode(),
@@ -343,16 +344,37 @@ public final class ArchitectureCheck {
                 .as("DTO types must be simple: no nested classes (e.g. no builder pattern) in the DTO package");
     }
 
-    // While we could technically use the records compact constructor to normalize input, that could hide some issues from the Validator layer of the models.
-    // As the "Metric" classes are not deserialized (only serialized), we do allow a canonical constructor there for input validation.
-    private static ArchRule dtoRecordsMustDeclareOnlyTheCanonicalConstructor() {
+    /*
+     * Input DTOs are deserialized straight from user-supplied JSON, so an optional collection/map field
+     * (no @NotEmpty/@NotNull) or a nullable nested DTO field (no @NotNull) can legitimately arrive as null.
+     * Rather than relying on Jackson-specific @JsonSetter(nulls = Nulls.AS_EMPTY) to paper over that at
+     * deserialization time, such fields must be defaulted to an empty collection/map (or an empty nested
+     * DTO instance) in a compact constructor: plain Java, works regardless of the JSON library, and is
+     * exercised by unit tests without going through Jackson at all. Required fields (@NotEmpty/@NotNull)
+     * don't need this: they're rejected by the Validator layer if null, so there's nothing to default.
+     *
+     * Output DTOs are excluded entirely: a null there is a meaningful result (e.g. "unassigned"), not an
+     * absent optional input, so it must never be silently defaulted away.
+     *
+     * As the "Metric" classes are not deserialized (only serialized), we still allow a canonical constructor
+     * there for input validation regardless of their fields.
+     */
+    private static ArchRule dtoRecordsMustDeclareCompactConstructorWhenNormalizingFields() {
         return classes()
                 .that().areRecords()
                 .and().resideInAPackage(basePackage + ".dto..")
                 .and().haveSimpleNameNotEndingWith("Metrics")
                 .should(new DtoRecordConstructorCondition())
-                .as("DTO records must rely on the implicit canonical constructor; no compact, additional or explicit constructors "
-                        + "(Input/OutputMetrics types may still use a compact constructor for validation)");
+                .as("DTO input records must declare a (non-empty) compact constructor when they have an optional "
+                        + "collection/map field or a nullable nested DTO field to normalize, and no explicit constructor "
+                        + "otherwise (Input/OutputMetrics types may still use a compact constructor for validation)");
+    }
+
+    private static ArchRule dtoClassesMustNotUseJsonSetter() {
+        return classes()
+                .that().resideInAPackage(basePackage + ".dto..")
+                .should(new NoJsonSetterAnnotationCondition())
+                .as("DTO classes must not use @JsonSetter; normalize optional fields via a compact constructor instead");
     }
 
     private static ArchRule dtoTypesMustResideInInputOrOutputSubpackage() {
@@ -671,9 +693,11 @@ public final class ArchitectureCheck {
         // The Service Module reflectively instantiates ModelConfigOverrides implementations with a
         // no-argument constructor at build time to generate the default config profile.
         private static final String MODEL_CONFIG_OVERRIDES = "ai.timefold.solver.service.definition.api.ModelConfigOverrides";
+        private static final String NOT_NULL = "jakarta.validation.constraints.NotNull";
+        private static final String NOT_EMPTY = "jakarta.validation.constraints.NotEmpty";
 
         private DtoRecordConstructorCondition() {
-            super("declare no explicit constructor");
+            super("declare a compact constructor exactly when normalizing optional collection/map or nested DTO fields");
         }
 
         @Override
@@ -686,7 +710,7 @@ public final class ArchitectureCheck {
             }
             if (constructors.size() > 1) {
                 events.add(SimpleConditionEvent.violated(javaClass,
-                        "%s declares %d constructors; DTO records must rely on the implicit canonical constructor and use Bean Validation annotations instead"
+                        "%s declares %d constructors; DTO records must rely on a single canonical (optionally compact) constructor"
                                 .formatted(javaClass.getName(), constructors.size())));
                 return;
             }
@@ -695,11 +719,85 @@ public final class ArchitectureCheck {
                 return;
             }
             var source = String.join("\n", readLines(sourceFile.get()));
+            if (requiresCompactConstructor(javaClass)) {
+                checkHasNonEmptyCompactConstructor(javaClass, source, sourceFile.get(), events);
+            } else {
+                checkHasNoExplicitConstructor(javaClass, source, sourceFile.get(), events);
+            }
+        }
+
+        private static boolean requiresCompactConstructor(JavaClass javaClass) {
+            if (!resideInAPackage(basePackage + ".dto.input..").test(javaClass)) {
+                return false;
+            }
+            return javaClass.getFields().stream().anyMatch(DtoRecordConstructorCondition::needsNormalization);
+        }
+
+        private static boolean needsNormalization(JavaField field) {
+            var rawType = field.getRawType();
+            var isCollectionOrMap =
+                    rawType.isAssignableTo(java.util.Collection.class) || rawType.isAssignableTo(java.util.Map.class);
+            if (isCollectionOrMap) {
+                return !field.isAnnotatedWith(NOT_EMPTY) && !field.isAnnotatedWith(NOT_NULL);
+            }
+            var isNestedDto = rawType.isRecord() && resideInAPackage(basePackage + ".dto..").test(rawType);
+            return isNestedDto && !field.isAnnotatedWith(NOT_NULL);
+        }
+
+        private static void checkHasNonEmptyCompactConstructor(JavaClass javaClass, String source, Path sourceFile,
+                ConditionEvents events) {
+            var compactConstructorPattern = Pattern
+                    .compile("\\b(?:public|protected|private)\\s+" + Pattern.quote(javaClass.getSimpleName()) + "\\s*\\{");
+            var constructorMatcher = compactConstructorPattern.matcher(source);
+            if (!constructorMatcher.find()) {
+                events.add(SimpleConditionEvent.violated(javaClass,
+                        "%s has an optional collection/map or nullable nested DTO field to normalize, but declares no compact constructor in %s"
+                                .formatted(javaClass.getName(), sourceFile)));
+                return;
+            }
+            var openingBraceIndex = constructorMatcher.end() - 1;
+            var closingBraceIndex = findMatchingClosingBrace(source, openingBraceIndex);
+            var constructorBody =
+                    closingBraceIndex >= 0 ? source.substring(openingBraceIndex + 1, closingBraceIndex).trim() : "";
+            if (constructorBody.isEmpty()) {
+                events.add(SimpleConditionEvent.violated(javaClass,
+                        "%s's compact constructor in %s must contain normalization logic (e.g. default null collections/maps/nested DTOs to an empty instance)"
+                                .formatted(javaClass.getName(), sourceFile)));
+            }
+        }
+
+        private static void checkHasNoExplicitConstructor(JavaClass javaClass, String source, Path sourceFile,
+                ConditionEvents events) {
             var explicitConstructorPattern = Pattern.compile("\\b(?:public|protected|private)\\s+"
                     + Pattern.quote(javaClass.getSimpleName()) + "\\s*(?:\\([^)]*\\))?\\s*\\{");
             if (explicitConstructorPattern.matcher(source).find()) {
                 events.add(SimpleConditionEvent.violated(javaClass,
-                        "%s declares an explicit (compact or canonical) constructor in %s; DTO records must rely on the implicit canonical constructor and use Bean Validation annotations instead"
+                        ("%s declares an explicit (compact or canonical) constructor in %s, but has no optional collection/map "
+                                + "or nullable nested DTO field requiring normalization; DTO records must rely on the implicit "
+                                + "canonical constructor and use Bean Validation annotations instead")
+                                        .formatted(javaClass.getName(), sourceFile)));
+            }
+        }
+    }
+
+    private static final class NoJsonSetterAnnotationCondition extends ArchCondition<JavaClass> {
+
+        private static final Pattern JSON_SETTER_PATTERN = Pattern.compile("@JsonSetter\\b");
+
+        private NoJsonSetterAnnotationCondition() {
+            super("not use @JsonSetter");
+        }
+
+        @Override
+        public void check(JavaClass javaClass, ConditionEvents events) {
+            var sourceFile = resolveSourceFile(javaClass);
+            if (sourceFile.isEmpty()) {
+                return;
+            }
+            var source = String.join("\n", readLines(sourceFile.get()));
+            if (JSON_SETTER_PATTERN.matcher(source).find()) {
+                events.add(SimpleConditionEvent.violated(javaClass,
+                        "%s uses @JsonSetter in %s; normalize the field via a compact constructor instead"
                                 .formatted(javaClass.getName(), sourceFile.get())));
             }
         }
@@ -862,44 +960,6 @@ public final class ArchitectureCheck {
             if (javaMethod.getAccessesToSelf().isEmpty()) {
                 events.add(SimpleConditionEvent.violated(javaMethod,
                         "%s is never used".formatted(javaMethod.getFullName())));
-            }
-        }
-    }
-
-    private static final class NonEmptyCompactConstructorCondition extends ArchCondition<JavaClass> {
-
-        private NonEmptyCompactConstructorCondition() {
-            super("define a non-empty compact constructor");
-        }
-
-        @Override
-        public void check(JavaClass javaClass, ConditionEvents events) {
-            var sourceFile = resolveSourceFile(javaClass);
-            if (sourceFile.isEmpty()) {
-                var message = "Cannot verify compact constructor for %s: source file not found".formatted(javaClass.getName());
-                events.add(SimpleConditionEvent.violated(javaClass, message));
-                return;
-            }
-            var source = String.join("\n", readLines(sourceFile.get()));
-            var constructorMatcher = Pattern
-                    .compile("(?:public\\s+|protected\\s+|private\\s+)?" + Pattern.quote(javaClass.getSimpleName()) + "\\s*\\{")
-                    .matcher(source);
-            if (!constructorMatcher.find()) {
-                events.add(SimpleConditionEvent.violated(javaClass,
-                        "%s must declare a compact constructor".formatted(javaClass.getName())));
-                return;
-            }
-            var openingBraceIndex = constructorMatcher.end() - 1;
-            var closingBraceIndex = findMatchingClosingBrace(source, openingBraceIndex);
-            if (closingBraceIndex < 0) {
-                events.add(SimpleConditionEvent.violated(javaClass,
-                        "%s has an invalid compact constructor declaration".formatted(javaClass.getName())));
-                return;
-            }
-            var constructorBody = source.substring(openingBraceIndex + 1, closingBraceIndex).trim();
-            if (constructorBody.isEmpty()) {
-                events.add(SimpleConditionEvent.violated(javaClass,
-                        "%s compact constructor must contain defaulting or validation logic".formatted(javaClass.getName())));
             }
         }
     }

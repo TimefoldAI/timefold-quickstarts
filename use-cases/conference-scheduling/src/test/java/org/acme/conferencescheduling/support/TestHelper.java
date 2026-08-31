@@ -31,8 +31,6 @@ public final class TestHelper {
     public static final String BREAKOUT = "Breakout";
     public static final String LAB = "Lab";
 
-    private static final TagPreferencesDTO EMPTY_TAGS = new TagPreferencesDTO(List.of(), List.of(), List.of(), List.of());
-
     public static final List<TalkTypeDTO> TALK_TYPES = List.of(new TalkTypeDTO(BREAKOUT), new TalkTypeDTO(LAB));
 
     public static final List<TimeslotDTO> TIMESLOTS = List.of(
@@ -129,14 +127,14 @@ public final class TestHelper {
     }
 
     public static SpeakerDTO speaker(String id, String name) {
-        return new SpeakerDTO(id, name, List.of(), EMPTY_TAGS, EMPTY_TAGS);
+        return new SpeakerDTO(id, name, List.of(), TagPreferencesDTO.EMPTY, TagPreferencesDTO.EMPTY);
     }
 
     private static TalkDTO talk(String code, String talkType, List<String> speakerIds, int audienceLevel,
             String language, int favoriteCount, int crowdControlRisk, String timeslotId, String roomId) {
         return new TalkDTO(code, "Title " + code, talkType, speakerIds, List.of(), List.of(), List.of(), List.of(),
-                audienceLevel, language, EMPTY_TAGS, EMPTY_TAGS, List.of(), List.of(), favoriteCount, crowdControlRisk,
-                timeslotId, roomId);
+                audienceLevel, language, TagPreferencesDTO.EMPTY, TagPreferencesDTO.EMPTY, List.of(), List.of(),
+                favoriteCount, crowdControlRisk, timeslotId, roomId);
     }
 
     public static TalkDTO talk(String code, String... speakerIds) {

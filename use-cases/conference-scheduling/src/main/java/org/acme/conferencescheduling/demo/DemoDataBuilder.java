@@ -73,7 +73,7 @@ public final class DemoDataBuilder {
     private static SpeakerDTO speaker(String id, String name, List<String> undesiredTimeslotTags) {
         return new SpeakerDTO(id, name, List.of(),
                 new TagPreferencesDTO(List.of(), List.of(), List.of(), undesiredTimeslotTags),
-                new TagPreferencesDTO(List.of(), List.of(), List.of(), List.of()));
+                TagPreferencesDTO.EMPTY);
     }
 
     private static List<SpeakerDTO> buildSpeakers() {
@@ -109,7 +109,7 @@ public final class DemoDataBuilder {
                 List.of(AUDIENCE_TAGS.get(index % AUDIENCE_TAGS.size())),
                 audienceLevel,
                 "en",
-                new TagPreferencesDTO(List.of(), List.of(), List.of(), List.of()),
+                TagPreferencesDTO.EMPTY,
                 new TagPreferencesDTO(requiredRoomTags, List.of(), List.of(), undesiredRoomTags),
                 mutuallyExclusiveTalksTags, prerequisiteTalkCodes, favoriteCount, crowdControlRisk, null, null);
     }
