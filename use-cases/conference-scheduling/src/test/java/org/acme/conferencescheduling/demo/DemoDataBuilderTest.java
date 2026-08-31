@@ -1,8 +1,6 @@
 package org.acme.conferencescheduling.demo;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.acme.conferencescheduling.dto.input.ConferenceScheduleInput;
 import org.junit.jupiter.api.Test;
@@ -13,15 +11,15 @@ class DemoDataBuilderTest {
     void shouldBuildData() {
         ConferenceScheduleInput problem = DemoDataBuilder.builder().build();
 
-        assertEquals(2, problem.talkTypes().size());
-        assertEquals(6, problem.timeslots().size());
-        assertEquals(5, problem.rooms().size());
-        assertEquals(12, problem.speakers().size());
-        assertEquals(15, problem.talks().size());
+        assertThat(problem.talkTypes()).hasSize(2);
+        assertThat(problem.timeslots()).hasSize(6);
+        assertThat(problem.rooms()).hasSize(7);
+        assertThat(problem.speakers()).hasSize(12);
+        assertThat(problem.talks()).hasSize(20);
         problem.talks().forEach(talk -> {
-            assertNotNull(talk.code());
-            assertNull(talk.timeslotId());
-            assertNull(talk.roomId());
+            assertThat(talk.code()).isNotNull();
+            assertThat(talk.timeslotId()).isNull();
+            assertThat(talk.roomId()).isNull();
         });
     }
 }

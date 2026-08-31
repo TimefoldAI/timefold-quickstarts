@@ -164,6 +164,7 @@ public final class ArchitectureCheck {
                 withMethodsMustBeUsed(),
                 onlyDtoPackageMayUseSchemaAnnotation(),
                 beanValidationApiMustNotBeUsed(),
+                junitJupiterAssertionsMustNotBeUsed(),
                 classesMustResideInValidSubpackages(),
                 onlyInterfacesEnumsAndRecordsInDtoPackage(),
                 dtoPackageMustNotDeclareNestedClasses(),
@@ -358,6 +359,18 @@ public final class ArchitectureCheck {
         return classes()
                 .should(new NoBeanValidationApiUsageCondition())
                 .as("Classes must not use the Bean Validation API; describe input constraints via @Schema attributes instead");
+    }
+
+    /*
+     * The test suite standardizes on AssertJ's fluent assertThat(...) API, which produces more
+     * readable failure messages than JUnit Jupiter's assertEquals/assertTrue/... static methods.
+     * Flagging any reference to org.junit.jupiter.api.Assertions (plain import, static import, or
+     * fully qualified use) keeps that convention consistent across every quickstart module.
+     */
+    private static ArchRule junitJupiterAssertionsMustNotBeUsed() {
+        return classes()
+                .should(new NoJUnitJupiterAssertionsUsageCondition())
+                .as("Classes must not use org.junit.jupiter.api.Assertions; use AssertJ's assertThat(...) instead");
     }
 
     private static ArchRule classesMustResideInValidSubpackages() {
@@ -559,6 +572,30 @@ public final class ArchitectureCheck {
             if (JAKARTA_VALIDATION_IMPORT_PATTERN.matcher(source).find()) {
                 events.add(SimpleConditionEvent.violated(javaClass,
                         "%s imports the Bean Validation API in %s; describe input constraints via @Schema attributes instead"
+                                .formatted(javaClass.getName(), sourceFile.get())));
+            }
+        }
+    }
+
+    private static final class NoJUnitJupiterAssertionsUsageCondition extends ArchCondition<JavaClass> {
+
+        private static final Pattern JUNIT_JUPITER_ASSERTIONS_PATTERN =
+                Pattern.compile("\\borg\\.junit\\.jupiter\\.api\\.Assertions\\b");
+
+        private NoJUnitJupiterAssertionsUsageCondition() {
+            super("not use org.junit.jupiter.api.Assertions");
+        }
+
+        @Override
+        public void check(JavaClass javaClass, ConditionEvents events) {
+            var sourceFile = resolveSourceFile(javaClass);
+            if (sourceFile.isEmpty()) {
+                return;
+            }
+            var source = String.join("\n", readLines(sourceFile.get()));
+            if (JUNIT_JUPITER_ASSERTIONS_PATTERN.matcher(source).find()) {
+                events.add(SimpleConditionEvent.violated(javaClass,
+                        "%s uses org.junit.jupiter.api.Assertions in %s; use AssertJ's assertThat(...) instead"
                                 .formatted(javaClass.getName(), sourceFile.get())));
             }
         }
