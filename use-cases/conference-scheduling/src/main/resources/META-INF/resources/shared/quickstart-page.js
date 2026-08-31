@@ -1,7 +1,6 @@
 // ── Visualization slot ──
-// index.template.html has a single #visualization slot; a quickstart's visualize.js
-// fills it with its own demo-specific markup (tabs, tables, ...) via this, before wiring
-// up any event handlers against that markup or constructing QuickstartPage.
+// index.html has a single #visualization slot; a quickstart's visualize.js
+// fills it with its own demo-specific markup (tabs, tables, ...) via this, function.
 function setVisualizationSlot(html) {
     document.getElementById('visualization').innerHTML = html;
 }
@@ -56,9 +55,6 @@ class QuickstartPage {
         }
     }
 
-    // Pass the run's metadata whenever it's fresh (e.g. after a solver status poll) so the
-    // schedule's score gets updated before it's rendered; omit it to just (re)render whatever
-    // score the loaded schedule already carries (e.g. right after loading demo/platform data).
     renderScore(metadata) {
         if (metadata != null) {
             this.loadedSchedule.score = metadata.score;
@@ -67,6 +63,7 @@ class QuickstartPage {
         $("#score").text("Score: " + (score == null || score === "" ? "?" : score));
     }
 
+    // When not running on the platform, this function can be deleted.
     loadPlatformRun() {
         if (!SETUP.runId) {
             this.showError("No runId provided by platform.", {status: 0, statusText: "missing runId"});
@@ -338,7 +335,7 @@ class QuickstartPage {
     }
 
     // ── Error toast ──
-    // Needs a #notificationPanel in the host page's markup (see index.template.html).
+    // Needs a #notificationPanel in the host page's markup (see index.html).
     showError(title, xhr) {
         let serverErrorMessage = !xhr.responseJSON ? `${xhr.status}: ${xhr.statusText}` : xhr.responseJSON.message;
         let serverErrorCode = !xhr.responseJSON ? `unknown` : xhr.responseJSON.code;

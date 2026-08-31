@@ -40,13 +40,12 @@ class SolverClient {
         this.setupAjax();
     }
 
-    // One-time jQuery setup: default headers (including X-API-KEY, if this client
-    // has one) and $.put()/$.delete() shims. Run automatically by the constructor.
+    // One-time jQuery setup
     setupAjax() {
         $.ajaxSetup({
             headers: {
                 'Content-Type': 'application/json',
-                'Accept': 'application/json,text/plain',
+                'Accept': 'application/json',
                 ...(this.apiKey ? {'X-API-KEY': this.apiKey} : {})
             }
         });
@@ -66,9 +65,6 @@ class SolverClient {
     }
 
     // ── ModelRest plumbing ──
-    // demo-data → ModelRequest {modelInput,...}; POST model → metadata {id, solverStatus};
-    // GET model/{id} → ModelResponse {metadata:{solverStatus}, modelOutput}.
-
     fetchDemoDataList(onSuccess, onFailure) {
         return $.get(this.demoDataPath, onSuccess).fail(onFailure);
     }
@@ -104,8 +100,5 @@ const TERMINAL_SOLVER_STATUSES = [
     "DATASET_INVALID", "SOLVING_COMPLETED", "SOLVING_INCOMPLETE", "SOLVING_FAILED"];
 
 function isSolving(solverStatus) {
-    // Anything non-terminal means work is queued or running, including the DATASET_*
-    // states a run passes through before solving actually starts. Treating those as
-    // "not solving" made the button flip back to Solve right after the POST returned.
     return solverStatus != null && !TERMINAL_SOLVER_STATUSES.includes(solverStatus);
 }
