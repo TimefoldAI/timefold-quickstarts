@@ -5,9 +5,6 @@ import java.util.List;
 import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validator;
 
 import ai.timefold.solver.service.definition.api.domain.ModelConfig;
 import ai.timefold.solver.service.definition.api.validation.ModelValidator;
@@ -23,21 +20,15 @@ import org.acme.bedallocation.service.validation.BedPlanIssue.DuplicateDepartmen
 import org.acme.bedallocation.service.validation.BedPlanIssue.DuplicateRoomIdIssue;
 import org.acme.bedallocation.service.validation.BedPlanIssue.DuplicateStayIdIssue;
 import org.acme.bedallocation.service.validation.BedPlanIssue.NonExistingBedReferenceIssue;
-import org.acme.bedallocation.service.validation.OpenApiSpecIssue;
 
 @ApplicationScoped
 public class BedPlanValidator implements ModelValidator<BedPlanInput, BedPlanConfigOverrides> {
 
-    @Inject
-    Validator validator;
-
     @Override
     public void validate(ValidationBuilder validationBuilder, BedPlanInput modelInput,
             ModelConfig<BedPlanConfigOverrides> modelConfig) {
-        // This Bean Validation API call will be moved to the Service module.
-        for (ConstraintViolation<BedPlanInput> violation : validator.validate(modelInput)) {
-            validationBuilder.addIssue(new OpenApiSpecIssue(violation.getPropertyPath() + ": " + violation.getMessage()));
-        }
+        // OpenAPI spec (Bean Validation) compliance is enforced by the Service module at the REST layer,
+        // before this validator ever runs; only domain-specific checks belong here.
         Set<String> bedIds = validateDepartments(validationBuilder, orEmpty(modelInput.departments()));
         validateStays(validationBuilder, orEmpty(modelInput.stays()), bedIds);
     }

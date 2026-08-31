@@ -19,7 +19,7 @@ public record RoomInputDTO(
         @Schema(description = "Unique identifier of the room.") @NotBlank String id,
         @Schema(description = "Display name of the room.") @NotBlank String name,
         @Schema(description = "Number of beds in the room.") @NotNull @Min(1) Integer capacity,
-        @Schema(description = "Gender restriction of the room: ANY_GENDER, MALE_ONLY, FEMALE_ONLY or SAME_GENDER.") @NotNull @Valid GenderLimitation genderLimitation,
+        @Schema(description = "Gender restriction of the room.") @NotNull @Valid GenderLimitation genderLimitation,
         @Schema(description = "Medical equipment available in this room.") Set<String> equipments,
         @Schema(description = "Beds in this room.") @NotEmpty List<@Valid BedInputDTO> beds) {
 

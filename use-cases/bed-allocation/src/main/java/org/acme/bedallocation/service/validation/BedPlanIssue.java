@@ -12,7 +12,6 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Schema(description = "A dataset validation issue reported for a bed allocation input.",
         oneOf = {
-                OpenApiSpecIssue.class,
                 BedPlanIssue.DuplicateDepartmentIdIssue.class,
                 BedPlanIssue.DuplicateRoomIdIssue.class,
                 BedPlanIssue.DuplicateBedIdIssue.class,

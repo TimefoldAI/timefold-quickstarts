@@ -12,7 +12,6 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Schema(description = "A dataset validation issue reported for a conference schedule input.",
         oneOf = {
-                OpenApiSpecIssue.class,
                 ConferenceScheduleIssue.DuplicateTimeslotIdIssue.class,
                 ConferenceScheduleIssue.DuplicateRoomIdIssue.class,
                 ConferenceScheduleIssue.DuplicateSpeakerIdIssue.class,

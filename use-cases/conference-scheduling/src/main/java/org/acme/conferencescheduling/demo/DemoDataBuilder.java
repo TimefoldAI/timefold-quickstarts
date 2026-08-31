@@ -1,8 +1,9 @@
 package org.acme.conferencescheduling.demo;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,8 +42,8 @@ public final class DemoDataBuilder {
                 buildTalks());
     }
 
-    private static LocalDateTime dateTime(int hour, int minute) {
-        return LocalDateTime.of(CONFERENCE_DATE, LocalTime.of(hour, minute));
+    private static OffsetDateTime dateTime(int hour, int minute) {
+        return OffsetDateTime.of(CONFERENCE_DATE, LocalTime.of(hour, minute), ZoneOffset.UTC);
     }
 
     private static List<TimeslotDTO> buildTimeslots() {

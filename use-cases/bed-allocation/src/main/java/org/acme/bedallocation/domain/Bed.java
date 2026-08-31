@@ -2,8 +2,10 @@ package org.acme.bedallocation.domain;
 
 import java.util.Objects;
 
+import ai.timefold.solver.core.api.domain.common.PlanningId;
+
 public record Bed(
-        String id,
+        @PlanningId String id,
         Room room) {
 
     @Override

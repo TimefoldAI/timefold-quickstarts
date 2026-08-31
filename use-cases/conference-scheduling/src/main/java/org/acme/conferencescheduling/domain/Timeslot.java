@@ -1,7 +1,7 @@
 package org.acme.conferencescheduling.domain;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Objects;
 import java.util.Set;
 
@@ -9,14 +9,14 @@ import ai.timefold.solver.core.api.domain.common.PlanningId;
 
 public class Timeslot {
     private @PlanningId String id;
-    private LocalDateTime startDateTime;
-    private LocalDateTime endDateTime;
+    private OffsetDateTime startDateTime;
+    private OffsetDateTime endDateTime;
     private Set<String> tags;
 
     // Cached
     private int durationInMinutes;
 
-    public Timeslot(String id, LocalDateTime startDateTime, LocalDateTime endDateTime, Set<String> tags) {
+    public Timeslot(String id, OffsetDateTime startDateTime, OffsetDateTime endDateTime, Set<String> tags) {
         this.id = id;
         this.startDateTime = startDateTime;
         this.endDateTime = endDateTime;
@@ -36,8 +36,8 @@ public class Timeslot {
         if (this.equals(other)) {
             return durationInMinutes;
         }
-        LocalDateTime startMaximum = startDateTime.isBefore(other.startDateTime) ? other.startDateTime : startDateTime;
-        LocalDateTime endMinimum = endDateTime.isBefore(other.endDateTime) ? endDateTime : other.endDateTime;
+        OffsetDateTime startMaximum = startDateTime.isBefore(other.startDateTime) ? other.startDateTime : startDateTime;
+        OffsetDateTime endMinimum = endDateTime.isBefore(other.endDateTime) ? endDateTime : other.endDateTime;
         return (int) Duration.between(startMaximum, endMinimum).toMinutes();
     }
 
@@ -69,11 +69,11 @@ public class Timeslot {
         return id;
     }
 
-    public LocalDateTime getStartDateTime() {
+    public OffsetDateTime getStartDateTime() {
         return startDateTime;
     }
 
-    public LocalDateTime getEndDateTime() {
+    public OffsetDateTime getEndDateTime() {
         return endDateTime;
     }
 

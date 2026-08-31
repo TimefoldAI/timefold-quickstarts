@@ -22,12 +22,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Collection;
 import java.util.List;
 
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
-
 import ai.timefold.solver.service.definition.api.domain.ModelConfig;
 import ai.timefold.solver.service.definition.api.validation.Issue;
-import ai.timefold.solver.service.definition.api.validation.IssueSeverity;
 import ai.timefold.solver.service.definition.api.validation.ValidationBuilder;
 import ai.timefold.solver.service.definition.api.validation.ValidationStatus;
 import ai.timefold.solver.service.definition.api.validation.dto.ValidationResult;
@@ -41,18 +37,14 @@ import org.acme.conferencescheduling.service.validation.ConferenceScheduleIssue.
 import org.acme.conferencescheduling.service.validation.ConferenceScheduleIssue.NonExistingSpeakerReferenceIssue;
 import org.acme.conferencescheduling.service.validation.ConferenceScheduleIssue.NonExistingTalkTypeReferenceIssue;
 import org.acme.conferencescheduling.service.validation.ConferenceScheduleIssue.NonExistingTimeslotReferenceIssue;
-import org.acme.conferencescheduling.service.validation.OpenApiSpecIssue;
 import org.junit.jupiter.api.Test;
 
+// OpenAPI spec compliance (Bean Validation) is enforced by the Service module at the REST layer, so it's
+// covered by org.acme.conferencescheduling.rest.ConferenceScheduleOpenApiValidationTest instead.
+// This class only covers the domain-specific checks ConferenceScheduleValidator implements itself.
 class ConferenceScheduleValidatorTest {
 
-    private static final Validator BEAN_VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
-
     private final ConferenceScheduleValidator validator = new ConferenceScheduleValidator();
-
-    ConferenceScheduleValidatorTest() {
-        validator.validator = BEAN_VALIDATOR;
-    }
 
     @Test
     void validInputHasNoIssues() {
@@ -68,23 +60,6 @@ class ConferenceScheduleValidatorTest {
     // ------------------------------------------------------------------------
 
     @Test
-    void nullTimeslotIdIsReportedAsMissing() {
-        ValidationResult<Issue> result = validate(inputWithTimeslots(timeslot(null)));
-
-        Issue issue = singleIssue(result, OpenApiSpecIssue.class);
-        assertThat(issue.getSeverity()).isEqualTo(IssueSeverity.ERROR);
-        assertThat(result.status()).isEqualTo(ValidationStatus.ERRORS);
-        assertThat(result.isValid()).isFalse();
-    }
-
-    @Test
-    void blankTimeslotIdIsReportedAsMissing() {
-        ValidationResult<Issue> result = validate(inputWithTimeslots(timeslot("  ")));
-
-        singleIssue(result, OpenApiSpecIssue.class);
-    }
-
-    @Test
     void duplicateTimeslotIdIsReportedWithTheOffendingId() {
         ValidationResult<Issue> result = validate(inputWithTimeslots(timeslot("ts1"), timeslot("ts1")));
 
@@ -95,20 +70,6 @@ class ConferenceScheduleValidatorTest {
     // ------------------------------------------------------------------------
     // Rooms
     // ------------------------------------------------------------------------
-
-    @Test
-    void nullRoomIdIsReportedAsMissing() {
-        ValidationResult<Issue> result = validate(inputWithRooms(room(null)));
-
-        singleIssue(result, OpenApiSpecIssue.class);
-    }
-
-    @Test
-    void blankRoomIdIsReportedAsMissing() {
-        ValidationResult<Issue> result = validate(inputWithRooms(room("  ")));
-
-        singleIssue(result, OpenApiSpecIssue.class);
-    }
 
     @Test
     void duplicateRoomIdIsReportedWithTheOffendingId() {
@@ -123,13 +84,6 @@ class ConferenceScheduleValidatorTest {
     // ------------------------------------------------------------------------
 
     @Test
-    void blankSpeakerIdIsReportedAsMissing() {
-        ValidationResult<Issue> result = validate(inputWithSpeakers(speaker("  ")));
-
-        singleIssue(result, OpenApiSpecIssue.class);
-    }
-
-    @Test
     void duplicateSpeakerIdIsReportedWithTheOffendingId() {
         ValidationResult<Issue> result = validate(inputWithSpeakers(speaker("s1"), speaker("s1")));
 
@@ -140,20 +94,6 @@ class ConferenceScheduleValidatorTest {
     // ------------------------------------------------------------------------
     // Talks: identity
     // ------------------------------------------------------------------------
-
-    @Test
-    void nullTalkCodeIsReportedAsMissing() {
-        ValidationResult<Issue> result = validate(inputWithTalks(talk(null, "s1")));
-
-        singleIssue(result, OpenApiSpecIssue.class);
-    }
-
-    @Test
-    void blankTalkCodeIsReportedAsMissing() {
-        ValidationResult<Issue> result = validate(inputWithTalks(talk("  ", "s1")));
-
-        singleIssue(result, OpenApiSpecIssue.class);
-    }
 
     @Test
     void duplicateTalkCodeIsReportedWithTheOffendingCode() {
@@ -212,13 +152,6 @@ class ConferenceScheduleValidatorTest {
         assertThat(codesOf(result)).containsExactly("NON_EXISTING_SPEAKER_REFERENCE", "NON_EXISTING_SPEAKER_REFERENCE");
     }
 
-    @Test
-    void talkWithoutSpeakersIsReportedAsMissing() {
-        ValidationResult<Issue> result = validate(inputWithTalks(talk("T1")));
-
-        singleIssue(result, OpenApiSpecIssue.class);
-    }
-
     // ------------------------------------------------------------------------
     // Talks: talk type
     // ------------------------------------------------------------------------
@@ -232,17 +165,21 @@ class ConferenceScheduleValidatorTest {
     }
 
     @Test
-    void talkWithNullTalkTypeIsReported() {
+    void talkWithNullTalkTypeIsReportedAsANonExistingReference() {
+        // A missing talk type is just as invalid as an unknown one, and this validator treats it that way
+        // directly: it doesn't rely on Bean Validation's @NotBlank to reject it first.
         ValidationResult<Issue> result = validate(inputWithTalks(talkOfType("T1", null, "s1")));
 
-        singleIssue(result, OpenApiSpecIssue.class);
+        NonExistingTalkTypeReferenceIssue issue = singleIssue(result, NonExistingTalkTypeReferenceIssue.class);
+        assertThat(issue.getTalkId()).isEqualTo("T1");
     }
 
     @Test
-    void talkWithBlankTalkTypeIsReported() {
+    void talkWithBlankTalkTypeIsReportedAsANonExistingReference() {
         ValidationResult<Issue> result = validate(inputWithTalks(talkOfType("T1", "  ", "s1")));
 
-        singleIssue(result, OpenApiSpecIssue.class);
+        NonExistingTalkTypeReferenceIssue issue = singleIssue(result, NonExistingTalkTypeReferenceIssue.class);
+        assertThat(issue.getTalkId()).isEqualTo("T1");
     }
 
     @Test
@@ -258,7 +195,6 @@ class ConferenceScheduleValidatorTest {
 
     @Test
     void issuesOfDifferentKindsAreAllReported() {
-        // No OpenAPI issue here, so phase 2 runs in full and every kind of domain issue can accumulate.
         ConferenceScheduleInput input = input(TALK_TYPES,
                 List.of(timeslot("ts1"), timeslot("ts1")),
                 List.of(room("r1"), room("r1")),
@@ -277,25 +213,6 @@ class ConferenceScheduleValidatorTest {
                 "NON_EXISTING_SPEAKER_REFERENCE");
         assertThat(result.status()).isEqualTo(ValidationStatus.ERRORS);
         assertThat(result.isValid()).isFalse();
-    }
-
-    @Test
-    void talkWithoutCodeIsReportedButPhaseTwoIsSkipped() {
-        ConferenceScheduleInput input = inputWithTalks(
-                assignedTalkOfType(null, "Keynote", "unknown-timeslot", "unknown-room", "unknown-speaker"));
-
-        ValidationResult<Issue> result = validate(input);
-
-        // A missing code fails the OpenAPI check, which stops phase 2: none of this talk's other
-        // problems (unknown type, timeslot, room or speaker) get validated.
-        singleIssue(result, OpenApiSpecIssue.class);
-    }
-
-    @Test
-    void talkWithBlankCodeIsReportedButPhaseTwoIsSkipped() {
-        ValidationResult<Issue> result = validate(inputWithTalks(talk("  ", "unknown-speaker")));
-
-        singleIssue(result, OpenApiSpecIssue.class);
     }
 
     @Test
@@ -333,10 +250,6 @@ class ConferenceScheduleValidatorTest {
         Issue issue = issues.iterator().next();
         assertThat(issue).isInstanceOf(expectedType);
         return expectedType.cast(issue);
-    }
-
-    private static void singleIssue(ValidationResult<Issue> result, String expectedCode) {
-        assertThat(codesOf(result)).containsExactly(expectedCode);
     }
 
     private static List<String> codesOf(ValidationResult<Issue> result) {

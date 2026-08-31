@@ -5,9 +5,6 @@ import java.util.List;
 import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validator;
 
 import ai.timefold.solver.service.definition.api.domain.ModelConfig;
 import ai.timefold.solver.service.definition.api.validation.ModelValidator;
@@ -28,30 +25,17 @@ import org.acme.conferencescheduling.service.validation.ConferenceScheduleIssue.
 import org.acme.conferencescheduling.service.validation.ConferenceScheduleIssue.NonExistingSpeakerReferenceIssue;
 import org.acme.conferencescheduling.service.validation.ConferenceScheduleIssue.NonExistingTalkTypeReferenceIssue;
 import org.acme.conferencescheduling.service.validation.ConferenceScheduleIssue.NonExistingTimeslotReferenceIssue;
-import org.acme.conferencescheduling.service.validation.OpenApiSpecIssue;
 
 @ApplicationScoped
 public class ConferenceScheduleValidator
         implements ModelValidator<ConferenceScheduleInput, ConferenceScheduleConfigOverrides> {
 
-    @Inject
-    Validator validator;
-
     @Override
     public void validate(ValidationBuilder validationBuilder, ConferenceScheduleInput modelInput,
             ModelConfig<ConferenceScheduleConfigOverrides> modelConfig) {
-        // Phase 1: OpenAPI spec compliance (Bean Validation). This call will be moved to the Service module.
-        for (ConstraintViolation<ConferenceScheduleInput> violation : validator.validate(modelInput)) {
-            validationBuilder.addIssue(new OpenApiSpecIssue(violation.getPropertyPath() + ": " + violation.getMessage()));
-        }
-        if (!validationBuilder.isValid()) {
-            // Phase 2 assumes its input already satisfies the OpenAPI contract (non-blank ids, non-empty
-            // required lists, ...); running it against a structurally invalid input would just pile on
-            // confusing, derivative issues.
-            return;
-        }
-
-        // Phase 2: domain-specific checks (duplicate and dangling references).
+        // OpenAPI spec (Bean Validation) compliance is enforced by the Service module at the REST layer,
+        // before this validator ever runs; only domain-specific checks (duplicate and dangling references)
+        // belong here.
         Set<String> talkTypeNames = collectTalkTypeNames(orEmpty(modelInput.talkTypes()));
         Set<String> timeslotIds = validateTimeslots(validationBuilder, orEmpty(modelInput.timeslots()));
         Set<String> roomIds = validateRooms(validationBuilder, orEmpty(modelInput.rooms()));

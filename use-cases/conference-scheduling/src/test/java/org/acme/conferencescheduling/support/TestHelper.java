@@ -3,7 +3,8 @@ package org.acme.conferencescheduling.support;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -34,9 +35,9 @@ public final class TestHelper {
     public static final List<TalkTypeDTO> TALK_TYPES = List.of(new TalkTypeDTO(BREAKOUT), new TalkTypeDTO(LAB));
 
     public static final List<TimeslotDTO> TIMESLOTS = List.of(
-            timeslot("ts1", "2024-01-01T09:00", "2024-01-01T10:00"),
-            timeslot("ts2", "2024-01-01T10:30", "2024-01-01T11:30"),
-            timeslot("ts3", "2024-01-01T12:00", "2024-01-01T13:00"));
+            timeslot("ts1", "2024-01-01T09:00Z", "2024-01-01T10:00Z"),
+            timeslot("ts2", "2024-01-01T10:30Z", "2024-01-01T11:30Z"),
+            timeslot("ts3", "2024-01-01T12:00Z", "2024-01-01T13:00Z"));
 
     public static final List<RoomDTO> ROOMS = List.of(
             room("r1", "Room A"),
@@ -107,11 +108,11 @@ public final class TestHelper {
     }
 
     public static TimeslotDTO timeslot(String id) {
-        return timeslot(id, "2024-01-01T09:00", "2024-01-01T10:00");
+        return timeslot(id, "2024-01-01T09:00Z", "2024-01-01T10:00Z");
     }
 
     public static TimeslotDTO timeslot(String id, String start, String end) {
-        return new TimeslotDTO(id, LocalDateTime.parse(start), LocalDateTime.parse(end), List.of(BREAKOUT), List.of());
+        return new TimeslotDTO(id, OffsetDateTime.parse(start), OffsetDateTime.parse(end), List.of(BREAKOUT), List.of());
     }
 
     public static RoomDTO room(String id) {
@@ -453,23 +454,23 @@ public final class TestHelper {
      */
     public static final class TimeslotBuilder {
 
-        private static final LocalDateTime DEFAULT_START = LocalDateTime.of(2024, 1, 1, 9, 0);
+        private static final OffsetDateTime DEFAULT_START = OffsetDateTime.of(2024, 1, 1, 9, 0, 0, 0, ZoneOffset.UTC);
 
         private final String id;
-        private LocalDateTime startDateTime = DEFAULT_START;
-        private LocalDateTime endDateTime = DEFAULT_START.plusHours(1);
+        private OffsetDateTime startDateTime = DEFAULT_START;
+        private OffsetDateTime endDateTime = DEFAULT_START.plusHours(1);
         private Set<String> tags = emptySet();
 
         private TimeslotBuilder(String id) {
             this.id = id;
         }
 
-        public TimeslotBuilder startDateTime(LocalDateTime startDateTime) {
+        public TimeslotBuilder startDateTime(OffsetDateTime startDateTime) {
             this.startDateTime = startDateTime;
             return this;
         }
 
-        public TimeslotBuilder endDateTime(LocalDateTime endDateTime) {
+        public TimeslotBuilder endDateTime(OffsetDateTime endDateTime) {
             this.endDateTime = endDateTime;
             return this;
         }

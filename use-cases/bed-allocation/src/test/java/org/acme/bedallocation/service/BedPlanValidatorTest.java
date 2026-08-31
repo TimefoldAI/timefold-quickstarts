@@ -10,9 +10,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Collection;
 import java.util.List;
 
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
-
 import ai.timefold.solver.service.definition.api.domain.ModelConfig;
 import ai.timefold.solver.service.definition.api.validation.Issue;
 import ai.timefold.solver.service.definition.api.validation.ValidationBuilder;
@@ -26,13 +23,13 @@ import org.acme.bedallocation.service.validation.BedPlanIssue.DuplicateDepartmen
 import org.acme.bedallocation.service.validation.BedPlanIssue.DuplicateRoomIdIssue;
 import org.acme.bedallocation.service.validation.BedPlanIssue.DuplicateStayIdIssue;
 import org.acme.bedallocation.service.validation.BedPlanIssue.NonExistingBedReferenceIssue;
-import org.acme.bedallocation.service.validation.OpenApiSpecIssue;
 import org.acme.bedallocation.support.TestHelper.RoomDTOBuilder;
 import org.junit.jupiter.api.Test;
 
+// OpenAPI spec compliance (Bean Validation) is enforced by the Service module at the REST layer, so it's
+// covered by org.acme.bedallocation.rest.BedPlanOpenApiValidationTest instead. This class only
+// covers the domain-specific checks BedPlanValidator implements itself.
 class BedPlanValidatorTest {
-
-    private static final Validator BEAN_VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
 
     private static final List<RoomDTOBuilder> ROOMS = List.of(
             aRoomDTO("r1").beds(List.of(aBedDTO("r1-bed0"), aBedDTO("r1-bed1"))),
@@ -44,10 +41,6 @@ class BedPlanValidatorTest {
     private static final List<StayInputDTO> VALID_STAYS = List.of(aStayDTO("s1").build());
 
     private final BedPlanValidator validator = new BedPlanValidator();
-
-    BedPlanValidatorTest() {
-        validator.validator = BEAN_VALIDATOR;
-    }
 
     @Test
     void validInputHasNoIssues() {
@@ -63,24 +56,9 @@ class BedPlanValidatorTest {
     }
 
     @Test
-    void missingDepartmentId() {
-        DepartmentInputDTO department = aDepartmentDTO(null).rooms(ROOMS).build();
-        BedPlanInput input = input(List.of(department), VALID_STAYS);
-        assertSingleIssue(validate(input), OpenApiSpecIssue.class);
-    }
-
-    @Test
     void duplicateDepartmentId() {
         BedPlanInput input = input(List.of(DEPARTMENT, DEPARTMENT), VALID_STAYS);
         assertSingleIssue(validate(input), DuplicateDepartmentIdIssue.class);
-    }
-
-    @Test
-    void missingRoomId() {
-        RoomDTOBuilder room = aRoomDTO(null);
-        DepartmentInputDTO department = aDepartmentDTO("d1").rooms(List.of(room)).build();
-        BedPlanInput input = input(List.of(department), VALID_STAYS);
-        assertSingleIssue(validate(input), OpenApiSpecIssue.class);
     }
 
     @Test
@@ -92,26 +70,11 @@ class BedPlanValidatorTest {
     }
 
     @Test
-    void missingBedId() {
-        RoomDTOBuilder room = aRoomDTO("r1").beds(List.of(aBedDTO(null)));
-        DepartmentInputDTO department = aDepartmentDTO("d1").rooms(List.of(room)).build();
-        BedPlanInput input = input(List.of(department), VALID_STAYS);
-        assertSingleIssue(validate(input), OpenApiSpecIssue.class);
-    }
-
-    @Test
     void duplicateBedId() {
         RoomDTOBuilder room = aRoomDTO("r1").beds(List.of(aBedDTO("b1"), aBedDTO("b1")));
         DepartmentInputDTO department = aDepartmentDTO("d1").rooms(List.of(room)).build();
         BedPlanInput input = input(List.of(department), VALID_STAYS);
         assertSingleIssue(validate(input), DuplicateBedIdIssue.class);
-    }
-
-    @Test
-    void missingStayId() {
-        StayInputDTO stayWithoutId = aStayDTO(null).build();
-        BedPlanInput input = input(List.of(DEPARTMENT), List.of(stayWithoutId));
-        assertSingleIssue(validate(input), OpenApiSpecIssue.class);
     }
 
     @Test

@@ -7,7 +7,8 @@ import static org.acme.conferencescheduling.support.TestHelper.aSpeaker;
 import static org.acme.conferencescheduling.support.TestHelper.aTalk;
 import static org.acme.conferencescheduling.support.TestHelper.aTimeslot;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.SequencedSet;
@@ -28,7 +29,7 @@ import io.quarkus.test.junit.QuarkusTest;
 @QuarkusTest
 class ConferenceSchedulingConstraintProviderTest {
 
-    private static final LocalDateTime START = LocalDateTime.of(2000, 2, 1, 9, 0);
+    private static final OffsetDateTime START = OffsetDateTime.of(2000, 2, 1, 9, 0, 0, 0, ZoneOffset.UTC);
 
     private static final Timeslot MONDAY_9_TO_10 =
             aTimeslot("1").startDateTime(START).endDateTime(START.plusHours(1)).tags(sequencedSet("a")).build();

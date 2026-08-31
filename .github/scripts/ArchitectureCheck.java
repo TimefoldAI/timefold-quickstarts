@@ -30,6 +30,8 @@ import com.tngtech.archunit.core.domain.JavaField;
 import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.core.domain.JavaMethodCall;
 import com.tngtech.archunit.core.domain.JavaModifier;
+import com.tngtech.archunit.core.domain.JavaParameterizedType;
+import com.tngtech.archunit.core.domain.JavaType;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
@@ -54,6 +56,8 @@ public final class ArchitectureCheck {
     private static final String SCHEMA_ANNOTATION = "org.eclipse.microprofile.openapi.annotations.media.Schema";
     private static final String PLANNING_ID = "ai.timefold.solver.core.api.domain.common.PlanningId";
     private static final String PLANNING_SOLUTION = "ai.timefold.solver.core.api.domain.solution.PlanningSolution";
+    private static final String PLANNING_VARIABLE = "ai.timefold.solver.core.api.domain.variable.PlanningVariable";
+    private static final String PLANNING_LIST_VARIABLE = "ai.timefold.solver.core.api.domain.variable.PlanningListVariable";
     private static final String ABSTRACT_BASIC_DEMO_DATA_GENERATOR =
             "ai.timefold.solver.service.definition.api.data.AbstractBasicDemoDataGenerator";
 
@@ -165,6 +169,7 @@ public final class ArchitectureCheck {
                 dtoTypesMustResideInInputOrOutputSubpackage(),
                 layerRule("dto.input", "dto.output", not(resideInAPackage(basePackage + ".dto.output.."))),
                 identifierFieldsMustHaveMatchingEqualsAndHashCode(),
+                planningVariableValueTypesMustDeclarePlanningId(),
                 demoDataGeneratorsMustNotExtendAbstractBasicDemoDataGenerator(),
                 constraintsMustNotUseBareStringAsConstraint());
     }
@@ -389,6 +394,22 @@ public final class ArchitectureCheck {
                 .should(new IdentifierEqualsAndHashCodeCondition())
                 .as("Classes with a guaranteed unique identifier (via @PlanningId, or an 'id' field by convention) "
                         + "must override equals() and hashCode() based on exactly that field");
+    }
+
+    /*
+     * Timefold uses @PlanningId to identify planning entities/values across solving events: rebasing a
+     * working solution, multithreaded solving, real-time planning (FactChanges), and move mechanics for
+     * list variables. Without it on the value type of a @PlanningVariable/@PlanningListVariable, those
+     * features silently fall back to reference identity or misbehave, so every domain type referenced
+     * that way must carry @PlanningId on its identifier field (enums are exempt: they're inherently
+     * unique per constant, so annotating them would be meaningless).
+     */
+    private static ArchRule planningVariableValueTypesMustDeclarePlanningId() {
+        return classes()
+                .that().resideInAPackage(basePackage + ".domain..")
+                .should(new PlanningVariableValueTypeCondition())
+                .as("Domain types used as the value of a @PlanningVariable or @PlanningListVariable must declare "
+                        + "@PlanningId on their identifier field");
     }
 
     private static ArchCondition<JavaClass> notHaveFilesMatching(String... syntaxAndPatterns) {
@@ -644,6 +665,60 @@ public final class ArchitectureCheck {
             return methodName.equals(fieldName)
                     || methodName.equals("get" + capitalize(fieldName))
                     || methodName.equals("is" + capitalize(fieldName));
+        }
+    }
+
+    private static final class PlanningVariableValueTypeCondition extends ArchCondition<JavaClass> {
+
+        private PlanningVariableValueTypeCondition() {
+            super("only reference planning variable value types that declare @PlanningId");
+        }
+
+        @Override
+        public void check(JavaClass javaClass, ConditionEvents events) {
+            for (JavaField field : javaClass.getFields()) {
+                if (field.isAnnotatedWith(PLANNING_VARIABLE)) {
+                    checkValueType(javaClass, field.getName(), field.getRawType(), events);
+                } else if (field.isAnnotatedWith(PLANNING_LIST_VARIABLE)) {
+                    listElementType(field.getType())
+                            .ifPresent(valueType -> checkValueType(javaClass, field.getName(), valueType, events));
+                }
+            }
+            for (JavaMethod method : javaClass.getMethods()) {
+                if (method.isAnnotatedWith(PLANNING_VARIABLE)) {
+                    checkValueType(javaClass, method.getName() + "()", method.getRawReturnType(), events);
+                } else if (method.isAnnotatedWith(PLANNING_LIST_VARIABLE)) {
+                    listElementType(method.getReturnType())
+                            .ifPresent(valueType -> checkValueType(javaClass, method.getName() + "()", valueType, events));
+                }
+            }
+        }
+
+        private static Optional<JavaClass> listElementType(JavaType type) {
+            if (type instanceof JavaParameterizedType parameterizedType) {
+                var typeArguments = parameterizedType.getActualTypeArguments();
+                if (!typeArguments.isEmpty()) {
+                    return Optional.of(typeArguments.get(0).toErasure());
+                }
+            }
+            return Optional.empty();
+        }
+
+        private static void checkValueType(JavaClass owner, String memberName, JavaClass valueType, ConditionEvents events) {
+            if (!resideInAPackage(basePackage + ".domain..").test(valueType) || valueType.isEnum()) {
+                return; // out of scope (not a domain type), or an enum, whose constants are inherently unique
+            }
+            if (hasPlanningId(valueType)) {
+                return;
+            }
+            events.add(SimpleConditionEvent.violated(owner,
+                    "%s's planning variable '%s' has value type %s, which has no @PlanningId on its identifier field"
+                            .formatted(owner.getName(), memberName, valueType.getName())));
+        }
+
+        private static boolean hasPlanningId(JavaClass javaClass) {
+            return javaClass.getFields().stream().anyMatch(field -> field.isAnnotatedWith(PLANNING_ID))
+                    || javaClass.getMethods().stream().anyMatch(method -> method.isAnnotatedWith(PLANNING_ID));
         }
     }
 
