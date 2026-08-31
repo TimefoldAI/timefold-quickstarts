@@ -1,7 +1,5 @@
 package org.acme.conferencescheduling.dto.input;
 
-import jakarta.validation.constraints.Min;
-
 import ai.timefold.solver.service.definition.api.ModelConfigOverrides;
 import ai.timefold.solver.service.definition.api.domain.ConstraintReference;
 
@@ -17,45 +15,58 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ConferenceScheduleConfigOverrides(
         @ConstraintReference(ConferenceConstraintProperties.THEME_TRACK_CONFLICT) @Schema(
-                description = "Soft weight of the themeTrackConflict constraint.") @Min(0) Long themeTrackConflictWeight,
+                description = "Soft weight of the themeTrackConflict constraint.", minimum = "0") Long themeTrackConflictWeight,
         @ConstraintReference(ConferenceConstraintProperties.THEME_TRACK_ROOM_STABILITY) @Schema(
-                description = "Soft weight of the themeTrackRoomStability constraint.") @Min(0) Long themeTrackRoomStabilityWeight,
+                description = "Soft weight of the themeTrackRoomStability constraint.",
+                minimum = "0") Long themeTrackRoomStabilityWeight,
         @ConstraintReference(ConferenceConstraintProperties.SECTOR_CONFLICT) @Schema(
-                description = "Soft weight of the sectorConflict constraint.") @Min(0) Long sectorConflictWeight,
+                description = "Soft weight of the sectorConflict constraint.", minimum = "0") Long sectorConflictWeight,
         @ConstraintReference(ConferenceConstraintProperties.AUDIENCE_TYPE_DIVERSITY) @Schema(
-                description = "Soft weight of the audienceTypeDiversity constraint.") @Min(0) Long audienceTypeDiversityWeight,
+                description = "Soft weight of the audienceTypeDiversity constraint.",
+                minimum = "0") Long audienceTypeDiversityWeight,
         @ConstraintReference(ConferenceConstraintProperties.AUDIENCE_TYPE_THEME_TRACK_CONFLICT) @Schema(
-                description = "Soft weight of the audienceTypeThemeTrackConflict constraint.") @Min(0) Long audienceTypeThemeTrackConflictWeight,
+                description = "Soft weight of the audienceTypeThemeTrackConflict constraint.",
+                minimum = "0") Long audienceTypeThemeTrackConflictWeight,
         @ConstraintReference(ConferenceConstraintProperties.AUDIENCE_LEVEL_DIVERSITY) @Schema(
-                description = "Soft weight of the audienceLevelDiversity constraint.") @Min(0) Long audienceLevelDiversityWeight,
+                description = "Soft weight of the audienceLevelDiversity constraint.",
+                minimum = "0") Long audienceLevelDiversityWeight,
         @ConstraintReference(ConferenceConstraintProperties.CONTENT_AUDIENCE_LEVEL_FLOW_VIOLATION) @Schema(
-                description = "Soft weight of the contentAudienceLevelFlowViolation constraint.") @Min(0) Long contentAudienceLevelFlowViolationWeight,
+                description = "Soft weight of the contentAudienceLevelFlowViolation constraint.",
+                minimum = "0") Long contentAudienceLevelFlowViolationWeight,
         @ConstraintReference(ConferenceConstraintProperties.CONTENT_CONFLICT) @Schema(
-                description = "Soft weight of the contentConflict constraint.") @Min(0) Long contentConflictWeight,
+                description = "Soft weight of the contentConflict constraint.", minimum = "0") Long contentConflictWeight,
         @ConstraintReference(ConferenceConstraintProperties.LANGUAGE_DIVERSITY) @Schema(
-                description = "Soft weight of the languageDiversity constraint.") @Min(0) Long languageDiversityWeight,
+                description = "Soft weight of the languageDiversity constraint.", minimum = "0") Long languageDiversityWeight,
         @ConstraintReference(ConferenceConstraintProperties.SAME_DAY_TALKS) @Schema(
-                description = "Soft weight of the sameDayTalks constraint.") @Min(0) Long sameDayTalksWeight,
+                description = "Soft weight of the sameDayTalks constraint.", minimum = "0") Long sameDayTalksWeight,
         @ConstraintReference(ConferenceConstraintProperties.POPULAR_TALKS) @Schema(
-                description = "Soft weight of the popularTalks constraint.") @Min(0) Long popularTalksWeight,
+                description = "Soft weight of the popularTalks constraint.", minimum = "0") Long popularTalksWeight,
         @ConstraintReference(ConferenceConstraintProperties.SPEAKER_PREFERRED_TIMESLOT_TAGS) @Schema(
-                description = "Soft weight of the speakerPreferredTimeslotTags constraint.") @Min(0) Long speakerPreferredTimeslotTagsWeight,
+                description = "Soft weight of the speakerPreferredTimeslotTags constraint.",
+                minimum = "0") Long speakerPreferredTimeslotTagsWeight,
         @ConstraintReference(ConferenceConstraintProperties.SPEAKER_UNDESIRED_TIMESLOT_TAGS) @Schema(
-                description = "Soft weight of the speakerUndesiredTimeslotTags constraint.") @Min(0) Long speakerUndesiredTimeslotTagsWeight,
+                description = "Soft weight of the speakerUndesiredTimeslotTags constraint.",
+                minimum = "0") Long speakerUndesiredTimeslotTagsWeight,
         @ConstraintReference(ConferenceConstraintProperties.TALK_PREFERRED_TIMESLOT_TAGS) @Schema(
-                description = "Soft weight of the talkPreferredTimeslotTags constraint.") @Min(0) Long talkPreferredTimeslotTagsWeight,
+                description = "Soft weight of the talkPreferredTimeslotTags constraint.",
+                minimum = "0") Long talkPreferredTimeslotTagsWeight,
         @ConstraintReference(ConferenceConstraintProperties.TALK_UNDESIRED_TIMESLOT_TAGS) @Schema(
-                description = "Soft weight of the talkUndesiredTimeslotTags constraint.") @Min(0) Long talkUndesiredTimeslotTagsWeight,
+                description = "Soft weight of the talkUndesiredTimeslotTags constraint.",
+                minimum = "0") Long talkUndesiredTimeslotTagsWeight,
         @ConstraintReference(ConferenceConstraintProperties.SPEAKER_PREFERRED_ROOM_TAGS) @Schema(
-                description = "Soft weight of the speakerPreferredRoomTags constraint.") @Min(0) Long speakerPreferredRoomTagsWeight,
+                description = "Soft weight of the speakerPreferredRoomTags constraint.",
+                minimum = "0") Long speakerPreferredRoomTagsWeight,
         @ConstraintReference(ConferenceConstraintProperties.SPEAKER_UNDESIRED_ROOM_TAGS) @Schema(
-                description = "Soft weight of the speakerUndesiredRoomTags constraint.") @Min(0) Long speakerUndesiredRoomTagsWeight,
+                description = "Soft weight of the speakerUndesiredRoomTags constraint.",
+                minimum = "0") Long speakerUndesiredRoomTagsWeight,
         @ConstraintReference(ConferenceConstraintProperties.TALK_PREFERRED_ROOM_TAGS) @Schema(
-                description = "Soft weight of the talkPreferredRoomTags constraint.") @Min(0) Long talkPreferredRoomTagsWeight,
+                description = "Soft weight of the talkPreferredRoomTags constraint.",
+                minimum = "0") Long talkPreferredRoomTagsWeight,
         @ConstraintReference(ConferenceConstraintProperties.TALK_UNDESIRED_ROOM_TAGS) @Schema(
-                description = "Soft weight of the talkUndesiredRoomTags constraint.") @Min(0) Long talkUndesiredRoomTagsWeight,
+                description = "Soft weight of the talkUndesiredRoomTags constraint.",
+                minimum = "0") Long talkUndesiredRoomTagsWeight,
         @ConstraintReference(ConferenceConstraintProperties.SPEAKER_MAKESPAN) @Schema(
-                description = "Soft weight of the speakerMakespan constraint.") @Min(0) Long speakerMakespanWeight)
+                description = "Soft weight of the speakerMakespan constraint.", minimum = "0") Long speakerMakespanWeight)
         implements
             ModelConfigOverrides {
 

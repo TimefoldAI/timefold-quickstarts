@@ -161,6 +161,7 @@ public final class ArchitectureCheck {
                 dtoTypesMustEndWithDto(),
                 withMethodsMustBeUsed(),
                 onlyDtoPackageMayUseSchemaAnnotation(),
+                beanValidationApiMustNotBeUsed(),
                 classesMustResideInValidSubpackages(),
                 onlyInterfacesEnumsAndRecordsInDtoPackage(),
                 dtoPackageMustNotDeclareNestedClasses(),
@@ -322,6 +323,19 @@ public final class ArchitectureCheck {
                 .as("Only DTO, domain.justification and validation issue classes may use @Schema annotation");
     }
 
+    /*
+     * These two quickstarts (bed-allocation and conference-scheduling) describe input constraints via
+     * @Schema attributes (required, minLength, minItems, minimum, maximum, ...) instead of Bean Validation,
+     * so a field's constraint and its OpenAPI documentation can never drift out of sync. This is an
+     * alignment preference for these two quickstarts specifically, not a hard requirement for every
+     * quickstart in the repository.
+     */
+    private static ArchRule beanValidationApiMustNotBeUsed() {
+        return classes()
+                .should(new NoBeanValidationApiUsageCondition())
+                .as("Classes must not use the Bean Validation API; describe input constraints via @Schema attributes instead");
+    }
+
     private static ArchRule classesMustResideInValidSubpackages() {
         return classes()
                 .that().haveNameNotMatching(".*Test$")
@@ -351,12 +365,13 @@ public final class ArchitectureCheck {
 
     /*
      * Input DTOs are deserialized straight from user-supplied JSON, so an optional collection/map field
-     * (no @NotEmpty/@NotNull) or a nullable nested DTO field (no @NotNull) can legitimately arrive as null.
-     * Rather than relying on Jackson-specific @JsonSetter(nulls = Nulls.AS_EMPTY) to paper over that at
-     * deserialization time, such fields must be defaulted to an empty collection/map (or an empty nested
-     * DTO instance) in a compact constructor: plain Java, works regardless of the JSON library, and is
-     * exercised by unit tests without going through Jackson at all. Required fields (@NotEmpty/@NotNull)
-     * don't need this: they're rejected by the Validator layer if null, so there's nothing to default.
+     * (not marked @Schema(required = true)) or a nullable nested DTO field (not marked required) can
+     * legitimately arrive as null. Rather than relying on Jackson-specific @JsonSetter(nulls =
+     * Nulls.AS_EMPTY) to paper over that at deserialization time, such fields must be defaulted to an
+     * empty collection/map (or an empty nested DTO instance) in a compact constructor: plain Java, works
+     * regardless of the JSON library, and is exercised by unit tests without going through Jackson at all.
+     * Fields marked @Schema(required = true) don't need this: the wire contract states they must be
+     * present, so there's nothing to default away.
      *
      * Output DTOs are excluded entirely: a null there is a meaningful result (e.g. "unassigned"), not an
      * absent optional input, so it must never be silently defaulted away.
@@ -471,6 +486,30 @@ public final class ArchitectureCheck {
             if (javaClass.isAnnotatedWith(annotationTypeName)) {
                 events.add(SimpleConditionEvent.violated(javaClass,
                         "%s is annotated with @%s".formatted(javaClass.getName(), annotationTypeName)));
+            }
+        }
+    }
+
+    private static final class NoBeanValidationApiUsageCondition extends ArchCondition<JavaClass> {
+
+        private static final Pattern JAKARTA_VALIDATION_IMPORT_PATTERN =
+                Pattern.compile("^import\\s+jakarta\\.validation\\.", Pattern.MULTILINE);
+
+        private NoBeanValidationApiUsageCondition() {
+            super("not use the Bean Validation API");
+        }
+
+        @Override
+        public void check(JavaClass javaClass, ConditionEvents events) {
+            var sourceFile = resolveSourceFile(javaClass);
+            if (sourceFile.isEmpty()) {
+                return;
+            }
+            var source = String.join("\n", readLines(sourceFile.get()));
+            if (JAKARTA_VALIDATION_IMPORT_PATTERN.matcher(source).find()) {
+                events.add(SimpleConditionEvent.violated(javaClass,
+                        "%s imports the Bean Validation API in %s; describe input constraints via @Schema attributes instead"
+                                .formatted(javaClass.getName(), sourceFile.get())));
             }
         }
     }
@@ -768,8 +807,6 @@ public final class ArchitectureCheck {
         // The Service Module reflectively instantiates ModelConfigOverrides implementations with a
         // no-argument constructor at build time to generate the default config profile.
         private static final String MODEL_CONFIG_OVERRIDES = "ai.timefold.solver.service.definition.api.ModelConfigOverrides";
-        private static final String NOT_NULL = "jakarta.validation.constraints.NotNull";
-        private static final String NOT_EMPTY = "jakarta.validation.constraints.NotEmpty";
 
         private DtoRecordConstructorCondition() {
             super("declare a compact constructor exactly when normalizing optional collection/map or nested DTO fields");
@@ -813,10 +850,17 @@ public final class ArchitectureCheck {
             var isCollectionOrMap =
                     rawType.isAssignableTo(java.util.Collection.class) || rawType.isAssignableTo(java.util.Map.class);
             if (isCollectionOrMap) {
-                return !field.isAnnotatedWith(NOT_EMPTY) && !field.isAnnotatedWith(NOT_NULL);
+                return !isRequired(field);
             }
             var isNestedDto = rawType.isRecord() && resideInAPackage(basePackage + ".dto..").test(rawType);
-            return isNestedDto && !field.isAnnotatedWith(NOT_NULL);
+            return isNestedDto && !isRequired(field);
+        }
+
+        private static boolean isRequired(JavaField field) {
+            return field.tryGetAnnotationOfType(SCHEMA_ANNOTATION)
+                    .flatMap(annotation -> annotation.get("required"))
+                    .map(Boolean.class::cast)
+                    .orElse(false);
         }
 
         private static void checkHasNonEmptyCompactConstructor(JavaClass javaClass, String source, Path sourceFile,
@@ -849,7 +893,7 @@ public final class ArchitectureCheck {
                 events.add(SimpleConditionEvent.violated(javaClass,
                         ("%s declares an explicit (compact or canonical) constructor in %s, but has no optional collection/map "
                                 + "or nullable nested DTO field requiring normalization; DTO records must rely on the implicit "
-                                + "canonical constructor and use Bean Validation annotations instead")
+                                + "canonical constructor and use @Schema attributes instead")
                                         .formatted(javaClass.getName(), sourceFile)));
             }
         }
