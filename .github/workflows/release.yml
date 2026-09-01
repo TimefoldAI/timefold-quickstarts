@@ -13,7 +13,7 @@ jobs:
   build:
     env:
       MAVEN_ARGS: "--no-transfer-progress --batch-mode"
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: Resolve the release branch name
         shell: bash
