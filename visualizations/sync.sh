@@ -39,6 +39,7 @@ QUICKSTART_DIRS=(
     "maintenance-scheduling"
     "sports-league-scheduling"
     "task-assigning"
+    "food-packaging"
 )
 
 # Metadata needed to render each quickstart's index.html from the shared
@@ -54,6 +55,7 @@ quickstart_name() {
         maintenance-scheduling) echo "Maintenance Scheduling" ;;
         sports-league-scheduling) echo "Sports League Scheduling" ;;
         task-assigning) echo "Task Assigning" ;;
+        food-packaging) echo "Food Packaging" ;;
         *) echo "quickstart_name: unknown quickstart '$1'" >&2; exit 1 ;;
     esac
 }
@@ -67,6 +69,7 @@ quickstart_utm_content() {
         maintenance-scheduling) echo "maintenance-scheduling-java" ;;
         sports-league-scheduling) echo "sports-league-scheduling-java" ;;
         task-assigning) echo "task-assigning-java" ;;
+        food-packaging) echo "food-packaging-java" ;;
         *) echo "quickstart_utm_content: unknown quickstart '$1'" >&2; exit 1 ;;
     esac
 }
@@ -81,6 +84,7 @@ quickstart_features() {
         maintenance-scheduling) echo "vis-timeline color-picker custom-css" ;;
         sports-league-scheduling) echo "vis-timeline custom-css" ;;
         task-assigning) echo "vis-timeline color-picker" ;;
+        food-packaging) echo "vis-timeline custom-css" ;;
         *) echo "quickstart_features: unknown quickstart '$1'" >&2; exit 1 ;;
     esac
 }

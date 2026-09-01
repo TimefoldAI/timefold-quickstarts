@@ -1,49 +1,42 @@
 package org.acme.foodpackaging.domain;
 
-import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
-import ai.timefold.solver.core.api.domain.common.PlanningId;
-import ai.timefold.solver.core.api.domain.variable.PlanningListVariable;
-import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIdentityReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-@JsonIdentityInfo(scope = Line.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+import ai.timefold.solver.core.api.domain.common.PlanningId;
+import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
+import ai.timefold.solver.core.api.domain.variable.PlanningListVariable;
+import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
+
+/**
+ * A production line, which produces the jobs assigned to it one after the other, starting at
+ * {@link #getStartDateTime()}. Both the operator running the line and the sequence of jobs on it are
+ * decided by the solver.
+ */
 @PlanningEntity
 public class Line {
 
     @PlanningId
     private String id;
     private String name;
-    private LocalDateTime startDateTime;
+    private OffsetDateTime startDateTime;
 
-    @JsonIdentityReference(alwaysAsId = true)
     @PlanningVariable
     private Operator operator;
 
-    @JsonIgnore
     @PlanningListVariable(allowsUnassignedValues = true)
-    private List<Job> jobs;
+    private List<Job> jobs = new ArrayList<>();
 
     // No-arg constructor required for Timefold
     public Line() {
     }
 
-    public Line(String id, String name, LocalDateTime startDateTime) {
-        this(id, name, null, startDateTime);
-    }
-
-    public Line(String id, String name, Operator operator, LocalDateTime startDateTime) {
+    public Line(String id, String name, OffsetDateTime startDateTime) {
         this.id = id;
         this.name = name;
-        this.operator = operator;
         this.startDateTime = startDateTime;
-        jobs = new ArrayList<>();
     }
 
     @Override
@@ -63,7 +56,7 @@ public class Line {
         return name;
     }
 
-    public LocalDateTime getStartDateTime() {
+    public OffsetDateTime getStartDateTime() {
         return startDateTime;
     }
 
@@ -81,5 +74,21 @@ public class Line {
 
     public void setJobs(List<Job> jobs) {
         this.jobs = jobs;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Line line)) {
+            return false;
+        }
+        return Objects.equals(id, line.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }
