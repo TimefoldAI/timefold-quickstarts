@@ -1,6 +1,6 @@
 // ── Visualization slot ──
 // index.html has a single #visualization slot; a quickstart's visualize.js
-// fills it with its own demo-specific markup (tabs, tables, ...) via this, function.
+// fills it with its own demo-specific markup (tabs, tables, ...) via this function.
 function setVisualizationSlot(html) {
     document.getElementById('visualization').innerHTML = html;
 }
@@ -257,7 +257,7 @@ class QuickstartPage {
                     }
                 }
             });
-            constraints.map((e) => {
+            constraints.forEach((e) => {
                 let components = this.getScoreComponents(e.weight);
                 e.type = components.hard != 0 ? 'hard' : (components.medium != 0 ? 'medium' : 'soft');
                 e.weight = components[e.type];
