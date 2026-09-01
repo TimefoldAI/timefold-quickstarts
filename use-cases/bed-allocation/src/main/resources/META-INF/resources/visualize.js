@@ -89,6 +89,7 @@ const app = {
                     content += "</div>";
                 }
             }
+            content += "</div>";
 
             const roomData = {
                 id: room.id,

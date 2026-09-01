@@ -61,6 +61,7 @@ quickstart_features() {
     case "$1" in
         bed-allocation) echo "vis-timeline custom-css" ;;
         conference-scheduling) echo "color-picker" ;;
+        *) echo "quickstart_features: unknown quickstart '$1'" >&2; exit 1 ;;
     esac
 }
 
