@@ -1,19 +1,23 @@
 package org.acme.foodpackaging.domain;
 
+import java.time.Duration;
+import java.time.OffsetDateTime;
+import java.util.Objects;
+
+import ai.timefold.solver.core.api.domain.common.PlanningId;
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.entity.PlanningPin;
-import ai.timefold.solver.core.api.domain.common.PlanningId;
 import ai.timefold.solver.core.api.domain.variable.InverseRelationShadowVariable;
 import ai.timefold.solver.core.api.domain.variable.NextElementShadowVariable;
 import ai.timefold.solver.core.api.domain.variable.PreviousElementShadowVariable;
 import ai.timefold.solver.core.api.domain.variable.ShadowSources;
 import ai.timefold.solver.core.api.domain.variable.ShadowVariable;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import java.time.Duration;
-import java.time.LocalDateTime;
-
+/**
+ * One packaging run of a single product. A job is scheduled by putting it in a {@link Line}'s job
+ * sequence; everything else about its timing is derived from that position by the shadow variables
+ * below.
+ */
 @PlanningEntity
 public class Job {
 
@@ -23,13 +27,9 @@ public class Job {
 
     private Product product;
     private Duration duration;
-    private LocalDateTime minStartTime;
-    private LocalDateTime idealEndTime;
-    private LocalDateTime maxEndTime;
-    /**
-     * Higher priority is a higher number.
-     */
-    private int priority;
+    private OffsetDateTime minStartTime;
+    private OffsetDateTime idealEndTime;
+    private OffsetDateTime maxEndTime;
     @PlanningPin
     private boolean pinned;
 
@@ -38,10 +38,8 @@ public class Job {
 
     @ShadowVariable(supplierName = "lineOperatorSupplier")
     private Operator lineOperator;
-    @JsonIgnore
     @PreviousElementShadowVariable(sourceVariableName = "jobs")
     private Job previousJob;
-    @JsonIgnore
     @NextElementShadowVariable(sourceVariableName = "jobs")
     private Job nextJob;
 
@@ -49,22 +47,18 @@ public class Job {
      * Start is after cleanup.
      */
     @ShadowVariable(supplierName = "startCleaningDateTimeSupplier")
-    private LocalDateTime startCleaningDateTime;
+    private OffsetDateTime startCleaningDateTime;
     @ShadowVariable(supplierName = "startProductionDateTimeSupplier")
-    private LocalDateTime startProductionDateTime;
+    private OffsetDateTime startProductionDateTime;
     @ShadowVariable(supplierName = "endDateTimeSupplier")
-    private LocalDateTime endDateTime;
+    private OffsetDateTime endDateTime;
 
     // No-arg constructor required for Timefold
     public Job() {
     }
 
-    public Job(String id, String name, Product product, Duration duration, LocalDateTime minStartTime, LocalDateTime idealEndTime, LocalDateTime maxEndTime, int priority, boolean pinned) {
-        this(id, name, product, duration, minStartTime, idealEndTime, maxEndTime, priority, pinned, null, null);
-    }
-
-    public Job(String id, String name, Product product, Duration duration, LocalDateTime minStartTime, LocalDateTime idealEndTime, LocalDateTime maxEndTime, int priority, boolean pinned,
-               LocalDateTime startCleaningDateTime, LocalDateTime startProductionDateTime) {
+    public Job(String id, String name, Product product, Duration duration, OffsetDateTime minStartTime,
+            OffsetDateTime idealEndTime, OffsetDateTime maxEndTime, boolean pinned) {
         this.id = id;
         this.name = name;
         this.product = product;
@@ -72,10 +66,6 @@ public class Job {
         this.minStartTime = minStartTime;
         this.idealEndTime = idealEndTime;
         this.maxEndTime = maxEndTime;
-        this.priority = priority;
-        this.startCleaningDateTime = startCleaningDateTime;
-        this.startProductionDateTime = startProductionDateTime;
-        this.endDateTime = startProductionDateTime == null ? null : startProductionDateTime.plus(duration);
         this.pinned = pinned;
     }
 
@@ -92,7 +82,6 @@ public class Job {
         return id;
     }
 
-
     public String getName() {
         return name;
     }
@@ -105,20 +94,16 @@ public class Job {
         return duration;
     }
 
-    public LocalDateTime getMinStartTime() {
+    public OffsetDateTime getMinStartTime() {
         return minStartTime;
     }
 
-    public LocalDateTime getIdealEndTime() {
+    public OffsetDateTime getIdealEndTime() {
         return idealEndTime;
     }
 
-    public LocalDateTime getMaxEndTime() {
+    public OffsetDateTime getMaxEndTime() {
         return maxEndTime;
-    }
-
-    public int getPriority() {
-        return priority;
     }
 
     public boolean isPinned() {
@@ -157,35 +142,36 @@ public class Job {
         this.nextJob = nextJob;
     }
 
-    public LocalDateTime getStartCleaningDateTime() {
+    public OffsetDateTime getStartCleaningDateTime() {
         return startCleaningDateTime;
     }
 
-    public void setStartCleaningDateTime(LocalDateTime startCleaningDateTime) {
+    public void setStartCleaningDateTime(OffsetDateTime startCleaningDateTime) {
         this.startCleaningDateTime = startCleaningDateTime;
     }
 
-    public LocalDateTime getStartProductionDateTime() {
+    public OffsetDateTime getStartProductionDateTime() {
         return startProductionDateTime;
     }
 
-    public void setStartProductionDateTime(LocalDateTime startProductionDateTime) {
+    public void setStartProductionDateTime(OffsetDateTime startProductionDateTime) {
         this.startProductionDateTime = startProductionDateTime;
     }
 
-    public LocalDateTime getEndDateTime() {
+    public OffsetDateTime getEndDateTime() {
         return endDateTime;
     }
 
-    public void setEndDateTime(LocalDateTime endDateTime) {
+    public void setEndDateTime(OffsetDateTime endDateTime) {
         this.endDateTime = endDateTime;
     }
 
     // ************************************************************************
     // Complex methods
     // ************************************************************************
+
     @SuppressWarnings("unused")
-    @ShadowSources({"line", "line.operator"})
+    @ShadowSources({ "line", "line.operator" })
     public Operator lineOperatorSupplier() {
         if (line == null) {
             return null;
@@ -194,34 +180,49 @@ public class Job {
     }
 
     @SuppressWarnings("unused")
-    @ShadowSources({"line", "previousJob.endDateTime"})
-    public LocalDateTime startCleaningDateTimeSupplier() {
+    @ShadowSources({ "line", "previousJob.endDateTime" })
+    public OffsetDateTime startCleaningDateTimeSupplier() {
         if (line == null) {
             return null;
         }
         if (previousJob == null) {
             return line.getStartDateTime();
-        } else {
-            return previousJob.getEndDateTime();
         }
+        return previousJob.getEndDateTime();
     }
 
     @SuppressWarnings("unused")
-    @ShadowSources({"line", "startCleaningDateTime"})
-    public LocalDateTime startProductionDateTimeSupplier() {
+    @ShadowSources({ "line", "startCleaningDateTime" })
+    public OffsetDateTime startProductionDateTimeSupplier() {
         if (line == null) {
             return null;
         }
         if (previousJob == null) {
             return line.getStartDateTime();
-        } else {
-            return startCleaningDateTime == null ? null : startCleaningDateTime.plus(getProduct().getCleanupDuration(previousJob.getProduct()));
         }
+        return startCleaningDateTime == null ? null
+                : startCleaningDateTime.plus(product.getCleanupDuration(previousJob.getProduct()));
     }
 
     @SuppressWarnings("unused")
-    @ShadowSources({"startProductionDateTime"})
-    public LocalDateTime endDateTimeSupplier() {
-        return startProductionDateTime == null ? null : startProductionDateTime.plus(getDuration());
+    @ShadowSources({ "startProductionDateTime" })
+    public OffsetDateTime endDateTimeSupplier() {
+        return startProductionDateTime == null ? null : startProductionDateTime.plus(duration);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Job job)) {
+            return false;
+        }
+        return Objects.equals(id, job.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }

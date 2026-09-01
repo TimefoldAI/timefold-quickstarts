@@ -2,34 +2,14 @@ package org.acme.foodpackaging.domain;
 
 import java.time.LocalDate;
 
-public class WorkCalendar {
-
-    private LocalDate fromDate; // Inclusive
-    private LocalDate toDate; // Exclusive
-
-    public WorkCalendar() {
-    }
-
-    public WorkCalendar(LocalDate fromDate, LocalDate toDate) {
-        this.fromDate = fromDate;
-        this.toDate = toDate;
-    }
+/**
+ * The window the schedule covers: production starts on or after {@code fromDate} and the schedule is
+ * reported up to (but excluding) {@code toDate}.
+ */
+public record WorkCalendar(LocalDate fromDate, LocalDate toDate) {
 
     @Override
     public String toString() {
         return fromDate + " - " + toDate;
     }
-
-    // ************************************************************************
-    // Getters and setters
-    // ************************************************************************
-
-    public LocalDate getFromDate() {
-        return fromDate;
-    }
-
-    public LocalDate getToDate() {
-        return toDate;
-    }
-
 }

@@ -6,13 +6,13 @@ Schedule food packaging orders to manufacturing lines, to minimize downtime and 
 
 ## Constraints
 
-| Name                       | Level  | Description                                                         |
-|----------------------------|--------|---------------------------------------------------------------------|
-| Max end date time          | Hard   | A job must finish before its maximum end time.                      |
-| Operator cleaning conflict | Hard   | An operator cannot be assigned to a job during their cleaning time. |
-| Ideal end date time        | Medium | A job should ideally finish before its ideal end time.              |
-| Maximize jobs assigned     | Medium | Assign as many jobs as possible.                                    |
-| Minimize makespan          | Soft   | Minimize the total production time.                                 |
+| Name                       | Level  | Description                                                              |
+|----------------------------|--------|--------------------------------------------------------------------------|
+| Max end date time          | Hard   | A job must finish before its maximum end time.                           |
+| Operator cleaning conflict | Hard   | An operator must not have to clean two of their lines at the same time.  |
+| Ideal end date time        | Medium | A job should finish before its ideal end time.                           |
+| Maximize jobs assigned     | Medium | Every job should be produced on one of the lines.                        |
+| Minimize make span         | Soft   | Every line should finish producing as early as possible.                 |
 
 - [Run the application](#run-the-application)
 - [Run the packaged application](#run-the-packaged-application)
@@ -24,8 +24,8 @@ Schedule food packaging orders to manufacturing lines, to minimize downtime and 
 1. Install Java and Maven, for example with [Sdkman](https://sdkman.io):
 
    ```sh
-   $ sdk install java
-   $ sdk install maven
+   sdk install java
+   sdk install maven
    ```
 
 ## Run the application
@@ -33,9 +33,9 @@ Schedule food packaging orders to manufacturing lines, to minimize downtime and 
 1. Git clone the timefold-quickstarts repo and navigate to this directory:
 
    ```sh
-   $ git clone https://github.com/TimefoldAI/timefold-quickstarts.git
+   git clone https://github.com/TimefoldAI/timefold-quickstarts.git
    ...
-   $ cd timefold-quickstarts/use-cases/food-packaging
+   cd timefold-quickstarts/use-cases/food-packaging
    ```
 
 2. (Optional) If you want to run a licensed edition (Plus / Enterprise), set up your license key first. See the [Timefold license tool](https://licenses.timefold.ai/) for instructions.
@@ -43,15 +43,15 @@ Schedule food packaging orders to manufacturing lines, to minimize downtime and 
 3. Start the application with Maven:
 
    1. Community Edition
-   
+
       ```sh
-      $ mvn quarkus:dev
+      mvn quarkus:dev
       ```
-   
+
    2. Plus / Enterprise Edition: The profile sets up the correct Maven artifacts to run the licensed version. See the `pom.xml` for the implementation details.
 
       ```sh
-      $ mvn quarkus:dev -Denterprise
+      mvn quarkus:dev -Denterprise
       ```
 
 4. Visit [http://localhost:8080](http://localhost:8080) in your browser.
@@ -69,16 +69,16 @@ Notice that those changes are immediately in effect.
 
 When you're done iterating in `quarkus:dev` mode, package the application to run as a conventional jar file.
 
-1. Compile it with Maven:
+1. Build it with Maven:
 
    ```sh
-   $ mvn package
+   mvn package
    ```
 
-2. Run it:
+2. Run the Maven output:
 
    ```sh
-   $ java -jar ./target/quarkus-app/quarkus-run.jar
+   java -jar ./target/quarkus-app/quarkus-run.jar
    ```
 
    > **Note**
@@ -93,13 +93,13 @@ When you're done iterating in `quarkus:dev` mode, package the application to run
 1. Build a container image:
 
    ```sh
-   $ mvn package -Dcontainer
+   mvn package -Dcontainer
    ```
 
 2. Run a container:
 
    ```sh
-   $ docker run -p 8080:8080 --rm $USER/food-packaging:1.0-SNAPSHOT
+   docker run -p 8080:8080 --rm $USER/food-packaging:0.0.1
    ```
 
 ## Run it native
@@ -111,13 +111,13 @@ To increase startup performance for serverless deployments, build the applicatio
 2. Compile it natively. This takes a few minutes:
 
    ```sh
-   $ mvn package -Dnative -DskipTests
+   mvn package -Dnative
    ```
 
 3. Run the native executable:
 
    ```sh
-   $ ./target/*-runner
+   ./target/*-runner
    ```
 
 4. Visit [http://localhost:8080](http://localhost:8080) in your browser.

@@ -34,6 +34,7 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 QUICKSTART_DIRS=(
     "bed-allocation"
     "conference-scheduling"
+    "food-packaging"
 )
 
 # Metadata needed to render each quickstart's index.html from the shared
@@ -44,6 +45,7 @@ quickstart_name() {
     case "$1" in
         bed-allocation) echo "Bed Allocation Scheduling" ;;
         conference-scheduling) echo "Conference Scheduling" ;;
+        food-packaging) echo "Food Packaging" ;;
         *) echo "quickstart_name: unknown quickstart '$1'" >&2; exit 1 ;;
     esac
 }
@@ -52,6 +54,7 @@ quickstart_utm_content() {
     case "$1" in
         bed-allocation) echo "bed-allocation-java" ;;
         conference-scheduling) echo "conference-scheduling-java" ;;
+        food-packaging) echo "food-packaging-java" ;;
         *) echo "quickstart_utm_content: unknown quickstart '$1'" >&2; exit 1 ;;
     esac
 }
@@ -61,6 +64,7 @@ quickstart_features() {
     case "$1" in
         bed-allocation) echo "vis-timeline custom-css" ;;
         conference-scheduling) echo "color-picker" ;;
+        food-packaging) echo "vis-timeline custom-css" ;;
         *) echo "quickstart_features: unknown quickstart '$1'" >&2; exit 1 ;;
     esac
 }
