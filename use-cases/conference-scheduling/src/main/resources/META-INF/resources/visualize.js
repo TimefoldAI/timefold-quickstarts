@@ -116,39 +116,32 @@ const app = {
     <div id="unassignedTalks" class="row row-cols-3 g-3 mb-4"></div>
 `);
 
-        this.viewType = "R";
         // Lookup maps rebuilt on every render (the DTO flattens references to IDs).
         this.speakerNameById = new Map();
         this.roomById = new Map();
 
         document.getElementById("byRoomTab").addEventListener('click', () => {
-            this.viewType = "R";
-            this.renderSchedule(this.quickstartPage.loadedSchedule);
+            this.quickstartPage.changeRenderer((schedule) => this.prepareAndRender(schedule, (s) => this.renderScheduleByRoom(s)));
         });
         document.getElementById("bySpeakerTab").addEventListener('click', () => {
-            this.viewType = "S";
-            this.renderSchedule(this.quickstartPage.loadedSchedule);
+            this.quickstartPage.changeRenderer((schedule) => this.prepareAndRender(schedule, (s) => this.renderScheduleBySpeaker(s)));
         });
         document.getElementById("byThemeTrackTab").addEventListener('click', () => {
-            this.viewType = "TH";
-            this.renderSchedule(this.quickstartPage.loadedSchedule);
+            this.quickstartPage.changeRenderer((schedule) => this.prepareAndRender(schedule, (s) => this.renderScheduleByThemeTrack(s)));
         });
         document.getElementById("bySectorsTab").addEventListener('click', () => {
-            this.viewType = "SC";
-            this.renderSchedule(this.quickstartPage.loadedSchedule);
+            this.quickstartPage.changeRenderer((schedule) => this.prepareAndRender(schedule, (s) => this.renderScheduleBySectors(s)));
         });
         document.getElementById("byAudienceTypeTab").addEventListener('click', () => {
-            this.viewType = "AT";
-            this.renderSchedule(this.quickstartPage.loadedSchedule);
+            this.quickstartPage.changeRenderer((schedule) => this.prepareAndRender(schedule, (s) => this.renderScheduleByAudienceType(s)));
         });
         document.getElementById("byAudienceLevelTab").addEventListener('click', () => {
-            this.viewType = "AL";
-            this.renderSchedule(this.quickstartPage.loadedSchedule);
+            this.quickstartPage.changeRenderer((schedule) => this.prepareAndRender(schedule, (s) => this.renderScheduleByAudienceLevel(s)));
         });
 
         this.quickstartPage = new QuickstartPage({
             modelPath: '/v1/schedules',
-            renderSchedule: (schedule) => this.renderSchedule(schedule),
+            renderSchedule: (schedule) => this.prepareAndRender(schedule, (s) => this.renderScheduleByRoom(s)),
             renderInfo: (schedule) => this.renderInfo(schedule),
             mergeModelOutput: (schedule, modelOutput) => this.mergeModelOutput(schedule, modelOutput),
         });
@@ -170,7 +163,9 @@ const app = {
         }
     },
 
-    renderSchedule(schedule) {
+    // Common pre-processing every view's render function needs, regardless of which one is
+    // currently selected (see the changeRenderer() calls above), before delegating to it.
+    prepareAndRender(schedule, renderFn) {
         if (schedule == null) {
             return;
         }
@@ -179,19 +174,7 @@ const app = {
 
         resetColorMap(TALK_TYPE_SEED_COLORS);
 
-        if (this.viewType === "R") {
-            this.renderScheduleByRoom(schedule);
-        } else if (this.viewType === "S") {
-            this.renderScheduleBySpeaker(schedule);
-        } else if (this.viewType === "TH") {
-            this.renderScheduleByThemeTrack(schedule);
-        } else if (this.viewType === "SC") {
-            this.renderScheduleBySectors(schedule);
-        } else if (this.viewType === "AT") {
-            this.renderScheduleByAudienceType(schedule);
-        } else if (this.viewType === "AL") {
-            this.renderScheduleByAudienceLevel(schedule);
-        }
+        renderFn(schedule);
     },
 
     renderInfo(schedule) {

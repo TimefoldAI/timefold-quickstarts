@@ -23,7 +23,6 @@ const app = {
     <div id="unassignedPatients" class="row row-cols-3 g-3 mb-4"></div>
 `);
 
-        this.viewType = "R";
         this.byRoomGroupData = new vis.DataSet();
         this.byRoomItemData = new vis.DataSet();
         this.byRoomTimeline = new vis.Timeline(document.getElementById("byRoomPanel"), this.byRoomItemData, this.byRoomGroupData, {
@@ -35,14 +34,13 @@ const app = {
         });
 
         document.getElementById("byRoomTab").addEventListener('click', () => {
-            this.viewType = "R";
             this.byRoomTimeline.redraw();
-            this.renderSchedule(this.quickstartPage.loadedSchedule);
+            this.quickstartPage.changeRenderer((schedule) => this.renderScheduleByRoom(schedule));
         });
 
         this.quickstartPage = new QuickstartPage({
             modelPath: '/v1/schedules',
-            renderSchedule: (schedule) => this.renderSchedule(schedule),
+            renderSchedule: (schedule) => this.renderScheduleByRoom(schedule),
             renderInfo: (schedule) => this.renderInfo(schedule),
             mergeModelOutput: (schedule, modelOutput) => this.mergeModelOutput(schedule, modelOutput),
         });
@@ -60,15 +58,6 @@ const app = {
             schedule.stays = schedule.stays.map(stay => bedIdByStayId.has(stay.id)
                 ? {...stay, bedId: bedIdByStayId.get(stay.id)}
                 : stay);
-        }
-    },
-
-    renderSchedule(schedule) {
-        if (schedule == null) {
-            return;
-        }
-        if (this.viewType === "R") {
-            this.renderScheduleByRoom(schedule);
         }
     },
 

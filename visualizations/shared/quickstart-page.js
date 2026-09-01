@@ -55,6 +55,13 @@ class QuickstartPage {
         }
     }
 
+    changeRenderer(renderSchedule) {
+        this.renderSchedule = renderSchedule;
+        if (this.loadedSchedule != null) {
+            this.renderSchedule(this.loadedSchedule);
+        }
+    }
+
     renderScore(metadata) {
         if (metadata != null) {
             this.loadedSchedule.score = metadata.score;

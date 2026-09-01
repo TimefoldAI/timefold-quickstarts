@@ -55,6 +55,17 @@ class QuickstartPage {
         }
     }
 
+    // Swaps which render function renderSchedule(schedule) delegates to - e.g. when the user
+    // switches view tabs - then immediately re-renders the already-loaded schedule with it.
+    // Guards against loadedSchedule still being null (e.g. a tab clicked before any data has
+    // loaded yet), so visualize.js's render functions don't each need their own null check.
+    changeRenderer(renderSchedule) {
+        this.renderSchedule = renderSchedule;
+        if (this.loadedSchedule != null) {
+            this.renderSchedule(this.loadedSchedule);
+        }
+    }
+
     renderScore(metadata) {
         if (metadata != null) {
             this.loadedSchedule.score = metadata.score;
