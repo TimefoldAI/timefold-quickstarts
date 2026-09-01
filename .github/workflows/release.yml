@@ -95,8 +95,11 @@ jobs:
           git push origin $RELEASE_BRANCH_NAME-bump
           gh pr create --reviewer triceo --base $STABLE_BRANCH --head $RELEASE_BRANCH_NAME-bump --title "build: release version $JAVA_VERSION" --body-file .github/workflows/release-pr-body.md
 
+      # Push 999-SNAPSHOT to the release branch by JRELEASER, who is allowed to push protected branches.
       - name: Put back the 999-SNAPSHOT version on the release branch
         working-directory: ./timefold-quickstarts
+        env:
+          GITHUB_TOKEN: ${{ secrets.JRELEASER_GITHUB_TOKEN }}
         run: |
           git checkout $RELEASE_BRANCH_NAME
           export OLD_JAVA_VERSION="$(find . -name pom.xml -exec grep '<version.ai.timefold.solver>' {} \;|tail -n 1|cut -d\> -f1 --complement|cut -d\< -f1)"
