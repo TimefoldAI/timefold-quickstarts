@@ -257,7 +257,7 @@ class QuickstartPage {
                     }
                 }
             });
-            constraints.map((e) => {
+            constraints.forEach((e) => {
                 let components = this.getScoreComponents(e.weight);
                 e.type = components.hard != 0 ? 'hard' : (components.medium != 0 ? 'medium' : 'soft');
                 e.weight = components[e.type];
