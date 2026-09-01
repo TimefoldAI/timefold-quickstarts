@@ -1,0 +1,64 @@
+:root {
+    /* How much vertical space the shared shell's chrome (header + footer) takes up. This is the one
+       knob for the wide layout below: the visualization is sized to the viewport minus this, so the
+       footer lands at the bottom of the screen instead of floating above it. Raise it if a scrollbar
+       appears, lower it if there is dead space under the footer. */
+    --flp-chrome-height: 9.5rem;
+}
+
+/* ── Below lg: the map and the facility list stack, so both get their own fixed height. ── */
+
+/* Leaflet needs its container to have a definite height before the map is created. */
+#map {
+    width: 100%;
+    height: 60vh;
+    min-height: 20rem;
+}
+
+/* The facility table is as long as the dataset, so it scrolls instead of stretching the page. */
+.facility-list {
+    max-height: 45vh;
+    overflow-y: auto;
+}
+
+/* ── lg and up: the map sits beside the facility list, and the pair fills the viewport ──
+   Giving the row itself a definite height is enough: its two columns stretch to it (a Bootstrap .row
+   is already a flex container), and inside each column the map and the facility list absorb whatever
+   the headings and the summary table leave over. Nothing outside this visualization is touched, so
+   the shared header and footer keep the exact box model they have in every other quickstart.
+   min-height: 0 everywhere is what lets a flex item shrink below its content height - without it the
+   full facility table would push the row past its height and the page would scroll again. */
+@media (min-width: 992px) {
+    .flp-layout {
+        height: calc(100vh - var(--flp-chrome-height));
+    }
+
+    .flp-map-col,
+    .flp-side-col {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+    }
+
+    #map {
+        flex: 1 1 auto;
+        height: auto;
+        /* The row's height governs now; a floor here would just make the map overflow its column
+           on a short window. */
+        min-height: 0;
+    }
+
+    .facility-list {
+        flex: 1 1 auto;
+        max-height: none;
+        min-height: 0;
+    }
+}
+
+.facility-swatch {
+    display: inline-block;
+    width: 0.85rem;
+    height: 0.85rem;
+    border: 2px solid transparent;
+    border-radius: 50%;
+}
