@@ -63,7 +63,6 @@ body.on-platform footer { display: none !important; }
 /* Toolbar in #solveControls: smaller, muted score readout and round icon-only
    buttons (Analyze, Solution details) instead of plain rectangular ones. */
 .score {
-    font-size: 0.85rem;
     font-weight: 600;
     color: #495057;
 }
