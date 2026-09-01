@@ -1,6 +1,3 @@
-///usr/bin/env jbang "$0" "$@" ; exit $?
-//JAVA 21+
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,7 +20,7 @@ import java.util.regex.Pattern;
  * three independent checks against each model: checkSharedFiles(), checkIndexHtml() and
  * checkVisualizeJs().
  *
- * Usage: jbang CheckSharedUiSync.java <model-dir> [<model-dir> ...]
+ * Usage: java CheckSharedUiSync.java <model-dir> [<model-dir> ...]
  * Run from the repository root. A model dir without a src/main/resources/META-INF/resources/shared
  * folder is skipped, since not every model consumes the shared UI template.
  */
@@ -33,7 +30,7 @@ public final class CheckSharedUiSync {
 
     public static void main(String[] args) throws IOException {
         if (args.length == 0) {
-            System.err.println("Usage: jbang CheckSharedUiSync.java <model-dir> [<model-dir> ...]");
+            System.err.println("Usage: java CheckSharedUiSync.java <model-dir> [<model-dir> ...]");
             System.exit(2);
         }
 
