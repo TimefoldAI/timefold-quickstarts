@@ -75,17 +75,19 @@ const app = {
         this.byRoomGroupData.clear();
         this.byRoomItemData.clear();
 
+        const escapeHtml = (value) => $('<div/>').text(value ?? '').html();
+
         $.each(schedule.departments.flatMap(d => d.rooms), (_, room) => {
-            let content = `<div class="d-flex flex-column"><div><h5 class="card-title mb-1">${room.name}</h5></div>`;
+            let content = `<div class="d-flex flex-column"><div><h5 class="card-title mb-1">${escapeHtml(room.name)}</h5></div>`;
             if (room.equipments.length > 0) {
                 let equipments = room.equipments.sort().slice(0, Math.min(2, room.equipments.length));
                 content += `<div class="d-flex">`;
-                equipments.forEach(e => content += `<div><span class="badge text-bg-success m-1">${e}</span></div>`);
+                equipments.forEach(e => content += `<div><span class="badge text-bg-success m-1">${escapeHtml(e)}</span></div>`);
                 content += "</div>";
                 if (room.equipments.length > 2) {
                     let equipments = room.equipments.sort().slice(2, Math.min(4, room.equipments.length));
                     content += `<div class="d-flex">`;
-                    equipments.forEach(e => content += `<div><span class="badge text-bg-success m-1">${e}</span></div>`);
+                    equipments.forEach(e => content += `<div><span class="badge text-bg-success m-1">${escapeHtml(e)}</span></div>`);
                     content += "</div>";
                 }
             }

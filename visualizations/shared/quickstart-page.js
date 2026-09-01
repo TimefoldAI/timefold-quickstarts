@@ -1,6 +1,6 @@
 // ── Visualization slot ──
 // index.html has a single #visualization slot; a quickstart's visualize.js
-// fills it with its own demo-specific markup (tabs, tables, ...) via this, function.
+// fills it with its own demo-specific markup (tabs, tables, ...) via this function.
 function setVisualizationSlot(html) {
     document.getElementById('visualization').innerHTML = html;
 }
