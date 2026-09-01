@@ -85,3 +85,9 @@ body.on-platform footer { display: none !important; }
     padding: 0;
     flex: 0 0 auto;
 }
+
+/* #helpDropdownButton is a round icon-only toggle (like the other .btn-icon-circle
+   buttons); Bootstrap's dropdown-toggle caret doesn't fit that shape, so it's dropped. */
+#helpDropdownButton.dropdown-toggle::after {
+    display: none;
+}

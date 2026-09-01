@@ -121,27 +121,27 @@ const app = {
         this.roomById = new Map();
 
         document.getElementById("byRoomTab").addEventListener('click', () => {
-            this.quickstartPage.changeRenderer((schedule) => this.prepareAndRender(schedule, (s) => this.renderScheduleByRoom(s)));
+            this.quickstartPage.changeRenderer((schedule) => this.renderScheduleByRoom(schedule));
         });
         document.getElementById("bySpeakerTab").addEventListener('click', () => {
-            this.quickstartPage.changeRenderer((schedule) => this.prepareAndRender(schedule, (s) => this.renderScheduleBySpeaker(s)));
+            this.quickstartPage.changeRenderer((schedule) => this.renderScheduleBySpeaker(schedule));
         });
         document.getElementById("byThemeTrackTab").addEventListener('click', () => {
-            this.quickstartPage.changeRenderer((schedule) => this.prepareAndRender(schedule, (s) => this.renderScheduleByThemeTrack(s)));
+            this.quickstartPage.changeRenderer((schedule) => this.renderScheduleByThemeTrack(schedule));
         });
         document.getElementById("bySectorsTab").addEventListener('click', () => {
-            this.quickstartPage.changeRenderer((schedule) => this.prepareAndRender(schedule, (s) => this.renderScheduleBySectors(s)));
+            this.quickstartPage.changeRenderer((schedule) => this.renderScheduleBySectors(schedule));
         });
         document.getElementById("byAudienceTypeTab").addEventListener('click', () => {
-            this.quickstartPage.changeRenderer((schedule) => this.prepareAndRender(schedule, (s) => this.renderScheduleByAudienceType(s)));
+            this.quickstartPage.changeRenderer((schedule) => this.renderScheduleByAudienceType(schedule));
         });
         document.getElementById("byAudienceLevelTab").addEventListener('click', () => {
-            this.quickstartPage.changeRenderer((schedule) => this.prepareAndRender(schedule, (s) => this.renderScheduleByAudienceLevel(s)));
+            this.quickstartPage.changeRenderer((schedule) => this.renderScheduleByAudienceLevel(schedule));
         });
 
         this.quickstartPage = new QuickstartPage({
             modelPath: '/v1/schedules',
-            renderSchedule: (schedule) => this.prepareAndRender(schedule, (s) => this.renderScheduleByRoom(s)),
+            renderSchedule: (schedule) => this.renderScheduleByRoom(schedule),
             renderInfo: (schedule) => this.renderInfo(schedule),
             mergeModelOutput: (schedule, modelOutput) => this.mergeModelOutput(schedule, modelOutput),
         });
@@ -164,17 +164,12 @@ const app = {
     },
 
     // Common pre-processing every view's render function needs, regardless of which one is
-    // currently selected (see the changeRenderer() calls above), before delegating to it.
-    prepareAndRender(schedule, renderFn) {
-        if (schedule == null) {
-            return;
-        }
+    // currently selected (see the changeRenderer() calls above) - each renderScheduleByX()
+    // calls this itself before doing its own view-specific rendering.
+    prepareRender(schedule) {
         this.speakerNameById = new Map((schedule.speakers || []).map(s => [s.id, s.name]));
         this.roomById = new Map((schedule.rooms || []).map(r => [r.id, r]));
-
         resetColorMap(TALK_TYPE_SEED_COLORS);
-
-        renderFn(schedule);
     },
 
     renderInfo(schedule) {
@@ -189,6 +184,8 @@ const app = {
     },
 
     renderScheduleByRoom(schedule) {
+        this.prepareRender(schedule);
+
         const scheduleByRoom = $("#scheduleByRoom");
         scheduleByRoom.children().remove();
 
@@ -248,6 +245,8 @@ const app = {
     },
 
     renderScheduleBySpeaker(schedule) {
+        this.prepareRender(schedule);
+
         const scheduleBySpeaker = $("#scheduleBySpeaker");
         scheduleBySpeaker.children().remove();
 
@@ -329,6 +328,8 @@ const app = {
     },
 
     renderScheduleByValues(schedule, tableKey, rowTitle, rowKey, key, values, singleValue = false) {
+        this.prepareRender(schedule);
+
         const scheduleByValue = $(tableKey);
         scheduleByValue.children().remove();
 

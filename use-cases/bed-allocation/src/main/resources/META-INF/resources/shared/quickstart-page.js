@@ -23,6 +23,12 @@ class QuickstartPage {
             apiUrl: SETUP.apiUrl,
             apiKey: SETUP.apiKey,
         });
+
+        // <api-guide-modal> (api-guide.js) builds its cURL examples from these, but has no
+        // way to know them itself; QuickstartPage is the one place that already does.
+        document.querySelector('api-guide-modal')?.setAttribute('model-path', modelPath);
+        document.querySelector('api-guide-modal')?.setAttribute('demo-data-id', 'BASIC');
+
         this.renderSchedule = renderSchedule;
         this.renderInfo = renderInfo;
         this.mergeModelOutput = mergeModelOutput;
@@ -55,10 +61,6 @@ class QuickstartPage {
         }
     }
 
-    // Swaps which render function renderSchedule(schedule) delegates to - e.g. when the user
-    // switches view tabs - then immediately re-renders the already-loaded schedule with it.
-    // Guards against loadedSchedule still being null (e.g. a tab clicked before any data has
-    // loaded yet), so visualize.js's render functions don't each need their own null check.
     changeRenderer(renderSchedule) {
         this.renderSchedule = renderSchedule;
         if (this.loadedSchedule != null) {
@@ -107,7 +109,11 @@ class QuickstartPage {
                     .appendTo(dropdown);
             });
             // A single dataset leaves nothing to choose between, so the picker is just noise.
-            $("#dataDropdown, #dataDropdownDivider").toggle(demoDataList.length > 1);
+            // Hide both of its flanking dividers too, not just the one before it - otherwise
+            // the one after it is left stranded next to the next visible divider (e.g. the
+            // one before the help dropdown, when #toggleSummaryButton is also hidden), and
+            // the two read as one double-thick separator instead of a single line.
+            $("#dataDropdown, #dataDropdownDivider, #dataDropdownDividerAfter").toggle(demoDataList.length > 1);
             if (demoDataList.length > 0) {
                 this.selectDemoData(demoDataList[0].id);
             }

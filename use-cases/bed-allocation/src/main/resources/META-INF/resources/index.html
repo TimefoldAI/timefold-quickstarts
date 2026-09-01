@@ -31,7 +31,7 @@
                         <span class="fas fa-play"></span> Solve
                     </button>
                     <button id="stopSolvingButton" type="button" class="btn btn-danger" style="display: none">
-                        <span class="fas fa-stop"></span> Stop solving
+                        <span class="fas fa-stop"></span> Stop
                     </button>
                     <div class="vr" id="dataDropdownDivider"></div>
                     <div id="dataDropdown" class="dropdown">
@@ -41,10 +41,31 @@
                         </button>
                         <div id="testDataButton" class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton"></div>
                     </div>
-                    <div class="vr"></div>
+                    <div class="vr" id="dataDropdownDividerAfter"></div>
                     <button id="toggleSummaryButton" type="button" class="btn btn-secondary btn-icon-circle" title="Solution details" style="display: none">
                         <i class="fas fa-chart-bar"></i>
                     </button>
+                    <div class="vr"></div>
+                    <div id="helpDropdown" class="dropdown">
+                        <button class="btn btn-secondary btn-icon-circle dropdown-toggle" type="button"
+                                id="helpDropdownButton" data-bs-toggle="dropdown" aria-haspopup="true"
+                                aria-expanded="false" title="Help">
+                            <span class="fas fa-question"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="helpDropdownButton">
+                            <li>
+                                <button type="button" class="dropdown-item" id="openApiButton"
+                                        data-bs-toggle="modal" data-bs-target="#openApiModal">
+                                    <span class="fas fa-file-code me-2"></span>OpenAPI spec
+                                </button>
+                            </li>
+                            <li>
+                                <button type="button" class="dropdown-item" id="apiGuideButton">
+                                    <span class="fas fa-book me-2"></span>API guide
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </nav>
@@ -91,12 +112,30 @@
     </div>
 </div>
 
+<div class="modal fade" id="openApiModal" tabindex="-1" aria-labelledby="openApiModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="openApiModalLabel">OpenAPI spec</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <iframe src="/q/swagger-ui" style="width: 100%; height: 100%; border: 0;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- model-path/demo-data-id attributes are set by QuickstartPage's constructor (quickstart-page.js) -->
+<api-guide-modal></api-guide-modal>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery@4.0.0/dist/jquery.min.js" integrity="sha256-OaVG6prZf4v69dPg6PhVattBXkcOWQB62pdZ3ORyrao=" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/@js-joda/core@6.1.0/dist/js-joda.min.js" integrity="sha256-Uu/3Fv5M3qvr/wX1tKoqAPNE8tiS0vOUm3YdWU1cVAI=" crossorigin="anonymous"></script>
 <script src="shared/environment.js"></script>
 <script src="shared/solver-client.js"></script>
 <script src="shared/quickstart-page.js"></script>
+<script src="shared/api-guide.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vis-timeline@7.7.2/standalone/umd/vis-timeline-graph2d.min.js"
         integrity="sha256-Jy2+UO7rZ2Dgik50z3XrrNpnc5+2PAx9MhL2CicodME=" crossorigin="anonymous"></script>
 <script src="visualize.js"></script>
