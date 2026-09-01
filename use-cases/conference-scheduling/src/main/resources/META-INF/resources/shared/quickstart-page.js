@@ -105,7 +105,7 @@ class QuickstartPage {
                 $(`<a class="dropdown-item" href="#"></a>`)
                     .attr("id", demoData.id + "TestData")
                     .text(demoData.shortDescription || demoData.id)
-                    .click(() => this.selectDemoData(demoData.id))
+                    .on('click', (e) => { e.preventDefault(); this.selectDemoData(demoData.id); })
                     .appendTo(dropdown);
             });
             // A single dataset leaves nothing to choose between, so the picker is just noise.
