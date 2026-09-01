@@ -224,6 +224,10 @@ Tournament Scheduling service assigning teams to tournament matches.
 
 ---
 
+## Development
+
+Want to contribute? See [CONTRIBUTING.adoc](CONTRIBUTING.adoc).
+
 ## Legal notice
 
 Timefold Quickstarts was [forked](https://timefold.ai/blog/2023/optaplanner-fork/) on 20 April 2023 from OptaPlanner Quickstarts, which was entirely Apache-2.0 licensed (a permissive license).

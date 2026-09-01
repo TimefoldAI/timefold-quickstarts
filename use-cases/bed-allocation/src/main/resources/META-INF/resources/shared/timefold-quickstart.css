@@ -1,0 +1,92 @@
+/* timefold.ai house style.*/
+:root {
+    --ts-violet-1-rgb: #5307F9;
+    --ts-violet-2-rgb: #4606D1;
+
+    --bs-link-color: var(--ts-violet-1-rgb);
+    --bs-link-hover-color: var(--ts-violet-2-rgb);
+
+    --bs-primary: var(--ts-violet-1-rgb);
+    --bs-primary-rgb: 83, 7, 249;
+    --bs-secondary: var(--ts-violet-2-rgb);
+    --bs-secondary-rgb: 70, 6, 209;
+    --bs-dropdown-link-active-bg: var(--ts-violet-1-rgb);
+
+    --bs-border-radius: 0.5rem;
+    --bs-border-radius-sm: 0.375rem;
+    --bs-border-radius-lg: 0.75rem;
+    --bs-border-radius-xl: 1rem;
+
+    --bs-body-color: #404040;
+    --bs-body-color-rgb: 64, 64, 64;
+    --bs-body-bg: #fafafa;
+}
+
+body {
+    font-family: "PP Neue Montreal", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.nav-pills {
+    --bs-nav-pills-link-active-bg: var(--ts-violet-1-rgb);
+}
+
+/* Embedded on the Timefold Platform: hide the demo navbar (which includes the
+   solve/score toolbar) so only the read-only schedule visualization remains. */
+body.on-platform #appHeader,
+body.on-platform footer { display: none !important; }
+
+/* Slide-in/out panel toggled by #toggleSummaryButton (see quickstart-page.js).
+   The #solutionSummaryPanel element itself is quickstart-specific markup; only
+   the toggle transition and the button's on/off coloring are shared. */
+#solutionSummaryPanel {
+    transition: transform 0.35s ease, opacity 0.35s ease;
+    transform: translateX(0);
+    opacity: 1;
+}
+#solutionSummaryPanel.hide {
+    transform: translateX(100%);
+    opacity: 0;
+    pointer-events: none;
+}
+#toggleSummaryButton {
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+#toggleSummaryButton.collapsed {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+#toggleSummaryButton:not(.collapsed) {
+    background-color: #198754;
+    border-color: #198754;
+}
+
+/* Toolbar in #solveControls: smaller, muted score readout and round icon-only
+   buttons (Analyze, Solution details) instead of plain rectangular ones. */
+.score {
+    font-weight: 600;
+    color: #495057;
+}
+
+/* Compact input-size readout (e.g. "4 stays * 10 beds") set by the host page's
+   renderSchedule(), shown right under .score in the toolbar. */
+.input-metric {
+    font-size: 0.75rem;
+    color: #6c757d;
+}
+
+.btn-icon-circle {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    flex: 0 0 auto;
+}
+
+/* #helpDropdownButton is a round icon-only toggle (like the other .btn-icon-circle
+   buttons); Bootstrap's dropdown-toggle caret doesn't fit that shape, so it's dropped. */
+#helpDropdownButton.dropdown-toggle::after {
+    display: none;
+}

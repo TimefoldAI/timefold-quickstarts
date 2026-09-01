@@ -5,16 +5,47 @@ on:
     branches: [stable, development, '*.x']
     paths:
       - 'use-cases/**'
+      - 'visualizations/**'
       - '.github/scripts/ArchitectureCheck.java'
+      - '.github/scripts/CheckSharedUiSync.java'
       - '.github/workflows/architecture_check.yml'
   pull_request:
     branches: [stable, development, '*.x']
     paths:
       - 'use-cases/**'
+      - 'visualizations/**'
       - '.github/scripts/ArchitectureCheck.java'
+      - '.github/scripts/CheckSharedUiSync.java'
       - '.github/workflows/architecture_check.yml'
 
 jobs:
+  shared-ui-sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout timefold-quickstarts
+        uses: actions/checkout@v7
+      - name: Setup Java
+        uses: actions/setup-java@v6
+        with:
+          java-version: 21
+          distribution: temurin
+      # Every quickstart's META-INF/resources/shared/ folder is a physical copy of
+      # visualizations/shared/, made by visualizations/sync.sh (see that script for why).
+      # This catches someone hand-editing a quickstart's copy instead of the shared source.
+      - name: Check shared UI files are in sync
+        run: |
+          models=""
+          for pom in use-cases/*/pom.xml; do
+            grep -q "<artifactId>timefold-solver-service-parent</artifactId>" "$pom" || continue
+            models="$models $(dirname "$pom")"
+          done
+          if [ -z "$models" ]; then
+            echo "::error::no Models Service SDK quickstart found under use-cases/"
+            exit 1
+          fi
+          java .github/scripts/CheckSharedUiSync.java $models
+
   archunit:
     runs-on: ubuntu-latest
     timeout-minutes: 30

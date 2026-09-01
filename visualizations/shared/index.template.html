@@ -1,13 +1,29 @@
+<!--
+  This file is a template, not a page: visualizations/sync.sh renders it into
+  each quickstart's index.html, substituting the {{PLACEHOLDER}}s below with
+  that quickstart's metadata, configured in sync.sh - there is no per-quickstart
+  markup here. #visualization is the one "slot": the quickstart's own
+  visualize.js fills it via setVisualizationSlot(html) (quickstart-page.js)
+  with whatever demo-specific markup (tabs, tables, ...) it needs.
+
+  Do not hand-edit a generated index.html - edit this template (for shell
+  markup shared by every quickstart), sync.sh (for that quickstart's
+  metadata/vendor includes) or its visualize.js (for its own markup), then
+  re-run sync.sh.
+
+  This comment itself is stripped by sync.sh, so it never ships in a generated
+  index.html - it's for whoever is editing this template file, not the page.
+-->
 <html lang="en">
 <head>
     <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
     <meta content="width=device-width, initial-scale=1" name="viewport">
-    <title>Bed Allocation Scheduling - Timefold Solver on Quarkus</title>
+    <title>{{TITLE}}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css" integrity="sha512-QeR2VH+lsBE5LSAe1Q5EnTBbe7XTBubt8dG93Y7gidSgdMCr8nVqKcfKAMyN96SV8KDbZVTDXChatu5G2KQGzg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="shared/timefold-quickstart.css">
     <link rel="icon" href="https://timefold.ai/uploads/images/Brand-Assets/timefold-solver-logomark.png" type="image/png">
-    <link rel="stylesheet" href="style.css">
+{{HEAD_EXTRA}}
 </head>
 <body>
 <header id="appHeader" class="bg-white shadow">
@@ -16,7 +32,7 @@
             <a class="navbar-brand" style="width: 200px;overflow: hidden;">
                 <img src="https://timefold.ai/uploads/images/Brand-Assets/timefold-solver-logo.png" alt="Timefold Solver logo" width="200px" style="margin-top:-20px;margin-bottom:-20px">
             </a>
-            <a class="navbar-brand d-none d-lg-block">Bed Allocation Scheduling</a>
+            <a class="navbar-brand d-none d-lg-block">{{NAME}}</a>
             <div class="ms-auto">
                 <div id="solveControls" class="d-flex align-items-center gap-2">
                     <div class="text-end lh-sm">
@@ -66,7 +82,7 @@
                             </li>
                             <li>
                                 <a class="dropdown-item" id="learnMoreButton" target="_blank" rel="noopener"
-                                   href="https://solver.timefold.ai/quickstart-next-steps?utm_source=github&utm_medium=quickstart&utm_campaign=timefold-quickstarts&utm_content=bed-allocation-java">
+                                   href="https://solver.timefold.ai/quickstart-next-steps?utm_source=github&utm_medium=quickstart&utm_campaign=timefold-quickstarts&utm_content={{UTM_CONTENT}}">
                                     <span class="fas fa-arrow-up-right-from-square me-2"></span>Learn More
                                 </a>
                             </li>
@@ -87,9 +103,9 @@
 <footer class="bg-black">
     <div class="container">
         <div class="hstack gap-3 p-4">
-            <div class="ms-auto"><a class="text-white" href="https://solver.timefold.ai?utm_source=github&utm_medium=quickstart&utm_campaign=timefold-quickstarts&utm_content=bed-allocation-java">Website</a></div>
+            <div class="ms-auto"><a class="text-white" href="https://solver.timefold.ai?utm_source=github&utm_medium=quickstart&utm_campaign=timefold-quickstarts&utm_content={{UTM_CONTENT}}">Website</a></div>
             <div class="vr"></div>
-            <div><a class="text-white" href="https://docs.timefold.ai/timefold-solver/latest?utm_source=github&utm_medium=quickstart&utm_campaign=timefold-quickstarts&utm_content=bed-allocation-java">Documentation</a></div>
+            <div><a class="text-white" href="https://docs.timefold.ai/timefold-solver/latest?utm_source=github&utm_medium=quickstart&utm_campaign=timefold-quickstarts&utm_content={{UTM_CONTENT}}">Documentation</a></div>
             <div class="vr"></div>
             <div><a class="text-white" href="https://github.com/TimefoldAI/timefold-quickstarts">Code</a></div>
             <div class="vr"></div>
@@ -142,8 +158,7 @@
 <script src="shared/solver-client.js"></script>
 <script src="shared/quickstart-page.js"></script>
 <script src="shared/api-guide.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/vis-timeline@7.7.2/standalone/umd/vis-timeline-graph2d.min.js"
-        integrity="sha256-Jy2+UO7rZ2Dgik50z3XrrNpnc5+2PAx9MhL2CicodME=" crossorigin="anonymous"></script>
+{{SCRIPTS_EXTRA}}
 <script src="visualize.js"></script>
 </body>
 </html>
