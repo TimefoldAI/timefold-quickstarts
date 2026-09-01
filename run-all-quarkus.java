@@ -123,7 +123,8 @@ class App implements Runnable {
                     // Check if pom.xml mentions "quarkus" (dependency, plugin, etc.)
                     boolean isQuarkusProject = false;
                     try (Stream<String> lines = Files.lines(pom)) {
-                        isQuarkusProject = lines.anyMatch(l -> l.toLowerCase().contains("quarkus"));
+                        isQuarkusProject = lines.anyMatch(l -> l.toLowerCase().contains("quarkus")
+                                || l.toLowerCase().contains("timefold-solver-service-parent"));
                     } catch (IOException e) {
                         System.err.println("Could not read pom.xml for " + dir + ": " + e.getMessage());
                     }
