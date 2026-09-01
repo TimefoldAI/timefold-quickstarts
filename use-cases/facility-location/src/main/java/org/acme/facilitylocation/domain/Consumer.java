@@ -1,5 +1,7 @@
 package org.acme.facilitylocation.domain;
 
+import java.util.Objects;
+
 import ai.timefold.solver.core.api.domain.common.PlanningId;
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
@@ -9,12 +11,11 @@ import org.acme.facilitylocation.solver.FacilityLocationConstraintProvider;
 /**
  * Consumer has a demand that can be satisfied by <em>any</em> {@link Facility} with a sufficient capacity.
  * <p/>
- * Closer facilities are preferred as the distance affects travel time, signal quality, etc.
- * This requirement is expressed by the
- * {@link FacilityLocationConstraintProvider#distanceFromFacility distance from facility} constraint.
+ * Closer facilities are preferred as the distance affects travel time, signal quality, etc. This requirement is
+ * expressed by the distance from facility constraint.
  * <p/>
- * One of the FLP's goals is to minimize total set-up cost by selecting cheaper facilities. This requirement
- * is expressed by the {@link FacilityLocationConstraintProvider#setupCost setup cost} constraint.
+ * One of the FLP's goals is to minimize total set-up cost by selecting cheaper facilities. This requirement is
+ * expressed by the facility setup cost constraint (see {@code FacilityLocationConstraintProvider}).
  */
 @PlanningEntity
 public class Consumer {
@@ -36,10 +37,6 @@ public class Consumer {
         this.demand = demand;
     }
 
-    public boolean isAssigned() {
-        return facility != null;
-    }
-
     /**
      * Get distance from the facility.
      *
@@ -47,7 +44,7 @@ public class Consumer {
      */
     public long distanceFromFacility() {
         if (facility == null) {
-            throw new IllegalStateException("No facility is assigned.");
+            throw new IllegalStateException("No facility is assigned to consumer (%s).".formatted(id));
         }
         return facility.getLocation().getDistanceTo(location);
     }
@@ -78,6 +75,22 @@ public class Consumer {
 
     public void setFacility(Facility facility) {
         this.facility = facility;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Consumer consumer)) {
+            return false;
+        }
+        return Objects.equals(id, consumer.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 
     @Override

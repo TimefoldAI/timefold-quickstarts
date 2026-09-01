@@ -6,11 +6,11 @@ Pick the best geographical locations for new stores, distribution centers, covid
 
 ## Constraints
 
-| Name                   | Level | Description                                                            |
-|------------------------|-------|------------------------------------------------------------------------|
-| Facility capacity      | Hard  | A facility's total assigned demand must not exceed its capacity.       |
-| Setup cost             | Soft  | Minimize the total setup cost of opened facilities.                    |
-| Distance from facility | Soft  | Minimize the total distance from consumers to their assigned facility. |
+| Name                   | Level | Description                                                                                        |
+|------------------------|-------|----------------------------------------------------------------------------------------------------|
+| Facility capacity      | Hard  | The total demand of the consumers served by a facility must not exceed that facility's capacity.   |
+| Facility setup cost    | Soft  | Minimize the total setup cost of the facilities that serve at least one consumer.                  |
+| Distance from facility | Soft  | Minimize the total distance, in meters, between the consumers and the facility serving them.       |
 
 - [Run the application](#run-the-application)
 - [Run the packaged application](#run-the-packaged-application)
@@ -22,8 +22,8 @@ Pick the best geographical locations for new stores, distribution centers, covid
 1. Install Java and Maven, for example with [Sdkman](https://sdkman.io):
 
    ```sh
-   $ sdk install java
-   $ sdk install maven
+   sdk install java
+   sdk install maven
    ```
 
 ## Run the application
@@ -31,9 +31,9 @@ Pick the best geographical locations for new stores, distribution centers, covid
 1. Git clone the timefold-quickstarts repo and navigate to this directory:
 
    ```sh
-   $ git clone https://github.com/TimefoldAI/timefold-quickstarts.git
+   git clone https://github.com/TimefoldAI/timefold-quickstarts.git
    ...
-   $ cd timefold-quickstarts/use-cases/facility-location
+   cd timefold-quickstarts/use-cases/facility-location
    ```
 
 2. (Optional) If you want to run a licensed edition (Plus / Enterprise), set up your license key first. See the [Timefold license tool](https://licenses.timefold.ai/) for instructions.
@@ -41,15 +41,15 @@ Pick the best geographical locations for new stores, distribution centers, covid
 3. Start the application with Maven:
 
    1. Community Edition
-   
+
       ```sh
-      $ mvn quarkus:dev
+      mvn quarkus:dev
       ```
-   
+
    2. Plus / Enterprise Edition: The profile sets up the correct Maven artifacts to run the licensed version. See the `pom.xml` for the implementation details.
 
       ```sh
-      $ mvn quarkus:dev -Denterprise
+      mvn quarkus:dev -Denterprise
       ```
 
 4. Visit [http://localhost:8080](http://localhost:8080) in your browser.
@@ -67,16 +67,16 @@ Notice that those changes are immediately in effect.
 
 When you're done iterating in `quarkus:dev` mode, package the application to run as a conventional jar file.
 
-1. Compile it with Maven:
+1. Build it with Maven:
 
    ```sh
-   $ mvn package
+   mvn package
    ```
 
-2. Run it:
+2. Run the Maven output:
 
    ```sh
-   $ java -jar ./target/quarkus-app/quarkus-run.jar
+   java -jar ./target/quarkus-app/quarkus-run.jar
    ```
 
    > **Note**
@@ -91,13 +91,13 @@ When you're done iterating in `quarkus:dev` mode, package the application to run
 1. Build a container image:
 
    ```sh
-   $ mvn package -Dcontainer
+   mvn package -Dcontainer
    ```
 
 2. Run a container:
 
    ```sh
-   $ docker run -p 8080:8080 --rm $USER/facility-location:1.0-SNAPSHOT
+   docker run -p 8080:8080 --rm $USER/facility-location:0.0.1
    ```
 
 ## Run it native
@@ -109,13 +109,13 @@ To increase startup performance for serverless deployments, build the applicatio
 2. Compile it natively. This takes a few minutes:
 
    ```sh
-   $ mvn package -Dnative -DskipTests
+   mvn package -Dnative
    ```
 
 3. Run the native executable:
 
    ```sh
-   $ ./target/*-runner
+   ./target/*-runner
    ```
 
 4. Visit [http://localhost:8080](http://localhost:8080) in your browser.

@@ -19,7 +19,7 @@ It shows different use cases and basic implementations to get you started on you
 | 📦 <a href="#-food-packaging">Food Packaging</a>                        | Service Model, Mixed Model, Shadow Variables, Pinning                    |
 | 🛒 <a href="#-order-picking">Order Picking</a>                          | Chained Planning Variable, Shadow Variables                              |
 | 🏫 <a href="#-school-timetabling">School Timetabling</a>                | Timeslot                                                                 |
-| 🏭 <a href="#-facility-location-problem">Facility Location Problem</a>  | Shadow Variable                                                          |
+| 🏭 <a href="#-facility-location-problem">Facility Location Problem</a>  | Service Model, Shadow Variable                                |
 | 🎤 <a href="#-conference-scheduling">Conference Scheduling</a>          | Service Model, ValueRange on Entity, Timeslot, Justifications            |
 | 🛏️ <a href="#-bed-allocation-scheduling">Bed Allocation Scheduling</a> | Service Model, Allows Unassigned, Pinning                                |
 | 🛫 <a href="#-flight-crew-scheduling">Flight Crew Scheduling</a>        |                                                                          |
