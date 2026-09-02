@@ -18,7 +18,7 @@ class DemoDataBuilderTest {
 
     @Test
     void shouldBuildData() {
-        MeetingScheduleInput problem = DemoDataBuilder.builder().build();
+        MeetingScheduleInput problem = DemoDataBuilder.basic();
 
         assertThat(problem.people()).hasSize(20);
         assertThat(problem.people()).extracting(PersonInputDTO::id).doesNotHaveDuplicates();
@@ -29,7 +29,7 @@ class DemoDataBuilderTest {
 
     @Test
     void officeHoursAreOneWorkWeekOfTenHourDays() {
-        var timeConfiguration = DemoDataBuilder.builder().build().timeConfiguration();
+        var timeConfiguration = DemoDataBuilder.basic().timeConfiguration();
 
         assertThat(timeConfiguration.granularityInMinutes()).isEqualTo(15);
         assertThat(timeConfiguration.days()).hasSize(5);
@@ -48,7 +48,7 @@ class DemoDataBuilderTest {
 
     @Test
     void everyMeetingFitsInTheLargestRoomAndInOneOfficeDay() {
-        MeetingScheduleInput problem = DemoDataBuilder.builder().build();
+        MeetingScheduleInput problem = DemoDataBuilder.basic();
         var timeConfiguration = problem.timeConfiguration();
         int largestRoomCapacity = problem.rooms().stream().mapToInt(room -> room.capacity()).max().orElseThrow();
         long shortestDayInMinutes = timeConfiguration.days().stream()

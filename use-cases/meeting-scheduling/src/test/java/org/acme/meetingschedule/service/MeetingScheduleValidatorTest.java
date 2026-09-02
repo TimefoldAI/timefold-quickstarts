@@ -60,7 +60,7 @@ class MeetingScheduleValidatorTest {
     @Test
     void demoDataHasNoIssues() {
         // The service must never ship demo data it would reject itself.
-        ValidationResult<Issue> result = validate(DemoDataBuilder.builder().build());
+        ValidationResult<Issue> result = validate(DemoDataBuilder.basic());
         assertThat(result.issues()).isEmpty();
     }
 

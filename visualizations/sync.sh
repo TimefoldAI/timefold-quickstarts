@@ -89,8 +89,10 @@ feature_head() {
 
 feature_scripts() {
     case "$1" in
-        vis-timeline) echo '<script src="https://cdn.jsdelivr.net/npm/vis-timeline@7.7.2/standalone/umd/vis-timeline-graph2d.min.js"
-        integrity="sha256-Jy2+UO7rZ2Dgik50z3XrrNpnc5+2PAx9MhL2CicodME=" crossorigin="anonymous"></script>' ;;
+        vis-timeline) echo '<script src="https://cdn.jsdelivr.net/npm/vis-timeline@8.5.4/standalone/umd/vis-timeline-graph2d.min.js"
+        integrity="sha256-IgRYB+U3040BpTfpdWOtiwJp+Lgnu12iPgYPnD+OwTs=" crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vis-timeline@8.5.4/styles/vis-timeline-graph2d.min.css"
+        integrity="sha256-Zyc/Pxv8X+5YVJTouIGNfK2YwilzdIi8VvFAVHutwfU=" crossorigin="anonymous">' ;;
         color-picker) echo '<script src="shared/color-picker.js"></script>' ;;
     esac
 }

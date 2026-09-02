@@ -21,7 +21,7 @@ public class DemoDataGenerator implements ai.timefold.solver.service.definition.
 
     private static final DemoMetaData BASIC_META_DATA = new DemoMetaData(BASIC_DEMO_DATA_ID,
             "Demonstrates a meeting scheduling problem with room capacity, attendance and office hour rules.",
-            "Assigns 24 meetings of two to four hours to 3 rooms across one work week of 08:00 to 18:00 office "
+            "Assigns meetings of two to four hours to rooms across one work week of 08:00 to 18:00 office "
                     + "hours, which a meeting may start anywhere in on a 15 minute grid. Every meeting has a set of "
                     + "required attendees and a set of people who would like to join, drawn from a pool of 20. Once "
                     + "solved, no room is double-booked, no meeting runs past the end of its day, no required "
@@ -40,7 +40,7 @@ public class DemoDataGenerator implements ai.timefold.solver.service.definition.
         if (!BASIC_DEMO_DATA_ID.equals(id)) {
             throw new IllegalArgumentException("Unknown demo data id (%s).".formatted(id));
         }
-        MeetingScheduleInput problem = DemoDataBuilder.builder().build();
+        MeetingScheduleInput problem = DemoDataBuilder.basic();
         Configuration<MeetingScheduleConfigOverrides> configuration = new Configuration<>(
                 new RunConfiguration(BASIC_DEMO_DATA_ID), ModelConfig.empty());
         return new DemoData(BASIC_META_DATA, new ModelRequest<>(configuration, problem));

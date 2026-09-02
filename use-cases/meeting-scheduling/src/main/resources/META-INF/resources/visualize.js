@@ -9,7 +9,7 @@ const MINUTES_PER_DAY = 24 * 60;
 const ROOM_SEED_COLORS = new Map()
     .set("R1", {bg: "#009E73", fg: "#FFFFFF"})
     .set("R2", {bg: "#0072B2", fg: "#FFFFFF"})
-    .set("R3", {bg: "#E69F00", fg: "#000000"});
+    .set("R3", {bg: "#E69F00", fg: "#FFFFFF"});
 
 const TIMELINE_OPTIONS = {
     timeAxis: {scale: "hour", step: 1},
@@ -19,6 +19,9 @@ const TIMELINE_OPTIONS = {
     showCurrentTime: false,
     zoomMin: 1000 * 60 * 60, // One hour in milliseconds
     zoomMax: 5 * 1000 * 60 * 60 * 24, // Five days in milliseconds
+    // Office hours are sent in UTC, so the axis is drawn in UTC as well. Left to the viewer's
+    // own zone, an 08:00-18:00 office day would read as 10:00-20:00 in UTC+2.
+    moment: (date) => vis.moment(date).utc(),
 };
 
 function escapeHtml(value) {
@@ -29,35 +32,36 @@ function isAssigned(meeting) {
     return meeting.roomId != null && meeting.startDateTime != null;
 }
 
-function minutesOfDay(date) {
-    return date.getHours() * 60 + date.getMinutes();
-}
-
 // The input only submits the office hours of each day, so evenings and nights are not
 // schedulable at all. Folding them away keeps a multi-day schedule readable instead of
-// showing mostly empty night. Formatted the way vis-timeline wants its hiddenDates.
+// showing mostly empty night. Formatted the way vis-timeline wants its hiddenDates: as
+// instants with an explicit UTC offset, since vis-timeline parses them through the moment
+// of TIMELINE_OPTIONS, and moment reads a zone-less "2026-09-07 18:00:00" in the viewer's
+// own zone, which would fold away the last hours of every office day in UTC+2.
 function outsideOfficeHoursGap(days) {
-    const starts = days.map((day) => new Date(day.startDateTime));
-    const ends = days.map((day) => new Date(day.endDateTime));
-    const firstMinute = Math.min(...starts.map(minutesOfDay));
-    const lastMinute = Math.min(MINUTES_PER_DAY, Math.max(...ends.map((end, index) => {
-        const endMinute = minutesOfDay(end);
+    const utcDateTime = (dateTime) => JSJoda.OffsetDateTime.parse(dateTime)
+        .withOffsetSameInstant(JSJoda.ZoneOffset.UTC);
+    const starts = days.map((day) => utcDateTime(day.startDateTime));
+    const minuteOfDay = (dateTime) => dateTime.hour() * 60 + dateTime.minute();
+    const firstMinute = Math.min(...starts.map(minuteOfDay));
+    const lastMinute = Math.min(MINUTES_PER_DAY, Math.max(...days.map((day, index) => {
+        const endMinute = minuteOfDay(utcDateTime(day.endDateTime));
         // Office hours that run up to (or past) midnight land on the next calendar day.
-        return endMinute <= minutesOfDay(starts[index]) ? endMinute + MINUTES_PER_DAY : endMinute;
+        return endMinute <= minuteOfDay(starts[index]) ? endMinute + MINUTES_PER_DAY : endMinute;
     })));
     if (firstMinute === 0 && lastMinute >= MINUTES_PER_DAY) {
         return []; // The office is open around the clock, so there is nothing to fold away.
     }
-    const anchor = new Date(Math.min(...starts.map((start) => start.getTime())));
-    const pad = (value) => String(value).padStart(2, '0');
-    const format = (dayOffset, minute) => {
-        const date = new Date(anchor);
-        date.setDate(date.getDate() + dayOffset);
-        date.setHours(Math.floor(minute / 60), minute % 60, 0, 0);
-        return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
-            + ` ${pad(date.getHours())}:${pad(date.getMinutes())}:00`;
-    };
-    return [{start: format(0, lastMinute % MINUTES_PER_DAY), end: format(1, firstMinute), repeat: 'daily'}];
+    // One daily gap, anchored on the midnight of the earliest office day: from the evening of
+    // one day to the morning of the next. plusMinutes() rolls a gap that starts at midnight over
+    // to the next day by itself.
+    const midnight = starts.reduce((earliest, start) => start.isBefore(earliest) ? start : earliest)
+        .truncatedTo(JSJoda.ChronoUnit.DAYS);
+    return [{
+        start: midnight.plusMinutes(lastMinute).toString(),
+        end: midnight.plusDays(1).plusMinutes(firstMinute).toString(),
+        repeat: 'daily',
+    }];
 }
 
 const app = {
@@ -66,27 +70,30 @@ const app = {
     <div class="mb-2 d-flex justify-content-end">
         <ul class="nav nav-pills" role="tablist">
             <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="byRoomTab" data-bs-toggle="tab"
-                        data-bs-target="#byRoomPanel" type="button" role="tab" aria-controls="byRoomPanel"
-                        aria-selected="true">By room
+                <button class="nav-link active" id="byPersonTab" data-bs-toggle="tab"
+                        data-bs-target="#byPersonPanel" type="button" role="tab" aria-controls="byPersonPanel"
+                        aria-selected="true">By person
                 </button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="byPersonTab" data-bs-toggle="tab"
-                        data-bs-target="#byPersonPanel" type="button" role="tab" aria-controls="byPersonPanel"
-                        aria-selected="false">By person
+                <button class="nav-link" id="byRoomTab" data-bs-toggle="tab"
+                        data-bs-target="#byRoomPanel" type="button" role="tab" aria-controls="byRoomPanel"
+                        aria-selected="false">By room
                 </button>
             </li>
+
         </ul>
     </div>
     <div class="tab-content">
-        <div class="tab-pane fade show active" id="byRoomPanel" role="tabpanel" aria-labelledby="byRoomTab"></div>
-        <div class="tab-pane fade" id="byPersonPanel" role="tabpanel" aria-labelledby="byPersonTab"></div>
+        <div class="tab-pane fade show active" id="byPersonPanel" role="tabpanel" aria-labelledby="byPersonTab"></div>
+        <div class="tab-pane fade" id="byRoomPanel" role="tabpanel" aria-labelledby="byRoomTab"></div>
     </div>
 
     <h2 class="my-4">Unassigned meetings</h2>
     <div id="unassignedMeetings" class="row row-cols-3 g-3 mb-4"></div>
 `);
+
+        this.focusedTimelineDays = new Map();
 
         this.byRoomGroupData = new vis.DataSet();
         this.byRoomItemData = new vis.DataSet();
@@ -109,13 +116,13 @@ const app = {
 
         this.quickstartPage = new QuickstartPage({
             modelPath: '/v1/schedules',
-            renderSchedule: (schedule) => this.renderScheduleByRoom(schedule),
+            renderSchedule: (schedule) => this.renderScheduleByPerson(schedule),
             renderInfo: (schedule) => this.renderInfo(schedule),
             mergeModelOutput: (schedule, modelOutput) => this.mergeModelOutput(schedule, modelOutput),
         });
     },
 
-    // modelOutput only carries the assignments (meetings: [{id, roomId, startDateTime}]), not the
+    // modelOutput only carries the assignments (meetings: [{id, roomId, startDateTime, endDateTime}]), not the
     // full problem, so schedule (the QuickstartPage's loadedSchedule) keeps the full modelInput
     // (people, rooms, office hours, meeting details) and this only overlays the room and start.
     mergeModelOutput(schedule, modelOutput) {
@@ -130,6 +137,7 @@ const app = {
                     ...meeting,
                     roomId: assignment.roomId,
                     startDateTime: assignment.startDateTime,
+                    endDateTime: assignment.endDateTime,
                 };
             });
         }
@@ -149,9 +157,14 @@ const app = {
     prepare(schedule) {
         resetColorMap(ROOM_SEED_COLORS);
         const roomById = new Map(schedule.rooms.map((room) => [room.id, room]));
+        // The output states when a meeting ends; an input dataset that already carries assignments
+        // only states its start, so that end is derived from the duration instead.
         const spanOf = (meeting) => {
             const start = JSJoda.OffsetDateTime.parse(meeting.startDateTime);
-            return {start: start.toString(), end: start.plusMinutes(meeting.durationInMinutes).toString()};
+            const end = meeting.endDateTime == null
+                ? start.plusMinutes(meeting.durationInMinutes)
+                : JSJoda.OffsetDateTime.parse(meeting.endDateTime);
+            return {start: start.toString(), end: end.toString()};
         };
         return {roomById, spanOf};
     },
@@ -175,15 +188,22 @@ const app = {
         }
     },
 
+    // Fold away everything outside office hours and open on the office hours of the first day.
     // vis-timeline needs its hiddenDates up front, but the office hours are only known once a
-    // schedule has been loaded, so both timelines get theirs on the first render.
+    // schedule has been loaded, so both timelines get theirs on the first render. Office hours
+    // only change when another dataset is loaded, so keying on them keeps the 2-second poll
+    // during solving from yanking the window back from wherever the user has panned or zoomed to.
     focus(timeline, schedule) {
         const days = schedule.timeConfiguration.days;
+        const daysKey = JSON.stringify(days);
+        if (this.focusedTimelineDays.get(timeline) === daysKey) {
+            return;
+        }
+        this.focusedTimelineDays.set(timeline, daysKey);
         timeline.setOptions({hiddenDates: outsideOfficeHoursGap(days)});
-        const firstDay = days
-            .map((day) => JSJoda.OffsetDateTime.parse(day.startDateTime))
-            .reduce((earliest, start) => start.isBefore(earliest) ? start : earliest);
-        timeline.setWindow(firstDay.toString(), firstDay.plusDays(1).toString());
+        const firstDay = days.reduce((earliest, day) => JSJoda.OffsetDateTime.parse(day.startDateTime)
+            .isBefore(JSJoda.OffsetDateTime.parse(earliest.startDateTime)) ? day : earliest);
+        timeline.setWindow(firstDay.startDateTime, firstDay.endDateTime);
     },
 
     renderScheduleByRoom(schedule) {

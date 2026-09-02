@@ -121,7 +121,8 @@ public class MeetingScheduleModelConvertor implements
         var meetings = solverModel.getMeetingAssignments().stream()
                 .map(assignment -> new MeetingOutputDTO(assignment.getId(),
                         assignment.getRoom() == null ? null : assignment.getRoom().id(),
-                        assignment.getStartDateTime()))
+                        assignment.getStartDateTime(),
+                        assignment.getEndDateTime()))
                 .toList();
         return new MeetingScheduleOutput(meetings);
     }
