@@ -108,10 +108,10 @@ class App implements Runnable {
             BrowserContext ctx = browser.newContext(contextOptions);
 
             try (Stream<Path> children = Files.list(javaFolder)) {
-                List<Path> dirs = children
-                        .filter(Files::isDirectory)
-                        .sorted()
-                        .toList();
+                List<Path> dirs = Stream.concat(
+                        Stream.of(javaFolder),
+                        children.filter(Files::isDirectory).sorted()
+                ).toList();
 
                 for (Path dir : dirs) {
                     Path pom = dir.resolve("pom.xml");

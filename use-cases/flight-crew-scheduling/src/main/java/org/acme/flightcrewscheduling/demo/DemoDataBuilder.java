@@ -45,7 +45,8 @@ public final class DemoDataBuilder {
             "Jay", "Jeri", "Hope", "Avis", "Lino", "Lyle", "Nick", "Dino", "Otha", "Gwen", "Jose", "Dena", "Jana" };
     private static final String[] LAST_NAMES = { "Cole", "Fox", "Green", "Jones", "King", "Li", "Poe", "Rye", "Smith",
             "Watt", "Howe", "Lowe" };
-    private static final String[] AIRLINE_CODES = {"XQ", "ZJ", "QY", "JX", "WV", "YF", "KG", "VK", "JH", "XD", "YJ", "XN", "ZF"};
+    private static final String[] AIRLINE_CODES =
+            { "XQ", "ZJ", "QY", "JX", "WV", "YF", "KG", "VK", "JH", "XD", "YJ", "XN", "ZF" };
     // How many crew members of each skill are based at each hub. Each number leaves slack on top of
     private static final int LHR_PILOTS = 13;
     private static final int LHR_ATTENDANTS = 13;
