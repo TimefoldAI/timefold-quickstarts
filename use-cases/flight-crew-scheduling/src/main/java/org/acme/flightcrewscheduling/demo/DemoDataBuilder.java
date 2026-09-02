@@ -64,7 +64,8 @@ public final class DemoDataBuilder {
             "Watt", "Howe", "Lowe" };
     private static final String[] AIRLINE_CODES =
             { "XQ", "ZJ", "QY", "JX", "WV", "YF", "KG", "VK", "JH", "XD", "YJ", "XN", "ZF" };
-    // How many crew members of each skill are based at each hub. Each number leaves slack on top of
+
+    // How many crew members of each skill are based at each hub.
     private static final int LHR_PILOTS = 13;
     private static final int LHR_ATTENDANTS = 13;
     private static final int BRU_PILOTS = 11;
@@ -127,7 +128,7 @@ public final class DemoDataBuilder {
                 flight(flightIndex, ATL, at(firstMonday, 5, 8), LHR),
                 // Additional BRU rotations
                 flight(flightIndex, BRU, at(firstMonday, 0, 8), ATL),
-                flight(flightIndex, JFK, at(firstMonday, 3, 9), BRU),
+                flight(flightIndex, ATL, at(firstMonday, 3, 9), BRU),
                 flight(flightIndex, BRU, at(firstMonday, 3, 6), BNE),
                 flight(flightIndex, BNE, at(firstMonday, 4, 9), BRU),
                 flight(flightIndex, BRU, at(firstMonday, 5, 7), ATL),

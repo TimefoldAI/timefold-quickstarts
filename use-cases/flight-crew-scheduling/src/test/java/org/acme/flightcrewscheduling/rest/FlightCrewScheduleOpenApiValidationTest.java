@@ -3,6 +3,8 @@ package org.acme.flightcrewscheduling.rest;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import jakarta.inject.Inject;
+
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,7 +17,8 @@ import io.restassured.response.Response;
 @QuarkusTest
 class FlightCrewScheduleOpenApiValidationTest {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    @Inject
+    ObjectMapper mapper;
 
     @Test
     void validInputIsAccepted() {
@@ -33,7 +36,7 @@ class FlightCrewScheduleOpenApiValidationTest {
     @Test
     void emptyRequiredCollectionIsRejected() {
         ObjectNode input = demoData();
-        modelInput(input).set("flights", MAPPER.createArrayNode());
+        modelInput(input).set("flights", mapper.createArrayNode());
 
         assertRejected(post(input), "modelInput.flights");
     }
@@ -70,36 +73,36 @@ class FlightCrewScheduleOpenApiValidationTest {
         post(input).then().statusCode(400);
     }
 
-    private static ObjectNode demoData() {
+    private ObjectNode demoData() {
         String json = given().when().get("/v1/demo-data/BASIC").then().statusCode(200).extract().asString();
         try {
-            return (ObjectNode) MAPPER.readTree(json);
+            return (ObjectNode) mapper.readTree(json);
         } catch (Exception e) {
             throw new IllegalStateException("Demo data is not valid JSON.", e);
         }
     }
 
-    private static ObjectNode modelInput(ObjectNode input) {
+    private ObjectNode modelInput(ObjectNode input) {
         return (ObjectNode) input.get("modelInput");
     }
 
-    private static ObjectNode firstAirport(ObjectNode input) {
+    private ObjectNode firstAirport(ObjectNode input) {
         return (ObjectNode) modelInput(input).get("airports").get(0);
     }
 
-    private static ObjectNode firstFlight(ObjectNode input) {
+    private ObjectNode firstFlight(ObjectNode input) {
         return (ObjectNode) modelInput(input).get("flights").get(0);
     }
 
-    private static ObjectNode firstFlightAssignment(ObjectNode input) {
+    private ObjectNode firstFlightAssignment(ObjectNode input) {
         return (ObjectNode) modelInput(input).get("flightAssignments").get(0);
     }
 
-    private static Response post(ObjectNode input) {
+    private Response post(ObjectNode input) {
         return given().contentType(ContentType.JSON).body(input.toString()).when().post("/v1/schedules");
     }
 
-    private static void assertRejected(Response response, String expectedFieldFragment) {
+    private void assertRejected(Response response, String expectedFieldFragment) {
         response.then().statusCode(400);
         assertThat(response.getBody().asString()).contains(expectedFieldFragment);
     }
