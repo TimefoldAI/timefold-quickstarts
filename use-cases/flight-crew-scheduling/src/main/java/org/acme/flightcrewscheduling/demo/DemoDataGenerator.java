@@ -21,7 +21,7 @@ public class DemoDataGenerator implements ai.timefold.solver.service.definition.
 
     private static final DemoMetaData BASIC_META_DATA = new DemoMetaData(BASIC_DEMO_DATA_ID,
             "Demonstrates a flight crew scheduling problem with skills, availability and home bases.",
-            "Rosters 44 crew members onto 58 crew seats across 14 flights between 6 airports over one week. "
+            "Rosters crew members onto crew seats across flights between airports over one week. "
                     + "The flights form out-and-back rotations from two hubs, London Heathrow and Brussels, and "
                     + "every seat asks for either a pilot or a flight attendant. Once solved, each crew member "
                     + "holds the skill their seat requires, never flies two overlapping flights or flies on a day "
