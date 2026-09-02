@@ -1,6 +1,7 @@
 package org.acme.flightcrewscheduling.demo;
 
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
@@ -40,6 +41,21 @@ public final class DemoDataBuilder {
             new AirportInputDTO(BRU, "Brussels", 50.901389, 4.484444),
             new AirportInputDTO(ATL, "Atlanta", 33.636667, -84.428056),
             new AirportInputDTO(BNE, "Brisbane", -27.383333, 153.118333));
+
+    /**
+     * Flight duration between two airports, keyed by their codes joined in alphabetical order
+     * (see {@link #routeKey(String, String)}), since every route flies the same duration both ways.
+     */
+    private static final Map<String, Duration> FLIGHT_DURATIONS_BY_ROUTE = Map.of(
+            routeKey(LHR, JFK), Duration.ofHours(8),
+            routeKey(LHR, ATL), Duration.ofHours(9),
+            routeKey(LHR, CNF), Duration.ofHours(12),
+            routeKey(LHR, BNE), Duration.ofHours(21),
+            routeKey(LHR, BRU), Duration.ofHours(2),
+            routeKey(BRU, JFK), Duration.ofHours(14),
+            routeKey(BRU, ATL), Duration.ofHours(9),
+            routeKey(BRU, CNF), Duration.ofHours(12),
+            routeKey(BRU, BNE), Duration.ofHours(21));
 
     private static final String[] FIRST_NAMES = { "Amy", "Beth", "Carl", "Dan", "Elsa", "Flo", "Gus", "Hugo", "Ivy",
             "Jay", "Jeri", "Hope", "Avis", "Lino", "Lyle", "Nick", "Dino", "Otha", "Gwen", "Jose", "Dena", "Jana" };
@@ -86,58 +102,58 @@ public final class DemoDataBuilder {
 
         List<FlightInputDTO> flights = List.of(
                 // LHR rotations
-                flight(LHR, at(firstMonday, 0, 6), JFK, at(firstMonday, 0, 14)),
-                flight(JFK, at(firstMonday, 1, 8), LHR, at(firstMonday, 1, 16)),
-                flight(LHR, at(firstMonday, 1, 6), ATL, at(firstMonday, 1, 15)),
-                flight(ATL, at(firstMonday, 2, 8), LHR, at(firstMonday, 2, 17)),
-                flight(LHR, at(firstMonday, 2, 5), CNF, at(firstMonday, 2, 17)),
-                flight(CNF, at(firstMonday, 3, 6), LHR, at(firstMonday, 3, 18)),
-                flight(LHR, at(firstMonday, 3, 5), BNE, at(firstMonday, 4, 2)),
-                flight(BNE, at(firstMonday, 4, 8), LHR, at(firstMonday, 5, 5)),
+                flight(LHR, at(firstMonday, 0, 6), JFK),
+                flight(JFK, at(firstMonday, 1, 8), LHR),
+                flight(LHR, at(firstMonday, 1, 6), ATL),
+                flight(ATL, at(firstMonday, 2, 8), LHR),
+                flight(LHR, at(firstMonday, 2, 5), CNF),
+                flight(CNF, at(firstMonday, 3, 6), LHR),
+                flight(LHR, at(firstMonday, 3, 5), BNE),
+                flight(BNE, at(firstMonday, 4, 8), LHR),
                 // BRU rotations
-                flight(BRU, at(firstMonday, 0, 7), JFK, at(firstMonday, 0, 21)),
-                flight(JFK, at(firstMonday, 1, 9), BRU, at(firstMonday, 1, 23)),
-                flight(BRU, at(firstMonday, 1, 7), ATL, at(firstMonday, 1, 16)),
-                flight(ATL, at(firstMonday, 2, 9), BRU, at(firstMonday, 2, 18)),
-                flight(BRU, at(firstMonday, 2, 4), BNE, at(firstMonday, 3, 1)),
-                flight(BNE, at(firstMonday, 3, 8), BRU, at(firstMonday, 4, 5)),
+                flight(BRU, at(firstMonday, 0, 7), JFK),
+                flight(JFK, at(firstMonday, 1, 9), BRU),
+                flight(BRU, at(firstMonday, 1, 7), ATL),
+                flight(ATL, at(firstMonday, 2, 9), BRU),
+                flight(BRU, at(firstMonday, 2, 4), BNE),
+                flight(BNE, at(firstMonday, 3, 8), BRU),
                 // Additional LHR rotations
-                flight(LHR, at(firstMonday, 0, 8), ATL, at(firstMonday, 0, 17)),
-                flight(ATL, at(firstMonday, 1, 9), LHR, at(firstMonday, 1, 18)),
-                flight(LHR, at(firstMonday, 1, 10), JFK, at(firstMonday, 1, 18)),
-                flight(JFK, at(firstMonday, 2, 10), LHR, at(firstMonday, 2, 18)),
-                flight(LHR, at(firstMonday, 3, 7), CNF, at(firstMonday, 3, 19)),
-                flight(CNF, at(firstMonday, 4, 7), LHR, at(firstMonday, 4, 19)),
-                flight(LHR, at(firstMonday, 4, 6), ATL, at(firstMonday, 4, 15)),
-                flight(ATL, at(firstMonday, 5, 8), LHR, at(firstMonday, 5, 17)),
+                flight(LHR, at(firstMonday, 0, 8), ATL),
+                flight(ATL, at(firstMonday, 1, 9), LHR),
+                flight(LHR, at(firstMonday, 1, 10), JFK),
+                flight(JFK, at(firstMonday, 2, 10), LHR),
+                flight(LHR, at(firstMonday, 3, 7), CNF),
+                flight(CNF, at(firstMonday, 4, 7), LHR),
+                flight(LHR, at(firstMonday, 4, 6), ATL),
+                flight(ATL, at(firstMonday, 5, 8), LHR),
                 // Additional BRU rotations
-                flight(BRU, at(firstMonday, 0, 8), ATL, at(firstMonday, 0, 17)),
-                flight(JFK, at(firstMonday, 3, 9), BRU, at(firstMonday, 3, 23)),
-                flight(BRU, at(firstMonday, 3, 6), BNE, at(firstMonday, 4, 3)),
-                flight(BNE, at(firstMonday, 4, 9), BRU, at(firstMonday, 5, 6)),
-                flight(BRU, at(firstMonday, 5, 7), ATL, at(firstMonday, 5, 16)),
-                flight(ATL, at(firstMonday, 6, 9), BRU, at(firstMonday, 6, 18)),
+                flight(BRU, at(firstMonday, 0, 8), ATL),
+                flight(JFK, at(firstMonday, 3, 9), BRU),
+                flight(BRU, at(firstMonday, 3, 6), BNE),
+                flight(BNE, at(firstMonday, 4, 9), BRU),
+                flight(BRU, at(firstMonday, 5, 7), ATL),
+                flight(ATL, at(firstMonday, 6, 9), BRU),
                 // LHR-BRU cross-routing
-                flight(LHR, at(firstMonday, 0, 10), BRU, at(firstMonday, 0, 12)),
-                flight(BRU, at(firstMonday, 0, 14), LHR, at(firstMonday, 0, 16)),
-                flight(LHR, at(firstMonday, 2, 11), BRU, at(firstMonday, 2, 13)),
-                flight(BRU, at(firstMonday, 2, 15), LHR, at(firstMonday, 2, 17)),
-                flight(LHR, at(firstMonday, 4, 10), BRU, at(firstMonday, 4, 12)),
-                flight(BRU, at(firstMonday, 4, 14), LHR, at(firstMonday, 4, 16)),
+                flight(LHR, at(firstMonday, 0, 10), BRU),
+                flight(BRU, at(firstMonday, 0, 14), LHR),
+                flight(LHR, at(firstMonday, 2, 11), BRU),
+                flight(BRU, at(firstMonday, 2, 15), LHR),
+                flight(LHR, at(firstMonday, 4, 10), BRU),
+                flight(BRU, at(firstMonday, 4, 14), LHR),
                 // Extended week rotations
-                flight(LHR, at(firstMonday, 0, 9), BNE, at(firstMonday, 1, 6)),
-                flight(BNE, at(firstMonday, 1, 9), LHR, at(firstMonday, 2, 6)),
-                flight(JFK, at(firstMonday, 4, 10), BRU, at(firstMonday, 5, 0)),
+                flight(LHR, at(firstMonday, 0, 9), BNE),
+                flight(BNE, at(firstMonday, 1, 9), LHR),
+                flight(JFK, at(firstMonday, 4, 10), BRU),
                 // Short-haul additions
-                flight(LHR, at(firstMonday, 0, 7), BRU, at(firstMonday, 0, 9)),
-                flight(BRU, at(firstMonday, 0, 11), LHR, at(firstMonday, 0, 13)),
-                flight(ATL, at(firstMonday, 0, 7), BRU, at(firstMonday, 0, 16)),
-                flight(LHR, at(firstMonday, 3, 8), JFK, at(firstMonday, 3, 16)),
-                flight(JFK, at(firstMonday, 4, 9), LHR, at(firstMonday, 4, 17)),
-                flight(BRU, at(firstMonday, 5, 6), CNF, at(firstMonday, 5, 18)),
-                flight(CNF, at(firstMonday, 6, 6), BRU, at(firstMonday, 6, 18)),
-                flight(LHR, at(firstMonday, 5, 7), ATL, at(firstMonday, 5, 16)),
-                flight(ATL, at(firstMonday, 6, 8), LHR, at(firstMonday, 6, 17)));
+                flight(LHR, at(firstMonday, 0, 7), BRU),
+                flight(BRU, at(firstMonday, 0, 11), LHR),
+                flight(ATL, at(firstMonday, 0, 7), BRU),
+                flight(LHR, at(firstMonday, 3, 8), JFK),
+                flight(JFK, at(firstMonday, 4, 9), LHR),
+                flight(BRU, at(firstMonday, 5, 6), CNF),
+                flight(CNF, at(firstMonday, 6, 6), BRU),
+                flight(LHR, at(firstMonday, 5, 7), ATL),
+                flight(ATL, at(firstMonday, 6, 8), LHR));
 
         return new FlightCrewScheduleInput(AIRPORTS, buildEmployees(firstMonday), flights,
                 buildFlightAssignments(flights));
@@ -199,13 +215,25 @@ public final class DemoDataBuilder {
     }
 
     private static FlightInputDTO flight(String departureAirportCode,
-            OffsetDateTime departureUTCDateTime, String arrivalAirportCode, OffsetDateTime arrivalUTCDateTime) {
+            OffsetDateTime departureUTCDateTime, String arrivalAirportCode) {
         String airline = AIRLINE_CODES[flightIndex % AIRLINE_CODES.length];
         int number = (flightIndex * 17 + 100) % 9000 + 100;
         String flightNumber = airline + number;
         flightIndex++;
+        Duration duration = FLIGHT_DURATIONS_BY_ROUTE.get(routeKey(departureAirportCode, arrivalAirportCode));
+        if (duration == null) {
+            throw new IllegalStateException(
+                    "No flight duration configured for route (%s-%s).".formatted(departureAirportCode,
+                            arrivalAirportCode));
+        }
+        OffsetDateTime arrivalUTCDateTime = departureUTCDateTime.plus(duration);
         return new FlightInputDTO(flightNumber, departureAirportCode, departureUTCDateTime, arrivalAirportCode,
                 arrivalUTCDateTime);
+    }
+
+    private static String routeKey(String airportCodeA, String airportCodeB) {
+        return airportCodeA.compareTo(airportCodeB) <= 0 ? airportCodeA + "-" + airportCodeB
+                : airportCodeB + "-" + airportCodeA;
     }
 
     private static OffsetDateTime at(LocalDate firstMonday, int dayOffset, int hour) {
