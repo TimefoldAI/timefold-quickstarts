@@ -45,14 +45,12 @@ public final class DemoDataBuilder {
             "Jay", "Jeri", "Hope", "Avis", "Lino", "Lyle", "Nick", "Dino", "Otha", "Gwen", "Jose", "Dena", "Jana" };
     private static final String[] LAST_NAMES = { "Cole", "Fox", "Green", "Jones", "King", "Li", "Poe", "Rye", "Smith",
             "Watt", "Howe", "Lowe" };
-
+    private static final String[] AIRLINE_CODES = {"XQ", "ZJ", "QY", "JX", "WV", "YF", "KG", "VK", "JH", "XD", "YJ", "XN", "ZF"};
     // How many crew members of each skill are based at each hub. Each number leaves slack on top of
-    // what the rotations below need (8 pilots and 9 attendants at LHR, 6 and 6 at BRU), so the
-    // unavailable days further down can never make the dataset infeasible.
-    private static final int LHR_PILOTS = 12;
-    private static final int LHR_ATTENDANTS = 12;
-    private static final int BRU_PILOTS = 10;
-    private static final int BRU_ATTENDANTS = 10;
+    private static final int LHR_PILOTS = 13;
+    private static final int LHR_ATTENDANTS = 13;
+    private static final int BRU_PILOTS = 11;
+    private static final int BRU_ATTENDANTS = 11;
 
     /**
      * Days (as an offset from the first Monday) on which a crew member cannot fly, keyed by crew member ID.
@@ -75,6 +73,8 @@ public final class DemoDataBuilder {
             Map.entry("crew-41", List.of(0)),
             Map.entry("crew-44", List.of(1)));
 
+    private static int flightIndex = 0;
+
     private DemoDataBuilder() {
     }
 
@@ -85,24 +85,62 @@ public final class DemoDataBuilder {
     public FlightCrewScheduleInput build() {
         // Anchored to the next Monday (never today), so the schedule always lies in the future.
         LocalDate firstMonday = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.MONDAY));
+        flightIndex = 0;
 
         List<FlightInputDTO> flights = List.of(
                 // LHR rotations
-                flight("TF1", LHR, at(firstMonday, 0, 6), JFK, at(firstMonday, 0, 14)),
-                flight("TF2", JFK, at(firstMonday, 1, 8), LHR, at(firstMonday, 1, 16)),
-                flight("TF3", LHR, at(firstMonday, 1, 6), ATL, at(firstMonday, 1, 15)),
-                flight("TF4", ATL, at(firstMonday, 2, 8), LHR, at(firstMonday, 2, 17)),
-                flight("TF5", LHR, at(firstMonday, 2, 5), CNF, at(firstMonday, 2, 17)),
-                flight("TF6", CNF, at(firstMonday, 3, 6), LHR, at(firstMonday, 3, 18)),
-                flight("TF7", LHR, at(firstMonday, 3, 5), BNE, at(firstMonday, 4, 2)),
-                flight("TF8", BNE, at(firstMonday, 4, 8), LHR, at(firstMonday, 5, 5)),
+                flight(LHR, at(firstMonday, 0, 6), JFK, at(firstMonday, 0, 14)),
+                flight(JFK, at(firstMonday, 1, 8), LHR, at(firstMonday, 1, 16)),
+                flight(LHR, at(firstMonday, 1, 6), ATL, at(firstMonday, 1, 15)),
+                flight(ATL, at(firstMonday, 2, 8), LHR, at(firstMonday, 2, 17)),
+                flight(LHR, at(firstMonday, 2, 5), CNF, at(firstMonday, 2, 17)),
+                flight(CNF, at(firstMonday, 3, 6), LHR, at(firstMonday, 3, 18)),
+                flight(LHR, at(firstMonday, 3, 5), BNE, at(firstMonday, 4, 2)),
+                flight(BNE, at(firstMonday, 4, 8), LHR, at(firstMonday, 5, 5)),
                 // BRU rotations
-                flight("TF9", BRU, at(firstMonday, 0, 7), JFK, at(firstMonday, 0, 21)),
-                flight("TF10", JFK, at(firstMonday, 1, 9), BRU, at(firstMonday, 1, 23)),
-                flight("TF11", BRU, at(firstMonday, 1, 7), ATL, at(firstMonday, 1, 16)),
-                flight("TF12", ATL, at(firstMonday, 2, 9), BRU, at(firstMonday, 2, 18)),
-                flight("TF13", BRU, at(firstMonday, 2, 4), BNE, at(firstMonday, 3, 1)),
-                flight("TF14", BNE, at(firstMonday, 3, 8), BRU, at(firstMonday, 4, 5)));
+                flight(BRU, at(firstMonday, 0, 7), JFK, at(firstMonday, 0, 21)),
+                flight(JFK, at(firstMonday, 1, 9), BRU, at(firstMonday, 1, 23)),
+                flight(BRU, at(firstMonday, 1, 7), ATL, at(firstMonday, 1, 16)),
+                flight(ATL, at(firstMonday, 2, 9), BRU, at(firstMonday, 2, 18)),
+                flight(BRU, at(firstMonday, 2, 4), BNE, at(firstMonday, 3, 1)),
+                flight(BNE, at(firstMonday, 3, 8), BRU, at(firstMonday, 4, 5)),
+                // Additional LHR rotations
+                flight(LHR, at(firstMonday, 0, 8), ATL, at(firstMonday, 0, 17)),
+                flight(ATL, at(firstMonday, 1, 9), LHR, at(firstMonday, 1, 18)),
+                flight(LHR, at(firstMonday, 1, 10), JFK, at(firstMonday, 1, 18)),
+                flight(JFK, at(firstMonday, 2, 10), LHR, at(firstMonday, 2, 18)),
+                flight(LHR, at(firstMonday, 3, 7), CNF, at(firstMonday, 3, 19)),
+                flight(CNF, at(firstMonday, 4, 7), LHR, at(firstMonday, 4, 19)),
+                flight(LHR, at(firstMonday, 4, 6), ATL, at(firstMonday, 4, 15)),
+                flight(ATL, at(firstMonday, 5, 8), LHR, at(firstMonday, 5, 17)),
+                // Additional BRU rotations
+                flight(BRU, at(firstMonday, 0, 8), ATL, at(firstMonday, 0, 17)),
+                flight(JFK, at(firstMonday, 3, 9), BRU, at(firstMonday, 3, 23)),
+                flight(BRU, at(firstMonday, 3, 6), BNE, at(firstMonday, 4, 3)),
+                flight(BNE, at(firstMonday, 4, 9), BRU, at(firstMonday, 5, 6)),
+                flight(BRU, at(firstMonday, 5, 7), ATL, at(firstMonday, 5, 16)),
+                flight(ATL, at(firstMonday, 6, 9), BRU, at(firstMonday, 6, 18)),
+                // LHR-BRU cross-routing
+                flight(LHR, at(firstMonday, 0, 10), BRU, at(firstMonday, 0, 12)),
+                flight(BRU, at(firstMonday, 0, 14), LHR, at(firstMonday, 0, 16)),
+                flight(LHR, at(firstMonday, 2, 11), BRU, at(firstMonday, 2, 13)),
+                flight(BRU, at(firstMonday, 2, 15), LHR, at(firstMonday, 2, 17)),
+                flight(LHR, at(firstMonday, 4, 10), BRU, at(firstMonday, 4, 12)),
+                flight(BRU, at(firstMonday, 4, 14), LHR, at(firstMonday, 4, 16)),
+                // Extended week rotations
+                flight(LHR, at(firstMonday, 0, 9), BNE, at(firstMonday, 1, 6)),
+                flight(BNE, at(firstMonday, 1, 9), LHR, at(firstMonday, 2, 6)),
+                flight(JFK, at(firstMonday, 4, 10), BRU, at(firstMonday, 5, 0)),
+                // Short-haul additions
+                flight(LHR, at(firstMonday, 0, 7), BRU, at(firstMonday, 0, 9)),
+                flight(BRU, at(firstMonday, 0, 11), LHR, at(firstMonday, 0, 13)),
+                flight(ATL, at(firstMonday, 0, 7), BRU, at(firstMonday, 0, 16)),
+                flight(LHR, at(firstMonday, 3, 8), JFK, at(firstMonday, 3, 16)),
+                flight(JFK, at(firstMonday, 4, 9), LHR, at(firstMonday, 4, 17)),
+                flight(BRU, at(firstMonday, 5, 6), CNF, at(firstMonday, 5, 18)),
+                flight(CNF, at(firstMonday, 6, 6), BRU, at(firstMonday, 6, 18)),
+                flight(LHR, at(firstMonday, 5, 7), ATL, at(firstMonday, 5, 16)),
+                flight(ATL, at(firstMonday, 6, 8), LHR, at(firstMonday, 6, 17)));
 
         return new FlightCrewScheduleInput(AIRPORTS, buildEmployees(firstMonday), flights,
                 buildFlightAssignments(flights));
@@ -163,8 +201,12 @@ public final class DemoDataBuilder {
                 .toList();
     }
 
-    private static FlightInputDTO flight(String flightNumber, String departureAirportCode,
+    private static FlightInputDTO flight(String departureAirportCode,
             OffsetDateTime departureUTCDateTime, String arrivalAirportCode, OffsetDateTime arrivalUTCDateTime) {
+        String airline = AIRLINE_CODES[flightIndex % AIRLINE_CODES.length];
+        int number = (flightIndex * 17 + 100) % 9000 + 100;
+        String flightNumber = airline + number;
+        flightIndex++;
         return new FlightInputDTO(flightNumber, departureAirportCode, departureUTCDateTime, arrivalAirportCode,
                 arrivalUTCDateTime);
     }

@@ -153,7 +153,9 @@ const app = {
 
         $.each(schedule.flightAssignments.filter(seat => seat.employeeId != null), (_, seat) => {
             const flight = flights.get(seat.flightNumber);
-            const content = $("<div />")
+            const content = $("<div class='flight-card' />")
+                .append($("<div class='flight-ribbon' />")
+                    .text(flight.flightNumber))
                 .append($("<div class='d-flex justify-content-center' />")
                     .append($(`<h5 class="card-title mb-1"/>`)
                         .text(`${flight.departureAirportCode} → ${flight.arrivalAirportCode}`)));
