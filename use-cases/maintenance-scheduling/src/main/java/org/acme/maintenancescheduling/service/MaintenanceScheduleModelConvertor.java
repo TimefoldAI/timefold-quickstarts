@@ -57,7 +57,7 @@ public class MaintenanceScheduleModelConvertor implements
     public MaintenanceScheduleOutput toModelOutput(MaintenanceSchedule solverModel) {
         List<JobOutputDTO> jobs = solverModel.getJobs().stream()
                 .map(job -> new JobOutputDTO(job.getId(), job.getCrew() == null ? null : job.getCrew().id(),
-                        job.getStartDate(), job.calculateEndDate()))
+                        job.getStartDate(), job.getEndDate()))
                 .toList();
         return new MaintenanceScheduleOutput(jobs);
     }

@@ -89,19 +89,8 @@ public class Job {
         return crew != null && startDate != null;
     }
 
-    /**
-     * The metrics of a partially solved schedule are computed from the planning variables rather than
-     * from the {@link #getEndDate() endDate} shadow variable, which is only guaranteed to be up to date
-     * once the solver has initialized the entity.
-     *
-     * @return null if this job has no start date yet
-     */
-    public LocalDate calculateEndDate() {
-        return calculateEndDate(startDate, durationInDays);
-    }
-
     public boolean isAfterIdealEndDate() {
-        LocalDate end = calculateEndDate();
+        LocalDate end = this.endDate;
         return end != null && idealEndDate != null && end.isAfter(idealEndDate);
     }
 
