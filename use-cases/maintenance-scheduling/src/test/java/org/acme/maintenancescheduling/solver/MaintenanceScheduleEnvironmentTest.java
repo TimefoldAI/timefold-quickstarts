@@ -1,10 +1,10 @@
-package org.acme.maintenancescheduling.rest;
+package org.acme.maintenancescheduling.solver;
 
-import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Optional;
 
 import jakarta.inject.Inject;
 
@@ -13,8 +13,11 @@ import ai.timefold.solver.core.api.solver.SolverFactory;
 import ai.timefold.solver.core.config.solver.EnvironmentMode;
 import ai.timefold.solver.core.config.solver.SolverConfig;
 import ai.timefold.solver.core.config.solver.monitoring.MonitoringConfig;
+import ai.timefold.solver.service.definition.api.domain.ModelConfig;
 
 import org.acme.maintenancescheduling.domain.MaintenanceSchedule;
+import org.acme.maintenancescheduling.service.MaintenanceScheduleModelConvertor;
+import org.acme.maintenancescheduling.support.TestHelper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
@@ -22,39 +25,40 @@ import io.quarkus.test.junit.QuarkusTest;
 
 @QuarkusTest
 @EnabledIfSystemProperty(named = "slowly", matches = "true")
-class MaintenanceSchedulingEnvironmentTest {
+class MaintenanceScheduleEnvironmentTest {
 
     @Inject
     SolverConfig solverConfig;
 
+    @Inject
+    MaintenanceScheduleModelConvertor modelConvertor;
+
     @Test
     void solveFullAssert() {
-        solve(EnvironmentMode.FULL_ASSERT);
+        solve(null);
     }
 
+    // Multithreaded solving is a Timefold Solver Enterprise Edition feature, so these only run
+    // when the enterprise Maven profile (-Denterprise) is active.
     @Test
-    void solveStepAssert() {
-        solve(EnvironmentMode.STEP_ASSERT);
+    @EnabledIfSystemProperty(named = "timefold.solver.enterprise", matches = "true")
+    void solveFullAssertMultithreaded() {
+        solve(SolverConfig.MOVE_THREAD_COUNT_AUTO);
     }
 
-    void solve(EnvironmentMode environmentMode) {
-        // Load the problem
-        MaintenanceSchedule problem = given()
-                .when().get("/demo-data/SMALL")
-                .then()
-                .statusCode(200)
-                .extract()
-                .as(MaintenanceSchedule.class);
+    void solve(String moveThreadCount) {
+        var input = TestHelper.createProblem();
+        MaintenanceSchedule problem = modelConvertor.toSolverModel(input, ModelConfig.empty(), Optional.empty());
 
-        // Update the environment
         SolverConfig updatedConfig = solverConfig.copyConfig();
-        updatedConfig.withEnvironmentMode(environmentMode)
-                .withTerminationSpentLimit(Duration.ofSeconds(30))
+        updatedConfig.withEnvironmentMode(EnvironmentMode.FULL_ASSERT).withTerminationSpentLimit(Duration.ofSeconds(30))
                 .getTerminationConfig().withBestScoreLimit(null);
         updatedConfig.withMonitoringConfig(new MonitoringConfig().withSolverMetricList(List.of()));
+        if (moveThreadCount != null) {
+            updatedConfig.withMoveThreadCount(moveThreadCount);
+        }
         SolverFactory<MaintenanceSchedule> solverFactory = SolverFactory.create(updatedConfig);
 
-        // Solve the problem
         Solver<MaintenanceSchedule> solver = solverFactory.buildSolver();
         MaintenanceSchedule solution = solver.solve(problem);
         assertThat(solution.getScore()).isNotNull();
