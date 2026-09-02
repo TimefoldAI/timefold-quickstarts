@@ -1,4 +1,4 @@
-package org.acme.conferencescheduling.rest;
+package org.acme.flightcrewscheduling.rest;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -15,7 +15,7 @@ import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 
 @QuarkusTest
-class ConferenceScheduleOpenApiValidationTest {
+class FlightCrewScheduleOpenApiValidationTest {
 
     @Inject
     ObjectMapper mapper;
@@ -28,39 +28,47 @@ class ConferenceScheduleOpenApiValidationTest {
     @Test
     void nullRequiredStringIsRejected() {
         ObjectNode input = demoData();
-        firstTimeslot(input).putNull("id");
+        firstAirport(input).putNull("code");
 
-        assertRejected(post(input), "timeslots[0].id");
+        assertRejected(post(input), "airports[0].code");
     }
 
     @Test
     void emptyRequiredCollectionIsRejected() {
         ObjectNode input = demoData();
-        modelInput(input).set("talks", mapper.createArrayNode());
+        modelInput(input).set("flights", mapper.createArrayNode());
 
-        assertRejected(post(input), "modelInput.talks");
+        assertRejected(post(input), "modelInput.flights");
     }
 
     @Test
     void belowMinimumNumberIsRejected() {
         ObjectNode input = demoData();
-        firstRoom(input).put("capacity", 0);
+        firstFlightAssignment(input).put("indexInFlight", 0);
 
-        assertRejected(post(input), "capacity");
+        assertRejected(post(input), "indexInFlight");
     }
 
     @Test
     void missingRequiredFieldIsRejected() {
         ObjectNode input = demoData();
-        firstRoom(input).remove("capacity");
+        firstFlightAssignment(input).remove("requiredSkill");
 
-        assertRejected(post(input), "capacity");
+        assertRejected(post(input), "requiredSkill");
+    }
+
+    @Test
+    void offsetLessDateTimeIsRejected() {
+        ObjectNode input = demoData();
+        firstFlight(input).put("departureUTCDateTime", "2024-01-01T06:00:00");
+
+        assertRejected(post(input), "departureUTCDateTime");
     }
 
     @Test
     void mismatchedJsonTypeIsRejected() {
         ObjectNode input = demoData();
-        firstRoom(input).put("capacity", "not-a-number");
+        firstFlightAssignment(input).put("indexInFlight", "not-a-number");
 
         post(input).then().statusCode(400);
     }
@@ -78,12 +86,16 @@ class ConferenceScheduleOpenApiValidationTest {
         return (ObjectNode) input.get("modelInput");
     }
 
-    private ObjectNode firstTimeslot(ObjectNode input) {
-        return (ObjectNode) modelInput(input).get("timeslots").get(0);
+    private ObjectNode firstAirport(ObjectNode input) {
+        return (ObjectNode) modelInput(input).get("airports").get(0);
     }
 
-    private ObjectNode firstRoom(ObjectNode input) {
-        return (ObjectNode) modelInput(input).get("rooms").get(0);
+    private ObjectNode firstFlight(ObjectNode input) {
+        return (ObjectNode) modelInput(input).get("flights").get(0);
+    }
+
+    private ObjectNode firstFlightAssignment(ObjectNode input) {
+        return (ObjectNode) modelInput(input).get("flightAssignments").get(0);
     }
 
     private Response post(ObjectNode input) {

@@ -1,14 +1,15 @@
 package org.acme.facilitylocation.solver;
 
+import static ai.timefold.solver.core.api.score.HardSoftScore.ONE_HARD;
+import static ai.timefold.solver.core.api.score.stream.ConstraintCollectors.sum;
+
 import ai.timefold.solver.core.api.score.HardSoftScore;
 import ai.timefold.solver.core.api.score.stream.Constraint;
 import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
 import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
+
 import org.acme.facilitylocation.domain.Consumer;
 import org.acme.facilitylocation.domain.Facility;
-
-import static ai.timefold.solver.core.api.score.HardSoftScore.ONE_HARD;
-import static ai.timefold.solver.core.api.score.stream.ConstraintCollectors.sum;
 
 public class FacilityLocationConstraintProvider implements ConstraintProvider {
 
