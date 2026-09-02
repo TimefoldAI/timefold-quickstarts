@@ -9,6 +9,7 @@ import java.time.ZoneOffset;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 import org.acme.flightcrewscheduling.dto.input.AirportInputDTO;
@@ -90,70 +91,68 @@ public final class DemoDataBuilder {
             Map.entry("crew-41", List.of(0)),
             Map.entry("crew-44", List.of(1)));
 
-    private static int flightIndex = 0;
-
     private DemoDataBuilder() {
     }
 
     public static FlightCrewScheduleInput basic() {
         // Anchored to the next Monday (never today), so the schedule always lies in the future.
         LocalDate firstMonday = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.MONDAY));
-        flightIndex = 0;
+        AtomicInteger flightIndex = new AtomicInteger();
 
         List<FlightInputDTO> flights = List.of(
                 // LHR rotations
-                flight(LHR, at(firstMonday, 0, 6), JFK),
-                flight(JFK, at(firstMonday, 1, 8), LHR),
-                flight(LHR, at(firstMonday, 1, 6), ATL),
-                flight(ATL, at(firstMonday, 2, 8), LHR),
-                flight(LHR, at(firstMonday, 2, 5), CNF),
-                flight(CNF, at(firstMonday, 3, 6), LHR),
-                flight(LHR, at(firstMonday, 3, 5), BNE),
-                flight(BNE, at(firstMonday, 4, 8), LHR),
+                flight(flightIndex, LHR, at(firstMonday, 0, 6), JFK),
+                flight(flightIndex, JFK, at(firstMonday, 1, 8), LHR),
+                flight(flightIndex, LHR, at(firstMonday, 1, 6), ATL),
+                flight(flightIndex, ATL, at(firstMonday, 2, 8), LHR),
+                flight(flightIndex, LHR, at(firstMonday, 2, 5), CNF),
+                flight(flightIndex, CNF, at(firstMonday, 3, 6), LHR),
+                flight(flightIndex, LHR, at(firstMonday, 3, 5), BNE),
+                flight(flightIndex, BNE, at(firstMonday, 4, 8), LHR),
                 // BRU rotations
-                flight(BRU, at(firstMonday, 0, 7), JFK),
-                flight(JFK, at(firstMonday, 1, 9), BRU),
-                flight(BRU, at(firstMonday, 1, 7), ATL),
-                flight(ATL, at(firstMonday, 2, 9), BRU),
-                flight(BRU, at(firstMonday, 2, 4), BNE),
-                flight(BNE, at(firstMonday, 3, 8), BRU),
+                flight(flightIndex, BRU, at(firstMonday, 0, 7), JFK),
+                flight(flightIndex, JFK, at(firstMonday, 1, 9), BRU),
+                flight(flightIndex, BRU, at(firstMonday, 1, 7), ATL),
+                flight(flightIndex, ATL, at(firstMonday, 2, 9), BRU),
+                flight(flightIndex, BRU, at(firstMonday, 2, 4), BNE),
+                flight(flightIndex, BNE, at(firstMonday, 3, 8), BRU),
                 // Additional LHR rotations
-                flight(LHR, at(firstMonday, 0, 8), ATL),
-                flight(ATL, at(firstMonday, 1, 9), LHR),
-                flight(LHR, at(firstMonday, 1, 10), JFK),
-                flight(JFK, at(firstMonday, 2, 10), LHR),
-                flight(LHR, at(firstMonday, 3, 7), CNF),
-                flight(CNF, at(firstMonday, 4, 7), LHR),
-                flight(LHR, at(firstMonday, 4, 6), ATL),
-                flight(ATL, at(firstMonday, 5, 8), LHR),
+                flight(flightIndex, LHR, at(firstMonday, 0, 8), ATL),
+                flight(flightIndex, ATL, at(firstMonday, 1, 9), LHR),
+                flight(flightIndex, LHR, at(firstMonday, 1, 10), JFK),
+                flight(flightIndex, JFK, at(firstMonday, 2, 10), LHR),
+                flight(flightIndex, LHR, at(firstMonday, 3, 7), CNF),
+                flight(flightIndex, CNF, at(firstMonday, 4, 7), LHR),
+                flight(flightIndex, LHR, at(firstMonday, 4, 6), ATL),
+                flight(flightIndex, ATL, at(firstMonday, 5, 8), LHR),
                 // Additional BRU rotations
-                flight(BRU, at(firstMonday, 0, 8), ATL),
-                flight(JFK, at(firstMonday, 3, 9), BRU),
-                flight(BRU, at(firstMonday, 3, 6), BNE),
-                flight(BNE, at(firstMonday, 4, 9), BRU),
-                flight(BRU, at(firstMonday, 5, 7), ATL),
-                flight(ATL, at(firstMonday, 6, 9), BRU),
+                flight(flightIndex, BRU, at(firstMonday, 0, 8), ATL),
+                flight(flightIndex, JFK, at(firstMonday, 3, 9), BRU),
+                flight(flightIndex, BRU, at(firstMonday, 3, 6), BNE),
+                flight(flightIndex, BNE, at(firstMonday, 4, 9), BRU),
+                flight(flightIndex, BRU, at(firstMonday, 5, 7), ATL),
+                flight(flightIndex, ATL, at(firstMonday, 6, 9), BRU),
                 // LHR-BRU cross-routing
-                flight(LHR, at(firstMonday, 0, 10), BRU),
-                flight(BRU, at(firstMonday, 0, 14), LHR),
-                flight(LHR, at(firstMonday, 2, 11), BRU),
-                flight(BRU, at(firstMonday, 2, 15), LHR),
-                flight(LHR, at(firstMonday, 4, 10), BRU),
-                flight(BRU, at(firstMonday, 4, 14), LHR),
+                flight(flightIndex, LHR, at(firstMonday, 0, 10), BRU),
+                flight(flightIndex, BRU, at(firstMonday, 0, 14), LHR),
+                flight(flightIndex, LHR, at(firstMonday, 2, 11), BRU),
+                flight(flightIndex, BRU, at(firstMonday, 2, 15), LHR),
+                flight(flightIndex, LHR, at(firstMonday, 4, 10), BRU),
+                flight(flightIndex, BRU, at(firstMonday, 4, 14), LHR),
                 // Extended week rotations
-                flight(LHR, at(firstMonday, 0, 9), BNE),
-                flight(BNE, at(firstMonday, 1, 9), LHR),
-                flight(JFK, at(firstMonday, 4, 10), BRU),
+                flight(flightIndex, LHR, at(firstMonday, 0, 9), BNE),
+                flight(flightIndex, BNE, at(firstMonday, 1, 9), LHR),
+                flight(flightIndex, JFK, at(firstMonday, 4, 10), BRU),
                 // Short-haul additions
-                flight(LHR, at(firstMonday, 0, 7), BRU),
-                flight(BRU, at(firstMonday, 0, 11), LHR),
-                flight(ATL, at(firstMonday, 0, 7), BRU),
-                flight(LHR, at(firstMonday, 3, 8), JFK),
-                flight(JFK, at(firstMonday, 4, 9), LHR),
-                flight(BRU, at(firstMonday, 5, 6), CNF),
-                flight(CNF, at(firstMonday, 6, 6), BRU),
-                flight(LHR, at(firstMonday, 5, 7), ATL),
-                flight(ATL, at(firstMonday, 6, 8), LHR));
+                flight(flightIndex, LHR, at(firstMonday, 0, 7), BRU),
+                flight(flightIndex, BRU, at(firstMonday, 0, 11), LHR),
+                flight(flightIndex, ATL, at(firstMonday, 0, 7), BRU),
+                flight(flightIndex, LHR, at(firstMonday, 3, 8), JFK),
+                flight(flightIndex, JFK, at(firstMonday, 4, 9), LHR),
+                flight(flightIndex, BRU, at(firstMonday, 5, 6), CNF),
+                flight(flightIndex, CNF, at(firstMonday, 6, 6), BRU),
+                flight(flightIndex, LHR, at(firstMonday, 5, 7), ATL),
+                flight(flightIndex, ATL, at(firstMonday, 6, 8), LHR));
 
         return new FlightCrewScheduleInput(AIRPORTS, buildEmployees(firstMonday), flights,
                 buildFlightAssignments(flights));
@@ -214,12 +213,12 @@ public final class DemoDataBuilder {
                 .toList();
     }
 
-    private static FlightInputDTO flight(String departureAirportCode,
+    private static FlightInputDTO flight(AtomicInteger flightIndex, String departureAirportCode,
             OffsetDateTime departureUTCDateTime, String arrivalAirportCode) {
-        String airline = AIRLINE_CODES[flightIndex % AIRLINE_CODES.length];
-        int number = (flightIndex * 17 + 100) % 9000 + 100;
+        int index = flightIndex.getAndIncrement();
+        String airline = AIRLINE_CODES[index % AIRLINE_CODES.length];
+        int number = (index * 17 + 100) % 9000 + 100;
         String flightNumber = airline + number;
-        flightIndex++;
         Duration duration = FLIGHT_DURATIONS_BY_ROUTE.get(routeKey(departureAirportCode, arrivalAirportCode));
         if (duration == null) {
             throw new IllegalStateException(
