@@ -1,7 +1,8 @@
 package org.acme.facilitylocation.rest;
 
-import org.acme.facilitylocation.domain.FacilityLocationProblem;
 import ai.timefold.solver.core.api.solver.SolverStatus;
+
+import org.acme.facilitylocation.domain.FacilityLocationProblem;
 
 class Status {
     public final FacilityLocationProblem solution;
