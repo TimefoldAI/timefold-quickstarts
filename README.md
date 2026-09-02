@@ -13,7 +13,7 @@ It shows different use cases and basic implementations to get you started on you
 
 | Use Case                                                                | Notable Solver Concepts                                       |
 |-------------------------------------------------------------------------|---------------------------------------------------------------|
-| 🚚 <a href="#-vehicle-routing">Vehicle Routing</a>                      | Chained Through Time, Shadow Variables                        |
+| 🚚 <a href="#-vehicle-routing">Vehicle Routing</a>                      | Service Model, Planning List Variable, Shadow Variables       |
 | 🧑 <a href="#-employee-scheduling">Employee Scheduling</a>              | Load Balancing                                                |
 | 🛠️ <a href="#-maintenance-scheduling">Maintenance Scheduling</a>       | Service Model, TimeGrain, Shadow Variable, Variable Listener  |
 | 📦 <a href="#-food-packaging">Food Packaging</a>                        | Service Model, Mixed Model, Shadow Variables, Pinning         |
