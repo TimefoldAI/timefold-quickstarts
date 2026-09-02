@@ -35,6 +35,7 @@ QUICKSTART_DIRS=(
     "bed-allocation"
     "conference-scheduling"
     "flight-crew-scheduling"
+    "meeting-scheduling"
 )
 
 # Metadata needed to render each quickstart's index.html from the shared
@@ -46,6 +47,7 @@ quickstart_name() {
         bed-allocation) echo "Bed Allocation Scheduling" ;;
         conference-scheduling) echo "Conference Scheduling" ;;
         flight-crew-scheduling) echo "Flight Crew Scheduling" ;;
+        meeting-scheduling) echo "Meeting Scheduling" ;;
         *) echo "quickstart_name: unknown quickstart '$1'" >&2; exit 1 ;;
     esac
 }
@@ -55,6 +57,7 @@ quickstart_utm_content() {
         bed-allocation) echo "bed-allocation-java" ;;
         conference-scheduling) echo "conference-scheduling-java" ;;
         flight-crew-scheduling) echo "flight-crew-scheduling-java" ;;
+        meeting-scheduling) echo "meeting-scheduling-java" ;;
         *) echo "quickstart_utm_content: unknown quickstart '$1'" >&2; exit 1 ;;
     esac
 }
@@ -65,6 +68,7 @@ quickstart_features() {
         bed-allocation) echo "vis-timeline custom-css" ;;
         conference-scheduling) echo "color-picker" ;;
         flight-crew-scheduling) echo "vis-timeline" ;;
+        meeting-scheduling) echo "vis-timeline color-picker" ;;
         *) echo "quickstart_features: unknown quickstart '$1'" >&2; exit 1 ;;
     esac
 }

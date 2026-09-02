@@ -6,17 +6,33 @@ import static ai.timefold.solver.core.api.score.stream.Joiners.greaterThan;
 import static ai.timefold.solver.core.api.score.stream.Joiners.lessThan;
 import static ai.timefold.solver.core.api.score.stream.Joiners.overlapping;
 
+import java.util.Objects;
+
 import ai.timefold.solver.core.api.score.HardMediumSoftScore;
 import ai.timefold.solver.core.api.score.stream.Constraint;
 import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
 import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
+import ai.timefold.solver.service.definition.api.description.ConstraintInfo;
 
 import org.acme.meetingschedule.domain.Attendance;
 import org.acme.meetingschedule.domain.MeetingAssignment;
+import org.acme.meetingschedule.domain.MeetingScheduleConstraintProperties;
 import org.acme.meetingschedule.domain.PreferredAttendance;
 import org.acme.meetingschedule.domain.RequiredAttendance;
 import org.acme.meetingschedule.domain.Room;
 import org.acme.meetingschedule.domain.TimeGrain;
+import org.acme.meetingschedule.domain.justification.MeetingScheduleJustification.AttendeeChangingRoomJustification;
+import org.acme.meetingschedule.domain.justification.MeetingScheduleJustification.LargerRoomAvailableJustification;
+import org.acme.meetingschedule.domain.justification.MeetingScheduleJustification.MeetingRunningPastTheHorizonJustification;
+import org.acme.meetingschedule.domain.justification.MeetingScheduleJustification.MeetingScheduledLateJustification;
+import org.acme.meetingschedule.domain.justification.MeetingScheduleJustification.MeetingSpanningTwoDaysJustification;
+import org.acme.meetingschedule.domain.justification.MeetingScheduleJustification.MeetingsOverlappingInSameRoomJustification;
+import org.acme.meetingschedule.domain.justification.MeetingScheduleJustification.MeetingsOverlappingInTimeJustification;
+import org.acme.meetingschedule.domain.justification.MeetingScheduleJustification.MeetingsWithoutBreakInBetweenJustification;
+import org.acme.meetingschedule.domain.justification.MeetingScheduleJustification.PreferredAttendeeInOverlappingMeetingsJustification;
+import org.acme.meetingschedule.domain.justification.MeetingScheduleJustification.RequiredAndPreferredAttendeeInOverlappingMeetingsJustification;
+import org.acme.meetingschedule.domain.justification.MeetingScheduleJustification.RequiredAttendeeInOverlappingMeetingsJustification;
+import org.acme.meetingschedule.domain.justification.MeetingScheduleJustification.RoomTooSmallForMeetingJustification;
 
 public class MeetingSchedulingConstraintProvider implements ConstraintProvider {
 
@@ -53,16 +69,26 @@ public class MeetingSchedulingConstraintProvider implements ConstraintProvider {
                 overlapping(MeetingAssignment::getGrainIndex, assignment -> assignment.getLastTimeGrainIndex() + 1))
                 .penalize(HardMediumSoftScore.ONE_HARD,
                         (leftAssignment, rightAssignment) -> rightAssignment.calculateOverlap(leftAssignment))
-                .asConstraint("Room conflict");
+                .justifyWith((leftAssignment, rightAssignment, score) -> MeetingsOverlappingInSameRoomJustification
+                        .of(leftAssignment, rightAssignment))
+                .asConstraint(new ConstraintInfo(MeetingScheduleConstraintProperties.ROOM_CONFLICT,
+                        MeetingScheduleConstraintProperties.ROOM_CONFLICT,
+                        "Two meetings must not be held in the same room at the same time.",
+                        MeetingScheduleConstraintGroup.ROOM_CONFLICTS));
     }
 
     public Constraint avoidOvertime(ConstraintFactory constraintFactory) {
         return constraintFactory.forEachIncludingUnassigned(MeetingAssignment.class)
                 .filter(meetingAssignment -> meetingAssignment.getStartingTimeGrain() != null)
                 .ifNotExists(TimeGrain.class,
-                        equal(MeetingAssignment::getLastTimeGrainIndex, TimeGrain::getGrainIndex))
+                        equal(MeetingAssignment::getLastTimeGrainIndex, TimeGrain::grainIndex))
                 .penalize(HardMediumSoftScore.ONE_HARD, MeetingAssignment::getLastTimeGrainIndex)
-                .asConstraint("Don't go in overtime");
+                .justifyWith((meetingAssignment, score) -> MeetingRunningPastTheHorizonJustification
+                        .of(meetingAssignment))
+                .asConstraint(new ConstraintInfo(MeetingScheduleConstraintProperties.DONT_GO_IN_OVERTIME,
+                        MeetingScheduleConstraintProperties.DONT_GO_IN_OVERTIME,
+                        "A meeting must finish within the office hours of its day.",
+                        MeetingScheduleConstraintGroup.SCHEDULING_WINDOW));
     }
 
     public Constraint requiredAttendanceConflict(ConstraintFactory constraintFactory) {
@@ -82,7 +108,13 @@ public class MeetingSchedulingConstraintProvider implements ConstraintProvider {
                 .penalize(HardMediumSoftScore.ONE_HARD,
                         (leftRequiredAttendance, rightRequiredAttendance, leftAssignment, rightAssignment) -> rightAssignment
                                 .calculateOverlap(leftAssignment))
-                .asConstraint("Required attendance conflict");
+                .justifyWith((leftRequiredAttendance, rightRequiredAttendance, leftAssignment, rightAssignment,
+                        score) -> RequiredAttendeeInOverlappingMeetingsJustification.of(leftRequiredAttendance,
+                                leftAssignment, rightAssignment))
+                .asConstraint(new ConstraintInfo(MeetingScheduleConstraintProperties.REQUIRED_ATTENDANCE_CONFLICT,
+                        MeetingScheduleConstraintProperties.REQUIRED_ATTENDANCE_CONFLICT,
+                        "A required attendee must not be expected in two meetings at the same time.",
+                        MeetingScheduleConstraintGroup.ATTENDANCE_CONFLICTS));
     }
 
     public Constraint requiredRoomCapacity(ConstraintFactory constraintFactory) {
@@ -90,19 +122,28 @@ public class MeetingSchedulingConstraintProvider implements ConstraintProvider {
                 .filter(meetingAssignment -> meetingAssignment.getRequiredCapacity() > meetingAssignment.getRoomCapacity())
                 .penalize(HardMediumSoftScore.ONE_HARD,
                         meetingAssignment -> meetingAssignment.getRequiredCapacity() - meetingAssignment.getRoomCapacity())
-                .asConstraint("Required room capacity");
+                .justifyWith((meetingAssignment, score) -> RoomTooSmallForMeetingJustification.of(meetingAssignment))
+                .asConstraint(new ConstraintInfo(MeetingScheduleConstraintProperties.REQUIRED_ROOM_CAPACITY,
+                        MeetingScheduleConstraintProperties.REQUIRED_ROOM_CAPACITY,
+                        "A meeting's room must seat every attendee of that meeting.",
+                        MeetingScheduleConstraintGroup.ROOM_CAPACITY));
     }
 
     public Constraint startAndEndOnSameDay(ConstraintFactory constraintFactory) {
         return constraintFactory.forEachIncludingUnassigned(MeetingAssignment.class)
                 .filter(meetingAssignment -> meetingAssignment.getStartingTimeGrain() != null)
                 .join(TimeGrain.class,
-                        equal(MeetingAssignment::getLastTimeGrainIndex, TimeGrain::getGrainIndex),
+                        equal(MeetingAssignment::getLastTimeGrainIndex, TimeGrain::grainIndex),
                         filtering((meetingAssignment,
-                                timeGrain) -> !meetingAssignment.getStartingTimeGrain().getDayOfYear()
-                                        .equals(timeGrain.getDayOfYear())))
+                                timeGrain) -> !meetingAssignment.getStartingTimeGrain().getDate()
+                                        .equals(timeGrain.getDate())))
                 .penalize(HardMediumSoftScore.ONE_HARD)
-                .asConstraint("Start and end on same day");
+                .justifyWith((meetingAssignment, timeGrain, score) -> MeetingSpanningTwoDaysJustification
+                        .of(meetingAssignment, timeGrain))
+                .asConstraint(new ConstraintInfo(MeetingScheduleConstraintProperties.START_AND_END_ON_SAME_DAY,
+                        MeetingScheduleConstraintProperties.START_AND_END_ON_SAME_DAY,
+                        "A meeting must start and end on the same day.",
+                        MeetingScheduleConstraintGroup.SCHEDULING_WINDOW));
     }
 
     // ************************************************************************
@@ -128,7 +169,16 @@ public class MeetingSchedulingConstraintProvider implements ConstraintProvider {
                 .penalize(HardMediumSoftScore.ONE_MEDIUM,
                         (requiredAttendance, preferredAttendance, leftAssignment, rightAssignment) -> rightAssignment
                                 .calculateOverlap(leftAssignment))
-                .asConstraint("Required and preferred attendance conflict");
+                .justifyWith((requiredAttendance, preferredAttendance, leftAssignment, rightAssignment,
+                        score) -> RequiredAndPreferredAttendeeInOverlappingMeetingsJustification.of(requiredAttendance,
+                                leftAssignment, rightAssignment))
+                .asConstraint(
+                        new ConstraintInfo(
+                                MeetingScheduleConstraintProperties.REQUIRED_AND_PREFERRED_ATTENDANCE_CONFLICT,
+                                MeetingScheduleConstraintProperties.REQUIRED_AND_PREFERRED_ATTENDANCE_CONFLICT,
+                                "A person required in one meeting should not have to skip another meeting they would "
+                                        + "prefer to attend.",
+                                MeetingScheduleConstraintGroup.ATTENDANCE_CONFLICTS));
     }
 
     public Constraint preferredAttendanceConflict(ConstraintFactory constraintFactory) {
@@ -149,7 +199,13 @@ public class MeetingSchedulingConstraintProvider implements ConstraintProvider {
                 .penalize(HardMediumSoftScore.ONE_MEDIUM,
                         (leftPreferredAttendance, rightPreferredAttendance, leftAssignment, rightAssignment) -> rightAssignment
                                 .calculateOverlap(leftAssignment))
-                .asConstraint("Preferred attendance conflict");
+                .justifyWith((leftPreferredAttendance, rightPreferredAttendance, leftAssignment, rightAssignment,
+                        score) -> PreferredAttendeeInOverlappingMeetingsJustification.of(leftPreferredAttendance,
+                                leftAssignment, rightAssignment))
+                .asConstraint(new ConstraintInfo(MeetingScheduleConstraintProperties.PREFERRED_ATTENDANCE_CONFLICT,
+                        MeetingScheduleConstraintProperties.PREFERRED_ATTENDANCE_CONFLICT,
+                        "A person should not have to pick between two meetings they would both prefer to attend.",
+                        MeetingScheduleConstraintGroup.ATTENDANCE_CONFLICTS));
     }
 
     // ************************************************************************
@@ -160,7 +216,12 @@ public class MeetingSchedulingConstraintProvider implements ConstraintProvider {
         return constraintFactory.forEachIncludingUnassigned(MeetingAssignment.class)
                 .filter(meetingAssignment -> meetingAssignment.getStartingTimeGrain() != null)
                 .penalize(HardMediumSoftScore.ONE_SOFT, MeetingAssignment::getLastTimeGrainIndex)
-                .asConstraint("Do all meetings as soon as possible");
+                .justifyWith((meetingAssignment, score) -> MeetingScheduledLateJustification.of(meetingAssignment))
+                .asConstraint(
+                        new ConstraintInfo(MeetingScheduleConstraintProperties.DO_ALL_MEETINGS_AS_SOON_AS_POSSIBLE,
+                                MeetingScheduleConstraintProperties.DO_ALL_MEETINGS_AS_SOON_AS_POSSIBLE,
+                                "A meeting should be held as early in the scheduling horizon as possible.",
+                                MeetingScheduleConstraintGroup.SCHEDULE_QUALITY));
     }
 
     public Constraint oneBreakBetweenConsecutiveMeetings(ConstraintFactory constraintFactory) {
@@ -171,7 +232,14 @@ public class MeetingSchedulingConstraintProvider implements ConstraintProvider {
                         equal(MeetingAssignment::getLastTimeGrainIndex,
                                 rightAssignment -> rightAssignment.getGrainIndex() - 1))
                 .penalize(HardMediumSoftScore.ofSoft(100))
-                .asConstraint("One TimeGrain break between two consecutive meetings");
+                .justifyWith((leftAssignment, rightAssignment, score) -> MeetingsWithoutBreakInBetweenJustification
+                        .of(leftAssignment, rightAssignment))
+                .asConstraint(
+                        new ConstraintInfo(
+                                MeetingScheduleConstraintProperties.ONE_BREAK_BETWEEN_CONSECUTIVE_MEETINGS,
+                                MeetingScheduleConstraintProperties.ONE_BREAK_BETWEEN_CONSECUTIVE_MEETINGS,
+                                "Two consecutive meetings should be separated by at least one free time slot.",
+                                MeetingScheduleConstraintGroup.SCHEDULE_QUALITY));
     }
 
     public Constraint overlappingMeetings(ConstraintFactory constraintFactory) {
@@ -179,30 +247,40 @@ public class MeetingSchedulingConstraintProvider implements ConstraintProvider {
                 .filter(meetingAssignment -> meetingAssignment.getStartingTimeGrain() != null)
                 .join(constraintFactory.forEachIncludingUnassigned(MeetingAssignment.class)
                         .filter(meetingAssignment -> meetingAssignment.getStartingTimeGrain() != null),
-                        greaterThan(leftAssignment -> leftAssignment.getMeeting().getId(),
-                                rightAssignment -> rightAssignment.getMeeting().getId()),
+                        greaterThan(leftAssignment -> leftAssignment.getMeeting().id(),
+                                rightAssignment -> rightAssignment.getMeeting().id()),
                         overlapping(MeetingAssignment::getGrainIndex,
                                 assignment -> assignment.getLastTimeGrainIndex() + 1))
                 .penalize(HardMediumSoftScore.ofSoft(10), MeetingAssignment::calculateOverlap)
-                .asConstraint("Overlapping meetings");
+                .justifyWith((leftAssignment, rightAssignment, score) -> MeetingsOverlappingInTimeJustification
+                        .of(leftAssignment, rightAssignment))
+                .asConstraint(new ConstraintInfo(MeetingScheduleConstraintProperties.OVERLAPPING_MEETINGS,
+                        MeetingScheduleConstraintProperties.OVERLAPPING_MEETINGS,
+                        "Two meetings should not run in parallel.",
+                        MeetingScheduleConstraintGroup.SCHEDULE_QUALITY));
     }
 
     public Constraint assignLargerRoomsFirst(ConstraintFactory constraintFactory) {
         return constraintFactory.forEachIncludingUnassigned(MeetingAssignment.class)
                 .filter(meetingAssignment -> meetingAssignment.getRoom() != null)
                 .join(Room.class,
-                        lessThan(MeetingAssignment::getRoomCapacity, Room::getCapacity))
+                        lessThan(MeetingAssignment::getRoomCapacity, Room::capacity))
                 .penalize(HardMediumSoftScore.ONE_SOFT,
-                        (meetingAssignment, room) -> room.getCapacity() - meetingAssignment.getRoomCapacity())
-                .asConstraint("Assign larger rooms first");
+                        (meetingAssignment, room) -> room.capacity() - meetingAssignment.getRoomCapacity())
+                .justifyWith((meetingAssignment, room, score) -> LargerRoomAvailableJustification.of(meetingAssignment,
+                        room))
+                .asConstraint(new ConstraintInfo(MeetingScheduleConstraintProperties.ASSIGN_LARGER_ROOMS_FIRST,
+                        MeetingScheduleConstraintProperties.ASSIGN_LARGER_ROOMS_FIRST,
+                        "A meeting should be held in the largest room available, so smaller rooms stay free.",
+                        MeetingScheduleConstraintGroup.ROOM_CAPACITY));
     }
 
     public Constraint roomStability(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(Attendance.class)
                 .join(Attendance.class,
                         equal(Attendance::getPerson),
-                        filtering((leftAttendance,
-                                rightAttendance) -> leftAttendance.getMeeting() != rightAttendance.getMeeting()))
+                        filtering((leftAttendance, rightAttendance) -> !leftAttendance.getMeeting()
+                                .equals(rightAttendance.getMeeting())))
                 .join(MeetingAssignment.class,
                         equal((leftAttendance, rightAttendance) -> leftAttendance.getMeeting(),
                                 MeetingAssignment::getMeeting))
@@ -212,13 +290,18 @@ public class MeetingSchedulingConstraintProvider implements ConstraintProvider {
                         lessThan((leftAttendance, rightAttendance, leftAssignment) -> leftAssignment.getStartingTimeGrain(),
                                 MeetingAssignment::getStartingTimeGrain),
                         filtering((leftAttendance, rightAttendance, leftAssignment,
-                                rightAssignment) -> leftAssignment.getRoom() != rightAssignment.getRoom()),
+                                rightAssignment) -> !Objects.equals(leftAssignment.getRoom(),
+                                        rightAssignment.getRoom())),
                         filtering((leftAttendance, rightAttendance, leftAssignment,
                                 rightAssignment) -> rightAssignment.getGrainIndex() -
-                                        leftAttendance.getMeeting().getDurationInGrains() -
+                                        leftAttendance.getMeeting().durationInGrains() -
                                         leftAssignment.getGrainIndex() <= 2))
                 .penalize(HardMediumSoftScore.ONE_SOFT)
-                .asConstraint("Room stability");
+                .justifyWith((leftAttendance, rightAttendance, leftAssignment, rightAssignment,
+                        score) -> AttendeeChangingRoomJustification.of(leftAttendance, leftAssignment, rightAssignment))
+                .asConstraint(new ConstraintInfo(MeetingScheduleConstraintProperties.ROOM_STABILITY,
+                        MeetingScheduleConstraintProperties.ROOM_STABILITY,
+                        "An attendee's consecutive meetings should be held in the same room, so they do not have to move.",
+                        MeetingScheduleConstraintGroup.SCHEDULE_QUALITY));
     }
-
 }

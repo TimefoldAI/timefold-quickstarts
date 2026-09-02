@@ -23,7 +23,7 @@ It shows different use cases and basic implementations to get you started on you
 | 🎤 <a href="#-conference-scheduling">Conference Scheduling</a>          | Service Model, ValueRange on Entity, Timeslot, Justifications |
 | 🛏️ <a href="#-bed-allocation-scheduling">Bed Allocation Scheduling</a> | Service Model, Allows Unassigned, Pinning                     |
 | 🛫 <a href="#-flight-crew-scheduling">Flight Crew Scheduling</a>        |                                                               |
-| 👥 <a href="#-meeting-scheduling">Meeting Scheduling</a>                | TimeGrain                                                     |
+| 👥 <a href="#-meeting-scheduling">Meeting Scheduling</a>                | Service Model, TimeGrain, Justifications                      |
 | ✅ <a href="#-task-assigning">Task Assigning</a>                         | Bendable Score, Chained Through Time, Allows Unassigned       |
 | 📆 <a href="#-project-job-scheduling">Project Job Scheduling</a>        | Shadow Variables, Variable Listener, Strenght Comparator      |
 | 🏆 <a href="#-sports-league-scheduling">Sports League Scheduling</a>    | Consecutive Sequences                                         |
