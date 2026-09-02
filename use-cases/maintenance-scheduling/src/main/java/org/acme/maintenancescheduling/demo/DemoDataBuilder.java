@@ -44,11 +44,7 @@ public final class DemoDataBuilder {
     private DemoDataBuilder() {
     }
 
-    public static DemoDataBuilder builder() {
-        return new DemoDataBuilder();
-    }
-
-    public MaintenanceScheduleInput build() {
+    public static MaintenanceScheduleInput basic() {
         // Anchored to the next Monday (never today), so the schedule always starts on a workday.
         LocalDate fromDate = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.MONDAY));
         LocalDate toDate = fromDate.plusWeeks(WEEK_LIST_SIZE);

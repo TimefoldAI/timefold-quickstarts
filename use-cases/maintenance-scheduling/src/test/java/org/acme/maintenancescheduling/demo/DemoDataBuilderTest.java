@@ -11,7 +11,7 @@ class DemoDataBuilderTest {
 
     @Test
     void shouldBuildData() {
-        MaintenanceScheduleInput problem = DemoDataBuilder.builder().build();
+        MaintenanceScheduleInput problem = DemoDataBuilder.basic();
 
         assertThat(problem.crews()).hasSize(4);
         assertThat(problem.jobs()).hasSize(28);
@@ -38,6 +38,6 @@ class DemoDataBuilderTest {
     @Test
     void shouldBuildTheSameDataTwice() {
         // The dataset is seeded, so two builds only differ in the work calendar, which is anchored to today.
-        assertThat(DemoDataBuilder.builder().build()).isEqualTo(DemoDataBuilder.builder().build());
+        assertThat(DemoDataBuilder.basic()).isEqualTo(DemoDataBuilder.basic());
     }
 }

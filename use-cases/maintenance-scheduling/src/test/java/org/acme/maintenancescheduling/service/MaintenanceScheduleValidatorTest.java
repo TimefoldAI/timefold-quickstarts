@@ -53,7 +53,7 @@ class MaintenanceScheduleValidatorTest {
     @Test
     void demoDatasetHasNoIssues() {
         // Otherwise the service would ship demo data that its own validator rejects.
-        assertThat(validate(DemoDataBuilder.builder().build()).issues()).isEmpty();
+        assertThat(validate(DemoDataBuilder.basic()).issues()).isEmpty();
     }
 
     @Test

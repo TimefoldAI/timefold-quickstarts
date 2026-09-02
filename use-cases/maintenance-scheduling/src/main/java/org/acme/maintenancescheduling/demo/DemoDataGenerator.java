@@ -39,7 +39,7 @@ public class DemoDataGenerator implements ai.timefold.solver.service.definition.
         if (!BASIC_DEMO_DATA_ID.equals(id)) {
             throw new IllegalArgumentException("Unknown demo data id (%s).".formatted(id));
         }
-        MaintenanceScheduleInput problem = DemoDataBuilder.builder().build();
+        MaintenanceScheduleInput problem = DemoDataBuilder.basic();
         Configuration<MaintenanceScheduleConfigOverrides> configuration = new Configuration<>(
                 new RunConfiguration(BASIC_DEMO_DATA_ID), ModelConfig.empty());
         return new DemoData(BASIC_META_DATA, new ModelRequest<>(configuration, problem));
