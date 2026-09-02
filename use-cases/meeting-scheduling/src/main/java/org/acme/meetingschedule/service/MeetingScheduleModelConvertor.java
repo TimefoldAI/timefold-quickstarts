@@ -181,7 +181,8 @@ public class MeetingScheduleModelConvertor implements
         }
     }
 
-    // lastModelOutput is used to recover a run that stopped halfway. It should override the input assignment.
+    // lastModelOutput is used to recover a run that stopped halfway, so it fully overrides the input assignment of
+    // every meeting it reports. A meeting it does not report keeps the assignment the input gave it.
     private static void applyLastOutput(List<MeetingAssignment> meetingAssignments, Map<String, Room> roomMap,
             Map<Instant, TimeGrain> timeGrainByStart, Optional<MeetingScheduleOutput> lastModelOutput) {
         if (lastModelOutput.isEmpty()) {
@@ -194,15 +195,10 @@ public class MeetingScheduleModelConvertor implements
             if (assignment == null) {
                 continue;
             }
-            Room room = roomMap.get(solved.roomId());
-            if (room != null) {
-                assignment.setRoom(room);
-            }
-            TimeGrain timeGrain = solved.startDateTime() == null ? null
-                    : timeGrainByStart.get(solved.startDateTime().toInstant());
-            if (timeGrain != null) {
-                assignment.setStartingTimeGrain(timeGrain);
-            }
+            // Set both unconditionally: a meeting the last run left unassigned has to end up unassigned
+            // here as well, rather than falling back on whatever the input came in with.
+            assignment.setRoom(solved.roomId() == null ? null : require(roomMap, solved.roomId(), "room"));
+            assignment.setStartingTimeGrain(toTimeGrain(solved.startDateTime(), timeGrainByStart));
         }
     }
 }
