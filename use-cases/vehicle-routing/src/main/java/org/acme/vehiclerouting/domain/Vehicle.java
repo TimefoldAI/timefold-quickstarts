@@ -1,45 +1,120 @@
 package org.acme.vehiclerouting.domain;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.common.PlanningId;
+import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.variable.PlanningListVariable;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIdentityReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
-@JsonIdentityInfo(scope = Vehicle.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @PlanningEntity
 public class Vehicle implements LocationAware {
 
     @PlanningId
     private String id;
     private int capacity;
-    @JsonIdentityReference
     private Location homeLocation;
+    private OffsetDateTime departureTime;
 
-    private LocalDateTime departureTime;
-
-    @JsonIdentityReference(alwaysAsId = true)
+    /**
+     * The route of this vehicle: the visits it services, in the order it services them. The
+     * assignment <em>is</em> this list, so a visit that appears in no vehicle's list is unassigned.
+     */
     @PlanningListVariable(allowsUnassignedValues = true)
     private List<Visit> visits;
 
     public Vehicle() {
     }
 
-    public Vehicle(String id, int capacity, Location homeLocation, LocalDateTime departureTime) {
+    public Vehicle(String id, int capacity, Location homeLocation, OffsetDateTime departureTime) {
         this.id = id;
         this.capacity = capacity;
         this.homeLocation = homeLocation;
         this.departureTime = departureTime;
         this.visits = new ArrayList<>();
     }
+
+    @Override
+    public String toString() {
+        return id;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Vehicle vehicle)) {
+            return false;
+        }
+        return Objects.equals(id, vehicle.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
+
+    // ************************************************************************
+    // Complex methods
+    // ************************************************************************
+
+    @Override
+    public Location getLocation() {
+        return homeLocation;
+    }
+
+    public int getTotalDemand() {
+        int totalDemand = 0;
+        for (Visit visit : visits) {
+            totalDemand += visit.getDemand();
+        }
+        return totalDemand;
+    }
+
+    /**
+     * @return the driving time of the whole route, home location to home location, in seconds
+     */
+    public long getTotalDrivingTimeSeconds() {
+        if (visits.isEmpty()) {
+            return 0;
+        }
+
+        long totalDrivingTime = 0;
+        Location previousLocation = homeLocation;
+
+        for (Visit visit : visits) {
+            totalDrivingTime += previousLocation.getDrivingTimeTo(visit.getLocation());
+            previousLocation = visit.getLocation();
+        }
+        totalDrivingTime += previousLocation.getDrivingTimeTo(homeLocation);
+
+        return totalDrivingTime;
+    }
+
+    /**
+     * @return the time this vehicle is back at its home location, or its departure time when it has
+     *         no visits to make; null while the arrival time shadow of its last visit is not
+     *         computed yet
+     */
+    public OffsetDateTime arrivalTime() {
+        if (visits.isEmpty()) {
+            return departureTime;
+        }
+
+        Visit lastVisit = visits.get(visits.size() - 1);
+        OffsetDateTime lastDepartureTime = lastVisit.getDepartureTime();
+        if (lastDepartureTime == null) {
+            return null;
+        }
+        return lastDepartureTime.plusSeconds(lastVisit.getLocation().getDrivingTimeTo(homeLocation));
+    }
+
+    // ************************************************************************
+    // Getters and setters
+    // ************************************************************************
 
     public String getId() {
         return id;
@@ -65,7 +140,7 @@ public class Vehicle implements LocationAware {
         this.homeLocation = homeLocation;
     }
 
-    public LocalDateTime getDepartureTime() {
+    public OffsetDateTime getDepartureTime() {
         return departureTime;
     }
 
@@ -75,58 +150,6 @@ public class Vehicle implements LocationAware {
 
     public void setVisits(List<Visit> visits) {
         this.visits = visits;
-    }
-
-    // ************************************************************************
-    // Complex methods
-    // ************************************************************************
-
-    @JsonIgnore
-    @Override
-    public Location getLocation() {
-        return homeLocation;
-    }
-
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    public int getTotalDemand() {
-        int totalDemand = 0;
-        for (Visit visit : visits) {
-            totalDemand += visit.getDemand();
-        }
-        return totalDemand;
-    }
-
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    public long getTotalDrivingTimeSeconds() {
-        if (visits.isEmpty()) {
-            return 0;
-        }
-
-        long totalDrivingTime = 0;
-        Location previousLocation = homeLocation;
-
-        for (Visit visit : visits) {
-            totalDrivingTime += previousLocation.getDrivingTimeTo(visit.getLocation());
-            previousLocation = visit.getLocation();
-        }
-        totalDrivingTime += previousLocation.getDrivingTimeTo(homeLocation);
-
-        return totalDrivingTime;
-    }
-
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    public LocalDateTime arrivalTime() {
-        if (visits.isEmpty()) {
-            return departureTime;
-        }
-
-        Visit lastVisit = visits.get(visits.size() - 1);
-        return lastVisit.getDepartureTime().plusSeconds(lastVisit.getLocation().getDrivingTimeTo(homeLocation));
-    }
-
-    @Override
-    public String toString() {
-        return id;
     }
 
 }

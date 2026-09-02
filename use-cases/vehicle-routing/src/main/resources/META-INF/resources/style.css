@@ -1,0 +1,34 @@
+/* Vehicle-routing-specific styling, on top of shared/timefold-quickstart.css.
+   Linked by index.html through the "custom-css" feature in visualizations/sync.sh. */
+
+/* The map fills the viewport height that is left below the header, so the route
+   lines stay readable without the page scrolling. */
+#map {
+    width: 100%;
+    height: calc(100vh - 12rem);
+    min-height: 25rem;
+    border-radius: var(--bs-border-radius);
+}
+
+/* The solution summary sits next to the map and scrolls on its own, so a fleet of
+   many vehicles never pushes the map off screen. */
+#solutionSummaryPanel {
+    max-height: calc(100vh - 12rem);
+    overflow-y: auto;
+}
+
+/* Legend swatch above the timelines, matching the item colors used in visualize.js. */
+.legend-swatch {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+/* A home location is drawn as a Font Awesome glyph rather than an image marker, so
+   it needs no background of its own. */
+.home-location-icon {
+    background: none;
+    border: 0;
+}

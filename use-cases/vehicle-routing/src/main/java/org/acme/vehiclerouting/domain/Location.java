@@ -2,22 +2,23 @@ package org.acme.vehiclerouting.domain;
 
 import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-@JsonFormat(shape = JsonFormat.Shape.ARRAY)
+/**
+ * A geographic coordinate, together with the driving time from here to every other location of the
+ * same route plan.
+ * <p>
+ * Deliberately not a record and deliberately without an {@code equals}/{@code hashCode} override:
+ * two visits may sit on the exact same coordinate, and each of them still needs its own row in the
+ * driving time matrix, so identity is the right notion of equality here. It is also the cheap one -
+ * this class is a hash key on every driving time lookup, of which the solver does millions.
+ */
 public class Location {
 
-    private double latitude;
-    private double longitude;
+    private final double latitude;
+    private final double longitude;
 
-    @JsonIgnore
     private Map<Location, Long> drivingTimeSeconds;
 
-    @JsonCreator
-    public Location(@JsonProperty("latitude") double latitude, @JsonProperty("longitude") double longitude) {
+    public Location(double latitude, double longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
     }
