@@ -35,6 +35,7 @@ QUICKSTART_DIRS=(
     "bed-allocation"
     "conference-scheduling"
     "flight-crew-scheduling"
+    "meeting-scheduling"
 )
 
 # Metadata needed to render each quickstart's index.html from the shared
@@ -46,6 +47,7 @@ quickstart_name() {
         bed-allocation) echo "Bed Allocation Scheduling" ;;
         conference-scheduling) echo "Conference Scheduling" ;;
         flight-crew-scheduling) echo "Flight Crew Scheduling" ;;
+        meeting-scheduling) echo "Meeting Scheduling" ;;
         *) echo "quickstart_name: unknown quickstart '$1'" >&2; exit 1 ;;
     esac
 }
@@ -55,6 +57,7 @@ quickstart_utm_content() {
         bed-allocation) echo "bed-allocation-java" ;;
         conference-scheduling) echo "conference-scheduling-java" ;;
         flight-crew-scheduling) echo "flight-crew-scheduling-java" ;;
+        meeting-scheduling) echo "meeting-scheduling-java" ;;
         *) echo "quickstart_utm_content: unknown quickstart '$1'" >&2; exit 1 ;;
     esac
 }
@@ -65,6 +68,7 @@ quickstart_features() {
         bed-allocation) echo "vis-timeline custom-css" ;;
         conference-scheduling) echo "color-picker" ;;
         flight-crew-scheduling) echo "vis-timeline" ;;
+        meeting-scheduling) echo "vis-timeline color-picker" ;;
         *) echo "quickstart_features: unknown quickstart '$1'" >&2; exit 1 ;;
     esac
 }
@@ -73,20 +77,24 @@ quickstart_features() {
 # on - external resources that aren't part of the shared bundle, so they don't
 # belong in visualizations/shared/. Add a new one to feature_head/feature_scripts
 # below, then enable it in quickstart_features() by name; a quickstart never
-# writes out its own <script>/<style> tags.
+# writes out its own <script>/<style> tags. Stylesheets go in feature_head, so
+# they are linked before the page renders; scripts go in feature_scripts, which
+# lands at the end of the body.
 #
 # "custom-css" just links a style.css that the quickstart keeps next to its
 # own index.html (not under shared/, so sync.sh never touches its content).
 feature_head() {
     case "$1" in
+        vis-timeline) echo '    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vis-timeline@8.5.4/styles/vis-timeline-graph2d.min.css"
+        integrity="sha256-Zyc/Pxv8X+5YVJTouIGNfK2YwilzdIi8VvFAVHutwfU=" crossorigin="anonymous">' ;;
         custom-css) echo '    <link rel="stylesheet" href="style.css">' ;;
     esac
 }
 
 feature_scripts() {
     case "$1" in
-        vis-timeline) echo '<script src="https://cdn.jsdelivr.net/npm/vis-timeline@7.7.2/standalone/umd/vis-timeline-graph2d.min.js"
-        integrity="sha256-Jy2+UO7rZ2Dgik50z3XrrNpnc5+2PAx9MhL2CicodME=" crossorigin="anonymous"></script>' ;;
+        vis-timeline) echo '<script src="https://cdn.jsdelivr.net/npm/vis-timeline@8.5.4/standalone/umd/vis-timeline-graph2d.min.js"
+        integrity="sha256-IgRYB+U3040BpTfpdWOtiwJp+Lgnu12iPgYPnD+OwTs=" crossorigin="anonymous"></script>' ;;
         color-picker) echo '<script src="shared/color-picker.js"></script>' ;;
     esac
 }
