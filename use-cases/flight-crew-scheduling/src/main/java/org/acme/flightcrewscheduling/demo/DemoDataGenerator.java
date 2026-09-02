@@ -40,7 +40,7 @@ public class DemoDataGenerator implements ai.timefold.solver.service.definition.
         if (!BASIC_DEMO_DATA_ID.equals(id)) {
             throw new IllegalArgumentException("Unknown demo data id (%s).".formatted(id));
         }
-        FlightCrewScheduleInput problem = DemoDataBuilder.builder().build();
+        FlightCrewScheduleInput problem = DemoDataBuilder.basic();
         Configuration<FlightCrewScheduleConfigOverrides> configuration = new Configuration<>(
                 new RunConfiguration(BASIC_DEMO_DATA_ID), ModelConfig.empty());
         return new DemoData(BASIC_META_DATA, new ModelRequest<>(configuration, problem));

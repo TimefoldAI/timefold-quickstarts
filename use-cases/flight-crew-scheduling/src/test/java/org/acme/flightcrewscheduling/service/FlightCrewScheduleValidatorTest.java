@@ -54,7 +54,7 @@ class FlightCrewScheduleValidatorTest {
     @Test
     void demoDatasetHasNoIssues() {
         // The service must never ship demo data that its own validator would reject.
-        ValidationResult<Issue> result = validate(DemoDataBuilder.builder().build());
+        ValidationResult<Issue> result = validate(DemoDataBuilder.basic());
         assertThat(result.issues()).isEmpty();
     }
 

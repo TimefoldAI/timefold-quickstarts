@@ -79,11 +79,7 @@ public final class DemoDataBuilder {
     private DemoDataBuilder() {
     }
 
-    public static DemoDataBuilder builder() {
-        return new DemoDataBuilder();
-    }
-
-    public FlightCrewScheduleInput build() {
+    public static FlightCrewScheduleInput basic() {
         // Anchored to the next Monday (never today), so the schedule always lies in the future.
         LocalDate firstMonday = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.MONDAY));
         flightIndex = 0;

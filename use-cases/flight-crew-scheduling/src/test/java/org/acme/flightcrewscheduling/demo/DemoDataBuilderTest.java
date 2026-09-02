@@ -9,12 +9,12 @@ class DemoDataBuilderTest {
 
     @Test
     void shouldBuildData() {
-        FlightCrewScheduleInput problem = DemoDataBuilder.builder().build();
+        FlightCrewScheduleInput problem = DemoDataBuilder.basic();
 
         assertThat(problem.airports()).hasSize(6);
-        assertThat(problem.employees()).hasSize(44);
-        assertThat(problem.flights()).hasSize(14);
-        assertThat(problem.flightAssignments()).hasSize(58);
+        assertThat(problem.employees()).hasSize(48);
+        assertThat(problem.flights()).hasSize(46);
+        assertThat(problem.flightAssignments()).hasSize(190);
 
         assertThat(problem.employees()).allSatisfy(employee -> {
             assertThat(employee.id()).isNotNull();
