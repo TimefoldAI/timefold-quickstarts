@@ -77,12 +77,16 @@ quickstart_features() {
 # on - external resources that aren't part of the shared bundle, so they don't
 # belong in visualizations/shared/. Add a new one to feature_head/feature_scripts
 # below, then enable it in quickstart_features() by name; a quickstart never
-# writes out its own <script>/<style> tags.
+# writes out its own <script>/<style> tags. Stylesheets go in feature_head, so
+# they are linked before the page renders; scripts go in feature_scripts, which
+# lands at the end of the body.
 #
 # "custom-css" just links a style.css that the quickstart keeps next to its
 # own index.html (not under shared/, so sync.sh never touches its content).
 feature_head() {
     case "$1" in
+        vis-timeline) echo '    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vis-timeline@8.5.4/styles/vis-timeline-graph2d.min.css"
+        integrity="sha256-Zyc/Pxv8X+5YVJTouIGNfK2YwilzdIi8VvFAVHutwfU=" crossorigin="anonymous">' ;;
         custom-css) echo '    <link rel="stylesheet" href="style.css">' ;;
     esac
 }
@@ -90,9 +94,7 @@ feature_head() {
 feature_scripts() {
     case "$1" in
         vis-timeline) echo '<script src="https://cdn.jsdelivr.net/npm/vis-timeline@8.5.4/standalone/umd/vis-timeline-graph2d.min.js"
-        integrity="sha256-IgRYB+U3040BpTfpdWOtiwJp+Lgnu12iPgYPnD+OwTs=" crossorigin="anonymous"></script>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vis-timeline@8.5.4/styles/vis-timeline-graph2d.min.css"
-        integrity="sha256-Zyc/Pxv8X+5YVJTouIGNfK2YwilzdIi8VvFAVHutwfU=" crossorigin="anonymous">' ;;
+        integrity="sha256-IgRYB+U3040BpTfpdWOtiwJp+Lgnu12iPgYPnD+OwTs=" crossorigin="anonymous"></script>' ;;
         color-picker) echo '<script src="shared/color-picker.js"></script>' ;;
     esac
 }
