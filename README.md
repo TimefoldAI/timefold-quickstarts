@@ -26,7 +26,7 @@ It shows different use cases and basic implementations to get you started on you
 | 👥 <a href="#-meeting-scheduling">Meeting Scheduling</a>                | Service Model, TimeGrain, Justifications                      |
 | ✅ <a href="#-task-assigning">Task Assigning</a>                         | Bendable Score, Chained Through Time, Allows Unassigned       |
 | 📆 <a href="#-project-job-scheduling">Project Job Scheduling</a>        | Shadow Variables, Variable Listener, Strenght Comparator      |
-| 🏆 <a href="#-sports-league-scheduling">Sports League Scheduling</a>    | Consecutive Sequences                                         |
+| 🏆 <a href="#-sports-league-scheduling">Sports League Scheduling</a>    | Service Model, Consecutive Sequences, Justifications          |
 | 🏅 <a href="#-tournament-scheduling">Tournament Scheduling</a>          | Pinning, Load Balancing                                       |
 
 > [!NOTE]
