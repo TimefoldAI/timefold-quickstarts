@@ -3,10 +3,6 @@ package org.acme.taskassigning.domain;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
-@JsonIdentityInfo(scope = TaskType.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "code")
 public class TaskType {
 
     private String code;
