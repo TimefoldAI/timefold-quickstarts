@@ -1,45 +1,37 @@
 package org.acme.maintenancescheduling.domain;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
-import ai.timefold.solver.core.api.domain.common.PlanningId;
+/**
+ * The window of workdays that jobs can be scheduled in.
+ *
+ * @param fromDate inclusive
+ * @param toDate exclusive
+ */
+public record WorkCalendar(
+        String id,
+        LocalDate fromDate,
+        LocalDate toDate) {
 
-public class WorkCalendar {
-
-    @PlanningId
-    private String id;
-
-    private LocalDate fromDate; // Inclusive
-    private LocalDate toDate; // Exclusive
-
-    public WorkCalendar() {
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof WorkCalendar workCalendar)) {
+            return false;
+        }
+        return Objects.equals(id, workCalendar.id);
     }
 
-    public WorkCalendar(String id, LocalDate fromDate, LocalDate toDate) {
-        this.id = id;
-        this.fromDate = fromDate;
-        this.toDate = toDate;
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 
     @Override
     public String toString() {
         return fromDate + " - " + toDate;
     }
-
-    // ************************************************************************
-    // Getters and setters
-    // ************************************************************************
-
-    public String getId() {
-        return id;
-    }
-
-    public LocalDate getFromDate() {
-        return fromDate;
-    }
-
-    public LocalDate getToDate() {
-        return toDate;
-    }
-
 }
