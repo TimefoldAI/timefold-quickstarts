@@ -1,23 +1,31 @@
 package org.acme.tournamentschedule.domain;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
+import ai.timefold.solver.core.api.domain.solution.ConstraintWeightOverrides;
 import ai.timefold.solver.core.api.domain.solution.PlanningEntityCollectionProperty;
 import ai.timefold.solver.core.api.domain.solution.PlanningScore;
 import ai.timefold.solver.core.api.domain.solution.PlanningSolution;
 import ai.timefold.solver.core.api.domain.solution.ProblemFactCollectionProperty;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
-import ai.timefold.solver.core.api.score.HardMediumSoftBigDecimalScore;
-import ai.timefold.solver.core.api.solver.SolverStatus;
+import ai.timefold.solver.core.api.score.HardMediumSoftScore;
+import ai.timefold.solver.service.definition.api.SolverModel;
+import ai.timefold.solver.service.definition.api.metrics.InputMetricsAware;
+import ai.timefold.solver.service.definition.api.metrics.OutputMetricsAware;
+
+import org.acme.tournamentschedule.dto.input.TournamentScheduleInputMetrics;
+import org.acme.tournamentschedule.dto.output.TournamentScheduleOutputMetrics;
 
 @PlanningSolution
-public class TournamentSchedule {
+public class TournamentSchedule implements SolverModel<HardMediumSoftScore>,
+        InputMetricsAware<TournamentScheduleInputMetrics>, OutputMetricsAware<TournamentScheduleOutputMetrics> {
 
     @ProblemFactCollectionProperty
     @ValueRangeProvider
     private List<Team> teams;
-    @ProblemFactCollectionProperty
-    private List<Day> days;
     @ProblemFactCollectionProperty
     private List<UnavailabilityPenalty> unavailabilityPenalties;
 
@@ -25,62 +33,68 @@ public class TournamentSchedule {
     private List<TeamAssignment> teamAssignments;
 
     @PlanningScore
-    private HardMediumSoftBigDecimalScore score;
-    private SolverStatus solverStatus;
+    private HardMediumSoftScore score;
+
+    private ConstraintWeightOverrides<HardMediumSoftScore> constraintWeightOverrides = ConstraintWeightOverrides.none();
 
     public TournamentSchedule() {
     }
 
-    public TournamentSchedule(HardMediumSoftBigDecimalScore score, SolverStatus solverStatus) {
-        this.score = score;
-        this.solverStatus = solverStatus;
+    public TournamentSchedule(List<Team> teams, List<UnavailabilityPenalty> unavailabilityPenalties,
+            List<TeamAssignment> teamAssignments) {
+        this.teams = teams;
+        this.unavailabilityPenalties = unavailabilityPenalties;
+        this.teamAssignments = teamAssignments;
     }
 
     public List<Team> getTeams() {
         return teams;
     }
 
-    public void setTeams(List<Team> teams) {
-        this.teams = teams;
-    }
-
-    public List<Day> getDays() {
-        return days;
-    }
-
-    public void setDays(List<Day> days) {
-        this.days = days;
-    }
-
     public List<UnavailabilityPenalty> getUnavailabilityPenalties() {
         return unavailabilityPenalties;
-    }
-
-    public void setUnavailabilityPenalties(List<UnavailabilityPenalty> unavailabilityPenalties) {
-        this.unavailabilityPenalties = unavailabilityPenalties;
     }
 
     public List<TeamAssignment> getTeamAssignments() {
         return teamAssignments;
     }
 
-    public void setTeamAssignments(List<TeamAssignment> teamAssignments) {
-        this.teamAssignments = teamAssignments;
-    }
-
-    public HardMediumSoftBigDecimalScore getScore() {
+    @Override
+    public HardMediumSoftScore getScore() {
         return score;
     }
 
-    public void setScore(HardMediumSoftBigDecimalScore score) {
+    public void setScore(HardMediumSoftScore score) {
         this.score = score;
     }
 
-    public SolverStatus getSolverStatus() {
-        return solverStatus;
+    @Override
+    public ConstraintWeightOverrides<HardMediumSoftScore> getConstraintWeightOverrides() {
+        return constraintWeightOverrides;
     }
 
-    public void setSolverStatus(SolverStatus solverStatus) {
-        this.solverStatus = solverStatus;
+    public void setConstraintWeightOverrides(ConstraintWeightOverrides<HardMediumSoftScore> constraintWeightOverrides) {
+        this.constraintWeightOverrides = constraintWeightOverrides;
+    }
+
+    @Override
+    public TournamentScheduleInputMetrics getInputMetrics() {
+        return new TournamentScheduleInputMetrics(teams.size(), teamAssignments.size(), unavailabilityPenalties.size());
+    }
+
+    private static boolean isAssigned(TeamAssignment assignment) {
+        return assignment.getTeam() != null;
+    }
+
+    @Override
+    public TournamentScheduleOutputMetrics getOutputMetrics() {
+        int assignedMatches = (int) teamAssignments.stream().filter(TournamentSchedule::isAssigned).count();
+        int unassignedMatches = teamAssignments.size() - assignedMatches;
+        Map<Team, Long> assignmentCountByTeam = teamAssignments.stream()
+                .filter(TournamentSchedule::isAssigned)
+                .collect(Collectors.groupingBy(TeamAssignment::getTeam, Collectors.counting()));
+        int assignmentCountRange = assignmentCountByTeam.isEmpty() ? 0
+                : (int) (Collections.max(assignmentCountByTeam.values()) - Collections.min(assignmentCountByTeam.values()));
+        return new TournamentScheduleOutputMetrics(assignedMatches, unassignedMatches, assignmentCountRange);
     }
 }

@@ -1,14 +1,16 @@
 package org.acme.tournamentschedule.solver;
 
+import static org.acme.tournamentschedule.support.TestHelper.aTeam;
+import static org.acme.tournamentschedule.support.TestHelper.anAssignment;
+import static org.acme.tournamentschedule.support.TestHelper.anUnavailabilityPenalty;
+
+import java.time.LocalDate;
+
 import jakarta.inject.Inject;
 
 import ai.timefold.solver.core.api.score.stream.test.ConstraintVerifier;
 
-import org.acme.tournamentschedule.domain.Day;
-import org.acme.tournamentschedule.domain.Team;
-import org.acme.tournamentschedule.domain.TeamAssignment;
 import org.acme.tournamentschedule.domain.TournamentSchedule;
-import org.acme.tournamentschedule.domain.UnavailabilityPenalty;
 import org.junit.jupiter.api.Test;
 
 import io.quarkus.test.junit.QuarkusTest;
@@ -19,64 +21,90 @@ class TournamentScheduleConstraintProviderTest {
     @Inject
     ConstraintVerifier<TournamentScheduleConstraintProvider, TournamentSchedule> constraintVerifier;
 
-    private static final Day DAY0 = new Day(0);
-    private static final Day DAY1 = new Day(1);
-    private static final Day DAY2 = new Day(2);
-    private static final Team TEAM0 = new Team(0, "A");
-    private static final Team TEAM1 = new Team(1, "B");
-    private static final Team TEAM2 = new Team(2, "C");
+    private static final LocalDate DAY0 = LocalDate.of(2024, 1, 1);
+    private static final LocalDate DAY1 = LocalDate.of(2024, 1, 2);
+    private static final LocalDate DAY2 = LocalDate.of(2024, 1, 3);
 
     @Test
-    void oneAssignmentPerDayPerTeam() {
-        TeamAssignment assignment1 = new TeamAssignment(0, DAY0, 0);
-        assignment1.setTeam(TEAM0);
-        TeamAssignment assignment2 = new TeamAssignment(1, DAY0, 1);
-        assignment2.setTeam(TEAM0);
-        TeamAssignment assignment3 = new TeamAssignment(2, DAY0, 2);
-        assignment3.setTeam(TEAM0);
-        TeamAssignment assignment4 = new TeamAssignment(3, DAY1, 0);
-        assignment4.setTeam(TEAM1);
-        TeamAssignment assignment5 = new TeamAssignment(4, DAY2, 1);
-        assignment5.setTeam(TEAM1);
+    void oneAssignmentPerDatePerTeamUnpenalized() {
+        var team0 = aTeam("T0");
+        var team1 = aTeam("T1");
+        var assignment1 = anAssignment("0", DAY0).team(team0).build();
+        var assignment2 = anAssignment("1", DAY0).team(team1).build();
+        var assignment3 = anAssignment("2", DAY1).team(team0).build();
 
         constraintVerifier.verifyThat(TournamentScheduleConstraintProvider::oneAssignmentPerDatePerTeam)
-                .given(assignment1, assignment2, assignment3, assignment4, assignment5, TEAM0, TEAM1, TEAM2)
-                .penalizesBy(3); // TEAM0 by 2, TEAM1 by 1.
+                .given(assignment1, assignment2, assignment3)
+                .penalizesBy(0);
     }
 
     @Test
-    void unavailabilityPenalty() {
-        TeamAssignment assignment1 = new TeamAssignment(0, DAY0, 0);
-        assignment1.setTeam(TEAM0);
-        TeamAssignment assignment2 = new TeamAssignment(1, DAY1, 0);
-        assignment2.setTeam(TEAM1);
-        TeamAssignment assignment3 = new TeamAssignment(2, DAY1, 1);
-        assignment3.setTeam(TEAM1);
-        TeamAssignment assignment4 = new TeamAssignment(3, DAY2, 0);
-        assignment4.setTeam(TEAM1);
+    void oneAssignmentPerDatePerTeamPenalized() {
+        var team0 = aTeam("T0");
+        var team1 = aTeam("T1");
+        var assignment1 = anAssignment("0", DAY0).team(team0).build();
+        var assignment2 = anAssignment("1", DAY0).team(team0).build();
+        var assignment3 = anAssignment("2", DAY0).team(team0).build();
+        var assignment4 = anAssignment("3", DAY1).team(team1).build();
+        var assignment5 = anAssignment("4", DAY2).team(team1).build();
 
-        UnavailabilityPenalty unavailabilityPenalty1 = new UnavailabilityPenalty(TEAM0, DAY0);
-        UnavailabilityPenalty unavailabilityPenalty2 = new UnavailabilityPenalty(TEAM1, DAY1);
+        constraintVerifier.verifyThat(TournamentScheduleConstraintProvider::oneAssignmentPerDatePerTeam)
+                .given(assignment1, assignment2, assignment3, assignment4, assignment5)
+                .penalizesBy(3); // T0 by 2 (3 assignments on DAY0 -> 3 pairs), T1 by 0 (different days).
+    }
+
+    @Test
+    void unavailabilityPenaltyUnpenalized() {
+        var team0 = aTeam("T0");
+        var team1 = aTeam("T1");
+        var assignment1 = anAssignment("0", DAY0).team(team0).build();
+        var assignment2 = anAssignment("1", DAY1).team(team1).build();
+        var unavailabilityPenalty = anUnavailabilityPenalty(team0, DAY1);
 
         constraintVerifier.verifyThat(TournamentScheduleConstraintProvider::unavailabilityPenalty)
-                .given(assignment1, assignment2, assignment3, assignment4, unavailabilityPenalty1, unavailabilityPenalty2)
-                .penalizesBy(2); // TEAM0 by 1, TEAM1 by 1.
+                .given(assignment1, assignment2, unavailabilityPenalty)
+                .penalizesBy(0);
     }
 
     @Test
-    void fairAssignmentCountPerTeam() {
-        TeamAssignment assignment1 = new TeamAssignment(0, DAY0, 0);
-        assignment1.setTeam(TEAM0);
-        TeamAssignment assignment2 = new TeamAssignment(1, DAY1, 0);
-        assignment2.setTeam(TEAM1);
-        TeamAssignment assignment3 = new TeamAssignment(2, DAY2, 0);
-        assignment3.setTeam(TEAM2);
-        TeamAssignment assignment4 = new TeamAssignment(3, DAY0, 0);
-        assignment4.setTeam(TEAM2);
+    void unavailabilityPenaltyPenalized() {
+        var team0 = aTeam("T0");
+        var team1 = aTeam("T1");
+        var assignment1 = anAssignment("0", DAY0).team(team0).build();
+        var assignment2 = anAssignment("1", DAY1).team(team1).build();
+        var assignment3 = anAssignment("2", DAY1).team(team1).build();
+        var unavailabilityPenalty1 = anUnavailabilityPenalty(team0, DAY0);
+        var unavailabilityPenalty2 = anUnavailabilityPenalty(team1, DAY1);
+
+        constraintVerifier.verifyThat(TournamentScheduleConstraintProvider::unavailabilityPenalty)
+                .given(assignment1, assignment2, assignment3, unavailabilityPenalty1, unavailabilityPenalty2)
+                .penalizesBy(2); // T0 by 1, T1 by 1.
+    }
+
+    @Test
+    void fairAssignmentCountPerTeamUnpenalized() {
+        var team0 = aTeam("T0");
+        var team1 = aTeam("T1");
+        var team2 = aTeam("T2");
+        var assignment1 = anAssignment("0", DAY0).team(team0).build();
+        var assignment2 = anAssignment("1", DAY1).team(team1).build();
+        var assignment3 = anAssignment("2", DAY2).team(team2).build();
 
         constraintVerifier.verifyThat(TournamentScheduleConstraintProvider::fairAssignmentCountPerTeam)
                 .given(assignment1, assignment2, assignment3)
                 .penalizesBy(0);
+    }
+
+    @Test
+    void fairAssignmentCountPerTeamPenalized() {
+        var team0 = aTeam("T0");
+        var team1 = aTeam("T1");
+        var team2 = aTeam("T2");
+        var assignment1 = anAssignment("0", DAY0).team(team0).build();
+        var assignment2 = anAssignment("1", DAY1).team(team1).build();
+        var assignment3 = anAssignment("2", DAY2).team(team2).build();
+        var assignment4 = anAssignment("3", DAY0).team(team2).build();
+
         // Team 2 twice while everyone else just once = more unfair.
         constraintVerifier.verifyThat(TournamentScheduleConstraintProvider::fairAssignmentCountPerTeam)
                 .given(assignment1, assignment2, assignment3, assignment4)
@@ -84,20 +112,30 @@ class TournamentScheduleConstraintProviderTest {
     }
 
     @Test
-    void evenlyConfrontationCount() {
-        TeamAssignment assignment1 = new TeamAssignment(0, DAY0, 0);
-        assignment1.setTeam(TEAM0);
-        TeamAssignment assignment2 = new TeamAssignment(1, DAY0, 0);
-        assignment2.setTeam(TEAM1);
-        TeamAssignment assignment3 = new TeamAssignment(2, DAY0, 0);
-        assignment3.setTeam(TEAM2);
-        TeamAssignment assignment4 = new TeamAssignment(3, DAY0, 0);
-        assignment4.setTeam(TEAM2);
+    void evenlyConfrontationCountUnpenalized() {
+        var team0 = aTeam("T0");
+        var team1 = aTeam("T1");
+        var team2 = aTeam("T2");
+        var assignment1 = anAssignment("0", DAY0).team(team0).build();
+        var assignment2 = anAssignment("1", DAY0).team(team1).build();
+        var assignment3 = anAssignment("2", DAY0).team(team2).build();
 
         constraintVerifier.verifyThat(TournamentScheduleConstraintProvider::evenlyConfrontationCount)
                 .given(assignment1, assignment2, assignment3)
                 .penalizesBy(0);
-        // Team 2 twice while everyone else just once = more unfair.
+    }
+
+    @Test
+    void evenlyConfrontationCountPenalized() {
+        var team0 = aTeam("T0");
+        var team1 = aTeam("T1");
+        var team2 = aTeam("T2");
+        var assignment1 = anAssignment("0", DAY0).team(team0).build();
+        var assignment2 = anAssignment("1", DAY0).team(team1).build();
+        var assignment3 = anAssignment("2", DAY0).team(team2).build();
+        var assignment4 = anAssignment("3", DAY0).team(team2).build();
+
+        // Team 0 and team 2 confront twice while every other pair confronts once = more unfair.
         constraintVerifier.verifyThat(TournamentScheduleConstraintProvider::evenlyConfrontationCount)
                 .given(assignment1, assignment2, assignment3, assignment4)
                 .penalizesByMoreThan(0);

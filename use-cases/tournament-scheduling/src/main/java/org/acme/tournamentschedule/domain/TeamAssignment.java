@@ -1,17 +1,23 @@
 package org.acme.tournamentschedule.domain;
 
+import java.time.LocalDate;
+import java.util.Objects;
+
+import ai.timefold.solver.core.api.domain.common.PlanningId;
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.entity.PlanningPin;
-import ai.timefold.solver.core.api.domain.common.PlanningId;
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
 
+/**
+ * The planning entity: a match slot on a fixed {@link #matchDate}, waiting for the {@link Team} that plays it.
+ * There is exactly one assignment per match slot.
+ */
 @PlanningEntity
 public class TeamAssignment {
 
     @PlanningId
-    private long id;
-    private Day day;
-    private int indexInDate;
+    private String id;
+    private LocalDate matchDate;
     @PlanningPin
     private boolean pinned;
 
@@ -21,46 +27,27 @@ public class TeamAssignment {
     public TeamAssignment() {
     }
 
-    public TeamAssignment(long id) {
+    public TeamAssignment(String id, LocalDate matchDate) {
         this.id = id;
+        this.matchDate = matchDate;
     }
 
-    public TeamAssignment(long id, Day day, int indexInDate) {
-        this(id);
-        this.day = day;
-        this.indexInDate = indexInDate;
+    public TeamAssignment(String id, LocalDate matchDate, Team team, boolean pinned) {
+        this(id, matchDate);
+        this.team = team;
+        this.pinned = pinned;
     }
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public Day getDay() {
-        return day;
-    }
-
-    public void setDay(Day day) {
-        this.day = day;
-    }
-
-    public int getIndexInDay() {
-        return indexInDate;
-    }
-
-    public void setIndexInDay(int indexInDate) {
-        this.indexInDate = indexInDate;
+    public LocalDate getMatchDate() {
+        return matchDate;
     }
 
     public boolean isPinned() {
         return pinned;
-    }
-
-    public void setPinned(boolean pinned) {
-        this.pinned = pinned;
     }
 
     public Team getTeam() {
@@ -72,8 +59,23 @@ public class TeamAssignment {
     }
 
     @Override
-    public String toString() {
-        return "Round-" + day.getDateIndex() + "(" + indexInDate + ")";
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof TeamAssignment that)) {
+            return false;
+        }
+        return Objects.equals(id, that.id);
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
+
+    @Override
+    public String toString() {
+        return id;
+    }
 }
