@@ -11,10 +11,10 @@
 
   <groupId>ai.timefold.model</groupId>
   <artifactId>maintenance-scheduling</artifactId>
-  <version>0.0.1</version>
+  <version>${revision}</version>
 
   <properties>
-    <revision>1.0.0-SNAPSHOT</revision>
+    <revision>0.0.1</revision>
     <maven.compiler.release>21</maven.compiler.release>
   </properties>
 

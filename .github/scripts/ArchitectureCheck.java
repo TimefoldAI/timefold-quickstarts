@@ -175,7 +175,8 @@ public final class ArchitectureCheck {
                 identifierFieldsMustHaveMatchingEqualsAndHashCode(),
                 planningVariableValueTypesMustDeclarePlanningId(),
                 demoDataGeneratorsMustNotExtendAbstractBasicDemoDataGenerator(),
-                constraintsMustNotUseBareStringAsConstraint());
+                constraintsMustNotUseBareStringAsConstraint(),
+                pomVersionMustUseRevisionProperty());
     }
 
     /*
@@ -464,6 +465,18 @@ public final class ArchitectureCheck {
                         + "@PlanningId on their identifier field");
     }
 
+    /*
+     * The Models Service SDK build (release plugin) rewrites a module's own <version> via the
+     * ${revision} property; a module that hardcodes its version instead is skipped by that rewrite
+     * and drifts out of sync with the release it's cut in. Requiring both the placeholder and a
+     * <revision> property (its default/SNAPSHOT value) keeps every quickstart's pom.xml release-ready.
+     */
+    private static ArchRule pomVersionMustUseRevisionProperty() {
+        return classes()
+                .should(new PomVersionUsesRevisionPropertyCondition())
+                .as("Module pom.xml must declare <version>${revision}</version> and a <revision> property");
+    }
+
     private static ArchCondition<JavaClass> notHaveFilesMatching(String... syntaxAndPatterns) {
         return new ArchCondition<>("not have forbidden script files in the repository") {
             // Walking the module tree once is enough; anchor the scan to a single class.
@@ -523,6 +536,42 @@ public final class ArchitectureCheck {
             if (javaClass.isAnnotatedWith(annotationTypeName)) {
                 events.add(SimpleConditionEvent.violated(javaClass,
                         "%s is annotated with @%s".formatted(javaClass.getName(), annotationTypeName)));
+            }
+        }
+    }
+
+    private static final class PomVersionUsesRevisionPropertyCondition extends ArchCondition<JavaClass> {
+
+        private static final Pattern VERSION_REVISION_PATTERN =
+                Pattern.compile(Pattern.quote("<version>${revision}</version>"));
+        private static final Pattern REVISION_PROPERTY_PATTERN = Pattern.compile("<revision>[^<]+</revision>");
+
+        // Walking the module tree once is enough; anchor the scan to a single class.
+        private boolean scanned;
+
+        private PomVersionUsesRevisionPropertyCondition() {
+            super("declare <version>${revision}</version> and a <revision> property in pom.xml");
+        }
+
+        @Override
+        public void check(JavaClass javaClass, ConditionEvents events) {
+            if (scanned) {
+                return;
+            }
+            scanned = true;
+            var pomFile = moduleRoot.resolve("pom.xml");
+            if (!Files.isRegularFile(pomFile)) {
+                events.add(SimpleConditionEvent.violated(javaClass, "No pom.xml found at " + pomFile));
+                return;
+            }
+            var source = String.join("\n", readLines(pomFile));
+            if (!VERSION_REVISION_PATTERN.matcher(source).find()) {
+                events.add(SimpleConditionEvent.violated(javaClass,
+                        "%s must declare <version>${revision}</version>".formatted(pomFile)));
+            }
+            if (!REVISION_PROPERTY_PATTERN.matcher(source).find()) {
+                events.add(SimpleConditionEvent.violated(javaClass,
+                        "%s must define a <revision> property".formatted(pomFile)));
             }
         }
     }
