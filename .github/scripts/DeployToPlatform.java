@@ -1,12 +1,17 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 21+
+//DEPS info.picocli:picocli:4.7.7
+
+import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,85 +20,79 @@ import java.util.regex.Pattern;
  * pom.xml, runs the deploy, then restores the original pom.xml (even if the build fails or
  * the script is interrupted). Keeps deploy credentials/config out of the committed pom.xml.
  *
- * Usage:
- *   jbang ./.github/scripts/DeployToPlatform.java --url <platformUrl> --key <key> --tenants <t1,t2,...> [options]
- *
- * Required:
- *   --url                          Timefold platform URL, e.g. https://sandbox.timefold.dev
- *   --key                          Model key, e.g. maintenance-scheduling-template
- *   --tenants                      Comma-separated tenant id(s)
- *
- * Optional:
- *   --module <path>                Path to the module containing pom.xml (default: current directory)
- *   --overwrite <bool>              Value for <overwrite> (default: true)
- *   --handle-subscription <bool>    Value for <handleSubscription> (default: true)
- *
  * Example:
- *   jbang ./github/scripts/DeployToPlatform.java --module use-cases/maintenance-scheduling \
+ *   jbang .github/scripts/DeployToPlatform.java --module use-cases/maintenance-scheduling \
  *     --url https://sandbox.timefold.dev \
  *     --key maintenance-scheduling-template \
  *     --tenants ae226da1-5aea-4aba-93fc-8f911f37aa23
  */
-public final class DeployToPlatform {
+@Command(name = "DeployToPlatform",
+        mixinStandardHelpOptions = true,
+        description = "Deploys a quickstart to the Timefold Platform by temporarily injecting the "
+                + "timefold-maven-plugin deploy configuration into its pom.xml.")
+public final class DeployToPlatform implements Callable<Integer> {
+
+    private static final String NL = System.lineSeparator();
 
     // Matches a top-level <build> (2-space indent) only, not one nested in a <profile>.
+    // \R matches whatever line break the pom.xml actually uses.
     private static final Pattern TOP_LEVEL_BUILD =
-            Pattern.compile("\\n {2}<build>\\n.*?\\n {2}</build>\\n", Pattern.DOTALL);
-    private static final Pattern PLUGINS_OPEN = Pattern.compile("\\n {4}<plugins>\\n");
+            Pattern.compile("\\R {2}<build>\\R.*?\\R {2}</build>\\R", Pattern.DOTALL);
+    private static final Pattern PLUGINS_OPEN = Pattern.compile("\\R {4}<plugins>\\R");
     private static final Pattern PARENT_BLOCK = Pattern.compile("<parent>(.*?)</parent>", Pattern.DOTALL);
     private static final Pattern VERSION_TAG = Pattern.compile("<version>\\s*(.*?)\\s*</version>");
     private static final Pattern MAJOR_MINOR_PATCH = Pattern.compile("^\\d+\\.\\d+\\.\\d+$");
 
-    public static void main(String[] args) throws Exception {
-        Path module = Path.of(".");
-        String platformUrl = null;
-        String key = null;
-        String tenants = null;
-        String overwrite = "true";
-        String handleSubscription = "true";
+    @Option(names = {"-m", "--module"}, defaultValue = ".",
+            description = "Path to the module containing pom.xml (default: ${DEFAULT-VALUE}).")
+    Path module;
 
-        for (int i = 0; i < args.length; i++) {
-            switch (args[i]) {
-                case "--module" -> module = Path.of(args[++i]);
-                case "--url" -> platformUrl = args[++i];
-                case "--key" -> key = args[++i];
-                case "--tenants" -> tenants = args[++i];
-                case "--overwrite" -> overwrite = args[++i];
-                case "--handle-subscription" -> handleSubscription = args[++i];
-                case "-h", "--help" -> usage(0);
-                default -> {
-                    System.err.println("Unknown argument: " + args[i]);
-                    usage(1);
-                }
-            }
-        }
+    @Option(names = {"-u", "--url"}, required = true,
+            description = "Timefold platform URL, e.g. https://sandbox.timefold.dev")
+    String platformUrl;
 
-        if (platformUrl == null || key == null || tenants == null) {
-            usage(1);
-        }
+    @Option(names = {"-k", "--key"}, required = true,
+            description = "Model key, e.g. maintenance-scheduling-template")
+    String key;
 
-        List<String> tenantList = new ArrayList<>();
-        for (String tenant : tenants.split(",")) {
-            if (!tenant.isBlank()) {
-                tenantList.add(tenant.strip());
-            }
-        }
+    @Option(names = {"-t", "--tenants"}, required = true, split = ",", paramLabel = "<tenantId>",
+            description = "Comma-separated tenant id(s).")
+    List<String> tenants;
+
+    @Option(names = {"--overwrite"}, defaultValue = "true", arity = "0..1", fallbackValue = "true",
+            paramLabel = "<bool>", description = "Value for <overwrite> (default: ${DEFAULT-VALUE}).")
+    boolean overwrite;
+
+    @Option(names = {"--handle-subscription"}, defaultValue = "true", arity = "0..1", fallbackValue = "true",
+            paramLabel = "<bool>", description = "Value for <handleSubscription> (default: ${DEFAULT-VALUE}).")
+    boolean handleSubscription;
+
+    public static void main(String[] args) {
+        System.exit(new CommandLine(new DeployToPlatform()).execute(args));
+    }
+
+    @Override
+    public Integer call() throws Exception {
+        List<String> tenantList = tenants.stream()
+                .map(String::strip)
+                .filter(tenant -> !tenant.isBlank())
+                .toList();
         if (tenantList.isEmpty()) {
             System.err.println("No tenants given");
-            System.exit(1);
+            return 1;
         }
 
         Path pom = module.resolve("pom.xml");
         if (!Files.isRegularFile(pom)) {
             System.err.println("No pom.xml found at " + pom);
-            System.exit(1);
+            return 1;
         }
 
         try {
             validateParentVersion(pom);
         } catch (IllegalStateException e) {
             System.err.println(e.getMessage());
-            System.exit(1);
+            return 1;
         }
 
         Path backup = Files.createTempFile("deploy-to-platform-pom", ".xml");
@@ -107,15 +106,15 @@ public final class DeployToPlatform {
             }
         }));
 
-        injectDeployPlugin(pom, platformUrl, key, tenantList, overwrite, handleSubscription);
+        injectDeployPlugin(pom, tenantList);
 
         System.out.println("Deploying '" + module + "' to '" + platformUrl + "' (key=" + key
-                + ", tenants=" + tenants + ")...");
+                + ", tenants=" + String.join(",", tenantList) + ")...");
         Process process = new ProcessBuilder("mvn", "clean", "package", "-Denterprise=true", "timefold:deploy")
                 .directory(module.toFile())
                 .inheritIO()
                 .start();
-        System.exit(process.waitFor());
+        return process.waitFor();
     }
 
     /**
@@ -142,9 +141,8 @@ public final class DeployToPlatform {
         }
     }
 
-    private static void injectDeployPlugin(Path pom, String platformUrl, String key, List<String> tenants,
-            String overwrite, String handleSubscription) throws IOException {
-        String tenantXml = tenants.stream()
+    private void injectDeployPlugin(Path pom, List<String> tenantList) throws IOException {
+        String tenantXml = tenantList.stream()
                 .map(tenant -> "            <tenant>" + tenant + "</tenant>")
                 .reduce((a, b) -> a + "\n" + b)
                 .orElseThrow();
@@ -158,7 +156,7 @@ public final class DeployToPlatform {
                           <platformUrl>%s</platformUrl>
                           <key>%s</key>
                           <tenants>
-                %s
+                            %s
                           </tenants>
                           <overwrite>%s</overwrite>
                           <handleSubscription>%s</handleSubscription>
@@ -171,7 +169,8 @@ public final class DeployToPlatform {
                           </execution>
                         </executions>
                       </plugin>"""
-                .formatted(platformUrl, key, tenantXml, overwrite, handleSubscription);
+                .formatted(platformUrl, key, tenantXml, overwrite, handleSubscription)
+                .replace("\n", NL);
 
         String content = Files.readString(pom);
         Matcher buildMatcher = TOP_LEVEL_BUILD.matcher(content);
@@ -182,35 +181,21 @@ public final class DeployToPlatform {
             if (!pluginsMatcher.find()) {
                 throw new IllegalStateException("Found a top-level <build> without <plugins>; cannot insert automatically");
             }
-            String newBlock = block.substring(0, pluginsMatcher.end()) + pluginXml + "\n"
+            String newBlock = block.substring(0, pluginsMatcher.end()) + pluginXml + NL
                     + block.substring(pluginsMatcher.end());
             newContent = content.substring(0, buildMatcher.start()) + newBlock + content.substring(buildMatcher.end());
         } else {
-            String newBlock = "  <build>\n    <plugins>\n" + pluginXml + "\n    </plugins>\n  </build>\n";
+            String newBlock = """
+                      <build>
+                        <plugins>
+                            %s
+                        </plugins>
+                      </build>
+                    """
+                    .replace("\n", NL)
+                    .formatted(pluginXml);
             newContent = content.replaceFirst(Pattern.quote("</project>"), Matcher.quoteReplacement(newBlock) + "</project>");
         }
         Files.writeString(pom, newContent);
-    }
-
-    private static void usage(int exitCode) {
-        System.err.println("""
-                Usage: jbang scripts/DeployToPlatform.java --url <platformUrl> --key <key> --tenants <t1,t2,...> [options]
-
-                Required:
-                  --url                          Timefold platform URL, e.g. https://sandbox.timefold.dev
-                  --key                          Model key, e.g. maintenance-scheduling-template
-                  --tenants                      Comma-separated tenant id(s)
-
-                Optional:
-                  --module <path>                Path to the module containing pom.xml (default: current directory)
-                  --overwrite <bool>              Value for <overwrite> (default: true)
-                  --handle-subscription <bool>    Value for <handleSubscription> (default: true)
-
-                Example:
-                  jbang scripts/DeployToPlatform.java --module use-cases/maintenance-scheduling \\
-                    --url https://app.timefold.ai \\
-                    --key maintenance-scheduling-template \\
-                    --tenants ae226da1-5aea-4aba-93fc-8f23411f37aa23""");
-        System.exit(exitCode);
     }
 }

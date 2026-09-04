@@ -7,6 +7,9 @@
 
     const MESSAGE_SOURCE = "timefold-visualization";
 
+    // How long to wait for the platform's "init" message before giving up.
+    const INIT_TIMEOUT_MS = 15000;
+
     // Origins the platform may embed this ui from.
     const ALLOWED_PARENT_ORIGINS = [];
 
@@ -29,7 +32,16 @@
 
     // Callers (quickstart-page.js) must wait on it before touching SETUP.apiUrl/apiKey/runId.
     SETUP.ready = new Promise((resolve, reject) => {
-        window.addEventListener("message", function handleInit(event) {
+        const timeoutId = setTimeout(() => {
+            window.removeEventListener("message", handleInit);
+            reject({
+                status: 0,
+                statusText: "platform did not send an init message within "
+                        + (INIT_TIMEOUT_MS / 1000) + "s"
+            });
+        }, INIT_TIMEOUT_MS);
+
+        function handleInit(event) {
             if (!isTrustedOrigin(event)) return;
             const msg = event.data;
             if (!msg || msg.source !== MESSAGE_SOURCE || msg.type !== "init") return;
@@ -43,6 +55,7 @@
                 SETUP.apiKey = apiKey;
             }
 
+            clearTimeout(timeoutId);
             window.removeEventListener("message", handleInit);
             parentOrigin = event.origin;
             window.parent.postMessage({source: MESSAGE_SOURCE, type: "init-response", success: ok}, parentOrigin);
@@ -53,7 +66,9 @@
             } else {
                 reject({status: 0, statusText: "platform did not send tenantId/runId/apiUrl/apiKey"});
             }
-        });
+        }
+
+        window.addEventListener("message", handleInit);
     });
 
     // ── Iframe resize reporting ──
