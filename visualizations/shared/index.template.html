@@ -25,7 +25,7 @@
     <link rel="icon" href="https://timefold.ai/uploads/images/Brand-Assets/timefold-solver-logomark.png" type="image/png">
 {{HEAD_EXTRA}}
 </head>
-<body>
+<body style="display: none">
 <header id="appHeader" class="bg-white shadow">
     <div class="container-fluid">
         <nav class="navbar navbar-expand-lg mb-3">
@@ -39,11 +39,13 @@
                         <div id="score" class="score">Score: ?</div>
                         <div id="info" class="input-metric"></div>
                     </div>
-                    <button id="analyzeButton" type="button" class="btn btn-secondary btn-icon-circle" title="Score analysis">
+                    <!-- disabled until QuickstartPage's SETUP.ready resolves (quickstart-page.js) -->
+                    <button id="analyzeButton" type="button" class="btn btn-secondary btn-icon-circle" title="Score analysis" disabled>
                         <span class="fas fa-magnifying-glass-chart"></span>
                     </button>
                     <div class="vr"></div>
-                    <button id="solveButton" type="button" class="btn btn-success">
+                    <!-- disabled until QuickstartPage's SETUP.ready resolves (quickstart-page.js) -->
+                    <button id="solveButton" type="button" class="btn btn-success" disabled>
                         <span class="fas fa-play"></span> Solve
                     </button>
                     <button id="stopSolvingButton" type="button" class="btn btn-danger" style="display: none">
@@ -154,11 +156,12 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery@4.0.0/dist/jquery.min.js" integrity="sha256-OaVG6prZf4v69dPg6PhVattBXkcOWQB62pdZ3ORyrao=" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/@js-joda/core@6.1.0/dist/js-joda.min.js" integrity="sha256-Uu/3Fv5M3qvr/wX1tKoqAPNE8tiS0vOUm3YdWU1cVAI=" crossorigin="anonymous"></script>
-<script src="shared/environment.js"></script>
 <script src="shared/solver-client.js"></script>
 <script src="shared/quickstart-page.js"></script>
+<script src="shared/platform-integration.js"></script>
 <script src="shared/api-guide.js"></script>
 {{SCRIPTS_EXTRA}}
 <script src="visualize.js"></script>
+<script>document.body.style.display = ""</script>
 </body>
 </html>
