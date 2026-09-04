@@ -3,11 +3,9 @@ package org.acme.sportsleagueschedule.domain;
 import java.util.Map;
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
-@JsonIdentityInfo(scope = Team.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+/**
+ * A team in the league, together with the distance from its own venue to every other team's venue.
+ */
 public class Team {
 
     private String id;
@@ -50,9 +48,15 @@ public class Team {
         this.distanceToTeam = distanceToTeam;
     }
 
-    @JsonIgnore
+    /**
+     * @return the distance in km from this team's venue to the other team's venue, 0 for itself
+     */
     public int getDistance(Team other) {
-        return distanceToTeam.get(other);
+        if (equals(other)) {
+            return 0;
+        }
+        Integer distance = distanceToTeam == null ? null : distanceToTeam.get(other);
+        return distance == null ? 0 : distance;
     }
 
     @Override
@@ -62,15 +66,17 @@ public class Team {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof Team team))
+        }
+        if (!(o instanceof Team team)) {
             return false;
+        }
         return Objects.equals(getId(), team.getId());
     }
 
     @Override
     public int hashCode() {
-        return getId().hashCode();
+        return Objects.hashCode(getId());
     }
 }

@@ -37,6 +37,7 @@ QUICKSTART_DIRS=(
     "flight-crew-scheduling"
     "meeting-scheduling"
     "maintenance-scheduling"
+    "sports-league-scheduling"
 )
 
 # Metadata needed to render each quickstart's index.html from the shared
@@ -50,6 +51,7 @@ quickstart_name() {
         flight-crew-scheduling) echo "Flight Crew Scheduling" ;;
         meeting-scheduling) echo "Meeting Scheduling" ;;
         maintenance-scheduling) echo "Maintenance Scheduling" ;;
+        sports-league-scheduling) echo "Sports League Scheduling" ;;
         *) echo "quickstart_name: unknown quickstart '$1'" >&2; exit 1 ;;
     esac
 }
@@ -61,6 +63,7 @@ quickstart_utm_content() {
         flight-crew-scheduling) echo "flight-crew-scheduling-java" ;;
         meeting-scheduling) echo "meeting-scheduling-java" ;;
         maintenance-scheduling) echo "maintenance-scheduling-java" ;;
+        sports-league-scheduling) echo "sports-league-scheduling-java" ;;
         *) echo "quickstart_utm_content: unknown quickstart '$1'" >&2; exit 1 ;;
     esac
 }
@@ -73,6 +76,7 @@ quickstart_features() {
         flight-crew-scheduling) echo "vis-timeline" ;;
         meeting-scheduling) echo "vis-timeline color-picker" ;;
         maintenance-scheduling) echo "vis-timeline color-picker custom-css" ;;
+        sports-league-scheduling) echo "vis-timeline custom-css" ;;
         *) echo "quickstart_features: unknown quickstart '$1'" >&2; exit 1 ;;
     esac
 }
