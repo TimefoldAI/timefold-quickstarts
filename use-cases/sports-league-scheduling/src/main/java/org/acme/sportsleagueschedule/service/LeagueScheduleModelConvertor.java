@@ -89,8 +89,11 @@ public class LeagueScheduleModelConvertor implements
     private static void applyDistances(TeamInputDTO dto, Map<String, Team> teamMap) {
         Team team = require(teamMap, dto.id(), "team");
         Map<Team, Integer> distances = new LinkedHashMap<>();
-        dto.distanceToTeam()
-                .forEach((otherTeamId, distance) -> distances.put(require(teamMap, otherTeamId, "team"), distance));
+        Map<String, Integer> distanceToTeam = dto.distanceToTeam();
+        if (distanceToTeam == null) {
+            throw new IllegalArgumentException("Team '%s' is missing distanceToTeam.".formatted(dto.id()));
+        }
+        distanceToTeam.forEach((otherTeamId, distance) -> distances.put(require(teamMap, otherTeamId, "team"), distance));
         team.setDistanceToTeam(distances);
     }
 
