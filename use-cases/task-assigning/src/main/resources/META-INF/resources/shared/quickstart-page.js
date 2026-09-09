@@ -5,6 +5,18 @@ function setVisualizationSlot(html) {
     document.getElementById('visualization').innerHTML = html;
 }
 
+// ── Environment / SETUP ──
+// The standalone/local-dev default for how this page gets its data
+// shared/platform-integration.js, might override these
+const SETUP = {
+    onPlatform: false,
+    runId: null,
+    apiUrl: null,
+    apiKey: null,
+    ready: Promise.resolve(),
+    loadInitialData: (page) => page.loadDemoDataList(),
+};
+
 // ── Quickstart page controller ──
 
 class QuickstartPage {
@@ -18,16 +30,6 @@ class QuickstartPage {
         if (!mergeModelOutput) {
             throw new Error('QuickstartPage requires a mergeModelOutput(schedule, modelOutput) callback.');
         }
-        this.client = new SolverClient({
-            modelPath,
-            apiUrl: SETUP.apiUrl,
-            apiKey: SETUP.apiKey,
-        });
-
-        // <api-guide-modal> (api-guide.js) builds its cURL examples from these, but has no
-        // way to know them itself; QuickstartPage is the one place that already does.
-        document.querySelector('api-guide-modal')?.setAttribute('model-path', modelPath);
-        document.querySelector('api-guide-modal')?.setAttribute('demo-data-id', 'BASIC');
 
         this.renderSchedule = renderSchedule;
         this.renderInfo = renderInfo;
@@ -42,7 +44,23 @@ class QuickstartPage {
         this.demoDataId = null;
 
         this.bindControls();
-        SETUP.loadInitialData(this);
+
+        SETUP.ready.then(() => {
+            this.client = new SolverClient({
+                modelPath,
+                apiUrl: SETUP.apiUrl,
+                apiKey: SETUP.apiKey,
+            });
+
+            // <api-guide-modal> (api-guide.js) builds its cURL examples from these, but has no way to know them itself;
+            document.querySelector('api-guide-modal')?.setAttribute('model-path', modelPath);
+            document.querySelector('api-guide-modal')?.setAttribute('demo-data-id', 'BASIC');
+
+            $('#solveButton, #analyzeButton').prop('disabled', false);
+            SETUP.loadInitialData(this);
+        }, (xhr) => {
+            this.showError("Failed to initialize from the platform.", xhr);
+        });
     }
 
     // The header controls (index.template.html) are parsed into the page before this
@@ -109,10 +127,6 @@ class QuickstartPage {
                     .appendTo(dropdown);
             });
             // A single dataset leaves nothing to choose between, so the picker is just noise.
-            // Hide both of its flanking dividers too, not just the one before it - otherwise
-            // the one after it is left stranded next to the next visible divider (e.g. the
-            // one before the help dropdown, when #toggleSummaryButton is also hidden), and
-            // the two read as one double-thick separator instead of a single line.
             $("#dataDropdown, #dataDropdownDivider, #dataDropdownDividerAfter").toggle(demoDataList.length > 1);
             if (demoDataList.length > 0) {
                 this.selectDemoData(demoDataList[0].id);
