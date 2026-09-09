@@ -6,18 +6,18 @@ Assign rounds to matches to produce a better schedule for league matches.
 
 ## Constraints
 
-| Name                              | Level | Description                                                                      |
-|-----------------------------------|-------|----------------------------------------------------------------------------------|
-| Matches on same day               | Hard  | A team cannot play two matches on the same day.                                  |
-| Multiple consecutive home matches | Hard  | A team should not play four or more consecutive home matches.                    |
-| Multiple consecutive away matches | Hard  | A team should not play four or more consecutive away matches.                    |
-| Repeat match on the next day      | Hard  | A team should not play a rematch against the same opponent on the following day. |
-| Start to away hop                 | Soft  | Minimize travel distance for the first away match.                               |
-| Home to away hop                  | Soft  | Minimize travel distance when transitioning from a home match to an away match.  |
-| Away to away hop                  | Soft  | Minimize travel distance between consecutive away matches.                       |
-| Away to home hop                  | Soft  | Minimize travel distance from an away match back home.                           |
-| Away to end hop                   | Soft  | Minimize travel distance from the last away match.                               |
-| Classic matches                   | Soft  | Classic matches should be scheduled on weekends or holidays.                     |
+| Name                                          | Level | Description                                                                                              |
+|-----------------------------------------------|-------|----------------------------------------------------------------------------------------------------------|
+| Matches on the same day                       | Hard  | A team must not play two matches on the same matchday.                                                   |
+| 4 or more consecutive home matches            | Hard  | A team must not play four or more consecutive matchdays at its own venue.                                |
+| 4 or more consecutive away matches            | Hard  | A team must not play four or more consecutive matchdays away from its own venue.                         |
+| Repeat match on the next day                  | Hard  | The same two teams must not meet again on the matchday right after they played.                          |
+| Start to away hop                             | Soft  | Minimise the distance a team travels from home to the season's opening match.                            |
+| Home to away hop                              | Soft  | Minimise the distance a team travels from a home match to an away match on the next matchday.            |
+| Away to away hop                              | Soft  | Minimise the distance a team travels between two away matches on consecutive matchdays.                  |
+| Away to home hop                              | Soft  | Minimise the distance a team travels back home from an away match to a home match on the next matchday.  |
+| Away to end hop                               | Soft  | Minimise the distance a team travels home after the season's closing match.                              |
+| Classic matches played on weekends or holidays | Soft  | A classic match should be played on a weekend or holiday round.                                          |
 
 - [Run the application](#run-the-application)
 - [Run the packaged application](#run-the-packaged-application)
@@ -29,8 +29,8 @@ Assign rounds to matches to produce a better schedule for league matches.
 1. Install Java and Maven, for example with [Sdkman](https://sdkman.io):
 
    ```sh
-   $ sdk install java
-   $ sdk install maven
+   sdk install java
+   sdk install maven
    ```
 
 ## Run the application
@@ -38,9 +38,9 @@ Assign rounds to matches to produce a better schedule for league matches.
 1. Git clone the timefold-quickstarts repo and navigate to this directory:
 
    ```sh
-   $ git clone https://github.com/TimefoldAI/timefold-quickstarts.git
+   git clone https://github.com/TimefoldAI/timefold-quickstarts.git
    ...
-   $ cd timefold-quickstarts/use-cases/sports-league-scheduling
+   cd timefold-quickstarts/use-cases/sports-league-scheduling
    ```
 
 2. (Optional) If you want to run a licensed edition (Plus / Enterprise), set up your license key first. See the [Timefold license tool](https://licenses.timefold.ai/) for instructions.
@@ -50,13 +50,13 @@ Assign rounds to matches to produce a better schedule for league matches.
    1. Community Edition
    
       ```sh
-      $ mvn quarkus:dev
+      mvn quarkus:dev
       ```
    
    2. Plus / Enterprise Edition: The profile sets up the correct Maven artifacts to run the licensed version. See the `pom.xml` for the implementation details.
 
       ```sh
-      $ mvn quarkus:dev -Denterprise
+      mvn quarkus:dev -Denterprise
       ```
 
 4. Visit [http://localhost:8080](http://localhost:8080) in your browser.
@@ -77,13 +77,13 @@ When you're done iterating in `quarkus:dev` mode, package the application to run
 1. Build it with Maven:
 
    ```sh
-   $ mvn package
+   mvn package
    ```
 
 2. Run the Maven output:
 
    ```sh
-   $ java -jar ./target/quarkus-app/quarkus-run.jar
+   java -jar ./target/quarkus-app/quarkus-run.jar
    ```
 
    > **Note**
@@ -98,13 +98,13 @@ When you're done iterating in `quarkus:dev` mode, package the application to run
 1. Build a container image:
 
    ```sh
-   $ mvn package -Dcontainer
+   mvn package -Dcontainer
    ```
 
 2. Run a container:
 
    ```sh
-   $ docker run -p 8080:8080 --rm $USER/sports-league-scheduling:1.0-SNAPSHOT
+   docker run -p 8080:8080 --rm $USER/model-sports-league-scheduling-v1:0.0.1
    ```
 
 ## Run it native
@@ -116,13 +116,13 @@ To increase startup performance for serverless deployments, build the applicatio
 2. Compile it natively. This takes a few minutes:
 
    ```sh
-   $ mvn package -Dnative
+   mvn package -Dnative
    ```
 
 3. Run the native executable:
 
    ```sh
-   $ ./target/*-runner
+   ./target/*-runner
    ```
 
 4. Visit [http://localhost:8080](http://localhost:8080) in your browser.

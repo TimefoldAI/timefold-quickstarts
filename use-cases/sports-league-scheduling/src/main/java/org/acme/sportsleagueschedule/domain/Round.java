@@ -2,10 +2,10 @@ package org.acme.sportsleagueschedule.domain;
 
 import ai.timefold.solver.core.api.domain.common.PlanningId;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
-@JsonIdentityInfo(scope = Round.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "index")
+/**
+ * One matchday of the league. Rounds are played back to back, so their {@link #getIndex() index}
+ * doubles as the moment in time a match assigned to it takes place.
+ */
 public class Round {
 
     @PlanningId
@@ -48,15 +48,17 @@ public class Round {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof Round round))
+        }
+        if (!(o instanceof Round round)) {
             return false;
+        }
         return getIndex() == round.getIndex();
     }
 
     @Override
     public int hashCode() {
-        return 31 * index;
+        return Integer.hashCode(index);
     }
 }
