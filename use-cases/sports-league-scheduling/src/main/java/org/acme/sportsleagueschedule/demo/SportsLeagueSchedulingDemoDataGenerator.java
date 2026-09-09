@@ -22,11 +22,12 @@ public class SportsLeagueSchedulingDemoDataGenerator implements DemoDataGenerato
 
     private static final DemoMetaData BASIC_META_DATA = new DemoMetaData(BASIC_DEMO_DATA_ID,
             "Demonstrates a double round-robin league season with travel distances and classic matches.",
-            "Schedules 182 matches of a fourteen-team South American league onto 32 matchdays. Every pairing is "
-                    + "played twice, once at either venue, and about 5% of them are classics, such as derbies. "
-                    + "Once solved, no team plays twice on the same matchday or four matchdays in a row at home "
-                    + "or away, no pairing is replayed the very next matchday, the classics land on a weekend, "
-                    + "and the kilometres the teams travel between consecutive venues are as few as possible.",
+            """
+                    Schedules 182 matches of a fourteen-team South American league onto 32 matchdays. Every pairing is \
+                    played twice, once at either venue, and about 5% of them are classics, such as derbies. \
+                    Once solved, no team plays twice on the same matchday or four matchdays in a row at home \
+                    or away, no pairing is replayed the very next matchday, the classics land on a weekend, \
+                    and the kilometres the teams travel between consecutive venues are as few as possible.""",
             List.of("schedule conflicts", "team fairness", "travel distance", "match attractiveness"),
             List.of());
 
