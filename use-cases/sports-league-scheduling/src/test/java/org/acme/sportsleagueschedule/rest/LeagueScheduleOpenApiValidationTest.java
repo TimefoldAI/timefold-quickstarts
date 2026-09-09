@@ -64,7 +64,7 @@ class LeagueScheduleOpenApiValidationTest {
         post(input).then().statusCode(400);
     }
 
-    private static ObjectNode demoData() {
+    private ObjectNode demoData() {
         String json = given().when().get("/v1/demo-data/BASIC").then().statusCode(200).extract().asString();
         try {
             return (ObjectNode) mapper.readTree(json);
