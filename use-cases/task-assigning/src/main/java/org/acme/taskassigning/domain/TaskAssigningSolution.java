@@ -1,8 +1,5 @@
 package org.acme.taskassigning.domain;
 
-import static org.acme.taskassigning.domain.TaskAssigningConstraintProperties.BENDABLE_SCORE_HARD_LEVELS_SIZE;
-import static org.acme.taskassigning.domain.TaskAssigningConstraintProperties.BENDABLE_SCORE_SOFT_LEVELS_SIZE;
-
 import java.util.List;
 
 import ai.timefold.solver.core.api.domain.solution.ConstraintWeightOverrides;
@@ -11,7 +8,7 @@ import ai.timefold.solver.core.api.domain.solution.PlanningScore;
 import ai.timefold.solver.core.api.domain.solution.PlanningSolution;
 import ai.timefold.solver.core.api.domain.solution.ProblemFactCollectionProperty;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
-import ai.timefold.solver.core.api.score.BendableScore;
+import ai.timefold.solver.core.api.score.HardMediumSoftScore;
 import ai.timefold.solver.service.definition.api.SolverModel;
 import ai.timefold.solver.service.definition.api.metrics.InputMetricsAware;
 import ai.timefold.solver.service.definition.api.metrics.OutputMetricsAware;
@@ -20,7 +17,7 @@ import org.acme.taskassigning.dto.input.TaskAssigningInputMetrics;
 import org.acme.taskassigning.dto.output.TaskAssigningOutputMetrics;
 
 @PlanningSolution
-public class TaskAssigningSolution implements SolverModel<BendableScore>,
+public class TaskAssigningSolution implements SolverModel<HardMediumSoftScore>,
         InputMetricsAware<TaskAssigningInputMetrics>, OutputMetricsAware<TaskAssigningOutputMetrics> {
 
     @ProblemFactCollectionProperty
@@ -36,11 +33,10 @@ public class TaskAssigningSolution implements SolverModel<BendableScore>,
     @PlanningEntityCollectionProperty
     private List<Employee> employees;
 
-    @PlanningScore(bendableHardLevelsSize = BENDABLE_SCORE_HARD_LEVELS_SIZE,
-            bendableSoftLevelsSize = BENDABLE_SCORE_SOFT_LEVELS_SIZE)
-    private BendableScore score;
+    @PlanningScore
+    private HardMediumSoftScore score;
 
-    private ConstraintWeightOverrides<BendableScore> constraintWeightOverrides = ConstraintWeightOverrides.none();
+    private ConstraintWeightOverrides<HardMediumSoftScore> constraintWeightOverrides = ConstraintWeightOverrides.none();
 
     public TaskAssigningSolution() {
     }
@@ -70,20 +66,20 @@ public class TaskAssigningSolution implements SolverModel<BendableScore>,
     }
 
     @Override
-    public BendableScore getScore() {
+    public HardMediumSoftScore getScore() {
         return score;
     }
 
-    public void setScore(BendableScore score) {
+    public void setScore(HardMediumSoftScore score) {
         this.score = score;
     }
 
     @Override
-    public ConstraintWeightOverrides<BendableScore> getConstraintWeightOverrides() {
+    public ConstraintWeightOverrides<HardMediumSoftScore> getConstraintWeightOverrides() {
         return constraintWeightOverrides;
     }
 
-    public void setConstraintWeightOverrides(ConstraintWeightOverrides<BendableScore> constraintWeightOverrides) {
+    public void setConstraintWeightOverrides(ConstraintWeightOverrides<HardMediumSoftScore> constraintWeightOverrides) {
         this.constraintWeightOverrides = constraintWeightOverrides;
     }
 

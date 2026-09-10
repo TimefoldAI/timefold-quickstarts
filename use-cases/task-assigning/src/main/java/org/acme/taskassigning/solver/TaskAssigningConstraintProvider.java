@@ -1,9 +1,6 @@
 package org.acme.taskassigning.solver;
 
-import static org.acme.taskassigning.domain.TaskAssigningConstraintProperties.BENDABLE_SCORE_HARD_LEVELS_SIZE;
-import static org.acme.taskassigning.domain.TaskAssigningConstraintProperties.BENDABLE_SCORE_SOFT_LEVELS_SIZE;
-
-import ai.timefold.solver.core.api.score.BendableScore;
+import ai.timefold.solver.core.api.score.HardMediumSoftScore;
 import ai.timefold.solver.core.api.score.stream.Constraint;
 import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
 import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
@@ -27,8 +24,10 @@ public class TaskAssigningConstraintProvider implements ConstraintProvider {
                 // Hard constraints
                 noMissingSkills(constraintFactory),
 
-                // Soft constraints
+                // Medium constraints
                 minimizeUnassignedTasks(constraintFactory),
+
+                // Soft constraints
                 minimizeMakespan(constraintFactory),
                 criticalPriorityTaskEndTime(constraintFactory),
                 majorPriorityTaskEndTime(constraintFactory),
@@ -39,8 +38,7 @@ public class TaskAssigningConstraintProvider implements ConstraintProvider {
     protected Constraint noMissingSkills(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(Task.class)
                 .filter(task -> task.getMissingSkillCount() > 0)
-                .penalize(BendableScore.ofHard(BENDABLE_SCORE_HARD_LEVELS_SIZE, BENDABLE_SCORE_SOFT_LEVELS_SIZE, 0, 1),
-                        Task::getMissingSkillCount)
+                .penalize(HardMediumSoftScore.ONE_HARD, Task::getMissingSkillCount)
                 .justifyWith((task, score) -> MissingSkillsJustification.of(task))
                 .asConstraint(new ConstraintInfo(TaskAssigningConstraintProperties.NO_MISSING_SKILLS,
                         TaskAssigningConstraintProperties.NO_MISSING_SKILLS,
@@ -51,7 +49,7 @@ public class TaskAssigningConstraintProvider implements ConstraintProvider {
     protected Constraint minimizeUnassignedTasks(ConstraintFactory constraintFactory) {
         return constraintFactory.forEachIncludingUnassigned(Task.class)
                 .filter(task -> task.getEmployee() == null)
-                .penalize(BendableScore.ofSoft(BENDABLE_SCORE_HARD_LEVELS_SIZE, BENDABLE_SCORE_SOFT_LEVELS_SIZE, 0, 1))
+                .penalize(HardMediumSoftScore.ONE_MEDIUM)
                 .justifyWith((task, score) -> UnassignedTaskJustification.of(task))
                 .asConstraint(new ConstraintInfo(TaskAssigningConstraintProperties.MINIMIZE_UNASSIGNED_TASKS,
                         TaskAssigningConstraintProperties.MINIMIZE_UNASSIGNED_TASKS,
@@ -67,7 +65,7 @@ public class TaskAssigningConstraintProvider implements ConstraintProvider {
 
     protected Constraint minimizeMakespan(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(Employee.class)
-                .penalize(BendableScore.ofSoft(BENDABLE_SCORE_HARD_LEVELS_SIZE, BENDABLE_SCORE_SOFT_LEVELS_SIZE, 1, 1),
+                .penalize(HardMediumSoftScore.ONE_SOFT,
                         employee -> employee.getEndTime() * employee.getEndTime())
                 .justifyWith((employee, score) -> MakespanJustification.of(employee))
                 .asConstraint(new ConstraintInfo(TaskAssigningConstraintProperties.MINIMIZE_MAKESPAN,
@@ -78,8 +76,7 @@ public class TaskAssigningConstraintProvider implements ConstraintProvider {
 
     protected Constraint criticalPriorityTaskEndTime(ConstraintFactory constraintFactory) {
         return getTaskWithPriority(constraintFactory, Priority.CRITICAL)
-                .penalize(BendableScore.ofSoft(BENDABLE_SCORE_HARD_LEVELS_SIZE, BENDABLE_SCORE_SOFT_LEVELS_SIZE, 2, 1),
-                        task -> task.getEndTime() * 4)
+                .penalize(HardMediumSoftScore.ONE_SOFT, task -> task.getEndTime() * 4)
                 .justifyWith((task, score) -> PriorityTaskEndTimeJustification.of(task))
                 .asConstraint(new ConstraintInfo(TaskAssigningConstraintProperties.CRITICAL_PRIORITY_TASK_END_TIME,
                         TaskAssigningConstraintProperties.CRITICAL_PRIORITY_TASK_END_TIME,
@@ -89,8 +86,7 @@ public class TaskAssigningConstraintProvider implements ConstraintProvider {
 
     protected Constraint majorPriorityTaskEndTime(ConstraintFactory constraintFactory) {
         return getTaskWithPriority(constraintFactory, Priority.MAJOR)
-                .penalize(BendableScore.ofSoft(BENDABLE_SCORE_HARD_LEVELS_SIZE, BENDABLE_SCORE_SOFT_LEVELS_SIZE, 2, 1),
-                        task -> task.getEndTime() * 2)
+                .penalize(HardMediumSoftScore.ONE_SOFT, task -> task.getEndTime() * 2)
                 .justifyWith((task, score) -> PriorityTaskEndTimeJustification.of(task))
                 .asConstraint(new ConstraintInfo(TaskAssigningConstraintProperties.MAJOR_PRIORITY_TASK_END_TIME,
                         TaskAssigningConstraintProperties.MAJOR_PRIORITY_TASK_END_TIME,
@@ -100,8 +96,7 @@ public class TaskAssigningConstraintProvider implements ConstraintProvider {
 
     protected Constraint minorPriorityTaskEndTime(ConstraintFactory constraintFactory) {
         return getTaskWithPriority(constraintFactory, Priority.MINOR)
-                .penalize(BendableScore.ofSoft(BENDABLE_SCORE_HARD_LEVELS_SIZE, BENDABLE_SCORE_SOFT_LEVELS_SIZE, 2, 1),
-                        Task::getEndTime)
+                .penalize(HardMediumSoftScore.ONE_SOFT, Task::getEndTime)
                 .justifyWith((task, score) -> PriorityTaskEndTimeJustification.of(task))
                 .asConstraint(new ConstraintInfo(TaskAssigningConstraintProperties.MINOR_PRIORITY_TASK_END_TIME,
                         TaskAssigningConstraintProperties.MINOR_PRIORITY_TASK_END_TIME,

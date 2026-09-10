@@ -22,7 +22,7 @@ public class TaskAssigningDemoDataGenerator implements DemoDataGenerator {
 
     private static final DemoMetaData BASIC_META_DATA = new DemoMetaData(BASIC_DEMO_DATA_ID,
             "Demonstrates a task assigning problem with required skills, customer affinities and task priorities.",
-            "Assigns 28 tasks of 4 kinds across 4 customers to 8 employees with varying skills and customer "
+            "Assigns 31 tasks of 5 kinds across 4 customers to 8 employees with varying skills and customer "
                     + "affinities. Once solved, every employee is only assigned tasks they have the skills for, "
                     + "as few tasks as possible are left unassigned, the employee who finishes last finishes as "
                     + "early as possible, and higher priority tasks are finished earlier than lower priority ones.",

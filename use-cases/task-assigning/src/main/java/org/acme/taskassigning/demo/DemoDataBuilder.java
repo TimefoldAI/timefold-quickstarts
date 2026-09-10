@@ -18,7 +18,7 @@ import org.acme.taskassigning.dto.input.TaskInputDTO;
 import org.acme.taskassigning.dto.input.TaskTypeInputDTO;
 
 /**
- * Builds a fixed demo dataset: 28 tasks of 4 kinds, spread over 4 customers, that 8 employees with varying skills and
+ * Builds a fixed demo dataset: 31 tasks of 5 kinds, spread over 4 customers, that 8 employees with varying skills and
  * customer affinities can be assigned to. Every task starts out unassigned.
  */
 public final class DemoDataBuilder {
@@ -38,6 +38,8 @@ public final class DemoDataBuilder {
             new TaskTypeInputDTO("SV", "Shrink VAT", 63, List.of(STRATEGIC_PLANNING_SKILL));
     private static final TaskTypeInputDTO APPROVE_LEGAL_TASK_TYPE =
             new TaskTypeInputDTO("AL", "Approve Legal", 40, List.of(RISK_MANAGEMENT_SKILL));
+    private static final TaskTypeInputDTO PITCH_INVESTORS_TASK_TYPE =
+            new TaskTypeInputDTO("PI", "Pitch Investors", 50, List.of(BUSINESS_STORYTELLING_SKILL));
 
     private static final CustomerInputDTO STEEL_INC_CUSTOMER = new CustomerInputDTO("1", "Steel Inc");
     private static final CustomerInputDTO PAPER_CORP_CUSTOMER = new CustomerInputDTO("2", "Paper Corp");
@@ -50,8 +52,8 @@ public final class DemoDataBuilder {
     public static TaskAssigningInput basic() {
         List<CustomerInputDTO> customers =
                 List.of(STEEL_INC_CUSTOMER, PAPER_CORP_CUSTOMER, STONE_LIMITED_CUSTOMER, WOOD_EXPRESS_CUSTOMER);
-        List<TaskTypeInputDTO> taskTypes =
-                List.of(IMPROVE_SALES_TASK_TYPE, EXPAND_TAX_TASK_TYPE, SHRINK_VAT_TASK_TYPE, APPROVE_LEGAL_TASK_TYPE);
+        List<TaskTypeInputDTO> taskTypes = List.of(IMPROVE_SALES_TASK_TYPE, EXPAND_TAX_TASK_TYPE, SHRINK_VAT_TASK_TYPE,
+                APPROVE_LEGAL_TASK_TYPE, PITCH_INVESTORS_TASK_TYPE);
         return new TaskAssigningInput(customers, taskTypes, buildEmployees(), buildTasks());
     }
 
@@ -84,7 +86,10 @@ public final class DemoDataBuilder {
                 aTask("25", APPROVE_LEGAL_TASK_TYPE, 7, STEEL_INC_CUSTOMER, CRITICAL),
                 aTask("26", IMPROVE_SALES_TASK_TYPE, 9, WOOD_EXPRESS_CUSTOMER, MAJOR),
                 aTask("27", IMPROVE_SALES_TASK_TYPE, 10, STEEL_INC_CUSTOMER, CRITICAL),
-                aTask("28", IMPROVE_SALES_TASK_TYPE, 11, WOOD_EXPRESS_CUSTOMER, MAJOR));
+                aTask("28", IMPROVE_SALES_TASK_TYPE, 11, WOOD_EXPRESS_CUSTOMER, MAJOR),
+                aTask("29", PITCH_INVESTORS_TASK_TYPE, 1, STEEL_INC_CUSTOMER, MAJOR),
+                aTask("30", PITCH_INVESTORS_TASK_TYPE, 2, PAPER_CORP_CUSTOMER, CRITICAL),
+                aTask("31", PITCH_INVESTORS_TASK_TYPE, 3, STONE_LIMITED_CUSTOMER, MINOR));
     }
 
     private static TaskInputDTO aTask(String id, TaskTypeInputDTO taskType, int indexInTaskType,
@@ -94,7 +99,7 @@ public final class DemoDataBuilder {
 
     private static List<EmployeeInputDTO> buildEmployees() {
         return List.of(
-                anEmployee("1", "Amy", List.of(PROBLEM_SOLVING_SKILL, BUSINESS_STORYTELLING_SKILL, TEAM_BUILDING_SKILL),
+                anEmployee("1", "Amy", List.of(PROBLEM_SOLVING_SKILL, TEAM_BUILDING_SKILL),
                         Map.of(STEEL_INC_CUSTOMER.id(), HIGH,
                                 PAPER_CORP_CUSTOMER.id(), MEDIUM,
                                 STONE_LIMITED_CUSTOMER.id(), HIGH,

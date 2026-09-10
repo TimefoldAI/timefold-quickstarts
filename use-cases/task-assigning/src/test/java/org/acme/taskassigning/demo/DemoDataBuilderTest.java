@@ -17,11 +17,11 @@ class DemoDataBuilderTest {
 
         assertThat(problem.customers()).hasSize(4);
         assertThat(problem.customers()).extracting(CustomerInputDTO::id).doesNotHaveDuplicates();
-        assertThat(problem.taskTypes()).hasSize(4);
+        assertThat(problem.taskTypes()).hasSize(5);
         assertThat(problem.taskTypes()).extracting(TaskTypeInputDTO::code).doesNotHaveDuplicates();
         assertThat(problem.employees()).hasSize(8);
         assertThat(problem.employees()).extracting(EmployeeInputDTO::id).doesNotHaveDuplicates();
-        assertThat(problem.tasks()).hasSize(28);
+        assertThat(problem.tasks()).hasSize(31);
         assertThat(problem.tasks()).extracting(TaskInputDTO::id).doesNotHaveDuplicates();
     }
 

@@ -18,7 +18,7 @@ public record TaskAssigningConfigOverrides(
                 description = "Hard weight of the noMissingSkills constraint.",
                 minimum = "0") Long missingSkillsWeight,
         @ConstraintReference(TaskAssigningConstraintProperties.MINIMIZE_UNASSIGNED_TASKS) @Schema(
-                description = "Soft weight of the minimizeUnassignedTasks constraint.",
+                description = "Medium weight of the minimizeUnassignedTasks constraint.",
                 minimum = "0") Long unassignedTasksWeight,
         @ConstraintReference(TaskAssigningConstraintProperties.MINIMIZE_MAKESPAN) @Schema(
                 description = "Soft weight of the minimizeMakespan constraint.",

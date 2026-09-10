@@ -1,8 +1,5 @@
 package org.acme.taskassigning.service;
 
-import static org.acme.taskassigning.domain.TaskAssigningConstraintProperties.BENDABLE_SCORE_HARD_LEVELS_SIZE;
-import static org.acme.taskassigning.domain.TaskAssigningConstraintProperties.BENDABLE_SCORE_SOFT_LEVELS_SIZE;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -14,7 +11,7 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import ai.timefold.solver.core.api.domain.solution.ConstraintWeightOverrides;
-import ai.timefold.solver.core.api.score.BendableScore;
+import ai.timefold.solver.core.api.score.HardMediumSoftScore;
 import ai.timefold.solver.service.definition.api.ModelConvertor;
 import ai.timefold.solver.service.definition.api.domain.ModelConfig;
 
@@ -35,7 +32,7 @@ import org.acme.taskassigning.dto.output.TaskAssigningOutput;
 
 @ApplicationScoped
 public class TaskAssigningModelConvertor implements
-        ModelConvertor<BendableScore, TaskAssigningInput, TaskAssigningConfigOverrides, TaskAssigningSolution, TaskAssigningOutput> {
+        ModelConvertor<HardMediumSoftScore, TaskAssigningInput, TaskAssigningConfigOverrides, TaskAssigningSolution, TaskAssigningOutput> {
 
     @Override
     public TaskAssigningSolution toSolverModel(TaskAssigningInput modelInput,
@@ -157,37 +154,30 @@ public class TaskAssigningModelConvertor implements
         var overrides = modelConfig.overrides();
         // Only apply weights that are actually set (non-null) in the merged overrides. A null weight means the
         // input did not override it, so the configuration profile value (or the constraint's default) is kept.
-        Map<String, BendableScore> weights = new HashMap<>();
+        Map<String, HardMediumSoftScore> weights = new HashMap<>();
         putIfPresent(weights, TaskAssigningConstraintProperties.NO_MISSING_SKILLS,
-                overrides.missingSkillsWeight() == null ? null
-                        : BendableScore.ofHard(BENDABLE_SCORE_HARD_LEVELS_SIZE, BENDABLE_SCORE_SOFT_LEVELS_SIZE, 0,
-                                overrides.missingSkillsWeight()));
+                overrides.missingSkillsWeight() == null ? null : HardMediumSoftScore.ofHard(overrides.missingSkillsWeight()));
         putIfPresent(weights, TaskAssigningConstraintProperties.MINIMIZE_UNASSIGNED_TASKS,
                 overrides.unassignedTasksWeight() == null ? null
-                        : BendableScore.ofSoft(BENDABLE_SCORE_HARD_LEVELS_SIZE, BENDABLE_SCORE_SOFT_LEVELS_SIZE, 0,
-                                overrides.unassignedTasksWeight()));
+                        : HardMediumSoftScore.ofMedium(overrides.unassignedTasksWeight()));
         putIfPresent(weights, TaskAssigningConstraintProperties.MINIMIZE_MAKESPAN,
-                overrides.makespanWeight() == null ? null
-                        : BendableScore.ofSoft(BENDABLE_SCORE_HARD_LEVELS_SIZE, BENDABLE_SCORE_SOFT_LEVELS_SIZE, 1,
-                                overrides.makespanWeight()));
+                overrides.makespanWeight() == null ? null : HardMediumSoftScore.ofSoft(overrides.makespanWeight()));
         putIfPresent(weights, TaskAssigningConstraintProperties.CRITICAL_PRIORITY_TASK_END_TIME,
                 overrides.criticalPriorityTaskEndTimeWeight() == null ? null
-                        : BendableScore.ofSoft(BENDABLE_SCORE_HARD_LEVELS_SIZE, BENDABLE_SCORE_SOFT_LEVELS_SIZE, 2,
-                                overrides.criticalPriorityTaskEndTimeWeight()));
+                        : HardMediumSoftScore.ofSoft(overrides.criticalPriorityTaskEndTimeWeight()));
         putIfPresent(weights, TaskAssigningConstraintProperties.MAJOR_PRIORITY_TASK_END_TIME,
                 overrides.majorPriorityTaskEndTimeWeight() == null ? null
-                        : BendableScore.ofSoft(BENDABLE_SCORE_HARD_LEVELS_SIZE, BENDABLE_SCORE_SOFT_LEVELS_SIZE, 2,
-                                overrides.majorPriorityTaskEndTimeWeight()));
+                        : HardMediumSoftScore.ofSoft(overrides.majorPriorityTaskEndTimeWeight()));
         putIfPresent(weights, TaskAssigningConstraintProperties.MINOR_PRIORITY_TASK_END_TIME,
                 overrides.minorPriorityTaskEndTimeWeight() == null ? null
-                        : BendableScore.ofSoft(BENDABLE_SCORE_HARD_LEVELS_SIZE, BENDABLE_SCORE_SOFT_LEVELS_SIZE, 2,
-                                overrides.minorPriorityTaskEndTimeWeight()));
+                        : HardMediumSoftScore.ofSoft(overrides.minorPriorityTaskEndTimeWeight()));
         if (!weights.isEmpty()) {
             solution.setConstraintWeightOverrides(ConstraintWeightOverrides.of(weights));
         }
     }
 
-    private static void putIfPresent(Map<String, BendableScore> weights, String constraintName, BendableScore weight) {
+    private static void putIfPresent(Map<String, HardMediumSoftScore> weights, String constraintName,
+            HardMediumSoftScore weight) {
         if (weight != null) {
             weights.put(constraintName, weight);
         }
