@@ -14,7 +14,7 @@ affinity with a task's customer speeds up or slows down how long that task takes
 | Name                             | Level | Description                                                            |
 |-----------------------------------|-------|--------------------------------------------------------------------------|
 | No missing skills                 | Hard  | An employee must have all the required skills for their assigned task.   |
-| Minimize unassigned tasks         | Medium| All tasks should be assigned to an employee.                             |
+| Minimize unassigned tasks         | Medium | All tasks should be assigned to an employee.                             |
 | Minimize makespan                 | Soft  | Minimize the time until all tasks are completed.                         |
 | Critical priority task end time   | Soft  | Critical priority tasks should be completed as early as possible.        |
 | Major priority task end time      | Soft  | Major priority tasks should be completed as early as possible.           |
