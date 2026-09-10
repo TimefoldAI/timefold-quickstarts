@@ -22,8 +22,10 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
                 // Hard constraints
                 TaskAssigningJustification.MissingSkillsJustification.class,
 
-                // Soft constraints
+                // Medium constraints
                 TaskAssigningJustification.UnassignedTaskJustification.class,
+
+                // Soft constraints
                 TaskAssigningJustification.MakespanJustification.class,
                 TaskAssigningJustification.PriorityTaskEndTimeJustification.class
         })
