@@ -182,15 +182,19 @@ const app = {
     },
 
     renderScheduledJob(job, line) {
-        // There is no minStartTime hard constraint, so the solver is free to start a job before it; only
-        // maxEndTime is actually enforced, so only a late finish is flagged here.
         const tooLate = JSJoda.OffsetDateTime.parse(job.endDateTime)
             .isAfter(JSJoda.OffsetDateTime.parse(job.maxEndTime));
+        const tooEarly = JSJoda.OffsetDateTime.parse(job.startProductionDateTime)
+            .isBefore(JSJoda.OffsetDateTime.parse(job.minStartTime));
         const byLineJobElement = $(`<div/>`).append($(`<p class="card-text"/>`).text(job.name));
         const byJobJobElement = $(`<div/>`).append($(`<p class="card-text"/>`).text(line == null ? "" : line.name));
         if (tooLate) {
             byLineJobElement.append($(`<p class="badge text-bg-danger mb-0"/>`).text("After max end (too late)"));
             byJobJobElement.append($(`<p class="badge text-bg-danger mb-0"/>`).text("After max end (too late)"));
+        }
+        if (tooEarly) {
+            byLineJobElement.append($(`<p class="badge text-bg-danger mb-0"/>`).text("Before min start (too early)"));
+            byJobJobElement.append($(`<p class="badge text-bg-danger mb-0"/>`).text("Before min start (too early)"));
         }
 
         // The first job of a line needs no changeover cleaning, so its cleaning block is empty.

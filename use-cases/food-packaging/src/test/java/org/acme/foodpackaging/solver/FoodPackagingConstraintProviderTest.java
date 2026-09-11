@@ -47,6 +47,40 @@ class FoodPackagingConstraintProviderTest {
     // ************************************************************************
 
     @Test
+    void minStartDateTime() {
+        Job unscheduledJob = aJob("1").product(PRODUCT).duration(Duration.ofMinutes(6000)).build();
+        Job onTimeJob = aJob("2").product(PRODUCT).duration(Duration.ofMinutes(200))
+                .minStartTime(DAY_START_TIME)
+                .producedFrom(DAY_START_TIME, DAY_START_TIME)
+                .build();
+        Job earlyJob = aJob("3").product(PRODUCT).duration(Duration.ofMinutes(150))
+                .minStartTime(DAY_START_TIME.plusMinutes(100))
+                .producedFrom(DAY_START_TIME, DAY_START_TIME)
+                .build();
+        Line line = aLine("1").startDateTime(DAY_START_TIME).build();
+        assignJobs(line, unscheduledJob, onTimeJob, earlyJob);
+
+        constraintVerifier.verifyThat(FoodPackagingConstraintProvider::minStartDateTime)
+                .given(unscheduledJob, onTimeJob, earlyJob)
+                .penalizesBy(100L);
+    }
+
+    @Test
+    void minStartDateTimeRoundsASubMinuteEarlinessUpToOneMinute() {
+        // Starts producing only 30 seconds before minStartTime, which Duration.toMinutes() would truncate to zero.
+        Job earlyJob = aJob("1").product(PRODUCT).duration(Duration.ofMinutes(60))
+                .minStartTime(DAY_START_TIME.plusSeconds(30))
+                .producedFrom(DAY_START_TIME, DAY_START_TIME)
+                .build();
+        Line line = aLine("1").startDateTime(DAY_START_TIME).build();
+        assignJobs(line, earlyJob);
+
+        constraintVerifier.verifyThat(FoodPackagingConstraintProvider::minStartDateTime)
+                .given(earlyJob)
+                .penalizesBy(1L);
+    }
+
+    @Test
     void maxEndDateTime() {
         Job unscheduledJob = aJob("1").product(PRODUCT).duration(Duration.ofMinutes(6000)).build();
         Job onTimeJob = aJob("2").product(PRODUCT).duration(Duration.ofMinutes(200))

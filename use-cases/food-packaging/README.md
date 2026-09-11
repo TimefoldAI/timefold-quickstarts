@@ -8,6 +8,7 @@ Schedule food packaging orders to manufacturing lines, to minimize downtime and 
 
 | Name                       | Level  | Description                                                              |
 |----------------------------|--------|--------------------------------------------------------------------------|
+| Min start date time        | Hard   | A job must not start before its minimum start time.                      |
 | Max end date time          | Hard   | A job must finish before its maximum end time.                           |
 | Operator cleaning conflict | Hard   | An operator must not have to clean two of their lines at the same time.  |
 | Ideal end date time        | Medium | A job should finish before its ideal end time.                           |

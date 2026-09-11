@@ -14,6 +14,7 @@ import org.acme.foodpackaging.domain.Job;
 import org.acme.foodpackaging.domain.PackagingScheduleConstraintProperties;
 import org.acme.foodpackaging.domain.justification.PackagingScheduleJustification.JobEndsAfterIdealEndTimeJustification;
 import org.acme.foodpackaging.domain.justification.PackagingScheduleJustification.JobEndsAfterMaxEndTimeJustification;
+import org.acme.foodpackaging.domain.justification.PackagingScheduleJustification.JobStartsBeforeMinStartTimeJustification;
 import org.acme.foodpackaging.domain.justification.PackagingScheduleJustification.LineMakespanJustification;
 import org.acme.foodpackaging.domain.justification.PackagingScheduleJustification.OperatorCleaningOverlapJustification;
 import org.acme.foodpackaging.domain.justification.PackagingScheduleJustification.UnassignedJobJustification;
@@ -24,6 +25,7 @@ public class FoodPackagingConstraintProvider implements ConstraintProvider {
     public Constraint[] defineConstraints(ConstraintFactory factory) {
         return new Constraint[] {
                 // Hard constraints
+                minStartDateTime(factory),
                 maxEndDateTime(factory),
                 operatorCleaningConflict(factory),
 
@@ -39,6 +41,19 @@ public class FoodPackagingConstraintProvider implements ConstraintProvider {
     // ************************************************************************
     // Hard constraints
     // ************************************************************************
+
+    protected Constraint minStartDateTime(ConstraintFactory factory) {
+        return factory.forEach(Job.class)
+                .filter(job -> job.getStartProductionDateTime() != null
+                        && job.getStartProductionDateTime().isBefore(job.getMinStartTime()))
+                .penalize(HardMediumSoftScore.ONE_HARD,
+                        job -> ceilMinutes(Duration.between(job.getStartProductionDateTime(), job.getMinStartTime())))
+                .justifyWith((job, score) -> JobStartsBeforeMinStartTimeJustification.of(job))
+                .asConstraint(new ConstraintInfo(PackagingScheduleConstraintProperties.MIN_START_DATE_TIME,
+                        PackagingScheduleConstraintProperties.MIN_START_DATE_TIME,
+                        "A job must not start before its minimum start time.",
+                        PackagingScheduleConstraintGroup.ON_TIME_DELIVERY));
+    }
 
     protected Constraint maxEndDateTime(ConstraintFactory factory) {
         return factory.forEach(Job.class)

@@ -83,12 +83,13 @@ public final class DemoDataBuilder {
      */
     private static Map<String, Set<String>> buildIngredientsByProductName(Random random) {
         Map<String, Set<String>> ingredientsByProductName = new LinkedHashMap<>();
-        for (int i = 0; i < INGREDIENTS.size(); i++) {
+        int count = INGREDIENTS.size();
+        for (int i = 0; i < count; i++) {
             String ingredient = INGREDIENTS.get(i);
-            int offset = random.nextInt(INGREDIENTS.size() - 4);
-            String ingredientA = INGREDIENTS.get((i + offset + 1) % INGREDIENTS.size());
-            String ingredientB = INGREDIENTS.get((i + offset + 2) % INGREDIENTS.size());
-            String ingredientC = INGREDIENTS.get((i + offset + 3) % INGREDIENTS.size());
+            int offset = random.nextInt(count - 4);
+            String ingredientA = INGREDIENTS.get((i + offset + 1) % count);
+            String ingredientB = INGREDIENTS.get((i + offset + 2) % count);
+            String ingredientC = INGREDIENTS.get((i + offset + 3) % count);
             for (String productVariation : PRODUCT_VARIATIONS) {
                 ingredientsByProductName.put(ingredient + " " + productVariation, Set.of(ingredient));
             }

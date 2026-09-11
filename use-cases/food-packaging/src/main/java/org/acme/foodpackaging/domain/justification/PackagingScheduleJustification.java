@@ -22,6 +22,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 @Schema(description = "Explains why a food packaging constraint was matched.",
         oneOf = {
                 // Hard constraints
+                PackagingScheduleJustification.JobStartsBeforeMinStartTimeJustification.class,
                 PackagingScheduleJustification.JobEndsAfterMaxEndTimeJustification.class,
                 PackagingScheduleJustification.OperatorCleaningOverlapJustification.class,
 
@@ -63,6 +64,30 @@ public interface PackagingScheduleJustification extends ModelConstraintJustifica
     // ************************************************************************
     // Hard constraints
     // ************************************************************************
+
+    @Schema(description = "A job starts before the minimum start time it was given.",
+            allOf = { PackagingScheduleJustification.class })
+    record JobStartsBeforeMinStartTimeJustification(
+            @Schema(description = "The id of the job.") String job,
+            @Schema(description = "The id of the line the job is produced on.") String line,
+            @Schema(description = "The time at which the job actually starts producing.") OffsetDateTime startProductionDateTime,
+            @Schema(description = "The earliest time at which the job may start.") OffsetDateTime minStartTime,
+            @Schema(description = "The number of minutes by which the job starts too early.") long minutesEarly)
+            implements
+                PackagingScheduleJustification {
+
+        public static JobStartsBeforeMinStartTimeJustification of(Job job) {
+            return new JobStartsBeforeMinStartTimeJustification(job.getId(), job.getLine().getId(),
+                    job.getStartProductionDateTime(), job.getMinStartTime(),
+                    determineMinutesLate(job.getStartProductionDateTime(), job.getMinStartTime()));
+        }
+
+        @Override
+        public String getDescription() {
+            return "Job '%s' on line '%s' starts producing at %s, which is %d minutes before its minimum start time %s."
+                    .formatted(job, line, startProductionDateTime, minutesEarly, minStartTime);
+        }
+    }
 
     @Schema(description = "A job finishes after the maximum end time it was given.",
             allOf = { PackagingScheduleJustification.class })
