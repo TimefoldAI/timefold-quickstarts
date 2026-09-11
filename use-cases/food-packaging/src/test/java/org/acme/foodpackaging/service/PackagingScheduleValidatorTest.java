@@ -9,6 +9,7 @@ import static org.acme.foodpackaging.support.TestHelper.inputWithLines;
 import static org.acme.foodpackaging.support.TestHelper.inputWithOperators;
 import static org.acme.foodpackaging.support.TestHelper.inputWithProducts;
 import static org.acme.foodpackaging.support.TestHelper.job;
+import static org.acme.foodpackaging.support.TestHelper.jobWithInfeasibleWindow;
 import static org.acme.foodpackaging.support.TestHelper.line;
 import static org.acme.foodpackaging.support.TestHelper.operator;
 import static org.acme.foodpackaging.support.TestHelper.product;
@@ -28,10 +29,12 @@ import org.acme.foodpackaging.demo.DemoDataBuilder;
 import org.acme.foodpackaging.dto.input.PackagingScheduleInput;
 import org.acme.foodpackaging.service.validation.PackagingScheduleIssue.DuplicateCleaningDurationIssue;
 import org.acme.foodpackaging.service.validation.PackagingScheduleIssue.DuplicateJobIdIssue;
+import org.acme.foodpackaging.service.validation.PackagingScheduleIssue.DuplicateJobOnLineIssue;
 import org.acme.foodpackaging.service.validation.PackagingScheduleIssue.DuplicateLineIdIssue;
 import org.acme.foodpackaging.service.validation.PackagingScheduleIssue.DuplicateOperatorIdIssue;
 import org.acme.foodpackaging.service.validation.PackagingScheduleIssue.DuplicateProductIdIssue;
 import org.acme.foodpackaging.service.validation.PackagingScheduleIssue.JobOnMultipleLinesIssue;
+import org.acme.foodpackaging.service.validation.PackagingScheduleIssue.JobWindowTooShortIssue;
 import org.acme.foodpackaging.service.validation.PackagingScheduleIssue.MissingCleaningDurationIssue;
 import org.acme.foodpackaging.service.validation.PackagingScheduleIssue.NonExistingJobReferenceIssue;
 import org.acme.foodpackaging.service.validation.PackagingScheduleIssue.NonExistingOperatorReferenceIssue;
@@ -150,6 +153,14 @@ class PackagingScheduleValidatorTest {
         assertThat(issue.getProductId()).isEqualTo("does-not-exist");
     }
 
+    @Test
+    void jobWhoseWindowIsTooShortForItsDurationIsReported() {
+        ValidationResult<Issue> result = validate(inputWithJobs(jobWithInfeasibleWindow("j1", PRODUCT_1)));
+
+        JobWindowTooShortIssue issue = singleIssue(result, JobWindowTooShortIssue.class);
+        assertThat(issue.getJobId()).isEqualTo("j1");
+    }
+
     // ------------------------------------------------------------------------
     // Lines
     // ------------------------------------------------------------------------
@@ -200,6 +211,15 @@ class PackagingScheduleValidatorTest {
 
         JobOnMultipleLinesIssue issue = singleIssue(result, JobOnMultipleLinesIssue.class);
         assertThat(issue.getJobId()).isEqualTo("j1");
+    }
+
+    @Test
+    void jobDuplicatedWithinASingleLineIsReportedAsSuchRatherThanAsMultipleLines() {
+        ValidationResult<Issue> result = validate(inputWithLines(scheduledLine("l1", "o1", "j1", "j1")));
+
+        DuplicateJobOnLineIssue issue = singleIssue(result, DuplicateJobOnLineIssue.class);
+        assertThat(issue.getJobId()).isEqualTo("j1");
+        assertThat(issue.getLineId()).isEqualTo("l1");
     }
 
     // ------------------------------------------------------------------------

@@ -21,7 +21,9 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
                 PackagingScheduleIssue.NonExistingJobReferenceIssue.class,
                 PackagingScheduleIssue.MissingCleaningDurationIssue.class,
                 PackagingScheduleIssue.DuplicateCleaningDurationIssue.class,
-                PackagingScheduleIssue.JobOnMultipleLinesIssue.class
+                PackagingScheduleIssue.JobOnMultipleLinesIssue.class,
+                PackagingScheduleIssue.DuplicateJobOnLineIssue.class,
+                PackagingScheduleIssue.JobWindowTooShortIssue.class
         })
 public abstract class PackagingScheduleIssue extends AbstractIssue {
 
@@ -269,6 +271,62 @@ public abstract class PackagingScheduleIssue extends AbstractIssue {
         }
 
         public JobOnMultipleLinesIssue(String jobId) {
+            super(ISSUE_CODE, IssueSeverity.ERROR, List.of(ISSUE_MESSAGE));
+            this.jobId = jobId;
+        }
+
+        public String getJobId() {
+            return jobId;
+        }
+    }
+
+    @Schema(allOf = { PackagingScheduleIssue.class })
+    public static class DuplicateJobOnLineIssue extends PackagingScheduleIssue {
+
+        public static final IssueCode ISSUE_CODE = IssueCode.of("DUPLICATE_JOB_ON_LINE");
+        public static final IssueMessage ISSUE_MESSAGE = new IssueMessage(
+                "Job is listed more than once on the same line.");
+
+        @Schema(description = "The ID of the job listed more than once on the line.")
+        private String jobId;
+
+        @Schema(description = "The ID of the line listing the job more than once.")
+        private String lineId;
+
+        public DuplicateJobOnLineIssue() {
+            this(null, null);
+        }
+
+        public DuplicateJobOnLineIssue(String jobId, String lineId) {
+            super(ISSUE_CODE, IssueSeverity.ERROR, List.of(ISSUE_MESSAGE));
+            this.jobId = jobId;
+            this.lineId = lineId;
+        }
+
+        public String getJobId() {
+            return jobId;
+        }
+
+        public String getLineId() {
+            return lineId;
+        }
+    }
+
+    @Schema(allOf = { PackagingScheduleIssue.class })
+    public static class JobWindowTooShortIssue extends PackagingScheduleIssue {
+
+        public static final IssueCode ISSUE_CODE = IssueCode.of("JOB_WINDOW_TOO_SHORT");
+        public static final IssueMessage ISSUE_MESSAGE = new IssueMessage(
+                "The window between the job's minimum start time and maximum end time is too short for its duration.");
+
+        @Schema(description = "The ID of the job whose window is too short.")
+        private String jobId;
+
+        public JobWindowTooShortIssue() {
+            this(null);
+        }
+
+        public JobWindowTooShortIssue(String jobId) {
             super(ISSUE_CODE, IssueSeverity.ERROR, List.of(ISSUE_MESSAGE));
             this.jobId = jobId;
         }

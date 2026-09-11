@@ -119,6 +119,15 @@ public final class TestHelper {
     }
 
     /**
+     * @return a job whose 120-minute duration cannot fit between its minimum start time and maximum end time,
+     *         which are only 60 minutes apart
+     */
+    public static JobDTO jobWithInfeasibleWindow(String id, String productId) {
+        return new JobDTO(id, "Job " + id, productId, 120L, LINE_START, LINE_START.plusMinutes(60),
+                LINE_START.plusMinutes(60), false);
+    }
+
+    /**
      * The whole model works in UTC, so that is the only offset the tests ever need.
      */
     public static OffsetDateTime at(LocalDate date, int hour) {

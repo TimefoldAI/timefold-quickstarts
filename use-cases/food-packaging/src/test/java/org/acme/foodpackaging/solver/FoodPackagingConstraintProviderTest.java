@@ -66,6 +66,21 @@ class FoodPackagingConstraintProviderTest {
     }
 
     @Test
+    void maxEndDateTimeRoundsASubMinuteLatenessUpToOneMinute() {
+        // Finishes only 30 seconds after maxEndTime, which Duration.toMinutes() would truncate to zero.
+        Job lateJob = aJob("1").product(PRODUCT).duration(Duration.ofSeconds(30))
+                .maxEndTime(DAY_START_TIME)
+                .producedFrom(DAY_START_TIME, DAY_START_TIME)
+                .build();
+        Line line = aLine("1").startDateTime(DAY_START_TIME).build();
+        assignJobs(line, lateJob);
+
+        constraintVerifier.verifyThat(FoodPackagingConstraintProvider::maxEndDateTime)
+                .given(lateJob)
+                .penalizesBy(1L);
+    }
+
+    @Test
     void operatorCleaningConflict() {
         Line line1 = aLine("1").operator(anOperator("A")).startDateTime(DAY_START_TIME).build();
         Line line2 = aLine("2").operator(anOperator("A")).startDateTime(DAY_START_TIME).build();
@@ -88,6 +103,26 @@ class FoodPackagingConstraintProviderTest {
         constraintVerifier.verifyThat(FoodPackagingConstraintProvider::operatorCleaningConflict)
                 .given(job1, job2, job3)
                 .penalizesBy(20L);
+    }
+
+    @Test
+    void operatorCleaningConflictRoundsASubMinuteOverlapUpToOneMinute() {
+        Line line1 = aLine("1").operator(anOperator("A")).startDateTime(DAY_START_TIME).build();
+        Line line2 = aLine("2").operator(anOperator("A")).startDateTime(DAY_START_TIME).build();
+        // Cleaned from minute 0 to second 30, so it overlaps job2's cleaning (minute 0 to 50) for 30 seconds,
+        // which Duration.toMinutes() would truncate to zero.
+        Job job1 = aJob("1").product(PRODUCT).duration(Duration.ofMinutes(100)).minStartTime(DAY_START_TIME)
+                .producedFrom(DAY_START_TIME, DAY_START_TIME.plusSeconds(30))
+                .build();
+        Job job2 = aJob("2").product(PRODUCT).duration(Duration.ofMinutes(200)).minStartTime(DAY_START_TIME)
+                .producedFrom(DAY_START_TIME, DAY_START_TIME.plusMinutes(50))
+                .build();
+        assignJobs(line1, job1);
+        assignJobs(line2, job2);
+
+        constraintVerifier.verifyThat(FoodPackagingConstraintProvider::operatorCleaningConflict)
+                .given(job1, job2)
+                .penalizesBy(1L);
     }
 
     @Test
@@ -129,6 +164,21 @@ class FoodPackagingConstraintProviderTest {
         constraintVerifier.verifyThat(FoodPackagingConstraintProvider::idealEndDateTime)
                 .given(unscheduledJob, onTimeJob, lateJob)
                 .penalizesBy(50L);
+    }
+
+    @Test
+    void idealEndDateTimeRoundsASubMinuteLatenessUpToOneMinute() {
+        // Finishes only 30 seconds after idealEndTime, which Duration.toMinutes() would truncate to zero.
+        Job lateJob = aJob("1").product(PRODUCT).duration(Duration.ofSeconds(30))
+                .idealEndTime(DAY_START_TIME)
+                .producedFrom(DAY_START_TIME, DAY_START_TIME)
+                .build();
+        Line line = aLine("1").startDateTime(DAY_START_TIME).build();
+        assignJobs(line, lateJob);
+
+        constraintVerifier.verifyThat(FoodPackagingConstraintProvider::idealEndDateTime)
+                .given(lateJob)
+                .penalizesBy(1L);
     }
 
     @Test

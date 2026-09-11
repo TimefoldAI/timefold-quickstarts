@@ -50,6 +50,16 @@ public interface PackagingScheduleJustification extends ModelConstraintJustifica
         return Duration.between(from, to).toMinutes();
     }
 
+    /**
+     * Rounds a positive duration up to the next whole minute, matching the ceiling rounding the constraint
+     * provider penalizes by, so a sub-minute lateness is never reported as zero minutes late.
+     */
+    private static long determineMinutesLate(OffsetDateTime from, OffsetDateTime to) {
+        Duration duration = Duration.between(from, to);
+        long minutes = duration.toMinutes();
+        return duration.minusMinutes(minutes).isZero() ? minutes : minutes + 1;
+    }
+
     // ************************************************************************
     // Hard constraints
     // ************************************************************************
@@ -67,7 +77,7 @@ public interface PackagingScheduleJustification extends ModelConstraintJustifica
 
         public static JobEndsAfterMaxEndTimeJustification of(Job job) {
             return new JobEndsAfterMaxEndTimeJustification(job.getId(), job.getLine().getId(), job.getEndDateTime(),
-                    job.getMaxEndTime(), minutesBetween(job.getMaxEndTime(), job.getEndDateTime()));
+                    job.getMaxEndTime(), determineMinutesLate(job.getMaxEndTime(), job.getEndDateTime()));
         }
 
         @Override
@@ -118,7 +128,7 @@ public interface PackagingScheduleJustification extends ModelConstraintJustifica
 
         public static JobEndsAfterIdealEndTimeJustification of(Job job) {
             return new JobEndsAfterIdealEndTimeJustification(job.getId(), job.getLine().getId(), job.getEndDateTime(),
-                    job.getIdealEndTime(), minutesBetween(job.getIdealEndTime(), job.getEndDateTime()));
+                    job.getIdealEndTime(), determineMinutesLate(job.getIdealEndTime(), job.getEndDateTime()));
         }
 
         @Override

@@ -44,7 +44,7 @@ public class FoodPackagingConstraintProvider implements ConstraintProvider {
         return factory.forEach(Job.class)
                 .filter(job -> job.getEndDateTime() != null && job.getMaxEndTime().isBefore(job.getEndDateTime()))
                 .penalize(HardMediumSoftScore.ONE_HARD,
-                        job -> Duration.between(job.getMaxEndTime(), job.getEndDateTime()).toMinutes())
+                        job -> ceilMinutes(Duration.between(job.getMaxEndTime(), job.getEndDateTime())))
                 .justifyWith((job, score) -> JobEndsAfterMaxEndTimeJustification.of(job))
                 .asConstraint(new ConstraintInfo(PackagingScheduleConstraintProperties.MAX_END_DATE_TIME,
                         PackagingScheduleConstraintProperties.MAX_END_DATE_TIME,
@@ -79,7 +79,16 @@ public class FoodPackagingConstraintProvider implements ConstraintProvider {
             OffsetDateTime start2, OffsetDateTime end2) {
         var start = start1.isAfter(start2) ? start1 : start2;
         var end = end1.isBefore(end2) ? end1 : end2;
-        return Duration.between(start, end).toMinutes();
+        return ceilMinutes(Duration.between(start, end));
+    }
+
+    /**
+     * Rounds a positive duration up to the next whole minute, so a sub-minute violation (the OffsetDateTime
+     * inputs are not restricted to whole minutes) is never truncated down to a zero, unpenalized score.
+     */
+    private static long ceilMinutes(Duration duration) {
+        long minutes = duration.toMinutes();
+        return duration.minusMinutes(minutes).isZero() ? minutes : minutes + 1;
     }
 
     // ************************************************************************
@@ -90,7 +99,7 @@ public class FoodPackagingConstraintProvider implements ConstraintProvider {
         return factory.forEach(Job.class)
                 .filter(job -> job.getEndDateTime() != null && job.getIdealEndTime().isBefore(job.getEndDateTime()))
                 .penalize(HardMediumSoftScore.ONE_MEDIUM,
-                        job -> Duration.between(job.getIdealEndTime(), job.getEndDateTime()).toMinutes())
+                        job -> ceilMinutes(Duration.between(job.getIdealEndTime(), job.getEndDateTime())))
                 .justifyWith((job, score) -> JobEndsAfterIdealEndTimeJustification.of(job))
                 .asConstraint(new ConstraintInfo(PackagingScheduleConstraintProperties.IDEAL_END_DATE_TIME,
                         PackagingScheduleConstraintProperties.IDEAL_END_DATE_TIME,

@@ -1,8 +1,11 @@
 package org.acme.foodpackaging.service;
 
+import java.time.OffsetDateTime;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -20,10 +23,12 @@ import org.acme.foodpackaging.dto.input.PackagingScheduleInput;
 import org.acme.foodpackaging.dto.input.ProductDTO;
 import org.acme.foodpackaging.service.validation.PackagingScheduleIssue.DuplicateCleaningDurationIssue;
 import org.acme.foodpackaging.service.validation.PackagingScheduleIssue.DuplicateJobIdIssue;
+import org.acme.foodpackaging.service.validation.PackagingScheduleIssue.DuplicateJobOnLineIssue;
 import org.acme.foodpackaging.service.validation.PackagingScheduleIssue.DuplicateLineIdIssue;
 import org.acme.foodpackaging.service.validation.PackagingScheduleIssue.DuplicateOperatorIdIssue;
 import org.acme.foodpackaging.service.validation.PackagingScheduleIssue.DuplicateProductIdIssue;
 import org.acme.foodpackaging.service.validation.PackagingScheduleIssue.JobOnMultipleLinesIssue;
+import org.acme.foodpackaging.service.validation.PackagingScheduleIssue.JobWindowTooShortIssue;
 import org.acme.foodpackaging.service.validation.PackagingScheduleIssue.MissingCleaningDurationIssue;
 import org.acme.foodpackaging.service.validation.PackagingScheduleIssue.NonExistingJobReferenceIssue;
 import org.acme.foodpackaging.service.validation.PackagingScheduleIssue.NonExistingOperatorReferenceIssue;
@@ -109,14 +114,31 @@ public class PackagingScheduleValidator
             if (!productIds.contains(job.productId())) {
                 validationBuilder.addIssue(new NonExistingProductReferenceIssue(job.productId()));
             }
+            if (isWindowTooShort(job)) {
+                validationBuilder.addIssue(new JobWindowTooShortIssue(job.id()));
+            }
         }
         return jobIds;
+    }
+
+    /**
+     * A job started at its earliest allowed time still has to be finished by its maximum end time; otherwise
+     * no assignment can ever satisfy both hard time constraints.
+     */
+    private static boolean isWindowTooShort(JobDTO job) {
+        if (job.minStartTime() == null || job.maxEndTime() == null || job.durationMinutes() == null) {
+            return false;
+        }
+        OffsetDateTime earliestEndTime = job.minStartTime().plusMinutes(job.durationMinutes());
+        return earliestEndTime.isAfter(job.maxEndTime());
     }
 
     private static void validateLines(ValidationBuilder validationBuilder, List<LineDTO> lines,
             Set<String> operatorIds, Set<String> jobIds) {
         Set<String> lineIds = new HashSet<>();
-        Set<String> scheduledJobIds = new HashSet<>();
+        // The line each job was first seen on, so a job repeated within that same line (a duplicate-within-line
+        // issue) is not mistaken for one that is also scheduled on a different line (a cross-line issue).
+        Map<String, String> lineIdByJobId = new HashMap<>();
         for (LineDTO line : lines) {
             // A line without an ID cannot be pointed at, so its other issues are reported without a line ID.
             String lineId = hasId(line.id()) ? line.id() : null;
@@ -126,10 +148,13 @@ public class PackagingScheduleValidator
             if (line.operatorId() != null && !operatorIds.contains(line.operatorId())) {
                 validationBuilder.addIssue(new NonExistingOperatorReferenceIssue(lineId));
             }
+            Set<String> jobIdsOnThisLine = new HashSet<>();
             for (String jobId : line.jobIds()) {
                 if (!jobIds.contains(jobId)) {
                     validationBuilder.addIssue(new NonExistingJobReferenceIssue(lineId));
-                } else if (!scheduledJobIds.add(jobId)) {
+                } else if (!jobIdsOnThisLine.add(jobId)) {
+                    validationBuilder.addIssue(new DuplicateJobOnLineIssue(jobId, lineId));
+                } else if (lineIdByJobId.putIfAbsent(jobId, lineId) != null) {
                     validationBuilder.addIssue(new JobOnMultipleLinesIssue(jobId));
                 }
             }
