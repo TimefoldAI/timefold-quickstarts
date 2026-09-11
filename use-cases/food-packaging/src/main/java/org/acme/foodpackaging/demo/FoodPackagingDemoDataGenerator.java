@@ -5,6 +5,7 @@ import java.util.List;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import ai.timefold.solver.service.definition.api.data.DemoData;
+import ai.timefold.solver.service.definition.api.data.DemoDataGenerator;
 import ai.timefold.solver.service.definition.api.data.DemoMetaData;
 import ai.timefold.solver.service.definition.api.domain.Configuration;
 import ai.timefold.solver.service.definition.api.domain.ModelConfig;
@@ -15,7 +16,7 @@ import org.acme.foodpackaging.dto.input.PackagingScheduleConfigOverrides;
 import org.acme.foodpackaging.dto.input.PackagingScheduleInput;
 
 @ApplicationScoped
-public class DemoDataGenerator implements ai.timefold.solver.service.definition.api.data.DemoDataGenerator {
+public class FoodPackagingDemoDataGenerator implements DemoDataGenerator {
 
     private static final String BASIC_DEMO_DATA_ID = "BASIC";
 
