@@ -18,6 +18,7 @@ import org.acme.foodpackaging.dto.input.OperatorDTO;
 import org.acme.foodpackaging.dto.input.PackagingScheduleConfigOverrides;
 import org.acme.foodpackaging.dto.input.PackagingScheduleInput;
 import org.acme.foodpackaging.dto.input.ProductDTO;
+import org.acme.foodpackaging.service.validation.PackagingScheduleIssue.DuplicateCleaningDurationIssue;
 import org.acme.foodpackaging.service.validation.PackagingScheduleIssue.DuplicateJobIdIssue;
 import org.acme.foodpackaging.service.validation.PackagingScheduleIssue.DuplicateLineIdIssue;
 import org.acme.foodpackaging.service.validation.PackagingScheduleIssue.DuplicateOperatorIdIssue;
@@ -75,7 +76,10 @@ public class PackagingScheduleValidator
                     validationBuilder.addIssue(new NonExistingProductReferenceIssue(cleaningDuration.previousProductId()));
                     continue;
                 }
-                previousProductIds.add(cleaningDuration.previousProductId());
+                if (!previousProductIds.add(cleaningDuration.previousProductId())) {
+                    validationBuilder.addIssue(
+                            new DuplicateCleaningDurationIssue(product.id(), cleaningDuration.previousProductId()));
+                }
             }
             productIds.stream()
                     .filter(productId -> !previousProductIds.contains(productId))

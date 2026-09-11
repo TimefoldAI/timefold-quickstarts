@@ -20,6 +20,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
                 PackagingScheduleIssue.NonExistingOperatorReferenceIssue.class,
                 PackagingScheduleIssue.NonExistingJobReferenceIssue.class,
                 PackagingScheduleIssue.MissingCleaningDurationIssue.class,
+                PackagingScheduleIssue.DuplicateCleaningDurationIssue.class,
                 PackagingScheduleIssue.JobOnMultipleLinesIssue.class
         })
 public abstract class PackagingScheduleIssue extends AbstractIssue {
@@ -207,6 +208,38 @@ public abstract class PackagingScheduleIssue extends AbstractIssue {
         }
 
         public MissingCleaningDurationIssue(String productId, String previousProductId) {
+            super(ISSUE_CODE, IssueSeverity.ERROR, List.of(ISSUE_MESSAGE));
+            this.productId = productId;
+            this.previousProductId = previousProductId;
+        }
+
+        public String getProductId() {
+            return productId;
+        }
+
+        public String getPreviousProductId() {
+            return previousProductId;
+        }
+    }
+
+    @Schema(allOf = { PackagingScheduleIssue.class })
+    public static class DuplicateCleaningDurationIssue extends PackagingScheduleIssue {
+
+        public static final IssueCode ISSUE_CODE = IssueCode.of("DUPLICATE_CLEANING_DURATION");
+        public static final IssueMessage ISSUE_MESSAGE = new IssueMessage(
+                "Product lists a cleaning duration for the same previous product more than once.");
+
+        @Schema(description = "The ID of the product with the duplicated cleaning duration entry.")
+        private String productId;
+
+        @Schema(description = "The ID of the previous product that is referenced more than once.")
+        private String previousProductId;
+
+        public DuplicateCleaningDurationIssue() {
+            this(null, null);
+        }
+
+        public DuplicateCleaningDurationIssue(String productId, String previousProductId) {
             super(ISSUE_CODE, IssueSeverity.ERROR, List.of(ISSUE_MESSAGE));
             this.productId = productId;
             this.previousProductId = previousProductId;

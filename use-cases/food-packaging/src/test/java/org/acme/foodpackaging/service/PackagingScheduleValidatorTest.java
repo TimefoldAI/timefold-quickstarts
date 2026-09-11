@@ -26,6 +26,7 @@ import ai.timefold.solver.service.definition.api.validation.dto.ValidationResult
 
 import org.acme.foodpackaging.demo.DemoDataBuilder;
 import org.acme.foodpackaging.dto.input.PackagingScheduleInput;
+import org.acme.foodpackaging.service.validation.PackagingScheduleIssue.DuplicateCleaningDurationIssue;
 import org.acme.foodpackaging.service.validation.PackagingScheduleIssue.DuplicateJobIdIssue;
 import org.acme.foodpackaging.service.validation.PackagingScheduleIssue.DuplicateLineIdIssue;
 import org.acme.foodpackaging.service.validation.PackagingScheduleIssue.DuplicateOperatorIdIssue;
@@ -92,6 +93,17 @@ class PackagingScheduleValidatorTest {
         ValidationResult<Issue> result = validate(inputWithProducts(product(PRODUCT_1, List.of())));
 
         MissingCleaningDurationIssue issue = singleIssue(result, MissingCleaningDurationIssue.class);
+        assertThat(issue.getProductId()).isEqualTo(PRODUCT_1);
+        assertThat(issue.getPreviousProductId()).isEqualTo(PRODUCT_1);
+    }
+
+    @Test
+    void duplicateCleaningDurationReferenceIsReportedWithTheOffendingIds() {
+        // p1 is listed twice as the previous product for p1's own cleaning duration entry.
+        ValidationResult<Issue> result =
+                validate(inputWithProducts(product(PRODUCT_1, List.of(PRODUCT_1, PRODUCT_1))));
+
+        DuplicateCleaningDurationIssue issue = singleIssue(result, DuplicateCleaningDurationIssue.class);
         assertThat(issue.getProductId()).isEqualTo(PRODUCT_1);
         assertThat(issue.getPreviousProductId()).isEqualTo(PRODUCT_1);
     }
