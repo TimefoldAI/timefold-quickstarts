@@ -34,6 +34,7 @@ class SolverManagerTest {
         var input = TestHelper.createProblem();
 
         VehicleRoutePlan problem = modelConvertor.toSolverModel(input, ModelConfig.empty(), Optional.empty());
+        TestHelper.initDistanceMap(problem);
 
         VehicleRoutePlan solution = solverManager.solveBuilder().withProblemId(0L)
                 .withProblemFinder(id -> problem).run().getFinalBestSolution();

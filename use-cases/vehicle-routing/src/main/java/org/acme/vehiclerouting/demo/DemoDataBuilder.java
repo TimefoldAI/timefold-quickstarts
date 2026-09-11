@@ -36,31 +36,39 @@ public final class DemoDataBuilder {
 
     private static final int VEHICLE_COUNT = 6;
 
+    // Package-private (not just the map area passed to build()) so DemoDataBuilderTest can assert
+    // that generated locations fall within the same bounds without those bounds being part of the
+    // public VehicleRoutePlanInput - they only ever existed to generate demo data, not for the UI.
+    static final Dataset PHILADELPHIA = new Dataset(2L, 55, 1, 2, 15, 30,
+            new LocationInputDTO(39.7656099067391, -76.83782328143754),
+            new LocationInputDTO(40.77636644354855, -74.9300739430771));
+    static final Dataset GHENT = new Dataset(1L, 65, 1, 2, 15, 30,
+            new LocationInputDTO(50.990000, 3.620000),
+            new LocationInputDTO(51.130000, 3.840000));
+    static final Dataset HARTFORT = new Dataset(1L, 50, 1, 3, 20, 30,
+            new LocationInputDTO(41.48366520850297, -73.15901689943055),
+            new LocationInputDTO(41.99512052869307, -72.25114548877427));
+    static final Dataset FIRENZE = new Dataset(2L, 77, 1, 2, 20, 40,
+            new LocationInputDTO(43.751466, 11.177210),
+            new LocationInputDTO(43.809291, 11.290195));
+
     private DemoDataBuilder() {
     }
 
     public static VehicleRoutePlanInput philadelphia() {
-        return build(new Dataset(2L, 55, 1, 2, 15, 30,
-                new LocationInputDTO(39.7656099067391, -76.83782328143754),
-                new LocationInputDTO(40.77636644354855, -74.9300739430771)));
+        return build(PHILADELPHIA);
     }
 
     public static VehicleRoutePlanInput ghent() {
-        return build(new Dataset(1L, 65, 1, 2, 15, 30,
-                new LocationInputDTO(50.990000, 3.620000),
-                new LocationInputDTO(51.130000, 3.840000)));
+        return build(GHENT);
     }
 
     public static VehicleRoutePlanInput hartfort() {
-        return build(new Dataset(1L, 50, 1, 3, 20, 30,
-                new LocationInputDTO(41.48366520850297, -73.15901689943055),
-                new LocationInputDTO(41.99512052869307, -72.25114548877427)));
+        return build(HARTFORT);
     }
 
     public static VehicleRoutePlanInput firenze() {
-        return build(new Dataset(2L, 77, 1, 2, 20, 40,
-                new LocationInputDTO(43.751466, 11.177210),
-                new LocationInputDTO(43.809291, 11.290195)));
+        return build(FIRENZE);
     }
 
     private static VehicleRoutePlanInput build(Dataset dataset) {
@@ -86,8 +94,7 @@ public final class DemoDataBuilder {
                 })
                 .toList();
 
-        return new VehicleRoutePlanInput(dataset.southWestCorner(), dataset.northEastCorner(), departureTime,
-                tomorrowAt(LocalTime.MIDNIGHT).plusDays(1L), vehicles, visits);
+        return new VehicleRoutePlanInput(departureTime, tomorrowAt(LocalTime.MIDNIGHT).plusDays(1L), vehicles, visits);
     }
 
     private static String randomName(Random random) {
@@ -119,7 +126,7 @@ public final class DemoDataBuilder {
     /**
      * The knobs that make one demo dataset differ from the next.
      */
-    private record Dataset(
+    record Dataset(
             long seed,
             int visitCount,
             int minDemand,
@@ -129,7 +136,7 @@ public final class DemoDataBuilder {
             LocationInputDTO southWestCorner,
             LocationInputDTO northEastCorner) {
 
-        private Dataset {
+        public Dataset {
             if (minDemand < 1 || maxDemand < minDemand) {
                 throw new IllegalArgumentException(
                         "The demand range (%d-%d) must be positive and non-decreasing.".formatted(minDemand, maxDemand));

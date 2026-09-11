@@ -23,6 +23,12 @@
       <groupId>ai.timefold.solver</groupId>
       <artifactId>timefold-solver-service-with-maps</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>ai.timefold.solver</groupId>
+      <artifactId>timefold-solver-service-maps-service-test</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
 </project>

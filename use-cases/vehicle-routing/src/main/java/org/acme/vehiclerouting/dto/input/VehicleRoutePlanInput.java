@@ -9,10 +9,6 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Schema(description = "The vehicle routing problem input.")
 public record VehicleRoutePlanInput(
-        @Schema(description = "South-west corner of the map area that holds every location, used to frame the map.",
-                required = true) LocationInputDTO southWestCorner,
-        @Schema(description = "North-east corner of the map area that holds every location, used to frame the map.",
-                required = true) LocationInputDTO northEastCorner,
         @Schema(description = "Start of the planning window, in ISO-8601 date-time format with an offset.",
                 required = true) OffsetDateTime startDateTime,
         @Schema(description = "End of the planning window, in ISO-8601 date-time format with an offset.",
@@ -25,7 +21,6 @@ public record VehicleRoutePlanInput(
             ModelInput {
 
     public VehicleRoutePlanInput withVehicles(List<VehicleInputDTO> vehicles) {
-        return new VehicleRoutePlanInput(southWestCorner, northEastCorner, startDateTime, endDateTime, vehicles,
-                visits);
+        return new VehicleRoutePlanInput(startDateTime, endDateTime, vehicles, visits);
     }
 }

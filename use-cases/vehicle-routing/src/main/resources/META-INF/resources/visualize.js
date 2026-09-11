@@ -54,28 +54,26 @@ function timelineItemContent(text) {
 const app = {
     start() {
         setVisualizationSlot(`
-    <div class="mb-2 d-flex justify-content-end">
-        <ul class="nav nav-pills" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="mapTab" data-bs-toggle="tab"
-                        data-bs-target="#mapPanel" type="button" role="tab" aria-controls="mapPanel"
-                        aria-selected="true">Map
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="byVehicleTab" data-bs-toggle="tab"
-                        data-bs-target="#byVehiclePanel" type="button" role="tab" aria-controls="byVehiclePanel"
-                        aria-selected="false">By vehicle
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="byVisitTab" data-bs-toggle="tab"
-                        data-bs-target="#byVisitPanel" type="button" role="tab" aria-controls="byVisitPanel"
-                        aria-selected="false">By visit
-                </button>
-            </li>
-        </ul>
-    </div>
+    <ul class="nav nav-pills viewTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="mapTab" data-bs-toggle="tab"
+                    data-bs-target="#mapPanel" type="button" role="tab" aria-controls="mapPanel"
+                    aria-selected="true">Map
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="byVehicleTab" data-bs-toggle="tab"
+                    data-bs-target="#byVehiclePanel" type="button" role="tab" aria-controls="byVehiclePanel"
+                    aria-selected="false">By vehicle
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="byVisitTab" data-bs-toggle="tab"
+                    data-bs-target="#byVisitPanel" type="button" role="tab" aria-controls="byVisitPanel"
+                    aria-selected="false">By visit
+            </button>
+        </li>
+    </ul>
     <div class="tab-content">
         <div class="tab-pane fade show active" id="mapPanel" role="tabpanel" aria-labelledby="mapTab">
             <div id="mapContainer" class="position-relative">
@@ -273,10 +271,18 @@ const app = {
     },
 
     // Only on the first render of a dataset: re-framing on every two-second refresh would
-    // undo whatever the user panned or zoomed to.
+    // undo whatever the user panned or zoomed to. The bounding box is not part of the model
+    // input (it was only ever a demo-data-generation detail, not something the UI should
+    // depend on), so it is derived here from every vehicle's home location and every visit.
     fitBounds(schedule) {
-        const bounds = [toLatLng(schedule.southWestCorner), toLatLng(schedule.northEastCorner)];
-        const boundsKey = JSON.stringify(bounds);
+        const points = [
+            ...schedule.vehicles.map(vehicle => toLatLng(vehicle.homeLocation)),
+            ...schedule.visits.map(visit => toLatLng(visit.location)),
+        ];
+        if (points.length === 0) {
+            return;
+        }
+        const boundsKey = JSON.stringify(points);
         if (this.fittedBounds === boundsKey) {
             return;
         }
@@ -286,7 +292,7 @@ const app = {
         // the now-visible container before boxing the bounds, or tiles outside that stale
         // size never get requested.
         this.map.invalidateSize();
-        this.map.fitBounds(bounds);
+        this.map.fitBounds(L.latLngBounds(points), {padding: [20, 20]});
     },
 
     renderHomeLocations(schedule) {

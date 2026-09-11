@@ -16,8 +16,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
                 VehicleRoutePlanIssue.DuplicateVisitIdIssue.class,
                 VehicleRoutePlanIssue.NonExistingVisitReferenceIssue.class,
                 VehicleRoutePlanIssue.VisitAssignedMoreThanOnceIssue.class,
-                VehicleRoutePlanIssue.VisitWindowTooShortIssue.class,
-                VehicleRoutePlanIssue.InvalidMapBoundsIssue.class
+                VehicleRoutePlanIssue.VisitWindowTooShortIssue.class
         })
 public abstract class VehicleRoutePlanIssue extends AbstractIssue {
 
@@ -149,18 +148,6 @@ public abstract class VehicleRoutePlanIssue extends AbstractIssue {
 
         public String getVisitId() {
             return visitId;
-        }
-    }
-
-    @Schema(allOf = { VehicleRoutePlanIssue.class })
-    public static class InvalidMapBoundsIssue extends VehicleRoutePlanIssue {
-
-        public static final IssueCode ISSUE_CODE = IssueCode.of("INVALID_MAP_BOUNDS");
-        public static final IssueMessage ISSUE_MESSAGE = new IssueMessage(
-                "The north-east corner of the map area must lie strictly north-east of the south-west corner.");
-
-        public InvalidMapBoundsIssue() {
-            super(ISSUE_CODE, IssueSeverity.ERROR, List.of(ISSUE_MESSAGE));
         }
     }
 }

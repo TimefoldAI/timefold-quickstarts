@@ -10,14 +10,12 @@ import ai.timefold.solver.service.definition.api.domain.ModelConfig;
 import ai.timefold.solver.service.definition.api.validation.ModelValidator;
 import ai.timefold.solver.service.definition.api.validation.ValidationBuilder;
 
-import org.acme.vehiclerouting.dto.input.LocationInputDTO;
 import org.acme.vehiclerouting.dto.input.VehicleInputDTO;
 import org.acme.vehiclerouting.dto.input.VehicleRoutePlanConfigOverrides;
 import org.acme.vehiclerouting.dto.input.VehicleRoutePlanInput;
 import org.acme.vehiclerouting.dto.input.VisitInputDTO;
 import org.acme.vehiclerouting.service.validation.VehicleRoutePlanIssue.DuplicateVehicleIdIssue;
 import org.acme.vehiclerouting.service.validation.VehicleRoutePlanIssue.DuplicateVisitIdIssue;
-import org.acme.vehiclerouting.service.validation.VehicleRoutePlanIssue.InvalidMapBoundsIssue;
 import org.acme.vehiclerouting.service.validation.VehicleRoutePlanIssue.NonExistingVisitReferenceIssue;
 import org.acme.vehiclerouting.service.validation.VehicleRoutePlanIssue.VisitAssignedMoreThanOnceIssue;
 import org.acme.vehiclerouting.service.validation.VehicleRoutePlanIssue.VisitWindowTooShortIssue;
@@ -31,22 +29,8 @@ public class VehicleRoutePlanValidator
             ModelConfig<VehicleRoutePlanConfigOverrides> modelConfig) {
         // OpenAPI spec (Bean Validation) compliance is enforced by the Service module at the REST layer,
         // before this validator ever runs; only domain-specific checks belong here.
-        validateMapBounds(validationBuilder, modelInput.southWestCorner(), modelInput.northEastCorner());
         Set<String> visitIds = validateVisits(validationBuilder, orEmpty(modelInput.visits()));
         validateVehicles(validationBuilder, orEmpty(modelInput.vehicles()), visitIds);
-    }
-
-    private void validateMapBounds(ValidationBuilder validationBuilder, LocationInputDTO southWestCorner,
-            LocationInputDTO northEastCorner) {
-        if (southWestCorner == null || northEastCorner == null
-                || southWestCorner.latitude() == null || southWestCorner.longitude() == null
-                || northEastCorner.latitude() == null || northEastCorner.longitude() == null) {
-            return;
-        }
-        if (northEastCorner.latitude() <= southWestCorner.latitude()
-                || northEastCorner.longitude() <= southWestCorner.longitude()) {
-            validationBuilder.addIssue(new InvalidMapBoundsIssue());
-        }
     }
 
     private Set<String> validateVisits(ValidationBuilder validationBuilder, List<VisitInputDTO> visits) {
