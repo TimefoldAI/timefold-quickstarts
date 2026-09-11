@@ -1,10 +1,11 @@
-package org.acme.taskassigning.rest;
+package org.acme.taskassigning.solver;
 
-import static io.restassured.RestAssured.given;
+import static org.acme.taskassigning.support.TestHelper.createProblem;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Optional;
 
 import jakarta.inject.Inject;
 
@@ -13,8 +14,10 @@ import ai.timefold.solver.core.api.solver.SolverFactory;
 import ai.timefold.solver.core.config.solver.EnvironmentMode;
 import ai.timefold.solver.core.config.solver.SolverConfig;
 import ai.timefold.solver.core.config.solver.monitoring.MonitoringConfig;
+import ai.timefold.solver.service.definition.api.domain.ModelConfig;
 
 import org.acme.taskassigning.domain.TaskAssigningSolution;
+import org.acme.taskassigning.service.TaskAssigningModelConvertor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
@@ -27,34 +30,35 @@ class TaskAssigningEnvironmentTest {
     @Inject
     SolverConfig solverConfig;
 
+    @Inject
+    TaskAssigningModelConvertor modelConvertor;
+
     @Test
     void solveFullAssert() {
-        solve(EnvironmentMode.FULL_ASSERT);
+        solve(null);
     }
 
+    // Multithreaded solving is a Timefold Solver Enterprise Edition feature, so these only run
+    // when the enterprise Maven profile (-Denterprise) is active.
     @Test
-    void solveStepAssert() {
-        solve(EnvironmentMode.STEP_ASSERT);
+    @EnabledIfSystemProperty(named = "timefold.solver.enterprise", matches = "true")
+    void solveFullAssertMultithreaded() {
+        solve(SolverConfig.MOVE_THREAD_COUNT_AUTO);
     }
 
-    void solve(EnvironmentMode environmentMode) {
-        // Load the problem
-        TaskAssigningSolution problem = given()
-                .when().get("/demo-data")
-                .then()
-                .statusCode(200)
-                .extract()
-                .as(TaskAssigningSolution.class);
+    void solve(String moveThreadCount) {
+        var input = createProblem();
+        TaskAssigningSolution problem = modelConvertor.toSolverModel(input, ModelConfig.empty(), Optional.empty());
 
-        // Update the environment
         SolverConfig updatedConfig = solverConfig.copyConfig();
-        updatedConfig.withEnvironmentMode(environmentMode)
-                .withTerminationSpentLimit(Duration.ofSeconds(30))
+        updatedConfig.withEnvironmentMode(EnvironmentMode.FULL_ASSERT).withTerminationSpentLimit(Duration.ofSeconds(30))
                 .getTerminationConfig().withBestScoreLimit(null);
         updatedConfig.withMonitoringConfig(new MonitoringConfig().withSolverMetricList(List.of()));
+        if (moveThreadCount != null) {
+            updatedConfig.withMoveThreadCount(moveThreadCount);
+        }
         SolverFactory<TaskAssigningSolution> solverFactory = SolverFactory.create(updatedConfig);
 
-        // Solve the problem
         Solver<TaskAssigningSolution> solver = solverFactory.buildSolver();
         TaskAssigningSolution solution = solver.solve(problem);
         assertThat(solution.getScore()).isNotNull();
