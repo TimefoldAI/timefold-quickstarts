@@ -18,4 +18,11 @@
     <maven.compiler.release>21</maven.compiler.release>
   </properties>
 
+  <dependencies>
+    <dependency>
+      <groupId>ai.timefold.solver</groupId>
+      <artifactId>timefold-solver-service-with-maps</artifactId>
+    </dependency>
+  </dependencies>
+
 </project>

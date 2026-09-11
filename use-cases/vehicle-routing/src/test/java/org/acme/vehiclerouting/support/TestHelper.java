@@ -8,12 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ai.timefold.solver.core.api.solver.SolutionManager;
+import ai.timefold.solver.service.maps.api.model.Location;
 
-import org.acme.vehiclerouting.domain.Location;
 import org.acme.vehiclerouting.domain.Vehicle;
 import org.acme.vehiclerouting.domain.VehicleRoutePlan;
 import org.acme.vehiclerouting.domain.Visit;
-import org.acme.vehiclerouting.domain.geo.HaversineDrivingTimeCalculator;
 import org.acme.vehiclerouting.dto.input.LocationInputDTO;
 import org.acme.vehiclerouting.dto.input.VehicleInputDTO;
 import org.acme.vehiclerouting.dto.input.VehicleRoutePlanInput;
@@ -93,8 +92,8 @@ public final class TestHelper {
      */
     public static long drivingTimeSeconds(double fromLatitude, double fromLongitude, double toLatitude,
             double toLongitude) {
-        return HaversineDrivingTimeCalculator.getInstance().calculateDrivingTime(
-                new Location(fromLatitude, fromLongitude), new Location(toLatitude, toLongitude));
+        return new Location(fromLatitude, fromLongitude).getDrivingTimeTo(new Location(toLatitude, toLongitude))
+                .seconds();
     }
 
     public static final class VehicleDTOBuilder {
@@ -278,11 +277,10 @@ public final class TestHelper {
     /**
      * Builds the entity array to hand to {@code ConstraintVerifier.given(...)}.
      * <p>
-     * ConstraintVerifier does not run the solver's variable listeners, so two things have to happen
-     * here that the solver would otherwise do when it loads a solution: the driving time matrix
-     * between every location has to be computed, and the shadow variables derived from the route
-     * lists - the inverse relation, the previous element and the arrival time - have to be filled
-     * in.
+     * ConstraintVerifier does not run the solver's variable listeners, so the shadow variables
+     * derived from the route lists - the inverse relation, the previous element and the arrival
+     * time - have to be filled in here, exactly as the solver would otherwise do when it loads a
+     * solution.
      */
     public static final class RoutePlanBuilder {
 
@@ -319,11 +317,6 @@ public final class TestHelper {
         }
 
         public Object[] build() {
-            List<Location> locations = new ArrayList<>(vehicles.size() + visits.size());
-            vehicles.forEach(vehicle -> locations.add(vehicle.getHomeLocation()));
-            visits.forEach(visit -> locations.add(visit.getLocation()));
-            HaversineDrivingTimeCalculator.getInstance().initDrivingTimeMaps(locations);
-
             Object[] entities = new Object[vehicles.size() + visits.size()];
             int index = 0;
             for (Vehicle vehicle : vehicles) {

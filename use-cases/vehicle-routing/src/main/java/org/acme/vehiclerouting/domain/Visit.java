@@ -11,6 +11,7 @@ import ai.timefold.solver.core.api.domain.variable.InverseRelationShadowVariable
 import ai.timefold.solver.core.api.domain.variable.PreviousElementShadowVariable;
 import ai.timefold.solver.core.api.domain.variable.ShadowSources;
 import ai.timefold.solver.core.api.domain.variable.ShadowVariable;
+import ai.timefold.solver.service.maps.api.model.Location;
 
 @PlanningEntity
 public class Visit implements LocationAware {
@@ -129,9 +130,9 @@ public class Visit implements LocationAware {
                     "This method must not be called when the shadow variables are not initialized yet.");
         }
         if (previousVisit == null) {
-            return vehicle.getHomeLocation().getDrivingTimeTo(location);
+            return vehicle.getHomeLocation().getDrivingTimeTo(location).seconds();
         }
-        return previousVisit.getLocation().getDrivingTimeTo(location);
+        return previousVisit.getLocation().getDrivingTimeTo(location).seconds();
     }
 
     /**

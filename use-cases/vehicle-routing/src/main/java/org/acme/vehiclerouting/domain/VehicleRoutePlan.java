@@ -1,6 +1,7 @@
 package org.acme.vehiclerouting.domain;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import ai.timefold.solver.core.api.domain.solution.ConstraintWeightOverrides;
@@ -9,12 +10,11 @@ import ai.timefold.solver.core.api.domain.solution.PlanningScore;
 import ai.timefold.solver.core.api.domain.solution.PlanningSolution;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
 import ai.timefold.solver.core.api.score.HardMediumSoftScore;
-import ai.timefold.solver.service.definition.api.SolverModel;
 import ai.timefold.solver.service.definition.api.metrics.InputMetricsAware;
 import ai.timefold.solver.service.definition.api.metrics.OutputMetricsAware;
+import ai.timefold.solver.service.maps.api.model.Location;
+import ai.timefold.solver.service.maps.service.integration.api.LocationsAwareSolverModel;
 
-import org.acme.vehiclerouting.domain.geo.DrivingTimeCalculator;
-import org.acme.vehiclerouting.domain.geo.HaversineDrivingTimeCalculator;
 import org.acme.vehiclerouting.dto.input.VehicleRoutePlanInputMetrics;
 import org.acme.vehiclerouting.dto.output.VehicleRoutePlanOutputMetrics;
 
@@ -31,7 +31,7 @@ import org.acme.vehiclerouting.dto.output.VehicleRoutePlanOutputMetrics;
  * the travel time takes precedence (highway vs. local road).
  */
 @PlanningSolution
-public class VehicleRoutePlan implements SolverModel<HardMediumSoftScore>,
+public class VehicleRoutePlan implements LocationsAwareSolverModel<HardMediumSoftScore>,
         InputMetricsAware<VehicleRoutePlanInputMetrics>, OutputMetricsAware<VehicleRoutePlanOutputMetrics> {
 
     @PlanningEntityCollectionProperty
@@ -46,22 +46,16 @@ public class VehicleRoutePlan implements SolverModel<HardMediumSoftScore>,
 
     private ConstraintWeightOverrides<HardMediumSoftScore> constraintWeightOverrides = ConstraintWeightOverrides.none();
 
+    // Reported back by the map-service through setLocationsNotInMap() after it builds the travel
+    // time matrix returned by getLocations(): the locations it could not resolve, if any.
+    private List<Location> locationsNotInMap = List.of();
+
     public VehicleRoutePlan() {
     }
 
-    /**
-     * Also computes the driving time matrix between every location in the plan, since a vehicle's
-     * route length is only defined once every pair of its locations has a driving time.
-     */
     public VehicleRoutePlan(List<Vehicle> vehicles, List<Visit> visits) {
         this.vehicles = vehicles;
         this.visits = visits;
-        List<Location> locations = Stream.concat(
-                vehicles.stream().map(Vehicle::getHomeLocation),
-                visits.stream().map(Visit::getLocation)).toList();
-
-        DrivingTimeCalculator drivingTimeCalculator = HaversineDrivingTimeCalculator.getInstance();
-        drivingTimeCalculator.initDrivingTimeMaps(locations);
     }
 
     // ************************************************************************
@@ -120,4 +114,34 @@ public class VehicleRoutePlan implements SolverModel<HardMediumSoftScore>,
         this.constraintWeightOverrides = constraintWeightOverrides;
     }
 
+    // ── LocationsAwareSolverModel ──
+    // The map-service uses these to build the travel time matrix that Location.getDrivingTimeTo()
+    // relies on, before the solver runs - the same job VehicleRoutePlan's constructor used to do
+    // itself via the local Haversine calculator.
+
+    @Override
+    public List<Location> getLocations() {
+        if (vehicles == null || visits == null) {
+            return List.of();
+        }
+        return Stream.concat(
+                vehicles.stream().map(Vehicle::getHomeLocation),
+                visits.stream().map(Visit::getLocation)).toList();
+    }
+
+    // Every solve builds its own one-off matrix rather than reusing a named, pre-built one.
+    @Override
+    public Optional<String> getLocationSetName() {
+        return Optional.empty();
+    }
+
+    @Override
+    public void setLocationsNotInMap(List<Location> locationsNotInMap) {
+        this.locationsNotInMap = locationsNotInMap == null ? List.of() : locationsNotInMap;
+    }
+
+    @Override
+    public List<Location> getLocationsNotInMap() {
+        return locationsNotInMap;
+    }
 }

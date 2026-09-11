@@ -8,6 +8,7 @@ import java.util.Objects;
 import ai.timefold.solver.core.api.domain.common.PlanningId;
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.variable.PlanningListVariable;
+import ai.timefold.solver.service.maps.api.model.Location;
 
 @PlanningEntity
 public class Vehicle implements LocationAware {
@@ -86,10 +87,10 @@ public class Vehicle implements LocationAware {
         Location previousLocation = homeLocation;
 
         for (Visit visit : visits) {
-            totalDrivingTime += previousLocation.getDrivingTimeTo(visit.getLocation());
+            totalDrivingTime += previousLocation.getDrivingTimeTo(visit.getLocation()).seconds();
             previousLocation = visit.getLocation();
         }
-        totalDrivingTime += previousLocation.getDrivingTimeTo(homeLocation);
+        totalDrivingTime += previousLocation.getDrivingTimeTo(homeLocation).seconds();
 
         return totalDrivingTime;
     }
@@ -109,7 +110,7 @@ public class Vehicle implements LocationAware {
         if (lastDepartureTime == null) {
             return null;
         }
-        return lastDepartureTime.plusSeconds(lastVisit.getLocation().getDrivingTimeTo(homeLocation));
+        return lastDepartureTime.plusSeconds(lastVisit.getLocation().getDrivingTimeTo(homeLocation).seconds());
     }
 
     // ************************************************************************
