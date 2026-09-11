@@ -22,6 +22,7 @@ The assignment *is* the route: a vehicle carries the ordered list of visit ids i
 | Maximize visits assigned            | Medium | As many visits as possible should be assigned to a vehicle.                        |
 | Minimize travel time                | Soft   | Minimize the total travel time of all vehicles.                                    |
 
+- [Map service](#map-service)
 - [Run the application](#run-the-application)
 - [Run the packaged application](#run-the-packaged-application)
 - [Run the application in a container](#run-the-application-in-a-container)
@@ -29,6 +30,50 @@ The assignment *is* the route: a vehicle carries the ordered list of visit ids i
 
 > [!TIP]
 > <img src="https://docs.timefold.ai/_/img/models/field-service-routing.svg" align="right" width="50px" /> [Check out our off-the-shelf model for Field Service Routing](https://app.timefold.ai/models/field-service-routing/v1). This model goes beyond basic Vehicle Routing and supports additional constraints such as priorities, skills, fairness and more.
+
+## Map service
+
+Driving time between locations is not computed by this quickstart's own code: it comes from the
+Timefold Platform's **map service**.
+
+Every location in the model - a vehicle's home location (`Vehicle.getHomeLocation()`) and a visit's
+location (`Visit.getLocation()`) - is an `ai.timefold.solver.service.maps.api.model.Location`, and
+both `Vehicle` and `Visit` implement `LocationAware` to expose it. Calling
+`location.getDrivingTimeTo(otherLocation)` returns the driving time between the two, once the map
+service has built a travel time matrix that covers them; this is what
+`Vehicle.getTotalDrivingTimeSeconds()`, `Visit.getDrivingTimeSecondsFromPreviousStandstill()` and the
+nearby-selection `LocationDistanceMeter` all call.
+
+Building that matrix is the map service's responsibility, not this quickstart's: `VehicleRoutePlan`
+implements `LocationsAwareSolverModel<HardMediumSoftScore>` so the platform can do it automatically
+before every solve:
+
+- `getLocations()` returns every location the matrix needs to cover - every vehicle's home location
+  plus every visit's location.
+- `getLocationSetName()` returns empty, so each solve builds its own one-off matrix rather than
+  reusing a named, pre-built one.
+- `setLocationsNotInMap()` / `getLocationsNotInMap()` let the map service report back any locations
+  it could not resolve into the matrix, so the model retains that information instead of silently
+  dropping it.
+
+Two properties in `application.properties` control how the matrix gets built:
+
+```properties
+timefold.platform.map-service.use-remote=false
+timefold.platform.map-service.enable-fallback=true
+```
+
+- `use-remote` switches between the platform's remote map service (real road-network driving times)
+  and a local computation.
+- `enable-fallback` allows falling back to the local computation when the remote one is disabled or
+  unavailable.
+
+`ConstraintVerifier`-based unit tests (`VehicleRoutePlanConstraintProviderTest`) build entities
+directly, bypassing the model-conversion pipeline the map service hooks into, so `TestHelper` builds
+the matrix itself for test data using the library's own test-support classes:
+`HaversineTravelTimeAndDistanceMatrixProvider` (the same great-circle fallback calculation the
+platform uses locally) and `TestDistanceCalculator.initDistanceMaps(...)`, applied to
+`VehicleRoutePlan.getLocations()` - the same locations the real map service would be given.
 
 ## Prerequisites
 

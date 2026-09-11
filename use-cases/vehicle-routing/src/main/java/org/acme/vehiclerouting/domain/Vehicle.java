@@ -121,24 +121,12 @@ public class Vehicle implements LocationAware {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public int getCapacity() {
         return capacity;
     }
 
-    public void setCapacity(int capacity) {
-        this.capacity = capacity;
-    }
-
     public Location getHomeLocation() {
         return homeLocation;
-    }
-
-    public void setHomeLocation(Location homeLocation) {
-        this.homeLocation = homeLocation;
     }
 
     public OffsetDateTime getDepartureTime() {

@@ -4,7 +4,6 @@ import static org.acme.vehiclerouting.support.TestHelper.aVehicleDTO;
 import static org.acme.vehiclerouting.support.TestHelper.aVisitDTO;
 import static org.acme.vehiclerouting.support.TestHelper.at;
 import static org.acme.vehiclerouting.support.TestHelper.input;
-import static org.acme.vehiclerouting.support.TestHelper.locationDTO;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collection;
@@ -21,7 +20,6 @@ import org.acme.vehiclerouting.dto.input.VehicleRoutePlanInput;
 import org.acme.vehiclerouting.dto.input.VisitInputDTO;
 import org.acme.vehiclerouting.service.validation.VehicleRoutePlanIssue.DuplicateVehicleIdIssue;
 import org.acme.vehiclerouting.service.validation.VehicleRoutePlanIssue.DuplicateVisitIdIssue;
-import org.acme.vehiclerouting.service.validation.VehicleRoutePlanIssue.InvalidMapBoundsIssue;
 import org.acme.vehiclerouting.service.validation.VehicleRoutePlanIssue.NonExistingVisitReferenceIssue;
 import org.acme.vehiclerouting.service.validation.VehicleRoutePlanIssue.VisitAssignedMoreThanOnceIssue;
 import org.acme.vehiclerouting.service.validation.VehicleRoutePlanIssue.VisitWindowTooShortIssue;
@@ -107,17 +105,10 @@ class VehicleRoutePlanValidatorTest {
     }
 
     @Test
-    void invalidMapBounds() {
-        VehicleRoutePlanInput routePlan = input(locationDTO(51.130000, 3.840000), locationDTO(50.990000, 3.620000),
-                VEHICLES, VALID_VISITS);
-        assertSingleIssue(validate(routePlan), InvalidMapBoundsIssue.class);
-    }
-
-    @Test
     void mixedDatasetReportsEveryIssue() {
         VehicleInputDTO duplicatedVehicle = aVehicleDTO("1").build();
         VisitInputDTO duplicatedVisit = aVisitDTO("1").build();
-        VehicleRoutePlanInput routePlan = input(locationDTO(51.130000, 3.840000), locationDTO(50.990000, 3.620000),
+        VehicleRoutePlanInput routePlan = input(
                 List.of(duplicatedVehicle, duplicatedVehicle,
                         aVehicleDTO("2").visitIds(List.of("does-not-exist")).build(),
                         aVehicleDTO("3").visitIds(List.of("2")).build(),
@@ -127,9 +118,8 @@ class VehicleRoutePlanValidatorTest {
                                 .build()));
 
         Collection<Issue> issues = validate(routePlan).issues();
-        assertThat(issues).hasSize(6);
-        assertThat(issues).hasAtLeastOneElementOfType(InvalidMapBoundsIssue.class)
-                .hasAtLeastOneElementOfType(DuplicateVehicleIdIssue.class)
+        assertThat(issues).hasSize(5);
+        assertThat(issues).hasAtLeastOneElementOfType(DuplicateVehicleIdIssue.class)
                 .hasAtLeastOneElementOfType(DuplicateVisitIdIssue.class)
                 .hasAtLeastOneElementOfType(NonExistingVisitReferenceIssue.class)
                 .hasAtLeastOneElementOfType(VisitAssignedMoreThanOnceIssue.class)

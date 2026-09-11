@@ -75,8 +75,6 @@ public class VehicleRoutePlan implements LocationsAwareSolverModel<HardMediumSof
 
     @Override
     public VehicleRoutePlanOutputMetrics getOutputMetrics() {
-        // Read the list variable rather than Visit.vehicle: the inverse relation shadow is not
-        // computed yet on a solution that has only been loaded, but the route lists always are.
         int assignedVisits = vehicles.stream().mapToInt(vehicle -> vehicle.getVisits().size()).sum();
         int unassignedVisits = visits.size() - assignedVisits;
         int usedVehicles = (int) vehicles.stream().filter(vehicle -> !vehicle.getVisits().isEmpty()).count();
@@ -116,9 +114,7 @@ public class VehicleRoutePlan implements LocationsAwareSolverModel<HardMediumSof
 
     // ── LocationsAwareSolverModel ──
     // The map-service uses these to build the travel time matrix that Location.getDrivingTimeTo()
-    // relies on, before the solver runs - the same job VehicleRoutePlan's constructor used to do
-    // itself via the local Haversine calculator.
-
+    // relies on, before the solver runs.
     @Override
     public List<Location> getLocations() {
         if (vehicles == null || visits == null) {

@@ -15,6 +15,13 @@ class DemoDataBuilderTest {
             DemoDataBuilder::philadelphia, DemoDataBuilder::ghent, DemoDataBuilder::hartfort,
             DemoDataBuilder::firenze);
 
+    // Parallel to DATASETS: the map area each of those datasets generates its locations within.
+    // Not part of VehicleRoutePlanInput itself - that bounding box only ever existed to generate
+    // demo data, not for the UI - so it is asserted here against DemoDataBuilder's own bounds.
+    private static final List<DemoDataBuilder.Dataset> DATASET_BOUNDS = List.of(
+            DemoDataBuilder.PHILADELPHIA, DemoDataBuilder.GHENT, DemoDataBuilder.HARTFORT,
+            DemoDataBuilder.FIRENZE);
+
     @Test
     void shouldBuildData() {
         assertThat(DemoDataBuilder.philadelphia().visits()).hasSize(55);
@@ -22,8 +29,9 @@ class DemoDataBuilderTest {
         assertThat(DemoDataBuilder.hartfort().visits()).hasSize(50);
         assertThat(DemoDataBuilder.firenze().visits()).hasSize(77);
 
-        DATASETS.forEach(dataset -> {
-            VehicleRoutePlanInput problem = dataset.get();
+        for (int i = 0; i < DATASETS.size(); i++) {
+            VehicleRoutePlanInput problem = DATASETS.get(i).get();
+            DemoDataBuilder.Dataset bounds = DATASET_BOUNDS.get(i);
 
             assertThat(problem.vehicles()).hasSize(6);
             assertThat(problem.endDateTime()).isAfter(problem.startDateTime());
@@ -34,7 +42,7 @@ class DemoDataBuilderTest {
                 assertThat(vehicle.departureTime()).isEqualTo(problem.startDateTime());
                 // Unsolved: no route yet.
                 assertThat(vehicle.visitIds()).isEmpty();
-                assertWithinBounds(problem, vehicle.homeLocation());
+                assertWithinBounds(bounds, vehicle.homeLocation());
             });
 
             problem.visits().forEach(visit -> {
@@ -47,9 +55,9 @@ class DemoDataBuilderTest {
                 assertThat(visit.maxEndTime()).isBeforeOrEqualTo(problem.endDateTime());
                 assertThat(visit.minStartTime().plusMinutes(visit.serviceDurationMinutes()))
                         .isBeforeOrEqualTo(visit.maxEndTime());
-                assertWithinBounds(problem, visit.location());
+                assertWithinBounds(bounds, visit.location());
             });
-        });
+        }
     }
 
     @Test
@@ -64,10 +72,10 @@ class DemoDataBuilderTest {
         assertThat(DATASETS.stream().map(Supplier::get).distinct()).hasSameSizeAs(DATASETS);
     }
 
-    private static void assertWithinBounds(VehicleRoutePlanInput problem, LocationInputDTO location) {
+    private static void assertWithinBounds(DemoDataBuilder.Dataset bounds, LocationInputDTO location) {
         assertThat(location.latitude())
-                .isBetween(problem.southWestCorner().latitude(), problem.northEastCorner().latitude());
+                .isBetween(bounds.southWestCorner().latitude(), bounds.northEastCorner().latitude());
         assertThat(location.longitude())
-                .isBetween(problem.southWestCorner().longitude(), problem.northEastCorner().longitude());
+                .isBetween(bounds.southWestCorner().longitude(), bounds.northEastCorner().longitude());
     }
 }

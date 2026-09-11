@@ -9,6 +9,8 @@ import java.util.List;
 
 import ai.timefold.solver.core.api.solver.SolutionManager;
 import ai.timefold.solver.service.maps.api.model.Location;
+import ai.timefold.solver.service.maps.haversine.impl.HaversineTravelTimeAndDistanceMatrixProvider;
+import ai.timefold.solver.service.maps.service.test.api.TestDistanceCalculator;
 
 import org.acme.vehiclerouting.domain.Vehicle;
 import org.acme.vehiclerouting.domain.VehicleRoutePlan;
@@ -17,6 +19,8 @@ import org.acme.vehiclerouting.dto.input.LocationInputDTO;
 import org.acme.vehiclerouting.dto.input.VehicleInputDTO;
 import org.acme.vehiclerouting.dto.input.VehicleRoutePlanInput;
 import org.acme.vehiclerouting.dto.input.VisitInputDTO;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 // To keep our production classes as simple as possible, we've added these methods to help construct the data needed for testing.
 public final class TestHelper {
@@ -27,6 +31,9 @@ public final class TestHelper {
     /** Two coordinates in the same city, so a driving time between them is a few minutes, not hours. */
     public static final LocationInputDTO SOUTH_WEST_CORNER = new LocationInputDTO(50.990000, 3.620000);
     public static final LocationInputDTO NORTH_EAST_CORNER = new LocationInputDTO(51.130000, 3.840000);
+
+    public static final HaversineTravelTimeAndDistanceMatrixProvider provider =
+            new HaversineTravelTimeAndDistanceMatrixProvider(new ObjectMapper());
 
     private TestHelper() {
     }
@@ -40,14 +47,7 @@ public final class TestHelper {
     }
 
     public static VehicleRoutePlanInput input(List<VehicleInputDTO> vehicles, List<VisitInputDTO> visits) {
-        return new VehicleRoutePlanInput(SOUTH_WEST_CORNER, NORTH_EAST_CORNER, at(7, 30), DAY_START.plusDays(1),
-                vehicles, visits);
-    }
-
-    public static VehicleRoutePlanInput input(LocationInputDTO southWestCorner, LocationInputDTO northEastCorner,
-            List<VehicleInputDTO> vehicles, List<VisitInputDTO> visits) {
-        return new VehicleRoutePlanInput(southWestCorner, northEastCorner, at(7, 30), DAY_START.plusDays(1), vehicles,
-                visits);
+        return new VehicleRoutePlanInput(at(7, 30), DAY_START.plusDays(1), vehicles, visits);
     }
 
     /**
@@ -92,8 +92,7 @@ public final class TestHelper {
      */
     public static long drivingTimeSeconds(double fromLatitude, double fromLongitude, double toLatitude,
             double toLongitude) {
-        return new Location(fromLatitude, fromLongitude).getDrivingTimeTo(new Location(toLatitude, toLongitude))
-                .seconds();
+        return provider.calculateTravelTime(new Location(fromLatitude, fromLongitude), new Location(toLatitude, toLongitude));
     }
 
     public static final class VehicleDTOBuilder {
@@ -316,23 +315,24 @@ public final class TestHelper {
             return this;
         }
 
-        public Object[] build() {
-            Object[] entities = new Object[vehicles.size() + visits.size()];
-            int index = 0;
-            for (Vehicle vehicle : vehicles) {
-                entities[index++] = vehicle;
-            }
-            for (Visit visit : visits) {
-                entities[index++] = visit;
-            }
+        public VehicleRoutePlan build() {
+            var plan = new VehicleRoutePlan(vehicles, visits);
             // updateShadowVariables derives the solution's entity classes from the objects it is
             // given, so without a single Vehicle it cannot resolve the "visits" list variable the
             // shadows hang off. There is nothing to derive in that case anyway: every visit is
             // unassigned, so all of its shadows are legitimately null already.
             if (!vehicles.isEmpty()) {
-                SolutionManager.updateShadowVariables(VehicleRoutePlan.class, entities);
+                SolutionManager.updateShadowVariables(VehicleRoutePlan.class, plan);
             }
-            return entities;
+
+            return initDistanceMap(plan);
         }
+    }
+
+    public static VehicleRoutePlan initDistanceMap(VehicleRoutePlan plan) {
+        TestDistanceCalculator.initDistanceMaps(plan.getLocations(),
+                provider::calculateDistance,
+                provider::calculateTravelTime);
+        return plan;
     }
 }

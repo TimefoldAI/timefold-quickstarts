@@ -33,7 +33,7 @@ class VehicleRoutePlanConstraintProviderTest {
     void vehicleCapacity() {
         // Within capacity: 5 + 4 of 10.
         constraintVerifier.verifyThat(VehicleRoutePlanConstraintProvider::vehicleCapacity)
-                .given(aRoutePlan()
+                .givenSolution(aRoutePlan()
                         .route(aVehicle("1").capacity(10),
                                 aVisit("1").demand(5),
                                 aVisit("2").demand(4))
@@ -41,7 +41,7 @@ class VehicleRoutePlanConstraintProviderTest {
                 .penalizesBy(0);
         // Exactly at capacity: 5 + 5 of 10.
         constraintVerifier.verifyThat(VehicleRoutePlanConstraintProvider::vehicleCapacity)
-                .given(aRoutePlan()
+                .givenSolution(aRoutePlan()
                         .route(aVehicle("1").capacity(10),
                                 aVisit("1").demand(5),
                                 aVisit("2").demand(5))
@@ -49,7 +49,7 @@ class VehicleRoutePlanConstraintProviderTest {
                 .penalizesBy(0);
         // Three over capacity: 5 + 8 of 10.
         constraintVerifier.verifyThat(VehicleRoutePlanConstraintProvider::vehicleCapacity)
-                .given(aRoutePlan()
+                .givenSolution(aRoutePlan()
                         .route(aVehicle("1").capacity(10),
                                 aVisit("1").demand(5),
                                 aVisit("2").demand(8))
@@ -57,7 +57,7 @@ class VehicleRoutePlanConstraintProviderTest {
                 .penalizesBy(3);
         // An unassigned visit takes up no capacity, however big its demand.
         constraintVerifier.verifyThat(VehicleRoutePlanConstraintProvider::vehicleCapacity)
-                .given(aRoutePlan()
+                .givenSolution(aRoutePlan()
                         .route(aVehicle("1").capacity(10), aVisit("1").demand(5))
                         .unassigned(aVisit("2").demand(100))
                         .build())
@@ -69,28 +69,28 @@ class VehicleRoutePlanConstraintProviderTest {
         // The visit sits on the vehicle's home location, so it is serviced from the departure time
         // onwards and the driving time does not blur the expected delay.
         constraintVerifier.verifyThat(VehicleRoutePlanConstraintProvider::serviceFinishedAfterMaxEndTime)
-                .given(aRoutePlan()
+                .givenSolution(aRoutePlan()
                         .route(aVehicle("1").departureTime(at(8, 0)),
                                 aVisit("1").minStartTime(at(8, 0)).maxEndTime(at(9, 0)).serviceDurationMinutes(30))
                         .build())
                 .penalizesBy(0);
         // Servicing finishes exactly at the maximum end time.
         constraintVerifier.verifyThat(VehicleRoutePlanConstraintProvider::serviceFinishedAfterMaxEndTime)
-                .given(aRoutePlan()
+                .givenSolution(aRoutePlan()
                         .route(aVehicle("1").departureTime(at(8, 0)),
                                 aVisit("1").minStartTime(at(8, 0)).maxEndTime(at(9, 0)).serviceDurationMinutes(60))
                         .build())
                 .penalizesBy(0);
         // Servicing runs half an hour past the maximum end time.
         constraintVerifier.verifyThat(VehicleRoutePlanConstraintProvider::serviceFinishedAfterMaxEndTime)
-                .given(aRoutePlan()
+                .givenSolution(aRoutePlan()
                         .route(aVehicle("1").departureTime(at(8, 0)),
                                 aVisit("1").minStartTime(at(8, 0)).maxEndTime(at(9, 0)).serviceDurationMinutes(90))
                         .build())
                 .penalizesBy(30);
         // A visit nobody services is never late.
         constraintVerifier.verifyThat(VehicleRoutePlanConstraintProvider::serviceFinishedAfterMaxEndTime)
-                .given(aRoutePlan()
+                .givenSolution(aRoutePlan()
                         .unassigned(aVisit("1").minStartTime(at(8, 0)).maxEndTime(at(9, 0)).serviceDurationMinutes(90))
                         .build())
                 .penalizesBy(0);
@@ -99,19 +99,19 @@ class VehicleRoutePlanConstraintProviderTest {
     @Test
     void maximizeVisitsAssigned() {
         constraintVerifier.verifyThat(VehicleRoutePlanConstraintProvider::maximizeVisitsAssigned)
-                .given(aRoutePlan()
+                .givenSolution(aRoutePlan()
                         .route(aVehicle("1"), aVisit("1").serviceDurationMinutes(30))
                         .build())
                 .penalizesBy(0);
         // The penalty is the servicing the unassigned visit does not get.
         constraintVerifier.verifyThat(VehicleRoutePlanConstraintProvider::maximizeVisitsAssigned)
-                .given(aRoutePlan()
+                .givenSolution(aRoutePlan()
                         .route(aVehicle("1"), aVisit("1").serviceDurationMinutes(30))
                         .unassigned(aVisit("2").serviceDurationMinutes(40))
                         .build())
                 .penalizesBy(40);
         constraintVerifier.verifyThat(VehicleRoutePlanConstraintProvider::maximizeVisitsAssigned)
-                .given(aRoutePlan()
+                .givenSolution(aRoutePlan()
                         .unassigned(aVisit("1").serviceDurationMinutes(10), aVisit("2").serviceDurationMinutes(20))
                         .build())
                 .penalizesBy(30);
@@ -121,7 +121,7 @@ class VehicleRoutePlanConstraintProviderTest {
     void minimizeTravelTime() {
         // A vehicle that stays home drives nothing.
         constraintVerifier.verifyThat(VehicleRoutePlanConstraintProvider::minimizeTravelTime)
-                .given(aRoutePlan()
+                .givenSolution(aRoutePlan()
                         .route(aVehicle("1").location(HOME_LATITUDE, HOME_LONGITUDE))
                         .unassigned(aVisit("1").location(FIRST_LATITUDE, FIRST_LONGITUDE))
                         .build())
@@ -129,7 +129,7 @@ class VehicleRoutePlanConstraintProviderTest {
         // One visit: out and back again.
         long homeToFirst = drivingTimeSeconds(HOME_LATITUDE, HOME_LONGITUDE, FIRST_LATITUDE, FIRST_LONGITUDE);
         constraintVerifier.verifyThat(VehicleRoutePlanConstraintProvider::minimizeTravelTime)
-                .given(aRoutePlan()
+                .givenSolution(aRoutePlan()
                         .route(aVehicle("1").location(HOME_LATITUDE, HOME_LONGITUDE),
                                 aVisit("1").location(FIRST_LATITUDE, FIRST_LONGITUDE))
                         .build())
@@ -138,7 +138,7 @@ class VehicleRoutePlanConstraintProviderTest {
         long firstToSecond = drivingTimeSeconds(FIRST_LATITUDE, FIRST_LONGITUDE, SECOND_LATITUDE, SECOND_LONGITUDE);
         long secondToHome = drivingTimeSeconds(SECOND_LATITUDE, SECOND_LONGITUDE, HOME_LATITUDE, HOME_LONGITUDE);
         constraintVerifier.verifyThat(VehicleRoutePlanConstraintProvider::minimizeTravelTime)
-                .given(aRoutePlan()
+                .givenSolution(aRoutePlan()
                         .route(aVehicle("1").location(HOME_LATITUDE, HOME_LONGITUDE),
                                 aVisit("1").location(FIRST_LATITUDE, FIRST_LONGITUDE),
                                 aVisit("2").location(SECOND_LATITUDE, SECOND_LONGITUDE))
