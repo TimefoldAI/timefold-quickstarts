@@ -14,6 +14,7 @@ import static org.acme.foodpackaging.support.TestHelper.line;
 import static org.acme.foodpackaging.support.TestHelper.operator;
 import static org.acme.foodpackaging.support.TestHelper.product;
 import static org.acme.foodpackaging.support.TestHelper.scheduledLine;
+import static org.acme.foodpackaging.support.TestHelper.scheduledLineWithoutId;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collection;
@@ -207,6 +208,17 @@ class PackagingScheduleValidatorTest {
     void jobScheduledOnTwoLinesIsReportedWithTheOffendingJobId() {
         ValidationResult<Issue> result = validate(inputWithLines(
                 scheduledLine("l1", "o1", "j1"),
+                scheduledLine("l2", "o2", "j1")));
+
+        JobOnMultipleLinesIssue issue = singleIssue(result, JobOnMultipleLinesIssue.class);
+        assertThat(issue.getJobId()).isEqualTo("j1");
+    }
+
+    @Test
+    void jobScheduledOnAnIdLessLineAndAnotherLineIsStillReportedAsMultipleLines() {
+        // The ID-less line's null lineId must not be mistaken for "job not seen on a line yet".
+        ValidationResult<Issue> result = validate(inputWithLines(
+                scheduledLineWithoutId("o1", "j1"),
                 scheduledLine("l2", "o2", "j1")));
 
         JobOnMultipleLinesIssue issue = singleIssue(result, JobOnMultipleLinesIssue.class);

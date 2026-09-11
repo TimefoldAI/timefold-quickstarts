@@ -113,6 +113,13 @@ public final class TestHelper {
         return new LineDTO(id, "Line " + id, LINE_START, operatorId, List.of(jobIds));
     }
 
+    /**
+     * @return a scheduled line with no ID, so its other issues are reported without a line ID
+     */
+    public static LineDTO scheduledLineWithoutId(String operatorId, String... jobIds) {
+        return new LineDTO(null, "Line", LINE_START, operatorId, List.of(jobIds));
+    }
+
     public static JobDTO job(String id, String productId) {
         return new JobDTO(id, "Job " + id, productId, 120L, LINE_START, at(FROM_DATE.plusDays(2), 16),
                 at(FROM_DATE.plusDays(4), 16), false);

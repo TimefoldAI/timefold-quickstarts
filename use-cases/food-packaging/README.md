@@ -12,7 +12,7 @@ Schedule food packaging orders to manufacturing lines, to minimize downtime and 
 | Operator cleaning conflict | Hard   | An operator must not have to clean two of their lines at the same time.  |
 | Ideal end date time        | Medium | A job should finish before its ideal end time.                           |
 | Maximize jobs assigned     | Medium | Every job should be produced on one of the lines.                        |
-| Minimize make span         | Soft   | Every line should finish producing as early as possible.                 |
+| Minimize makespan          | Soft   | Every line should finish producing as early as possible.                 |
 
 - [Run the application](#run-the-application)
 - [Run the packaged application](#run-the-packaged-application)

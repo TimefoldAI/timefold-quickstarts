@@ -8,7 +8,7 @@ public final class PackagingScheduleConstraintProperties {
     public static final String IDEAL_END_DATE_TIME = "Ideal end date time";
     public static final String MAXIMIZE_JOBS_ASSIGNED = "Maximize jobs assigned";
 
-    public static final String MINIMIZE_MAKESPAN = "Minimize make span";
+    public static final String MINIMIZE_MAKESPAN = "Minimize makespan";
 
     private PackagingScheduleConstraintProperties() {
     }

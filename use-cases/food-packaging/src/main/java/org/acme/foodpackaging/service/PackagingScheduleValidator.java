@@ -154,8 +154,13 @@ public class PackagingScheduleValidator
                     validationBuilder.addIssue(new NonExistingJobReferenceIssue(lineId));
                 } else if (!jobIdsOnThisLine.add(jobId)) {
                     validationBuilder.addIssue(new DuplicateJobOnLineIssue(jobId, lineId));
-                } else if (lineIdByJobId.putIfAbsent(jobId, lineId) != null) {
+                } else if (lineIdByJobId.containsKey(jobId)) {
+                    // containsKey, not putIfAbsent: a line without an ID stores a null lineId here, and
+                    // putIfAbsent treats an existing null value as absent, which would let that job's second
+                    // line go unnoticed.
                     validationBuilder.addIssue(new JobOnMultipleLinesIssue(jobId));
+                } else {
+                    lineIdByJobId.put(jobId, lineId);
                 }
             }
         }
