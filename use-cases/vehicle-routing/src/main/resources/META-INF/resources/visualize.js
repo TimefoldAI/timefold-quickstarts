@@ -78,11 +78,9 @@ const app = {
     </div>
     <div class="tab-content">
         <div class="tab-pane fade show active" id="mapPanel" role="tabpanel" aria-labelledby="mapTab">
-            <div class="row g-3">
-                <div class="col-12 col-lg-8 col-xl-9">
-                    <div id="map"></div>
-                </div>
-                <div class="col-12 col-lg-4 col-xl-3" id="solutionSummaryPanel">
+            <div id="mapContainer" class="position-relative">
+                <div id="map"></div>
+                <div id="solutionSummaryPanel" class="card shadow-sm">
                     <h5>Solution summary</h5>
                     <table class="table table-sm">
                         <tbody>
@@ -283,6 +281,11 @@ const app = {
             return;
         }
         this.fittedBounds = boundsKey;
+        // The map is constructed while the page body is still hidden (see index.html), so
+        // Leaflet caches a 0x0 size at that point; invalidateSize() forces it to re-measure
+        // the now-visible container before boxing the bounds, or tiles outside that stale
+        // size never get requested.
+        this.map.invalidateSize();
         this.map.fitBounds(bounds);
     },
 
@@ -304,6 +307,9 @@ const app = {
                 marker.addTo(this.homeLocationGroup).bindPopup();
                 this.homeLocationMarkerById.set(vehicle.id, marker);
             }
+            // Demo datasets reuse the same simple vehicle/visit ids across different cities, so a
+            // marker kept across a dataset switch still needs to be moved to its new coordinates.
+            marker.setLatLng(toLatLng(vehicle.homeLocation));
             marker.setPopupContent(`<h5>Vehicle ${vehicle.id}</h5>
                 <h6>Home location, departing at ${showTimeOnly(vehicle.departureTime)}.</h6>`);
         });
@@ -320,6 +326,9 @@ const app = {
                 marker.addTo(this.visitGroup).bindPopup();
                 this.visitMarkerById.set(visit.id, marker);
             }
+            // Demo datasets reuse the same simple vehicle/visit ids across different cities, so a
+            // marker kept across a dataset switch still needs to be moved to its new coordinates.
+            marker.setLatLng(toLatLng(visit.location));
             marker.setPopupContent(this.visitPopupContent(visit));
             if (isAssigned(visit)) {
                 marker.setStyle({color: colorOfVehicle(visit.vehicleId).bg, fillOpacity: 0.8});
