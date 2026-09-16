@@ -19,13 +19,15 @@ on:
 jobs:
   build:
     concurrency:
-      group: pull_request_gradle-${{ github.event_name }}-${{ github.head_ref }}-${{ matrix.module }}
+      group: pull_request_gradle-${{ github.event_name }}-${{ github.head_ref }}-${{ matrix.module }}-${{ matrix.java-version }}
       cancel-in-progress: true
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false # A broken JDK must not cancel the others.
       matrix:
         module: ['getting-started/hello-world', 'use-cases/school-timetabling', 'getting-started/spring-boot-integration']
-        java-version: [ 21 ] # Only the first supported LTS; already too many jobs here.
+        # Compile target, current LTS and latest JDK; replace 27 on each JDK release.
+        java-version: [ 21, 25, 27 ]
     timeout-minutes: 120
     steps:
       - name: Checkout timefold-quickstarts
