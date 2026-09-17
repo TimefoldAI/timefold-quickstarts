@@ -3,6 +3,8 @@ package org.acme.vehiclerouting.rest;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import jakarta.inject.Inject;
+
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,7 +17,8 @@ import io.restassured.response.Response;
 @QuarkusTest
 class VehicleRoutePlanOpenApiValidationTest {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    @Inject
+    ObjectMapper mapper;
 
     @Test
     void validInputIsAccepted() {
@@ -33,7 +36,7 @@ class VehicleRoutePlanOpenApiValidationTest {
     @Test
     void emptyRequiredCollectionIsRejected() {
         ObjectNode input = demoData();
-        modelInput(input).set("vehicles", MAPPER.createArrayNode());
+        modelInput(input).set("vehicles", mapper.createArrayNode());
 
         assertRejected(post(input), "modelInput.vehicles");
     }
@@ -80,10 +83,10 @@ class VehicleRoutePlanOpenApiValidationTest {
         assertRejected(post(input), "minStartTime");
     }
 
-    private static ObjectNode demoData() {
+    private ObjectNode demoData() {
         String json = given().when().get("/v1/demo-data/GHENT").then().statusCode(200).extract().asString();
         try {
-            return (ObjectNode) MAPPER.readTree(json);
+            return (ObjectNode) mapper.readTree(json);
         } catch (Exception e) {
             throw new IllegalStateException("Demo data is not valid JSON.", e);
         }
