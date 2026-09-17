@@ -76,3 +76,16 @@
     background: none;
     border: 0;
 }
+
+/* Hint for the recommended-assignment flow (visualize.js), which only exists when the quickstart
+   runs standalone; it floats over the bottom-left corner of the map rather than taking a row of
+   its own above it. */
+#mapHint {
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem;
+    z-index: 1001;
+    padding: 0.25rem 0.6rem;
+    border-radius: var(--bs-border-radius);
+    background-color: rgba(255, 255, 255, 0.92);
+}

@@ -23,6 +23,7 @@ The assignment *is* the route: a vehicle carries the ordered list of visit ids i
 | Minimize travel time                | Soft   | Minimize the total travel time of all vehicles.                                    |
 
 - [Map service](#map-service)
+- [Recommended assignments](#recommended-assignments)
 - [Run the application](#run-the-application)
 - [Run the packaged application](#run-the-packaged-application)
 - [Run the application in a container](#run-the-application-in-a-container)
@@ -39,7 +40,7 @@ Timefold Platform's **map service**.
 Every location in the model - a vehicle's home location (`Vehicle.getHomeLocation()`) and a visit's
 location (`Visit.getLocation()`) - is an `ai.timefold.solver.service.maps.api.model.Location`, and
 both `Vehicle` and `Visit` implement `LocationAware` to expose it. Calling
-`location.getDrivingTimeTo(otherLocation)` returns the driving time between the two, once the map
+`location.getTravelTimeTo(otherLocation)` returns the driving time between the two, once the map
 service has built a travel time matrix that covers them; this is what
 `Vehicle.getTotalDrivingTimeSeconds()`, `Visit.getDrivingTimeSecondsFromPreviousStandstill()` and the
 nearby-selection `LocationDistanceMeter` all call.
@@ -74,6 +75,47 @@ the matrix itself for test data using the library's own test-support classes:
 `HaversineTravelTimeAndDistanceMatrixProvider` (the same great-circle fallback calculation the
 platform uses locally) and `TestDistanceCalculator.initDistanceMaps(...)`, applied to
 `VehicleRoutePlan.getLocations()` - the same locations the real map service would be given.
+
+## Recommended assignments
+
+Besides the endpoints the Service module generates from `VehicleRoutePlanResource`, this model has
+one of its own, in `VehicleRoutePlanRecommendationResource`. It answers a question a full solve does
+not: *a new visit just came in - where would it best fit into the plan we already have?*
+
+```
+POST /v1/route-plans/recommendation    {modelInput, visitId}
+```
+
+It takes a whole `VehicleRoutePlanInput` rather than a job id, so it needs no run to exist: the
+visit named by `visitId` has to be one of the plan's visits and has to be on no vehicle's route yet.
+The answer is the best places that visit could take, best first, each with the score difference it
+would make - including leaving it unassigned, when that is among the best options.
+
+`VehicleRoutePlanRecommendationService` does the work: it converts the input into a solver model and
+hands it to the [map service](#map-service) for its travel times - the same two steps a solve goes
+through - before calling `SolutionManager.recommendAssignment(...)`.
+
+**Applying** a recommendation deliberately has no endpoint. The route list *is* the assignment, so
+putting the visit at the recommended position is an edit to that list, which the caller makes itself
+- the UI does, in `visualize.js` - and the result is a plan like any other, ready to be posted for a
+solve. What such an edit cannot work out on its own is cleared instead of left stale: the driving and
+arrival times of the stops from the insertion point onwards, which come from the map service's travel
+time matrix, and the score, which comes from the solver. Both show as `?` until the plan is solved
+again. A vehicle's load is a plain sum of its route's demands, so that stays exact.
+
+> [!NOTE]
+> `recommendAssignment(...)` is a **Timefold Solver Enterprise Edition** feature. Under the Community
+> Edition the endpoint is still there, but answers `501 Not Implemented` with a message saying so;
+> run the quickstart with the enterprise profile (see below) to see it work.
+
+In the UI, **double-click anywhere on the map** to add a visit there: fill in its name, demand, time
+window and service duration, press *Get recommendations*, pick one of the options - each expands into
+the constraint-by-constraint score difference it would make - and press *Accept*. The gesture is off
+while a run is solving, because a run in flight overwrites the plan every two seconds.
+
+The flow is deliberately absent when the page runs **on the Timefold Platform** (`?onPlatform`, see
+`shared/platform-integration.js`): there the plan belongs to the platform's own run, and changing it
+from an embedded visualization is not this page's job.
 
 ## Prerequisites
 

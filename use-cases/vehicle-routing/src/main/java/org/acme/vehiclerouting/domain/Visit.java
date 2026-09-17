@@ -139,9 +139,9 @@ public class Visit implements LocationAware {
                     "This method must not be called when the shadow variables are not initialized yet.");
         }
         if (previousVisit == null) {
-            return vehicle.getHomeLocation().getDrivingTimeTo(location).seconds();
+            return vehicle.getHomeLocation().getTravelTimeTo(location).seconds();
         }
-        return previousVisit.getLocation().getDrivingTimeTo(location).seconds();
+        return previousVisit.getLocation().getTravelTimeTo(location).seconds();
     }
 
     /**

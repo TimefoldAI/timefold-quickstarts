@@ -26,8 +26,17 @@ function showTimeOnly(offsetDateTime) {
 }
 
 function formatDrivingTime(drivingTimeInSeconds) {
-    const seconds = drivingTimeInSeconds ?? 0;
-    return `${Math.floor(seconds / 3600)}h ${Math.round((seconds % 3600) / 60)}m`;
+    if (drivingTimeInSeconds == null) {
+        return '?';
+    }
+    return `${Math.floor(drivingTimeInSeconds / 3600)}h ${Math.round((drivingTimeInSeconds % 3600) / 60)}m`;
+}
+
+// A vehicle that drives no visits drives no time. One that does, but whose route this page changed
+// since the solver last timed it, has a driving time that is genuinely unknown here rather than
+// zero: it comes from the map service's travel time matrix.
+function drivingTimeSecondsOf(vehicle) {
+    return (vehicle.visitIds ?? []).length === 0 ? 0 : vehicle.totalDrivingTimeSeconds ?? null;
 }
 
 function colorOfVehicle(vehicleId) {
@@ -38,12 +47,12 @@ function isAssigned(visit) {
     return visit.vehicleId != null;
 }
 
-// Mirrors Visit.isServiceFinishedAfterMaxEndTime(): servicing is measured from the moment
-// the vehicle arrives, so a visit is late exactly when arrival plus its service duration
-// runs past the end of its window - waiting for the window to open does not make it late.
+// Mirrors Visit.isServiceFinishedAfterMaxEndTime(): servicing starts when the window opens
+// at the earliest, so a visit is late exactly when the service finishes - that is, when the
+// vehicle departs - past the end of its window.
 function isLate(visit) {
-    return visit.arrivalTime != null
-        && JSJoda.OffsetDateTime.parse(visit.arrivalTime).plusMinutes(visit.serviceDurationMinutes)
+    return visit.departureTime != null
+        && JSJoda.OffsetDateTime.parse(visit.departureTime)
             .isAfter(JSJoda.OffsetDateTime.parse(visit.maxEndTime));
 }
 
@@ -58,6 +67,127 @@ function escapeHtml(value) {
 
 function timelineItemContent(text) {
     return $(`<div/>`).append($(`<h5 class="card-title mb-1"/>`).text(text)).html();
+}
+
+
+// ── Recommended assignments ──
+// Double-clicking the map drops a visit that is not in the plan yet and asks the solver where it
+// would best fit, through this model's own /route-plans/recommendation endpoints (see
+// VehicleRoutePlanRecommendationResource). It is a standalone-only feature: on the Timefold
+// Platform a run is driven from the platform's own screens, so the whole flow stays off there.
+
+// The id a new visit gets: one past the highest of the plan's own ids when those are numbers, as
+// the demo datasets' are, and a timestamp otherwise - either way an id no other visit carries.
+function nextVisitId(schedule) {
+    const numericIds = schedule.visits
+        .map((visit) => Number.parseInt(visit.id, 10))
+        .filter((id) => Number.isInteger(id));
+    return numericIds.length === schedule.visits.length && numericIds.length > 0
+        ? String(Math.max(...numericIds) + 1)
+        : `visit-${Date.now()}`;
+}
+
+// <input type="datetime-local"> speaks local date-times without an offset, while the model speaks
+// ISO-8601 with one. The plan's own window supplies that offset, so a visit added here lands in the
+// same offset as every visit already in the plan.
+function toLocalDateTimeInput(offsetDateTime) {
+    return JSJoda.OffsetDateTime.parse(offsetDateTime).toLocalDateTime()
+        .truncatedTo(JSJoda.ChronoUnit.MINUTES).toString();
+}
+
+function toOffsetDateTime(localDateTime, offsetSource) {
+    const offset = JSJoda.OffsetDateTime.parse(offsetSource).offset();
+    return JSJoda.LocalDateTime.parse(localDateTime).atOffset(offset).toString();
+}
+
+// The page's loadedSchedule is the model input with the solved routes and times overlaid on it;
+// these strip it back to exactly the input the endpoints take, so no solver output is sent back as
+// if it were input.
+function toVisitInput(visit) {
+    return {
+        id: visit.id,
+        name: visit.name,
+        location: visit.location,
+        demand: visit.demand,
+        minStartTime: visit.minStartTime,
+        maxEndTime: visit.maxEndTime,
+        serviceDurationMinutes: visit.serviceDurationMinutes,
+    };
+}
+
+function toModelInput(schedule, extraVisit) {
+    return {
+        startDateTime: schedule.startDateTime,
+        endDateTime: schedule.endDateTime,
+        vehicles: schedule.vehicles.map((vehicle) => ({
+            id: vehicle.id,
+            capacity: vehicle.capacity,
+            homeLocation: vehicle.homeLocation,
+            departureTime: vehicle.departureTime,
+            visitIds: vehicle.visitIds ?? [],
+        })),
+        visits: schedule.visits.map(toVisitInput).concat(extraVisit == null ? [] : [extraVisit]),
+    };
+}
+
+// The vehicle with the visit spliced into its route at the recommended position. Its load stays
+// exact - it is a plain sum of the route's demands - but its driving times do not: those come from
+// the map service's travel time matrix, so they are dropped instead of kept stale.
+function withVisitInserted(vehicle, visit, index, visits) {
+    const route = (vehicle.visitIds ?? []).slice();
+    route.splice(index, 0, visit.id);
+    const demandByVisitId = new Map(visits.map((candidate) => [candidate.id, candidate.demand]));
+    return {
+        ...vehicle,
+        visitIds: route,
+        totalDemand: route.reduce((sum, visitId) => sum + (demandByVisitId.get(visitId) ?? 0), 0),
+        totalDrivingTimeSeconds: null,
+        arrivalTime: null,
+    };
+}
+
+// A visit that is still on its route, but is reached at a time this page cannot work out.
+function withoutTimings(visit) {
+    return {
+        ...visit,
+        arrivalTime: null,
+        startServiceTime: null,
+        departureTime: null,
+        drivingTimeSecondsFromPreviousStandstill: null,
+    };
+}
+
+function newVisitModal() {
+    return bootstrap.Modal.getOrCreateInstance(document.getElementById('newVisitModal'));
+}
+
+// The same constraint breakdown the score analysis modal shows, for the score difference one
+// recommendation would make.
+function scoreAnalysisDiffTable(scoreAnalysisDiff) {
+    const constraints = scoreAnalysisDiff?.constraints ?? [];
+    if (constraints.length === 0) {
+        return '<p class="mb-0 text-muted small">This recommendation changes no constraint.</p>';
+    }
+    const rows = constraints.map((constraint) => {
+        const matches = (constraint.matches ?? [])
+            .map((match) => `<li class="list-group-item list-group-item-light py-1">
+                ${escapeHtml(match.justification?.description ?? match.score)}</li>`)
+            .join('');
+        return `<tr>
+                <td class="text-start">${escapeHtml(constraint.name)}</td>
+                <td>${escapeHtml(constraint.matchCount)}</td>
+                <td>${escapeHtml(constraint.weight)}</td>
+                <td>${escapeHtml(constraint.score)}</td>
+            </tr>
+            ${matches === '' ? '' : `<tr><td colspan="4" class="text-start">
+                <ul class="list-group list-group-flush">${matches}</ul></td></tr>`}`;
+    }).join('');
+    return `<table class="table table-sm mb-0 text-center">
+            <thead><tr>
+                <th class="text-start">Constraint</th><th># Matches</th><th>Weight</th><th>Score</th>
+            </tr></thead>
+            <tbody>${rows}</tbody>
+        </table>`;
 }
 
 const app = {
@@ -143,6 +273,18 @@ const app = {
             <div id="byVisitTimeline"></div>
         </div>
     </div>
+    <div class="modal fade" id="newVisitModal" tabindex="-1" aria-labelledby="newVisitModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="newVisitModalLabel">New visit</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="newVisitModalContent"></div>
+                <div class="modal-footer" id="newVisitModalFooter"></div>
+            </div>
+        </div>
+    </div>
 `);
 
         this.startMap();
@@ -169,6 +311,8 @@ const app = {
             renderInfo: (schedule) => this.renderInfo(schedule),
             mergeModelOutput: (schedule, modelOutput) => this.mergeModelOutput(schedule, modelOutput),
         });
+
+        this.startRecommendations();
     },
 
     startMap() {
@@ -354,9 +498,14 @@ const app = {
     },
 
     visitPopupContent(visit) {
-        const arrival = visit.arrivalTime == null
-            ? '<h6>Not assigned to a vehicle.</h6>'
-            : `<h6>Vehicle ${escapeHtml(visit.vehicleId)} arrives at ${showTimeOnly(visit.arrivalTime)}.</h6>`;
+        let arrival;
+        if (!isAssigned(visit)) {
+            arrival = '<h6>Not assigned to a vehicle.</h6>';
+        } else if (visit.arrivalTime == null) {
+            arrival = `<h6>On vehicle ${escapeHtml(visit.vehicleId)}'s route, at a time that is not computed yet.</h6>`;
+        } else {
+            arrival = `<h6>Vehicle ${escapeHtml(visit.vehicleId)} arrives at ${showTimeOnly(visit.arrivalTime)}.</h6>`;
+        }
         return `<h5>${escapeHtml(visit.name)}</h5>
             <h6>Demand: ${escapeHtml(visit.demand)}</h6>
             <h6>Available from ${showTimeOnly(visit.minStartTime)} to ${showTimeOnly(visit.maxEndTime)}.</h6>
@@ -381,9 +530,11 @@ const app = {
     },
 
     renderSummary(schedule) {
-        const totalDrivingTimeSeconds = schedule.vehicles
-            .reduce((sum, vehicle) => sum + (vehicle.totalDrivingTimeSeconds ?? 0), 0);
-        $('#drivingTime').text(formatDrivingTime(totalDrivingTimeSeconds));
+        // One unknown route makes the fleet's total unknown too, rather than quietly too low.
+        const drivingTimes = schedule.vehicles.map(drivingTimeSecondsOf);
+        $('#drivingTime').text(formatDrivingTime(drivingTimes.includes(null)
+            ? null
+            : drivingTimes.reduce((sum, seconds) => sum + seconds, 0)));
         $('#unassignedVisitCount').text(schedule.visits.filter(visit => !isAssigned(visit)).length);
 
         const vehiclesTable = $('#vehicles');
@@ -405,7 +556,7 @@ const app = {
             <div class="progress-bar" role="progressbar" style="width: ${percentage}%">${escapeHtml(totalDemand)}/${escapeHtml(vehicle.capacity)}</div>
           </div>
         </td>
-        <td>${formatDrivingTime(vehicle.totalDrivingTimeSeconds)}</td>
+        <td>${formatDrivingTime(drivingTimeSecondsOf(vehicle))}</td>
       </tr>`);
         });
     },
@@ -525,12 +676,13 @@ const app = {
                     style: "background-color: " + (isLate(visit) ? LATE_COLOR : SERVICE_COLOR)
                 });
             } else {
-                // Unassigned: shown at the start of the window, as long as servicing would take.
+                // Either on no route at all, or on one this page changed since the solver last timed
+                // it. Both are shown at the start of the window, as long as servicing would take.
                 const minStartTime = JSJoda.OffsetDateTime.parse(visit.minStartTime);
                 this.byVisitItemData.add({
                     id: visit.id + '_unassigned',
                     group: visit.id,
-                    content: timelineItemContent('Unassigned'),
+                    content: timelineItemContent(isAssigned(visit) ? 'Not timed yet' : 'Unassigned'),
                     start: toDate(visit.minStartTime),
                     end: toDate(minStartTime.plusMinutes(visit.serviceDurationMinutes).toString()),
                     style: "background-color: " + LATE_COLOR
@@ -551,6 +703,236 @@ const app = {
         this.timelineWindow = windowKey;
         this.byVehicleTimeline.setWindow(toDate(schedule.startDateTime), toDate(schedule.endDateTime));
         this.byVisitTimeline.setWindow(toDate(schedule.startDateTime), toDate(schedule.endDateTime));
+    },
+
+    // ── Recommended assignments ──
+
+    startRecommendations() {
+        // Embedded in the platform the plan is the platform's to change, not this page's.
+        if (SETUP.onPlatform) {
+            return;
+        }
+        this.newVisit = null;
+        this.newVisitMarker = null;
+
+        // The map is created with doubleClickZoom off, so this gesture is free for adding a visit
+        // and a single click still pans and selects markers as usual.
+        this.map.on('dblclick', (e) => this.openNewVisitModal(e.latlng));
+        // The marker stands for a visit that is not in the plan yet, so it goes with the modal.
+        document.getElementById('newVisitModal')
+            .addEventListener('hidden.bs.modal', () => this.clearNewVisit());
+
+        $('#mapContainer').append(
+            `<div id="mapHint" class="text-muted small">Double-click the map to add a visit.</div>`);
+    },
+
+    clearNewVisit() {
+        if (this.newVisitMarker != null) {
+            this.map.removeLayer(this.newVisitMarker);
+            this.newVisitMarker = null;
+        }
+        this.newVisit = null;
+    },
+
+    openNewVisitModal(latLng) {
+        const schedule = this.quickstartPage.loadedSchedule;
+        if (schedule == null) {
+            return;
+        }
+        if (this.quickstartPage.autoRefreshIntervalId != null) {
+            // A run in flight overwrites the plan every two seconds, so a visit added to it now
+            // would be gone by the next refresh.
+            this.quickstartPage.showError("A visit cannot be added while solving is in progress.",
+                {status: 0, statusText: "please wait for the run to finish, or stop it"});
+            return;
+        }
+
+        this.clearNewVisit();
+        this.newVisit = {id: nextVisitId(schedule), latitude: latLng.lat, longitude: latLng.lng};
+        this.newVisitMarker = L.circleMarker([latLng.lat, latLng.lng], {color: '#198754', fillOpacity: 0.8})
+            .addTo(this.map);
+
+        $('#newVisitModalContent').html(this.newVisitFormHtml(schedule, this.newVisit));
+        $('#newVisitModalFooter').html(
+            `<button id="recommendationButton" type="button" class="btn btn-success">
+                 <span class="fas fa-arrow-right"></span> Get recommendations
+             </button>`);
+        $('#recommendationButton').on('click', () => this.requestRecommendations());
+        newVisitModal().show();
+    },
+
+    newVisitFormHtml(schedule, newVisit) {
+        // The plan's own window bounds the defaults, so a visit added here is servable in principle
+        // and every recommendation is about where it fits, not about whether it can fit at all.
+        const windowStart = toLocalDateTimeInput(schedule.startDateTime);
+        const windowEnd = toLocalDateTimeInput(schedule.endDateTime);
+        return `
+        <div class="row g-3">
+            <div class="col-6">
+                <label class="form-label" for="inputName">Name</label>
+                <input type="text" class="form-control" id="inputName" value="Visit ${escapeHtml(newVisit.id)}" required>
+                <div class="invalid-feedback">Field is required</div>
+            </div>
+            <div class="col-3">
+                <label class="form-label" for="inputLatitude">Latitude</label>
+                <input type="text" class="form-control" id="inputLatitude" value="${escapeHtml(newVisit.latitude)}" disabled>
+            </div>
+            <div class="col-3">
+                <label class="form-label" for="inputLongitude">Longitude</label>
+                <input type="text" class="form-control" id="inputLongitude" value="${escapeHtml(newVisit.longitude)}" disabled>
+            </div>
+            <div class="col-4">
+                <label class="form-label" for="inputDemand">Demand</label>
+                <input type="number" min="0" class="form-control" id="inputDemand" value="1" required>
+                <div class="invalid-feedback">Field is required</div>
+            </div>
+            <div class="col-4">
+                <label class="form-label" for="inputMinStartTime">Min start time</label>
+                <input type="datetime-local" class="form-control" id="inputMinStartTime"
+                       value="${escapeHtml(windowStart)}" required>
+                <div class="invalid-feedback">Field is required</div>
+            </div>
+            <div class="col-4">
+                <label class="form-label" for="inputMaxEndTime">Max end time</label>
+                <input type="datetime-local" class="form-control" id="inputMaxEndTime"
+                       value="${escapeHtml(windowEnd)}" required>
+                <div class="invalid-feedback">Field is required</div>
+            </div>
+            <div class="col-4">
+                <label class="form-label" for="inputServiceDuration">Service duration (minutes)</label>
+                <input type="number" min="0" class="form-control" id="inputServiceDuration" value="30" required>
+                <div class="invalid-feedback">Field is required</div>
+            </div>
+        </div>`;
+    },
+
+    /**
+     * @return the new visit in the shape the model input takes, or null when the form is incomplete
+     */
+    readNewVisitForm(schedule) {
+        const fields = {
+            inputName: 'name',
+            inputDemand: 'demand',
+            inputMinStartTime: 'minStartTime',
+            inputMaxEndTime: 'maxEndTime',
+            inputServiceDuration: 'serviceDurationMinutes',
+        };
+        const values = {};
+        let valid = true;
+        Object.entries(fields).forEach(([inputId, key]) => {
+            const value = $('#' + inputId).val();
+            $('#' + inputId).toggleClass('is-invalid', value === '');
+            valid = valid && value !== '';
+            values[key] = value;
+        });
+        if (!valid) {
+            return null;
+        }
+        return {
+            id: this.newVisit.id,
+            name: values.name,
+            location: {latitude: this.newVisit.latitude, longitude: this.newVisit.longitude},
+            demand: Number.parseInt(values.demand, 10),
+            minStartTime: toOffsetDateTime(values.minStartTime, schedule.startDateTime),
+            maxEndTime: toOffsetDateTime(values.maxEndTime, schedule.startDateTime),
+            serviceDurationMinutes: Number.parseInt(values.serviceDurationMinutes, 10),
+        };
+    },
+
+    requestRecommendations() {
+        const schedule = this.quickstartPage.loadedSchedule;
+        const visit = this.readNewVisitForm(schedule);
+        if (visit == null) {
+            return;
+        }
+        const modelInput = toModelInput(schedule, visit);
+        $('#newVisitModalContent').html(`<p class="mb-0">Looking for the best places for this visit...</p>`);
+        $('#newVisitModalFooter').empty();
+
+        $.post(`${this.quickstartPage.client.modelPath}/recommendation`,
+            JSON.stringify({modelInput, visitId: visit.id}),
+            (recommendations) => this.renderRecommendations(visit, recommendations))
+            .fail((xhr) => {
+                newVisitModal().hide();
+                this.quickstartPage.showError("Getting recommendations has failed.", xhr);
+            });
+    },
+
+    renderRecommendations(visit, recommendations) {
+        if (recommendations.length === 0) {
+            $('#newVisitModalContent').html(`<p class="mb-0">No place was found for this visit.</p>`);
+            $('#newVisitModalFooter').empty();
+            return;
+        }
+        const content = $('#newVisitModalContent').empty();
+        recommendations.forEach((recommendation, index) => {
+            const proposition = recommendation.proposition;
+            // A null proposition is the solver saying the visit is better left off every route.
+            const label = proposition == null
+                ? `Leave <b>${escapeHtml(visit.name)}</b> unassigned`
+                : `Add <b>${escapeHtml(visit.name)}</b> to vehicle <b>${escapeHtml(proposition.vehicleId)}</b>`
+                    + ` at position <b>${escapeHtml(proposition.index + 1)}</b>`;
+            content.append(`
+            <div class="form-check mb-2">
+                <input class="form-check-input" type="radio" name="recommendationOptions"
+                       id="recommendationOption${index}" value="${index}" ${index === 0 ? 'checked' : ''}>
+                <label class="form-check-label" for="recommendationOption${index}">
+                    ${label} (${escapeHtml(recommendation.scoreAnalysisDiff?.score ?? '?')})
+                    ${index === 0 ? ' - <b>best</b>' : ''}
+                </label>
+                <a class="ms-2" data-bs-toggle="collapse" href="#recommendationDetail${index}" role="button"
+                   aria-expanded="false" aria-controls="recommendationDetail${index}">
+                    <span class="fas fa-chevron-down"></span>
+                </a>
+                <div class="collapse" id="recommendationDetail${index}">
+                    <div class="card card-body p-2">${scoreAnalysisDiffTable(recommendation.scoreAnalysisDiff)}</div>
+                </div>
+            </div>`);
+        });
+        $('#newVisitModalFooter').html(
+            `<button id="applyRecommendationButton" type="button" class="btn btn-success">
+                 <span class="fas fa-check"></span> Accept
+             </button>`);
+        $('#applyRecommendationButton').on('click', () => this.applyRecommendation(visit, recommendations));
+    },
+
+    // Applying a recommendation needs no server: the route list *is* the assignment, so putting the
+    // visit at the recommended position is an edit to that list, made right here. What the edit
+    // makes unknown is cleared rather than left stale - the driving times come from the map
+    // service's travel time matrix and the score from the solver, and neither lives in this page.
+    // The plan is then a plan like any other, ready to be submitted for a solve.
+    applyRecommendation(visit, recommendations) {
+        const selected = recommendations[Number.parseInt($('input[name="recommendationOptions"]:checked').val(), 10)];
+        // A null proposition is the "leave it unassigned" option: the visit joins the plan, but no route.
+        const proposition = selected?.proposition;
+        const schedule = this.quickstartPage.loadedSchedule;
+
+        schedule.visits = schedule.visits.concat([visit]);
+        if (proposition != null) {
+            visit.vehicleId = proposition.vehicleId;
+            schedule.vehicles = schedule.vehicles
+                .map((vehicle) => vehicle.id !== proposition.vehicleId
+                    ? vehicle
+                    : withVisitInserted(vehicle, visit, proposition.index, schedule.visits));
+            // Only the stops from the insertion point on are reached at a different time now; the
+            // ones before it are reached exactly as before, so their times still hold.
+            const route = schedule.vehicles.find((vehicle) => vehicle.id === proposition.vehicleId).visitIds;
+            const shiftedVisitIds = new Set(route.slice(proposition.index));
+            schedule.visits = schedule.visits
+                .map((candidate) => shiftedVisitIds.has(candidate.id) ? withoutTimings(candidate) : candidate);
+        }
+        // Every constraint weighs in on the score, so the solved one no longer describes this plan.
+        schedule.score = null;
+
+        this.renderCurrentSchedule();
+        newVisitModal().hide();
+    },
+
+    renderCurrentSchedule() {
+        const page = this.quickstartPage;
+        page.renderScore();
+        page.renderSchedule(page.loadedSchedule);
+        $("#info").text(page.renderInfo(page.loadedSchedule));
     },
 
     dropStaleMarkers(markerById, layerGroup, currentIds) {

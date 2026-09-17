@@ -87,10 +87,10 @@ public class Vehicle implements LocationAware {
         Location previousLocation = homeLocation;
 
         for (Visit visit : visits) {
-            totalDrivingTime += previousLocation.getDrivingTimeTo(visit.getLocation()).seconds();
+            totalDrivingTime += previousLocation.getTravelTimeTo(visit.getLocation()).seconds();
             previousLocation = visit.getLocation();
         }
-        totalDrivingTime += previousLocation.getDrivingTimeTo(homeLocation).seconds();
+        totalDrivingTime += previousLocation.getTravelTimeTo(homeLocation).seconds();
 
         return totalDrivingTime;
     }
@@ -110,7 +110,7 @@ public class Vehicle implements LocationAware {
         if (lastDepartureTime == null) {
             return null;
         }
-        return lastDepartureTime.plusSeconds(lastVisit.getLocation().getDrivingTimeTo(homeLocation).seconds());
+        return lastDepartureTime.plusSeconds(lastVisit.getLocation().getTravelTimeTo(homeLocation).seconds());
     }
 
     // ************************************************************************
