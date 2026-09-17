@@ -81,7 +81,7 @@ public interface VehicleRoutePlanJustification extends ModelConstraintJustificat
             Vehicle vehicle = visit.getVehicle();
             return new ServiceFinishedAfterMaxEndTimeJustification(visit.getId(),
                     vehicle == null ? null : vehicle.getId(), visit.getMaxEndTime(),
-                    visit.getArrivalTime().plus(visit.getServiceDuration()),
+                    visit.getDepartureTime(),
                     visit.getServiceFinishedDelayInMinutes());
         }
 

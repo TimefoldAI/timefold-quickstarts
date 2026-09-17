@@ -113,7 +113,7 @@ public class VehicleRoutePlan implements LocationsAwareSolverModel<HardMediumSof
     }
 
     // ── LocationsAwareSolverModel ──
-    // The map-service uses these to build the travel time matrix that Location.getDrivingTimeTo()
+    // The map-service uses these to build the travel time matrix that Location.getTravelTimeTo()
     // relies on, before the solver runs.
     @Override
     public List<Location> getLocations() {
