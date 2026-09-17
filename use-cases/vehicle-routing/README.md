@@ -97,11 +97,14 @@ through - before calling `SolutionManager.recommendAssignment(...)`.
 
 **Applying** a recommendation deliberately has no endpoint. The route list *is* the assignment, so
 putting the visit at the recommended position is an edit to that list, which the caller makes itself
-- the UI does, in `visualize.js` - and the result is a plan like any other, ready to be posted for a
-solve. What such an edit cannot work out on its own is cleared instead of left stale: the driving and
-arrival times of the stops from the insertion point onwards, which come from the map service's travel
-time matrix, and the score, which comes from the solver. Both show as `?` until the plan is solved
-again. A vehicle's load is a plain sum of its route's demands, so that stays exact.
+- the UI does, in `visualize.js` - and the result is a plan like any other. What such an edit cannot
+work out on its own is cleared instead of left stale: the driving and arrival times of the stops from
+the insertion point onwards, which come from the map service's travel time matrix, and the score,
+which comes from the solver. Both show as `?` until the plan is solved again. A vehicle's load is a
+plain sum of its route's demands, so that stays exact.
+
+Pressing **Solve** after that submits the edited plan rather than the published dataset, so the added
+visit is not silently dropped on the way to the solver.
 
 > [!NOTE]
 > `recommendAssignment(...)` is a **Timefold Solver Enterprise Edition** feature. Under the Community

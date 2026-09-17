@@ -708,12 +708,16 @@ const app = {
     // ── Recommended assignments ──
 
     startRecommendations() {
+        this.newVisit = null;
+        this.newVisitMarker = null;
+        // The dataset the plan on screen was edited from, so modelRequestToSolve() knows whether the
+        // plan is still the published one. Stays null when there is no way to edit it at all.
+        this.editedPlanDemoDataId = null;
+
         // Embedded in the platform the plan is the platform's to change, not this page's.
         if (SETUP.onPlatform) {
             return;
         }
-        this.newVisit = null;
-        this.newVisitMarker = null;
 
         // The map is created with doubleClickZoom off, so this gesture is free for adding a visit
         // and a single click still pans and selects markers as usual.
@@ -724,6 +728,37 @@ const app = {
 
         $('#mapContainer').append(
             `<div id="mapHint" class="text-muted small">Double-click the map to add a visit.</div>`);
+
+        this.submitPlanOnScreenWhenSolving();
+    },
+
+    /**
+     * Makes Solve submit the plan on screen once a recommendation has been applied to it.
+     */
+    submitPlanOnScreenWhenSolving() {
+        // The client only exists once the page has resolved SETUP.ready; this handler is registered
+        // after the page's own, so it runs after that.
+        SETUP.ready.then(() => {
+            const client = this.quickstartPage.client;
+            const submitRun = client.createRun.bind(client);
+            client.createRun = (modelRequest, onSuccess, onFailure) =>
+                submitRun(this.planOnScreenOr(modelRequest), onSuccess, onFailure);
+        });
+    },
+
+    /**
+     * @return the model request with the plan on screen in place of the published one, once a
+     *         recommendation has been applied to it; the request unchanged otherwise. Either way the
+     *         dataset's own run configuration - its name and tags - is the one that is submitted.
+     */
+    planOnScreenOr(modelRequest) {
+        const page = this.quickstartPage;
+        // Picking another dataset from the Data dropdown abandons the plan the edit was made to, so
+        // the edit only counts while its own dataset is still the selected one.
+        if (this.editedPlanDemoDataId == null || this.editedPlanDemoDataId !== page.demoDataId) {
+            return modelRequest;
+        }
+        return {...modelRequest, modelInput: toModelInput(page.loadedSchedule, null)};
     },
 
     clearNewVisit() {
@@ -923,6 +958,8 @@ const app = {
         }
         // Every constraint weighs in on the score, so the solved one no longer describes this plan.
         schedule.score = null;
+        // From here on, Solve submits this plan rather than the dataset it started from.
+        this.editedPlanDemoDataId = this.quickstartPage.demoDataId;
 
         this.renderCurrentSchedule();
         newVisitModal().hide();
