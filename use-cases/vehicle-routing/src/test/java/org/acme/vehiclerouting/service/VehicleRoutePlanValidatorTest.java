@@ -48,7 +48,7 @@ class VehicleRoutePlanValidatorTest {
     void demoDatasetsHaveNoIssues() {
         // Otherwise the service would ship demo data that its own validator rejects.
         assertThat(validate(DemoDataBuilder.philadelphia()).issues()).isEmpty();
-        assertThat(validate(DemoDataBuilder.ghent()).issues()).isEmpty();
+        assertThat(validate(DemoDataBuilder.basic()).issues()).isEmpty();
         assertThat(validate(DemoDataBuilder.hartfort()).issues()).isEmpty();
         assertThat(validate(DemoDataBuilder.firenze()).issues()).isEmpty();
     }

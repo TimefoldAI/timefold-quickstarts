@@ -39,7 +39,7 @@ public class VehicleRoutingDemoDataGenerator implements DemoDataGenerator {
     private static Map<String, Dataset> datasets() {
         Map<String, Dataset> datasets = new LinkedHashMap<>();
         datasets.put("PHILADELPHIA", new Dataset("Philadelphia", 55, DemoDataBuilder::philadelphia));
-        datasets.put("GHENT", new Dataset("Ghent", 65, DemoDataBuilder::ghent));
+        datasets.put("GHENT", new Dataset("Ghent", 65, DemoDataBuilder::basic));
         datasets.put("HARTFORT", new Dataset("Hartfort", 50, DemoDataBuilder::hartfort));
         datasets.put("FIRENZE", new Dataset("Firenze", 77, DemoDataBuilder::firenze));
         return datasets;
