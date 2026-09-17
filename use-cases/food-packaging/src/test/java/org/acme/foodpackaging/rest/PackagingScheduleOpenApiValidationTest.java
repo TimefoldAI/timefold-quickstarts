@@ -3,6 +3,7 @@ package org.acme.foodpackaging.rest;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,7 +16,8 @@ import io.restassured.response.Response;
 @QuarkusTest
 class PackagingScheduleOpenApiValidationTest {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    @Inject
+    ObjectMapper mapper;
 
     @Test
     void validInputIsAccepted() {
@@ -33,7 +35,7 @@ class PackagingScheduleOpenApiValidationTest {
     @Test
     void emptyRequiredCollectionIsRejected() {
         ObjectNode input = demoData();
-        modelInput(input).set("jobs", MAPPER.createArrayNode());
+        modelInput(input).set("jobs", mapper.createArrayNode());
 
         assertRejected(post(input), "modelInput.jobs");
     }
@@ -62,10 +64,10 @@ class PackagingScheduleOpenApiValidationTest {
         post(input).then().statusCode(400);
     }
 
-    private static ObjectNode demoData() {
+    private ObjectNode demoData() {
         String json = given().when().get("/v1/demo-data/BASIC").then().statusCode(200).extract().asString();
         try {
-            return (ObjectNode) MAPPER.readTree(json);
+            return (ObjectNode) mapper.readTree(json);
         } catch (Exception e) {
             throw new IllegalStateException("Demo data is not valid JSON.", e);
         }
