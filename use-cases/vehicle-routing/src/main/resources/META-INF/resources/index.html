@@ -30,6 +30,13 @@
       border-radius: 3px;
       flex-shrink: 0;
     }
+
+    /* Grayscale tiles so colored routes stay readable (see #605). */
+    body:has(#grayscaleMapToggle:checked) .leaflet-tile-pane {
+      -webkit-filter: grayscale(100%);
+      filter: grayscale(100%);
+      opacity: 0.5;
+    }
   </style>
 </head>
 <body>
@@ -122,6 +129,12 @@
           </div>
           <div class="col-5 col-lg-4 col-xl-3" style="height: 100vh; overflow-y: scroll;">
             <div class="row pt-2 row-cols-1">
+              <div class="col mb-2">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="grayscaleMapToggle" checked>
+                  <label class="form-check-label" for="grayscaleMapToggle">Grayscale map</label>
+                </div>
+              </div>
               <div class="col">
                 <h5>
                   Solution summary
