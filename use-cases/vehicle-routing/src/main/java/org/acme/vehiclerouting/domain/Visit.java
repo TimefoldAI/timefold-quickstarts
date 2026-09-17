@@ -29,8 +29,8 @@ public class Visit implements LocationAware {
     private Vehicle vehicle;
     @PreviousElementShadowVariable(sourceVariableName = "visits")
     private Visit previousVisit;
-    @ShadowVariable(supplierName = "arrivalTimeSupplier")
-    private OffsetDateTime arrivalTime;
+    @ShadowVariable(supplierName = "timingsSupplier")
+    private Timings timings;
 
     public Visit() {
     }
@@ -71,32 +71,39 @@ public class Visit implements LocationAware {
     // Complex methods
     // ************************************************************************
 
+    /**
+     * Computes the arrival, start service and departure time in one go: they are derived from the
+     * same predecessor's departure time, so a single supplier keeps them consistent and avoids
+     * recomputing the chain three times.
+     *
+     * @return null while this visit is unassigned or its predecessor is not timed yet
+     */
     @SuppressWarnings("unused")
-    @ShadowSources({ "vehicle", "previousVisit.arrivalTime" })
-    public OffsetDateTime arrivalTimeSupplier() {
+    @ShadowSources({ "vehicle", "previousVisit.timings" })
+    public Timings timingsSupplier() {
         if (previousVisit == null && vehicle == null) {
             return null;
         }
-        OffsetDateTime departureTime = previousVisit == null ? vehicle.getDepartureTime() : previousVisit.getDepartureTime();
-        return departureTime != null ? departureTime.plusSeconds(getDrivingTimeSecondsFromPreviousStandstill()) : null;
+        OffsetDateTime previousDepartureTime =
+                previousVisit == null ? vehicle.getDepartureTime() : previousVisit.getDepartureTime();
+        if (previousDepartureTime == null) {
+            return null;
+        }
+        var arrivalTime = previousDepartureTime.plusSeconds(getDrivingTimeSecondsFromPreviousStandstill());
+        var startServiceTime = arrivalTime.isBefore(minStartTime) ? minStartTime : arrivalTime;
+        return new Timings(arrivalTime, startServiceTime, startServiceTime.plus(serviceDuration));
+    }
+
+    public OffsetDateTime getArrivalTime() {
+        return timings == null ? null : timings.arrivalTime();
+    }
+
+    public OffsetDateTime getStartServiceTime() {
+        return timings == null ? null : timings.startServiceTime();
     }
 
     public OffsetDateTime getDepartureTime() {
-        if (arrivalTime == null) {
-            return null;
-        }
-        return getStartServiceTime().plus(serviceDuration);
-    }
-
-    /**
-     * @return the time servicing actually starts: a vehicle that arrives before the visit is ready
-     *         waits until it is
-     */
-    public OffsetDateTime getStartServiceTime() {
-        if (arrivalTime == null) {
-            return null;
-        }
-        return arrivalTime.isBefore(minStartTime) ? minStartTime : arrivalTime;
+        return timings == null ? null : timings.departureTime();
     }
 
     public boolean isAssigned() {
@@ -104,15 +111,17 @@ public class Visit implements LocationAware {
     }
 
     public boolean isServiceFinishedAfterMaxEndTime() {
-        return arrivalTime != null
-                && arrivalTime.plus(serviceDuration).isAfter(maxEndTime);
+        var serviceStart = getStartServiceTime();
+        return serviceStart != null
+                && serviceStart.plus(serviceDuration).isAfter(maxEndTime);
     }
 
     public long getServiceFinishedDelayInMinutes() {
-        if (arrivalTime == null) {
+        var departureTime = getDepartureTime();
+        if (departureTime == null) {
             return 0;
         }
-        return roundDurationToNextOrEqualMinutes(Duration.between(maxEndTime, arrivalTime.plus(serviceDuration)));
+        return roundDurationToNextOrEqualMinutes(Duration.between(maxEndTime, departureTime));
     }
 
     private static long roundDurationToNextOrEqualMinutes(Duration duration) {
@@ -208,12 +217,24 @@ public class Visit implements LocationAware {
         this.previousVisit = previousVisit;
     }
 
-    public OffsetDateTime getArrivalTime() {
-        return arrivalTime;
+    public Timings getTimings() {
+        return timings;
     }
 
-    public void setArrivalTime(OffsetDateTime arrivalTime) {
-        this.arrivalTime = arrivalTime;
+    public void setTimings(Timings timings) {
+        this.timings = timings;
+    }
+
+    /**
+     * The times at which this visit is serviced, all derived from the route this visit is in.
+     *
+     * @param arrivalTime the time the vehicle arrives, which may be before the visit is ready
+     * @param startServiceTime the time servicing starts: the arrival time, or the visit's earliest
+     *        start time when the vehicle has to wait
+     * @param departureTime the time the vehicle leaves again
+     */
+    public record Timings(OffsetDateTime arrivalTime, OffsetDateTime startServiceTime,
+            OffsetDateTime departureTime) {
     }
 
 }
