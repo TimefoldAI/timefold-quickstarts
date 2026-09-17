@@ -317,14 +317,12 @@ public final class TestHelper {
 
         public VehicleRoutePlan build() {
             var plan = new VehicleRoutePlan(vehicles, visits);
-            // updateShadowVariables derives the solution's entity classes from the objects it is
-            // given, so without a single Vehicle it cannot resolve the "visits" list variable the
-            // shadows hang off. There is nothing to derive in that case anyway: every visit is
-            // unassigned, so all of its shadows are legitimately null already.
             initDistanceMap(plan);
+
             if (!vehicles.isEmpty()) {
-                SolutionManager.updateShadowVariables(VehicleRoutePlan.class, plan);
+                SolutionManager.updateShadowVariables(plan);
             }
+
             return plan;
         }
     }
