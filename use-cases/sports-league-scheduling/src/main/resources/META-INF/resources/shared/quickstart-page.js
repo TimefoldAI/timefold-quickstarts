@@ -166,9 +166,7 @@ class QuickstartPage {
                 this.renderSchedule(this.loadedSchedule);
                 $("#info").text(this.renderInfo(this.loadedSchedule));
                 this.refreshSolvingButtons(data.metadata.solverStatus);
-                // A 200 response can still report a failed run (e.g. solverStatus
-                // SOLVING_FAILED): that isn't an ajax-level error, so onFailure/xhr below
-                // never fires for it and it has to be surfaced here instead.
+                // A 200 response can still report a failed run (e.g. solverStatus SOLVING_FAILED)
                 if (data.metadata.failureMessage) {
                     this.showError("Solving failed.", {
                         responseJSON: {
