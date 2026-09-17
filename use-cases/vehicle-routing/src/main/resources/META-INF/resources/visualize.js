@@ -47,6 +47,15 @@ function isLate(visit) {
             .isAfter(JSJoda.OffsetDateTime.parse(visit.maxEndTime));
 }
 
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 function timelineItemContent(text) {
     return $(`<div/>`).append($(`<h5 class="card-title mb-1"/>`).text(text)).html();
 }
@@ -316,7 +325,7 @@ const app = {
             // Demo datasets reuse the same simple vehicle/visit ids across different cities, so a
             // marker kept across a dataset switch still needs to be moved to its new coordinates.
             marker.setLatLng(toLatLng(vehicle.homeLocation));
-            marker.setPopupContent(`<h5>Vehicle ${vehicle.id}</h5>
+            marker.setPopupContent(`<h5>Vehicle ${escapeHtml(vehicle.id)}</h5>
                 <h6>Home location, departing at ${showTimeOnly(vehicle.departureTime)}.</h6>`);
         });
     },
@@ -347,9 +356,9 @@ const app = {
     visitPopupContent(visit) {
         const arrival = visit.arrivalTime == null
             ? '<h6>Not assigned to a vehicle.</h6>'
-            : `<h6>Vehicle ${visit.vehicleId} arrives at ${showTimeOnly(visit.arrivalTime)}.</h6>`;
-        return `<h5>${visit.name}</h5>
-            <h6>Demand: ${visit.demand}</h6>
+            : `<h6>Vehicle ${escapeHtml(visit.vehicleId)} arrives at ${showTimeOnly(visit.arrivalTime)}.</h6>`;
+        return `<h5>${escapeHtml(visit.name)}</h5>
+            <h6>Demand: ${escapeHtml(visit.demand)}</h6>
             <h6>Available from ${showTimeOnly(visit.minStartTime)} to ${showTimeOnly(visit.maxEndTime)}.</h6>
             ${arrival}`;
     },
@@ -390,10 +399,10 @@ const app = {
             style="color: ${color.bg}; font-size: 1.2rem; display: inline-block; width: 1rem; text-align: center">
           </i>
         </td>
-        <td>Vehicle ${vehicle.id}</td>
+        <td>Vehicle ${escapeHtml(vehicle.id)}</td>
         <td>
-          <div class="progress" title="Cargo: ${totalDemand} / Capacity: ${vehicle.capacity}">
-            <div class="progress-bar" role="progressbar" style="width: ${percentage}%">${totalDemand}/${vehicle.capacity}</div>
+          <div class="progress" title="Cargo: ${escapeHtml(totalDemand)} / Capacity: ${escapeHtml(vehicle.capacity)}">
+            <div class="progress-bar" role="progressbar" style="width: ${percentage}%">${escapeHtml(totalDemand)}/${escapeHtml(vehicle.capacity)}</div>
           </div>
         </td>
         <td>${formatDrivingTime(vehicle.totalDrivingTimeSeconds)}</td>
@@ -413,10 +422,10 @@ const app = {
             const percentage = vehicle.capacity === 0 ? 0 : totalDemand / vehicle.capacity * 100;
             this.byVehicleGroupData.add({
                 id: vehicle.id,
-                content: `<h5 class="card-title mb-1">vehicle-${vehicle.id}</h5>
-                          <div class="progress" title="Cargo: ${totalDemand} / Capacity: ${vehicle.capacity}">
+                content: `<h5 class="card-title mb-1">vehicle-${escapeHtml(vehicle.id)}</h5>
+                          <div class="progress" title="Cargo: ${escapeHtml(totalDemand)} / Capacity: ${escapeHtml(vehicle.capacity)}">
                             <div class="progress-bar" role="progressbar" style="width: ${percentage}%">
-                              ${totalDemand}/${vehicle.capacity}
+                              ${escapeHtml(totalDemand)}/${escapeHtml(vehicle.capacity)}
                             </div>
                           </div>`
             });
