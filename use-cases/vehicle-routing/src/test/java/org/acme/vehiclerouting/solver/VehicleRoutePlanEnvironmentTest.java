@@ -1,5 +1,7 @@
 package org.acme.vehiclerouting.solver;
 
+import static org.acme.vehiclerouting.support.TestHelper.createProblem;
+import static org.acme.vehiclerouting.support.TestHelper.initDistanceMap;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Duration;
@@ -17,7 +19,6 @@ import ai.timefold.solver.service.definition.api.domain.ModelConfig;
 
 import org.acme.vehiclerouting.domain.VehicleRoutePlan;
 import org.acme.vehiclerouting.service.VehicleRoutePlanModelConvertor;
-import org.acme.vehiclerouting.support.TestHelper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
@@ -47,8 +48,8 @@ class VehicleRoutePlanEnvironmentTest {
     }
 
     void solve(String moveThreadCount) {
-        var input = TestHelper.createProblem();
-        VehicleRoutePlan problem = modelConvertor.toSolverModel(input, ModelConfig.empty(), Optional.empty());
+        var input = createProblem();
+        VehicleRoutePlan problem = initDistanceMap(modelConvertor.toSolverModel(input, ModelConfig.empty(), Optional.empty()));
 
         SolverConfig updatedConfig = solverConfig.copyConfig();
         updatedConfig.withEnvironmentMode(EnvironmentMode.FULL_ASSERT).withTerminationSpentLimit(Duration.ofSeconds(30))

@@ -4,14 +4,15 @@ import static io.restassured.RestAssured.given;
 import static org.acme.vehiclerouting.support.TestHelper.aVehicleDTO;
 import static org.acme.vehiclerouting.support.TestHelper.aVisitDTO;
 import static org.acme.vehiclerouting.support.TestHelper.input;
+import static org.acme.vehiclerouting.support.TestHelper.recommendationRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
 import jakarta.inject.Inject;
 
+import org.acme.vehiclerouting.dto.input.RecommendationRequestInput;
 import org.acme.vehiclerouting.dto.input.VehicleRoutePlanInput;
-import org.acme.vehiclerouting.dto.recommendation.RecommendationRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
@@ -49,7 +50,7 @@ class VehicleRoutePlanRecommendationResourceTest {
     @Test
     void assignedVisitIsRejected() {
         // Checked before the edition is, so this is the answer in either edition.
-        Response response = post(new RecommendationRequest(planWithOneUnassignedVisit(), "1"));
+        Response response = post(recommendationRequest(planWithOneUnassignedVisit(), "1"));
 
         response.then().statusCode(400);
         assertThat(response.getBody().asString()).contains("already assigned");
@@ -57,13 +58,13 @@ class VehicleRoutePlanRecommendationResourceTest {
 
     @Test
     void unknownVisitIsRejected() {
-        Response response = post(new RecommendationRequest(planWithOneUnassignedVisit(), "does-not-exist"));
+        Response response = post(recommendationRequest(planWithOneUnassignedVisit(), "does-not-exist"));
 
         response.then().statusCode(400);
         assertThat(response.getBody().asString()).contains("does-not-exist");
     }
 
-    private Response post(RecommendationRequest request) {
+    private Response post(RecommendationRequestInput request) {
         try {
             return given().contentType(ContentType.JSON).body(mapper.writeValueAsString(request))
                     .when().post(RECOMMENDATION_PATH);
