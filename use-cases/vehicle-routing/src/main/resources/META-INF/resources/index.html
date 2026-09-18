@@ -1,304 +1,159 @@
-<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>Vehicle Routing - Timefold Solver on Quarkus</title>
-  <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css">
-  <link rel="stylesheet" href="/webjars/leaflet/leaflet.css">
-  <link rel="stylesheet" href="/webjars/font-awesome/css/all.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vis-timeline@7.7.2/styles/vis-timeline-graph2d.min.css"
-        integrity="sha256-svzNasPg1yR5gvEaRei2jg+n4Pc3sVyMUWeS6xRAh6U=" crossorigin="anonymous">
-  <link rel="icon" href="https://timefold.ai/uploads/images/Brand-Assets/timefold-solver-logomark.png" type="image/png">
-  <style>
-    :root {
-      --ts-violet-1-rgb: #3E00FF;
-      --ts-violet-2-rgb: #3423A6;
-
-      --bs-link-color: var(--ts-violet-1-rgb);
-      --bs-link-hover-color: var(--ts-violet-2-rgb);
-    }
-    .nav-pills {
-      --bs-nav-pills-link-active-bg: var(--ts-violet-1-rgb);
-    }
-
-    .legend-swatch {
-      display: inline-block;
-      width: 12px;
-      height: 12px;
-      border-radius: 3px;
-      flex-shrink: 0;
-    }
-  </style>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <title>Vehicle Routing - Timefold Solver on Quarkus</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css" integrity="sha512-QeR2VH+lsBE5LSAe1Q5EnTBbe7XTBubt8dG93Y7gidSgdMCr8nVqKcfKAMyN96SV8KDbZVTDXChatu5G2KQGzg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="shared/timefold-quickstart.css">
+    <link rel="icon" href="https://timefold.ai/uploads/images/Brand-Assets/timefold-solver-logomark.png" type="image/png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vis-timeline@8.5.4/styles/vis-timeline-graph2d.min.css"
+        integrity="sha256-Zyc/Pxv8X+5YVJTouIGNfK2YwilzdIi8VvFAVHutwfU=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
 </head>
-<body>
-
-<header class="bg-white shadow">
-  <div class="container-fluid">
-    <nav class="navbar navbar-expand-lg mb-3">
-      <a class="navbar-brand" style="width: 200px;overflow: hidden;">
-        <img src="https://timefold.ai/uploads/images/Brand-Assets/timefold-solver-logo.png" alt="Timefold Solver logo" width="200px" style="margin-top:-20px;margin-bottom:-20px">
-      </a>
-      <a class="navbar-brand d-none d-lg-block">Vehicle Routing Quickstart</a>
-      <div class="ms-auto">
-        <div class="d-flex align-items-center" id="navbarNav">
-          <ul class="nav nav-pills">
-            <li class="nav-item active" id="navUIItem">
-              <button class="nav-link active" id="navUI" data-bs-toggle="pill" data-bs-target="#demo" type="button">Demo UI</button>
-            </li>
-            <li class="nav-item" id="navRestItem">
-              <button class="nav-link" id="navRest" data-bs-toggle="pill" data-bs-target="#rest" type="button">Guide</button>
-            </li>
-            <li class="nav-item" id="navOpenApiItem">
-              <button class="nav-link" id="navOpenApi" data-bs-toggle="pill" data-bs-target="#openapi" type="button">REST API</button>
-            </li>
-            <li class="nav-item" id="navNextStepsItem">
-              <a style="text-decoration: none; font-weight: 600;" href="https://solver.timefold.ai/quickstart-next-steps?utm_source=github&utm_medium=quickstart&utm_campaign=timefold-quickstarts&utm_content=vehicle-routing-java">
-                <button class="nav-link" id="nextStepsItem" data-bs-toggle="pill" type="button">Next Steps</button>
-              </a>
-            </li>
-          </ul>
-          <div class="vr mx-2"></div>
-          <div class="dropdown me-5">
-            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" data-bs-offset="50,50" aria-haspopup="true" aria-expanded="false">
-              Data
-            </button>
-            <div id="testDataButton" class="dropdown-menu" aria-labelledby="dropdownMenuButton"></div>
-          </div>
-        </div>
-      </div>
-    </nav>
-  </div>
+<body style="display: none">
+<header id="appHeader" class="bg-white shadow">
+    <div class="container-fluid">
+        <nav class="navbar navbar-expand-lg mb-3">
+            <a class="navbar-brand" style="width: 200px;overflow: hidden;">
+                <img src="https://timefold.ai/uploads/images/Brand-Assets/timefold-solver-logo.png" alt="Timefold Solver logo" width="200px" style="margin-top:-20px;margin-bottom:-20px">
+            </a>
+            <a class="navbar-brand d-none d-lg-block">Vehicle Routing</a>
+            <div class="ms-auto">
+                <div id="solveControls" class="d-flex align-items-center gap-2">
+                    <div class="text-end lh-sm">
+                        <div id="score" class="score">Score: ?</div>
+                        <div id="info" class="input-metric"></div>
+                    </div>
+                    <!-- disabled until QuickstartPage's SETUP.ready resolves (quickstart-page.js) -->
+                    <button id="analyzeButton" type="button" class="btn btn-secondary btn-icon-circle" title="Score analysis" disabled>
+                        <span class="fas fa-magnifying-glass-chart"></span>
+                    </button>
+                    <div class="vr"></div>
+                    <!-- disabled until QuickstartPage's SETUP.ready resolves (quickstart-page.js) -->
+                    <button id="solveButton" type="button" class="btn btn-success" disabled>
+                        <span class="fas fa-play"></span> Solve
+                    </button>
+                    <button id="stopSolvingButton" type="button" class="btn btn-danger" style="display: none">
+                        <span class="fas fa-stop"></span> Stop
+                    </button>
+                    <div class="vr" id="dataDropdownDivider"></div>
+                    <div id="dataDropdown" class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Data
+                        </button>
+                        <div id="testDataButton" class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton"></div>
+                    </div>
+                    <div class="vr" id="dataDropdownDividerAfter"></div>
+                    <button id="toggleSummaryButton" type="button" class="btn btn-secondary btn-icon-circle" title="Solution details" style="display: none">
+                        <i class="fas fa-chart-bar"></i>
+                    </button>
+                    <div class="vr"></div>
+                    <div id="helpDropdown" class="dropdown">
+                        <button class="btn btn-secondary btn-icon-circle dropdown-toggle" type="button"
+                                id="helpDropdownButton" data-bs-toggle="dropdown" aria-haspopup="true"
+                                aria-expanded="false" title="Help">
+                            <span class="fas fa-question"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="helpDropdownButton">
+                            <li>
+                                <button type="button" class="dropdown-item" id="openApiButton"
+                                        data-bs-toggle="modal" data-bs-target="#openApiModal">
+                                    <span class="fas fa-file-code me-2"></span>OpenAPI spec
+                                </button>
+                            </li>
+                            <li>
+                                <button type="button" class="dropdown-item" id="apiGuideButton">
+                                    <span class="fas fa-book me-2"></span>API guide
+                                </button>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" id="learnMoreButton" target="_blank" rel="noopener"
+                                   href="https://solver.timefold.ai/quickstart-next-steps?utm_source=github&utm_medium=quickstart&utm_campaign=timefold-quickstarts&utm_content=vehicle-routing-java">
+                                    <span class="fas fa-arrow-up-right-from-square me-2"></span>Learn More
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
 </header>
-
-<div class="tab-content">
-  <div id="demo" class="tab-pane fade show active container-fluid">
-    <div class="sticky-top d-flex justify-content-center align-items-center">
-      <div id="notificationPanel" style="position: absolute; top: .5rem;"></div>
-    </div>
-    <blockquote>Generate optimal route plan of a vehicle fleet with limited vehicle capacity and time windows. <span id="info" class="fw-bold"></span><br/>New visits may be added by clicking anywhere inside the map. </blockquote>
-    <div class="container-fluid mb-2">
-      <div class="row justify-content-start">
-        <div class="col-9">
-          <ul class="nav nav-pills col" role="tablist">
-            <li class="nav-item" role="presentation">
-              <button class="nav-link active" id="mapTab" data-bs-toggle="tab" data-bs-target="#mapPanel"
-                      type="button"
-                      role="tab" aria-controls="mapPanel" aria-selected="false">Map
-              </button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" id="byVehicleTab" data-bs-toggle="tab" data-bs-target="#byVehiclePanel"
-                      type="button" role="tab" aria-controls="byVehiclePanel" aria-selected="true">By vehicle
-              </button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" id="byVisitTab" data-bs-toggle="tab" data-bs-target="#byVisitPanel"
-                      type="button" role="tab" aria-controls="byVisitPanel" aria-selected="false">By visit
-              </button>
-            </li>
-          </ul>
-        </div>
-        <div class="col-3">
-          <button id="solveButton" type="button" class="btn btn-success">
-            <i class="fas fa-play"></i> Solve
-          </button>
-          <button id="stopSolvingButton" type="button" class="btn btn-danger p-2">
-            <i class="fas fa-stop"></i> Stop solving
-          </button>
-          <button id="analyzeButton" type="button" class="ms-2 btn btn-secondary">
-            <span class="fas fa-question"></span>
-          </button>
-        </div>
-      </div>
+<div id="demo" class="container-fluid">
+    <div class="sticky-top d-flex justify-content-center align-items-center" aria-live="polite" aria-atomic="true">
+        <div id="notificationPanel" style="position: absolute; top: .5rem;"></div>
     </div>
 
-    <div class="tab-content">
-      <div class="tab-pane fade show active" id="mapPanel" role="tabpanel" aria-labelledby="mapTab">
-        <div class="row">
-          <div class="col-7 col-lg-8 col-xl-9">
-            <div id="map" style="width: 100%; height: 100vh;"></div>
-          </div>
-          <div class="col-5 col-lg-4 col-xl-3" style="height: 100vh; overflow-y: scroll;">
-            <div class="row pt-2 row-cols-1">
-              <div class="col">
-                <h5>
-                  Solution summary
-                </h5>
-                <table class="table">
-                  <tr>
-                    <td>Score:</td>
-                    <td><span id="score" class="fw-bold">?</span></td>
-                  </tr>
-                  <tr>
-                    <td>Total driving time:</td>
-                    <td><span id="drivingTime">unknown</span></td>
-                  </tr>
-                </table>
-              </div>
-              <div class="col">
-                <h5>Vehicles</h5>
-                <table class="table-sm w-100">
-                  <thead>
-                  <tr>
-                    <th class="col-1"></th>
-                    <th class="col-3">Name</th>
-                    <th class="col-3">
-                      Load
-                      <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="top"
-                         data-html="true"
-                         title="Vehicle load is displayed as: total cargo / vehicle capacity."></i>
-                    </th>
-                    <th class="col-3">Driving time</th>
-                  </tr>
-                  </thead>
-                  <tbody id="vehicles"></tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-
-      <div class="tab-pane fade" id="byVehiclePanel" role="tabpanel" aria-labelledby="byVehicleTab">
-        <div class="d-flex align-items-center flex-wrap gap-2 px-3 py-2 border-bottom bg-light">
-          <span class="text-muted small">Each row shows a vehicle's day: travel blocks, optional wait, and service stops.</span>
-          <div class="ms-auto d-flex gap-3 flex-wrap">
-            <span class="d-flex align-items-center gap-1 small"><span class="legend-swatch" style="background:#f7dd8f;"></span>Travel</span>
-            <span class="d-flex align-items-center gap-1 small"><span class="legend-swatch" style="background:#97C2FC;"></span>Wait</span>
-            <span class="d-flex align-items-center gap-1 small"><span class="legend-swatch" style="background:#83C159;"></span>Service</span>
-            <span class="d-flex align-items-center gap-1 small"><span class="legend-swatch" style="background:#EF2929;"></span>Late</span>
-          </div>
-        </div>
-        <div id="byVehicleTimeline"></div>
-      </div>
-      <div class="tab-pane fade" id="byVisitPanel" role="tabpanel" aria-labelledby="byVisitTab">
-        <div class="d-flex align-items-center flex-wrap gap-2 px-3 py-2 border-bottom bg-light">
-          <span class="text-muted small">Each row shows a visit's assigned vehicle and where it falls relative to its time window.</span>
-          <div class="ms-auto d-flex gap-3 flex-wrap">
-            <span class="d-flex align-items-center gap-1 small"><span class="legend-swatch" style="background:#8AE234;opacity:0.4;"></span>Time window</span>
-            <span class="d-flex align-items-center gap-1 small"><span class="legend-swatch" style="background:#83C159;"></span>Assigned</span>
-            <span class="d-flex align-items-center gap-1 small"><span class="legend-swatch" style="background:#EF2929;"></span>Late / Unassigned</span>
-          </div>
-        </div>
-        <div id="byVisitTimeline"></div>
-      </div>
-    </div>
-  </div>
-
-  <div id="rest" class="tab-pane fade container-fluid">
-    <h1>REST API Guide</h1>
-
-    <h2>Vehicle routing with vehicle capacity and time windows - integration via cURL</h2>
-
-    <h3>1. Download demo data</h3>
-    <pre>
-              <button class="btn btn-outline-dark btn-sm float-end"
-                      onclick="copyTextToClipboard('curl1')">Copy</button>
-              <code id="curl1">curl -X GET -H 'Accept:application/json' http://localhost:8080/demo-data/FIRENZE -o sample.json</code>
-    </pre>
-
-    <h3>2. Post the sample data for solving</h3>
-    <p>The POST operation returns a <code>jobId</code> that should be used in subsequent commands.</p>
-    <pre>
-              <button class="btn btn-outline-dark btn-sm float-end"
-                      onclick="copyTextToClipboard('curl2')">Copy</button>
-              <code id="curl2">curl -X POST -H 'Content-Type:application/json' http://localhost:8080/route-plans -d@sample.json</code>
-    </pre>
-
-    <h3>3. Get the current status and score</h3>
-    <pre>
-              <button class="btn btn-outline-dark btn-sm float-end"
-                      onclick="copyTextToClipboard('curl3')">Copy</button>
-              <code id="curl3">curl -X GET -H 'Accept:application/json' http://localhost:8080/route-plans/{jobId}/status</code>
-    </pre>
-
-    <h3>4. Get the complete route plan</h3>
-    <pre>
-              <button class="btn btn-outline-dark btn-sm float-end"
-                      onclick="copyTextToClipboard('curl4')">Copy</button>
-              <code id="curl4">curl -X GET -H 'Accept:application/json' http://localhost:8080/route-plans/{jobId}</code>
-    </pre>
-
-    <h3>5. Terminate solving early</h3>
-    <pre>
-              <button class="btn btn-outline-dark btn-sm float-end"
-                      onclick="copyTextToClipboard('curl5')">Copy</button>
-              <code id="curl5">curl -X DELETE -H 'Accept:application/json' http://localhost:8080/route-plans/{jobId}</code>
-    </pre>
-  </div>
-
-  <div id="openapi" class="tab-pane fade container-fluid">
-
-    <div class="ratio ratio-1x1">
-      <!-- "scrolling" attribute is obsolete, but e.g. Chrome does not support "overflow:hidden" -->
-      <iframe src="/q/swagger-ui" style="overflow:hidden;" scrolling="no"></iframe>
-    </div>
-  </div>
+    <div id="visualization"></div>
 </div>
-<div class="modal fadebd-example-modal-lg" id="scoreAnalysisModal" tabindex="-1" aria-labelledby="scoreAnalysisModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h1 class="modal-title fs-5" id="scoreAnalysisModalLabel">Score analysis <span id="scoreAnalysisScoreLabel"></span></h1>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body" id="scoreAnalysisModalContent">
-        <!-- Filled in by app.js -->
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
-      </div>
-    </div>
-  </div>
-</div>
-<form id='visitForm' class='needs-validation' novalidate>
-    <div class="modal fadebd-example-modal-lg" id="newVisitModal" tabindex="-1"
-         aria-labelledby="newVisitModalLabel"
-         aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="newVisitModalLabel">Add New Visit</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                            aria-label="Close"></button>
-                </div>
-                <div class="modal-body" id="newVisitModalContent">
-                    <!-- Filled in by app.js -->
-                </div>
-                <div class="modal-footer" id="newVisitModalFooter">
-                </div>
-            </div>
-        </div>
-    </div>
-</form>
 <footer class="bg-black">
-  <div class="container">
-    <div class="hstack gap-3 p-4">
-      <div class="ms-auto"><a class="text-white" href="https://solver.timefold.ai?utm_source=github&utm_medium=quickstart&utm_campaign=timefold-quickstarts&utm_content=vehicle-routing-java">Website</a></div>
-      <div class="vr"></div>
-      <div><a class="text-white" href="https://docs.timefold.ai/timefold-solver/latest?utm_source=github&utm_medium=quickstart&utm_campaign=timefold-quickstarts&utm_content=vehicle-routing-java">Documentation</a></div>
-      <div class="vr"></div>
-      <div><a class="text-white" href="https://github.com/TimefoldAI/timefold-quickstarts">Code</a></div>
-      <div class="vr"></div>
-      <div class="me-auto"><a class="text-white" href="https://github.com/TimefoldAI/timefold-solver/discussions">GitHub Discussions</a></div>
+    <div class="container">
+        <div class="hstack gap-3 p-4">
+            <div class="ms-auto"><a class="text-white" href="https://solver.timefold.ai?utm_source=github&utm_medium=quickstart&utm_campaign=timefold-quickstarts&utm_content=vehicle-routing-java">Website</a></div>
+            <div class="vr"></div>
+            <div><a class="text-white" href="https://docs.timefold.ai/timefold-solver/latest?utm_source=github&utm_medium=quickstart&utm_campaign=timefold-quickstarts&utm_content=vehicle-routing-java">Documentation</a></div>
+            <div class="vr"></div>
+            <div><a class="text-white" href="https://github.com/TimefoldAI/timefold-quickstarts">Code</a></div>
+            <div class="vr"></div>
+            <div class="me-auto"><a class="text-white" href="https://github.com/TimefoldAI/timefold-solver/discussions">GitHub Discussions</a></div>
+        </div>
     </div>
-  </div>
-  <div id="applicationInfo" class="container text-center"></div>
+    <div id="applicationInfo" class="container text-center"></div>
 </footer>
+<div class="modal fade bd-example-modal-lg" id="scoreAnalysisModal" tabindex="-1"
+     aria-labelledby="scoreAnalysisModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="scoreAnalysisModalLabel">Score analysis <span
+                        id="scoreAnalysisScoreLabel"></span></h1>
 
-<script src="/webjars/flatpickr/dist/flatpickr.min.js"></script>
-<link rel="stylesheet" href="/webjars/flatpickr/dist/flatpickr.min.css">
-<script src="/webjars/leaflet/leaflet.js"></script>
-<script src="/webjars/jquery/jquery.min.js"></script>
-<script src="/webjars/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="/webjars/js-joda/dist/js-joda.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/vis-timeline@7.7.2/standalone/umd/vis-timeline-graph2d.min.js"
-        integrity="sha256-Jy2+UO7rZ2Dgik50z3XrrNpnc5+2PAx9MhL2CicodME=" crossorigin="anonymous"></script>
-<script src="/score-analysis.js"></script>
-<script src="/recommended-fit.js"></script>
-<script src="/app.js"></script>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="scoreAnalysisModalContent">
+                <!-- Filled in by quickstart-page.js's analyze() -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="openApiModal" tabindex="-1" aria-labelledby="openApiModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="openApiModalLabel">OpenAPI spec</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <iframe src="/q/swagger-ui" title="OpenAPI UI" style="width: 100%; height: 100%; border: 0;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- model-path/demo-data-id attributes are set by QuickstartPage's constructor (quickstart-page.js) -->
+<api-guide-modal></api-guide-modal>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@4.0.0/dist/jquery.min.js" integrity="sha256-OaVG6prZf4v69dPg6PhVattBXkcOWQB62pdZ3ORyrao=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@js-joda/core@6.1.0/dist/js-joda.min.js" integrity="sha256-Uu/3Fv5M3qvr/wX1tKoqAPNE8tiS0vOUm3YdWU1cVAI=" crossorigin="anonymous"></script>
+<script src="shared/solver-client.js"></script>
+<script src="shared/quickstart-page.js"></script>
+<script src="shared/platform-integration.js"></script>
+<script src="shared/api-guide.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vis-timeline@8.5.4/standalone/umd/vis-timeline-graph2d.min.js"
+        integrity="sha256-IgRYB+U3040BpTfpdWOtiwJp+Lgnu12iPgYPnD+OwTs=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
+<script src="shared/color-picker.js"></script>
+<script src="visualize.js"></script>
+<script>document.body.style.display = ""</script>
 </body>
 </html>

@@ -13,7 +13,7 @@ It shows different use cases and basic implementations to get you started on you
 
 | Use Case                                                                | Notable Solver Concepts                                       |
 |-------------------------------------------------------------------------|---------------------------------------------------------------|
-| 🚚 <a href="#-vehicle-routing">Vehicle Routing</a>                      | Chained Through Time, Shadow Variables                        |
+| 🚚 <a href="#-vehicle-routing">Vehicle Routing</a>                      | Service Model, Planning List Variable, Shadow Variables       |
 | 🧑 <a href="#-employee-scheduling">Employee Scheduling</a>              | Load Balancing                                                |
 | 🛠️ <a href="#-maintenance-scheduling">Maintenance Scheduling</a>       | Service Model, TimeGrain, Shadow Variable, Variable Listener  |
 | 📦 <a href="#-food-packaging">Food Packaging</a>                        | Service Model, Mixed Model, Shadow Variables, Pinning         |
@@ -25,7 +25,7 @@ It shows different use cases and basic implementations to get you started on you
 | 🛫 <a href="#-flight-crew-scheduling">Flight Crew Scheduling</a>        |                                                               |
 | 👥 <a href="#-meeting-scheduling">Meeting Scheduling</a>                | Service Model, TimeGrain, Justifications                      |
 | ✅ <a href="#-task-assigning">Task Assigning</a>                         | Service Model, Chained Through Time, Allows Unassigned        |
-| 📆 <a href="#-project-job-scheduling">Project Job Scheduling</a>        | Shadow Variables, Variable Listener, Strenght Comparator      |
+| 📆 <a href="#-project-job-scheduling">Project Job Scheduling</a>        | Shadow Variables, Variable Listener, Strength Comparator      |
 | 🏆 <a href="#-sports-league-scheduling">Sports League Scheduling</a>    | Service Model, Consecutive Sequences, Justifications          |
 | 🏅 <a href="#-tournament-scheduling">Tournament Scheduling</a>          | Pinning, Load Balancing                                       |
 
