@@ -1,6 +1,5 @@
-package org.acme.vehiclerouting.dto.recommendation;
+package org.acme.vehiclerouting.dto.input;
 
-import org.acme.vehiclerouting.dto.input.VehicleRoutePlanInput;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 /**
@@ -9,7 +8,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
  * {@code visitIds}.
  */
 @Schema(description = "A request for recommended assignments of a single, still unassigned visit.")
-public record RecommendationRequest(
+public record RecommendationRequestInput(
         @Schema(description = "The route plan to fit the visit into. Every other visit's assignment is taken as is.",
                 required = true) VehicleRoutePlanInput modelInput,
         @Schema(description = "Id of the visit to find a place for. Must be one of the plan's visits and must not be "

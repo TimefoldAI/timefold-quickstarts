@@ -16,6 +16,7 @@ import org.acme.vehiclerouting.domain.Vehicle;
 import org.acme.vehiclerouting.domain.VehicleRoutePlan;
 import org.acme.vehiclerouting.domain.Visit;
 import org.acme.vehiclerouting.dto.input.LocationInputDTO;
+import org.acme.vehiclerouting.dto.input.RecommendationRequestInput;
 import org.acme.vehiclerouting.dto.input.VehicleInputDTO;
 import org.acme.vehiclerouting.dto.input.VehicleRoutePlanInput;
 import org.acme.vehiclerouting.dto.input.VisitInputDTO;
@@ -48,6 +49,10 @@ public final class TestHelper {
 
     public static VehicleRoutePlanInput input(List<VehicleInputDTO> vehicles, List<VisitInputDTO> visits) {
         return new VehicleRoutePlanInput(at(7, 30), DAY_START.plusDays(1), vehicles, visits);
+    }
+
+    public static RecommendationRequestInput recommendationRequest(VehicleRoutePlanInput modelInput, String visitId) {
+        return new RecommendationRequestInput(modelInput, visitId);
     }
 
     /**
