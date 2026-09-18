@@ -24,6 +24,7 @@
     <module>getting-started/spring-boot-integration</module>
     <module>getting-started/service</module>
     <module>getting-started/quarkus-integration-kotlin</module>
+    <module>getting-started/quarkus-console</module>
 
     <module>use-cases/school-timetabling</module>
     <module>use-cases/facility-location</module>
