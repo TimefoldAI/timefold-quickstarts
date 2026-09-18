@@ -5,11 +5,7 @@ import java.nio.file.Path;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 import jakarta.inject.Inject;
 
@@ -51,11 +47,9 @@ public class TimetableConsoleApp implements QuarkusApplication {
         // Load the problem
         Timetable problem = generateDemoData(DemoData.LARGE);
 
-        // Solve the problem, live dashboard included
+        // Solve the problem, live dashboard included; SolverConsole prints its own final summary
         Timetable solution = SolverConsole.solve(solverFactory, problem);
 
-        // Visualize the solution
-        printTimetable(solution);
         if (outputFile != null) {
             writeSolution(solution, outputFile);
             System.out.println();
@@ -245,57 +239,6 @@ public class TimetableConsoleApp implements QuarkusApplication {
             lessons.add(new Lesson(Long.toString(nextLessonId), "Physical education", "C. Lewis", "12th grade"));
         }
         return new Timetable(demoData.name(), timeslots, rooms, lessons);
-    }
-
-    private static void printTimetable(Timetable timeTable) {
-        System.out.println();
-        List<Room> rooms = timeTable.getRooms();
-        List<Lesson> lessons = timeTable.getLessons();
-        Map<Timeslot, Map<Room, List<Lesson>>> lessonMap = lessons.stream()
-                .filter(lesson -> lesson.getTimeslot() != null && lesson.getRoom() != null)
-                .collect(Collectors.groupingBy(Lesson::getTimeslot, Collectors.groupingBy(Lesson::getRoom)));
-        System.out.println("|            | " + rooms.stream()
-                .map(room -> String.format("%-10s", room.getName())).collect(Collectors.joining(" | ")) + " |");
-        System.out.println("|" + "------------|".repeat(rooms.size() + 1));
-        for (Timeslot timeslot : timeTable.getTimeslots()) {
-            List<List<Lesson>> cells = rooms.stream()
-                    .map(room -> {
-                        Map<Room, List<Lesson>> byRoomMap = lessonMap.get(timeslot);
-                        if (byRoomMap == null) {
-                            return Collections.<Lesson> emptyList();
-                        }
-                        List<Lesson> cellLessons = byRoomMap.get(room);
-                        return Objects.requireNonNullElse(cellLessons, Collections.<Lesson> emptyList());
-                    }).toList();
-
-            System.out.println("| " + String.format("%-10s",
-                    timeslot.getDayOfWeek().toString().substring(0, 3) + " " + timeslot.getStartTime()) + " | "
-                    + cells.stream().map(cellLessons -> String.format("%-10s",
-                            cellLessons.stream().map(Lesson::getSubject).collect(Collectors.joining(", "))))
-                            .collect(Collectors.joining(" | "))
-                    + " |");
-            System.out.println("|            | "
-                    + cells.stream().map(cellLessons -> String.format("%-10s",
-                            cellLessons.stream().map(Lesson::getTeacher).collect(Collectors.joining(", "))))
-                            .collect(Collectors.joining(" | "))
-                    + " |");
-            System.out.println("|            | "
-                    + cells.stream().map(cellLessons -> String.format("%-10s",
-                            cellLessons.stream().map(Lesson::getStudentGroup).collect(Collectors.joining(", "))))
-                            .collect(Collectors.joining(" | "))
-                    + " |");
-            System.out.println("|" + "------------|".repeat(rooms.size() + 1));
-        }
-        List<Lesson> unassignedLessons = lessons.stream()
-                .filter(lesson -> lesson.getTimeslot() == null || lesson.getRoom() == null)
-                .toList();
-        if (!unassignedLessons.isEmpty()) {
-            System.out.println();
-            System.out.println("Unassigned lessons");
-            for (Lesson lesson : unassignedLessons) {
-                System.out.println("  " + lesson.getSubject() + " - " + lesson.getTeacher() + " - " + lesson.getStudentGroup());
-            }
-        }
     }
 
 }
