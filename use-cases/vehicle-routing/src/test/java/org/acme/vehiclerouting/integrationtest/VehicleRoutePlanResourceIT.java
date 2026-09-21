@@ -24,7 +24,7 @@ class VehicleRoutePlanResourceIT {
 
     @Test
     void solveNative() {
-        String demoDataJson = given().when().get("/v1/demo-data/GHENT").then().statusCode(200).extract().asString();
+        String demoDataJson = given().when().get("/v1/demo-data/BASIC").then().statusCode(200).extract().asString();
 
         String datasetId = given().contentType(ContentType.JSON).body(demoDataJson).when()
                 .post("/v1/route-plans").then().statusCode(202).extract().jsonPath().getString("id");

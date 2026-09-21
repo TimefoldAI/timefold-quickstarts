@@ -84,7 +84,7 @@ class VehicleRoutePlanOpenApiValidationTest {
     }
 
     private ObjectNode demoData() {
-        String json = given().when().get("/v1/demo-data/GHENT").then().statusCode(200).extract().asString();
+        String json = given().when().get("/v1/demo-data/BASIC").then().statusCode(200).extract().asString();
         try {
             return (ObjectNode) mapper.readTree(json);
         } catch (Exception e) {
