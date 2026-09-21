@@ -25,11 +25,12 @@ public class VehicleRoutingDemoDataGenerator implements DemoDataGenerator {
             List.of("vehicle capacity", "time windows", "unassigned visits", "driving time");
 
     private static final String LONG_DESCRIPTION_TEMPLATE = """
-            Routes %d vehicles from their own home locations past %d visits around %s, all on the same day. \
-            Each vehicle leaves at 07:30 and carries a limited amount of demand over its whole route; each visit \
-            takes 10 to 40 minutes of servicing and only accepts a vehicle inside a morning or an afternoon time \
-            window. Once solved, every vehicle drives one route that stays within its capacity and inside the time \
-            windows of its visits, with as few visits left unserviced and as little driving time as possible.""";
+                Routes %d vehicles from their own home locations past %d visits around %s, all on the same day.
+                Each vehicle leaves at 07:30 and carries a limited amount of demand over its whole route; each visit
+                takes 10 to 40 minutes of servicing and only accepts a vehicle inside a morning or an afternoon time
+                window. Once solved, every vehicle drives one route that stays within its capacity and inside the time
+                windows of its visits, with as few visits left unserviced and as little driving time as possible.
+            """;
 
     /**
      * The demo datasets, keyed by their id, in the order the UI's data picker lists them.
@@ -38,8 +39,8 @@ public class VehicleRoutingDemoDataGenerator implements DemoDataGenerator {
 
     private static Map<String, Dataset> datasets() {
         Map<String, Dataset> datasets = new LinkedHashMap<>();
+        datasets.put("BASIC", new Dataset("basic", 65, DemoDataBuilder::basic));
         datasets.put("PHILADELPHIA", new Dataset("Philadelphia", 55, DemoDataBuilder::philadelphia));
-        datasets.put("GHENT", new Dataset("Ghent", 65, DemoDataBuilder::basic));
         datasets.put("HARTFORT", new Dataset("Hartfort", 50, DemoDataBuilder::hartfort));
         datasets.put("FIRENZE", new Dataset("Firenze", 77, DemoDataBuilder::firenze));
         return datasets;

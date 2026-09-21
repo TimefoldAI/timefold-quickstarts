@@ -49,7 +49,6 @@ class VehicleRoutePlanRecommendationResourceTest {
 
     @Test
     void assignedVisitIsRejected() {
-        // Checked before the edition is, so this is the answer in either edition.
         Response response = post(recommendationRequest(planWithOneUnassignedVisit(), "1"));
 
         response.then().statusCode(400);

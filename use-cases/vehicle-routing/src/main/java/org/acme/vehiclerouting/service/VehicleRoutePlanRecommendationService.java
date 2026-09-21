@@ -52,8 +52,6 @@ public class VehicleRoutePlanRecommendationService {
      *         that is among the best options; never null
      */
     public List<VehicleRecommendationDTO> recommend(VehicleRoutePlanInput modelInput, String visitId) {
-        // The request is checked before the edition is, so that a caller gets told what is wrong with
-        // it either way rather than only learning that recommendations are unavailable.
         requireKnownAndUnassigned(modelInput, visitId);
 
         VehicleRoutePlan routePlan = toSolverModel(modelInput);
