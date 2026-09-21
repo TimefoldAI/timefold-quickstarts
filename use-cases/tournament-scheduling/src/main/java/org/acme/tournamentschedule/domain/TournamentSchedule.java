@@ -93,6 +93,7 @@ public class TournamentSchedule implements SolverModel<HardMediumSoftScore>,
         Map<Team, Long> assignmentCountByTeam = teamAssignments.stream()
                 .filter(TournamentSchedule::isAssigned)
                 .collect(Collectors.groupingBy(TeamAssignment::getTeam, Collectors.counting()));
+        teams.forEach(team -> assignmentCountByTeam.putIfAbsent(team, 0L));
         int assignmentCountRange = assignmentCountByTeam.isEmpty() ? 0
                 : (int) (Collections.max(assignmentCountByTeam.values()) - Collections.min(assignmentCountByTeam.values()));
         return new TournamentScheduleOutputMetrics(assignedMatches, unassignedMatches, assignmentCountRange);
