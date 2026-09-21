@@ -70,7 +70,9 @@ public class VehicleRoutePlanRecommendationService {
 
     private VehicleRoutePlan toSolverModel(VehicleRoutePlanInput modelInput) {
         VehicleRoutePlan routePlan = modelConvertor.toSolverModel(modelInput, ModelConfig.empty(), Optional.empty());
-        return enricherService.enrich(routePlan);
+        VehicleRoutePlan enrichedRoutePlan = enricherService.enrich(routePlan);
+        SolutionManager.updateShadowVariables(enrichedRoutePlan);
+        return enrichedRoutePlan;
     }
 
     private static VehiclePropositionDTO toProposition(Visit visit) {
