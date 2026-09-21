@@ -11,7 +11,7 @@
 
   <groupId>ai.timefold.model</groupId>
   <artifactId>tournament-scheduling</artifactId>
-  <version>0.0.1</version>
+  <version>${revision}</version>
 
   <properties>
     <revision>1.0.0-SNAPSHOT</revision>
