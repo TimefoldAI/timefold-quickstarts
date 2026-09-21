@@ -40,6 +40,7 @@ QUICKSTART_DIRS=(
     "sports-league-scheduling"
     "task-assigning"
     "food-packaging"
+    "vehicle-routing"
 )
 
 # Metadata needed to render each quickstart's index.html from the shared
@@ -56,6 +57,7 @@ quickstart_name() {
         sports-league-scheduling) echo "Sports League Scheduling" ;;
         task-assigning) echo "Task Assigning" ;;
         food-packaging) echo "Food Packaging" ;;
+        vehicle-routing) echo "Vehicle Routing" ;;
         *) echo "quickstart_name: unknown quickstart '$1'" >&2; exit 1 ;;
     esac
 }
@@ -70,6 +72,7 @@ quickstart_utm_content() {
         sports-league-scheduling) echo "sports-league-scheduling-java" ;;
         task-assigning) echo "task-assigning-java" ;;
         food-packaging) echo "food-packaging-java" ;;
+        vehicle-routing) echo "vehicle-routing-java" ;;
         *) echo "quickstart_utm_content: unknown quickstart '$1'" >&2; exit 1 ;;
     esac
 }
@@ -85,6 +88,7 @@ quickstart_features() {
         sports-league-scheduling) echo "vis-timeline custom-css" ;;
         task-assigning) echo "vis-timeline color-picker" ;;
         food-packaging) echo "vis-timeline custom-css" ;;
+        vehicle-routing) echo "vis-timeline leaflet color-picker custom-css" ;;
         *) echo "quickstart_features: unknown quickstart '$1'" >&2; exit 1 ;;
     esac
 }
@@ -99,10 +103,16 @@ quickstart_features() {
 #
 # "custom-css" just links a style.css that the quickstart keeps next to its
 # own index.html (not under shared/, so sync.sh never touches its content).
+#
+# The integrity hashes below are the SHA-256 of the exact file each URL pins,
+# computed from the file itself - never write one from memory, and recompute it
+# whenever the pinned version changes.
 feature_head() {
     case "$1" in
         vis-timeline) echo '    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vis-timeline@8.5.4/styles/vis-timeline-graph2d.min.css"
         integrity="sha256-Zyc/Pxv8X+5YVJTouIGNfK2YwilzdIi8VvFAVHutwfU=" crossorigin="anonymous">' ;;
+        leaflet) echo '    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous">' ;;
         custom-css) echo '    <link rel="stylesheet" href="style.css">' ;;
     esac
 }
@@ -111,6 +121,8 @@ feature_scripts() {
     case "$1" in
         vis-timeline) echo '<script src="https://cdn.jsdelivr.net/npm/vis-timeline@8.5.4/standalone/umd/vis-timeline-graph2d.min.js"
         integrity="sha256-IgRYB+U3040BpTfpdWOtiwJp+Lgnu12iPgYPnD+OwTs=" crossorigin="anonymous"></script>' ;;
+        leaflet) echo '<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>' ;;
         color-picker) echo '<script src="shared/color-picker.js"></script>' ;;
     esac
 }

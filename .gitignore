@@ -3,6 +3,9 @@ target
 build
 bin
 
+# Quarkus JIB file
+jib
+
 # Eclipse, Netbeans and IntelliJ files
 .*
 !/.github
