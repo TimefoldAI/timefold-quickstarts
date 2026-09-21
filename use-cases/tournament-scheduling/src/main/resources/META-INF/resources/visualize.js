@@ -84,7 +84,7 @@ const app = {
 
         schedule.teams.forEach((team) => this.byTeamGroupData.add({
             id: team.id,
-            content: `<div class="d-flex flex-column"><h5 class="card-title mb-1">${team.name}</h5></div>`,
+            content: $(`<div class="d-flex flex-column"/>`).append($(`<h5 class="card-title mb-1"/>`).text(team.name)).html(),
         }));
 
         schedule.unavailabilities.forEach((unavailability) => this.byTeamItemData.add({
