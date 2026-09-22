@@ -2,6 +2,7 @@ package org.acme.tournamentschedule.demo;
 
 import java.util.List;
 
+import ai.timefold.solver.service.definition.api.data.DemoDataGenerator;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import ai.timefold.solver.service.definition.api.data.DemoData;
@@ -15,7 +16,7 @@ import org.acme.tournamentschedule.dto.input.TournamentScheduleConfigOverrides;
 import org.acme.tournamentschedule.dto.input.TournamentScheduleInput;
 
 @ApplicationScoped
-public class DemoDataGenerator implements ai.timefold.solver.service.definition.api.data.DemoDataGenerator {
+public class TournamentDemoDataGenerator implements DemoDataGenerator {
 
     private static final String BASIC_DEMO_DATA_ID = "BASIC";
 
