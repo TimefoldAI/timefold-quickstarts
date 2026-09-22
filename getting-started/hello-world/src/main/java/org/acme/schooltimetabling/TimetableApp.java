@@ -9,10 +9,6 @@ import org.acme.schooltimetabling.domain.Timeslot;
 import org.acme.schooltimetabling.domain.Timetable;
 import org.acme.schooltimetabling.solver.TimetableConstraintProvider;
 
-import org.jline.terminal.Terminal;
-import org.jline.terminal.TerminalBuilder;
-
-import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalTime;
@@ -304,25 +300,15 @@ public class TimetableApp {
         return text.length() >= width ? text : text + " ".repeat(width - text.length());
     }
 
-    // Mirrors SolverConsole's own dashboard box: centered against the real terminal width when one is
-    // available, falling back to a plain default rather than failing when it isn't (e.g. headless CI).
+    // Centers against a plain assumed width rather than probing the real terminal.
     private static List<String> center(List<String> lines) {
-        var terminalWidth = terminalWidth();
         var contentWidth = lines.stream().mapToInt(String::length).max().orElse(0);
-        var leftPad = Math.max(0, (terminalWidth - contentWidth) / 2);
+        var leftPad = Math.max(0, (DEFAULT_TERMINAL_WIDTH - contentWidth) / 2);
         if (leftPad == 0) {
             return lines;
         }
         var pad = " ".repeat(leftPad);
         return lines.stream().map(line -> pad + line).toList();
-    }
-
-    private static int terminalWidth() {
-        try (var terminal = TerminalBuilder.builder().build()) {
-            return terminal.getType().startsWith(Terminal.TYPE_DUMB) ? DEFAULT_TERMINAL_WIDTH : terminal.getWidth();
-        } catch (IOException e) {
-            return DEFAULT_TERMINAL_WIDTH;
-        }
     }
 
 }
