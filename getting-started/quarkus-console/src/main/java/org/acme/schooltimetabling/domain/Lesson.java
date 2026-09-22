@@ -16,11 +16,11 @@ public class Lesson {
     private String teacher;
     private String studentGroup;
 
-    @JsonIdentityReference
+    @JsonIdentityReference(alwaysAsId = true)
     @PlanningVariable
     private Timeslot timeslot;
 
-    @JsonIdentityReference
+    @JsonIdentityReference(alwaysAsId = true)
     @PlanningVariable
     private Room room;
 
