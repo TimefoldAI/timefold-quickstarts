@@ -20,6 +20,7 @@ repositories {
 dependencies {
     implementation platform("ai.timefold.solver:timefold-solver-bom:${timefoldVersion}")
     implementation "ai.timefold.solver:timefold-solver-core"
+    implementation "ai.timefold.solver:timefold-solver-console"
     runtimeOnly "ch.qos.logback:logback-classic:${logbackVersion}"
 
     // Testing
