@@ -91,7 +91,7 @@ class TournamentScheduleConstraintProviderTest {
         var assignment3 = anAssignment("2", DAY2).team(team2).build();
 
         constraintVerifier.verifyThat(TournamentScheduleConstraintProvider::fairAssignmentCountPerTeam)
-                .given(assignment1, assignment2, assignment3)
+                .given(team0.build(), team1.build(), team2.build(), assignment1, assignment2, assignment3)
                 .penalizesBy(0);
     }
 
@@ -107,7 +107,22 @@ class TournamentScheduleConstraintProviderTest {
 
         // Team 2 twice while everyone else just once = more unfair.
         constraintVerifier.verifyThat(TournamentScheduleConstraintProvider::fairAssignmentCountPerTeam)
-                .given(assignment1, assignment2, assignment3, assignment4)
+                .given(team0.build(), team1.build(), team2.build(), assignment1, assignment2, assignment3, assignment4)
+                .penalizesByMoreThan(0);
+    }
+
+    @Test
+    void fairAssignmentCountPerTeamPenalizesTeamWithoutAssignments() {
+        var team0 = aTeam("T0");
+        var team1 = aTeam("T1");
+        var team2 = aTeam("T2");
+        var assignment1 = anAssignment("0", DAY0).team(team0).build();
+        var assignment2 = anAssignment("1", DAY1).team(team1).build();
+
+        // Team 2 never plays. The teams that do play have one match each, so the schedule only looks unbalanced
+        // because every team is fed into the load balance, including the ones without a single assignment.
+        constraintVerifier.verifyThat(TournamentScheduleConstraintProvider::fairAssignmentCountPerTeam)
+                .given(team0.build(), team1.build(), team2.build(), assignment1, assignment2)
                 .penalizesByMoreThan(0);
     }
 
@@ -120,8 +135,9 @@ class TournamentScheduleConstraintProviderTest {
         var assignment2 = anAssignment("1", DAY0).team(team1).build();
         var assignment3 = anAssignment("2", DAY0).team(team2).build();
 
+        // Every one of the three possible pairings happens exactly once.
         constraintVerifier.verifyThat(TournamentScheduleConstraintProvider::evenlyConfrontationCount)
-                .given(assignment1, assignment2, assignment3)
+                .given(team0.build(), team1.build(), team2.build(), assignment1, assignment2, assignment3)
                 .penalizesBy(0);
     }
 
@@ -137,7 +153,24 @@ class TournamentScheduleConstraintProviderTest {
 
         // Team 0 and team 2 confront twice while every other pair confronts once = more unfair.
         constraintVerifier.verifyThat(TournamentScheduleConstraintProvider::evenlyConfrontationCount)
-                .given(assignment1, assignment2, assignment3, assignment4)
+                .given(team0.build(), team1.build(), team2.build(), assignment1, assignment2, assignment3, assignment4)
+                .penalizesByMoreThan(0);
+    }
+
+    @Test
+    void evenlyConfrontationCountPenalizesPairThatNeverConfronts() {
+        var team0 = aTeam("T0");
+        var team1 = aTeam("T1");
+        var team2 = aTeam("T2");
+        var assignment1 = anAssignment("0", DAY0).team(team0).build();
+        var assignment2 = anAssignment("1", DAY0).team(team1).build();
+        var assignment3 = anAssignment("2", DAY1).team(team0).build();
+        var assignment4 = anAssignment("3", DAY1).team(team1).build();
+
+        // Team 0 and team 1 replay each other while team 2 never meets either of them. The pairs that do confront
+        // are perfectly balanced, so only the two pairings that never happen make this uneven.
+        constraintVerifier.verifyThat(TournamentScheduleConstraintProvider::evenlyConfrontationCount)
+                .given(team0.build(), team1.build(), team2.build(), assignment1, assignment2, assignment3, assignment4)
                 .penalizesByMoreThan(0);
     }
 }

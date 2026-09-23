@@ -2,10 +2,10 @@ package org.acme.tournamentschedule.demo;
 
 import java.util.List;
 
-import ai.timefold.solver.service.definition.api.data.DemoDataGenerator;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import ai.timefold.solver.service.definition.api.data.DemoData;
+import ai.timefold.solver.service.definition.api.data.DemoDataGenerator;
 import ai.timefold.solver.service.definition.api.data.DemoMetaData;
 import ai.timefold.solver.service.definition.api.domain.Configuration;
 import ai.timefold.solver.service.definition.api.domain.ModelConfig;

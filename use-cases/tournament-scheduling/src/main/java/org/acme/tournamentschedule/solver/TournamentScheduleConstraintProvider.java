@@ -1,5 +1,7 @@
 package org.acme.tournamentschedule.solver;
 
+import static ai.timefold.solver.core.api.score.stream.ConstraintCollectors.count;
+import static ai.timefold.solver.core.api.score.stream.ConstraintCollectors.countBi;
 import static ai.timefold.solver.core.api.score.stream.ConstraintCollectors.loadBalance;
 import static ai.timefold.solver.core.api.score.stream.Joiners.equal;
 import static ai.timefold.solver.core.api.score.stream.Joiners.lessThan;
@@ -15,6 +17,7 @@ import ai.timefold.solver.core.api.score.stream.common.LoadBalance;
 import ai.timefold.solver.service.definition.api.description.ConstraintInfo;
 
 import org.acme.tournamentschedule.domain.Confrontation;
+import org.acme.tournamentschedule.domain.Team;
 import org.acme.tournamentschedule.domain.TeamAssignment;
 import org.acme.tournamentschedule.domain.TournamentScheduleConstraintProperties;
 import org.acme.tournamentschedule.domain.UnavailabilityPenalty;
@@ -69,8 +72,13 @@ public class TournamentScheduleConstraintProvider implements ConstraintProvider 
     }
 
     Constraint fairAssignmentCountPerTeam(ConstraintFactory constraintFactory) {
+        // A stream of assignments only knows the teams that actually got one. The complement adds back every team
+        // that is missing from it, with a count of zero; without them, a schedule that ignores a couple of teams
+        // entirely would look perfectly balanced.
         return constraintFactory.forEach(TeamAssignment.class)
-                .groupBy(loadBalance(TeamAssignment::getTeam))
+                .groupBy(TeamAssignment::getTeam, count())
+                .complement(Team.class, team -> 0L)
+                .groupBy(loadBalance((team, assignmentCount) -> team, (team, assignmentCount) -> assignmentCount))
                 .penalize(HardMediumSoftScore.ONE_MEDIUM, TournamentScheduleConstraintProvider::unfairnessWeight)
                 .justifyWith((loadBalance, score) -> FairAssignmentCountJustification.of(loadBalance))
                 .asConstraint(new ConstraintInfo(TournamentScheduleConstraintProperties.FAIR_ASSIGNMENT_COUNT_PER_TEAM,
@@ -80,12 +88,19 @@ public class TournamentScheduleConstraintProvider implements ConstraintProvider 
     }
 
     Constraint evenlyConfrontationCount(ConstraintFactory constraintFactory) {
-        return constraintFactory.forEach(TeamAssignment.class)
+        var confrontationCounts = constraintFactory.forEach(TeamAssignment.class)
                 .join(TeamAssignment.class,
                         equal(TeamAssignment::getMatchDate),
                         lessThan(assignment -> assignment.getTeam().id()))
-                .groupBy(loadBalance(
-                        (assignment, otherAssignment) -> new Confrontation(assignment.getTeam(), otherAssignment.getTeam())))
+                .groupBy((assignment, otherAssignment) -> new Confrontation(assignment.getTeam(),
+                        otherAssignment.getTeam()), countBi());
+
+        return constraintFactory.forEachUniquePair(Team.class)
+                .map(Confrontation::new)
+                .ifNotExists(confrontationCounts.map((confrontation, confrontationCount) -> confrontation), equal())
+                .concat(confrontationCounts, confrontation -> 0L)
+                .groupBy(loadBalance((confrontation, confrontationCount) -> confrontation,
+                        (confrontation, confrontationCount) -> confrontationCount))
                 .penalize(HardMediumSoftScore.ONE_SOFT, TournamentScheduleConstraintProvider::unfairnessWeight)
                 .justifyWith((loadBalance, score) -> EvenConfrontationCountJustification.of(loadBalance))
                 .asConstraint(new ConstraintInfo(TournamentScheduleConstraintProperties.EVEN_CONFRONTATION_COUNT,
