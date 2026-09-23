@@ -4,60 +4,31 @@ import java.util.Objects;
 
 import ai.timefold.solver.core.api.domain.common.PlanningId;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
-@JsonIdentityInfo(scope = Team.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class Team {
-
-    @PlanningId
-    private long id;
-    private String name;
-
-    public Team() {
-    }
-
-    public Team(long id) {
-        this.id = id;
-    }
-
-    public Team(long id, String name) {
-        this(id);
-        this.name = name;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String toString() {
-        return name == null ? super.toString() : name;
-    }
+/**
+ * A team that has to be assigned to matches, spread as fairly and evenly as possible over the tournament.
+ */
+public record Team(
+        @PlanningId String id,
+        String name) {
 
     @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
-        return o instanceof Team other
-                && id == other.id;
+        if (!(o instanceof Team team)) {
+            return false;
+        }
+        return Objects.equals(id, team.id);
     }
 
     @Override
     public int hashCode() {
-        return (int) (31 * getId());
+        return Objects.hashCode(id);
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }
