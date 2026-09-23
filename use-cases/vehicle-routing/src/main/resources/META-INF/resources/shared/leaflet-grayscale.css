@@ -1,0 +1,67 @@
+/* Styling for the grayscale map control (shared/leaflet-grayscale.js), linked by the
+   "leaflet" feature in visualizations/sync.sh next to Leaflet's own stylesheet. */
+
+/* Grayscale tiles so colored routes stay readable (see #605). */
+body:has(#grayscaleMapToggle:checked) .leaflet-tile-pane {
+    -webkit-filter: grayscale(100%);
+    filter: grayscale(100%);
+    opacity: 0.5;
+}
+
+/* The control is a label wrapping a checkbox, sized and centered like Leaflet's own
+   leaflet-bar buttons (the zoom in/out anchors) so it reads as one of them. */
+.leaflet-control-grayscale label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    margin: 0;
+    color: #333;
+    background-color: #fff;
+    border-radius: 4px; /* matches the radius .leaflet-bar gives the container */
+    cursor: pointer;
+}
+
+.leaflet-control-grayscale label:hover {
+    background-color: #f4f4f4;
+}
+
+/* The icon carries the meaning visually; this is the same label for screen readers. Clipped
+   here rather than with Bootstrap's .visually-hidden, so the control does not depend on a
+   stylesheet outside the "leaflet" feature. */
+.leaflet-control-grayscale-text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+/* The checkbox itself is the control's state, not its appearance: the label around it is
+   what is drawn. Kept focusable (so it is not display:none) and marked on the label below. */
+.leaflet-control-grayscale input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* :focus-visible rather than :focus-within, so a mouse click on the button does not leave a
+   focus ring behind while a keyboard Tab to it still gets one. */
+.leaflet-control-grayscale label:has(input:focus-visible) {
+    outline: 2px solid var(--ts-violet-1-rgb, #5307F9);
+    outline-offset: -2px;
+}
+
+/* On = the map is grayscale; the button carries the house violet to say so. */
+.leaflet-control-grayscale label:has(input:checked) {
+    color: #fff;
+    background-color: var(--ts-violet-1-rgb, #5307F9);
+}
+
+.leaflet-control-grayscale label:has(input:checked):hover {
+    background-color: var(--ts-violet-2-rgb, #4606D1);
+}

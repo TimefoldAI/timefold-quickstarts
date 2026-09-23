@@ -20,6 +20,12 @@ import java.util.regex.Pattern;
  * three independent checks against each model: checkSharedFiles(), checkIndexHtml() and
  * checkVisualizeJs().
  *
+ * Not every shared file goes to every quickstart: sync.sh's feature_shared_files() lets a
+ * feature own shared files that only its quickstarts get (shared/color-picker.js, the
+ * Leaflet grayscale control, ...). Rather than restating that catalog here, checkSharedFiles()
+ * pins the property it exists for: a quickstart ships exactly the shared files its own
+ * index.html references.
+ *
  * Usage: java CheckSharedUiSync.java <model-dir> [<model-dir> ...]
  * Run from the repository root. A model dir without a src/main/resources/META-INF/resources/shared
  * folder is skipped, since not every model consumes the shared UI template.
@@ -27,6 +33,7 @@ import java.util.regex.Pattern;
 public final class CheckSharedUiSync {
 
     private static final Path RELATIVE_SHARED_PATH = Path.of("src/main/resources/META-INF/resources/shared");
+    private static final Pattern SHARED_REFERENCE_PATTERN = Pattern.compile("\"shared/([A-Za-z0-9._-]+\\.(?:js|css))\"");
 
     public static void main(String[] args) throws IOException {
         if (args.length == 0) {
@@ -67,42 +74,70 @@ public final class CheckSharedUiSync {
     }
 
     /*
-     * Check 1: every *.js/*.css file sync.sh copies out of visualizations/shared/ into a
-     * model's shared/ folder must still be byte-identical to its source, with no leftover
-     * files from a stale copy either.
+     * Check 1: a model's shared/ folder holds exactly the files its index.html loads, each
+     * still byte-identical to the visualizations/shared/ source it was copied from. That
+     * catches a hand-edited copy, a stale file left behind by an earlier sync, and a file
+     * the page loads but sync.sh no longer copies (a feature it no longer enables), without
+     * this check having to restate sync.sh's feature-to-file catalog.
      */
     private static void checkSharedFiles(Path repoRoot, Path sharedSourceDir, Path targetDir, List<String> violations)
             throws IOException {
         var relativeTargetDir = repoRoot.relativize(targetDir);
         var relativeSharedDir = repoRoot.relativize(sharedSourceDir);
-        var sourceFiles = listSyncedFiles(sharedSourceDir);
-        var sourceFileNames = sourceFiles.stream().map(path -> path.getFileName().toString()).toList();
-
-        for (Path sourceFile : sourceFiles) {
-            var fileName = sourceFile.getFileName().toString();
-            var targetFile = targetDir.resolve(fileName);
-            if (!Files.exists(targetFile)) {
-                violations.add("%s is missing %s (present in %s)".formatted(relativeTargetDir, fileName,
-                        relativeSharedDir));
-                continue;
-            }
-            if (!Arrays.equals(Files.readAllBytes(sourceFile), Files.readAllBytes(targetFile))) {
-                violations.add("%s differs from %s".formatted(relativeTargetDir.resolve(fileName),
-                        relativeSharedDir.resolve(fileName)));
-            }
-        }
+        var sourceFileNames = listSyncedFiles(sharedSourceDir).stream()
+                .map(path -> path.getFileName().toString())
+                .toList();
+        var indexFile = targetDir.getParent().resolve("index.html");
+        // A missing index.html is checkIndexHtml()'s violation to report; without one there is
+        // nothing to compare this folder's contents against, so only the copies are checked.
+        var referencedFileNames = Files.exists(indexFile)
+                ? referencedSharedFiles(Files.readString(indexFile))
+                : null;
 
         List<Path> targetFiles;
         try (var stream = Files.list(targetDir)) {
             targetFiles = stream.sorted().toList();
         }
+        var targetFileNames = targetFiles.stream().map(path -> path.getFileName().toString()).toList();
+
         for (Path targetFile : targetFiles) {
             var fileName = targetFile.getFileName().toString();
             if (!sourceFileNames.contains(fileName)) {
                 violations.add("%s contains %s, which has no counterpart in %s".formatted(relativeTargetDir,
                         fileName, relativeSharedDir));
+                continue;
+            }
+            if (!Arrays.equals(Files.readAllBytes(sharedSourceDir.resolve(fileName)),
+                    Files.readAllBytes(targetFile))) {
+                violations.add("%s differs from %s".formatted(relativeTargetDir.resolve(fileName),
+                        relativeSharedDir.resolve(fileName)));
+            }
+            if (referencedFileNames != null && !referencedFileNames.contains(fileName)) {
+                violations.add("%s contains %s, which its index.html never loads".formatted(relativeTargetDir,
+                        fileName));
             }
         }
+
+        if (referencedFileNames == null) {
+            return;
+        }
+        for (String fileName : referencedFileNames) {
+            if (!targetFileNames.contains(fileName)) {
+                violations.add("%s is missing %s, which its index.html loads".formatted(relativeTargetDir,
+                        fileName));
+            }
+        }
+    }
+
+    // The shared/<file> paths an index.html loads, as its <script src> and <link href> spell
+    // them; sync.sh renders those tags, so they say what that quickstart's bundle should be.
+    private static List<String> referencedSharedFiles(String indexHtmlContent) {
+        return SHARED_REFERENCE_PATTERN.matcher(indexHtmlContent)
+                .results()
+                .map(result -> result.group(1))
+                .distinct()
+                .sorted()
+                .toList();
     }
 
     // sync.sh only ever copies *.js and *.css out of visualizations/shared/ verbatim;

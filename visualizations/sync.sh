@@ -93,13 +93,18 @@ quickstart_features() {
     esac
 }
 
-# Catalog of optional vendor "features" a quickstart's visualize.js can build
-# on - external resources that aren't part of the shared bundle, so they don't
-# belong in visualizations/shared/. Add a new one to feature_head/feature_scripts
-# below, then enable it in quickstart_features() by name; a quickstart never
-# writes out its own <script>/<style> tags. Stylesheets go in feature_head, so
-# they are linked before the page renders; scripts go in feature_scripts, which
-# lands at the end of the body.
+# Every feature a quickstart can enable in quickstart_features() above. Only used to
+# work out which shared/ files are feature-owned (see feature_shared_files below), so
+# keep it in step with the case arms in this section.
+ALL_FEATURES="vis-timeline leaflet color-picker custom-css"
+
+# Catalog of optional "features" a quickstart's visualize.js can build on. A feature is
+# usually a vendor library loaded from a CDN (so it isn't part of visualizations/shared/),
+# and it can also claim shared/ files of our own that only make sense alongside it.
+# Add a new one to the feature_* functions below and to ALL_FEATURES, then enable it in
+# quickstart_features() by name; a quickstart never writes out its own <script>/<style>
+# tags. Stylesheets go in feature_head, so they are linked before the page renders;
+# scripts go in feature_scripts, which lands at the end of the body.
 #
 # "custom-css" just links a style.css that the quickstart keeps next to its
 # own index.html (not under shared/, so sync.sh never touches its content).
@@ -112,7 +117,8 @@ feature_head() {
         vis-timeline) echo '    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vis-timeline@8.5.4/styles/vis-timeline-graph2d.min.css"
         integrity="sha256-Zyc/Pxv8X+5YVJTouIGNfK2YwilzdIi8VvFAVHutwfU=" crossorigin="anonymous">' ;;
         leaflet) echo '    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous">' ;;
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous">
+    <link rel="stylesheet" href="shared/leaflet-grayscale.css">' ;;
         custom-css) echo '    <link rel="stylesheet" href="style.css">' ;;
     esac
 }
@@ -122,17 +128,58 @@ feature_scripts() {
         vis-timeline) echo '<script src="https://cdn.jsdelivr.net/npm/vis-timeline@8.5.4/standalone/umd/vis-timeline-graph2d.min.js"
         integrity="sha256-IgRYB+U3040BpTfpdWOtiwJp+Lgnu12iPgYPnD+OwTs=" crossorigin="anonymous"></script>' ;;
         leaflet) echo '<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>' ;;
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
+<script src="shared/leaflet-grayscale.js"></script>' ;;
         color-picker) echo '<script src="shared/color-picker.js"></script>' ;;
     esac
 }
 
-# Joins feature_head/feature_scripts (passed by name) output for each of a
-# quickstart's enabled features, in listed order.
+# Files in visualizations/shared/ that belong to one feature rather than to every
+# quickstart: they are copied only into the quickstarts that enable that feature, and
+# the feature_head/feature_scripts entries above are what link them. Everything else in
+# shared/ is the common bundle every quickstart gets (see copy_shared_files).
+feature_shared_files() {
+    case "$1" in
+        leaflet) echo "leaflet-grayscale.js leaflet-grayscale.css" ;;
+        color-picker) echo "color-picker.js" ;;
+    esac
+}
+
+# Joins feature_head/feature_scripts/feature_shared_files (passed by name) output for
+# each of a quickstart's enabled features, in listed order.
 join_features() {
     local catalog_fn="$1" features="$2" feature
     for feature in $features; do
         "$catalog_fn" "$feature"
+    done
+}
+
+# Is $1 one of the whitespace-separated words in $2?
+contains_word() {
+    case " $(echo $2) " in
+        *" $1 "*) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
+# Copies this quickstart's shared/ bundle: every file in visualizations/shared/ that no
+# feature claims, plus the files claimed by the features it enables. Anything a feature
+# owns stays out of the quickstarts that don't use it - a quickstart without a map has no
+# reason to ship the Leaflet grayscale control.
+copy_shared_files() {
+    local target="$1" features="$2"
+    local feature_owned file basename
+    feature_owned="$(join_features feature_shared_files "$ALL_FEATURES")"
+
+    for file in "$SHARED_DIR"/*.js "$SHARED_DIR"/*.css; do
+        basename="$(basename "$file")"
+        if ! contains_word "$basename" "$feature_owned"; then
+            cp -v "$file" "$target/"
+        fi
+    done
+
+    for basename in $(join_features feature_shared_files "$features"); do
+        cp -v "$SHARED_DIR/$basename" "$target/"
     done
 }
 
@@ -169,7 +216,7 @@ for quickstart in "${QUICKSTART_DIRS[@]}"; do
 
     rm -rf "$shared_target"
     mkdir -p "$shared_target"
-    cp -v "$SHARED_DIR"/*.js "$SHARED_DIR"/*.css "$shared_target/"
+    copy_shared_files "$shared_target" "$(quickstart_features "$quickstart")"
 
     render_index_html "$resources_dir" "$quickstart"
 done

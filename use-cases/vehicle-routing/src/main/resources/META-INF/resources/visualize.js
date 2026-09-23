@@ -321,6 +321,9 @@ const app = {
             maxZoom: 19,
             attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
         }).addTo(this.map);
+        // Grayscale tiles (on by default) keep the colored routes below readable;
+        // L.control.grayscale comes from shared/leaflet-grayscale.js.
+        L.control.grayscale().addTo(this.map);
 
         this.homeLocationGroup = L.layerGroup().addTo(this.map);
         this.visitGroup = L.layerGroup().addTo(this.map);
