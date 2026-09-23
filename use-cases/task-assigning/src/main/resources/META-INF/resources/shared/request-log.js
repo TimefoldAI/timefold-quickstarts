@@ -1,21 +1,7 @@
 // ── Backend request log ──
 // A self-contained <request-log-bar> custom element: a bar pinned to the bottom of the
 // window that expands into a log of every REST call this page made to the backend,
-// with the request/response bodies - the same "what is the browser actually sending?"
-// view the htmx examples put under their demos.
-//
-// It listens to jQuery's global ajax events rather than wrapping SolverClient, so it
-// picks up every call the page makes (quickstart-page.js's polling, a quickstart's own
-// visualize.js, ...) without any of them knowing about it. jQuery is the only HTTP
-// client in use here; a call made with fetch()/XMLHttpRequest directly would not show up.
-//
-// Not attached at all on the Timefold Platform: the embedded iframe is a read-only
-// visualization, not a demo of the API. Detected from the same ?onPlatform query
-// parameter platform-integration.js keys off - body.on-platform is only added later by
-// that script, so it is not available yet when this element is upgraded.
-
-// Entries past this are dropped oldest-first: the status polling in quickstart-page.js
-// adds one every 2s while solving, so this log is unbounded in practice.
+// with the request/response bodies
 const REQUEST_LOG_MAX_ENTRIES = 200;
 
 // Bodies are shown verbatim up to this; a whole solved schedule is far too big to paste
