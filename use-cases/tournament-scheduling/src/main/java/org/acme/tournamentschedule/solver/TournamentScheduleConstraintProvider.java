@@ -94,7 +94,11 @@ public class TournamentScheduleConstraintProvider implements ConstraintProvider 
                         lessThan(assignment -> assignment.getTeam().id()))
                 .groupBy((assignment, otherAssignment) -> new Confrontation(assignment.getTeam(),
                         otherAssignment.getTeam()), countBi());
-
+        // A confrontation only exists once two teams actually meet, so, unlike a team, it cannot be complemented
+        // from a fact class. Every possible pairing is therefore built up front and the ones that never meet are
+        // concatenated back in with a count of zero; without them, a schedule that keeps replaying the same few
+        // pairings would look perfectly balanced. Matching the two sides up is left to Confrontation, which orders
+        // its own teams, rather than to the joiners of these two streams happening to agree.
         return constraintFactory.forEachUniquePair(Team.class)
                 .map(Confrontation::new)
                 .ifNotExists(confrontationCounts.map((confrontation, confrontationCount) -> confrontation), equal())
