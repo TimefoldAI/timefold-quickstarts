@@ -137,10 +137,15 @@
 <!-- model-path/demo-data-id attributes are set by QuickstartPage's constructor (quickstart-page.js) -->
 <api-guide-modal></api-guide-modal>
 
+<!-- Bottom bar logging every backend call this page makes (request-log.js) -->
+<request-log-bar></request-log-bar>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery@4.0.0/dist/jquery.min.js" integrity="sha256-OaVG6prZf4v69dPg6PhVattBXkcOWQB62pdZ3ORyrao=" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/@js-joda/core@6.1.0/dist/js-joda.min.js" integrity="sha256-Uu/3Fv5M3qvr/wX1tKoqAPNE8tiS0vOUm3YdWU1cVAI=" crossorigin="anonymous"></script>
 <script src="shared/solver-client.js"></script>
+<!-- Before quickstart-page.js, so its very first request is logged too. -->
+<script src="shared/request-log.js"></script>
 <script src="shared/quickstart-page.js"></script>
 <script src="shared/platform-integration.js"></script>
 <script src="shared/api-guide.js"></script>
