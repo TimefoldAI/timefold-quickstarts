@@ -22,11 +22,12 @@ public class TournamentDemoDataGenerator implements DemoDataGenerator {
 
     private static final DemoMetaData BASIC_META_DATA = new DemoMetaData(BASIC_DEMO_DATA_ID,
             "Demonstrates a tournament scheduling problem with unavailability, fairness and balance rules.",
-            "Assigns 7 teams to 72 match slots spread across 18 days, 4 matches a day. Some teams are "
-                    + "unavailable on some of those days. Once solved, no team plays twice on the same day, no team "
-                    + "plays on a day it is unavailable, the number of matches is spread as evenly as possible across "
-                    + "all teams, and the number of times each pair of teams confronts each other is as even as "
-                    + "possible.",
+            """
+                    Assigns 7 teams to 72 match slots spread across 18 days, 4 matches a day. Some teams are \
+                    unavailable on some of those days. Once solved, no team plays twice on the same day, no team \
+                    plays on a day it is unavailable, the number of matches is spread as evenly as possible across \
+                    all teams, and the number of times each pair of teams confronts each other is as even as \
+                    possible.""",
             List.of("fairness", "unavailability", "confrontation balance"),
             List.of());
 
