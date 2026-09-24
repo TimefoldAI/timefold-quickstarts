@@ -3,6 +3,7 @@ package org.acme.facilitylocation.solver;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Duration;
+import java.util.List;
 
 import jakarta.inject.Inject;
 
@@ -10,6 +11,7 @@ import ai.timefold.solver.core.api.solver.Solver;
 import ai.timefold.solver.core.api.solver.SolverFactory;
 import ai.timefold.solver.core.config.solver.EnvironmentMode;
 import ai.timefold.solver.core.config.solver.SolverConfig;
+import ai.timefold.solver.core.config.solver.monitoring.MonitoringConfig;
 
 import org.acme.facilitylocation.bootstrap.DemoDataBuilder;
 import org.acme.facilitylocation.domain.FacilityLocationProblem;
@@ -53,6 +55,7 @@ class FacilityLocationEnvironmentTest {
         updatedConfig.withEnvironmentMode(environmentMode)
                 .withTerminationSpentLimit(Duration.ofSeconds(30))
                 .getTerminationConfig().withBestScoreLimit(null);
+        updatedConfig.withMonitoringConfig(new MonitoringConfig().withSolverMetricList(List.of()));
         SolverFactory<FacilityLocationProblem> solverFactory = SolverFactory.create(updatedConfig);
 
         // Solve the problem

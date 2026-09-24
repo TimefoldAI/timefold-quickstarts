@@ -1,18 +1,15 @@
 package org.acme.taskassigning.domain;
 
-import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
+import java.util.Objects;
+
 import ai.timefold.solver.core.api.domain.common.PlanningId;
+import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.variable.InverseRelationShadowVariable;
 import ai.timefold.solver.core.api.domain.variable.PreviousElementShadowVariable;
 import ai.timefold.solver.core.api.domain.variable.ShadowSources;
 import ai.timefold.solver.core.api.domain.variable.ShadowVariable;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
 @PlanningEntity
-@JsonIdentityInfo(scope = Task.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Task {
 
     @PlanningId
@@ -24,34 +21,22 @@ public class Task {
     private Priority priority;
 
     // Shadow variables
-    @JsonIgnore
     @InverseRelationShadowVariable(sourceVariableName = "tasks")
     private Employee employee;
-    @JsonIgnore
     @PreviousElementShadowVariable(sourceVariableName = "tasks")
     private Task previousTask;
-    // Not ignored, used in the UI.
     @ShadowVariable(supplierName = "startTimeSupplier")
     private Long startTime; // In minutes
 
     public Task() {
     }
 
-    public Task(String id, TaskType taskType, int indexInTaskType, Customer customer, Priority priority) {
+    public Task(String id, TaskType taskType, int indexInTaskType, Customer customer, long minStartTime,
+            Priority priority) {
         this.id = id;
         this.taskType = taskType;
         this.indexInTaskType = indexInTaskType;
         this.customer = customer;
-        this.priority = priority;
-    }
-
-    public Task(String id, TaskType taskType, int indexInTaskType, Customer customer, Employee employee, int minStartTime,
-                Priority priority) {
-        this.id = id;
-        this.taskType = taskType;
-        this.indexInTaskType = indexInTaskType;
-        this.customer = customer;
-        this.employee = employee;
         this.minStartTime = minStartTime;
         this.priority = priority;
     }
@@ -133,7 +118,7 @@ public class Task {
     // ************************************************************************
 
     @SuppressWarnings("unused")
-    @ShadowSources({"employee", "previousTask.startTime"})
+    @ShadowSources({ "employee", "previousTask.startTime" })
     public Long startTimeSupplier() {
         if (employee == null) {
             return null;
@@ -145,7 +130,6 @@ public class Task {
         }
     }
 
-    @JsonIgnore
     public int getMissingSkillCount() {
         if (employee == null) {
             return 0;
@@ -159,18 +143,15 @@ public class Task {
         return count;
     }
 
-    @JsonIgnore
     public long getDuration() {
         Affinity affinity = getAffinity();
         return taskType.getBaseDuration() * affinity.getDurationMultiplier();
     }
 
-    @JsonIgnore
     public Affinity getAffinity() {
         return (employee == null) ? Affinity.NONE : employee.getAffinity(customer);
     }
 
-    @JsonIgnore
     public Long getEndTime() {
         if (startTime == null) {
             return null;
@@ -178,9 +159,22 @@ public class Task {
         return startTime + getDuration();
     }
 
-    @JsonIgnore
     public String getCode() {
         return taskType + "-" + indexInTaskType;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof Task task))
+            return false;
+        return Objects.equals(getId(), task.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getId());
     }
 
     @Override

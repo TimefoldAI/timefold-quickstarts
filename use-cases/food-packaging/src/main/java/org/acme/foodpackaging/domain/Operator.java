@@ -1,61 +1,29 @@
 package org.acme.foodpackaging.domain;
 
-import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
-import ai.timefold.solver.core.api.domain.common.PlanningId;
-import ai.timefold.solver.core.api.domain.variable.InverseRelationShadowVariable;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIdentityReference;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
-@JsonIdentityInfo(scope = Operator.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-@PlanningEntity
-public class Operator {
+import ai.timefold.solver.core.api.domain.common.PlanningId;
 
-    @PlanningId
-    private String id;
-
-    @JsonIdentityReference(alwaysAsId = true)
-    @InverseRelationShadowVariable(sourceVariableName = "operator")
-    private List<Line> lines;
-
-    // No-arg constructor required for Timefold
-    public Operator() {
-    }
-
-    public Operator(String id) {
-        this.id = id;
-        this.lines = new ArrayList<>();
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public List<Line> getLines() {
-        return lines;
-    }
-
-    public void setLines(List<Line> lines) {
-        this.lines = lines;
-    }
+/**
+ * The person operating one or more production lines. An operator has to be present during a line's
+ * changeover cleaning, so the same operator must not have to clean two lines at the same time.
+ */
+public record Operator(@PlanningId String id, String name) {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Operator operator)) return false;
-        return Objects.equals(getId(), operator.getId());
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Operator operator)) {
+            return false;
+        }
+        return Objects.equals(id, operator.id);
     }
 
     @Override
     public int hashCode() {
-        return id.hashCode();
+        return Objects.hashCode(id);
     }
 
     @Override

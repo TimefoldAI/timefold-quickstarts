@@ -11,10 +11,10 @@
     <maven.compiler.release>21</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <version.io.quarkus>3.38.3</version.io.quarkus>
-    <version.ai.timefold.solver>2.6.0</version.ai.timefold.solver>
+    <version.io.quarkus>3.39.4</version.io.quarkus>
+    <version.ai.timefold.solver>2.7.0</version.ai.timefold.solver>
 
-    <version.compiler.plugin>3.15.0</version.compiler.plugin>
+    <version.compiler.plugin>3.16.0</version.compiler.plugin>
     <version.surefire.plugin>3.5.6</version.surefire.plugin>
   </properties>
 

@@ -4,6 +4,7 @@ import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Duration;
+import java.util.List;
 
 import jakarta.inject.Inject;
 
@@ -12,6 +13,7 @@ import ai.timefold.solver.core.api.solver.Solver;
 import ai.timefold.solver.core.api.solver.SolverFactory;
 import ai.timefold.solver.core.config.solver.EnvironmentMode;
 import ai.timefold.solver.core.config.solver.SolverConfig;
+import ai.timefold.solver.core.config.solver.monitoring.MonitoringConfig;
 
 import org.acme.projectjobschedule.domain.ProjectJobSchedule;
 import org.junit.jupiter.api.Test;
@@ -50,6 +52,7 @@ class ProjectJobSchedulingEnvironmentTest {
         updatedConfig.withEnvironmentMode(environmentMode)
                 .withTerminationSpentLimit(Duration.ofSeconds(30))
                 .getTerminationConfig().withBestScoreLimit(null);
+        updatedConfig.withMonitoringConfig(new MonitoringConfig().withSolverMetricList(List.of()));
         SolverFactory<ProjectJobSchedule> solverFactory = SolverFactory.create(updatedConfig);
 
         // Solve the problem

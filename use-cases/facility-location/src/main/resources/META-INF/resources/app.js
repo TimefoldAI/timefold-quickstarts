@@ -306,6 +306,17 @@ analyzeButton.click(analyze);
 
 updateSolvingStatus();
 
+function copyTextToClipboard(id) {
+  var text = $("#" + id).text().trim();
+
+  var dummy = document.createElement("textarea");
+  document.body.appendChild(dummy);
+  dummy.value = text;
+  dummy.select();
+  document.execCommand("copy");
+  document.body.removeChild(dummy);
+}
+
 function showError(title, xhr) {
   let serverErrorMessage = !xhr.responseJSON ? `${xhr.status}: ${xhr.statusText}` : xhr.responseJSON.message;
   let serverErrorCode = !xhr.responseJSON ? `unknown` : xhr.responseJSON.code;

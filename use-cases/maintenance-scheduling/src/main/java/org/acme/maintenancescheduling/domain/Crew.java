@@ -4,41 +4,9 @@ import java.util.Objects;
 
 import ai.timefold.solver.core.api.domain.common.PlanningId;
 
-public class Crew {
-
-    @PlanningId
-    private String id;
-
-    private String name;
-
-    public Crew() {
-    }
-
-    public Crew(String name) {
-        this.name = name;
-    }
-
-    public Crew(String id, String name) {
-        this.id = id;
-        this.name = name;
-    }
-
-    @Override
-    public String toString() {
-        return name;
-    }
-
-    // ************************************************************************
-    // Getters and setters
-    // ************************************************************************
-
-    public String getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
+public record Crew(
+        @PlanningId String id,
+        String name) {
 
     @Override
     public boolean equals(Object o) {
@@ -48,11 +16,16 @@ public class Crew {
         if (!(o instanceof Crew crew)) {
             return false;
         }
-        return Objects.equals(getId(), crew.getId());
+        return Objects.equals(id, crew.id);
     }
 
     @Override
     public int hashCode() {
-        return getId().hashCode();
+        return Objects.hashCode(id);
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }

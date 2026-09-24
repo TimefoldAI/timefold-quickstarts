@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ai.timefold.solver.core.api.domain.common.PlanningId;
-import org.acme.facilitylocation.solver.FacilityLocationConstraintProvider;
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.variable.InverseRelationShadowVariable;
+
+import org.acme.facilitylocation.solver.FacilityLocationConstraintProvider;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
