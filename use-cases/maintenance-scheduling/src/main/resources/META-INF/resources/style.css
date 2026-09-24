@@ -1,0 +1,9 @@
+/* Weekends are not workdays, so shade them in the timeline's time axis. */
+.vis-time-axis .vis-grid.vis-saturday,
+.vis-time-axis .vis-grid.vis-sunday {
+    background: #D3D7CFFF;
+}
+
+.vis-item-content {
+    width: 100%;
+}

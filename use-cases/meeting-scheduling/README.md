@@ -1,25 +1,30 @@
 # Meeting Scheduling (Java, Quarkus, Maven)
 
-Assign timeslots and rooms for meetings to produce a better schedule.
+Assign a room and a start to each meeting to produce a better schedule.
+
+The input describes *when* meetings may be held with a single time configuration: the office hours of
+each day, plus the granularity in minutes those hours are divided into. A meeting states its
+`durationInMinutes` and, once solved, its `startDateTime`. The solver internally discretizes those
+office hours into `TimeGrain`s, but that stays a solver domain concept and never reaches the API.
 
 ![Meeting Scheduling Screenshot](./meeting-scheduling-screenshot.png)
 
 ## Constraints
 
-| Name                                       | Level  | Description                                                                 |
-|--------------------------------------------|--------|-----------------------------------------------------------------------------|
-| Room conflict                              | Hard   | Two meetings cannot be held in the same room at the same time.              |
-| Avoid overtime                             | Hard   | Meetings should not be scheduled outside working hours.                     |
-| Required attendance conflict               | Hard   | A required attendee cannot be in two meetings at the same time.             |
-| Required room capacity                     | Hard   | The room must be large enough for all required attendees.                   |
-| Start and end on same day                  | Hard   | A meeting must start and end on the same day.                               |
-| Required and preferred attendance conflict | Medium | Avoid scheduling a required and preferred attendee in conflicting meetings. |
-| Preferred attendance conflict              | Medium | Avoid scheduling a preferred attendee in two meetings at the same time.     |
-| Do meetings as soon as possible            | Soft   | Schedule meetings as early as possible in the day.                          |
-| One break between consecutive meetings     | Soft   | There should be a break between consecutive meetings for an attendee.       |
-| Overlapping meetings                       | Soft   | Minimize overlapping meetings for attendees.                                |
-| Assign larger rooms first                  | Soft   | Assign the largest available room to each meeting.                          |
-| Room stability                             | Soft   | An attendee's consecutive meetings should be in the same room.              |
+| Name                                                 | Level  | Description                                                                                           |
+|------------------------------------------------------|--------|-------------------------------------------------------------------------------------------------------|
+| Room conflict                                        | Hard   | Two meetings must not be held in the same room at the same time.                                       |
+| Don't go in overtime                                 | Hard   | A meeting must finish within the office hours of its day.                                              |
+| Required attendance conflict                         | Hard   | A required attendee must not be expected in two meetings at the same time.                             |
+| Required room capacity                               | Hard   | A meeting's room must seat every attendee of that meeting.                                             |
+| Start and end on same day                            | Hard   | A meeting must start and end on the same day.                                                          |
+| Required and preferred attendance conflict           | Medium | A person required in one meeting should not have to skip another meeting they would prefer to attend.  |
+| Preferred attendance conflict                        | Medium | A person should not have to pick between two meetings they would both prefer to attend.                |
+| Do all meetings as soon as possible                  | Soft   | A meeting should be held as early in the scheduling horizon as possible.                               |
+| One TimeGrain break between two consecutive meetings | Soft   | Two consecutive meetings should be separated by at least one free time slot.                           |
+| Overlapping meetings                                 | Soft   | Two meetings should not run in parallel.                                                               |
+| Assign larger rooms first                            | Soft   | A meeting should be held in the largest room available, so smaller rooms stay free.                    |
+| Room stability                                       | Soft   | An attendee's consecutive meetings should be held in the same room, so they do not have to move.       |
 
 - [Run the application](#run-the-application)
 - [Run the packaged application](#run-the-packaged-application)
@@ -31,8 +36,8 @@ Assign timeslots and rooms for meetings to produce a better schedule.
 1. Install Java and Maven, for example with [Sdkman](https://sdkman.io):
 
    ```sh
-   $ sdk install java
-   $ sdk install maven
+   sdk install java
+   sdk install maven
    ```
 
 ## Run the application
@@ -40,9 +45,9 @@ Assign timeslots and rooms for meetings to produce a better schedule.
 1. Git clone the timefold-quickstarts repo and navigate to this directory:
 
    ```sh
-   $ git clone https://github.com/TimefoldAI/timefold-quickstarts.git
+   git clone https://github.com/TimefoldAI/timefold-quickstarts.git
    ...
-   $ cd timefold-quickstarts/use-cases/meeting-scheduling
+   cd timefold-quickstarts/use-cases/meeting-scheduling
    ```
 
 2. (Optional) If you want to run a licensed edition (Plus / Enterprise), set up your license key first. See the [Timefold license tool](https://licenses.timefold.ai/) for instructions.
@@ -50,15 +55,15 @@ Assign timeslots and rooms for meetings to produce a better schedule.
 3. Start the application with Maven:
 
    1. Community Edition
-   
+
       ```sh
-      $ mvn quarkus:dev
+      mvn quarkus:dev
       ```
-   
+
    2. Plus / Enterprise Edition: The profile sets up the correct Maven artifacts to run the licensed version. See the `pom.xml` for the implementation details.
 
       ```sh
-      $ mvn quarkus:dev -Denterprise
+      mvn quarkus:dev -Denterprise
       ```
 
 4. Visit [http://localhost:8080](http://localhost:8080) in your browser.
@@ -79,13 +84,13 @@ When you're done iterating in `quarkus:dev` mode, package the application to run
 1. Build it with Maven:
 
    ```sh
-   $ mvn package
+   mvn package
    ```
 
 2. Run the Maven output:
 
    ```sh
-   $ java -jar ./target/quarkus-app/quarkus-run.jar
+   java -jar ./target/quarkus-app/quarkus-run.jar
    ```
 
    > **Note**
@@ -100,13 +105,13 @@ When you're done iterating in `quarkus:dev` mode, package the application to run
 1. Build a container image:
 
    ```sh
-   $ mvn package -Dcontainer
+   mvn package -Dcontainer
    ```
 
 2. Run a container:
 
    ```sh
-   $ docker run -p 8080:8080 --rm $USER/meeting-scheduling:1.0-SNAPSHOT
+   docker run -p 8080:8080 --rm $USER/meeting-scheduling:0.0.1
    ```
 
 ## Run it native
@@ -118,13 +123,13 @@ To increase startup performance for serverless deployments, build the applicatio
 2. Compile it natively. This takes a few minutes:
 
    ```sh
-   $ mvn package -Dnative
+   mvn package -Dnative
    ```
 
 3. Run the native executable:
 
    ```sh
-   $ ./target/*-runner
+   ./target/*-runner
    ```
 
 4. Visit [http://localhost:8080](http://localhost:8080) in your browser.

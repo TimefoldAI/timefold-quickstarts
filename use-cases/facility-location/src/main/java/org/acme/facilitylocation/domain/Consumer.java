@@ -1,9 +1,10 @@
 package org.acme.facilitylocation.domain;
 
 import ai.timefold.solver.core.api.domain.common.PlanningId;
-import org.acme.facilitylocation.solver.FacilityLocationConstraintProvider;
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
+
+import org.acme.facilitylocation.solver.FacilityLocationConstraintProvider;
 
 /**
  * Consumer has a demand that can be satisfied by <em>any</em> {@link Facility} with a sufficient capacity.

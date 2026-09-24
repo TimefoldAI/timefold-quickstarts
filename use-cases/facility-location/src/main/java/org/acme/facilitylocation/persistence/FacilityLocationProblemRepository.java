@@ -1,9 +1,10 @@
 package org.acme.facilitylocation.persistence;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import org.acme.facilitylocation.domain.FacilityLocationProblem;
-
 import java.util.Optional;
+
+import jakarta.enterprise.context.ApplicationScoped;
+
+import org.acme.facilitylocation.domain.FacilityLocationProblem;
 
 @ApplicationScoped
 public class FacilityLocationProblemRepository {

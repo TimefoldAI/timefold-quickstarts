@@ -4,17 +4,13 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
-import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.common.PlanningId;
+import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.variable.PlanningListVariable;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
 @PlanningEntity
-@JsonIdentityInfo(scope = Employee.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Employee {
 
     @PlanningId
@@ -96,14 +92,26 @@ public class Employee {
      * @param customer never null
      * @return never null
      */
-    @JsonIgnore
     public Affinity getAffinity(Customer customer) {
         return customerToAffinity.getOrDefault(customer, Affinity.NONE);
     }
 
-    @JsonIgnore
     public long getEndTime() {
         return tasks.isEmpty() ? 0L : tasks.get(tasks.size() - 1).getEndTime();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof Employee employee))
+            return false;
+        return Objects.equals(getId(), employee.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getId());
     }
 
     @Override

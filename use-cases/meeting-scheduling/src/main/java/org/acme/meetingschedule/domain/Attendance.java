@@ -1,52 +1,56 @@
 package org.acme.meetingschedule.domain;
 
+import java.util.Objects;
+
 import ai.timefold.solver.core.api.domain.common.PlanningId;
 
+/**
+ * One person attending one meeting. The subtype ({@link RequiredAttendance} or {@link PreferredAttendance}) is what the
+ * constraints match on, so both live in the solution's single attendance fact collection.
+ */
 public abstract class Attendance {
 
     @PlanningId
-    private String id;
-    private Person person;
-    private Meeting meeting;
+    private final String id;
+    private final Meeting meeting;
+    private final Person person;
 
-    protected Attendance() {
-    }
-
-    protected Attendance(String id) {
+    protected Attendance(String id, Meeting meeting, Person person) {
         this.id = id;
-    }
-
-    protected Attendance(String id, Meeting meeting) {
-        this(id);
         this.meeting = meeting;
+        this.person = person;
     }
 
     public String getId() {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public Meeting getMeeting() {
+        return meeting;
     }
 
     public Person getPerson() {
         return person;
     }
 
-    public void setPerson(Person person) {
-        this.person = person;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Attendance attendance)) {
+            return false;
+        }
+        return Objects.equals(id, attendance.id);
     }
 
-    public Meeting getMeeting() {
-        return meeting;
-    }
-
-    public void setMeeting(Meeting meeting) {
-        this.meeting = meeting;
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 
     @Override
     public String toString() {
-        return person + "-" + meeting;
+        return id;
     }
 }

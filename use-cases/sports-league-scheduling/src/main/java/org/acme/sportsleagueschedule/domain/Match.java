@@ -2,11 +2,9 @@ package org.acme.sportsleagueschedule.domain;
 
 import java.util.Objects;
 
-import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.common.PlanningId;
+import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @PlanningEntity
 public class Match {
@@ -86,22 +84,31 @@ public class Match {
     // ************************************************************************
     // Complex methods
     // ************************************************************************
-    @JsonIgnore
+
+    public boolean isAssigned() {
+        return round != null;
+    }
+
+    /**
+     * @return the index of the round this match is played in; only safe once the match is assigned
+     */
     public int getRoundIndex() {
         return getRound().getIndex();
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof Match match))
+        }
+        if (!(o instanceof Match match)) {
             return false;
+        }
         return Objects.equals(getId(), match.getId());
     }
 
     @Override
     public int hashCode() {
-        return getId().hashCode();
+        return Objects.hashCode(getId());
     }
 }

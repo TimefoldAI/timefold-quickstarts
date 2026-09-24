@@ -14,3 +14,25 @@ This is an open source project, and you are more than welcome to contribute!
 
 The CI checks against your PR to ensure that it doesn't introduce errors.
 If the CI identifies a potential problem, our friendly PR maintainers will help you resolve it.
+
+[[shared-ui-for-service-based-quickstarts]]
+== Shared UI for service-based quickstarts
+
+The "service module" quickstarts (built on `timefold-solver-service-parent`) share a common demo UI shell, defined once under `visualizations/shared/`:
+
+*Never hand-edit a quickstart's generated `shared/` folder or `index.html` directly*. They're generated files and will be silently overwritten (or flagged by CI, see below). Instead:
+
+. Edit `visualizations/shared/*.js`/`*.css` or `index.template.html` for shell behavior/markup shared by every quickstart.
+. Edit `visualizations/sync.sh` for a quickstart's metadata or optional vendor includes.
+. Edit that quickstart's own `visualize.js` for its demo-specific markup and rendering.
+. Run `bash visualizations/sync.sh` and commit the result together with your source edit.
+
+=== CI enforcement
+
+A dedicated `shared-ui-sync` job in `.github/workflows/architecture_check.yml` runs `.github/scripts/CheckSharedUiSync.java` (a JBang script) against every Models Service quickstart to catch drift before it merges:
+
+* Every synced `*.js`/`*.css` file in a quickstart's `shared/` folder must be byte-identical to its source in `visualizations/shared/` (and no extra leftover files either).
+* A quickstart's generated `index.html` must still match the structure of `index.template.html`, with placeholders being replaced by wildcards.
+* A quickstart's `visualize.js` must call `setVisualizationSlot()` and construct a `QuickstartPage`.
+
+If this check fails on your PR, re-run `bash visualizations/sync.sh` and commit the result rather than hand-editing the generated files.

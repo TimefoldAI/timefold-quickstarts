@@ -1,30 +1,25 @@
 package org.acme.conferencescheduling.domain;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import ai.timefold.solver.core.api.domain.common.PlanningId;
 
 public class Timeslot {
-
-    @PlanningId
-    private String id;
-    private LocalDateTime startDateTime;
-    private LocalDateTime endDateTime;
-    private Set<TalkType> talkTypes;
-    private Set<String> tags;
+    private @PlanningId String id;
+    private OffsetDateTime startDateTime;
+    private OffsetDateTime endDateTime;
+    private List<String> tags;
 
     // Cached
     private int durationInMinutes;
 
-    public Timeslot(String id, LocalDateTime startDateTime, LocalDateTime endDateTime, Set<TalkType> talkTypes,
-            Set<String> tags) {
+    public Timeslot(String id, OffsetDateTime startDateTime, OffsetDateTime endDateTime, List<String> tags) {
         this.id = id;
         this.startDateTime = startDateTime;
         this.endDateTime = endDateTime;
-        this.talkTypes = talkTypes;
         this.tags = tags;
         durationInMinutes = (startDateTime == null || endDateTime == null) ? 0
                 : (int) Duration.between(startDateTime, endDateTime).toMinutes();
@@ -41,9 +36,9 @@ public class Timeslot {
         if (this.equals(other)) {
             return durationInMinutes;
         }
-        LocalDateTime startMaximum = startDateTime.isBefore(other.startDateTime) ? other.startDateTime : startDateTime;
-        LocalDateTime endMinimum = endDateTime.isBefore(other.endDateTime) ? endDateTime : other.endDateTime;
-        return (int) Duration.between(startMaximum, endMinimum).toMinutes();
+        OffsetDateTime startMaximum = startDateTime.isBefore(other.startDateTime) ? other.startDateTime : startDateTime;
+        OffsetDateTime endMinimum = endDateTime.isBefore(other.endDateTime) ? endDateTime : other.endDateTime;
+        return Math.max(0, (int) Duration.between(startMaximum, endMinimum).toMinutes());
     }
 
     public boolean startsAfter(Timeslot other) {
@@ -74,48 +69,20 @@ public class Timeslot {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public LocalDateTime getStartDateTime() {
+    public OffsetDateTime getStartDateTime() {
         return startDateTime;
     }
 
-    public void setStartDateTime(LocalDateTime startDateTime) {
-        this.startDateTime = startDateTime;
-    }
-
-    public LocalDateTime getEndDateTime() {
+    public OffsetDateTime getEndDateTime() {
         return endDateTime;
     }
 
-    public void setEndDateTime(LocalDateTime endDateTime) {
-        this.endDateTime = endDateTime;
-    }
-
-    public Set<TalkType> getTalkTypes() {
-        return talkTypes;
-    }
-
-    public void setTalkTypes(Set<TalkType> talkTypes) {
-        this.talkTypes = talkTypes;
-    }
-
-    public Set<String> getTags() {
+    public List<String> getTags() {
         return tags;
-    }
-
-    public void setTags(Set<String> tags) {
-        this.tags = tags;
     }
 
     public int getDurationInMinutes() {
         return durationInMinutes;
-    }
-
-    public void setDurationInMinutes(int durationInMinutes) {
-        this.durationInMinutes = durationInMinutes;
     }
 
     @Override

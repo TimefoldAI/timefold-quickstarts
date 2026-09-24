@@ -6,15 +6,15 @@
   <parent>
     <groupId>ai.timefold.solver</groupId>
     <artifactId>timefold-solver-service-parent</artifactId>
-    <version>2.6.0</version>
+    <version>2.7.0</version>
   </parent>
 
   <groupId>ai.timefold.model</groupId>
   <artifactId>conference-scheduling</artifactId>
-  <version>0.0.1</version>
+  <version>${revision}</version>
 
   <properties>
-    <revision>1.0.0-SNAPSHOT</revision>
+    <revision>0.0.1</revision>
     <maven.compiler.release>21</maven.compiler.release>
   </properties>
 

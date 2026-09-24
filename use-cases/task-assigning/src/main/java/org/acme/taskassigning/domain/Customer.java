@@ -2,10 +2,6 @@ package org.acme.taskassigning.domain;
 
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
-@JsonIdentityInfo(scope = Customer.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Customer {
 
     private String id;

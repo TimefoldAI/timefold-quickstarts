@@ -1,99 +1,59 @@
 package org.acme.meetingschedule.domain;
 
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.Comparator;
 import java.util.Objects;
 
 import ai.timefold.solver.core.api.domain.common.PlanningId;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+/**
+ * One slot of {@link #lengthInMinutes()} minutes a meeting can start in.
+ * <p>
+ * The grains are built by the model convertor, which divides the office hours of the submitted time configuration into
+ * slots of the submitted granularity. The {@link #grainIndex()} is the position of this grain in that horizon, so the
+ * constraints can do all of their time arithmetic on a single int rather than on timestamps: a meeting occupies as many
+ * consecutive grains as its duration, and the grains outside office hours simply do not exist.
+ */
+public record TimeGrain(
+        @PlanningId String id,
+        int grainIndex,
+        OffsetDateTime startDateTime,
+        int lengthInMinutes) implements Comparable<TimeGrain> {
 
-@JsonIdentityInfo(scope = TimeGrain.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class TimeGrain implements Comparable<TimeGrain> {
+    private static final Comparator<TimeGrain> COMPARATOR = Comparator.comparingInt(TimeGrain::grainIndex);
 
-    private static final Comparator<TimeGrain> COMPARATOR = Comparator.comparing(TimeGrain::getDayOfYear)
-            .thenComparingInt(TimeGrain::getStartingMinuteOfDay);
-
-    /**
-     * Time granularity is 15 minutes (which is often recommended when dealing with humans for practical purposes).
-     */
-    public static final int GRAIN_LENGTH_IN_MINUTES = 15;
-
-    @PlanningId
-    private String id;
-    private int grainIndex;
-    private Integer dayOfYear;
-    private int startingMinuteOfDay;
-
-    public TimeGrain() {
+    public OffsetDateTime getEndDateTime() {
+        return startDateTime.plusMinutes(lengthInMinutes);
     }
 
-    public TimeGrain(String id) {
-        this.id = id;
-    }
-
-    public TimeGrain(String id, int grainIndex, Integer dayOfYear, int startingMinuteOfDay) {
-        this(id);
-        this.grainIndex = grainIndex;
-        this.dayOfYear = dayOfYear;
-        this.startingMinuteOfDay = startingMinuteOfDay;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public int getGrainIndex() {
-        return grainIndex;
-    }
-
-    public void setGrainIndex(int grainIndex) {
-        this.grainIndex = grainIndex;
-    }
-
-    public Integer getDayOfYear() {
-        return dayOfYear;
-    }
-
-    public void setDayOfYear(Integer dayOfYear) {
-        this.dayOfYear = dayOfYear;
-    }
-
-    public int getStartingMinuteOfDay() {
-        return startingMinuteOfDay;
-    }
-
-    public void setStartingMinuteOfDay(int startingMinuteOfDay) {
-        this.startingMinuteOfDay = startingMinuteOfDay;
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        if (this == other)
-            return true;
-        if (other == null || getClass() != other.getClass())
-            return false;
-
-        TimeGrain timeGrain = (TimeGrain) other;
-
-        if (startingMinuteOfDay != timeGrain.startingMinuteOfDay)
-            return false;
-        return Objects.equals(dayOfYear, timeGrain.dayOfYear);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = dayOfYear != null ? dayOfYear.hashCode() : 0;
-        result = 31 * result + startingMinuteOfDay;
-        return result;
+    public LocalDate getDate() {
+        return startDateTime.toLocalDate();
     }
 
     @Override
     public int compareTo(TimeGrain other) {
         return COMPARATOR.compare(this, other);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof TimeGrain timeGrain)) {
+            return false;
+        }
+        return Objects.equals(id, timeGrain.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
+
+    @Override
+    public String toString() {
+        return "%s (%s)".formatted(id, startDateTime);
     }
 }
