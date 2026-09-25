@@ -1,39 +1,35 @@
 package org.acme.vehiclerouting.domain;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.common.PlanningId;
+import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.variable.PlanningListVariable;
+import ai.timefold.solver.service.maps.api.model.Location;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIdentityReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
-@JsonIdentityInfo(scope = Vehicle.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @PlanningEntity
 public class Vehicle implements LocationAware {
 
     @PlanningId
     private String id;
     private int capacity;
-    @JsonIdentityReference
     private Location homeLocation;
+    private OffsetDateTime departureTime;
 
-    private LocalDateTime departureTime;
-
-    @JsonIdentityReference(alwaysAsId = true)
+    /**
+     * The route of this vehicle: the visits it services, in the order it services them. The
+     * assignment <em>is</em> this list, so a visit that appears in no vehicle's list is unassigned.
+     */
     @PlanningListVariable(allowsUnassignedValues = true)
     private List<Visit> visits;
 
     public Vehicle() {
     }
 
-    public Vehicle(String id, int capacity, Location homeLocation, LocalDateTime departureTime) {
+    public Vehicle(String id, int capacity, Location homeLocation, OffsetDateTime departureTime) {
         this.id = id;
         this.capacity = capacity;
         this.homeLocation = homeLocation;
@@ -41,53 +37,36 @@ public class Vehicle implements LocationAware {
         this.visits = new ArrayList<>();
     }
 
-    public String getId() {
+    @Override
+    public String toString() {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Vehicle vehicle)) {
+            return false;
+        }
+        return Objects.equals(id, vehicle.id);
     }
 
-    public int getCapacity() {
-        return capacity;
-    }
-
-    public void setCapacity(int capacity) {
-        this.capacity = capacity;
-    }
-
-    public Location getHomeLocation() {
-        return homeLocation;
-    }
-
-    public void setHomeLocation(Location homeLocation) {
-        this.homeLocation = homeLocation;
-    }
-
-    public LocalDateTime getDepartureTime() {
-        return departureTime;
-    }
-
-    public List<Visit> getVisits() {
-        return visits;
-    }
-
-    public void setVisits(List<Visit> visits) {
-        this.visits = visits;
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 
     // ************************************************************************
     // Complex methods
     // ************************************************************************
 
-    @JsonIgnore
     @Override
     public Location getLocation() {
         return homeLocation;
     }
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public int getTotalDemand() {
         int totalDemand = 0;
         for (Visit visit : visits) {
@@ -96,7 +75,9 @@ public class Vehicle implements LocationAware {
         return totalDemand;
     }
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    /**
+     * @return the driving time of the whole route, home location to home location, in seconds
+     */
     public long getTotalDrivingTimeSeconds() {
         if (visits.isEmpty()) {
             return 0;
@@ -106,27 +87,58 @@ public class Vehicle implements LocationAware {
         Location previousLocation = homeLocation;
 
         for (Visit visit : visits) {
-            totalDrivingTime += previousLocation.getDrivingTimeTo(visit.getLocation());
+            totalDrivingTime += previousLocation.getTravelTimeTo(visit.getLocation()).seconds();
             previousLocation = visit.getLocation();
         }
-        totalDrivingTime += previousLocation.getDrivingTimeTo(homeLocation);
+        totalDrivingTime += previousLocation.getTravelTimeTo(homeLocation).seconds();
 
         return totalDrivingTime;
     }
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    public LocalDateTime arrivalTime() {
+    /**
+     * @return the time this vehicle is back at its home location, or its departure time when it has
+     *         no visits to make; null while the arrival time shadow of its last visit is not
+     *         computed yet
+     */
+    public OffsetDateTime arrivalTime() {
         if (visits.isEmpty()) {
             return departureTime;
         }
 
         Visit lastVisit = visits.get(visits.size() - 1);
-        return lastVisit.getDepartureTime().plusSeconds(lastVisit.getLocation().getDrivingTimeTo(homeLocation));
+        OffsetDateTime lastDepartureTime = lastVisit.getDepartureTime();
+        if (lastDepartureTime == null) {
+            return null;
+        }
+        return lastDepartureTime.plusSeconds(lastVisit.getLocation().getTravelTimeTo(homeLocation).seconds());
     }
 
-    @Override
-    public String toString() {
+    // ************************************************************************
+    // Getters and setters
+    // ************************************************************************
+
+    public String getId() {
         return id;
+    }
+
+    public int getCapacity() {
+        return capacity;
+    }
+
+    public Location getHomeLocation() {
+        return homeLocation;
+    }
+
+    public OffsetDateTime getDepartureTime() {
+        return departureTime;
+    }
+
+    public List<Visit> getVisits() {
+        return visits;
+    }
+
+    public void setVisits(List<Visit> visits) {
+        this.visits = visits;
     }
 
 }

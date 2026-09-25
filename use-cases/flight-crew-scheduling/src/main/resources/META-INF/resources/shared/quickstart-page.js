@@ -166,6 +166,16 @@ class QuickstartPage {
                 this.renderSchedule(this.loadedSchedule);
                 $("#info").text(this.renderInfo(this.loadedSchedule));
                 this.refreshSolvingButtons(data.metadata.solverStatus);
+                // A 200 response can still report a failed run (e.g. solverStatus SOLVING_FAILED)
+                if (data.metadata.failureMessage) {
+                    this.showError("Solving failed.", {
+                        responseJSON: {
+                            message: data.metadata.failureMessage,
+                            code: data.metadata.solverStatus,
+                            id: this.jobId,
+                        },
+                    });
+                }
             }, (xhr) => {
                 this.showError("Getting the schedule has failed.", xhr);
                 this.refreshSolvingButtons("SOLVING_COMPLETED");
