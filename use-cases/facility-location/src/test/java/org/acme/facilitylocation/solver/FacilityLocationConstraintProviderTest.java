@@ -1,9 +1,11 @@
 package org.acme.facilitylocation.solver;
 
+import static org.acme.facilitylocation.support.TestHelper.BASE_LATITUDE;
 import static org.acme.facilitylocation.support.TestHelper.BASE_LONGITUDE;
-import static org.acme.facilitylocation.support.TestHelper.ONE_DEGREE_IN_METERS;
 import static org.acme.facilitylocation.support.TestHelper.aConsumer;
 import static org.acme.facilitylocation.support.TestHelper.aFacility;
+import static org.acme.facilitylocation.support.TestHelper.distanceMeters;
+import static org.acme.facilitylocation.support.TestHelper.initDistanceMap;
 
 import jakarta.inject.Inject;
 
@@ -67,9 +69,10 @@ class FacilityLocationConstraintProviderTest {
 
         Consumer nearby = aConsumer("c1", facility).longitude(BASE_LONGITUDE).build();
         Consumer oneDegreeAway = aConsumer("c2", facility).longitude(BASE_LONGITUDE + 1).build();
+        initDistanceMap(nearby, oneDegreeAway);
 
         constraintVerifier.verifyThat(FacilityLocationConstraintProvider::distanceFromFacility)
                 .given(nearby, oneDegreeAway)
-                .penalizesBy(ONE_DEGREE_IN_METERS);
+                .penalizesBy(distanceMeters(BASE_LATITUDE, BASE_LONGITUDE, BASE_LATITUDE, BASE_LONGITUDE + 1));
     }
 }

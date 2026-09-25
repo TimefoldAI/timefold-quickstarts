@@ -15,17 +15,18 @@ import org.acme.facilitylocation.dto.input.FacilityPlanConfigOverrides;
 import org.acme.facilitylocation.dto.input.FacilityPlanInput;
 
 @ApplicationScoped
-public class DemoDataGenerator implements ai.timefold.solver.service.definition.api.data.DemoDataGenerator {
+public class FacilityLocationDemoDataGenerator implements ai.timefold.solver.service.definition.api.data.DemoDataGenerator {
 
     private static final String BASIC_DEMO_DATA_ID = "BASIC";
 
     private static final DemoMetaData BASIC_META_DATA = new DemoMetaData(BASIC_DEMO_DATA_ID,
             "Demonstrates a facility location problem that trades facility setup cost off against travel distance.",
-            "Picks which of 30 candidate facilities to open in north-west London and assigns all 60 consumers to "
-                    + "them. Each facility can serve 150 units of demand and costs around 50 000 to open, while "
-                    + "every consumer demands 15 units, so at least six facilities are needed. Once solved, no "
-                    + "facility is over its capacity and the plan balances the setup cost of the facilities it "
-                    + "opens against the distance its consumers have to travel.",
+            """
+                    Picks which of 30 candidate facilities to open in north-west London and assigns all 60 consumers to \
+                    them. Each facility can serve 150 units of demand and costs around 50 000 to open, while \
+                    every consumer demands 15 units, so at least six facilities are needed. Once solved, no \
+                    facility is over its capacity and the plan balances the setup cost of the facilities it \
+                    opens against the distance its consumers have to travel.""",
             List.of("capacity", "setup cost", "distance"),
             List.of());
 

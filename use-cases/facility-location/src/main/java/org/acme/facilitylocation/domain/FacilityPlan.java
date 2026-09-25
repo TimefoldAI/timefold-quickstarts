@@ -2,6 +2,8 @@ package org.acme.facilitylocation.domain;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import ai.timefold.solver.core.api.domain.solution.ConstraintWeightOverrides;
 import ai.timefold.solver.core.api.domain.solution.PlanningEntityCollectionProperty;
@@ -9,15 +11,16 @@ import ai.timefold.solver.core.api.domain.solution.PlanningScore;
 import ai.timefold.solver.core.api.domain.solution.PlanningSolution;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
 import ai.timefold.solver.core.api.score.HardSoftScore;
-import ai.timefold.solver.service.definition.api.SolverModel;
 import ai.timefold.solver.service.definition.api.metrics.InputMetricsAware;
 import ai.timefold.solver.service.definition.api.metrics.OutputMetricsAware;
+import ai.timefold.solver.service.maps.api.model.Location;
+import ai.timefold.solver.service.maps.service.integration.api.LocationsAwareSolverModel;
 
 import org.acme.facilitylocation.dto.input.FacilityPlanInputMetrics;
 import org.acme.facilitylocation.dto.output.FacilityPlanOutputMetrics;
 
 @PlanningSolution
-public class FacilityPlan implements SolverModel<HardSoftScore>,
+public class FacilityPlan implements LocationsAwareSolverModel<HardSoftScore>,
         InputMetricsAware<FacilityPlanInputMetrics>, OutputMetricsAware<FacilityPlanOutputMetrics> {
 
     // Facilities are shadow planning entities (they carry the inverse relation of Consumer.facility) and at the
@@ -32,6 +35,10 @@ public class FacilityPlan implements SolverModel<HardSoftScore>,
     private HardSoftScore score;
 
     private ConstraintWeightOverrides<HardSoftScore> constraintWeightOverrides = ConstraintWeightOverrides.none();
+
+    // Reported back by the map-service through setLocationsNotInMap() after it builds the distance
+    // matrix returned by getLocations(): the locations it could not resolve, if any.
+    private List<Location> locationsNotInMap = List.of();
 
     public FacilityPlan() {
     }
@@ -91,6 +98,35 @@ public class FacilityPlan implements SolverModel<HardSoftScore>,
                 .sum();
         return new FacilityPlanOutputMetrics(assignedConsumers, consumers.size() - assignedConsumers,
                 usedFacilities.size(), totalSetupCost, totalDistance);
+    }
+
+    // ── LocationsAwareSolverModel ──
+    // The map-service uses these to build the distance matrix that Location.getDistanceTo()
+    // relies on, before the solver runs.
+    @Override
+    public List<Location> getLocations() {
+        if (facilities == null || consumers == null) {
+            return List.of();
+        }
+        return Stream.concat(
+                facilities.stream().map(Facility::getLocation),
+                consumers.stream().map(Consumer::getLocation)).toList();
+    }
+
+    // Every solve builds its own one-off matrix rather than reusing a named, pre-built one.
+    @Override
+    public Optional<String> getLocationSetName() {
+        return Optional.empty();
+    }
+
+    @Override
+    public void setLocationsNotInMap(List<Location> locationsNotInMap) {
+        this.locationsNotInMap = locationsNotInMap == null ? List.of() : locationsNotInMap;
+    }
+
+    @Override
+    public List<Location> getLocationsNotInMap() {
+        return locationsNotInMap;
     }
 
     @Override

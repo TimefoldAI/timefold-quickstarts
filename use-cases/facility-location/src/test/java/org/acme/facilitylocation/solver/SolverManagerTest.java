@@ -1,6 +1,7 @@
 package org.acme.facilitylocation.solver;
 
 import static org.acme.facilitylocation.support.TestHelper.createProblem;
+import static org.acme.facilitylocation.support.TestHelper.initDistanceMap;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Objects;
@@ -35,7 +36,7 @@ class SolverManagerTest {
     void solve() throws ExecutionException, InterruptedException {
         var input = createProblem();
 
-        FacilityPlan problem = modelConvertor.toSolverModel(input, ModelConfig.empty(), Optional.empty());
+        FacilityPlan problem = initDistanceMap(modelConvertor.toSolverModel(input, ModelConfig.empty(), Optional.empty()));
 
         FacilityPlan solution = solverManager.solveBuilder().withProblemId(0L)
                 .withProblemFinder(id -> problem).run().getFinalBestSolution();

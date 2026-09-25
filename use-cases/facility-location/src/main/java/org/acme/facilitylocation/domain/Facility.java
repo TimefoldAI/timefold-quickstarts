@@ -7,6 +7,7 @@ import java.util.Objects;
 import ai.timefold.solver.core.api.domain.common.PlanningId;
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.variable.InverseRelationShadowVariable;
+import ai.timefold.solver.service.maps.api.model.Location;
 
 /**
  * Facility satisfies consumers' demand. Cumulative demand of all consumers assigned to this facility must not exceed
