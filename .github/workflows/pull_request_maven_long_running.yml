@@ -66,19 +66,6 @@ jobs:
           "use-cases/tournament-scheduling", "use-cases/vehicle-routing"
         ]
         java-version: [ 25 ] # The compile target is covered by the Maven workflow.
-        include: # Latest JDK on two representative modules only; a native build is slow.
-          - os: ubuntu-latest
-            module: "use-cases/school-timetabling"
-            java-version: 27
-          - os: ubuntu-24.04-arm
-            module: "use-cases/school-timetabling"
-            java-version: 27
-          - os: ubuntu-latest
-            module: "use-cases/vehicle-routing"
-            java-version: 27
-          - os: ubuntu-24.04-arm
-            module: "use-cases/vehicle-routing"
-            java-version: 27
     timeout-minutes: 120
     steps:
       - name: Checkout timefold-quickstarts
@@ -135,8 +122,7 @@ jobs:
         module: [
           "getting-started/spring-boot-integration"
         ]
-        # Current LTS and latest JDK; replace 27 on each JDK release.
-        java-version: [ 25, 27 ]
+        java-version: [ 25 ]
     timeout-minutes: 120
     steps:
       - name: Checkout timefold-quickstarts
