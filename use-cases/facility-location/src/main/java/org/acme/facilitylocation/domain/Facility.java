@@ -2,19 +2,17 @@ package org.acme.facilitylocation.domain;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import ai.timefold.solver.core.api.domain.common.PlanningId;
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.variable.InverseRelationShadowVariable;
-
-import org.acme.facilitylocation.solver.FacilityLocationConstraintProvider;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import ai.timefold.solver.service.maps.api.model.Location;
 
 /**
  * Facility satisfies consumers' demand. Cumulative demand of all consumers assigned to this facility must not exceed
- * the facility's capacity. This requirement is expressed by the {@link FacilityLocationConstraintProvider#facilityCapacity
- * facility capacity} constraint.
+ * the facility's capacity. This requirement is expressed by the facility capacity constraint
+ * (see {@code FacilityLocationConstraintProvider}).
  */
 // This is a shadow planning entity, not a genuine planning entity, because it has a shadow variable (consumers).
 @PlanningEntity
@@ -37,6 +35,25 @@ public class Facility {
         this.location = location;
         this.setupCost = setupCost;
         this.capacity = capacity;
+    }
+
+    /**
+     * The cumulative demand of every consumer assigned to this facility. Reading the
+     * {@link InverseRelationShadowVariable} is safe here: the Service module runs the solver model through
+     * {@code SolutionManager.update(...)} before it converts it to a model output, so the inverse relation is
+     * always up to date by then.
+     *
+     * @return the used capacity, never negative
+     */
+    public long getUsedCapacity() {
+        return consumers.stream().mapToLong(Consumer::getDemand).sum();
+    }
+
+    /**
+     * @return true if at least one consumer is served by this facility, so its setup cost has to be paid
+     */
+    public boolean isUsed() {
+        return !consumers.isEmpty();
     }
 
     public String getId() {
@@ -67,7 +84,6 @@ public class Facility {
         this.capacity = capacity;
     }
 
-    @JsonIgnore
     public List<Consumer> getConsumers() {
         return consumers;
     }
@@ -76,18 +92,24 @@ public class Facility {
         this.consumers = consumers;
     }
 
-    public long getUsedCapacity() {
-        return consumers.stream().mapToLong(Consumer::getDemand).sum();
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Facility facility)) {
+            return false;
+        }
+        return Objects.equals(id, facility.id);
     }
 
-    public boolean isUsed() {
-        return !consumers.isEmpty();
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 
     @Override
     public String toString() {
-        return "Facility " + id +
-                " ($" + setupCost
-                + ", " + capacity + " cap)";
+        return "Facility " + id;
     }
 }
