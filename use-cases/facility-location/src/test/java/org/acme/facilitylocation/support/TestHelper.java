@@ -1,23 +1,30 @@
 package org.acme.facilitylocation.support;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import ai.timefold.solver.service.maps.api.model.Location;
+import ai.timefold.solver.service.maps.haversine.impl.HaversineTravelTimeAndDistanceMatrixProvider;
+import ai.timefold.solver.service.maps.service.test.api.TestDistanceCalculator;
 
 import org.acme.facilitylocation.domain.Consumer;
 import org.acme.facilitylocation.domain.Facility;
-import org.acme.facilitylocation.domain.Location;
+import org.acme.facilitylocation.domain.FacilityPlan;
 import org.acme.facilitylocation.dto.input.ConsumerInputDTO;
 import org.acme.facilitylocation.dto.input.FacilityInputDTO;
 import org.acme.facilitylocation.dto.input.FacilityPlanInput;
 import org.acme.facilitylocation.dto.input.LocationDTO;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 // To keep our production classes as simple as possible, we've added these methods to help construct the data needed for testing.
 public final class TestHelper {
 
-    // One degree of longitude is exactly Location.METERS_PER_DEGREE apart, which keeps the expected distances in
-    // the constraint tests exact instead of "whatever the haversine happens to produce".
     public static final double BASE_LATITUDE = 51.0;
     public static final double BASE_LONGITUDE = 0.0;
-    public static final long ONE_DEGREE_IN_METERS = (long) Location.METERS_PER_DEGREE;
+
+    public static final HaversineTravelTimeAndDistanceMatrixProvider provider =
+            new HaversineTravelTimeAndDistanceMatrixProvider(new ObjectMapper());
 
     private TestHelper() {
     }
@@ -41,6 +48,41 @@ public final class TestHelper {
                 aConsumerDTO("c3").longitude(BASE_LONGITUDE + 2).build(),
                 aConsumerDTO("c4").longitude(BASE_LONGITUDE + 2).build());
         return input(facilities, consumers);
+    }
+
+    /**
+     * The distance the solver model itself would compute between two coordinates, so that a distance expectation in
+     * a test is derived rather than hard-coded to a magic number.
+     */
+    public static long distanceMeters(double fromLatitude, double fromLongitude, double toLatitude,
+            double toLongitude) {
+        return provider.calculateDistance(new Location(fromLatitude, fromLongitude), new Location(toLatitude, toLongitude));
+    }
+
+    public static FacilityPlan initDistanceMap(FacilityPlan plan) {
+        initDistanceMap(plan.getLocations());
+        return plan;
+    }
+
+    /**
+     * {@code ConstraintVerifier} bypasses the model-conversion pipeline the map service hooks into, so the distance
+     * matrix covering these consumers and their facilities has to be built here instead.
+     */
+    public static void initDistanceMap(Consumer... consumers) {
+        List<Location> locations = new ArrayList<>();
+        for (Consumer consumer : consumers) {
+            locations.add(consumer.getLocation());
+            if (consumer.getFacility() != null) {
+                locations.add(consumer.getFacility().getLocation());
+            }
+        }
+        initDistanceMap(locations);
+    }
+
+    private static void initDistanceMap(List<Location> locations) {
+        TestDistanceCalculator.initDistanceMaps(locations,
+                provider::calculateDistance,
+                provider::calculateTravelTime);
     }
 
     public static FacilityBuilder aFacility(String id) {

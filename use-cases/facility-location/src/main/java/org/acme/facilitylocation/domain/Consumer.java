@@ -5,8 +5,7 @@ import java.util.Objects;
 import ai.timefold.solver.core.api.domain.common.PlanningId;
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
-
-import org.acme.facilitylocation.solver.FacilityLocationConstraintProvider;
+import ai.timefold.solver.service.maps.api.model.Location;
 
 /**
  * Consumer has a demand that can be satisfied by <em>any</em> {@link Facility} with a sufficient capacity.
@@ -46,7 +45,7 @@ public class Consumer {
         if (facility == null) {
             throw new IllegalStateException("No facility is assigned to consumer (%s).".formatted(id));
         }
-        return facility.getLocation().getDistanceTo(location);
+        return facility.getLocation().getDistanceTo(location).meters();
     }
 
     public String getId() {

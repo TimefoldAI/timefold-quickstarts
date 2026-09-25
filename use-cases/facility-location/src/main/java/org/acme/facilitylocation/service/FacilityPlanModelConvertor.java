@@ -14,12 +14,12 @@ import ai.timefold.solver.core.api.domain.solution.ConstraintWeightOverrides;
 import ai.timefold.solver.core.api.score.HardSoftScore;
 import ai.timefold.solver.service.definition.api.ModelConvertor;
 import ai.timefold.solver.service.definition.api.domain.ModelConfig;
+import ai.timefold.solver.service.maps.api.model.Location;
 
 import org.acme.facilitylocation.domain.Consumer;
 import org.acme.facilitylocation.domain.Facility;
 import org.acme.facilitylocation.domain.FacilityPlan;
 import org.acme.facilitylocation.domain.FacilityPlanConstraintProperties;
-import org.acme.facilitylocation.domain.Location;
 import org.acme.facilitylocation.dto.input.ConsumerInputDTO;
 import org.acme.facilitylocation.dto.input.FacilityInputDTO;
 import org.acme.facilitylocation.dto.input.FacilityPlanConfigOverrides;

@@ -11,11 +11,24 @@
 
   <groupId>ai.timefold.model</groupId>
   <artifactId>facility-location</artifactId>
-  <version>0.0.1</version>
+  <version>${revision}</version>
 
   <properties>
-    <revision>1.0.0-SNAPSHOT</revision>
+    <revision>0.0.1</revision>
     <maven.compiler.release>21</maven.compiler.release>
   </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>ai.timefold.solver</groupId>
+      <artifactId>timefold-solver-service-with-maps</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>ai.timefold.solver</groupId>
+      <artifactId>timefold-solver-service-maps-service-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 
 </project>

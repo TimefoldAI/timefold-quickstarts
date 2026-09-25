@@ -18,15 +18,13 @@ const LONG_COST_FORMAT = createCostFormat('standard');
 
 const app = {
     start() {
-        // The flp-* classes are what style.css hangs the full-height layout off (the map and the
-        // facility list stretch to fill whatever the header and footer leave over).
+        // Same layout as the vehicle routing quickstart: the map uses the full width, and the plan summary
+        // floats on top of it (toggled by the header's #toggleSummaryButton, see quickstart-page.js).
         setVisualizationSlot(`
-    <div class="row flp-layout">
-        <div class="col-12 col-lg-8 flp-map-col">
-            <div id="map"></div>
-        </div>
-        <div class="col-12 col-lg-4 flp-side-col">
-            <h2 class="h5 mt-3 mt-lg-0">Plan summary</h2>
+    <div id="mapContainer" class="position-relative">
+        <div id="map"></div>
+        <div id="solutionSummaryPanel" class="card shadow-sm">
+            <h5>Plan summary</h5>
             <table class="table table-sm">
                 <tbody>
                     <tr><td>Facilities used</td><td class="text-end" id="usedFacilities">-</td></tr>
@@ -35,12 +33,10 @@ const app = {
                 </tbody>
             </table>
 
-            <h2 class="h5">Facilities</h2>
-            <div class="facility-list">
-                <table class="table table-sm align-middle">
-                    <tbody id="facilities"></tbody>
-                </table>
-            </div>
+            <h5>Facilities</h5>
+            <table class="table table-sm align-middle mb-0">
+                <tbody id="facilities"></tbody>
+            </table>
         </div>
     </div>
 `);
@@ -146,7 +142,7 @@ const app = {
                     .css('background-color', used ? color : 'transparent')
                     .css('border-color', color)))
                 .append($('<td/>').text(facility.id))
-                .append($('<td/>').append($('<div class="progress"/>')
+                .append($('<td class="w-50"/>').append($('<div class="progress"/>')
                     .append($('<div class="progress-bar" role="progressbar"/>')
                         .css('width', `${percentage}%`)
                         .text(`${usedCapacity}/${facility.capacity}`))))
@@ -198,14 +194,17 @@ const app = {
     },
 };
 
-// Mirrors Location.getDistanceTo(...) in the solver model, so the UI shows the very distance the solver
-// minimizes rather than a great-circle distance the score would not recognize.
-const METERS_PER_DEGREE = 111000;
+// Mirrors the map service's local (haversine) fallback that backs Location.getDistanceTo(...) in the solver model,
+// so the UI shows the very distance the solver minimizes.
+const EARTH_RADIUS_IN_METERS = 6371000;
 
 function distanceInMeters(from, to) {
-    const latitudeDiff = to.latitude - from.latitude;
-    const longitudeDiff = to.longitude - from.longitude;
-    return Math.ceil(Math.sqrt(latitudeDiff * latitudeDiff + longitudeDiff * longitudeDiff) * METERS_PER_DEGREE);
+    const toRadians = (degrees) => degrees * Math.PI / 180;
+    const latitudeDiff = toRadians(to.latitude - from.latitude);
+    const longitudeDiff = toRadians(to.longitude - from.longitude);
+    const a = Math.sin(latitudeDiff / 2) ** 2
+        + Math.cos(toRadians(from.latitude)) * Math.cos(toRadians(to.latitude)) * Math.sin(longitudeDiff / 2) ** 2;
+    return Math.round(2 * EARTH_RADIUS_IN_METERS * Math.asin(Math.sqrt(a)));
 }
 
 function escapeHtml(value) {

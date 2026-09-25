@@ -17,6 +17,47 @@ Pick the best geographical locations for new stores, distribution centers, covid
 - [Run the application in a container](#run-the-application-in-a-container)
 - [Run it native](#run-it-native)
 
+## Map service
+
+Distance between locations is not computed by this quickstart's own code: it comes from the
+Timefold Platform's **map service**.
+
+Every location in the model - a facility's location (`Facility.getLocation()`) and a consumer's
+location (`Consumer.getLocation()`) - is an `ai.timefold.solver.service.maps.api.model.Location`.
+Calling `location.getDistanceTo(otherLocation)` returns the distance between the two, once the map
+service has built a distance matrix that covers them; this is what
+`Consumer.distanceFromFacility()`, and through it the distance from facility constraint, calls.
+
+Building that matrix is the map service's responsibility, not this quickstart's: `FacilityPlan`
+implements `LocationsAwareSolverModel<HardSoftScore>` so the platform can do it automatically
+before every solve:
+
+- `getLocations()` returns every location the matrix needs to cover - every facility's location
+  plus every consumer's location.
+- `getLocationSetName()` returns empty, so each solve builds its own one-off matrix rather than
+  reusing a named, pre-built one.
+- `setLocationsNotInMap()` / `getLocationsNotInMap()` let the map service report back any locations
+  it could not resolve into the matrix, so the model retains that information instead of silently
+  dropping it.
+
+Two properties in `application.properties` control how the matrix gets built:
+
+```properties
+timefold.platform.map-service.use-remote=false
+timefold.platform.map-service.enable-fallback=true
+```
+
+- `use-remote` switches between the platform's remote map service (real road-network distances)
+  and a local computation.
+- `enable-fallback` allows falling back to the local computation when the remote one is disabled or
+  unavailable.
+
+`ConstraintVerifier`-based unit tests (`FacilityLocationConstraintProviderTest`) build entities
+directly, bypassing the model-conversion pipeline the map service hooks into, so `TestHelper` builds
+the matrix itself for test data using the library's own test-support classes:
+`HaversineTravelTimeAndDistanceMatrixProvider` (the same great-circle fallback calculation the
+platform uses locally) and `TestDistanceCalculator.initDistanceMaps(...)`.
+
 ## Prerequisites
 
 1. Install Java and Maven, for example with [Sdkman](https://sdkman.io):

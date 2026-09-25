@@ -1,58 +1,36 @@
-:root {
-    /* How much vertical space the shared shell's chrome (header + footer) takes up. This is the one
-       knob for the wide layout below: the visualization is sized to the viewport minus this, so the
-       footer lands at the bottom of the screen instead of floating above it. Raise it if a scrollbar
-       appears, lower it if there is dead space under the footer. */
-    --flp-chrome-height: 9.5rem;
-}
+/* Facility-location-specific styling, on top of shared/timefold-quickstart.css.
+   Same layout as the vehicle routing quickstart. */
 
-/* ── Below lg: the map and the facility list stack, so both get their own fixed height. ── */
-
-/* Leaflet needs its container to have a definite height before the map is created. */
+/* The map fills the viewport height that is left below the header, so the page does
+   not scroll just to see the whole map. */
 #map {
     width: 100%;
-    height: 60vh;
-    min-height: 20rem;
+    height: calc(100vh - 10rem);
+    min-height: 25rem;
+    border-radius: var(--bs-border-radius);
 }
 
-/* The facility table is as long as the dataset, so it scrolls instead of stretching the page. */
-.facility-list {
-    max-height: 45vh;
+/* The plan summary floats on top of the map instead of sharing a column with it, so
+   the map itself can use the full width of the viewport. The facility table is as long
+   as the dataset, so the panel scrolls instead of growing past the map. */
+#solutionSummaryPanel {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1001;
+    width: 22rem;
+    max-width: calc(100% - 2rem);
+    max-height: calc(100% - 2rem);
     overflow-y: auto;
+    padding: 1rem;
+    background-color: rgba(255, 255, 255, 0.92);
 }
 
-/* ── lg and up: the map sits beside the facility list, and the pair fills the viewport ──
-   Giving the row itself a definite height is enough: its two columns stretch to it (a Bootstrap .row
-   is already a flex container), and inside each column the map and the facility list absorb whatever
-   the headings and the summary table leave over. Nothing outside this visualization is touched, so
-   the shared header and footer keep the exact box model they have in every other quickstart.
-   min-height: 0 everywhere is what lets a flex item shrink below its content height - without it the
-   full facility table would push the row past its height and the page would scroll again. */
-@media (min-width: 992px) {
-    .flp-layout {
-        height: calc(100vh - var(--flp-chrome-height));
-    }
-
-    .flp-map-col,
-    .flp-side-col {
-        display: flex;
-        flex-direction: column;
-        min-height: 0;
-    }
-
-    #map {
-        flex: 1 1 auto;
-        height: auto;
-        /* The row's height governs now; a floor here would just make the map overflow its column
-           on a short window. */
-        min-height: 0;
-    }
-
-    .facility-list {
-        flex: 1 1 auto;
-        max-height: none;
-        min-height: 0;
-    }
+/* Bootstrap's dropdown-menu defaults to z-index 1000, which is lower than the
+   floating plan summary panel above; without this, the header's Data (and other)
+   dropdowns open underneath the panel instead of over it. */
+#appHeader .dropdown-menu {
+    z-index: 1002;
 }
 
 .facility-swatch {

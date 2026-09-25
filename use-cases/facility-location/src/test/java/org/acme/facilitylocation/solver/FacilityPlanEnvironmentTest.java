@@ -1,6 +1,7 @@
 package org.acme.facilitylocation.solver;
 
 import static org.acme.facilitylocation.support.TestHelper.createProblem;
+import static org.acme.facilitylocation.support.TestHelper.initDistanceMap;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Duration;
@@ -48,7 +49,7 @@ class FacilityPlanEnvironmentTest {
 
     void solve(String moveThreadCount) {
         var input = createProblem();
-        FacilityPlan problem = modelConvertor.toSolverModel(input, ModelConfig.empty(), Optional.empty());
+        FacilityPlan problem = initDistanceMap(modelConvertor.toSolverModel(input, ModelConfig.empty(), Optional.empty()));
 
         SolverConfig updatedConfig = solverConfig.copyConfig();
         updatedConfig.withEnvironmentMode(EnvironmentMode.FULL_ASSERT).withTerminationSpentLimit(Duration.ofSeconds(30))
