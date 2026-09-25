@@ -54,6 +54,7 @@ jobs:
       cancel-in-progress: true
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false # A broken JDK or module must not cancel the others.
       matrix:
         os: [ ubuntu-latest, ubuntu-24.04-arm ]
         module: [
@@ -64,9 +65,7 @@ jobs:
           "use-cases/sports-league-scheduling", "use-cases/task-assigning",
           "use-cases/tournament-scheduling", "use-cases/vehicle-routing"
         ]
-        # Only one supported LTS; already too many jobs here.
-        # We choose 25 as that's the latest LTS.
-        java-version: [ 25 ]
+        java-version: [ 25 ] # The compile target is covered by the Maven workflow.
     timeout-minutes: 120
     steps:
       - name: Checkout timefold-quickstarts
@@ -98,7 +97,6 @@ jobs:
         with:
           java-version: ${{matrix.java-version}}
           distribution: 'graalvm-community'
-          components: 'native-image'
           github-token: ${{ secrets.GITHUB_TOKEN }}
           cache: 'maven'
 
@@ -119,12 +117,11 @@ jobs:
       cancel-in-progress: true
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false # A broken JDK must not cancel the others.
       matrix:
         module: [
           "getting-started/spring-boot-integration"
         ]
-        # Only one supported LTS; already too many jobs here.
-        # We choose 25 as that's the latest LTS.
         java-version: [ 25 ]
     timeout-minutes: 120
     steps:
@@ -157,7 +154,6 @@ jobs:
         with:
           java-version: ${{matrix.java-version}}
           distribution: 'graalvm-community'
-          components: 'native-image'
           github-token: ${{ secrets.GITHUB_TOKEN }}
           cache: 'maven'
 
