@@ -133,15 +133,13 @@ public class FacilityPlanModelConvertor
         }
         Map<String, Consumer> consumerMap = consumers.stream()
                 .collect(Collectors.toMap(Consumer::getId, consumer -> consumer));
-        for (ConsumerOutputDTO solved : lastModelOutput.get().consumers()) {
+for (ConsumerOutputDTO solved : lastModelOutput.get().consumers()) {
             Consumer consumer = consumerMap.get(solved.id());
-            if (consumer == null || solved.facilityId() == null) {
+            if (consumer == null) {
                 continue;
             }
-            Facility facility = facilityMap.get(solved.facilityId());
-            if (facility != null) {
-                consumer.setFacility(facility);
-            }
+            Facility facility = solved.facilityId() == null ? null : require(facilityMap, solved.facilityId(), "facility");
+            consumer.setFacility(facility);
         }
     }
 }
