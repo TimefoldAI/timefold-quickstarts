@@ -6,24 +6,65 @@ Pick the best geographical locations for new stores, distribution centers, covid
 
 ## Constraints
 
-| Name                   | Level | Description                                                            |
-|------------------------|-------|------------------------------------------------------------------------|
-| Facility capacity      | Hard  | A facility's total assigned demand must not exceed its capacity.       |
-| Setup cost             | Soft  | Minimize the total setup cost of opened facilities.                    |
-| Distance from facility | Soft  | Minimize the total distance from consumers to their assigned facility. |
+| Name                   | Level | Description                                                                                        |
+|------------------------|-------|----------------------------------------------------------------------------------------------------|
+| Facility capacity      | Hard  | The total demand of the consumers served by a facility must not exceed that facility's capacity.   |
+| Facility setup cost    | Soft  | Minimize the total setup cost of the facilities that serve at least one consumer.                  |
+| Distance from facility | Soft  | Minimize the total distance, in meters, between the consumers and the facility serving them.       |
 
 - [Run the application](#run-the-application)
 - [Run the packaged application](#run-the-packaged-application)
 - [Run the application in a container](#run-the-application-in-a-container)
 - [Run it native](#run-it-native)
 
+## Map service
+
+Distance between locations is not computed by this quickstart's own code: it comes from the
+Timefold Platform's **map service**.
+
+Every location in the model - a facility's location (`Facility.getLocation()`) and a consumer's
+location (`Consumer.getLocation()`) - is an `ai.timefold.solver.service.maps.api.model.Location`.
+Calling `location.getDistanceTo(otherLocation)` returns the distance between the two, once the map
+service has built a distance matrix that covers them; this is what
+`Consumer.distanceFromFacility()`, and through it the distance from facility constraint, calls.
+
+Building that matrix is the map service's responsibility, not this quickstart's: `FacilityPlan`
+implements `LocationsAwareSolverModel<HardSoftScore>` so the platform can do it automatically
+before every solve:
+
+- `getLocations()` returns every location the matrix needs to cover - every facility's location
+  plus every consumer's location.
+- `getLocationSetName()` returns empty, so each solve builds its own one-off matrix rather than
+  reusing a named, pre-built one.
+- `setLocationsNotInMap()` / `getLocationsNotInMap()` let the map service report back any locations
+  it could not resolve into the matrix, so the model retains that information instead of silently
+  dropping it.
+
+Two properties in `application.properties` control how the matrix gets built:
+
+```properties
+timefold.platform.map-service.use-remote=false
+timefold.platform.map-service.enable-fallback=true
+```
+
+- `use-remote` switches between the platform's remote map service (real road-network distances)
+  and a local computation.
+- `enable-fallback` allows falling back to the local computation when the remote one is disabled or
+  unavailable.
+
+`ConstraintVerifier`-based unit tests (`FacilityLocationConstraintProviderTest`) build entities
+directly, bypassing the model-conversion pipeline the map service hooks into, so `TestHelper` builds
+the matrix itself for test data using the library's own test-support classes:
+`HaversineTravelTimeAndDistanceMatrixProvider` (the same great-circle fallback calculation the
+platform uses locally) and `TestDistanceCalculator.initDistanceMaps(...)`.
+
 ## Prerequisites
 
 1. Install Java and Maven, for example with [Sdkman](https://sdkman.io):
 
    ```sh
-   $ sdk install java
-   $ sdk install maven
+   sdk install java
+   sdk install maven
    ```
 
 ## Run the application
@@ -31,9 +72,9 @@ Pick the best geographical locations for new stores, distribution centers, covid
 1. Git clone the timefold-quickstarts repo and navigate to this directory:
 
    ```sh
-   $ git clone https://github.com/TimefoldAI/timefold-quickstarts.git
+   git clone https://github.com/TimefoldAI/timefold-quickstarts.git
    ...
-   $ cd timefold-quickstarts/use-cases/facility-location
+   cd timefold-quickstarts/use-cases/facility-location
    ```
 
 2. (Optional) If you want to run a licensed edition (Plus / Enterprise), set up your license key first. See the [Timefold license tool](https://licenses.timefold.ai/) for instructions.
@@ -41,15 +82,15 @@ Pick the best geographical locations for new stores, distribution centers, covid
 3. Start the application with Maven:
 
    1. Community Edition
-   
+
       ```sh
-      $ mvn quarkus:dev
+      mvn quarkus:dev
       ```
-   
+
    2. Plus / Enterprise Edition: The profile sets up the correct Maven artifacts to run the licensed version. See the `pom.xml` for the implementation details.
 
       ```sh
-      $ mvn quarkus:dev -Denterprise
+      mvn quarkus:dev -Denterprise
       ```
 
 4. Visit [http://localhost:8080](http://localhost:8080) in your browser.
@@ -67,16 +108,16 @@ Notice that those changes are immediately in effect.
 
 When you're done iterating in `quarkus:dev` mode, package the application to run as a conventional jar file.
 
-1. Compile it with Maven:
+1. Build it with Maven:
 
    ```sh
-   $ mvn package
+   mvn package
    ```
 
-2. Run it:
+2. Run the Maven output:
 
    ```sh
-   $ java -jar ./target/quarkus-app/quarkus-run.jar
+   java -jar ./target/quarkus-app/quarkus-run.jar
    ```
 
    > **Note**
@@ -91,13 +132,13 @@ When you're done iterating in `quarkus:dev` mode, package the application to run
 1. Build a container image:
 
    ```sh
-   $ mvn package -Dcontainer
+   mvn package -Dcontainer
    ```
 
 2. Run a container:
 
    ```sh
-   $ docker run -p 8080:8080 --rm $USER/facility-location:1.0-SNAPSHOT
+   docker run -p 8080:8080 --rm $USER/facility-location:0.0.1
    ```
 
 ## Run it native
@@ -109,13 +150,13 @@ To increase startup performance for serverless deployments, build the applicatio
 2. Compile it natively. This takes a few minutes:
 
    ```sh
-   $ mvn package -Dnative -DskipTests
+   mvn package -Dnative
    ```
 
 3. Run the native executable:
 
    ```sh
-   $ ./target/*-runner
+   ./target/*-runner
    ```
 
 4. Visit [http://localhost:8080](http://localhost:8080) in your browser.
