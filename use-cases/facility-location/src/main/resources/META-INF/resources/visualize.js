@@ -35,6 +35,7 @@ const app = {
 
             <h5>Facilities</h5>
             <table class="table table-sm align-middle mb-0">
+                <thead><tr><th scope="col">Status</th><th scope="col">Facility</th><th scope="col">Usage</th><th scope="col" class="text-end">Setup cost</th></tr></thead>
                 <tbody id="facilities"></tbody>
             </table>
         </div>
