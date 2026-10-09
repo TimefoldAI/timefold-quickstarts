@@ -31,7 +31,8 @@ public class FacilityLocationConstraintProvider implements ConstraintProvider {
     }
 
     public Constraint facilityCapacity(ConstraintFactory constraintFactory) {
-        return constraintFactory.forEach(Consumer.class)
+return constraintFactory.forEach(Consumer.class)
+                .filter(consumer -> consumer.getFacility() != null)
                 .groupBy(Consumer::getFacility, sum(Consumer::getDemand))
                 .filter((facility, demand) -> demand > facility.getCapacity())
                 .penalize(ONE_HARD, (facility, demand) -> demand - facility.getCapacity())
