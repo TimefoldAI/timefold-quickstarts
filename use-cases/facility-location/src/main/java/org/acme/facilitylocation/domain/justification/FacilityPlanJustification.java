@@ -32,13 +32,6 @@ public interface FacilityPlanJustification extends ModelConstraintJustification 
      */
     String getDescription();
 
-    /**
-     * Exposes the description as the {@code description} property of {@link ModelConstraintJustification}.
-     */
-    default String description() {
-        return getDescription();
-    }
-
     @Schema(allOf = { FacilityPlanJustification.class })
     record FacilityCapacityJustification(String facility, long capacity, long assignedDemand, int consumerCount)
             implements

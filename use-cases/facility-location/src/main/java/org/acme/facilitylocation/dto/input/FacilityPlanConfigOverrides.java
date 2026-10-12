@@ -8,11 +8,13 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-@Schema(description = "Soft constraint weights. Set a weight to 0 to disable the corresponding constraint. "
-        + "A weight left unset (null) is not overridden here, so the value from the configuration profile "
-        + "(or the constraint's default) applies. This makes it possible to override some weights via the "
-        + "input while leaving others to the configuration profile. Raising the setup cost weight relative to "
-        + "the distance weight opens fewer facilities but makes consumers travel further, and vice versa.")
+@Schema(description = """
+        Soft constraint weights. Set a weight to 0 to disable the corresponding constraint. \
+        A weight left unset (null) is not overridden here, so the value from the configuration profile \
+        (or the constraint's default) applies. This makes it possible to override some weights via the \
+        input while leaving others to the configuration profile. Raising the setup cost weight relative to \
+        the distance weight opens fewer facilities but makes consumers travel further, and vice versa.
+        """)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record FacilityPlanConfigOverrides(
         @ConstraintReference(FacilityPlanConstraintProperties.FACILITY_SETUP_COST) @Schema(
