@@ -133,7 +133,7 @@ public class FacilityPlanModelConvertor
         }
         Map<String, Consumer> consumerMap = consumers.stream()
                 .collect(Collectors.toMap(Consumer::getId, consumer -> consumer));
-for (ConsumerOutputDTO solved : lastModelOutput.get().consumers()) {
+        for (ConsumerOutputDTO solved : lastModelOutput.get().consumers()) {
             Consumer consumer = consumerMap.get(solved.id());
             if (consumer == null) {
                 continue;

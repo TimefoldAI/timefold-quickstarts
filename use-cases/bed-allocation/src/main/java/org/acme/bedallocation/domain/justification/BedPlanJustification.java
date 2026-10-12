@@ -46,13 +46,6 @@ public interface BedPlanJustification extends ModelConstraintJustification {
      */
     String getDescription();
 
-    /**
-     * Exposes the description as the {@code description} property of {@link ModelConstraintJustification}.
-     */
-    default String description() {
-        return getDescription();
-    }
-
     private static List<String> missing(Collection<String> required, Collection<String> available) {
         return required.stream()
                 .filter(equipment -> !available.contains(equipment))
