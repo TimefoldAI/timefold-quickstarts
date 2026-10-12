@@ -110,6 +110,7 @@ const app = {
         if (!this.boundsFitted && (plan.facilities.length > 0 || plan.consumers.length > 0)) {
             // The input carries no bounding box, so the viewport is derived from the data itself.
             const allLatLngs = [...plan.facilities, ...plan.consumers].map((point) => this.latLngOf(point.location));
+            this.map.invalidateSize();
             this.map.fitBounds(L.latLngBounds(allLatLngs).pad(0.05));
             this.boundsFitted = true;
         }
