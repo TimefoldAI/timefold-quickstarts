@@ -1,0 +1,42 @@
+/* Facility-location-specific styling, on top of shared/timefold-quickstart.css.
+   Same layout as the vehicle routing quickstart. */
+
+/* The map fills the viewport height that is left below the header, so the page does
+   not scroll just to see the whole map. */
+#map {
+    width: 100%;
+    height: calc(100vh - 10rem);
+    min-height: 25rem;
+    border-radius: var(--bs-border-radius);
+}
+
+/* The plan summary floats on top of the map instead of sharing a column with it, so
+   the map itself can use the full width of the viewport. The facility table is as long
+   as the dataset, so the panel scrolls instead of growing past the map. */
+#solutionSummaryPanel {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1001;
+    width: 22rem;
+    max-width: calc(100% - 2rem);
+    max-height: calc(100% - 2rem);
+    overflow-y: auto;
+    padding: 1rem;
+    background-color: rgba(255, 255, 255, 0.92);
+}
+
+/* Bootstrap's dropdown-menu defaults to z-index 1000, which is lower than the
+   floating plan summary panel above; without this, the header's Data (and other)
+   dropdowns open underneath the panel instead of over it. */
+#appHeader .dropdown-menu {
+    z-index: 1002;
+}
+
+.facility-swatch {
+    display: inline-block;
+    width: 0.85rem;
+    height: 0.85rem;
+    border: 2px solid transparent;
+    border-radius: 50%;
+}

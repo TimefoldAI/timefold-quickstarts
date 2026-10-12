@@ -28,8 +28,7 @@ public class FlightCrewSchedulingDemoDataGenerator implements DemoDataGenerator 
                     + "holds the skill their seat requires, never flies two overlapping flights or flies on a day "
                     + "they are unavailable, only boards a flight departing from where they last landed, and "
                     + "starts and ends their week at their own home airport.",
-            List.of("crew skills", "crew availability", "route continuity", "home bases"),
-            List.of());
+            List.of("crew skills", "crew availability", "route continuity", "home bases"));
 
     @Override
     public List<DemoMetaData> demoMetaData() {

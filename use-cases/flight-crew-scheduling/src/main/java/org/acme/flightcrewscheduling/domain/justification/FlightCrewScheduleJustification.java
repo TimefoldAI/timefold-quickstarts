@@ -35,13 +35,6 @@ public interface FlightCrewScheduleJustification extends ModelConstraintJustific
      */
     String getDescription();
 
-    /**
-     * Exposes the description as the {@code description} property of {@link ModelConstraintJustification}.
-     */
-    default String description() {
-        return getDescription();
-    }
-
     @Schema(allOf = { FlightCrewScheduleJustification.class })
     record MissingRequiredSkillJustification(String flightAssignment, String flight, String employee, String requiredSkill)
             implements
