@@ -27,8 +27,7 @@ public class FacilityLocationDemoDataGenerator implements ai.timefold.solver.ser
                     every consumer demands 15 units, so at least six facilities are needed. Once solved, no \
                     facility is over its capacity and the plan balances the setup cost of the facilities it \
                     opens against the distance its consumers have to travel.""",
-            List.of("capacity", "setup cost", "distance"),
-            List.of());
+            List.of("capacity", "setup cost", "distance"));
 
     @Override
     public List<DemoMetaData> demoMetaData() {

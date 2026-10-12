@@ -69,8 +69,7 @@ public class VehicleRoutingDemoDataGenerator implements DemoDataGenerator {
         return new DemoMetaData(id,
                 "%s: %d visits for 6 vehicles.".formatted(dataset.cityName(), dataset.visitCount()),
                 LONG_DESCRIPTION_TEMPLATE.formatted(6, dataset.visitCount(), dataset.cityName()),
-                TAGS,
-                List.of());
+                TAGS);
     }
 
     private record Dataset(String cityName, int visitCount, Supplier<VehicleRoutePlanInput> problemSupplier) {
