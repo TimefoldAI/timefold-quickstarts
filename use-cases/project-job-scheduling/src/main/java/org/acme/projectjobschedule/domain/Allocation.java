@@ -5,22 +5,27 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
+import ai.timefold.solver.core.api.domain.common.PlanningId;
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.entity.PlanningPin;
-import ai.timefold.solver.core.api.domain.common.PlanningId;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
 import ai.timefold.solver.core.api.domain.variable.ShadowSources;
 import ai.timefold.solver.core.api.domain.variable.ShadowVariable;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIdentityReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import org.acme.projectjobschedule.domain.solver.DelayStrengthComparator;
 
+/**
+ * Schedules exactly one {@link Job}: it picks the {@link ExecutionMode} the job is executed in and
+ * the {@link #getDelay() delay} it waits on top of the date its predecessors are done.
+ * <p>
+ * All dates are day numbers counted from the start of the schedule, not calendar dates.
+ */
 @PlanningEntity
-@JsonIdentityInfo(scope = Allocation.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Allocation {
+
+    /** The number of days a job may be delayed past the date its predecessors are done. */
+    private static final int MAX_DELAY = 500;
 
     @PlanningId
     private String id;
@@ -30,13 +35,9 @@ public class Allocation {
 
     private Job job;
 
-    @JsonIdentityReference(alwaysAsId = true)
     private Allocation sourceAllocation;
-    @JsonIdentityReference(alwaysAsId = true)
     private Allocation sinkAllocation;
-    @JsonIdentityReference(alwaysAsId = true)
     private List<Allocation> predecessorAllocations;
-    @JsonIdentityReference(alwaysAsId = true)
     private List<Allocation> successorAllocations;
 
     // Planning variables: changes during planning, between score calculations.
@@ -76,15 +77,13 @@ public class Allocation {
     // ************************************************************************
 
     @ValueRangeProvider
-    @JsonIgnore
     public List<ExecutionMode> getExecutionModeRange() {
-        return job.getExecutionModes();
+        return job.executionModes();
     }
 
     @ValueRangeProvider
-    @JsonIgnore
     public List<Integer> getDelayRange() {
-        return IntStream.range(0, 500).boxed().toList();
+        return IntStream.range(0, MAX_DELAY).boxed().toList();
     }
 
     // ************************************************************************
@@ -207,7 +206,6 @@ public class Allocation {
         this.endDate = endDate;
     }
 
-    @JsonIgnore
     public List<Integer> getBusyDates() {
         return busyDates;
     }
@@ -219,11 +217,12 @@ public class Allocation {
     // ************************************************************************
     // Complex methods
     // ************************************************************************
+
     @SuppressWarnings("unused")
     @ShadowSources("predecessorAllocations[].endDate")
     public Integer predecessorsDoneDateSupplier() {
-        // For the source the doneDate must be 0.
-        int doneDate = 0;
+        // No job of a project can start before the project is released, so that is also when the source is done.
+        int doneDate = job.project().releaseDate();
         if (predecessorAllocations == null) {
             return doneDate;
         }
@@ -235,19 +234,19 @@ public class Allocation {
     }
 
     @SuppressWarnings("unused")
-    @ShadowSources({"predecessorsDoneDate", "delay"})
+    @ShadowSources({ "predecessorsDoneDate", "delay" })
     public Integer startDateSupplier() {
         return predecessorsDoneDate + Objects.requireNonNullElse(delay, 0);
     }
 
     @SuppressWarnings("unused")
-    @ShadowSources({"startDate", "executionMode"})
+    @ShadowSources({ "startDate", "executionMode" })
     public Integer endDateSupplier() {
-        return getStartDate() + (executionMode == null ? 0 : executionMode.getDuration());
+        return getStartDate() + (executionMode == null ? 0 : executionMode.duration());
     }
 
     @SuppressWarnings("unused")
-    @ShadowSources({"startDate", "endDate"})
+    @ShadowSources({ "startDate", "endDate" })
     public List<Integer> busyDatesSupplier() {
         var start = getStartDate();
         var end = getEndDate();
@@ -258,44 +257,48 @@ public class Allocation {
         return Arrays.asList(dates);
     }
 
+    /**
+     * Recomputes every date that follows from {@link #getPredecessorsDoneDate()}, the way the solver
+     * would once it has assigned the planning variables. Only needed where no solver is involved,
+     * e.g. to seed the shadow variables of a hand-built schedule.
+     */
     public void updateShadowsAfterPredecessorDoneDate() {
         startDate = startDateSupplier();
         endDate = endDateSupplier();
         busyDates = busyDatesSupplier();
     }
 
-    @JsonIgnore
     public Project getProject() {
-        return job.getProject();
+        return job.project();
     }
 
-    @JsonIgnore
     public int getProjectCriticalPathEndDate() {
-        return job.getProject().getCriticalPathEndDate();
+        return job.project().criticalPathEndDate();
     }
 
-    @JsonIgnore
+    /** The number of days this allocation ends past its project's critical path end date. */
     public int getProjectDelay() {
         return getEndDate() - getProjectCriticalPathEndDate();
     }
 
-    @JsonIgnore
     public JobType getJobType() {
-        return job.getJobType();
+        return job.jobType();
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof Allocation that))
+        }
+        if (!(o instanceof Allocation that)) {
             return false;
-        return Objects.equals(getId(), that.getId());
+        }
+        return Objects.equals(id, that.id);
     }
 
     @Override
     public int hashCode() {
-        return getId().hashCode();
+        return Objects.hashCode(id);
     }
 
     @Override
