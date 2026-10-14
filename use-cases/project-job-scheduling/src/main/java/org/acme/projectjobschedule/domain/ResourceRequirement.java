@@ -24,7 +24,7 @@ public record ResourceRequirement(String id, ExecutionMode executionMode, Resour
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return id.hashCode();
     }
 
     @Override

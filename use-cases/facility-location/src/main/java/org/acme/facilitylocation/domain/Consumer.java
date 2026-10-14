@@ -89,7 +89,7 @@ public class Consumer {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return id.hashCode();
     }
 
     @Override

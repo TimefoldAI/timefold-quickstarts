@@ -26,7 +26,7 @@ public record Project(String id, int releaseDate, int criticalPathDuration) {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return id.hashCode();
     }
 
     @Override

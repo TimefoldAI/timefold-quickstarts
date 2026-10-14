@@ -26,7 +26,7 @@ public record Job(String id, Project project, JobType jobType, List<ExecutionMod
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return id.hashCode();
     }
 
     @Override

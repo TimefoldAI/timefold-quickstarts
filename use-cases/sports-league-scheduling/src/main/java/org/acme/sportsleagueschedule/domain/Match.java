@@ -109,6 +109,6 @@ public class Match {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getId());
+        return getId().hashCode();
     }
 }

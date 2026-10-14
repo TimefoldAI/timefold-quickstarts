@@ -174,7 +174,7 @@ public class Task {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getId());
+        return getId().hashCode();
     }
 
     @Override

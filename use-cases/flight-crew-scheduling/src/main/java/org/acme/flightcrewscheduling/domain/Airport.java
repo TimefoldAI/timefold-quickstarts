@@ -23,7 +23,7 @@ public record Airport(
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(code);
+        return code.hashCode();
     }
 
     @Override

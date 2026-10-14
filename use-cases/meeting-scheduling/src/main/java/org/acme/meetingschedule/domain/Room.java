@@ -22,7 +22,7 @@ public record Room(
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return id.hashCode();
     }
 
     @Override

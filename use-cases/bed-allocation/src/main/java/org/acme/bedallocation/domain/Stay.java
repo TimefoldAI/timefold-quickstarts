@@ -118,7 +118,7 @@ public class Stay {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return id.hashCode();
     }
 
     public String getId() {

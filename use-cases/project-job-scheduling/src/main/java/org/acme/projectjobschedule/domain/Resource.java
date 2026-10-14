@@ -24,7 +24,7 @@ public record Resource(String id, int capacity, Project project, boolean renewab
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return id.hashCode();
     }
 
     @Override

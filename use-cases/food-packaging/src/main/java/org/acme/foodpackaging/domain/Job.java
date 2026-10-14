@@ -223,6 +223,6 @@ public class Job {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return id.hashCode();
     }
 }

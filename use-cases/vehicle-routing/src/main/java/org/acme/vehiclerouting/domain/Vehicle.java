@@ -55,7 +55,7 @@ public class Vehicle implements LocationAware {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return id.hashCode();
     }
 
     // ************************************************************************
