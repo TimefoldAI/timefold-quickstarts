@@ -6,6 +6,7 @@ import static org.acme.projectjobschedule.support.TestHelper.anAllocationDTO;
 import static org.acme.projectjobschedule.support.TestHelper.createProblem;
 import static org.acme.projectjobschedule.support.TestHelper.executionModeDTO;
 import static org.acme.projectjobschedule.support.TestHelper.input;
+import static org.acme.projectjobschedule.support.TestHelper.projectDTO;
 import static org.acme.projectjobschedule.support.TestHelper.requirementDTO;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -19,10 +20,12 @@ import ai.timefold.solver.service.definition.api.validation.ValidationBuilder;
 import ai.timefold.solver.service.definition.api.validation.dto.ValidationResult;
 
 import org.acme.projectjobschedule.demo.DemoDataBuilder;
+import org.acme.projectjobschedule.domain.JobType;
 import org.acme.projectjobschedule.dto.input.AllocationInputDTO;
 import org.acme.projectjobschedule.dto.input.JobInputDTO;
 import org.acme.projectjobschedule.dto.input.ProjectJobScheduleInput;
 import org.acme.projectjobschedule.dto.input.ResourceInputDTO;
+import org.acme.projectjobschedule.service.validation.ProjectJobScheduleIssue.CrossProjectResourceRequirementIssue;
 import org.acme.projectjobschedule.service.validation.ProjectJobScheduleIssue.CyclicJobPrecedenceIssue;
 import org.acme.projectjobschedule.service.validation.ProjectJobScheduleIssue.DuplicateAllocationIdIssue;
 import org.acme.projectjobschedule.service.validation.ProjectJobScheduleIssue.DuplicateExecutionModeIdIssue;
@@ -31,6 +34,7 @@ import org.acme.projectjobschedule.service.validation.ProjectJobScheduleIssue.Du
 import org.acme.projectjobschedule.service.validation.ProjectJobScheduleIssue.DuplicateResourceIdIssue;
 import org.acme.projectjobschedule.service.validation.ProjectJobScheduleIssue.DuplicateResourceRequirementIssue;
 import org.acme.projectjobschedule.service.validation.ProjectJobScheduleIssue.InvalidAllocationCountForJobIssue;
+import org.acme.projectjobschedule.service.validation.ProjectJobScheduleIssue.InvalidSourceOrSinkExecutionModeIssue;
 import org.acme.projectjobschedule.service.validation.ProjectJobScheduleIssue.NonExistingExecutionModeReferenceIssue;
 import org.acme.projectjobschedule.service.validation.ProjectJobScheduleIssue.NonExistingJobReferenceIssue;
 import org.acme.projectjobschedule.service.validation.ProjectJobScheduleIssue.NonExistingProjectReferenceIssue;
@@ -110,6 +114,31 @@ class ProjectJobScheduleValidatorTest {
     }
 
     @Test
+    void crossProjectResourceRequirement() {
+        // P2 is a complete project of its own, owning R3, so only job A of P1 requiring R3 is wrong.
+        List<JobInputDTO> p2Jobs = List.of(
+                aJobDTO("P2-source").projectId("P2").jobType(JobType.SOURCE)
+                        .executionModes(List.of(executionModeDTO("P2-source-1", 0, List.of())))
+                        .successorJobIds(List.of("P2-sink"))
+                        .build(),
+                aJobDTO("P2-sink").projectId("P2").jobType(JobType.SINK)
+                        .executionModes(List.of(executionModeDTO("P2-sink-1", 0, List.of())))
+                        .build());
+        JobInputDTO jobA = aJobDTO("A")
+                .executionModes(List.of(executionModeDTO("A-1", 2, List.of(requirementDTO("R3", 2)))))
+                .successorJobIds(List.of("C"))
+                .build();
+        ProjectJobScheduleInput input = input(
+                Stream.concat(PROBLEM.projects().stream(), Stream.of(projectDTO("P2", 0))).toList(),
+                Stream.concat(PROBLEM.resources().stream(),
+                        Stream.of(aResourceDTO("R3").projectId("P2").build())).toList(),
+                Stream.concat(replace(PROBLEM.jobs(), jobA, JobInputDTO::id).stream(), p2Jobs.stream()).toList(),
+                Stream.concat(PROBLEM.allocations().stream(),
+                        p2Jobs.stream().map(job -> anAllocationDTO(job.id(), job.id()).build())).toList());
+        assertSingleIssue(validate(input), CrossProjectResourceRequirementIssue.class);
+    }
+
+    @Test
     void nonExistingProjectReference() {
         ResourceInputDTO resource = aResourceDTO("R1").projectId("does-not-exist").build();
         ProjectJobScheduleInput input = input(PROBLEM.projects(),
@@ -157,6 +186,29 @@ class ProjectJobScheduleValidatorTest {
         assertSingleIssue(validate(withJob(aJobDTO("sink")
                 .executionModes(List.of(executionModeDTO("sink-1", 0, List.of())))
                 .build())), ProjectWithoutSourceOrSinkJobIssue.class);
+    }
+
+    @Test
+    void sourceOrSinkJobWithPositiveDuration() {
+        assertSingleIssue(validate(withJob(aJobDTO("sink").jobType(JobType.SINK)
+                .executionModes(List.of(executionModeDTO("sink-1", 1, List.of())))
+                .build())), InvalidSourceOrSinkExecutionModeIssue.class);
+    }
+
+    @Test
+    void sourceOrSinkJobWithResourceRequirement() {
+        assertSingleIssue(validate(withJob(aJobDTO("source").jobType(JobType.SOURCE)
+                .executionModes(List.of(executionModeDTO("source-1", 0, List.of(requirementDTO("R1", 1)))))
+                .successorJobIds(List.of("A", "B"))
+                .build())), InvalidSourceOrSinkExecutionModeIssue.class);
+    }
+
+    @Test
+    void sourceOrSinkJobWithMultipleExecutionModes() {
+        assertSingleIssue(validate(withJob(aJobDTO("sink").jobType(JobType.SINK)
+                .executionModes(List.of(executionModeDTO("sink-1", 0, List.of()),
+                        executionModeDTO("sink-2", 0, List.of())))
+                .build())), InvalidSourceOrSinkExecutionModeIssue.class);
     }
 
     @Test

@@ -18,6 +18,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
                 ProjectJobScheduleIssue.DuplicateExecutionModeIdIssue.class,
                 ProjectJobScheduleIssue.DuplicateAllocationIdIssue.class,
                 ProjectJobScheduleIssue.DuplicateResourceRequirementIssue.class,
+                ProjectJobScheduleIssue.CrossProjectResourceRequirementIssue.class,
                 ProjectJobScheduleIssue.NonExistingProjectReferenceIssue.class,
                 ProjectJobScheduleIssue.NonExistingResourceReferenceIssue.class,
                 ProjectJobScheduleIssue.NonExistingJobReferenceIssue.class,
@@ -25,6 +26,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
                 ProjectJobScheduleIssue.InvalidAllocationCountForJobIssue.class,
                 ProjectJobScheduleIssue.CyclicJobPrecedenceIssue.class,
                 ProjectJobScheduleIssue.ProjectWithoutSourceOrSinkJobIssue.class,
+                ProjectJobScheduleIssue.InvalidSourceOrSinkExecutionModeIssue.class,
                 ProjectJobScheduleIssue.PinnedAllocationWithoutAssignmentIssue.class
         })
 public abstract class ProjectJobScheduleIssue extends AbstractIssue {
@@ -165,6 +167,37 @@ public abstract class ProjectJobScheduleIssue extends AbstractIssue {
         }
 
         public DuplicateResourceRequirementIssue(String executionModeId, String resourceId) {
+            super(ISSUE_CODE, IssueSeverity.ERROR, List.of(ISSUE_MESSAGE));
+            this.executionModeId = executionModeId;
+            this.resourceId = resourceId;
+        }
+
+        public String getExecutionModeId() {
+            return executionModeId;
+        }
+
+        public String getResourceId() {
+            return resourceId;
+        }
+    }
+
+    @Schema(allOf = { ProjectJobScheduleIssue.class })
+    public static class CrossProjectResourceRequirementIssue extends ProjectJobScheduleIssue {
+
+        public static final IssueCode ISSUE_CODE = IssueCode.of("CROSS_PROJECT_RESOURCE_REQUIREMENT");
+        public static final IssueMessage ISSUE_MESSAGE =
+                new IssueMessage("Execution mode requires a resource that belongs to another project.");
+
+        @Schema(description = "The ID of the execution mode requiring the resource of another project.")
+        private String executionModeId;
+        @Schema(description = "The ID of the resource that belongs to another project.")
+        private String resourceId;
+
+        public CrossProjectResourceRequirementIssue() {
+            this(null, null);
+        }
+
+        public CrossProjectResourceRequirementIssue(String executionModeId, String resourceId) {
             super(ISSUE_CODE, IssueSeverity.ERROR, List.of(ISSUE_MESSAGE));
             this.executionModeId = executionModeId;
             this.resourceId = resourceId;
@@ -348,6 +381,30 @@ public abstract class ProjectJobScheduleIssue extends AbstractIssue {
 
         public String getProjectId() {
             return projectId;
+        }
+    }
+
+    @Schema(allOf = { ProjectJobScheduleIssue.class })
+    public static class InvalidSourceOrSinkExecutionModeIssue extends ProjectJobScheduleIssue {
+
+        public static final IssueCode ISSUE_CODE = IssueCode.of("INVALID_SOURCE_OR_SINK_EXECUTION_MODE");
+        public static final IssueMessage ISSUE_MESSAGE = new IssueMessage(
+                "SOURCE or SINK job does not have exactly one execution mode of zero duration without resource requirements.");
+
+        @Schema(description = "The ID of the SOURCE or SINK job with an invalid execution mode.")
+        private String jobId;
+
+        public InvalidSourceOrSinkExecutionModeIssue() {
+            this(null);
+        }
+
+        public InvalidSourceOrSinkExecutionModeIssue(String jobId) {
+            super(ISSUE_CODE, IssueSeverity.ERROR, List.of(ISSUE_MESSAGE));
+            this.jobId = jobId;
+        }
+
+        public String getJobId() {
+            return jobId;
         }
     }
 

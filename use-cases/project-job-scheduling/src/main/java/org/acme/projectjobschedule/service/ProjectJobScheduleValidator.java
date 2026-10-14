@@ -26,6 +26,7 @@ import org.acme.projectjobschedule.dto.input.ProjectJobScheduleConfigOverrides;
 import org.acme.projectjobschedule.dto.input.ProjectJobScheduleInput;
 import org.acme.projectjobschedule.dto.input.ResourceInputDTO;
 import org.acme.projectjobschedule.dto.input.ResourceRequirementInputDTO;
+import org.acme.projectjobschedule.service.validation.ProjectJobScheduleIssue.CrossProjectResourceRequirementIssue;
 import org.acme.projectjobschedule.service.validation.ProjectJobScheduleIssue.CyclicJobPrecedenceIssue;
 import org.acme.projectjobschedule.service.validation.ProjectJobScheduleIssue.DuplicateAllocationIdIssue;
 import org.acme.projectjobschedule.service.validation.ProjectJobScheduleIssue.DuplicateExecutionModeIdIssue;
@@ -34,6 +35,7 @@ import org.acme.projectjobschedule.service.validation.ProjectJobScheduleIssue.Du
 import org.acme.projectjobschedule.service.validation.ProjectJobScheduleIssue.DuplicateResourceIdIssue;
 import org.acme.projectjobschedule.service.validation.ProjectJobScheduleIssue.DuplicateResourceRequirementIssue;
 import org.acme.projectjobschedule.service.validation.ProjectJobScheduleIssue.InvalidAllocationCountForJobIssue;
+import org.acme.projectjobschedule.service.validation.ProjectJobScheduleIssue.InvalidSourceOrSinkExecutionModeIssue;
 import org.acme.projectjobschedule.service.validation.ProjectJobScheduleIssue.NonExistingExecutionModeReferenceIssue;
 import org.acme.projectjobschedule.service.validation.ProjectJobScheduleIssue.NonExistingJobReferenceIssue;
 import org.acme.projectjobschedule.service.validation.ProjectJobScheduleIssue.NonExistingProjectReferenceIssue;
@@ -53,9 +55,10 @@ public class ProjectJobScheduleValidator
         // and model invariants) belong here.
         List<JobInputDTO> jobs = orEmpty(modelInput.jobs());
         Set<String> projectIds = validateProjects(validationBuilder, orEmpty(modelInput.projects()));
-        Set<String> resourceIds = validateResources(validationBuilder, orEmpty(modelInput.resources()), projectIds);
+        Map<String, String> projectIdByResourceId =
+                validateResources(validationBuilder, orEmpty(modelInput.resources()), projectIds);
         Map<String, Set<String>> executionModeIdsByJobId =
-                validateJobs(validationBuilder, jobs, projectIds, resourceIds);
+                validateJobs(validationBuilder, jobs, projectIds, projectIdByResourceId);
         validateProjectBrackets(validationBuilder, jobs, projectIds);
         validateAllocations(validationBuilder, orEmpty(modelInput.allocations()), executionModeIdsByJobId,
                 standardJobIds(jobs));
@@ -76,19 +79,30 @@ public class ProjectJobScheduleValidator
         return projectIds;
     }
 
-    private static Set<String> validateResources(ValidationBuilder validationBuilder, List<ResourceInputDTO> resources,
-            Set<String> projectIds) {
-        Set<String> resourceIds = new LinkedHashSet<>();
+    /**
+     * @return the id of the project owning each resource, or null for a resource every project draws from,
+     *         so a resource requirement can be checked against the project of the job it belongs to
+     */
+    private static Map<String, String> validateResources(ValidationBuilder validationBuilder,
+            List<ResourceInputDTO> resources, Set<String> projectIds) {
+        Map<String, String> projectIdByResourceId = new HashMap<>();
         for (ResourceInputDTO resource : resources) {
-            if (hasId(resource.id()) && !resourceIds.add(resource.id())) {
-                validationBuilder.addIssue(new DuplicateResourceIdIssue(resource.id()));
+            if (hasId(resource.id())) {
+                if (projectIdByResourceId.containsKey(resource.id())) {
+                    validationBuilder.addIssue(new DuplicateResourceIdIssue(resource.id()));
+                } else {
+                    // A dangling project is reported once below, rather than again for every requirement
+                    // of the resource, so such a resource is treated as available to every project.
+                    projectIdByResourceId.put(resource.id(),
+                            projectIds.contains(resource.projectId()) ? resource.projectId() : null);
+                }
             }
             // A resource without a project is global, so only a project that is actually named has to exist.
             if (resource.projectId() != null && !projectIds.contains(resource.projectId())) {
                 validationBuilder.addIssue(new NonExistingProjectReferenceIssue(resource.projectId()));
             }
         }
-        return resourceIds;
+        return projectIdByResourceId;
     }
 
     /**
@@ -96,7 +110,7 @@ public class ProjectJobScheduleValidator
      *         execution modes of the job it schedules
      */
     private static Map<String, Set<String>> validateJobs(ValidationBuilder validationBuilder, List<JobInputDTO> jobs,
-            Set<String> projectIds, Set<String> resourceIds) {
+            Set<String> projectIds, Map<String, String> projectIdByResourceId) {
         Set<String> jobIds = new LinkedHashSet<>();
         Set<String> executionModeIds = new HashSet<>();
         Map<String, Set<String>> executionModeIdsByJobId = new LinkedHashMap<>();
@@ -113,8 +127,9 @@ public class ProjectJobScheduleValidator
                     validationBuilder.addIssue(new DuplicateExecutionModeIdIssue(executionMode.id()));
                 }
                 jobExecutionModeIds.add(executionMode.id());
-                validateResourceRequirements(validationBuilder, executionMode, resourceIds);
+                validateResourceRequirements(validationBuilder, job, executionMode, projectIdByResourceId);
             }
+            validateSourceOrSinkExecutionMode(validationBuilder, job);
             executionModeIdsByJobId.put(job.id(), jobExecutionModeIds);
         }
         for (JobInputDTO job : jobs) {
@@ -127,18 +142,43 @@ public class ProjectJobScheduleValidator
         return executionModeIdsByJobId;
     }
 
-    private static void validateResourceRequirements(ValidationBuilder validationBuilder,
-            ExecutionModeInputDTO executionMode, Set<String> resourceIds) {
+    private static void validateResourceRequirements(ValidationBuilder validationBuilder, JobInputDTO job,
+            ExecutionModeInputDTO executionMode, Map<String, String> projectIdByResourceId) {
         Set<String> requiredResourceIds = new LinkedHashSet<>();
         for (ResourceRequirementInputDTO requirement : executionMode.resourceRequirements()) {
-            if (!resourceIds.contains(requirement.resourceId())) {
+            if (!projectIdByResourceId.containsKey(requirement.resourceId())) {
                 validationBuilder.addIssue(new NonExistingResourceReferenceIssue(requirement.resourceId()));
+            } else if (!isAvailableToProject(projectIdByResourceId.get(requirement.resourceId()), job.projectId())) {
+                // The constraints only cap a resource's total consumption, so nothing else stops one
+                // project from eating into the capacity another project owns.
+                validationBuilder.addIssue(
+                        new CrossProjectResourceRequirementIssue(executionMode.id(), requirement.resourceId()));
             } else if (!requiredResourceIds.add(requirement.resourceId())) {
                 // Two requirements for the same resource cannot be told apart, and would double the
                 // amount consumed without the dataset saying so.
                 validationBuilder
                         .addIssue(new DuplicateResourceRequirementIssue(executionMode.id(), requirement.resourceId()));
             }
+        }
+    }
+
+    private static boolean isAvailableToProject(String resourceProjectId, String jobProjectId) {
+        return resourceProjectId == null || resourceProjectId.equals(jobProjectId);
+    }
+
+    /**
+     * A SOURCE or SINK job only marks where its project starts or ends, so the model schedules it in its
+     * first execution mode. Anything other than a single zero-duration mode without requirements would
+     * shift the project's dates or consume capacity, and any other mode would be silently ignored.
+     */
+    private static void validateSourceOrSinkExecutionMode(ValidationBuilder validationBuilder, JobInputDTO job) {
+        if (job.jobType() != JobType.SOURCE && job.jobType() != JobType.SINK) {
+            return;
+        }
+        List<ExecutionModeInputDTO> executionModes = orEmpty(job.executionModes());
+        if (executionModes.size() != 1 || !Integer.valueOf(0).equals(executionModes.getFirst().duration())
+                || !executionModes.getFirst().resourceRequirements().isEmpty()) {
+            validationBuilder.addIssue(new InvalidSourceOrSinkExecutionModeIssue(job.id()));
         }
     }
 
