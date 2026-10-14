@@ -309,6 +309,6 @@ public class ProjectJobScheduleValidator
     }
 
     private static boolean hasId(String id) {
-        return id != null && !id.isBlank();
+        return id != null;
     }
 }
