@@ -228,7 +228,7 @@ const app = {
                         .text(`Job ${job.id}: ${requirement.requirement} unit(s)`))
                     .append(this.jobBadges(job));
                 this.byResourceItemData.add({
-                    id: `${allocation.id}-${requirement.resourceId}`,
+id: JSON.stringify([allocation.id, requirement.resourceId]),
                     group: requirement.resourceId,
                     content: content.html(),
                     start: this.dayToDate(allocation.startDate),
