@@ -67,32 +67,34 @@ public class Vehicle implements LocationAware {
         return homeLocation;
     }
 
+    /**
+     * @return the demand of the whole route, 0 when it has no visits or while the cumulative demand
+     *         shadow of its last visit is not computed yet
+     */
     public int getTotalDemand() {
-        int totalDemand = 0;
-        for (Visit visit : visits) {
-            totalDemand += visit.getDemand();
+        if (visits.isEmpty()) {
+            return 0;
         }
-        return totalDemand;
+        Visit lastVisit = visits.get(visits.size() - 1);
+        Integer cumulativeDemand = lastVisit.getCumulativeDemand();
+        return cumulativeDemand == null ? 0 : cumulativeDemand;
     }
 
     /**
-     * @return the driving time of the whole route, home location to home location, in seconds
+     * @return the driving time of the whole route, home location to home location, in seconds; 0
+     *         when it has no visits or while the cumulative driving time shadow of its last visit is
+     *         not computed yet
      */
     public long getTotalDrivingTimeSeconds() {
         if (visits.isEmpty()) {
             return 0;
         }
-
-        long totalDrivingTime = 0;
-        Location previousLocation = homeLocation;
-
-        for (Visit visit : visits) {
-            totalDrivingTime += previousLocation.getTravelTimeTo(visit.getLocation()).seconds();
-            previousLocation = visit.getLocation();
+        Visit lastVisit = visits.get(visits.size() - 1);
+        Long cumulativeDrivingTime = lastVisit.getCumulativeDrivingTimeSeconds();
+        if (cumulativeDrivingTime == null) {
+            return 0;
         }
-        totalDrivingTime += previousLocation.getTravelTimeTo(homeLocation).seconds();
-
-        return totalDrivingTime;
+        return cumulativeDrivingTime + lastVisit.getLocation().getTravelTimeTo(homeLocation).seconds();
     }
 
     /**
