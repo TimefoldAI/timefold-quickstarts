@@ -119,7 +119,7 @@ public class ProjectJobScheduleModelConvertor
             ExecutionMode executionMode, Map<String, Resource> resourceMap) {
         // A requirement is identified by the execution mode consuming it and the resource it consumes,
         // so that pair is its id: an input dataset never has to make one up.
-        String id = "%s-%s".formatted(executionMode.id(), dto.resourceId());
+        String id = "%d:%s%s".formatted(executionMode.id().length(), executionMode.id(), dto.resourceId());
         return new ResourceRequirement(id, executionMode, require(resourceMap, dto.resourceId(), "resource"),
                 dto.requirement());
     }
