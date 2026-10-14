@@ -28,8 +28,7 @@ public class TournamentDemoDataGenerator implements DemoDataGenerator {
                     plays on a day it is unavailable, the number of matches is spread as evenly as possible across \
                     all teams, and the number of times each pair of teams confronts each other is as even as \
                     possible.""",
-            List.of("fairness", "unavailability", "confrontation balance"),
-            List.of());
+            List.of("fairness", "unavailability", "confrontation balance"));
 
     @Override
     public List<DemoMetaData> demoMetaData() {

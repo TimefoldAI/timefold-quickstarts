@@ -28,8 +28,7 @@ public class SportsLeagueSchedulingDemoDataGenerator implements DemoDataGenerato
                     Once solved, no team plays twice on the same matchday or four matchdays in a row at home \
                     or away, no pairing is replayed the very next matchday, the classics land on a weekend, \
                     and the kilometres the teams travel between consecutive venues are as few as possible.""",
-            List.of("schedule conflicts", "team fairness", "travel distance", "match attractiveness"),
-            List.of());
+            List.of("schedule conflicts", "team fairness", "travel distance", "match attractiveness"));
 
     @Override
     public List<DemoMetaData> demoMetaData() {

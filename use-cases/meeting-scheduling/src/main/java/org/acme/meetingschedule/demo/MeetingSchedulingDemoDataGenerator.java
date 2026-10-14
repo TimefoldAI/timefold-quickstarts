@@ -28,8 +28,7 @@ public class MeetingSchedulingDemoDataGenerator implements DemoDataGenerator {
                     + "solved, no room is double-booked, no meeting runs past the end of its day, no required "
                     + "attendee is expected in two meetings at once, every room seats everyone attending, and the "
                     + "attendance clashes that are left over are the ones that could not be avoided.",
-            List.of("room capacity", "attendance", "office hours", "room stability"),
-            List.of());
+            List.of("room capacity", "attendance", "office hours", "room stability"));
 
     @Override
     public List<DemoMetaData> demoMetaData() {

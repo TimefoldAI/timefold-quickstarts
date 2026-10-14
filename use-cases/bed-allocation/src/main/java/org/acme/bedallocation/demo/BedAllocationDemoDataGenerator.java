@@ -27,8 +27,7 @@ public class BedAllocationDemoDataGenerator implements DemoDataGenerator {
                     + "rooms enforce gender-mix rules across nights. Once solved, every patient is assigned to a "
                     + "bed that respects gender, age, specialty, and equipment preferences while keeping stays in "
                     + "the same bed night to night.",
-            List.of("room capacity", "equipment", "gender rules", "specialty", "age"),
-            List.of());
+            List.of("room capacity", "equipment", "gender rules", "specialty", "age"));
 
     @Override
     public List<DemoMetaData> demoMetaData() {

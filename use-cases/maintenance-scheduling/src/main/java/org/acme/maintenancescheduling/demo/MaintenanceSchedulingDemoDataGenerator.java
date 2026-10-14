@@ -27,8 +27,7 @@ public class MaintenanceSchedulingDemoDataGenerator implements DemoDataGenerator
                     + "carries the area it takes place in as a tag. Once solved, every job runs on exactly one "
                     + "crew inside its window, as close as possible to its ideal end date, and jobs in the same "
                     + "area no longer overlap.",
-            List.of("crew conflicts", "ready dates", "due dates", "ideal end dates", "area tags"),
-            List.of());
+            List.of("crew conflicts", "ready dates", "due dates", "ideal end dates", "area tags"));
 
     @Override
     public List<DemoMetaData> demoMetaData() {

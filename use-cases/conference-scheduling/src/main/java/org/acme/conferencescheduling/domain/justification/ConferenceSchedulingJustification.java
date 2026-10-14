@@ -72,13 +72,6 @@ public interface ConferenceSchedulingJustification extends ModelConstraintJustif
     String getDescription();
 
     /**
-     * Exposes the description as the {@code description} property of {@link ModelConstraintJustification}.
-     */
-    default String description() {
-        return getDescription();
-    }
-
-    /**
      * @return the tags present in both collections, in the iteration order of {@code left}
      */
     private static List<String> shared(Collection<String> left, Collection<String> right) {

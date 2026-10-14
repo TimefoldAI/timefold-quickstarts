@@ -37,13 +37,6 @@ public interface VehicleRoutePlanJustification extends ModelConstraintJustificat
      */
     String getDescription();
 
-    /**
-     * Exposes the description as the {@code description} property of {@link ModelConstraintJustification}.
-     */
-    default String description() {
-        return getDescription();
-    }
-
     @Schema(description = "The visits on one vehicle's route demand more than that vehicle can carry.",
             allOf = { VehicleRoutePlanJustification.class })
     record VehicleCapacityJustification(

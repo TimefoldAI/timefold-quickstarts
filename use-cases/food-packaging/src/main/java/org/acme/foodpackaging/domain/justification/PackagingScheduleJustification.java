@@ -40,13 +40,6 @@ public interface PackagingScheduleJustification extends ModelConstraintJustifica
      */
     String getDescription();
 
-    /**
-     * Exposes the description as the {@code description} property of {@link ModelConstraintJustification}.
-     */
-    default String description() {
-        return getDescription();
-    }
-
     private static long minutesBetween(OffsetDateTime from, OffsetDateTime to) {
         return Duration.between(from, to).toMinutes();
     }

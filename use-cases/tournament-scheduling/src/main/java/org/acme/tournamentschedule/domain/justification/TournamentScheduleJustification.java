@@ -40,13 +40,6 @@ public interface TournamentScheduleJustification extends ModelConstraintJustific
      */
     String getDescription();
 
-    /**
-     * Exposes the description as the {@code description} property of {@link ModelConstraintJustification}.
-     */
-    default String description() {
-        return getDescription();
-    }
-
     // ************************************************************************
     // Hard constraints
     // ************************************************************************
