@@ -31,6 +31,8 @@ public class Visit implements LocationAware {
     private Visit previousVisit;
     @ShadowVariable(supplierName = "timingsSupplier")
     private Timings timings;
+    @ShadowVariable(supplierName = "cumulativeDemandSupplier")
+    private Integer cumulativeDemand;
 
     public Visit() {
     }
@@ -72,9 +74,9 @@ public class Visit implements LocationAware {
     // ************************************************************************
 
     /**
-     * Computes the arrival, start service and departure time in one go: they are derived from the
-     * same predecessor's departure time, so a single supplier keeps them consistent and avoids
-     * recomputing the chain three times.
+     * Computes the arrival, start service and departure time and the cumulative driving time in one
+     * go: they are derived from the same predecessor's departure time, so a single supplier keeps
+     * them consistent and avoids recomputing the chain several times.
      *
      * @return null while this visit is unassigned or its predecessor is not timed yet
      */
@@ -89,9 +91,33 @@ public class Visit implements LocationAware {
         if (previousDepartureTime == null) {
             return null;
         }
-        var arrivalTime = previousDepartureTime.plusSeconds(getDrivingTimeSecondsFromPreviousStandstill());
+        long drivingTimeSeconds = getDrivingTimeSecondsFromPreviousStandstill();
+        long previousCumulativeDrivingTimeSeconds =
+                previousVisit == null ? 0 : previousVisit.getCumulativeDrivingTimeSeconds();
+        var arrivalTime = previousDepartureTime.plusSeconds(drivingTimeSeconds);
         var startServiceTime = arrivalTime.isBefore(minStartTime) ? minStartTime : arrivalTime;
-        return new Timings(arrivalTime, startServiceTime, startServiceTime.plus(serviceDuration));
+        return new Timings(arrivalTime, startServiceTime, startServiceTime.plus(serviceDuration),
+                previousCumulativeDrivingTimeSeconds + drivingTimeSeconds);
+    }
+
+    /**
+     * Kept apart from {@link Timings} because it does not depend on them: a change that only affects
+     * the timings does not recalculate the demand.
+     *
+     * @return the demand of the whole route up to and including this visit; null while this visit is
+     *         unassigned or its predecessor's demand is not computed yet
+     */
+    @SuppressWarnings("unused")
+    @ShadowSources({ "vehicle", "previousVisit.cumulativeDemand" })
+    public Integer cumulativeDemandSupplier() {
+        if (vehicle == null) {
+            return null;
+        }
+        if (previousVisit == null) {
+            return demand;
+        }
+        Integer previousCumulativeDemand = previousVisit.getCumulativeDemand();
+        return previousCumulativeDemand == null ? null : previousCumulativeDemand + demand;
     }
 
     public OffsetDateTime getArrivalTime() {
@@ -104,6 +130,10 @@ public class Visit implements LocationAware {
 
     public OffsetDateTime getDepartureTime() {
         return timings == null ? null : timings.departureTime();
+    }
+
+    public Long getCumulativeDrivingTimeSeconds() {
+        return timings == null ? null : timings.cumulativeDrivingTimeSeconds();
     }
 
     public boolean isAssigned() {
@@ -225,6 +255,14 @@ public class Visit implements LocationAware {
         this.timings = timings;
     }
 
+    public Integer getCumulativeDemand() {
+        return cumulativeDemand;
+    }
+
+    public void setCumulativeDemand(Integer cumulativeDemand) {
+        this.cumulativeDemand = cumulativeDemand;
+    }
+
     /**
      * The times at which this visit is serviced, all derived from the route this visit is in.
      *
@@ -232,9 +270,11 @@ public class Visit implements LocationAware {
      * @param startServiceTime the time servicing starts: the arrival time, or the visit's earliest
      *        start time when the vehicle has to wait
      * @param departureTime the time the vehicle leaves again
+     * @param cumulativeDrivingTimeSeconds the driving time from the vehicle's home location up to
+     *        this visit, not including the drive back home
      */
     public record Timings(OffsetDateTime arrivalTime, OffsetDateTime startServiceTime,
-            OffsetDateTime departureTime) {
+            OffsetDateTime departureTime, long cumulativeDrivingTimeSeconds) {
     }
 
 }
