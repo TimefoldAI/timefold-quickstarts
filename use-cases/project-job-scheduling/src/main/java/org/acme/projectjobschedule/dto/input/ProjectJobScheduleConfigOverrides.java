@@ -8,10 +8,11 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-@Schema(description = "Weights of the constraints that trade off against each other. Set a weight to 0 to disable "
-        + "the corresponding constraint. A weight left unset (null) is not overridden here, so the value from the "
-        + "configuration profile (or the constraint's default) applies. This makes it possible to override some "
-        + "weights via the input while leaving others to the configuration profile.")
+@Schema(description = """
+        Weights of the constraints that trade off against each other. Set a weight to 0 to disable \
+        the corresponding constraint. A weight left unset (null) is not overridden here, so the value from the \
+        configuration profile (or the constraint's default) applies. This makes it possible to override some \
+        weights via the input while leaving others to the configuration profile.""")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ProjectJobScheduleConfigOverrides(
         @ConstraintReference(ProjectJobScheduleConstraintProperties.TOTAL_PROJECT_DELAY) @Schema(

@@ -64,8 +64,9 @@ public interface ProjectJobScheduleJustification extends ModelConstraintJustific
             allOf = { ProjectJobScheduleJustification.class })
     record RenewableResourceOverCapacityJustification(
             @Schema(description = "The id of the overbooked resource.") String resource,
-            @Schema(description = "The day number, counted from the start of the schedule, on which the resource is "
-                    + "overbooked.") int date,
+            @Schema(description = """
+                    The day number, counted from the start of the schedule, on which the resource is \
+                    overbooked.""") int date,
             @Schema(description = "The number of units the resource has per day.") int capacity,
             @Schema(description = "The number of units the jobs running on that day consume.") long totalRequirement)
             implements

@@ -6,8 +6,9 @@ public final class ProjectJobScheduleConstraintGroup {
 
     public static final ConstraintGroupInfo RESOURCE_CAPACITY = new ConstraintGroupInfo("resourceCapacity",
             "Resource capacity",
-            "Never consume more of a resource than it has: per day for a renewable resource, over the whole "
-                    + "schedule for a non-renewable one.",
+            """
+                    Never consume more of a resource than it has: per day for a renewable resource, over the whole \
+                    schedule for a non-renewable one.""",
             "IconStack2",
             new String[] { "resource capacity" });
 
