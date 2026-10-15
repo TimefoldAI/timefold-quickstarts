@@ -2,18 +2,23 @@ package org.acme.schooltimetabling.domain;
 
 import java.util.List;
 
+import ai.timefold.solver.core.api.domain.solution.ConstraintWeightOverrides;
 import ai.timefold.solver.core.api.domain.solution.PlanningEntityCollectionProperty;
 import ai.timefold.solver.core.api.domain.solution.PlanningScore;
 import ai.timefold.solver.core.api.domain.solution.PlanningSolution;
 import ai.timefold.solver.core.api.domain.solution.ProblemFactCollectionProperty;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
 import ai.timefold.solver.core.api.score.HardSoftScore;
-import ai.timefold.solver.core.api.solver.SolverStatus;
+import ai.timefold.solver.service.definition.api.SolverModel;
+import ai.timefold.solver.service.definition.api.metrics.InputMetricsAware;
+import ai.timefold.solver.service.definition.api.metrics.OutputMetricsAware;
+
+import org.acme.schooltimetabling.dto.input.TimetableInputMetrics;
+import org.acme.schooltimetabling.dto.output.TimetableOutputMetrics;
 
 @PlanningSolution
-public class Timetable {
-
-    private String name;
+public class Timetable implements SolverModel<HardSoftScore>,
+        InputMetricsAware<TimetableInputMetrics>, OutputMetricsAware<TimetableOutputMetrics> {
 
     @ProblemFactCollectionProperty
     @ValueRangeProvider
@@ -27,21 +32,12 @@ public class Timetable {
     @PlanningScore
     private HardSoftScore score;
 
-    // Ignored by Timefold, used by the UI to display solve or stop solving button
-    private SolverStatus solverStatus;
+    private ConstraintWeightOverrides<HardSoftScore> constraintWeightOverrides = ConstraintWeightOverrides.none();
 
-    // No-arg constructor required for Timefold
     public Timetable() {
     }
 
-    public Timetable(String name, HardSoftScore score, SolverStatus solverStatus) {
-        this.name = name;
-        this.score = score;
-        this.solverStatus = solverStatus;
-    }
-
-    public Timetable(String name, List<Timeslot> timeslots, List<Room> rooms, List<Lesson> lessons) {
-        this.name = name;
+    public Timetable(List<Timeslot> timeslots, List<Room> rooms, List<Lesson> lessons) {
         this.timeslots = timeslots;
         this.rooms = rooms;
         this.lessons = lessons;
@@ -50,10 +46,6 @@ public class Timetable {
     // ************************************************************************
     // Getters and setters
     // ************************************************************************
-
-    public String getName() {
-        return name;
-    }
 
     public List<Timeslot> getTimeslots() {
         return timeslots;
@@ -67,6 +59,7 @@ public class Timetable {
         return lessons;
     }
 
+    @Override
     public HardSoftScore getScore() {
         return score;
     }
@@ -75,12 +68,25 @@ public class Timetable {
         this.score = score;
     }
 
-    public SolverStatus getSolverStatus() {
-        return solverStatus;
+    @Override
+    public ConstraintWeightOverrides<HardSoftScore> getConstraintWeightOverrides() {
+        return constraintWeightOverrides;
     }
 
-    public void setSolverStatus(SolverStatus solverStatus) {
-        this.solverStatus = solverStatus;
+    public void setConstraintWeightOverrides(ConstraintWeightOverrides<HardSoftScore> constraintWeightOverrides) {
+        this.constraintWeightOverrides = constraintWeightOverrides;
     }
 
+    @Override
+    public TimetableInputMetrics getInputMetrics() {
+        int teachers = (int) lessons.stream().map(Lesson::getTeacher).distinct().count();
+        int studentGroups = (int) lessons.stream().map(Lesson::getStudentGroup).distinct().count();
+        return new TimetableInputMetrics(lessons.size(), timeslots.size(), rooms.size(), teachers, studentGroups);
+    }
+
+    @Override
+    public TimetableOutputMetrics getOutputMetrics() {
+        int assignedLessons = (int) lessons.stream().filter(Lesson::isAssigned).count();
+        return new TimetableOutputMetrics(assignedLessons, lessons.size() - assignedLessons);
+    }
 }
