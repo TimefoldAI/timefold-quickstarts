@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.5.10</version>
+    <version>3.5.16</version>
   </parent>
 
   <groupId>org.acme</groupId>
@@ -20,7 +20,7 @@
     <version.ai.timefold.solver>999-SNAPSHOT</version.ai.timefold.solver>
     <version.org.springframework.boot>${project.parent.version}</version.org.springframework.boot>
 
-    <version.compiler.plugin>3.15.0</version.compiler.plugin>
+    <version.compiler.plugin>3.16.0</version.compiler.plugin>
     <version.surefire.plugin>3.5.4</version.surefire.plugin>
   </properties>
 
