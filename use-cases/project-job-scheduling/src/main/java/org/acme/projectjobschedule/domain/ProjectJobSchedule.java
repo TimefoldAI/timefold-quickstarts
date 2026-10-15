@@ -7,6 +7,7 @@ import ai.timefold.solver.core.api.domain.solution.PlanningEntityCollectionPrope
 import ai.timefold.solver.core.api.domain.solution.PlanningScore;
 import ai.timefold.solver.core.api.domain.solution.PlanningSolution;
 import ai.timefold.solver.core.api.domain.solution.ProblemFactCollectionProperty;
+import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
 import ai.timefold.solver.core.api.score.HardMediumSoftScore;
 import ai.timefold.solver.service.definition.api.SolverModel;
 import ai.timefold.solver.service.definition.api.metrics.InputMetricsAware;
@@ -22,6 +23,7 @@ public class ProjectJobSchedule implements SolverModel<HardMediumSoftScore>,
     @ProblemFactCollectionProperty
     private List<Project> projects;
     @ProblemFactCollectionProperty
+    @ValueRangeProvider
     private List<Resource> resources;
     @ProblemFactCollectionProperty
     private List<Job> jobs;
@@ -32,6 +34,9 @@ public class ProjectJobSchedule implements SolverModel<HardMediumSoftScore>,
 
     @PlanningEntityCollectionProperty
     private List<Allocation> allocations;
+    // REPRODUCER ONLY: a second entity class, whose basic variable takes its values from the solution.
+    @PlanningEntityCollectionProperty
+    private List<ProjectLead> projectLeads;
 
     @PlanningScore
     private HardMediumSoftScore score;
@@ -50,6 +55,9 @@ public class ProjectJobSchedule implements SolverModel<HardMediumSoftScore>,
         this.executionModes = executionModes;
         this.resourceRequirements = resourceRequirements;
         this.allocations = allocations;
+        this.projectLeads = projects.stream()
+                .map(project -> new ProjectLead("lead-" + project.id(), project))
+                .toList();
     }
 
     public List<Project> getProjects() {
@@ -74,6 +82,10 @@ public class ProjectJobSchedule implements SolverModel<HardMediumSoftScore>,
 
     public List<Allocation> getAllocations() {
         return allocations;
+    }
+
+    public List<ProjectLead> getProjectLeads() {
+        return projectLeads;
     }
 
     @Override
