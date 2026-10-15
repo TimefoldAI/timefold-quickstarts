@@ -45,11 +45,8 @@ Assign lessons to timeslots and rooms to produce a better schedule for teachers 
    $ java -jar target/hello-world-run.jar
    ```
 
-   or with Gradle:
-
-   ```sh
-   $ gradle run
-   ```
+While solving, a live dashboard shows progress in the terminal; press `q` to stop early and still
+see the best solution found so far. This needs a real interactive terminal — running it through `gradle run` won't show anything.
 
 Look for the planning solution in the console log.
 

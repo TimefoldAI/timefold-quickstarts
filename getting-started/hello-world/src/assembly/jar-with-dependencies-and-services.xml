@@ -17,6 +17,11 @@
       <useProjectArtifact>true</useProjectArtifact>
       <unpack>true</unpack>
       <scope>runtime</scope>
+      <unpackOptions> <!-- Several dependencies (and this project) are JPMS modules; this jar is a merged, classpath-run one. -->
+        <excludes>
+          <exclude>**/module-info.class</exclude>
+        </excludes>
+      </unpackOptions>
     </dependencySet>
   </dependencySets>
 </assembly>
