@@ -1,7 +1,11 @@
 package org.acme.projectjobschedule.solver;
 
-import static org.acme.projectjobschedule.domain.JobType.SINK;
-import static org.acme.projectjobschedule.domain.JobType.STANDARD;
+import static org.acme.projectjobschedule.support.TestHelper.aJob;
+import static org.acme.projectjobschedule.support.TestHelper.aProject;
+import static org.acme.projectjobschedule.support.TestHelper.aResource;
+import static org.acme.projectjobschedule.support.TestHelper.aResourceRequirement;
+import static org.acme.projectjobschedule.support.TestHelper.anAllocation;
+import static org.acme.projectjobschedule.support.TestHelper.anExecutionMode;
 
 import java.util.List;
 
@@ -12,10 +16,11 @@ import ai.timefold.solver.core.api.score.stream.test.ConstraintVerifier;
 import org.acme.projectjobschedule.domain.Allocation;
 import org.acme.projectjobschedule.domain.ExecutionMode;
 import org.acme.projectjobschedule.domain.Job;
+import org.acme.projectjobschedule.domain.JobType;
 import org.acme.projectjobschedule.domain.Project;
 import org.acme.projectjobschedule.domain.ProjectJobSchedule;
+import org.acme.projectjobschedule.domain.Resource;
 import org.acme.projectjobschedule.domain.ResourceRequirement;
-import org.acme.projectjobschedule.domain.resource.LocalResource;
 import org.junit.jupiter.api.Test;
 
 import io.quarkus.test.junit.QuarkusTest;
@@ -23,143 +28,97 @@ import io.quarkus.test.junit.QuarkusTest;
 @QuarkusTest
 class ProjectJobSchedulingConstraintProviderTest {
 
-    private final ConstraintVerifier<ProjectJobSchedulingConstraintProvider, ProjectJobSchedule> constraintVerifier;
-
     @Inject
-    public ProjectJobSchedulingConstraintProviderTest(
-            ConstraintVerifier<ProjectJobSchedulingConstraintProvider, ProjectJobSchedule> constraintVerifier) {
-        this.constraintVerifier = constraintVerifier;
-    }
+    ConstraintVerifier<ProjectJobSchedulingConstraintProvider, ProjectJobSchedule> constraintVerifier;
 
     @Test
     void nonRenewableResourceCapacity() {
-        Project project = new Project("1");
-        LocalResource resource = new LocalResource("1", project, 10, false);
-
-        Job firstJob = new Job("1", project, STANDARD);
-        ResourceRequirement firstResourceRequirement = new ResourceRequirement("1", null, resource, 7);
-        ExecutionMode firstExecutionMode = new ExecutionMode("1", firstJob, 10, List.of(firstResourceRequirement));
-        firstResourceRequirement.setExecutionMode(firstExecutionMode);
-        Allocation firstAllocation = new Allocation("1", firstJob);
-        firstAllocation.setExecutionMode(firstExecutionMode);
-        firstAllocation.setDelay(100);
-
-        Job secondJob = new Job("2", project, STANDARD);
-        ResourceRequirement secondResourceRequirement = new ResourceRequirement("2", null, resource, 6);
-        ExecutionMode secondExecutionMode = new ExecutionMode("2", secondJob, 10, List.of(secondResourceRequirement));
-        secondResourceRequirement.setExecutionMode(secondExecutionMode);
-        Allocation secondAllocation = new Allocation("2", secondJob);
-        secondAllocation.setExecutionMode(secondExecutionMode);
-        secondAllocation.setDelay(100);
-
-        // Cannot use SolutionManager.updateShadows since that would set
-        // predecessorDoneDate to 0 (since the two allocations have no predecessors)
-        firstAllocation.updateShadowsAfterPredecessorDoneDate();
-        secondAllocation.updateShadowsAfterPredecessorDoneDate();
+        Resource resource = aResource("R1", 5, false);
+        ExecutionMode firstMode = anExecutionMode("M1", 2);
+        ExecutionMode secondMode = anExecutionMode("M2", 2);
+        ResourceRequirement firstRequirement = aResourceRequirement(firstMode, resource, 4);
+        ResourceRequirement secondRequirement = aResourceRequirement(secondMode, resource, 4);
+        Allocation first = anAllocation("1", aJob("A").executionModes(List.of(firstMode)).build())
+                .executionMode(firstMode)
+                .build();
+        Allocation second = anAllocation("2", aJob("B").executionModes(List.of(secondMode)).build())
+                .executionMode(secondMode)
+                .build();
 
         constraintVerifier.verifyThat(ProjectJobSchedulingConstraintProvider::nonRenewableResourceCapacity)
-                .given(firstResourceRequirement, secondResourceRequirement, firstAllocation, secondAllocation)
-                .penalizesBy(3);
+                .given(firstRequirement, secondRequirement, first, second)
+                .penalizesBy(3); // the two jobs consume 8 of the capacity of 5, whenever they run
+
+        constraintVerifier.verifyThat(ProjectJobSchedulingConstraintProvider::nonRenewableResourceCapacity)
+                .given(firstRequirement, secondRequirement, first)
+                .penalizesBy(0); // one job alone stays within the capacity
     }
 
     @Test
     void renewableResourceCapacity() {
-        Project project = new Project("1");
-        LocalResource resource = new LocalResource("1", project, 10, true);
-
-        Job firstJob = new Job("1", project, STANDARD);
-        ResourceRequirement firstResourceRequirement = new ResourceRequirement("1", null, resource, 7);
-        ExecutionMode firstExecutionMode = new ExecutionMode("1", firstJob, 10, List.of(firstResourceRequirement));
-        firstResourceRequirement.setExecutionMode(firstExecutionMode);
-        Allocation firstAllocation = new Allocation("1", firstJob);
-        firstAllocation.setExecutionMode(firstExecutionMode);
-        firstAllocation.setDelay(100);
-        firstAllocation.setPredecessorsDoneDate(1);
-
-        Job secondJob = new Job("2", project, STANDARD);
-        ResourceRequirement secondResourceRequirement = new ResourceRequirement("2", null, resource, 5);
-        ExecutionMode secondExecutionMode = new ExecutionMode("2", secondJob, 10, List.of(secondResourceRequirement));
-        secondResourceRequirement.setExecutionMode(secondExecutionMode);
-        Allocation secondAllocation = new Allocation("2", secondJob);
-        secondAllocation.setExecutionMode(secondExecutionMode);
-        secondAllocation.setDelay(100);
-        secondAllocation.setPredecessorsDoneDate(2);
-
-        // Cannot use SolutionManager.updateShadows since that would set
-        // predecessorDoneDate to 0 (since the two allocations have no predecessors)
-        firstAllocation.updateShadowsAfterPredecessorDoneDate();
-        secondAllocation.updateShadowsAfterPredecessorDoneDate();
+        Resource resource = aResource("R1", 3, true);
+        ExecutionMode firstMode = anExecutionMode("M1", 2);
+        ExecutionMode secondMode = anExecutionMode("M2", 2);
+        ResourceRequirement firstRequirement = aResourceRequirement(firstMode, resource, 2);
+        ResourceRequirement secondRequirement = aResourceRequirement(secondMode, resource, 2);
+        Allocation first = anAllocation("1", aJob("A").executionModes(List.of(firstMode)).build())
+                .executionMode(firstMode)
+                .build();
+        Allocation overlapping = anAllocation("2", aJob("B").executionModes(List.of(secondMode)).build())
+                .executionMode(secondMode)
+                .build();
 
         constraintVerifier.verifyThat(ProjectJobSchedulingConstraintProvider::renewableResourceCapacity)
-                .given(firstResourceRequirement, secondResourceRequirement, firstAllocation, secondAllocation)
-                .penalizesBy(18);
+                .given(firstRequirement, secondRequirement, first, overlapping)
+                .penalizesBy(2); // both jobs run on day 0 and 1, consuming 4 of the capacity of 3 on each
+
+        // Delaying the second job past the first one frees the resource again in between.
+        Allocation consecutive = anAllocation("2", aJob("B").executionModes(List.of(secondMode)).build())
+                .executionMode(secondMode)
+                .delay(2)
+                .build();
+
+        constraintVerifier.verifyThat(ProjectJobSchedulingConstraintProvider::renewableResourceCapacity)
+                .given(firstRequirement, secondRequirement, first, consecutive)
+                .penalizesBy(0);
     }
 
     @Test
     void totalProjectDelay() {
-        Project project = new Project("1");
-        project.setCriticalPathDuration(100);
-        LocalResource resource = new LocalResource("1", project, 10, true);
-
-        Job firstJob = new Job("1", project, SINK);
-        ResourceRequirement firstResourceRequirement = new ResourceRequirement("1", null, resource, 7);
-        ExecutionMode firstExecutionMode = new ExecutionMode("1", firstJob, 10, List.of(firstResourceRequirement));
-        firstResourceRequirement.setExecutionMode(firstExecutionMode);
-        Allocation firstAllocation = new Allocation("1", firstJob);
-        firstAllocation.setExecutionMode(firstExecutionMode);
-        firstAllocation.setDelay(100);
-        firstAllocation.setPredecessorsDoneDate(1);
-
-        Job secondJob = new Job("2", project, SINK);
-        ResourceRequirement secondResourceRequirement = new ResourceRequirement("2", null, resource, 5);
-        ExecutionMode secondExecutionMode = new ExecutionMode("2", secondJob, 10, List.of(secondResourceRequirement));
-        secondResourceRequirement.setExecutionMode(secondExecutionMode);
-        Allocation secondAllocation = new Allocation("2", secondJob);
-        secondAllocation.setExecutionMode(secondExecutionMode);
-        secondAllocation.setDelay(100);
-        secondAllocation.setPredecessorsDoneDate(2);
-
-        // Cannot use SolutionManager.updateShadows since that would set
-        // predecessorDoneDate to 0 (since the two allocations have no predecessors)
-        firstAllocation.updateShadowsAfterPredecessorDoneDate();
-        secondAllocation.updateShadowsAfterPredecessorDoneDate();
+        Project project = aProject("P1", 5);
+        ExecutionMode sinkMode = anExecutionMode("sink-1", 0);
+        Job sinkJob = aJob("sink").project(project).jobType(JobType.SINK).executionModes(List.of(sinkMode)).build();
+        Allocation lateSink = anAllocation("1", sinkJob)
+                .executionMode(sinkMode)
+                .predecessorsDoneDate(8)
+                .build();
 
         constraintVerifier.verifyThat(ProjectJobSchedulingConstraintProvider::totalProjectDelay)
-                .given(firstAllocation, secondAllocation)
-                .penalizesBy(23);
+                .given(lateSink)
+                .penalizesBy(3); // the project ends on day 8, three days past its critical path end date of 5
+
+        Allocation onTimeSink = anAllocation("2", sinkJob)
+                .executionMode(sinkMode)
+                .predecessorsDoneDate(4)
+                .build();
+
+        constraintVerifier.verifyThat(ProjectJobSchedulingConstraintProvider::totalProjectDelay)
+                .given(onTimeSink)
+                .penalizesBy(0); // ending before the critical path end date is not a delay
     }
 
     @Test
     void totalMakespan() {
-        Project project = new Project("1");
-        project.setCriticalPathDuration(155);
-        LocalResource resource = new LocalResource("1", project, 10, true);
-
-        Job firstJob = new Job("1", project, SINK);
-        ResourceRequirement firstResourceRequirement = new ResourceRequirement("1", null, resource, 7);
-        ExecutionMode firstExecutionMode = new ExecutionMode("1", firstJob, 10, List.of(firstResourceRequirement));
-        firstResourceRequirement.setExecutionMode(firstExecutionMode);
-        Allocation firstAllocation = new Allocation("1", firstJob);
-        firstAllocation.setExecutionMode(firstExecutionMode);
-        firstAllocation.setDelay(100);
-        firstAllocation.setPredecessorsDoneDate(1);
-
-        Job secondJob = new Job("2", project, SINK);
-        ResourceRequirement secondResourceRequirement = new ResourceRequirement("2", null, resource, 5);
-        ExecutionMode secondExecutionMode = new ExecutionMode("2", secondJob, 10, List.of(secondResourceRequirement));
-        secondResourceRequirement.setExecutionMode(secondExecutionMode);
-        Allocation secondAllocation = new Allocation("2", secondJob);
-        secondAllocation.setExecutionMode(secondExecutionMode);
-        secondAllocation.setDelay(100);
-        secondAllocation.setPredecessorsDoneDate(2);
-
-        // Cannot use SolutionManager.updateShadows since that would set
-        // predecessorDoneDate to 0 (since the two allocations have no predecessors)
-        firstAllocation.updateShadowsAfterPredecessorDoneDate();
-        secondAllocation.updateShadowsAfterPredecessorDoneDate();
+        ExecutionMode sinkMode = anExecutionMode("sink-1", 0);
+        Job firstSinkJob = aJob("sink-A").project(aProject("A", 5)).jobType(JobType.SINK)
+                .executionModes(List.of(sinkMode)).build();
+        Job secondSinkJob = aJob("sink-B").project(aProject("B", 5)).jobType(JobType.SINK)
+                .executionModes(List.of(sinkMode)).build();
+        Allocation first = anAllocation("1", firstSinkJob).executionMode(sinkMode).predecessorsDoneDate(6).build();
+        Allocation last = anAllocation("2", secondSinkJob).executionMode(sinkMode).predecessorsDoneDate(9).build();
 
         constraintVerifier.verifyThat(ProjectJobSchedulingConstraintProvider::totalMakespan)
-                .given(firstAllocation, secondAllocation)
-                .penalizesBy(112);
+                .given(first, last)
+                .penalizesBy(9); // only the last project ending counts
     }
 }

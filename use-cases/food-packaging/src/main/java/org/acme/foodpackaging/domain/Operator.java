@@ -23,7 +23,7 @@ public record Operator(@PlanningId String id, String name) {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return id.hashCode();
     }
 
     @Override

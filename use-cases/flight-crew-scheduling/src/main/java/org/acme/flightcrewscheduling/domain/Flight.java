@@ -34,7 +34,7 @@ public record Flight(
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(flightNumber);
+        return flightNumber.hashCode();
     }
 
     @Override

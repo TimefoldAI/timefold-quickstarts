@@ -43,6 +43,7 @@ QUICKSTART_DIRS=(
     "vehicle-routing"
     "tournament-scheduling"
     "facility-location"
+    "project-job-scheduling"
 )
 
 # Metadata needed to render each quickstart's index.html from the shared
@@ -62,6 +63,7 @@ quickstart_name() {
         food-packaging) echo "Food Packaging" ;;
         vehicle-routing) echo "Vehicle Routing" ;;
         tournament-scheduling) echo "Tournament Scheduling" ;;
+        project-job-scheduling) echo "Project Job Scheduling" ;;
         *) echo "quickstart_name: unknown quickstart '$1'" >&2; exit 1 ;;
     esac
 }
@@ -79,6 +81,7 @@ quickstart_utm_content() {
         food-packaging) echo "food-packaging-java" ;;
         vehicle-routing) echo "vehicle-routing-java" ;;
         tournament-scheduling) echo "tournament-scheduling-java" ;;
+        project-job-scheduling) echo "project-job-scheduling-java" ;;
         *) echo "quickstart_utm_content: unknown quickstart '$1'" >&2; exit 1 ;;
     esac
 }
@@ -97,6 +100,7 @@ quickstart_features() {
         vehicle-routing) echo "vis-timeline leaflet color-picker custom-css" ;;
         tournament-scheduling) echo "vis-timeline color-picker" ;;
         facility-location) echo "leaflet custom-css" ;;
+        project-job-scheduling) echo "vis-timeline color-picker" ;;
         *) echo "quickstart_features: unknown quickstart '$1'" >&2; exit 1 ;;
     esac
 }
