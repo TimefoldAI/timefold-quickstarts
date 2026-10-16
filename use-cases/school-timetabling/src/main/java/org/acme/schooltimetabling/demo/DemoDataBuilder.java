@@ -17,13 +17,13 @@ import org.acme.schooltimetabling.dto.input.TimeslotInputDTO;
 import org.acme.schooltimetabling.dto.input.TimetableInput;
 
 /**
- * Builds the demo datasets: a {@link DemoDataSize#SMALL small} one of two student groups over two days, and a
+ * Builds the demo datasets: a {@link DemoDataSize#BASIC small} one of two student groups over two days, and a
  * {@link DemoDataSize#LARGE large} one of four student groups over a full week. Every lesson starts unassigned.
  */
 public final class DemoDataBuilder {
 
     public enum DemoDataSize {
-        SMALL,
+        BASIC,
         LARGE
     }
 
@@ -45,7 +45,7 @@ public final class DemoDataBuilder {
     private static final String DALI = "S. Dali";
     private static final String LEWIS = "C. Lewis";
 
-    private DemoDataSize size = DemoDataSize.SMALL;
+    private DemoDataSize size = DemoDataSize.BASIC;
 
     private DemoDataBuilder() {
     }

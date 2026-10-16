@@ -19,7 +19,7 @@ import org.acme.schooltimetabling.dto.input.TimetableInput;
 @ApplicationScoped
 public class SchoolTimetablingDemoDataGenerator implements DemoDataGenerator {
 
-    private static final DemoMetaData SMALL_META_DATA = new DemoMetaData(DemoDataSize.SMALL.name(),
+    private static final DemoMetaData SMALL_META_DATA = new DemoMetaData(DemoDataSize.BASIC.name(),
             "Demonstrates a small school timetable of two student groups over two days.",
             """
                     Schedules 20 lessons of two student groups, taught by five teachers, into ten timeslots on \

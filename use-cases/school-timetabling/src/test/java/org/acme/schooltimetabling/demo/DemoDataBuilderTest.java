@@ -14,7 +14,7 @@ class DemoDataBuilderTest {
 
     @Test
     void shouldBuildSmallData() {
-        TimetableInput problem = DemoDataBuilder.builder().withSize(DemoDataSize.SMALL).build();
+        TimetableInput problem = DemoDataBuilder.builder().withSize(DemoDataSize.BASIC).build();
 
         assertThat(problem.timeslots()).hasSize(10);
         assertThat(problem.timeslots()).extracting(TimeslotInputDTO::dayOfWeek)
