@@ -72,7 +72,7 @@ class TimetableOpenApiValidationTest {
     }
 
     private static ObjectNode demoData() {
-        String json = given().when().get("/v1/demo-data/SMALL").then().statusCode(200).extract().asString();
+        String json = given().when().get("/v1/demo-data/BASIC").then().statusCode(200).extract().asString();
         try {
             return (ObjectNode) MAPPER.readTree(json);
         } catch (Exception e) {
