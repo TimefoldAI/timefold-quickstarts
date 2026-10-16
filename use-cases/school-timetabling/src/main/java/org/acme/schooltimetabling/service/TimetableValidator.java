@@ -126,6 +126,6 @@ public class TimetableValidator implements ModelValidator<TimetableInput, Timeta
     }
 
     private static boolean hasId(String id) {
-        return id != null && !id.isBlank();
+        return id != null && !id.isEmpty();
     }
 }
