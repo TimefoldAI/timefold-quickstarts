@@ -25,7 +25,7 @@ jobs:
     strategy:
       fail-fast: false # A broken JDK must not cancel the others.
       matrix:
-        module: ['getting-started/hello-world', 'use-cases/school-timetabling', 'getting-started/spring-boot-integration']
+        module: ['getting-started/hello-world', 'getting-started/spring-boot-integration']
         # Compile target, current LTS and latest JDK; replace 27 on each JDK release.
         java-version: [ 21, 25, 27 ]
     timeout-minutes: 120

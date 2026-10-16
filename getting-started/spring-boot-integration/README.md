@@ -41,7 +41,7 @@ Assign lessons to timeslots and rooms to produce a better schedule for teachers 
    $ cd timefold-quickstarts/getting-started/spring-boot-integration
    ```
 
-2. (Optional) If you want to run a licensed edition (Plus / Enterprise), set up your license key first. See the [Timefold license tool](https://licenses.timefold.ai/) for instructions.
+2. (Optional) If you want to run a licensed edition (Enterprise), set up your license key first. See the [Timefold license tool](https://licenses.timefold.ai/) for instructions.
 
 3. Start the application with Maven or Gradle:
 
@@ -57,7 +57,7 @@ Assign lessons to timeslots and rooms to produce a better schedule for teachers 
       $ gradle bootRun
       ```
    
-   2. Plus / Enterprise Edition: The build configuration sets up the correct dependencies and artifacts to run the licensed version. See `pom.xml` and `build.gradle` for the implementation details.
+   2. Enterprise Edition: The build configuration sets up the correct dependencies and artifacts to run the licensed version. See `pom.xml` and `build.gradle` for the implementation details.
 
       ```sh
       $ mvn spring-boot:run -Denterprise
