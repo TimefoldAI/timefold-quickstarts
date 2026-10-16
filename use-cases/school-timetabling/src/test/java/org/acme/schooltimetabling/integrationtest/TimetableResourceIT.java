@@ -24,7 +24,7 @@ class TimetableResourceIT {
 
     @Test
     void solveNative() {
-        String demoDataJson = given().when().get("/v1/demo-data/SMALL").then().statusCode(200).extract().asString();
+        String demoDataJson = given().when().get("/v1/demo-data/BASIC").then().statusCode(200).extract().asString();
 
         String datasetId = given().contentType(ContentType.JSON).body(demoDataJson).when()
                 .post("/v1/timetables").then().statusCode(202).extract().jsonPath().getString("id");
