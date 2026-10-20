@@ -20,6 +20,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
         oneOf = {
                 // Hard constraints
                 PickingPlanJustification.RequiredNumberOfBucketsJustification.class,
+                PickingPlanJustification.ProductFitsInBucketJustification.class,
 
                 // Soft constraints
                 PickingPlanJustification.DistanceFromPreviousPickTaskJustification.class,
@@ -54,6 +55,30 @@ public interface PickingPlanJustification extends ModelConstraintJustification {
         public String getDescription() {
             return "Trolley '%s' needs %d buckets for its orders, but only has %d."
                     .formatted(trolley, requiredBuckets, availableBuckets);
+        }
+    }
+
+    @Schema(description = "A trolley picks a product that is larger than its buckets.",
+            allOf = { PickingPlanJustification.class })
+    record ProductFitsInBucketJustification(
+            @Schema(description = "The id of the trolley with the undersized buckets.") String trolley,
+            @Schema(description = "The id of the pick task of the product.") String pickTask,
+            @Schema(description = "The id of the product that does not fit.") String product,
+            @Schema(description = "The volume of the product in cm3.") int volume,
+            @Schema(description = "The volume of one bucket of the trolley in cm3.") int bucketCapacity)
+            implements
+                PickingPlanJustification {
+
+        public static ProductFitsInBucketJustification of(PickTask pickTask) {
+            Trolley trolley = pickTask.getTrolley();
+            return new ProductFitsInBucketJustification(trolley.getId(), pickTask.getId(), pickTask.getProduct().id(),
+                    pickTask.getVolume(), trolley.getBucketCapacity());
+        }
+
+        @Override
+        public String getDescription() {
+            return "Trolley '%s' picks product '%s' of %d cm3 for pick task '%s', but its buckets only hold %d cm3."
+                    .formatted(trolley, product, volume, pickTask, bucketCapacity);
         }
     }
 

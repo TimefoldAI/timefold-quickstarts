@@ -6,7 +6,7 @@ public final class PickingPlanConstraintGroup {
 
     public static final ConstraintGroupInfo BUCKET_CAPACITY = new ConstraintGroupInfo("bucketCapacity",
             "Bucket capacity",
-            "Give every trolley enough buckets for the orders it picks, without sharing a bucket between two orders.",
+            "Give every trolley enough buckets, large enough for the products it picks, without sharing a bucket between two orders.",
             "IconBucket",
             new String[] { "bucket capacity" });
 

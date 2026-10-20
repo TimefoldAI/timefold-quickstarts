@@ -74,6 +74,22 @@ class PickingPlanConstraintProviderTest {
     }
 
     @Test
+    void productFitsInBucket() {
+        PickTask fittingPickTask = pickTask("1-0", "1", 5);
+        PickTask oversizedPickTask1 = pickTask("1-1", "1", 6);
+        PickTask oversizedPickTask2 = pickTask("2-0", "2", 20);
+        trolley("t1", 10, 5, fittingPickTask, oversizedPickTask1, oversizedPickTask2);
+
+        // The same products fit in the larger buckets of the second trolley.
+        PickTask largeBucketPickTask = pickTask("3-0", "3", 20);
+        trolley("t2", 10, 20, largeBucketPickTask);
+
+        constraintVerifier.verifyThat(PickingPlanConstraintProvider::productFitsInBucket)
+                .given(fittingPickTask, oversizedPickTask1, oversizedPickTask2, largeBucketPickTask)
+                .penalizesBy(2);
+    }
+
+    @Test
     void minimizeDistanceFromPreviousPickTask() {
         PickTask previousPickTask = pickTask("1", location("E1", ShelvingSide.RIGHT, 3));
         PickTask currentPickTask = pickTask("2", location("C3", ShelvingSide.RIGHT, 1));

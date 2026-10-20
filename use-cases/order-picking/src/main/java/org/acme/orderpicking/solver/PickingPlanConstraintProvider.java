@@ -15,6 +15,7 @@ import org.acme.orderpicking.domain.PickingPlanConstraintProperties;
 import org.acme.orderpicking.domain.justification.PickingPlanJustification.DistanceFromLastPickTaskToPathOriginJustification;
 import org.acme.orderpicking.domain.justification.PickingPlanJustification.DistanceFromPreviousPickTaskJustification;
 import org.acme.orderpicking.domain.justification.PickingPlanJustification.OrderSplitByTrolleyJustification;
+import org.acme.orderpicking.domain.justification.PickingPlanJustification.ProductFitsInBucketJustification;
 import org.acme.orderpicking.domain.justification.PickingPlanJustification.RequiredNumberOfBucketsJustification;
 
 /**
@@ -29,6 +30,7 @@ public class PickingPlanConstraintProvider implements ConstraintProvider {
         return new Constraint[] {
                 // Hard constraints
                 requiredNumberOfBuckets(constraintFactory),
+                productFitsInBucket(constraintFactory),
 
                 // Soft constraints
                 minimizeDistanceFromPreviousPickTask(constraintFactory),
@@ -60,6 +62,21 @@ public class PickingPlanConstraintProvider implements ConstraintProvider {
                 .asConstraint(new ConstraintInfo(PickingPlanConstraintProperties.REQUIRED_NUMBER_OF_BUCKETS,
                         PickingPlanConstraintProperties.REQUIRED_NUMBER_OF_BUCKETS,
                         "A trolley must have enough buckets for all its orders, as a bucket is never shared between two orders.",
+                        PickingPlanConstraintGroup.BUCKET_CAPACITY));
+    }
+
+    /**
+     * Ensure that a product is only picked by a Trolley whose buckets are large enough to hold it, as a product is
+     * indivisible and can't be spread over multiple buckets.
+     */
+    Constraint productFitsInBucket(ConstraintFactory constraintFactory) {
+        return constraintFactory.forEach(PickTask.class)
+                .filter(pickTask -> pickTask.getVolume() > pickTask.getTrolley().getBucketCapacity())
+                .penalize(HardSoftScore.ONE_HARD)
+                .justifyWith((pickTask, score) -> ProductFitsInBucketJustification.of(pickTask))
+                .asConstraint(new ConstraintInfo(PickingPlanConstraintProperties.PRODUCT_FITS_IN_BUCKET,
+                        PickingPlanConstraintProperties.PRODUCT_FITS_IN_BUCKET,
+                        "A trolley must not pick a product that is larger than its buckets.",
                         PickingPlanConstraintGroup.BUCKET_CAPACITY));
     }
 
