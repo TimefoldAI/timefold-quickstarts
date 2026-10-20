@@ -1,11 +1,36 @@
-.agent-row {
-    border: 2px solid grey;
+/* Order-picking-specific styling, on top of shared/timefold-quickstart.css. */
+
+#warehouseCanvasContainer {
+    width: 100%;
 }
 
-.trolley-checkbox-rectangle {
+#warehouseCanvas {
+    display: block;
+}
+
+.trolley-swatch {
+    display: inline-block;
+    width: 0.85rem;
+    height: 0.85rem;
+    border-radius: 50%;
     vertical-align: middle;
-    width: 20px;
-    max-width: 20px;
-    height: 20px;
-    max-height: 20px;
+}
+
+/* A trolley bucket, filled from the left as far as its order's products take up its volume. */
+.bucket {
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius-sm);
+    overflow: hidden;
+}
+
+.bucket-fill {
+    height: 100%;
+}
+
+/* A long path would otherwise make the trolley card as long as its pick task list. */
+.picking-table {
+    max-height: 22rem;
+    overflow-y: auto;
 }

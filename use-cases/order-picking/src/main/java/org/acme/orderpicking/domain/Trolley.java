@@ -2,13 +2,18 @@ package org.acme.orderpicking.domain;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.common.PlanningId;
+import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.variable.PlanningListVariable;
 
 /**
- * Represents the trolley that will be filled with the order items.
+ * Represents the trolley that will be filled with the order items. It starts at its location, walks past every
+ * {@link PickTask} in its list in that order, and returns to its location.
+ * <p>
+ * A trolley holds {@link #getBucketCount() a number of buckets} of {@link #getBucketCapacity() the same capacity},
+ * and a bucket never holds products of two different orders.
  *
  * @see PickTask for more information about the model constructed by the Solver.
  */
@@ -25,7 +30,6 @@ public class Trolley {
     private List<PickTask> pickTasks = new ArrayList<>();
 
     public Trolley() {
-        //marshalling constructor
     }
 
     public Trolley(String id, int bucketCount, int bucketCapacity, WarehouseLocation location) {
@@ -35,36 +39,27 @@ public class Trolley {
         this.location = location;
     }
 
+    // ************************************************************************
+    // Getters and setters
+    // ************************************************************************
+
     public String getId() {
         return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public int getBucketCount() {
         return bucketCount;
     }
 
-    public void setBucketCount(int bucketCount) {
-        this.bucketCount = bucketCount;
-    }
-
+    /**
+     * @return the volume of one bucket in cm3
+     */
     public int getBucketCapacity() {
         return bucketCapacity;
     }
 
-    public void setBucketCapacity(int bucketCapacity) {
-        this.bucketCapacity = bucketCapacity;
-    }
-
     public WarehouseLocation getLocation() {
         return location;
-    }
-
-    public void setLocation(WarehouseLocation location) {
-        this.location = location;
     }
 
     public List<PickTask> getPickTasks() {
@@ -73,5 +68,38 @@ public class Trolley {
 
     public void setPickTasks(List<PickTask> pickTasks) {
         this.pickTasks = pickTasks;
+    }
+
+    // ************************************************************************
+    // Complex methods
+    // ************************************************************************
+
+    /**
+     * @param orderVolume the volume in cm3 of all the products of one order this trolley picks
+     * @return the number of buckets those products take up, as a bucket is never shared with another order
+     */
+    public long calculateRequiredBuckets(long orderVolume) {
+        return (orderVolume + (bucketCapacity - 1)) / bucketCapacity;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Trolley trolley)) {
+            return false;
+        }
+        return Objects.equals(id, trolley.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return id;
     }
 }

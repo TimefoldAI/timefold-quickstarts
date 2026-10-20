@@ -1,54 +1,37 @@
 package org.acme.orderpicking.domain;
 
+import java.util.Objects;
+
 /**
  * Represents the products container. In the order picking problem the warehouse is represented as a set of shelvings
  * that are organized into columns and rows. Each shelving has two sides where the products can be stored, and
- * a number of rows.
- * 
+ * {@link Warehouse#SHELVING_ROWS a number of rows}.
+ *
+ * @param id the column letter followed by the row number, for example {@code A1}
+ * @param x absolute x position of the shelving's left bottom corner within the warehouse
+ * @param y absolute y position of the shelving's left bottom corner within the warehouse
  * @see Warehouse
  */
-public class Shelving {
+public record Shelving(String id, int x, int y) {
 
-    public static final int ROWS_SIZE = 10;
-
-    /**
-     * Available shelving sides where the products can be located.
-     */
-    public enum Side {
-        LEFT,
-        RIGHT
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Shelving shelving)) {
+            return false;
+        }
+        return Objects.equals(id, shelving.id);
     }
 
-    private String id;
-
-    /**
-     * Absolute x position of the shelving's left bottom corner within the warehouse.
-     */
-    private int x;
-    /**
-     * Absolute y position of the shelving's left bottom corner within the warehouse.
-     */
-    private int y;
-
-    Shelving(String id, int x, int y) {
-        this.id = id;
-        this.x = x;
-        this.y = y;
+    @Override
+    public int hashCode() {
+        return id.hashCode();
     }
 
-    public static String newShelvingId(Warehouse.Column column, Warehouse.Row row) {
-        return "(" + column.toString() + "," + row.toString() + ")";
-    }
-
-    public String getId() {
+    @Override
+    public String toString() {
         return id;
-    }
-
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
     }
 }

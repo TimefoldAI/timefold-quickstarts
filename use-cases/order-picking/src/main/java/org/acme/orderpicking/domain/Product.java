@@ -1,73 +1,35 @@
 package org.acme.orderpicking.domain;
 
+import java.util.Objects;
+
 /**
- * Represents an indivisible store article that can be included in an order, e.g. "6 milk bricks pack". In the context
- * of the order picking problem the volume of a product is measured in cm3, and every product is located in a
- * particular shelving, this information is represented by the WarehouseLocation.
- * 
- * @see WarehouseLocation
- * @see Shelving
+ * Represents an indivisible store article that can be included in an order, e.g. "6 milk bricks pack".
+ *
+ * @param id the unique identifier of the product
+ * @param name the human-readable name of the product
+ * @param volume the volume of the product in cm3
+ * @param location the place in the warehouse the product is stored
  */
-public class Product {
+public record Product(String id, String name, int volume, WarehouseLocation location) {
 
-    private String id;
-    private String name;
-    /**
-     * The volume of a product is measured in cm3.
-     */
-    private int volume;
-    private WarehouseLocation location;
-
-    public Product() {
-        //marshalling constructor
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Product product)) {
+            return false;
+        }
+        return Objects.equals(id, product.id);
     }
 
-    public Product(String id, String name, int volume, WarehouseLocation location) {
-        this.id = id;
-        this.name = name;
-        this.volume = volume;
-        this.location = location;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public int getVolume() {
-        return volume;
-    }
-
-    public void setVolume(int volume) {
-        this.volume = volume;
-    }
-
-    public WarehouseLocation getLocation() {
-        return location;
-    }
-
-    public void setLocation(WarehouseLocation location) {
-        this.location = location;
+    @Override
+    public int hashCode() {
+        return id.hashCode();
     }
 
     @Override
     public String toString() {
-        return "Product{" +
-                "id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                ", volume=" + volume +
-                ", location=" + location +
-                '}';
+        return name + "(" + id + ")";
     }
 }

@@ -6,12 +6,12 @@ Generate an optimal picking plan for completing a set of orders.
 
 ## Constraints
 
-| Name                                                 | Level | Description                                                                    |
-|------------------------------------------------------|-------|--------------------------------------------------------------------------------|
-| Required number of buckets                           | Hard  | A trolley must have enough buckets for all assigned orders.                    |
-| Minimize distance from previous pick task            | Soft  | Minimize the travel distance between consecutive pick tasks.                   |
-| Minimize distance from last pick task to path origin | Soft  | Minimize the return distance from the last pick task to the start of the path. |
-| Minimize order split by trolley                      | Soft  | Minimize the number of trolleys used for each order.                           |
+| Name                                                 | Level | Description                                                                                            |
+|------------------------------------------------------|-------|--------------------------------------------------------------------------------------------------------|
+| Required number of buckets                           | Hard  | A trolley must have enough buckets for all its orders, as a bucket is never shared between two orders. |
+| Minimize distance from previous pick task            | Soft  | Minimize the travel distance between consecutive pick tasks of a trolley.                              |
+| Minimize distance from last pick task to path origin | Soft  | Minimize the return distance from the last pick task of a trolley to its start location.               |
+| Minimize order split by trolley                      | Soft  | Minimize the number of trolleys used for each order.                                                   |
 
 - [Run the application](#run-the-application)
 - [Run the packaged application](#run-the-packaged-application)
@@ -23,8 +23,8 @@ Generate an optimal picking plan for completing a set of orders.
 1. Install Java and Maven, for example with [Sdkman](https://sdkman.io):
 
    ```sh
-   $ sdk install java
-   $ sdk install maven
+   sdk install java
+   sdk install maven
    ```
 
 ## Run the application
@@ -32,9 +32,9 @@ Generate an optimal picking plan for completing a set of orders.
 1. Git clone the timefold-quickstarts repo and navigate to this directory:
 
    ```sh
-   $ git clone https://github.com/TimefoldAI/timefold-quickstarts.git
+   git clone https://github.com/TimefoldAI/timefold-quickstarts.git
    ...
-   $ cd timefold-quickstarts/use-cases/order-picking
+   cd timefold-quickstarts/use-cases/order-picking
    ```
 
 2. (Optional) If you want to run a licensed edition (Enterprise), set up your license key first. See the [Timefold license tool](https://licenses.timefold.ai/) for instructions.
@@ -44,13 +44,13 @@ Generate an optimal picking plan for completing a set of orders.
    1. Community Edition
    
       ```sh
-      $ mvn quarkus:dev
+      mvn quarkus:dev
       ```
    
    2. Enterprise Edition: The profile sets up the correct Maven artifacts to run the licensed version. See the `pom.xml` for the implementation details.
 
       ```sh
-      $ mvn quarkus:dev -Denterprise
+      mvn quarkus:dev -Denterprise
       ```
 
 4. Visit [http://localhost:8080](http://localhost:8080) in your browser.
@@ -68,16 +68,16 @@ Notice that those changes are immediately in effect.
 
 When you're done iterating in `quarkus:dev` mode, package the application to run as a conventional jar file.
 
-1. Compile it with Maven:
+1. Build it with Maven:
 
    ```sh
-   $ mvn package
+   mvn package
    ```
 
-2. Run it:
+2. Run the Maven output:
 
    ```sh
-   $ java -jar ./target/quarkus-app/quarkus-run.jar
+   java -jar ./target/quarkus-app/quarkus-run.jar
    ```
 
    > **Note**
@@ -92,13 +92,13 @@ When you're done iterating in `quarkus:dev` mode, package the application to run
 1. Build a container image:
 
    ```sh
-   $ mvn package -Dcontainer
+   mvn package -Dcontainer
    ```
 
 2. Run a container:
 
    ```sh
-   $ docker run -p 8080:8080 --rm $USER/order-picking:1.0-SNAPSHOT
+   docker run -p 8080:8080 --rm $USER/model-order-picking-v1:0.0.1
    ```
 
 ## Run it native
@@ -110,13 +110,13 @@ To increase startup performance for serverless deployments, build the applicatio
 2. Compile it natively. This takes a few minutes:
 
    ```sh
-   $ mvn package -Dnative -DskipTests
+   mvn package -Dnative
    ```
 
 3. Run the native executable:
 
    ```sh
-   $ ./target/*-runner
+   ./target/*-runner
    ```
 
 4. Visit [http://localhost:8080](http://localhost:8080) in your browser.
