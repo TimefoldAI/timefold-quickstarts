@@ -5,7 +5,6 @@ plugins {
 
 def quarkusVersion = "3.40.1"
 def timefoldVersion = "999-SNAPSHOT"
-def profile = System.properties['profile'] ?: ''
 def enterprise = System.properties['enterprise'] ?: ''
 
 group = "org.acme"
@@ -17,7 +16,6 @@ repositories {
 }
 
 dependencies {
-
     implementation enforcedPlatform("io.quarkus:quarkus-bom:${quarkusVersion}")
     implementation platform("ai.timefold.solver:timefold-solver-bom:${timefoldVersion}")
     if (enterprise == 'true') {
@@ -40,9 +38,9 @@ dependencies {
 
     // UI
     implementation "io.quarkus:quarkus-web-dependency-locator"
-    runtimeOnly "org.webjars:bootstrap:5.2.3"
-    runtimeOnly "org.webjars:jquery:3.6.4"
-    runtimeOnly "org.webjars:font-awesome:5.15.1"
+    runtimeOnly "org.webjars:bootstrap:5.3.8"
+    runtimeOnly "org.webjars:jquery:3.7.1"
+    runtimeOnly "org.webjars:font-awesome:7.1.0"
     runtimeOnly "org.webjars.npm:js-joda:1.11.0"
 }
 
@@ -62,6 +60,8 @@ compileTestJava {
 
 test {
     systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
+    // Forward the switches that enable the slow and the enterprise-only tests.
+    systemProperties System.properties.subMap(["slowly", "enterprise"])
     // Gradle needs native tests in src/native-test/java, but maven needs them in src/test/java instead.
     // Maven first, so we skip them in Gradle unfortunately.
     exclude "**/**IT.class"
@@ -70,11 +70,5 @@ test {
         events "passed", "skipped", "failed"
     }
 
-    if (profile == 'slowly') {
-        useJUnitPlatform()
-    } else {
-        useJUnitPlatform {
-            excludeTags "slowly"
-        }
-    }
+    useJUnitPlatform()
 }

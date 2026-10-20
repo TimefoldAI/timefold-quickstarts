@@ -2,57 +2,34 @@ package org.acme.schooltimetabling.domain;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
+import java.util.Objects;
 
 import ai.timefold.solver.core.api.domain.common.PlanningId;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
-@JsonIdentityInfo(scope = Timeslot.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class Timeslot {
+/**
+ * A recurring period in the weekly timetable, on {@link #dayOfWeek()} from {@link #startTime()} to
+ * {@link #endTime()}.
+ */
+public record Timeslot(@PlanningId String id, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
 
-    @PlanningId
-    private String id;
-
-    private DayOfWeek dayOfWeek;
-    private LocalTime startTime;
-    private LocalTime endTime;
-
-    public Timeslot() {
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Timeslot timeslot)) {
+            return false;
+        }
+        return Objects.equals(id, timeslot.id);
     }
 
-    public Timeslot(String id, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
-        this.id = id;
-        this.dayOfWeek = dayOfWeek;
-        this.startTime = startTime;
-        this.endTime = endTime;
-    }
-
-    public Timeslot(String id, DayOfWeek dayOfWeek, LocalTime startTime) {
-        this(id, dayOfWeek, startTime, startTime.plusMinutes(50));
+    @Override
+    public int hashCode() {
+        return id.hashCode();
     }
 
     @Override
     public String toString() {
         return dayOfWeek + " " + startTime;
-    }
-
-    // ************************************************************************
-    // Getters and setters
-    // ************************************************************************
-
-    public String getId() {
-        return id;
-    }
-
-    public DayOfWeek getDayOfWeek() {
-        return dayOfWeek;
-    }
-
-    public LocalTime getStartTime() {
-        return startTime;
-    }
-
-    public LocalTime getEndTime() {
-        return endTime;
     }
 }

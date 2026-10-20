@@ -1,39 +1,32 @@
 package org.acme.schooltimetabling.domain;
 
+import java.util.Objects;
+
 import ai.timefold.solver.core.api.domain.common.PlanningId;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
-@JsonIdentityInfo(scope = Room.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class Room {
+/**
+ * A room lessons are taught in. It holds one lesson per {@link Timeslot}.
+ */
+public record Room(@PlanningId String id, String name) {
 
-    @PlanningId
-    private String id;
-
-    private String name;
-
-    public Room() {
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Room room)) {
+            return false;
+        }
+        return Objects.equals(id, room.id);
     }
 
-    public Room(String id, String name) {
-        this.id = id;
-        this.name = name;
+    @Override
+    public int hashCode() {
+        return id.hashCode();
     }
 
     @Override
     public String toString() {
-        return name;
-    }
-
-    // ************************************************************************
-    // Getters and setters
-    // ************************************************************************
-
-    public String getId() {
-        return id;
-    }
-
-    public String getName() {
         return name;
     }
 }

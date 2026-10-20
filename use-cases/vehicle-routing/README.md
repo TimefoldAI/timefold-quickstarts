@@ -139,7 +139,7 @@ from an embedded visualization is not this page's job.
    cd timefold-quickstarts/use-cases/vehicle-routing
    ```
 
-2. (Optional) If you want to run a licensed edition (Plus / Enterprise), set up your license key first. See the [Timefold license tool](https://licenses.timefold.ai/) for instructions.
+2. (Optional) If you want to run a licensed edition (Enterprise), set up your license key first. See the [Timefold license tool](https://licenses.timefold.ai/) for instructions.
 
 3. Start the application with Maven:
 
@@ -149,7 +149,7 @@ from an embedded visualization is not this page's job.
       mvn quarkus:dev
       ```
 
-   2. Plus / Enterprise Edition: The profile sets up the correct Maven artifacts to run the licensed version. See the `pom.xml` for the implementation details.
+   2. Enterprise Edition: The profile sets up the correct Maven artifacts to run the licensed version. See the `pom.xml` for the implementation details.
 
       ```sh
       mvn quarkus:dev -Denterprise

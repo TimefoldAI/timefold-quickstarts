@@ -18,7 +18,7 @@ It shows different use cases and basic implementations to get you started on you
 | 🛠️ <a href="#-maintenance-scheduling">Maintenance Scheduling</a>       | Service Model, TimeGrain, Shadow Variable, Variable Listener             |
 | 📦 <a href="#-food-packaging">Food Packaging</a>                        | Service Model, Mixed Model, Shadow Variables, Pinning                    |
 | 🛒 <a href="#-order-picking">Order Picking</a>                          | Chained Planning Variable, Shadow Variables                              |
-| 🏫 <a href="#-school-timetabling">School Timetabling</a>                | Timeslot                                                                 |
+| 🏫 <a href="#-school-timetabling">School Timetabling</a>                | Service Model, Timeslot                                                  |
 | 🏭 <a href="#-facility-location-problem">Facility Location Problem</a>  | Service Model, Shadow Variable                                |
 | 🎤 <a href="#-conference-scheduling">Conference Scheduling</a>          | Service Model, ValueRange on Entity, Timeslot, Justifications            |
 | 🛏️ <a href="#-bed-allocation-scheduling">Bed Allocation Scheduling</a> | Service Model, Allows Unassigned, Pinning                                |
@@ -40,7 +40,7 @@ You can find the resulting projects for each of the guides in the `getting start
 
 - [Service](getting-started/service) (Java, Maven, Quarkus)
 - [Library: Core](getting-started/hello-world) (Java, Maven)
-- [Library: Quarkus Integration](getting-started/quarkus-integration) (Java, Maven, Quarkus)
+- [Library: Quarkus Integration](getting-started/quarkus-integration/README.md) (Java, Maven or Gradle, Quarkus)
 - [Library: Quarkus Integration](getting-started/quarkus-integration-kotlin) (Kotlin, Maven, Quarkus)
 - [Library: Spring Boot Integration](getting-started/spring-boot-integration/README.md) (Java, Maven, Spring)
 
@@ -114,7 +114,8 @@ Assign lessons to timeslots and rooms to produce a better schedule for teachers 
 ![School Timetabling Screenshot](use-cases/school-timetabling/school-timetabling-screenshot.png)
 
 - [View constraints](use-cases/school-timetabling/README.md#constraints)
-- [Run quarkus-school-timetabling](use-cases/school-timetabling/README.md) (Java, Maven or Gradle, Quarkus)
+- [Run quarkus-school-timetabling](use-cases/school-timetabling/README.md) (Java, Maven, Quarkus)
+- [Run quarkus-integration](getting-started/quarkus-integration/README.md) (Java, Maven or Gradle, Quarkus)
 - [Run spring-boot-integration](getting-started/spring-boot-integration/README.md) (Java, Maven or Gradle, Spring Boot)
 - [Run quarkus-integration-kotlin](getting-started/quarkus-integration-kotlin/README.md) (Kotlin, Maven, Quarkus)
 

@@ -1,0 +1,212 @@
+<html lang="en">
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+  <meta content="width=device-width, initial-scale=1" name="viewport">
+  <title>School timetabling - Timefold Solver on Quarkus</title>
+  <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="/webjars/font-awesome/css/all.css"/>
+  <link rel="icon" href="https://timefold.ai/uploads/images/Brand-Assets/timefold-solver-logomark.png" type="image/png">
+  <style>
+    :root {
+      --ts-violet-1-rgb: #3E00FF;
+      --ts-violet-2-rgb: #3423A6;
+
+      --bs-link-color: var(--ts-violet-1-rgb);
+      --bs-link-hover-color: var(--ts-violet-2-rgb);
+    }
+    .nav-pills {
+      --bs-nav-pills-link-active-bg: var(--ts-violet-1-rgb);
+    }
+  </style>
+</head>
+<body>
+<header class="bg-white shadow">
+  <div class="container-fluid">
+    <nav class="navbar navbar-expand-lg mb-3">
+      <a class="navbar-brand" style="width: 200px;overflow: hidden;">
+        <img src="https://timefold.ai/uploads/images/Brand-Assets/timefold-solver-logo.png" alt="Timefold Solver logo" width="200px" style="margin-top:-20px;margin-bottom:-20px">
+      </a>
+      <a class="navbar-brand d-none d-lg-block">School Timetabling Quickstart</a>
+      <div class="ms-auto">
+        <div class="d-flex align-items-center" id="navbarNav">
+          <ul class="nav nav-pills">
+            <li class="nav-item active" id="navUIItem">
+              <button class="nav-link active" id="navUI" data-bs-toggle="pill" data-bs-target="#demo" type="button">Demo UI</button>
+            </li>
+            <li class="nav-item" id="navRestItem">
+              <button class="nav-link" id="navRest" data-bs-toggle="pill" data-bs-target="#rest" type="button">Guide</button>
+            </li>
+            <li class="nav-item" id="navOpenApiItem">
+              <button class="nav-link" id="navOpenApi" data-bs-toggle="pill" data-bs-target="#openapi" type="button">REST API</button>
+            </li>
+            <li class="nav-item" id="navNextStepsItem">
+              <a style="text-decoration: none; font-weight: 600;" href="https://solver.timefold.ai/quickstart-next-steps?utm_source=github&utm_medium=quickstart&utm_campaign=timefold-quickstarts&utm_content=school-timetabling-java">
+                <button class="nav-link" id="nextStepsItem" data-bs-toggle="pill" type="button">Next Steps</button>
+              </a>
+            </li>
+          </ul>
+          <div class="vr mx-2"></div>
+          <div class="dropdown ">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Data
+            </button>
+            <div id="testDataButton" class="dropdown-menu" aria-labelledby="dropdownMenuButton"></div>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </div>
+</header>
+<div class="tab-content">
+  <div id="demo" class="tab-pane fade show active container-fluid">
+    <div class="sticky-top d-flex justify-content-center align-items-center" aria-live="polite" aria-atomic="true">
+      <div id="notificationPanel" style="position: absolute; top: .5rem;"></div>
+    </div>
+    <blockquote>Generate the optimal schedule for your teachers and students. <span id="info" class="fw-bold"></span></blockquote>
+
+    <div class="mb-2">
+      <button id="solveButton" type="button" class="btn btn-success">
+        <span class="fas fa-play"></span> Solve
+      </button>
+      <button id="stopSolvingButton" type="button" class="btn btn-danger">
+        <span class="fas fa-stop"></span> Stop solving
+      </button>
+      <span id="score" class="score ms-2 align-middle fw-bold">Score: ?</span>
+      <button id="analyzeButton" type="button" class="ms-2 btn btn-secondary">
+        <span class="fas fa-question"></span>
+      </button>
+
+
+      <div class="float-end">
+        <ul class="nav nav-pills" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="byRoomTab" data-bs-toggle="tab"
+                    data-bs-target="#byRoomPanel" type="button" role="tab" aria-controls="byRoomPanel"
+                    aria-selected="true">By room
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="byTeacherTab" data-bs-toggle="tab" data-bs-target="#byTeacher"
+                    type="button" role="tab" aria-controls="byTeacher" aria-selected="false">By teacher
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="byStudentGroupTab" data-bs-toggle="tab"
+                    data-bs-target="#byStudentGroup" type="button" role="tab" aria-controls="byStudentGroup"
+                    aria-selected="false">By student group
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="tab-content">
+      <div class="tab-pane fade show active" id="byRoomPanel" role="tabpanel" aria-labelledby="byRoomTab">
+        <table class="table table-borderless table-striped" id="timetableByRoom">
+          <!-- Filled in by app.js -->
+        </table>
+      </div>
+      <div class="tab-pane fade" id="byTeacher" role="tabpanel" aria-labelledby="byTeacherTab">
+        <table class="table table-borderless table-striped" id="timetableByTeacher">
+          <!-- Filled in by app.js -->
+        </table>
+      </div>
+      <div class="tab-pane fade" id="byStudentGroup" role="tabpanel" aria-labelledby="byStudentGroupTab">
+        <table class="table table-borderless table-striped" id="timetableByStudentGroup">
+          <!-- Filled in by app.js -->
+        </table>
+      </div>
+    </div>
+
+    <h2 class="my-4">Unassigned Lessons</h2>
+    <div id="unassignedLessons" class="row row-cols-4 g-3 mb-4"></div>
+  </div>
+
+  <div id="rest" class="tab-pane fade  container-fluid">
+    <h1>REST API Guide</h1>
+
+    <h2>High school timetable solver integration via cURL</h2>
+
+    <h3>1. Download demo data</h3>
+    <pre>
+            <button class="btn btn-outline-dark btn-sm float-end"
+                    onclick="copyTextToClipboard('curl1')">Copy</button>
+            <code id="curl1">curl -X GET -H 'Accept:application/json' http://localhost:8080/demo-data/SMALL -o sample.json</code>
+    </pre>
+
+    <h3>2. Post the sample data for solving</h3>
+    <p>The POST operation returns a <code>jobId</code> that should be used in subsequent commands.</p>
+    <pre>
+            <button class="btn btn-outline-dark btn-sm float-end"
+                    onclick="copyTextToClipboard('curl2')">Copy</button>
+            <code id="curl2">curl -X POST -H 'Content-Type:application/json' http://localhost:8080/timetables -d@sample.json</code>
+    </pre>
+
+    <h3>3. Get the current status and score</h3>
+    <pre>
+            <button class="btn btn-outline-dark btn-sm float-end"
+                    onclick="copyTextToClipboard('curl3')">Copy</button>
+            <code id="curl3">curl -X GET -H 'Accept:application/json' http://localhost:8080/timetables/{jobId}/status</code>
+    </pre>
+
+    <h3>4. Get the complete solution</h3>
+    <pre>
+            <button class="btn btn-outline-dark btn-sm float-end"
+                    onclick="copyTextToClipboard('curl4')">Copy</button>
+            <code id="curl4">curl -X GET -H 'Accept:application/json' http://localhost:8080/timetables/{jobId}</code>
+    </pre>
+
+    <h3>5. Terminate solving early</h3>
+    <pre>
+            <button class="btn btn-outline-dark btn-sm float-end"
+                    onclick="copyTextToClipboard('curl5')">Copy</button>
+            <code id="curl5">curl -X DELETE -H 'Accept:application/json' http://localhost:8080/timetables/{id}</code>
+    </pre>
+  </div>
+
+  <div id="openapi" class="tab-pane fade container-fluid">
+
+    <div class="ratio ratio-1x1">
+      <!-- "scrolling" attribute is obsolete, but e.g. Chrome does not support "overflow:hidden" -->
+      <iframe src="/q/swagger-ui" style="overflow:hidden;" scrolling="no"></iframe>
+    </div>
+  </div>
+</div>
+<footer class="bg-black">
+  <div class="container">
+    <div class="hstack gap-3 p-4">
+      <div class="ms-auto"><a class="text-white" href="https://solver.timefold.ai?utm_source=github&utm_medium=quickstart&utm_campaign=timefold-quickstarts&utm_content=school-timetabling-java">Website</a></div>
+      <div class="vr"></div>
+      <div><a class="text-white" href="https://docs.timefold.ai/timefold-solver/latest?utm_source=github&utm_medium=quickstart&utm_campaign=timefold-quickstarts&utm_content=school-timetabling-java">Documentation</a></div>
+      <div class="vr"></div>
+      <div><a class="text-white" href="https://github.com/TimefoldAI/timefold-quickstarts">Code</a></div>
+      <div class="vr"></div>
+      <div class="me-auto"><a class="text-white" href="https://github.com/TimefoldAI/timefold-solver/discussions">GitHub Discussions</a></div>
+    </div>
+  </div>
+  <div id="applicationInfo" class="container text-center"></div>
+</footer>
+<div class="modal fadebd-example-modal-lg" id="scoreAnalysisModal" tabindex="-1" aria-labelledby="scoreAnalysisModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="scoreAnalysisModalLabel">Score analysis <span id="scoreAnalysisScoreLabel"></span></h1>
+
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="scoreAnalysisModalContent">
+        <!-- Filled in by app.js -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script src="/webjars/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="/webjars/jquery/jquery.min.js"></script>
+<script src="/webjars/js-joda/dist/js-joda.min.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>
