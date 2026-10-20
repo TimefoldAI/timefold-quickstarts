@@ -1,3 +1,4 @@
 rootProject.name = 'Timefold Solver Quickstarts'
 include 'getting-started:hello-world'
 include 'getting-started:spring-boot-integration'
+include 'getting-started:quarkus-integration'

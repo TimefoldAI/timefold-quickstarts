@@ -1,0 +1,74 @@
+plugins {
+    id "java"
+    id "io.quarkus" version "3.40.1"
+}
+
+def quarkusVersion = "3.40.1"
+def timefoldVersion = "999-SNAPSHOT"
+def enterprise = System.properties['enterprise'] ?: ''
+
+group = "org.acme"
+version = "1.0-SNAPSHOT"
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    implementation enforcedPlatform("io.quarkus:quarkus-bom:${quarkusVersion}")
+    implementation platform("ai.timefold.solver:timefold-solver-bom:${timefoldVersion}")
+    if (enterprise == 'true') {
+        implementation platform("ai.timefold.solver.enterprise:timefold-solver-enterprise-bom:${timefoldVersion}")
+        implementation "ai.timefold.solver.enterprise:timefold-solver-enterprise-quarkus"
+        implementation "ai.timefold.solver.enterprise:timefold-solver-enterprise-quarkus-jackson"
+    }
+
+    implementation "io.quarkus:quarkus-rest"
+    implementation "io.quarkus:quarkus-rest-jackson"
+    implementation "io.quarkus:quarkus-smallrye-openapi"
+    implementation "ai.timefold.solver:timefold-solver-quarkus"
+    implementation "ai.timefold.solver:timefold-solver-quarkus-jackson"
+
+    // Testing
+    testImplementation "io.quarkus:quarkus-junit"
+    testImplementation "io.rest-assured:rest-assured"
+    testImplementation "org.awaitility:awaitility"
+    testImplementation "org.assertj:assertj-core:3.27.7"
+
+    // UI
+    implementation "io.quarkus:quarkus-web-dependency-locator"
+    runtimeOnly "org.webjars:bootstrap:5.3.8"
+    runtimeOnly "org.webjars:jquery:3.7.1"
+    runtimeOnly "org.webjars:font-awesome:7.1.0"
+    runtimeOnly "org.webjars.npm:js-joda:1.11.0"
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+compileJava {
+    options.encoding = "UTF-8"
+    options.compilerArgs << "-parameters"
+}
+
+compileTestJava {
+    options.encoding = "UTF-8"
+}
+
+test {
+    systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
+    // Forward the switches that enable the slow and the enterprise-only tests.
+    systemProperties System.properties.subMap(["slowly", "enterprise"])
+    // Gradle needs native tests in src/native-test/java, but maven needs them in src/test/java instead.
+    // Maven first, so we skip them in Gradle unfortunately.
+    exclude "**/**IT.class"
+    // Log the test execution results.
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+
+    useJUnitPlatform()
+}

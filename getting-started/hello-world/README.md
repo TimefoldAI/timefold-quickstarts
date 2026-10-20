@@ -1,7 +1,7 @@
 # Getting Started - School Timetabling (Java, Maven or Gradle)
 
 > **Note:** This project is the result of following the [Hello World getting started guide](https://docs.timefold.ai/timefold-solver/latest/quickstart/hello-world/hello-world-quickstart).
-> For a more complete School Timetabling example, see the [school-timetabling quickstart](https://github.com/TimefoldAI/timefold-quickstarts/tree/main/java/school-timetabling).
+> For a more complete School Timetabling example, see the [school-timetabling quickstart](../../use-cases/school-timetabling/README.md).
 
 Assign lessons to timeslots and rooms to produce a better schedule for teachers and students.
 

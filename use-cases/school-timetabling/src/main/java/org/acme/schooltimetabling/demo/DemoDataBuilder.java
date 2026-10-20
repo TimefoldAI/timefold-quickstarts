@@ -2,13 +2,12 @@ package org.acme.schooltimetabling.demo;
 
 import static java.time.DayOfWeek.FRIDAY;
 import static java.time.DayOfWeek.MONDAY;
-import static java.time.DayOfWeek.THURSDAY;
 import static java.time.DayOfWeek.TUESDAY;
-import static java.time.DayOfWeek.WEDNESDAY;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import org.acme.schooltimetabling.dto.input.LessonInputDTO;
@@ -27,8 +26,8 @@ public final class DemoDataBuilder {
         LARGE
     }
 
-    private static final List<DayOfWeek> SMALL_DAYS = List.of(MONDAY, TUESDAY);
-    private static final List<DayOfWeek> LARGE_DAYS = List.of(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY);
+    private static final EnumSet<DayOfWeek> SMALL_DAYS = EnumSet.of(MONDAY, TUESDAY);
+    private static final EnumSet<DayOfWeek> LARGE_DAYS = EnumSet.range(MONDAY, FRIDAY);
     /** Every day has three lessons in the morning and two in the afternoon, of one hour each. */
     private static final List<LocalTime> START_TIMES = List.of(LocalTime.of(8, 30), LocalTime.of(9, 30),
             LocalTime.of(10, 30), LocalTime.of(13, 30), LocalTime.of(14, 30));
@@ -65,7 +64,7 @@ public final class DemoDataBuilder {
                 generateRooms(large ? LARGE_ROOM_NAMES : SMALL_ROOM_NAMES), generateLessons(large));
     }
 
-    private static List<TimeslotInputDTO> generateTimeslots(List<DayOfWeek> days) {
+    private static List<TimeslotInputDTO> generateTimeslots(EnumSet<DayOfWeek> days) {
         List<TimeslotInputDTO> timeslots = new ArrayList<>(days.size() * START_TIMES.size());
         for (DayOfWeek day : days) {
             for (LocalTime startTime : START_TIMES) {

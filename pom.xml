@@ -22,6 +22,7 @@
   <modules>
     <module>getting-started/hello-world</module>
     <module>getting-started/spring-boot-integration</module>
+    <module>getting-started/quarkus-integration</module>
     <module>getting-started/service</module>
     <module>getting-started/quarkus-integration-kotlin</module>
 
