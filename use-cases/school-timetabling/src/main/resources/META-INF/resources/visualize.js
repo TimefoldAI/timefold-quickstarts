@@ -80,7 +80,7 @@ const app = {
             },
         };
         for (const [tabId, view] of Object.entries(views)) {
-            document.getElementById(tabId).addEventListener('click', () => {
+            document.getElementById(tabId).addEventListener('shown.bs.tab', () => {
                 this.quickstartPage.changeRenderer((schedule) => this.renderTimetable(schedule, view));
             });
         }
