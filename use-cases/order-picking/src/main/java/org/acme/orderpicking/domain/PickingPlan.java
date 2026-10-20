@@ -24,12 +24,12 @@ public class PickingPlan implements SolverModel<HardSoftScore>,
         InputMetricsAware<PickingPlanInputMetrics>, OutputMetricsAware<PickingPlanOutputMetrics> {
 
     /**
-     * Defines the available Trolleys.
+     * Defines the available picking carts.
      *
      * @see PickTask for more information about the model constructed by the Solver.
      */
     @PlanningEntityCollectionProperty
-    private List<Trolley> trolleys;
+    private List<PickingCart> pickingCarts;
 
     /**
      * Defines the available PickTasks.
@@ -48,8 +48,8 @@ public class PickingPlan implements SolverModel<HardSoftScore>,
     public PickingPlan() {
     }
 
-    public PickingPlan(List<Trolley> trolleys, List<PickTask> pickTasks) {
-        this.trolleys = trolleys;
+    public PickingPlan(List<PickingCart> pickingCarts, List<PickTask> pickTasks) {
+        this.pickingCarts = pickingCarts;
         this.pickTasks = pickTasks;
     }
 
@@ -57,8 +57,8 @@ public class PickingPlan implements SolverModel<HardSoftScore>,
     // Getters and setters
     // ************************************************************************
 
-    public List<Trolley> getTrolleys() {
-        return trolleys;
+    public List<PickingCart> getPickingCarts() {
+        return pickingCarts;
     }
 
     public List<PickTask> getPickTasks() {
@@ -87,27 +87,28 @@ public class PickingPlan implements SolverModel<HardSoftScore>,
     public PickingPlanInputMetrics getInputMetrics() {
         int orders = (int) pickTasks.stream().map(PickTask::getOrderId).distinct().count();
         int products = (int) pickTasks.stream().map(PickTask::getProduct).distinct().count();
-        return new PickingPlanInputMetrics(pickTasks.size(), orders, products, trolleys.size());
+        return new PickingPlanInputMetrics(pickTasks.size(), orders, products, pickingCarts.size());
     }
 
-    // Reads the trolleys' list variable rather than the pick tasks' inverse relation shadow variable, so the metrics
-    // are correct even before the solver has computed the shadow variables.
+    // Reads the picking carts' list variable rather than the pick tasks' inverse relation shadow variable, so the
+    // metrics are correct even before the solver has computed the shadow variables.
     @Override
     public PickingPlanOutputMetrics getOutputMetrics() {
         int totalTravelDistance = 0;
-        int usedTrolleys = 0;
-        Map<String, Set<Trolley>> trolleysByOrderId = new HashMap<>();
-        for (Trolley trolley : trolleys) {
-            totalTravelDistance += Warehouse.calculateDistanceToTravel(trolley);
-            if (!trolley.getPickTasks().isEmpty()) {
-                usedTrolleys++;
+        int usedPickingCarts = 0;
+        Map<String, Set<PickingCart>> pickingCartsByOrderId = new HashMap<>();
+        for (PickingCart pickingCart : pickingCarts) {
+            totalTravelDistance += Warehouse.calculateDistanceToTravel(pickingCart);
+            if (!pickingCart.getPickTasks().isEmpty()) {
+                usedPickingCarts++;
             }
-            for (PickTask pickTask : trolley.getPickTasks()) {
-                trolleysByOrderId.computeIfAbsent(pickTask.getOrderId(), orderId -> new HashSet<>()).add(trolley);
+            for (PickTask pickTask : pickingCart.getPickTasks()) {
+                pickingCartsByOrderId.computeIfAbsent(pickTask.getOrderId(), orderId -> new HashSet<>()).add(pickingCart);
             }
         }
-        int splitOrders = (int) trolleysByOrderId.values().stream().filter(orderTrolleys -> orderTrolleys.size() > 1)
-                .count();
-        return new PickingPlanOutputMetrics(totalTravelDistance, usedTrolleys, splitOrders);
+        int splitOrders =
+                (int) pickingCartsByOrderId.values().stream().filter(orderPickingCarts -> orderPickingCarts.size() > 1)
+                        .count();
+        return new PickingPlanOutputMetrics(totalTravelDistance, usedPickingCarts, splitOrders);
     }
 }

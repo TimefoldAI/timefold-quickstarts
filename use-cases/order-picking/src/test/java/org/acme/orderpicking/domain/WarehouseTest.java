@@ -1,10 +1,10 @@
 package org.acme.orderpicking.domain;
 
-import static org.acme.orderpicking.domain.ShelvingSide.LEFT;
-import static org.acme.orderpicking.domain.ShelvingSide.RIGHT;
+import static org.acme.orderpicking.domain.RackSide.LEFT;
+import static org.acme.orderpicking.domain.RackSide.RIGHT;
 import static org.acme.orderpicking.support.TestHelper.location;
 import static org.acme.orderpicking.support.TestHelper.pickTask;
-import static org.acme.orderpicking.support.TestHelper.trolley;
+import static org.acme.orderpicking.support.TestHelper.pickingCart;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
@@ -31,21 +31,21 @@ class WarehouseTest {
     @Test
     void calculateDistanceToTravel() {
         // From the start location past both pick tasks and back again.
-        Trolley trolley = trolley("t1", 1, 1,
+        PickingCart pickingCart = pickingCart("c1", 1, 1,
                 pickTask("1", location("C3", RIGHT, 1)),
                 pickTask("2", location("E1", RIGHT, 3)));
 
-        assertThat(Warehouse.calculateDistanceToTravel(trolley)).isEqualTo(
+        assertThat(Warehouse.calculateDistanceToTravel(pickingCart)).isEqualTo(
                 Warehouse.calculateDistance(location("A1", LEFT, 0), location("C3", RIGHT, 1))
                         + Warehouse.calculateDistance(location("C3", RIGHT, 1), location("E1", RIGHT, 3))
                         + Warehouse.calculateDistance(location("E1", RIGHT, 3), location("A1", LEFT, 0)));
-        assertThat(Warehouse.calculateDistanceToTravel(trolley("t2", 1, 1))).isZero();
+        assertThat(Warehouse.calculateDistanceToTravel(pickingCart("c2", 1, 1))).isZero();
     }
 
     @Test
-    void unknownShelving() {
-        assertThat(Warehouse.hasShelving("E3")).isTrue();
-        assertThat(Warehouse.hasShelving("F1")).isFalse();
+    void unknownRack() {
+        assertThat(Warehouse.hasRack("E3")).isTrue();
+        assertThat(Warehouse.hasRack("F1")).isFalse();
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> Warehouse.calculateDistance(location("F1", LEFT, 1), location("A1", LEFT, 1)))
                 .withMessageContaining("F1");
@@ -53,7 +53,7 @@ class WarehouseTest {
 
     private static Stream<Arguments> calculateDistanceParams() {
         return Stream.of(
-                //distances between locations on the same shelving
+                //distances between locations on the same rack
                 Arguments.of(location("B3", LEFT, 1), location("B3", LEFT, 1), 0),
                 Arguments.of(location("B3", LEFT, 1), location("B3", RIGHT, 1), 4),
                 Arguments.of(location("B3", LEFT, 5), location("B3", LEFT, 5), 0),
@@ -67,7 +67,7 @@ class WarehouseTest {
                 Arguments.of(location("B3", LEFT, 2), location("B3", RIGHT, 4), 8),
                 Arguments.of(location("B3", LEFT, 8), location("B3", RIGHT, 7), 7),
 
-                //distances between locations on shelvings that are neighbours on the same warehouse row.
+                //distances between locations on racks that are neighbours on the same warehouse row.
                 Arguments.of(location("C2", LEFT, 1), location("D2", RIGHT, 3), 11),
                 Arguments.of(location("C2", LEFT, 1), location("D2", LEFT, 3), 9),
                 Arguments.of(location("C2", RIGHT, 1), location("D2", LEFT, 3), 5),
@@ -77,7 +77,7 @@ class WarehouseTest {
                 Arguments.of(location("C2", RIGHT, 8), location("D2", LEFT, 9), 4),
                 Arguments.of(location("C2", RIGHT, 8), location("D2", RIGHT, 9), 8),
 
-                //distances between locations on shelvings that are non neighbor but on the same warehouse row.
+                //distances between locations on racks that are non neighbor but on the same warehouse row.
                 Arguments.of(location("C3", LEFT, 1), location("E3", RIGHT, 3), 16),
                 Arguments.of(location("C3", LEFT, 1), location("E3", LEFT, 3), 14),
                 Arguments.of(location("C3", RIGHT, 1), location("E3", LEFT, 3), 12),
@@ -87,7 +87,7 @@ class WarehouseTest {
                 Arguments.of(location("C3", RIGHT, 9), location("E3", LEFT, 8), 11),
                 Arguments.of(location("C3", RIGHT, 9), location("E3", RIGHT, 8), 13),
 
-                //distances between locations on shelvings that are on different warehouse rows.
+                //distances between locations on racks that are on different warehouse rows.
                 Arguments.of(location("C1", LEFT, 1), location("E3", RIGHT, 3), 40),
                 Arguments.of(location("C1", LEFT, 1), location("E3", LEFT, 3), 38),
                 Arguments.of(location("C1", RIGHT, 1), location("E3", LEFT, 3), 36),

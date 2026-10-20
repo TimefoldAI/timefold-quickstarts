@@ -6,13 +6,13 @@ Generate an optimal picking plan for completing a set of orders.
 
 ## Constraints
 
-| Name                                                 | Level | Description                                                                                            |
-|------------------------------------------------------|-------|--------------------------------------------------------------------------------------------------------|
-| Required number of buckets                           | Hard  | A trolley must have enough buckets for all its orders, as a bucket is never shared between two orders. |
-| Product fits in bucket                               | Hard  | A trolley must not pick a product that is larger than its buckets.                                     |
-| Minimize distance from previous pick task            | Soft  | Minimize the travel distance between consecutive pick tasks of a trolley.                              |
-| Minimize distance from last pick task to path origin | Soft  | Minimize the return distance from the last pick task of a trolley to its start location.               |
-| Minimize order split by trolley                      | Soft  | Minimize the number of trolleys used for each order.                                                   |
+| Name                                                 | Level | Description                                                                                                 |
+|------------------------------------------------------|-------|-------------------------------------------------------------------------------------------------------------|
+| Required number of buckets                           | Hard  | A picking cart must have enough buckets for all its orders, as a bucket is never shared between two orders. |
+| Product fits in bucket                               | Hard  | A picking cart must not pick a product that is larger than its buckets.                                     |
+| Minimize distance from previous pick task            | Soft  | Minimize the travel distance between consecutive pick tasks of a picking cart.                              |
+| Minimize distance from last pick task to path origin | Soft  | Minimize the return distance from the last pick task of a picking cart to its start location.               |
+| Minimize order split by picking cart                 | Soft  | Minimize the number of picking carts used for each order.                                                   |
 
 - [Run the application](#run-the-application)
 - [Run the packaged application](#run-the-packaged-application)

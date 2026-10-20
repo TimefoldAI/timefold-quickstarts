@@ -8,7 +8,7 @@
     display: block;
 }
 
-.trolley-swatch {
+.picking-cart-swatch {
     display: inline-block;
     width: 0.85rem;
     height: 0.85rem;
@@ -16,7 +16,7 @@
     vertical-align: middle;
 }
 
-/* A trolley bucket, filled from the left as far as its order's products take up its volume. */
+/* A picking cart bucket, filled from the left as far as its order's products take up its volume. */
 .bucket {
     width: 2.5rem;
     height: 2.5rem;
@@ -29,7 +29,7 @@
     height: 100%;
 }
 
-/* A long path would otherwise make the trolley card as long as its pick task list. */
+/* A long path would otherwise make the picking cart card as long as its pick task list. */
 .picking-table {
     max-height: 22rem;
     overflow-y: auto;

@@ -7,30 +7,30 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import org.acme.orderpicking.domain.ShelvingSide;
+import org.acme.orderpicking.domain.RackSide;
 import org.acme.orderpicking.domain.Warehouse;
 import org.acme.orderpicking.dto.input.PickTaskInputDTO;
+import org.acme.orderpicking.dto.input.PickingCartInputDTO;
 import org.acme.orderpicking.dto.input.PickingPlanInput;
 import org.acme.orderpicking.dto.input.ProductInputDTO;
-import org.acme.orderpicking.dto.input.TrolleyInputDTO;
 import org.acme.orderpicking.dto.input.WarehouseLocationInputDTO;
 
 /**
  * Builds the demo dataset: 8 orders of a random selection of 40 grocery products, stored per product family in
- * the warehouse, to be picked by 5 trolleys that all start from the same location. Every pick task starts
+ * the warehouse, to be picked by 5 picking carts that all start from the same location. Every pick task starts
  * unassigned. The randomness is seeded, so the dataset is the same on every build.
  */
 public final class DemoDataBuilder {
 
     private static final long SEED = 37;
-    private static final int TROLLEY_COUNT = 5;
+    private static final int PICKING_CART_COUNT = 5;
     private static final int BUCKET_COUNT = 4;
     /** A bucket of 60 x 40 x 20 cm. */
     private static final int BUCKET_CAPACITY = 60 * 40 * 20;
     private static final int ORDER_COUNT = 8;
     private static final int ORDER_ITEMS_SIZE_MINIMUM = 1;
     private static final WarehouseLocationInputDTO START_LOCATION =
-            new WarehouseLocationInputDTO(Warehouse.shelvingId("A", 1), ShelvingSide.LEFT, 0);
+            new WarehouseLocationInputDTO(Warehouse.rackId("A", 1), RackSide.LEFT, 0);
 
     private enum ProductFamily {
         GENERAL_FOOD,
@@ -97,7 +97,7 @@ public final class DemoDataBuilder {
 
             new ProductTemplate("Cocktail Crisps 6 Pack", 20 * 10 * 10, ProductFamily.SNACKS));
 
-    private static final Map<ProductFamily, List<String>> SHELVINGS_PER_FAMILY = Map.of(
+    private static final Map<ProductFamily, List<String>> RACKS_PER_FAMILY = Map.of(
             ProductFamily.FRUITS_AND_VEGETABLES, List.of("A1", "A2"),
             ProductFamily.FRESH_FOOD, List.of("A3"),
             ProductFamily.MEAT_AND_FISH, List.of("B2", "B3"),
@@ -119,21 +119,21 @@ public final class DemoDataBuilder {
         Random random = new Random(SEED);
         List<ProductInputDTO> products = generateProducts(random);
         List<PickTaskInputDTO> pickTasks = generatePickTasks(products, random);
-        return new PickingPlanInput(products, pickTasks, generateTrolleys());
+        return new PickingPlanInput(products, pickTasks, generatePickingCarts());
     }
 
     /**
-     * Gives every product a random place on one of the shelvings of its family.
+     * Gives every product a random place on one of the racks of its family.
      */
     private static List<ProductInputDTO> generateProducts(Random random) {
         List<ProductInputDTO> products = new ArrayList<>(PRODUCTS.size());
         for (ProductTemplate template : PRODUCTS) {
-            List<String> shelvingIds = SHELVINGS_PER_FAMILY.get(template.family());
-            String shelvingId = shelvingIds.get(random.nextInt(shelvingIds.size()));
-            ShelvingSide side = ShelvingSide.values()[random.nextInt(ShelvingSide.values().length)];
-            int row = random.nextInt(Warehouse.SHELVING_ROWS) + 1;
+            List<String> rackIds = RACKS_PER_FAMILY.get(template.family());
+            String rackId = rackIds.get(random.nextInt(rackIds.size()));
+            RackSide side = RackSide.values()[random.nextInt(RackSide.values().length)];
+            int bay = random.nextInt(Warehouse.RACK_BAYS) + 1;
             products.add(new ProductInputDTO(String.valueOf(products.size()), template.name(), template.volume(),
-                    new WarehouseLocationInputDTO(shelvingId, side, row)));
+                    new WarehouseLocationInputDTO(rackId, side, bay)));
         }
         return List.copyOf(products);
     }
@@ -158,11 +158,12 @@ public final class DemoDataBuilder {
         return List.copyOf(pickTasks);
     }
 
-    private static List<TrolleyInputDTO> generateTrolleys() {
-        List<TrolleyInputDTO> trolleys = new ArrayList<>(TROLLEY_COUNT);
-        for (int i = 1; i <= TROLLEY_COUNT; i++) {
-            trolleys.add(new TrolleyInputDTO(Integer.toString(i), BUCKET_COUNT, BUCKET_CAPACITY, START_LOCATION, null));
+    private static List<PickingCartInputDTO> generatePickingCarts() {
+        List<PickingCartInputDTO> pickingCarts = new ArrayList<>(PICKING_CART_COUNT);
+        for (int i = 1; i <= PICKING_CART_COUNT; i++) {
+            pickingCarts.add(
+                    new PickingCartInputDTO(Integer.toString(i), BUCKET_COUNT, BUCKET_CAPACITY, START_LOCATION, null));
         }
-        return List.copyOf(trolleys);
+        return List.copyOf(pickingCarts);
     }
 }

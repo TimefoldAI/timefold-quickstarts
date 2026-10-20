@@ -13,19 +13,19 @@ import ai.timefold.solver.service.definition.api.validation.ValidationBuilder;
 
 import org.acme.orderpicking.domain.Warehouse;
 import org.acme.orderpicking.dto.input.PickTaskInputDTO;
+import org.acme.orderpicking.dto.input.PickingCartInputDTO;
 import org.acme.orderpicking.dto.input.PickingPlanConfigOverrides;
 import org.acme.orderpicking.dto.input.PickingPlanInput;
 import org.acme.orderpicking.dto.input.ProductInputDTO;
-import org.acme.orderpicking.dto.input.TrolleyInputDTO;
 import org.acme.orderpicking.dto.input.WarehouseLocationInputDTO;
 import org.acme.orderpicking.service.validation.PickingPlanIssue.DuplicatePickTaskIdIssue;
+import org.acme.orderpicking.service.validation.PickingPlanIssue.DuplicatePickingCartIdIssue;
 import org.acme.orderpicking.service.validation.PickingPlanIssue.DuplicateProductIdIssue;
-import org.acme.orderpicking.service.validation.PickingPlanIssue.DuplicateTrolleyIdIssue;
 import org.acme.orderpicking.service.validation.PickingPlanIssue.NonExistingPickTaskReferenceIssue;
 import org.acme.orderpicking.service.validation.PickingPlanIssue.NonExistingProductReferenceIssue;
 import org.acme.orderpicking.service.validation.PickingPlanIssue.PickTaskAssignedMoreThanOnceIssue;
 import org.acme.orderpicking.service.validation.PickingPlanIssue.ProductExceedsBucketCapacityIssue;
-import org.acme.orderpicking.service.validation.PickingPlanIssue.UnknownShelvingIssue;
+import org.acme.orderpicking.service.validation.PickingPlanIssue.UnknownRackIssue;
 
 @ApplicationScoped
 public class PickingPlanValidator implements ModelValidator<PickingPlanInput, PickingPlanConfigOverrides> {
@@ -37,12 +37,12 @@ public class PickingPlanValidator implements ModelValidator<PickingPlanInput, Pi
         // runs; only domain-specific checks belong here.
         List<ProductInputDTO> products = orEmpty(modelInput.products());
         List<PickTaskInputDTO> pickTasks = orEmpty(modelInput.pickTasks());
-        List<TrolleyInputDTO> trolleys = orEmpty(modelInput.trolleys());
+        List<PickingCartInputDTO> pickingCarts = orEmpty(modelInput.pickingCarts());
         Set<String> productIds = validateProducts(validationBuilder, products);
         Set<String> pickTaskIds = validatePickTasks(validationBuilder, pickTasks, productIds);
-        validateTrolleys(validationBuilder, trolleys, pickTaskIds);
-        validateShelvings(validationBuilder, products, trolleys);
-        validateBucketCapacity(validationBuilder, products, trolleys);
+        validatePickingCarts(validationBuilder, pickingCarts, pickTaskIds);
+        validateRacks(validationBuilder, products, pickingCarts);
+        validateBucketCapacity(validationBuilder, products, pickingCarts);
     }
 
     private static Set<String> validateProducts(ValidationBuilder validationBuilder, List<ProductInputDTO> products) {
@@ -69,19 +69,19 @@ public class PickingPlanValidator implements ModelValidator<PickingPlanInput, Pi
         return pickTaskIds;
     }
 
-    private static void validateTrolleys(ValidationBuilder validationBuilder, List<TrolleyInputDTO> trolleys,
+    private static void validatePickingCarts(ValidationBuilder validationBuilder, List<PickingCartInputDTO> pickingCarts,
             Set<String> pickTaskIds) {
-        Set<String> trolleyIds = new HashSet<>();
+        Set<String> pickingCartIds = new HashSet<>();
         Set<String> assignedPickTaskIds = new HashSet<>();
-        for (TrolleyInputDTO trolley : trolleys) {
-            if (hasId(trolley.id()) && !trolleyIds.add(trolley.id())) {
-                validationBuilder.addIssue(new DuplicateTrolleyIdIssue(trolley.id()));
+        for (PickingCartInputDTO pickingCart : pickingCarts) {
+            if (hasId(pickingCart.id()) && !pickingCartIds.add(pickingCart.id())) {
+                validationBuilder.addIssue(new DuplicatePickingCartIdIssue(pickingCart.id()));
             }
             boolean reportedUnknownPickTask = false;
-            for (String pickTaskId : orEmpty(trolley.pickTaskIds())) {
+            for (String pickTaskId : orEmpty(pickingCart.pickTaskIds())) {
                 if (!pickTaskIds.contains(pickTaskId)) {
                     if (!reportedUnknownPickTask) {
-                        validationBuilder.addIssue(new NonExistingPickTaskReferenceIssue(trolley.id(), pickTaskId));
+                        validationBuilder.addIssue(new NonExistingPickTaskReferenceIssue(pickingCart.id(), pickTaskId));
                         reportedUnknownPickTask = true;
                     }
                 } else if (!assignedPickTaskIds.add(pickTaskId)) {
@@ -91,30 +91,30 @@ public class PickingPlanValidator implements ModelValidator<PickingPlanInput, Pi
         }
     }
 
-    private static void validateShelvings(ValidationBuilder validationBuilder, List<ProductInputDTO> products,
-            List<TrolleyInputDTO> trolleys) {
-        Set<String> unknownShelvingIds = new LinkedHashSet<>();
+    private static void validateRacks(ValidationBuilder validationBuilder, List<ProductInputDTO> products,
+            List<PickingCartInputDTO> pickingCarts) {
+        Set<String> unknownRackIds = new LinkedHashSet<>();
         for (ProductInputDTO product : products) {
-            addIfUnknownShelving(unknownShelvingIds, product.location());
+            addIfUnknownRack(unknownRackIds, product.location());
         }
-        for (TrolleyInputDTO trolley : trolleys) {
-            addIfUnknownShelving(unknownShelvingIds, trolley.location());
+        for (PickingCartInputDTO pickingCart : pickingCarts) {
+            addIfUnknownRack(unknownRackIds, pickingCart.location());
         }
-        unknownShelvingIds.forEach(shelvingId -> validationBuilder.addIssue(new UnknownShelvingIssue(shelvingId)));
+        unknownRackIds.forEach(rackId -> validationBuilder.addIssue(new UnknownRackIssue(rackId)));
     }
 
-    private static void addIfUnknownShelving(Set<String> unknownShelvingIds, WarehouseLocationInputDTO location) {
-        if (location != null && location.shelvingId() != null && !Warehouse.hasShelving(location.shelvingId())) {
-            unknownShelvingIds.add(location.shelvingId());
+    private static void addIfUnknownRack(Set<String> unknownRackIds, WarehouseLocationInputDTO location) {
+        if (location != null && location.rackId() != null && !Warehouse.hasRack(location.rackId())) {
+            unknownRackIds.add(location.rackId());
         }
     }
 
     private static void validateBucketCapacity(ValidationBuilder validationBuilder, List<ProductInputDTO> products,
-            List<TrolleyInputDTO> trolleys) {
-        if (trolleys.isEmpty()) {
+            List<PickingCartInputDTO> pickingCarts) {
+        if (pickingCarts.isEmpty()) {
             return;
         }
-        int largestBucketCapacity = trolleys.stream().mapToInt(TrolleyInputDTO::bucketCapacity).max().orElseThrow();
+        int largestBucketCapacity = pickingCarts.stream().mapToInt(PickingCartInputDTO::bucketCapacity).max().orElseThrow();
         for (ProductInputDTO product : products) {
             if (product.volume() > largestBucketCapacity) {
                 validationBuilder.addIssue(

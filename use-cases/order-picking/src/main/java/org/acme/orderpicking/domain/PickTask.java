@@ -9,14 +9,14 @@ import ai.timefold.solver.core.api.domain.variable.NextElementShadowVariable;
 import ai.timefold.solver.core.api.domain.variable.PreviousElementShadowVariable;
 
 /**
- * Represents the picking of one order item, a {@link Product} that was added to an order, by a {@link Trolley}.
+ * Represents the picking of one order item, a {@link Product} that was added to an order, by a {@link PickingCart}.
  * <p>
- * The Solver assigns each PickTask to a position in a Trolley's list of picks.
- * Shadow variables provide references to the trolley, the previous pick, and the next pick.
+ * The Solver assigns each PickTask to a position in a picking cart's list of picks.
+ * Shadow variables provide references to the picking cart, the previous pick, and the next pick.
  * <p>
- * Trolley1: [PickTaskA, PickTaskB, PickTaskC]
+ * PickingCart1: [PickTaskA, PickTaskB, PickTaskC]
  * <p>
- * Trolley2: [PickTaskD, PickTaskE]
+ * PickingCart2: [PickTaskD, PickTaskE]
  */
 @PlanningEntity
 public class PickTask {
@@ -27,7 +27,7 @@ public class PickTask {
     private Product product;
 
     @InverseRelationShadowVariable(sourceVariableName = "pickTasks")
-    private Trolley trolley;
+    private PickingCart pickingCart;
     @PreviousElementShadowVariable(sourceVariableName = "pickTasks")
     private PickTask previousPickTask;
     @NextElementShadowVariable(sourceVariableName = "pickTasks")
@@ -58,12 +58,12 @@ public class PickTask {
         return product;
     }
 
-    public Trolley getTrolley() {
-        return trolley;
+    public PickingCart getPickingCart() {
+        return pickingCart;
     }
 
-    public void setTrolley(Trolley trolley) {
-        this.trolley = trolley;
+    public void setPickingCart(PickingCart pickingCart) {
+        this.pickingCart = pickingCart;
     }
 
     public PickTask getPreviousPickTask() {
@@ -99,11 +99,11 @@ public class PickTask {
     }
 
     /**
-     * @return the location the trolley comes from to pick this task: the previous pick task's, or the trolley's own
-     *         location for the first pick task of its list
+     * @return the location the picking cart comes from to pick this task: the previous pick task's, or the picking
+     *         cart's own location for the first pick task of its list
      */
     public WarehouseLocation getPreviousLocation() {
-        return previousPickTask != null ? previousPickTask.getLocation() : trolley.getLocation();
+        return previousPickTask != null ? previousPickTask.getLocation() : pickingCart.getLocation();
     }
 
     @Override

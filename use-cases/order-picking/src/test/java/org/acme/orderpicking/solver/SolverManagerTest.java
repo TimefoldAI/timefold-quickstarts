@@ -35,25 +35,25 @@ class SolverManagerTest {
 
         PickingPlanOutputMetrics unsolvedMetrics = problem.getOutputMetrics();
         assertThat(unsolvedMetrics.totalTravelDistance()).isZero();
-        assertThat(unsolvedMetrics.usedTrolleys()).isZero();
+        assertThat(unsolvedMetrics.usedPickingCarts()).isZero();
         assertThat(unsolvedMetrics.splitOrders()).isZero();
 
         PickingPlan solution = solverManager.solveBuilder().withProblemId(0L)
                 .withProblemFinder(id -> problem).run().getFinalBestSolution();
         assertThat(solution.getScore().isFeasible()).isTrue();
-        assertThat(solution.getPickTasks()).allMatch(pickTask -> pickTask.getTrolley() != null);
-        assertThat(solution.getTrolleys().stream().mapToInt(trolley -> trolley.getPickTasks().size()).sum())
+        assertThat(solution.getPickTasks()).allMatch(pickTask -> pickTask.getPickingCart() != null);
+        assertThat(solution.getPickingCarts().stream().mapToInt(pickingCart -> pickingCart.getPickTasks().size()).sum())
                 .isEqualTo(solution.getPickTasks().size());
 
         PickingPlanInputMetrics inputMetrics = solution.getInputMetrics();
         assertThat(inputMetrics.pickTasks()).isEqualTo(4);
         assertThat(inputMetrics.orders()).isEqualTo(2);
         assertThat(inputMetrics.products()).isEqualTo(3);
-        assertThat(inputMetrics.trolleys()).isEqualTo(2);
+        assertThat(inputMetrics.pickingCarts()).isEqualTo(2);
 
         PickingPlanOutputMetrics outputMetrics = solution.getOutputMetrics();
         assertThat(outputMetrics.totalTravelDistance()).isPositive();
-        assertThat(outputMetrics.usedTrolleys()).isBetween(1, 2);
+        assertThat(outputMetrics.usedPickingCarts()).isBetween(1, 2);
         assertThat(outputMetrics.splitOrders()).isBetween(0, 2);
         assertThat(solution.getPickTasks()).extracting(PickTask::getId).doesNotHaveDuplicates();
     }

@@ -3,29 +3,29 @@
 // plan into that markup for the rest of the page's lifetime.
 
 // The warehouse layout mirrors the static structure of Warehouse.java: 5 columns (A to E) and
-// 3 rows (1 to 3) of shelvings, each with 10 rows per side. Sizes are in canvas units, which
+// 3 rows (1 to 3) of racks, each with 10 bays per side. Sizes are in canvas units, which
 // are scaled to the width of the map.
 const WAREHOUSE_COLUMNS = ['A', 'B', 'C', 'D', 'E'];
 const WAREHOUSE_ROWS = ['1', '2', '3'];
 const WAREHOUSE_PADDING = 100;
-const SHELVING_PADDING = 80;
-const SHELVING_WIDTH = 150;
-const SHELVING_HEIGHT = 300;
-const SHELVING_ROWS = 10;
-const SHELVING_LINE_WIDTH = 5;
-const TROLLEY_PATH_LINE_WIDTH = 5;
-const CONTENT_WIDTH = 2 * WAREHOUSE_PADDING + (SHELVING_WIDTH + SHELVING_PADDING) * WAREHOUSE_COLUMNS.length;
-const CONTENT_HEIGHT = 2 * WAREHOUSE_PADDING + (SHELVING_HEIGHT + SHELVING_PADDING) * WAREHOUSE_ROWS.length;
+const RACK_PADDING = 80;
+const RACK_WIDTH = 150;
+const RACK_HEIGHT = 300;
+const RACK_BAYS = 10;
+const RACK_LINE_WIDTH = 5;
+const PICKING_CART_PATH_LINE_WIDTH = 5;
+const CONTENT_WIDTH = 2 * WAREHOUSE_PADDING + (RACK_WIDTH + RACK_PADDING) * WAREHOUSE_COLUMNS.length;
+const CONTENT_HEIGHT = 2 * WAREHOUSE_PADDING + (RACK_HEIGHT + RACK_PADDING) * WAREHOUSE_ROWS.length;
 
-const SHELVINGS = new Map();
+const RACKS = new Map();
 WAREHOUSE_COLUMNS.forEach((column, columnIndex) => {
     WAREHOUSE_ROWS.forEach((row, rowIndex) => {
         const id = column + row;
-        SHELVINGS.set(id, {
+        RACKS.set(id, {
             id,
             columnIndex,
-            x: WAREHOUSE_PADDING + columnIndex * (SHELVING_WIDTH + SHELVING_PADDING),
-            y: WAREHOUSE_PADDING + rowIndex * (SHELVING_HEIGHT + SHELVING_PADDING),
+            x: WAREHOUSE_PADDING + columnIndex * (RACK_WIDTH + RACK_PADDING),
+            y: WAREHOUSE_PADDING + rowIndex * (RACK_HEIGHT + RACK_PADDING),
         });
     });
 });
@@ -39,17 +39,17 @@ const app = {
                 <div class="card-body">
                     <h5 class="card-title">Warehouse map</h5>
                     <div id="warehouseCanvasContainer"><canvas id="warehouseCanvas"></canvas></div>
-                    <small class="text-muted">A shelving is 2 meters wide and 10 meters high. The numbers on a path are the order in which the trolley picks.</small>
+                    <small class="text-muted">A rack is 2 meters wide and 10 meters long. The numbers on a path are the order in which the picking cart picks.</small>
                 </div>
             </div>
         </div>
         <div class="col-lg-4">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <h5 class="card-title">Trolleys</h5>
+                    <h5 class="card-title">PickingCarts</h5>
                     <table class="table table-sm align-middle mb-0">
-                        <thead><tr><th scope="col">Show</th><th scope="col">Trolley</th><th scope="col" class="text-end">Items</th><th scope="col" class="text-end">Distance</th></tr></thead>
-                        <tbody id="trolleyLegend"></tbody>
+                        <thead><tr><th scope="col">Show</th><th scope="col">Picking cart</th><th scope="col" class="text-end">Items</th><th scope="col" class="text-end">Distance</th></tr></thead>
+                        <tbody id="pickingCartLegend"></tbody>
                     </table>
                 </div>
             </div>
@@ -60,8 +60,8 @@ const app = {
     <div id="unassignedPickTasksContainer"></div>
 `);
 
-        // Trolleys whose path is hidden on the map; kept across renders, as a solving plan re-renders every 2 seconds.
-        this.hiddenTrolleyIds = new Set();
+        // Picking carts whose path is hidden on the map; kept across renders, as a solving plan re-renders every 2 seconds.
+        this.hiddenPickingCartIds = new Set();
         this.plan = null;
         window.addEventListener('resize', () => this.drawMap());
 
@@ -73,18 +73,18 @@ const app = {
         });
     },
 
-    // modelOutput only carries what the solver decided (the path of each trolley and its length), not the full
+    // modelOutput only carries what the solver decided (the path of each picking cart and its length), not the full
     // problem, so plan (the QuickstartPage's loadedSchedule) keeps the full modelInput (products, pick tasks,
     // buckets) and this only overlays the solved bits.
     mergeModelOutput(plan, modelOutput) {
-        if (plan == null || modelOutput == null || modelOutput.trolleys == null) {
+        if (plan == null || modelOutput == null || modelOutput.pickingCarts == null) {
             return;
         }
-        const outputByTrolleyId = new Map(modelOutput.trolleys.map((trolley) => [trolley.id, trolley]));
-        plan.trolleys = plan.trolleys.map((trolley) => {
-            const solved = outputByTrolleyId.get(trolley.id);
-            return solved == null ? trolley
-                : {...trolley, pickTaskIds: solved.pickTaskIds ?? [], travelDistance: solved.travelDistance};
+        const outputByPickingCartId = new Map(modelOutput.pickingCarts.map((pickingCart) => [pickingCart.id, pickingCart]));
+        plan.pickingCarts = plan.pickingCarts.map((pickingCart) => {
+            const solved = outputByPickingCartId.get(pickingCart.id);
+            return solved == null ? pickingCart
+                : {...pickingCart, pickTaskIds: solved.pickTaskIds ?? [], travelDistance: solved.travelDistance};
         });
     },
 
@@ -93,57 +93,57 @@ const app = {
             return '';
         }
         const orderCount = new Set(plan.pickTasks.map((pickTask) => pickTask.orderId)).size;
-        return `${plan.trolleys.length} trolleys · ${orderCount} orders · ${plan.pickTasks.length} pick tasks`;
+        return `${plan.pickingCarts.length} picking carts · ${orderCount} orders · ${plan.pickTasks.length} pick tasks`;
     },
 
     renderPlan(plan) {
         this.plan = plan;
         const productById = new Map(plan.products.map((product) => [product.id, product]));
         const pickTaskById = new Map(plan.pickTasks.map((pickTask) => [pickTask.id, pickTask]));
-        // Trolley colors first, in trolley order, so a trolley keeps its color while orders move between trolleys.
+        // Picking cart colors first, in picking cart order, so a picking cart keeps its color while orders move between picking carts.
         resetColorMap();
-        plan.trolleys.forEach((trolley) => this.trolleyColor(trolley.id));
+        plan.pickingCarts.forEach((pickingCart) => this.pickingCartColor(pickingCart.id));
 
-        this.renderTrolleyLegend(plan);
+        this.renderPickingCartLegend(plan);
         this.drawMap();
         this.renderPickingPlan(plan, productById, pickTaskById);
         this.renderUnassignedPickTasks(plan, productById);
     },
 
-    trolleyColor(trolleyId) {
-        return pickColor(`trolley-${trolleyId}`);
+    pickingCartColor(pickingCartId) {
+        return pickColor(`picking-cart-${pickingCartId}`);
     },
 
     orderColor(orderId) {
         return pickColor(`order-${orderId}`);
     },
 
-    pickTaskIdsOf(trolley) {
-        return trolley.pickTaskIds ?? [];
+    pickTaskIdsOf(pickingCart) {
+        return pickingCart.pickTaskIds ?? [];
     },
 
-    renderTrolleyLegend(plan) {
-        const legend = $('#trolleyLegend');
+    renderPickingCartLegend(plan) {
+        const legend = $('#pickingCartLegend');
         legend.children().remove();
-        plan.trolleys.forEach((trolley) => {
-            const color = this.trolleyColor(trolley.id);
+        plan.pickingCarts.forEach((pickingCart) => {
+            const color = this.pickingCartColor(pickingCart.id);
             const checkbox = $('<input class="form-check-input" type="checkbox"/>')
-                .prop('checked', !this.hiddenTrolleyIds.has(trolley.id))
+                .prop('checked', !this.hiddenPickingCartIds.has(pickingCart.id))
                 .on('change', (event) => {
                     if (event.target.checked) {
-                        this.hiddenTrolleyIds.delete(trolley.id);
+                        this.hiddenPickingCartIds.delete(pickingCart.id);
                     } else {
-                        this.hiddenTrolleyIds.add(trolley.id);
+                        this.hiddenPickingCartIds.add(pickingCart.id);
                     }
                     this.drawMap();
                 });
             legend.append($('<tr/>')
                 .append($('<td/>').append(checkbox))
                 .append($('<td/>')
-                    .append($('<span class="trolley-swatch me-2"/>').css('background-color', color.bg))
-                    .append($('<a/>').attr('href', `#trolley-${trolley.id}`).text(`Trolley ${trolley.id}`)))
-                .append($('<td class="text-end"/>').text(this.pickTaskIdsOf(trolley).length))
-                .append($('<td class="text-end"/>').text(this.formatDistance(trolley.travelDistance))));
+                    .append($('<span class="picking-cart-swatch me-2"/>').css('background-color', color.bg))
+                    .append($('<a/>').attr('href', `#picking-cart-${pickingCart.id}`).text(`Picking cart ${pickingCart.id}`)))
+                .append($('<td class="text-end"/>').text(this.pickTaskIdsOf(pickingCart).length))
+                .append($('<td class="text-end"/>').text(this.formatDistance(pickingCart.travelDistance))));
         });
     },
 
@@ -152,7 +152,7 @@ const app = {
     },
 
     formatLocation(location) {
-        return `${location.shelvingId} ${location.side.toLowerCase()} row ${location.row}`;
+        return `${location.rackId} ${location.side.toLowerCase()} bay ${location.bay}`;
     },
 
     // ************************************************************************
@@ -162,44 +162,44 @@ const app = {
     renderPickingPlan(plan, productById, pickTaskById) {
         const container = $('#pickingPlan');
         container.children().remove();
-        const trolleysByOrderId = new Map();
-        plan.trolleys.forEach((trolley) => this.pickTaskIdsOf(trolley).forEach((pickTaskId) => {
+        const pickingCartsByOrderId = new Map();
+        plan.pickingCarts.forEach((pickingCart) => this.pickTaskIdsOf(pickingCart).forEach((pickTaskId) => {
             const orderId = pickTaskById.get(pickTaskId)?.orderId;
-            if (!trolleysByOrderId.has(orderId)) {
-                trolleysByOrderId.set(orderId, new Set());
+            if (!pickingCartsByOrderId.has(orderId)) {
+                pickingCartsByOrderId.set(orderId, new Set());
             }
-            trolleysByOrderId.get(orderId).add(trolley.id);
+            pickingCartsByOrderId.get(orderId).add(pickingCart.id);
         }));
 
-        const usedTrolleys = plan.trolleys.filter((trolley) => this.pickTaskIdsOf(trolley).length > 0);
-        if (usedTrolleys.length === 0) {
-            container.append($('<p class="text-muted"/>').text('No trolley has a path yet. Click Solve to plan the picking.'));
+        const usedPickingCarts = plan.pickingCarts.filter((pickingCart) => this.pickTaskIdsOf(pickingCart).length > 0);
+        if (usedPickingCarts.length === 0) {
+            container.append($('<p class="text-muted"/>').text('No picking cart has a path yet. Click Solve to plan the picking.'));
             return;
         }
-        usedTrolleys.forEach((trolley) => {
-            const pickTasks = this.pickTaskIdsOf(trolley).map((pickTaskId) => pickTaskById.get(pickTaskId))
+        usedPickingCarts.forEach((pickingCart) => {
+            const pickTasks = this.pickTaskIdsOf(pickingCart).map((pickTaskId) => pickTaskById.get(pickTaskId))
                 .filter((pickTask) => pickTask != null);
-            container.append(this.renderTrolleyCard(trolley, pickTasks, productById, trolleysByOrderId));
+            container.append(this.renderPickingCartCard(pickingCart, pickTasks, productById, pickingCartsByOrderId));
         });
     },
 
-    renderTrolleyCard(trolley, pickTasks, productById, trolleysByOrderId) {
-        const color = this.trolleyColor(trolley.id);
-        const card = $('<div class="card shadow-sm mb-3"/>').attr('id', `trolley-${trolley.id}`);
+    renderPickingCartCard(pickingCart, pickTasks, productById, pickingCartsByOrderId) {
+        const color = this.pickingCartColor(pickingCart.id);
+        const card = $('<div class="card shadow-sm mb-3"/>').attr('id', `picking-cart-${pickingCart.id}`);
         card.append($('<div class="card-header d-flex align-items-center"/>')
-            .append($('<span class="trolley-swatch me-2"/>').css('background-color', color.bg))
-            .append($('<strong/>').text(`Trolley ${trolley.id}`))
+            .append($('<span class="picking-cart-swatch me-2"/>').css('background-color', color.bg))
+            .append($('<strong/>').text(`Picking cart ${pickingCart.id}`))
             .append($('<span class="ms-auto text-muted"/>')
-                .text(`${pickTasks.length} items · ${this.formatDistance(trolley.travelDistance)}`)));
+                .text(`${pickTasks.length} items · ${this.formatDistance(pickingCart.travelDistance)}`)));
 
         const body = $('<div class="card-body row g-3"/>').appendTo(card);
-        body.append($('<div class="col-md-4"/>').append(this.renderBuckets(trolley, pickTasks, productById, trolleysByOrderId)));
+        body.append($('<div class="col-md-4"/>').append(this.renderBuckets(pickingCart, pickTasks, productById, pickingCartsByOrderId)));
         body.append($('<div class="col-md-8 picking-table"/>').append(this.renderPickTaskTable(pickTasks, productById)));
         return card;
     },
 
-    // A bucket is never shared between two orders, so every order on the trolley takes up whole buckets.
-    renderBuckets(trolley, pickTasks, productById, trolleysByOrderId) {
+    // A bucket is never shared between two orders, so every order on the picking cart takes up whole buckets.
+    renderBuckets(pickingCart, pickTasks, productById, pickingCartsByOrderId) {
         const volumeByOrderId = new Map();
         pickTasks.forEach((pickTask) => {
             const volume = productById.get(pickTask.productId)?.volume ?? 0;
@@ -213,38 +213,38 @@ const app = {
         let usedBuckets = 0;
         [...volumeByOrderId.entries()].sort((a, b) => b[1] - a[1]).forEach(([orderId, orderVolume]) => {
             const orderColor = this.orderColor(orderId);
-            const requiredBuckets = Math.ceil(orderVolume / trolley.bucketCapacity);
+            const requiredBuckets = Math.ceil(orderVolume / pickingCart.bucketCapacity);
             for (let bucket = 1; bucket <= requiredBuckets; bucket++) {
-                const bucketVolume = bucket < requiredBuckets ? trolley.bucketCapacity
-                    : orderVolume - (requiredBuckets - 1) * trolley.bucketCapacity;
-                const fillPercentage = Math.ceil((100 * bucketVolume) / trolley.bucketCapacity);
+                const bucketVolume = bucket < requiredBuckets ? pickingCart.bucketCapacity
+                    : orderVolume - (requiredBuckets - 1) * pickingCart.bucketCapacity;
+                const fillPercentage = Math.ceil((100 * bucketVolume) / pickingCart.bucketCapacity);
                 buckets.append($('<div class="bucket"/>')
                     .attr('title', `${fillPercentage}% of the bucket holds order ${orderId}`)
                     .append($('<div class="bucket-fill"/>').css({width: `${fillPercentage}%`, 'background-color': orderColor.bg})));
             }
             usedBuckets += requiredBuckets;
-            const splitTrolleyIds = [...(trolleysByOrderId.get(orderId) ?? [])].filter((trolleyId) => trolleyId !== trolley.id);
+            const splitPickingCartIds = [...(pickingCartsByOrderId.get(orderId) ?? [])].filter((pickingCartId) => pickingCartId !== pickingCart.id);
             const orderCell = $('<td/>').append($('<span class="badge"/>')
                 .css({'background-color': orderColor.bg, color: orderColor.fg}).text(orderId));
-            if (splitTrolleyIds.length > 0) {
+            if (splitPickingCartIds.length > 0) {
                 orderCell.append($('<small class="text-muted ms-1"/>')
-                    .text(`also on ${splitTrolleyIds.map((trolleyId) => `trolley ${trolleyId}`).join(', ')}`));
+                    .text(`also on ${splitPickingCartIds.map((pickingCartId) => `picking cart ${pickingCartId}`).join(', ')}`));
             }
             ordersTableBody.append($('<tr/>')
                 .append(orderCell)
                 .append($('<td class="text-end"/>').text(orderVolume))
                 .append($('<td class="text-end"/>').text(requiredBuckets)));
         });
-        for (let bucket = usedBuckets; bucket < trolley.bucketCount; bucket++) {
+        for (let bucket = usedBuckets; bucket < pickingCart.bucketCount; bucket++) {
             buckets.append($('<div class="bucket" title="Free bucket"/>'));
         }
-        if (usedBuckets > trolley.bucketCount) {
+        if (usedBuckets > pickingCart.bucketCount) {
             container.append($('<div class="alert alert-danger py-1 px-2"/>')
-                .text(`Needs ${usedBuckets} buckets, but only has ${trolley.bucketCount}.`));
+                .text(`Needs ${usedBuckets} buckets, but only has ${pickingCart.bucketCount}.`));
         }
         container.append(ordersTable);
         container.append($('<small class="text-muted"/>')
-            .text(`${trolley.bucketCount} buckets of ${trolley.bucketCapacity} cm³`));
+            .text(`${pickingCart.bucketCount} buckets of ${pickingCart.bucketCapacity} cm³`));
         return container;
     },
 
@@ -270,7 +270,7 @@ const app = {
     renderUnassignedPickTasks(plan, productById) {
         const container = $('#unassignedPickTasksContainer');
         container.children().remove();
-        const assignedPickTaskIds = new Set(plan.trolleys.flatMap((trolley) => this.pickTaskIdsOf(trolley)));
+        const assignedPickTaskIds = new Set(plan.pickingCarts.flatMap((pickingCart) => this.pickTaskIdsOf(pickingCart)));
         const unassignedPickTasks = plan.pickTasks.filter((pickTask) => !assignedPickTaskIds.has(pickTask.id));
         if (unassignedPickTasks.length === 0) {
             return;
@@ -315,52 +315,52 @@ const app = {
         ctx.setTransform(scale * pixelRatio, 0, 0, scale * pixelRatio, 0, 0);
         ctx.clearRect(0, 0, CONTENT_WIDTH, CONTENT_HEIGHT);
 
-        SHELVINGS.forEach((shelving) => this.drawShelving(ctx, shelving));
+        RACKS.forEach((rack) => this.drawRack(ctx, rack));
         if (this.plan == null) {
             return;
         }
         const productById = new Map(this.plan.products.map((product) => [product.id, product]));
         const pickTaskById = new Map(this.plan.pickTasks.map((pickTask) => [pickTask.id, pickTask]));
-        const trolleyCount = this.plan.trolleys.length;
-        // Every trolley walks its own lane, offset by its index, so paths through the same aisle stay apart.
-        const paths = this.plan.trolleys.map((trolley, trolleyIndex) => {
-            const locations = this.pickTaskIdsOf(trolley)
+        const pickingCartCount = this.plan.pickingCarts.length;
+        // Every picking cart walks its own lane, offset by its index, so paths through the same aisle stay apart.
+        const paths = this.plan.pickingCarts.map((pickingCart, pickingCartIndex) => {
+            const locations = this.pickTaskIdsOf(pickingCart)
                 .map((pickTaskId) => productById.get(pickTaskById.get(pickTaskId)?.productId)?.location)
-                .filter((location) => location != null && SHELVINGS.has(location.shelvingId));
-            return {trolley, trolleyIndex, locations};
-        }).filter((path) => path.locations.length > 0 && !this.hiddenTrolleyIds.has(path.trolley.id)
-            && SHELVINGS.has(path.trolley.location.shelvingId));
+                .filter((location) => location != null && RACKS.has(location.rackId));
+            return {pickingCart, pickingCartIndex, locations};
+        }).filter((path) => path.locations.length > 0 && !this.hiddenPickingCartIds.has(path.pickingCart.id)
+            && RACKS.has(path.pickingCart.location.rackId));
 
-        paths.forEach((path) => this.drawTrolleyPath(ctx, path, trolleyCount));
-        paths.forEach((path) => this.drawPickOrder(ctx, path, trolleyCount));
+        paths.forEach((path) => this.drawPickingCartPath(ctx, path, pickingCartCount));
+        paths.forEach((path) => this.drawPickOrder(ctx, path, pickingCartCount));
     },
 
-    drawShelving(ctx, shelving) {
+    drawRack(ctx, rack) {
         ctx.strokeStyle = '#198754';
         ctx.lineJoin = 'bevel';
-        ctx.lineWidth = SHELVING_LINE_WIDTH;
-        ctx.strokeRect(shelving.x, shelving.y, SHELVING_WIDTH, SHELVING_HEIGHT);
+        ctx.lineWidth = RACK_LINE_WIDTH;
+        ctx.strokeRect(rack.x, rack.y, RACK_WIDTH, RACK_HEIGHT);
         ctx.font = '30px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillStyle = '#198754';
-        ctx.fillText(shelving.id, shelving.x + SHELVING_WIDTH / 2, shelving.y + SHELVING_HEIGHT / 2);
+        ctx.fillText(rack.id, rack.x + RACK_WIDTH / 2, rack.y + RACK_HEIGHT / 2);
     },
 
-    drawTrolleyPath(ctx, {trolley, trolleyIndex, locations}, trolleyCount) {
-        const path = [trolley.location, ...locations, trolley.location];
+    drawPickingCartPath(ctx, {pickingCart, pickingCartIndex, locations}, pickingCartCount) {
+        const path = [pickingCart.location, ...locations, pickingCart.location];
         ctx.lineJoin = 'round';
-        ctx.lineWidth = TROLLEY_PATH_LINE_WIDTH;
-        ctx.strokeStyle = this.trolleyColor(trolley.id).bg;
+        ctx.lineWidth = PICKING_CART_PATH_LINE_WIDTH;
+        ctx.strokeStyle = this.pickingCartColor(pickingCart.id).bg;
         ctx.beginPath();
         let previous = path[0];
-        let previousPoint = locationToPoint(previous, trolleyIndex, trolleyCount);
+        let previousPoint = locationToPoint(previous, pickingCartIndex, pickingCartCount);
         ctx.moveTo(previousPoint.x, previousPoint.y);
         ctx.arc(previousPoint.x, previousPoint.y, 5, 0, 2 * Math.PI);
         for (let i = 1; i < path.length; i++) {
             const location = path[i];
-            const point = locationToPoint(location, trolleyIndex, trolleyCount);
-            drawPathBetweenLocations(ctx, trolleyIndex, trolleyCount, previous, previousPoint, location, point);
+            const point = locationToPoint(location, pickingCartIndex, pickingCartCount);
+            drawPathBetweenLocations(ctx, pickingCartIndex, pickingCartCount, previous, previousPoint, location, point);
             ctx.arc(point.x, point.y, 5, 0, 2 * Math.PI);
             previous = location;
             previousPoint = point;
@@ -368,16 +368,16 @@ const app = {
         ctx.stroke();
     },
 
-    // Labels every stop with its position in the trolley's path. Stops close to each other share one label, so the
+    // Labels every stop with its position in the picking cart's path. Stops close to each other share one label, so the
     // numbers stay readable.
-    drawPickOrder(ctx, {trolley, trolleyIndex, locations}, trolleyCount) {
-        const rowHeight = SHELVING_HEIGHT / SHELVING_ROWS;
-        const labelBandHeight = rowHeight * 4;
+    drawPickOrder(ctx, {pickingCart, pickingCartIndex, locations}, pickingCartCount) {
+        const bayHeight = RACK_HEIGHT / RACK_BAYS;
+        const labelBandHeight = bayHeight * 4;
         const labels = [];
         locations.forEach((location, index) => {
-            const point = locationToPoint(location, trolleyIndex, trolleyCount);
-            point.y = Math.floor(point.y / labelBandHeight) * labelBandHeight + (labelBandHeight / trolleyCount) * trolleyIndex;
-            const nearbyLabel = labels.find((label) => Math.abs(point.x - label.x) + Math.abs(point.y - label.y) < 2 * rowHeight);
+            const point = locationToPoint(location, pickingCartIndex, pickingCartCount);
+            point.y = Math.floor(point.y / labelBandHeight) * labelBandHeight + (labelBandHeight / pickingCartCount) * pickingCartIndex;
+            const nearbyLabel = labels.find((label) => Math.abs(point.x - label.x) + Math.abs(point.y - label.y) < 2 * bayHeight);
             if (nearbyLabel != null) {
                 nearbyLabel.numbers.push(index + 1);
             } else {
@@ -388,7 +388,7 @@ const app = {
         ctx.textAlign = 'center';
         ctx.lineWidth = 4;
         ctx.strokeStyle = '#ffffff';
-        ctx.fillStyle = this.trolleyColor(trolley.id).bg;
+        ctx.fillStyle = this.pickingCartColor(pickingCart.id).bg;
         labels.forEach((label) => {
             const text = label.numbers.join(', ');
             ctx.strokeText(text, label.x, label.y);
@@ -398,84 +398,84 @@ const app = {
 };
 
 /**
- * Transforms a warehouse location into a point in the aisle next to it, offset by the trolley's lane.
+ * Transforms a warehouse location into a point in the aisle next to it, offset by the picking cart's lane.
  */
-function locationToPoint(location, trolleyIndex, trolleyCount) {
-    const shelving = SHELVINGS.get(location.shelvingId);
+function locationToPoint(location, pickingCartIndex, pickingCartCount) {
+    const rack = RACKS.get(location.rackId);
     return {
-        x: aisleX(shelving, location.side, trolleyIndex, trolleyCount),
-        y: shelving.y + location.row * (SHELVING_HEIGHT / SHELVING_ROWS),
+        x: aisleX(rack, location.side, pickingCartIndex, pickingCartCount),
+        y: rack.y + location.bay * (RACK_HEIGHT / RACK_BAYS),
     };
 }
 
-function aisleX(shelving, side, trolleyIndex, trolleyCount) {
-    const laneOffset = ((0.5 * SHELVING_PADDING) / trolleyCount) * trolleyIndex;
+function aisleX(rack, side, pickingCartIndex, pickingCartCount) {
+    const laneOffset = ((0.5 * RACK_PADDING) / pickingCartCount) * pickingCartIndex;
     return side === 'LEFT'
-        ? shelving.x - SHELVING_LINE_WIDTH - laneOffset
-        : shelving.x + SHELVING_WIDTH + SHELVING_LINE_WIDTH + laneOffset;
+        ? rack.x - RACK_LINE_WIDTH - laneOffset
+        : rack.x + RACK_WIDTH + RACK_LINE_WIDTH + laneOffset;
 }
 
 /**
- * Gets the point in the cross aisle above or below a shelving side, offset by the trolley's lane.
+ * Gets the point in the cross aisle above or below a rack side, offset by the picking cart's lane.
  */
-function crossAislePoint(shelving, side, isAbove, trolleyIndex, trolleyCount) {
-    const laneOffset = ((0.25 * SHELVING_PADDING) / trolleyCount) * trolleyIndex;
+function crossAislePoint(rack, side, isAbove, pickingCartIndex, pickingCartCount) {
+    const laneOffset = ((0.25 * RACK_PADDING) / pickingCartCount) * pickingCartIndex;
     return {
-        x: aisleX(shelving, side, trolleyIndex, trolleyCount),
-        y: isAbove ? shelving.y - 0.25 * SHELVING_PADDING - laneOffset
-            : shelving.y + SHELVING_HEIGHT + 0.25 * SHELVING_PADDING + laneOffset,
+        x: aisleX(rack, side, pickingCartIndex, pickingCartCount),
+        y: isAbove ? rack.y - 0.25 * RACK_PADDING - laneOffset
+            : rack.y + RACK_HEIGHT + 0.25 * RACK_PADDING + laneOffset,
     };
 }
 
 /**
- * Draws the walk between two locations around the shelvings, the way Warehouse.calculateDistance() measures it.
+ * Draws the walk between two locations around the racks, the way Warehouse.calculateDistance() measures it.
  */
-function drawPathBetweenLocations(ctx, trolleyIndex, trolleyCount, start, startPoint, end, endPoint) {
-    const startShelving = SHELVINGS.get(start.shelvingId);
-    const endShelving = SHELVINGS.get(end.shelvingId);
+function drawPathBetweenLocations(ctx, pickingCartIndex, pickingCartCount, start, startPoint, end, endPoint) {
+    const startRack = RACKS.get(start.rackId);
+    const endRack = RACKS.get(end.rackId);
     ctx.moveTo(startPoint.x, startPoint.y);
-    if (startShelving === endShelving && start.side === end.side) {
-        // Same aisle of the same shelving
+    if (startRack === endRack && start.side === end.side) {
+        // Same aisle of the same rack
         ctx.lineTo(endPoint.x, endPoint.y);
-    } else if (startShelving === endShelving) {
-        // Around the shelving, over the shortest end
-        const isAbove = start.row + end.row < 2 * SHELVING_ROWS - start.row - end.row;
+    } else if (startRack === endRack) {
+        // Around the rack, over the shortest end
+        const isAbove = start.bay + end.bay < 2 * RACK_BAYS - start.bay - end.bay;
         lineThrough(ctx, [
-            crossAislePoint(startShelving, start.side, isAbove, trolleyIndex, trolleyCount),
-            crossAislePoint(endShelving, end.side, isAbove, trolleyIndex, trolleyCount),
+            crossAislePoint(startRack, start.side, isAbove, pickingCartIndex, pickingCartCount),
+            crossAislePoint(endRack, end.side, isAbove, pickingCartIndex, pickingCartCount),
             endPoint]);
-    } else if (startShelving.x === endShelving.x && start.side === end.side) {
+    } else if (startRack.x === endRack.x && start.side === end.side) {
         // Same aisle, different warehouse rows
         ctx.lineTo(endPoint.x, endPoint.y);
-    } else if (startShelving.x === endShelving.x) {
-        // Same column, but the other aisle: cross over in the cross aisle between both shelvings
-        const isAbove = startShelving.y < endShelving.y;
+    } else if (startRack.x === endRack.x) {
+        // Same column, but the other aisle: cross over in the cross aisle between both racks
+        const isAbove = startRack.y < endRack.y;
         lineThrough(ctx, [
-            crossAislePoint(endShelving, start.side, isAbove, trolleyIndex, trolleyCount),
-            crossAislePoint(endShelving, end.side, isAbove, trolleyIndex, trolleyCount),
+            crossAislePoint(endRack, start.side, isAbove, pickingCartIndex, pickingCartCount),
+            crossAislePoint(endRack, end.side, isAbove, pickingCartIndex, pickingCartCount),
             endPoint]);
-    } else if (startShelving.y === endShelving.y && isSharedAisle(startShelving, start.side, endShelving, end.side)) {
-        // Neighbouring shelvings that face each other across one aisle
+    } else if (startRack.y === endRack.y && isSharedAisle(startRack, start.side, endRack, end.side)) {
+        // Neighbouring racks that face each other across one aisle
         lineThrough(ctx, [{x: endPoint.x, y: startPoint.y}, endPoint]);
-    } else if (startShelving.y === endShelving.y) {
+    } else if (startRack.y === endRack.y) {
         // Same warehouse row, through the cross aisle over the shortest end
-        const isAbove = start.row + end.row < 2 * SHELVING_ROWS - start.row - end.row;
+        const isAbove = start.bay + end.bay < 2 * RACK_BAYS - start.bay - end.bay;
         lineThrough(ctx, [
-            crossAislePoint(startShelving, start.side, isAbove, trolleyIndex, trolleyCount),
-            crossAislePoint(endShelving, end.side, isAbove, trolleyIndex, trolleyCount),
+            crossAislePoint(startRack, start.side, isAbove, pickingCartIndex, pickingCartCount),
+            crossAislePoint(endRack, end.side, isAbove, pickingCartIndex, pickingCartCount),
             endPoint]);
     } else {
         // Different warehouse rows and columns
-        const isAbove = endShelving.y < startShelving.y;
-        const startCrossing = crossAislePoint(startShelving, start.side, isAbove, trolleyIndex, trolleyCount);
-        const endCrossing = crossAislePoint(endShelving, end.side, isAbove, trolleyIndex, trolleyCount);
+        const isAbove = endRack.y < startRack.y;
+        const startCrossing = crossAislePoint(startRack, start.side, isAbove, pickingCartIndex, pickingCartCount);
+        const endCrossing = crossAislePoint(endRack, end.side, isAbove, pickingCartIndex, pickingCartCount);
         lineThrough(ctx, [startCrossing, {x: endCrossing.x, y: startCrossing.y}, endCrossing, endPoint]);
     }
 }
 
-function isSharedAisle(startShelving, startSide, endShelving, endSide) {
-    return (startSide === 'LEFT' && endSide === 'RIGHT' && endShelving.columnIndex === startShelving.columnIndex - 1)
-        || (startSide === 'RIGHT' && endSide === 'LEFT' && endShelving.columnIndex === startShelving.columnIndex + 1);
+function isSharedAisle(startRack, startSide, endRack, endSide) {
+    return (startSide === 'LEFT' && endSide === 'RIGHT' && endRack.columnIndex === startRack.columnIndex - 1)
+        || (startSide === 'RIGHT' && endSide === 'LEFT' && endRack.columnIndex === startRack.columnIndex + 1);
 }
 
 function lineThrough(ctx, points) {

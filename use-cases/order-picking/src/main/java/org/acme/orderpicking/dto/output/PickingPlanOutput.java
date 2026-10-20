@@ -8,8 +8,8 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Schema(description = "The order picking planning problem output.")
 public record PickingPlanOutput(
-        @Schema(description = "Trolleys with the pick tasks they pick, in order.", required = true,
-                minItems = 1) List<TrolleyOutputDTO> trolleys)
+        @Schema(description = "Picking carts with the pick tasks they pick, in order.", required = true,
+                minItems = 1) List<PickingCartOutputDTO> pickingCarts)
         implements
             ModelOutput {
 }

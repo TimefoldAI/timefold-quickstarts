@@ -21,13 +21,13 @@ public class OrderPickingDemoDataGenerator implements DemoDataGenerator {
     private static final String BASIC = "BASIC";
 
     private static final DemoMetaData BASIC_META_DATA = new DemoMetaData(BASIC,
-            "Demonstrates picking 8 grocery orders with 5 trolleys.",
+            "Demonstrates picking 8 grocery orders with 5 picking carts.",
             """
-                    Picks the items of 8 grocery orders, stored on shelvings grouped by product family, with 5 \
-                    trolleys of 4 buckets each that all start at the same corner of the warehouse. Once solved, \
-                    every trolley has enough buckets for its orders, walks a short path through the aisles and \
-                    orders are split over as few trolleys as possible.""",
-            List.of("trolleys", "buckets", "orders"));
+                    Picks the items of 8 grocery orders, stored on racks grouped by product family, with 5 \
+                    pickingCarts of 4 buckets each that all start at the same corner of the warehouse. Once solved, \
+                    every picking cart has enough buckets for its orders, walks a short path through the aisles and \
+                    orders are split over as few picking carts as possible.""",
+            List.of("pickingCarts", "buckets", "orders"));
 
     @Override
     public List<DemoMetaData> demoMetaData() {

@@ -9,18 +9,18 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 @Schema(description = "Metrics describing the picking plan produced for this dataset.")
 public record PickingPlanOutputMetrics(
         @Schema(title = "Total travel distance", format = DataFormat.Values.NUMBER,
-                description = "The distance in meters all trolleys walk together, each from its start location and back.",
+                description = "The distance in meters all picking carts walk together, each from its start location and back.",
                 examples = "600", minimum = "0", readOnly = true,
                 extensions = {
                         @Extension(name = X_TF_PRIORITY, value = "1"),
                         @Extension(name = X_TF_EXAMPLE, value = "600") }) int totalTravelDistance,
-        @Schema(title = "Used trolleys", format = DataFormat.Values.NUMBER,
-                description = "The number of trolleys that have at least one pick task in this picking plan.",
+        @Schema(title = "Used picking carts", format = DataFormat.Values.NUMBER,
+                description = "The number of picking carts that have at least one pick task in this picking plan.",
                 examples = "5", minimum = "0", readOnly = true,
                 extensions = { @Extension(name = X_TF_PRIORITY, value = "2"),
-                        @Extension(name = X_TF_EXAMPLE, value = "5") }) int usedTrolleys,
+                        @Extension(name = X_TF_EXAMPLE, value = "5") }) int usedPickingCarts,
         @Schema(title = "Split orders", format = DataFormat.Values.NUMBER,
-                description = "The number of orders whose items are picked by more than one trolley.",
+                description = "The number of orders whose items are picked by more than one picking cart.",
                 examples = "3", minimum = "0", readOnly = true,
                 extensions = { @Extension(name = X_TF_PRIORITY, value = "3"),
                         @Extension(name = X_TF_EXAMPLE, value = "3") }) int splitOrders)
@@ -31,10 +31,10 @@ public record PickingPlanOutputMetrics(
     private static final String X_TF_EXAMPLE = "x-tf-example";
 
     public PickingPlanOutputMetrics {
-        if (totalTravelDistance < 0 || usedTrolleys < 0 || splitOrders < 0) {
+        if (totalTravelDistance < 0 || usedPickingCarts < 0 || splitOrders < 0) {
             throw new IllegalArgumentException(
-                    "Output metrics must not be negative, but were totalTravelDistance (%d), usedTrolleys (%d), splitOrders (%d)."
-                            .formatted(totalTravelDistance, usedTrolleys, splitOrders));
+                    "Output metrics must not be negative, but were totalTravelDistance (%d), usedPickingCarts (%d), splitOrders (%d)."
+                            .formatted(totalTravelDistance, usedPickingCarts, splitOrders));
         }
     }
 }

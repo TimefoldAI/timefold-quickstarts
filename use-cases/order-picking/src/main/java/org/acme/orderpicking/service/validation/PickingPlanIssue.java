@@ -14,8 +14,8 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
         oneOf = {
                 PickingPlanIssue.DuplicateProductIdIssue.class,
                 PickingPlanIssue.DuplicatePickTaskIdIssue.class,
-                PickingPlanIssue.DuplicateTrolleyIdIssue.class,
-                PickingPlanIssue.UnknownShelvingIssue.class,
+                PickingPlanIssue.DuplicatePickingCartIdIssue.class,
+                PickingPlanIssue.UnknownRackIssue.class,
                 PickingPlanIssue.NonExistingProductReferenceIssue.class,
                 PickingPlanIssue.NonExistingPickTaskReferenceIssue.class,
                 PickingPlanIssue.PickTaskAssignedMoreThanOnceIssue.class,
@@ -74,54 +74,54 @@ public abstract class PickingPlanIssue extends AbstractIssue {
     }
 
     @Schema(allOf = { PickingPlanIssue.class })
-    public static class DuplicateTrolleyIdIssue extends PickingPlanIssue {
+    public static class DuplicatePickingCartIdIssue extends PickingPlanIssue {
 
-        public static final IssueCode ISSUE_CODE = IssueCode.of("DUPLICATE_TROLLEY_ID");
-        public static final IssueMessage ISSUE_MESSAGE = new IssueMessage("Duplicate trolley ID found.");
+        public static final IssueCode ISSUE_CODE = IssueCode.of("DUPLICATE_PICKING_CART_ID");
+        public static final IssueMessage ISSUE_MESSAGE = new IssueMessage("Duplicate picking cart ID found.");
 
-        @Schema(description = "The ID of the duplicated trolley.")
-        private String trolleyId;
+        @Schema(description = "The ID of the duplicated picking cart.")
+        private String pickingCartId;
 
-        public DuplicateTrolleyIdIssue() {
+        public DuplicatePickingCartIdIssue() {
             this(null);
         }
 
-        public DuplicateTrolleyIdIssue(String trolleyId) {
+        public DuplicatePickingCartIdIssue(String pickingCartId) {
             super(ISSUE_CODE, IssueSeverity.ERROR, List.of(ISSUE_MESSAGE));
-            this.trolleyId = trolleyId;
+            this.pickingCartId = pickingCartId;
         }
 
-        public String getTrolleyId() {
-            return trolleyId;
+        public String getPickingCartId() {
+            return pickingCartId;
         }
     }
 
     /**
-     * The warehouse structure is fixed (shelvings A1 to E3), and the travel distance between two locations can only be
-     * calculated for shelvings that exist in it. Reported once per unknown shelving ID, however many products or
-     * trolleys refer to it.
+     * The warehouse structure is fixed (racks A1 to E3), and the travel distance between two locations can only be
+     * calculated for racks that exist in it. Reported once per unknown rack ID, however many products or
+     * picking carts refer to it.
      */
     @Schema(allOf = { PickingPlanIssue.class })
-    public static class UnknownShelvingIssue extends PickingPlanIssue {
+    public static class UnknownRackIssue extends PickingPlanIssue {
 
-        public static final IssueCode ISSUE_CODE = IssueCode.of("UNKNOWN_SHELVING");
+        public static final IssueCode ISSUE_CODE = IssueCode.of("UNKNOWN_RACK");
         public static final IssueMessage ISSUE_MESSAGE =
-                new IssueMessage("Location refers to a shelving that does not exist in the warehouse.");
+                new IssueMessage("Location refers to a rack that does not exist in the warehouse.");
 
-        @Schema(description = "The unknown shelving ID.")
-        private String shelvingId;
+        @Schema(description = "The unknown rack ID.")
+        private String rackId;
 
-        public UnknownShelvingIssue() {
+        public UnknownRackIssue() {
             this(null);
         }
 
-        public UnknownShelvingIssue(String shelvingId) {
+        public UnknownRackIssue(String rackId) {
             super(ISSUE_CODE, IssueSeverity.ERROR, List.of(ISSUE_MESSAGE));
-            this.shelvingId = shelvingId;
+            this.rackId = rackId;
         }
 
-        public String getShelvingId() {
-            return shelvingId;
+        public String getRackId() {
+            return rackId;
         }
     }
 
@@ -150,18 +150,18 @@ public abstract class PickingPlanIssue extends AbstractIssue {
     }
 
     /**
-     * Reported for the first unknown pick task ID in a trolley's path only, so the issue list stays bounded by the
-     * number of trolleys.
+     * Reported for the first unknown pick task ID in a picking cart's path only, so the issue list stays bounded by the
+     * number of picking carts.
      */
     @Schema(allOf = { PickingPlanIssue.class })
     public static class NonExistingPickTaskReferenceIssue extends PickingPlanIssue {
 
         public static final IssueCode ISSUE_CODE = IssueCode.of("NON_EXISTING_PICK_TASK_REFERENCE");
         public static final IssueMessage ISSUE_MESSAGE =
-                new IssueMessage("Trolley refers to a pick task ID that does not exist.");
+                new IssueMessage("Picking cart refers to a pick task ID that does not exist.");
 
-        @Schema(description = "The ID of the trolley with the unknown pick task reference.")
-        private String trolleyId;
+        @Schema(description = "The ID of the picking cart with the unknown pick task reference.")
+        private String pickingCartId;
         @Schema(description = "The unknown pick task ID.")
         private String pickTaskId;
 
@@ -169,14 +169,14 @@ public abstract class PickingPlanIssue extends AbstractIssue {
             this(null, null);
         }
 
-        public NonExistingPickTaskReferenceIssue(String trolleyId, String pickTaskId) {
+        public NonExistingPickTaskReferenceIssue(String pickingCartId, String pickTaskId) {
             super(ISSUE_CODE, IssueSeverity.ERROR, List.of(ISSUE_MESSAGE));
-            this.trolleyId = trolleyId;
+            this.pickingCartId = pickingCartId;
             this.pickTaskId = pickTaskId;
         }
 
-        public String getTrolleyId() {
-            return trolleyId;
+        public String getPickingCartId() {
+            return pickingCartId;
         }
 
         public String getPickTaskId() {
@@ -185,15 +185,15 @@ public abstract class PickingPlanIssue extends AbstractIssue {
     }
 
     /**
-     * A trolley's path is a list variable, in which a pick task can only take one position: it cannot be picked
-     * twice, nor by two trolleys.
+     * A picking cart's path is a list variable, in which a pick task can only take one position: it cannot be picked
+     * twice, nor by two picking carts.
      */
     @Schema(allOf = { PickingPlanIssue.class })
     public static class PickTaskAssignedMoreThanOnceIssue extends PickingPlanIssue {
 
         public static final IssueCode ISSUE_CODE = IssueCode.of("PICK_TASK_ASSIGNED_MORE_THAN_ONCE");
         public static final IssueMessage ISSUE_MESSAGE =
-                new IssueMessage("Pick task appears more than once in the trolleys' paths.");
+                new IssueMessage("Pick task appears more than once in the picking carts' paths.");
 
         @Schema(description = "The ID of the pick task that appears more than once.")
         private String pickTaskId;
@@ -213,21 +213,21 @@ public abstract class PickingPlanIssue extends AbstractIssue {
     }
 
     /**
-     * For simplicity, the model assumes every product fits in a trolley bucket. A product that is bigger than the
-     * buckets of every trolley breaks that assumption.
+     * For simplicity, the model assumes every product fits in a picking cart bucket. A product that is bigger than the
+     * buckets of every picking cart breaks that assumption.
      */
     @Schema(allOf = { PickingPlanIssue.class })
     public static class ProductExceedsBucketCapacityIssue extends PickingPlanIssue {
 
         public static final IssueCode ISSUE_CODE = IssueCode.of("PRODUCT_EXCEEDS_BUCKET_CAPACITY");
         public static final IssueMessage ISSUE_MESSAGE =
-                new IssueMessage("Product does not fit in the bucket of any trolley.");
+                new IssueMessage("Product does not fit in the bucket of any picking cart.");
 
         @Schema(description = "The ID of the product that is too big.")
         private String productId;
         @Schema(description = "The volume of the product in cm3.")
         private int volume;
-        @Schema(description = "The largest bucket capacity of all trolleys in cm3.")
+        @Schema(description = "The largest bucket capacity of all picking carts in cm3.")
         private int bucketCapacity;
 
         public ProductExceedsBucketCapacityIssue() {

@@ -16,20 +16,20 @@ import ai.timefold.solver.service.definition.api.ModelConvertor;
 import ai.timefold.solver.service.definition.api.domain.ModelConfig;
 
 import org.acme.orderpicking.domain.PickTask;
+import org.acme.orderpicking.domain.PickingCart;
 import org.acme.orderpicking.domain.PickingPlan;
 import org.acme.orderpicking.domain.PickingPlanConstraintProperties;
 import org.acme.orderpicking.domain.Product;
-import org.acme.orderpicking.domain.Trolley;
 import org.acme.orderpicking.domain.Warehouse;
 import org.acme.orderpicking.domain.WarehouseLocation;
 import org.acme.orderpicking.dto.input.PickTaskInputDTO;
+import org.acme.orderpicking.dto.input.PickingCartInputDTO;
 import org.acme.orderpicking.dto.input.PickingPlanConfigOverrides;
 import org.acme.orderpicking.dto.input.PickingPlanInput;
 import org.acme.orderpicking.dto.input.ProductInputDTO;
-import org.acme.orderpicking.dto.input.TrolleyInputDTO;
 import org.acme.orderpicking.dto.input.WarehouseLocationInputDTO;
+import org.acme.orderpicking.dto.output.PickingCartOutputDTO;
 import org.acme.orderpicking.dto.output.PickingPlanOutput;
-import org.acme.orderpicking.dto.output.TrolleyOutputDTO;
 
 @ApplicationScoped
 public class PickingPlanModelConvertor
@@ -37,20 +37,20 @@ public class PickingPlanModelConvertor
 
     @Override
     public PickingPlanInput applyOutputToInput(PickingPlanInput modelInput, PickingPlanOutput modelOutput) {
-        // The assignment is the pick task list of each trolley, so overlaying the output means replacing one list
-        // per trolley.
-        Map<String, TrolleyOutputDTO> outputTrolleys = new LinkedHashMap<>();
-        for (TrolleyOutputDTO trolley : modelOutput.trolleys()) {
-            outputTrolleys.put(trolley.id(), trolley);
+        // The assignment is the pick task list of each picking cart, so overlaying the output means replacing one list
+        // per picking cart.
+        Map<String, PickingCartOutputDTO> outputPickingCarts = new LinkedHashMap<>();
+        for (PickingCartOutputDTO pickingCart : modelOutput.pickingCarts()) {
+            outputPickingCarts.put(pickingCart.id(), pickingCart);
         }
-        List<TrolleyInputDTO> updatedTrolleys = modelInput.trolleys().stream()
-                .map(trolley -> {
-                    TrolleyOutputDTO solved = outputTrolleys.get(trolley.id());
-                    return solved == null || solved.pickTaskIds() == null ? trolley
-                            : trolley.withPickTaskIds(solved.pickTaskIds());
+        List<PickingCartInputDTO> updatedPickingCarts = modelInput.pickingCarts().stream()
+                .map(pickingCart -> {
+                    PickingCartOutputDTO solved = outputPickingCarts.get(pickingCart.id());
+                    return solved == null || solved.pickTaskIds() == null ? pickingCart
+                            : pickingCart.withPickTaskIds(solved.pickTaskIds());
                 })
                 .toList();
-        return modelInput.withTrolleys(updatedTrolleys);
+        return modelInput.withPickingCarts(updatedPickingCarts);
     }
 
     @Override
@@ -65,28 +65,28 @@ public class PickingPlanModelConvertor
             pickTaskMap.put(dto.id(),
                     new PickTask(dto.id(), dto.orderId(), require(productMap, dto.productId(), "product")));
         }
-        List<Trolley> trolleys = modelInput.trolleys().stream()
-                .map(dto -> new Trolley(dto.id(), dto.bucketCount(), dto.bucketCapacity(), toLocation(dto.location())))
+        List<PickingCart> pickingCarts = modelInput.pickingCarts().stream()
+                .map(dto -> new PickingCart(dto.id(), dto.bucketCount(), dto.bucketCapacity(), toLocation(dto.location())))
                 .toList();
 
-        PickingPlan pickingPlan = new PickingPlan(trolleys, List.copyOf(pickTaskMap.values()));
-        applyPaths(trolleys, pickTaskMap, modelInput, lastModelOutput);
+        PickingPlan pickingPlan = new PickingPlan(pickingCarts, List.copyOf(pickTaskMap.values()));
+        applyPaths(pickingCarts, pickTaskMap, modelInput, lastModelOutput);
         applyConstraintWeightOverrides(pickingPlan, modelConfig);
         return pickingPlan;
     }
 
     @Override
     public PickingPlanOutput toModelOutput(PickingPlan solverModel) {
-        List<TrolleyOutputDTO> trolleys = solverModel.getTrolleys().stream()
-                .map(trolley -> new TrolleyOutputDTO(trolley.getId(),
-                        trolley.getPickTasks().stream().map(PickTask::getId).toList(),
-                        Warehouse.calculateDistanceToTravel(trolley)))
+        List<PickingCartOutputDTO> pickingCarts = solverModel.getPickingCarts().stream()
+                .map(pickingCart -> new PickingCartOutputDTO(pickingCart.getId(),
+                        pickingCart.getPickTasks().stream().map(PickTask::getId).toList(),
+                        Warehouse.calculateDistanceToTravel(pickingCart)))
                 .toList();
-        return new PickingPlanOutput(trolleys);
+        return new PickingPlanOutput(pickingCarts);
     }
 
     private static WarehouseLocation toLocation(WarehouseLocationInputDTO dto) {
-        return new WarehouseLocation(dto.shelvingId(), dto.side(), dto.row());
+        return new WarehouseLocation(dto.rackId(), dto.side(), dto.bay());
     }
 
     /**
@@ -118,9 +118,9 @@ public class PickingPlanModelConvertor
             weights.put(PickingPlanConstraintProperties.MINIMIZE_DISTANCE_FROM_LAST_PICK_TASK_TO_PATH_ORIGIN,
                     HardSoftScore.ofSoft(overrides.minimizeDistanceFromLastPickTaskToPathOriginWeight()));
         }
-        if (overrides.minimizeOrderSplitByTrolleyWeight() != null) {
-            weights.put(PickingPlanConstraintProperties.MINIMIZE_ORDER_SPLIT_BY_TROLLEY,
-                    HardSoftScore.ofSoft(overrides.minimizeOrderSplitByTrolleyWeight()));
+        if (overrides.minimizeOrderSplitByPickingCartWeight() != null) {
+            weights.put(PickingPlanConstraintProperties.MINIMIZE_ORDER_SPLIT_BY_PICKING_CART,
+                    HardSoftScore.ofSoft(overrides.minimizeOrderSplitByPickingCartWeight()));
         }
         if (!weights.isEmpty()) {
             pickingPlan.setConstraintWeightOverrides(ConstraintWeightOverrides.of(weights));
@@ -128,21 +128,21 @@ public class PickingPlanModelConvertor
     }
 
     /**
-     * Fills the list variable of every trolley: from lastModelOutput when a halted run is being recovered, and from
-     * the input's own paths otherwise. The shadow variables (trolley, previousPickTask, nextPickTask) are deliberately
+     * Fills the list variable of every picking cart: from lastModelOutput when a halted run is being recovered, and from
+     * the input's own paths otherwise. The shadow variables (pickingCart, previousPickTask, nextPickTask) are deliberately
      * not set here - the solver derives them when it loads the solution.
      */
-    private static void applyPaths(List<Trolley> trolleys, Map<String, PickTask> pickTaskMap,
+    private static void applyPaths(List<PickingCart> pickingCarts, Map<String, PickTask> pickTaskMap,
             PickingPlanInput modelInput, Optional<PickingPlanOutput> lastModelOutput) {
-        Map<String, List<String>> pathByTrolleyId = lastModelOutput
-                .map(output -> output.trolleys().stream()
-                        .filter(trolley -> trolley.pickTaskIds() != null)
-                        .collect(Collectors.toMap(TrolleyOutputDTO::id, TrolleyOutputDTO::pickTaskIds)))
-                .orElseGet(() -> modelInput.trolleys().stream()
-                        .collect(Collectors.toMap(TrolleyInputDTO::id, TrolleyInputDTO::pickTaskIds)));
+        Map<String, List<String>> pathByPickingCartId = lastModelOutput
+                .map(output -> output.pickingCarts().stream()
+                        .filter(pickingCart -> pickingCart.pickTaskIds() != null)
+                        .collect(Collectors.toMap(PickingCartOutputDTO::id, PickingCartOutputDTO::pickTaskIds)))
+                .orElseGet(() -> modelInput.pickingCarts().stream()
+                        .collect(Collectors.toMap(PickingCartInputDTO::id, PickingCartInputDTO::pickTaskIds)));
 
-        for (Trolley trolley : trolleys) {
-            List<String> pickTaskIds = pathByTrolleyId.get(trolley.getId());
+        for (PickingCart pickingCart : pickingCarts) {
+            List<String> pickTaskIds = pathByPickingCartId.get(pickingCart.getId());
             if (pickTaskIds == null || pickTaskIds.isEmpty()) {
                 continue;
             }
@@ -151,7 +151,7 @@ public class PickingPlanModelConvertor
             for (String pickTaskId : pickTaskIds) {
                 path.add(require(pickTaskMap, pickTaskId, "pick task"));
             }
-            trolley.setPickTasks(path);
+            pickingCart.setPickTasks(path);
         }
     }
 }

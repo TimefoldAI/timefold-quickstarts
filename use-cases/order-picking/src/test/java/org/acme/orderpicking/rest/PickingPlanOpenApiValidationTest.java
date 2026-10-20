@@ -42,21 +42,21 @@ class PickingPlanOpenApiValidationTest {
     @Test
     void emptyRequiredCollectionIsRejected() {
         ObjectNode input = demoData();
-        modelInput(input).set("trolleys", MAPPER.createArrayNode());
+        modelInput(input).set("pickingCarts", MAPPER.createArrayNode());
 
-        assertRejected(post(input), "modelInput.trolleys");
+        assertRejected(post(input), "modelInput.pickingCarts");
     }
 
     @Test
     void missingRequiredFieldIsRejected() {
         ObjectNode input = demoData();
-        firstTrolley(input).remove("location");
+        firstPickingCart(input).remove("location");
 
         assertRejected(post(input), "location");
     }
 
     @Test
-    void unknownShelvingSideIsRejected() {
+    void unknownRackSideIsRejected() {
         ObjectNode input = demoData();
         ((ObjectNode) firstProduct(input).get("location")).put("side", "MIDDLE");
 
@@ -66,15 +66,15 @@ class PickingPlanOpenApiValidationTest {
     @Test
     void rowOutOfRangeIsRejected() {
         ObjectNode input = demoData();
-        ((ObjectNode) firstProduct(input).get("location")).put("row", 11);
+        ((ObjectNode) firstProduct(input).get("location")).put("bay", 11);
 
-        assertRejected(post(input), "row");
+        assertRejected(post(input), "bay");
     }
 
     @Test
     void zeroBucketCountIsRejected() {
         ObjectNode input = demoData();
-        firstTrolley(input).put("bucketCount", 0);
+        firstPickingCart(input).put("bucketCount", 0);
 
         assertRejected(post(input), "bucketCount");
     }
@@ -108,8 +108,8 @@ class PickingPlanOpenApiValidationTest {
         return (ObjectNode) modelInput(input).get("pickTasks").get(0);
     }
 
-    private static ObjectNode firstTrolley(ObjectNode input) {
-        return (ObjectNode) modelInput(input).get("trolleys").get(0);
+    private static ObjectNode firstPickingCart(ObjectNode input) {
+        return (ObjectNode) modelInput(input).get("pickingCarts").get(0);
     }
 
     private static Response post(ObjectNode input) {

@@ -21,9 +21,9 @@ public record PickingPlanConfigOverrides(
         @ConstraintReference(PickingPlanConstraintProperties.MINIMIZE_DISTANCE_FROM_LAST_PICK_TASK_TO_PATH_ORIGIN) @Schema(
                 description = "Soft weight of the minimize distance from last pick task to path origin constraint.",
                 minimum = "0") Long minimizeDistanceFromLastPickTaskToPathOriginWeight,
-        @ConstraintReference(PickingPlanConstraintProperties.MINIMIZE_ORDER_SPLIT_BY_TROLLEY) @Schema(
-                description = "Soft weight of the minimize order split by trolley constraint.",
-                minimum = "0") Long minimizeOrderSplitByTrolleyWeight)
+        @ConstraintReference(PickingPlanConstraintProperties.MINIMIZE_ORDER_SPLIT_BY_PICKING_CART) @Schema(
+                description = "Soft weight of the minimize order split by picking cart constraint.",
+                minimum = "0") Long minimizeOrderSplitByPickingCartWeight)
         implements
             ModelConfigOverrides {
 

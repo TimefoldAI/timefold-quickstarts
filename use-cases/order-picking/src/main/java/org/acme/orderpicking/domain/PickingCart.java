@@ -9,16 +9,16 @@ import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.variable.PlanningListVariable;
 
 /**
- * Represents the trolley that will be filled with the order items. It starts at its location, walks past every
+ * Represents the picking cart that will be filled with the order items. It starts at its location, walks past every
  * {@link PickTask} in its list in that order, and returns to its location.
  * <p>
- * A trolley holds {@link #getBucketCount() a number of buckets} of {@link #getBucketCapacity() the same capacity},
+ * A picking cart holds {@link #getBucketCount() a number of buckets} of {@link #getBucketCapacity() the same capacity},
  * and a bucket never holds products of two different orders.
  *
  * @see PickTask for more information about the model constructed by the Solver.
  */
 @PlanningEntity
-public class Trolley {
+public class PickingCart {
 
     @PlanningId
     private String id;
@@ -29,10 +29,10 @@ public class Trolley {
     @PlanningListVariable
     private List<PickTask> pickTasks = new ArrayList<>();
 
-    public Trolley() {
+    public PickingCart() {
     }
 
-    public Trolley(String id, int bucketCount, int bucketCapacity, WarehouseLocation location) {
+    public PickingCart(String id, int bucketCount, int bucketCapacity, WarehouseLocation location) {
         this.id = id;
         this.bucketCount = bucketCount;
         this.bucketCapacity = bucketCapacity;
@@ -75,7 +75,7 @@ public class Trolley {
     // ************************************************************************
 
     /**
-     * @param orderVolume the volume in cm3 of all the products of one order this trolley picks
+     * @param orderVolume the volume in cm3 of all the products of one order this picking cart picks
      * @return the number of buckets those products take up, as a bucket is never shared with another order
      */
     public long calculateRequiredBuckets(long orderVolume) {
@@ -87,10 +87,10 @@ public class Trolley {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof Trolley trolley)) {
+        if (!(o instanceof PickingCart pickingCart)) {
             return false;
         }
-        return Objects.equals(id, trolley.id);
+        return Objects.equals(id, pickingCart.id);
     }
 
     @Override

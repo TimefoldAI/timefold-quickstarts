@@ -24,11 +24,11 @@ public record PickingPlanInputMetrics(
                 examples = "40", minimum = "0", readOnly = true,
                 extensions = { @Extension(name = X_TF_PRIORITY, value = "3"),
                         @Extension(name = X_TF_EXAMPLE, value = "40") }) int products,
-        @Schema(title = "Trolleys", format = DataFormat.Values.NUMBER,
-                description = "The number of trolleys submitted in the input dataset.",
+        @Schema(title = "PickingCarts", format = DataFormat.Values.NUMBER,
+                description = "The number of picking carts submitted in the input dataset.",
                 examples = "5", minimum = "0", readOnly = true,
                 extensions = { @Extension(name = X_TF_PRIORITY, value = "4"),
-                        @Extension(name = X_TF_EXAMPLE, value = "5") }) int trolleys)
+                        @Extension(name = X_TF_EXAMPLE, value = "5") }) int pickingCarts)
         implements
             ModelInputMetrics {
 
@@ -36,10 +36,10 @@ public record PickingPlanInputMetrics(
     private static final String X_TF_EXAMPLE = "x-tf-example";
 
     public PickingPlanInputMetrics {
-        if (pickTasks < 0 || orders < 0 || products < 0 || trolleys < 0) {
+        if (pickTasks < 0 || orders < 0 || products < 0 || pickingCarts < 0) {
             throw new IllegalArgumentException(
-                    "Input metrics must not be negative, but were pickTasks (%d), orders (%d), products (%d), trolleys (%d)."
-                            .formatted(pickTasks, orders, products, trolleys));
+                    "Input metrics must not be negative, but were pickTasks (%d), orders (%d), products (%d), pickingCarts (%d)."
+                            .formatted(pickTasks, orders, products, pickingCarts));
         }
     }
 }
