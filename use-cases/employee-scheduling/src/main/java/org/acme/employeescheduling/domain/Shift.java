@@ -1,22 +1,26 @@
 package org.acme.employeescheduling.domain;
 
+import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
+import java.time.OffsetDateTime;
 import java.util.Objects;
 
-import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.common.PlanningId;
+import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
 
+/**
+ * A shift at one location that needs one employee with the {@link #getRequiredSkill() required skill}.
+ * The solver picks the {@link Employee} who works it.
+ */
 @PlanningEntity
 public class Shift {
+
     @PlanningId
     private String id;
 
-    private LocalDateTime start;
-    private LocalDateTime end;
+    private OffsetDateTime start;
+    private OffsetDateTime end;
 
     private String location;
     private String requiredSkill;
@@ -27,15 +31,8 @@ public class Shift {
     public Shift() {
     }
 
-    public Shift(LocalDateTime start, LocalDateTime end, String location, String requiredSkill) {
-        this(start, end, location, requiredSkill, null);
-    }
-
-    public Shift(LocalDateTime start, LocalDateTime end, String location, String requiredSkill, Employee employee) {
-        this(null, start, end, location, requiredSkill, employee);
-    }
-
-    public Shift(String id, LocalDateTime start, LocalDateTime end, String location, String requiredSkill, Employee employee) {
+    public Shift(String id, OffsetDateTime start, OffsetDateTime end, String location, String requiredSkill,
+            Employee employee) {
         this.id = id;
         this.start = start;
         this.end = end;
@@ -44,44 +41,28 @@ public class Shift {
         this.employee = employee;
     }
 
+    // ************************************************************************
+    // Getters and setters
+    // ************************************************************************
+
     public String getId() {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public LocalDateTime getStart() {
+    public OffsetDateTime getStart() {
         return start;
     }
 
-    public void setStart(LocalDateTime start) {
-        this.start = start;
-    }
-
-    public LocalDateTime getEnd() {
+    public OffsetDateTime getEnd() {
         return end;
-    }
-
-    public void setEnd(LocalDateTime end) {
-        this.end = end;
     }
 
     public String getLocation() {
         return location;
     }
 
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
     public String getRequiredSkill() {
         return requiredSkill;
-    }
-
-    public void setRequiredSkill(String requiredSkill) {
-        this.requiredSkill = requiredSkill;
     }
 
     public Employee getEmployee() {
@@ -92,27 +73,58 @@ public class Shift {
         this.employee = employee;
     }
 
+    // ************************************************************************
+    // Complex methods
+    // ************************************************************************
+
+    public boolean isAssigned() {
+        return employee != null;
+    }
+
+    public LocalDate getStartDate() {
+        return start.toLocalDate();
+    }
+
+    /**
+     * @param other never null
+     * @return the number of minutes both shifts take place at the same time, or 0 if they don't overlap
+     */
+    public int getOverlappingMinutes(Shift other) {
+        return overlappingMinutes(start, end, other.start, other.end);
+    }
+
+    /**
+     * @param later never null, a shift that starts after this one ends
+     * @return the number of minutes between the end of this shift and the start of the later one
+     */
+    public int getMinutesUntil(Shift later) {
+        return (int) Duration.between(end, later.start).toMinutes();
+    }
+
+    /**
+     * @param date never null, a calendar day in the time zone offset of this shift
+     * @return true if part of this shift takes place on that day
+     */
     public boolean isOverlappingWithDate(LocalDate date) {
-        return getStart().toLocalDate().equals(date) || getEnd().toLocalDate().equals(date);
+        return getOverlappingMinutes(date) > 0;
     }
 
-    public int getOverlappingDurationInMinutes(LocalDate date) {
-        LocalDateTime startDateTime = LocalDateTime.of(date, LocalTime.MIN);
-        LocalDateTime endDateTime = LocalDateTime.of(date, LocalTime.MAX);
-        return getOverlappingDurationInMinutes(startDateTime, endDateTime, getStart(), getEnd());
+    /**
+     * @param date never null, a calendar day in the time zone offset of this shift
+     * @return the number of minutes of this shift that take place on that day
+     */
+    public int getOverlappingMinutes(LocalDate date) {
+        OffsetDateTime dayStart = date.atStartOfDay().atOffset(start.getOffset());
+        return overlappingMinutes(start, end, dayStart, dayStart.plusDays(1));
     }
 
-    private int getOverlappingDurationInMinutes(LocalDateTime firstStartDateTime, LocalDateTime firstEndDateTime,
-            LocalDateTime secondStartDateTime, LocalDateTime secondEndDateTime) {
-        LocalDateTime maxStartTime = firstStartDateTime.isAfter(secondStartDateTime) ? firstStartDateTime : secondStartDateTime;
-        LocalDateTime minEndTime = firstEndDateTime.isBefore(secondEndDateTime) ? firstEndDateTime : secondEndDateTime;
-        long minutes = maxStartTime.until(minEndTime, ChronoUnit.MINUTES);
+    private static int overlappingMinutes(OffsetDateTime start1, OffsetDateTime end1, OffsetDateTime start2,
+            OffsetDateTime end2) {
+        // Both periods are active after the later of their two starts and before the earlier of their two ends.
+        OffsetDateTime overlapStart = start1.isAfter(start2) ? start1 : start2;
+        OffsetDateTime overlapEnd = end1.isBefore(end2) ? end1 : end2;
+        long minutes = Duration.between(overlapStart, overlapEnd).toMinutes();
         return minutes > 0 ? (int) minutes : 0;
-    }
-
-    @Override
-    public String toString() {
-        return location + " " + start + "-" + end;
     }
 
     @Override
@@ -123,11 +135,16 @@ public class Shift {
         if (!(o instanceof Shift shift)) {
             return false;
         }
-        return Objects.equals(getId(), shift.getId());
+        return Objects.equals(id, shift.id);
     }
 
     @Override
     public int hashCode() {
-        return getId().hashCode();
+        return id.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return location + " " + start + "-" + end;
     }
 }

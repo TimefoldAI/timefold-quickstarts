@@ -6,16 +6,16 @@ Schedule shifts to employees, accounting for employee availability and shift ski
 
 ## Constraints
 
-| Name                                 | Level | Description                                                                   |
-|--------------------------------------|-------|-------------------------------------------------------------------------------|
-| Required skill                       | Hard  | An employee must have the required skill for their assigned shift.            |
-| No overlapping shifts                | Hard  | An employee cannot be assigned to two overlapping shifts.                     |
-| At least 10 hours between two shifts | Hard  | An employee must have at least 10 hours of rest between two shifts.           |
-| One shift per day                    | Hard  | An employee can only be assigned to one shift per day.                        |
-| Unavailable employee                 | Hard  | An employee cannot be assigned to a shift during their unavailability period. |
-| Undesired day for employee           | Soft  | Avoid scheduling an employee on their undesired days.                         |
-| Desired day for employee             | Soft  | Prefer scheduling an employee on their desired days.                          |
-| Balance employee shift assignments   | Soft  | Fairly distribute shifts across all employees.                                |
+| Name                               | Level | Description                                                                     |
+|------------------------------------|-------|---------------------------------------------------------------------------------|
+| Missing required skill             | Hard  | An employee must have the required skill of every shift they are assigned to.   |
+| Overlapping shift                  | Hard  | An employee cannot work two shifts that overlap in time.                        |
+| At least 10 hours between 2 shifts | Hard  | An employee must have at least 10 hours of rest between two shifts.             |
+| Max one shift per day              | Hard  | An employee can work at most one shift that starts on a given day.              |
+| Unavailable employee               | Hard  | An employee cannot work a shift on a day they are unavailable.                  |
+| Undesired day for employee         | Soft  | Avoid scheduling an employee on a day they would rather not work.               |
+| Desired day for employee           | Soft  | Prefer scheduling an employee on a day they would like to work.                 |
+| Balance employee shift assignments | Soft  | Spread the shifts evenly across all employees.                                  |
 
 - [Run the application](#run-the-application)
 - [Run the packaged application](#run-the-packaged-application)
@@ -30,8 +30,8 @@ Schedule shifts to employees, accounting for employee availability and shift ski
 1. Install Java and Maven, for example with [Sdkman](https://sdkman.io):
 
    ```sh
-   $ sdk install java
-   $ sdk install maven
+   sdk install java
+   sdk install maven
    ```
 
 ## Run the application
@@ -39,9 +39,9 @@ Schedule shifts to employees, accounting for employee availability and shift ski
 1. Git clone the timefold-quickstarts repo and navigate to this directory:
 
    ```sh
-   $ git clone https://github.com/TimefoldAI/timefold-quickstarts.git
+   git clone https://github.com/TimefoldAI/timefold-quickstarts.git
    ...
-   $ cd timefold-quickstarts/use-cases/employee-scheduling
+   cd timefold-quickstarts/use-cases/employee-scheduling
    ```
 
 2. (Optional) If you want to run a licensed edition (Enterprise), set up your license key first. See the [Timefold license tool](https://licenses.timefold.ai/) for instructions.
@@ -51,13 +51,13 @@ Schedule shifts to employees, accounting for employee availability and shift ski
    1. Community Edition
    
       ```sh
-      $ mvn quarkus:dev
+      mvn quarkus:dev
       ```
    
    2. Enterprise Edition: The profile sets up the correct Maven artifacts to run the licensed version. See the `pom.xml` for the implementation details.
 
       ```sh
-      $ mvn quarkus:dev -Denterprise
+      mvn quarkus:dev -Denterprise
       ```
 
 4. Visit [http://localhost:8080](http://localhost:8080) in your browser.
@@ -78,13 +78,13 @@ When you're done iterating in `quarkus:dev` mode, package the application to run
 1. Compile it with Maven:
 
    ```sh
-   $ mvn package
+   mvn package
    ```
 
 2. Run it:
 
    ```sh
-   $ java -jar ./target/quarkus-app/quarkus-run.jar
+   java -jar ./target/quarkus-app/quarkus-run.jar
    ```
 
    > **Note**  
@@ -99,13 +99,13 @@ When you're done iterating in `quarkus:dev` mode, package the application to run
 1. Build a container image:
 
    ```sh
-   $ mvn package -Dcontainer
+   mvn package -Dcontainer
    ```
 
 2. Run a container:
 
    ```sh
-   $ docker run -p 8080:8080 $USER/employee-scheduling:1.0-SNAPSHOT
+   docker run -p 8080:8080 --rm $USER/model-employee-scheduling-v1:0.0.1
    ```
 
 ## Run it native
@@ -117,13 +117,13 @@ To increase startup performance for serverless deployments, build the applicatio
 2. Compile it natively. This takes a few minutes:
 
    ```sh
-   $ mvn package -Dnative -DskipTests
+   mvn package -Dnative -DskipTests
    ```
 
 3. Run the native executable:
 
    ```sh
-   $ ./target/*-runner
+   ./target/*-runner
    ```
 
 4. Visit [http://localhost:8080](http://localhost:8080) in your browser.
