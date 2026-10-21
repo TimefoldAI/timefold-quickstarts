@@ -1,211 +1,190 @@
 package org.acme.orderpicking.domain;
 
-import java.util.HashMap;
+import static java.lang.Math.abs;
+
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
-import static java.lang.Math.abs;
-import static org.acme.orderpicking.domain.Shelving.newShelvingId;
-
 /**
- * Models the warehouse where the order picking problem is formulated and is a static structure composed of shelvings
- * organized in columns and rows. A shelving can be identified by the warehouse column and row number where it's placed.
- * The store products are located on the shelvings, each shelving can contain products on the LEFT and RIGHT sides, and
- * on a row on the particular shelving side.
+ * Models the warehouse where the order picking problem is formulated and is a static structure composed of racks
+ * organized in columns and rows. A rack can be identified by the warehouse column and row number where it's placed.
+ * The store products are located on the racks, each rack can contain products on the LEFT and RIGHT sides, and
+ * in a bay on the particular rack side.
+ * <p>
+ * Note: This warehouse structure is completely static and aligned with the map drawn by the order picking web UI
+ * (visualize.js), changes on this structure require UI adjustments.
  *
- * Note: This warehouse structure is completely static and aligned with the "Graphical Map" structure represented in
- * the order picking webapp UI, changes on this structure might require UI adjustments.
- *
- *  -----------------------------------------------------------------------------------> x
+ * <pre>
+ *  -----------------------------------------------------------------------------------&gt; x
  *  |    |--------|   |--------|   |--------|   |--------|   |--------|
  *  |    |        |   |        |   |        |   |        |   |        |
- *  |    |        |   |        |   |        |   |        |   |        |
- *  |    | (A,1)  |   | (B,1)  |   | (C,1)  |   | (D,1)  |   | (E,1)  |
- *  |    |        |   |        |   |        |   |        |   |        |
+ *  |    |   A1   |   |   B1   |   |   C1   |   |   D1   |   |   E1   |
  *  |    |        |   |        |   |        |   |        |   |        |
  *  |    |--------|   |--------|   |--------|   |--------|   |--------|
  *  |
  *  |    |--------|   |--------|   |--------|   |--------|   |--------|
  *  |    |        |   |        |   |        |   |        |   |        |
- *  |    |        |   |        |   |        |   |        |   |        |
- *  |    | (A,2)  |   | (B,2)  |   | (C,2)  |   | (D,2)  |   | (E,2)  |
- *  |    |        |   |        |   |        |   |        |   |        |
+ *  |    |   A2   |   |   B2   |   |   C2   |   |   D2   |   |   E2   |
  *  |    |        |   |        |   |        |   |        |   |        |
  *  |    |--------|   |--------|   |--------|   |--------|   |--------|
  *  |
  *  |    |--------|   |--------|   |--------|   |--------|   |--------|
  *  |    |        |   |        |   |        |   |        |   |        |
- *  |    |        |   |        |   |        |   |        |   |        |
- *  |    | (A,3)  |   | (B,3)  |   | (C,3)  |   | (D,3)  |   | (E,3)  |
- *  |    |        |   |        |   |        |   |        |   |        |
+ *  |    |   A3   |   |   B3   |   |   C3   |   |   D3   |   |   E3   |
  *  |    |        |   |        |   |        |   |        |   |        |
  *  |    |--------|   |--------|   |--------|   |--------|   |--------|
  *  |
  *  y
- * @see Shelving
+ * </pre>
+ *
+ * @see Rack
  */
-public class Warehouse {
+public final class Warehouse {
 
     /**
-     * Defines the warehouse columns.
+     * The warehouse columns, from left to right.
      */
-    public enum Column {
-        COL_A('A'),
-        COL_B('B'),
-        COL_C('C'),
-        COL_D('D'),
-        COL_E('E');
-
-        private final char colId;
-
-        Column(char colId) {
-            this.colId = colId;
-        }
-
-        @Override
-        public String toString() {
-            return Character.toString(colId);
-        }
-    }
+    public static final List<String> COLUMNS = List.of("A", "B", "C", "D", "E");
+    /**
+     * The number of warehouse rows, numbered from 1 at the top.
+     */
+    public static final int ROW_COUNT = 3;
+    /**
+     * The number of bays on each side of a rack, numbered from 0 at the top. A bay is one meter long.
+     */
+    public static final int RACK_BAYS = 10;
 
     /**
-     * Defines the warehouse rows.
+     * The rack width in meters.
      */
-    public enum Row {
-        ROW_1(1),
-        ROW_2(2),
-        ROW_3(3);
-
-        private final int rowId;
-
-        Row(int rowId) {
-            this.rowId = rowId;
-        }
-
-        @Override
-        public String toString() {
-            return Integer.toString(rowId);
-        }
-    }
-
+    private static final int RACK_WIDTH = 2;
     /**
-     * The shelving width in meters.
+     * The rack length in meters, along the y axis.
      */
-    private static final int SHELVING_WIDTH = 2;
+    private static final int RACK_LENGTH = RACK_BAYS;
     /**
-     * The shelving height in meters.
+     * Spacing between the warehouse rows and columns in meters.
      */
-    private static final int SHELVING_HEIGHT = 10;
-    /**
-     * Spacing between the shelving rows and columns in meters.
-     */
-    private static final int SHELVING_PADDING = 3;
+    private static final int RACK_PADDING = 3;
 
-    private static final Map<String, Shelving> SHELVING_MAP = new HashMap<>();
-
-    private static final String SHELVING_NOT_FOUND_ERROR = "Shelving: %s was not found in current Warehouse structure.";
+    private static final Map<String, Rack> RACK_MAP = new LinkedHashMap<>();
 
     static {
-        var shelvingX = 0;
-        var shelvingY = 0;
-        Shelving shelving;
-
-        for (Column col : Column.values()) {
-            shelvingY = 0;
-            for (Row row : Row.values()) {
-                shelving = new Shelving(newShelvingId(col, row), shelvingX, shelvingY);
-                SHELVING_MAP.put(shelving.getId(), shelving);
-                shelvingY = shelvingY + SHELVING_HEIGHT + SHELVING_PADDING;
+        var rackX = 0;
+        for (String column : COLUMNS) {
+            var rackY = 0;
+            for (int row = 1; row <= ROW_COUNT; row++) {
+                var rack = new Rack(rackId(column, row), rackX, rackY);
+                RACK_MAP.put(rack.id(), rack);
+                rackY = rackY + RACK_LENGTH + RACK_PADDING;
             }
-            shelvingX = shelvingX + SHELVING_WIDTH + SHELVING_PADDING;
+            rackX = rackX + RACK_WIDTH + RACK_PADDING;
         }
     }
 
     private Warehouse() {
     }
 
+    public static String rackId(String column, int row) {
+        return column + row;
+    }
+
+    public static boolean hasRack(String rackId) {
+        return RACK_MAP.containsKey(rackId);
+    }
+
     /**
      * Calculates the distance in meters between two locations considering the warehouse structure.
      */
     public static int calculateDistance(WarehouseLocation start, WarehouseLocation end) {
-        final var startShelving = SHELVING_MAP.get(start.getShelvingId());
-        if (startShelving == null) {
-            throw new IndexOutOfBoundsException(String.format(SHELVING_NOT_FOUND_ERROR, start.getShelvingId()));
-        }
-        final var endShelving = SHELVING_MAP.get(end.getShelvingId());
-        if (endShelving == null) {
-            throw new IndexOutOfBoundsException(String.format(SHELVING_NOT_FOUND_ERROR, end.getShelvingId()));
-        }
+        final var startRack = getRack(start.rackId());
+        final var endRack = getRack(end.rackId());
         var deltaX = 0;
         var deltaY = 0;
 
-        final var startX = getAbsoluteX(startShelving, start);
-        final var startY = getAbsoluteY(startShelving, start);
-        final var endX = getAbsoluteX(endShelving, end);
-        final var endY = getAbsoluteY(endShelving, end);
+        final var startX = getAbsoluteX(startRack, start);
+        final var startY = getAbsoluteY(startRack, start);
+        final var endX = getAbsoluteX(endRack, end);
+        final var endY = getAbsoluteY(endRack, end);
 
-        if (startShelving == endShelving) {
-            //same shelving
-            if (start.getSide() == end.getSide()) {
+        if (startRack.equals(endRack)) {
+            //same rack
+            if (start.side() == end.side()) {
                 //same side
                 deltaY = abs(startY - endY);
             } else {
                 //different side, calculate shortest walk.
-                deltaX = SHELVING_WIDTH;
-                deltaY = calculateBestYDistanceInShelvingRow(start.getRow(), end.getRow());
+                deltaX = RACK_WIDTH;
+                deltaY = calculateBestYDistanceInWarehouseRow(start.bay(), end.bay());
             }
-        } else if (startShelving.getY() == endShelving.getY()) {
-            //distinct shelvings but on the same warehouse row
-            if (abs(startX - endX) == SHELVING_PADDING) {
-                //neighbor shelvings, but also contiguous side
-                deltaX = SHELVING_PADDING;
+        } else if (startRack.y() == endRack.y()) {
+            //distinct racks but on the same warehouse row
+            if (abs(startX - endX) == RACK_PADDING) {
+                //neighbor racks, but also contiguous side
+                deltaX = RACK_PADDING;
                 deltaY = abs(startY - endY);
             } else {
-                //any other combination of shelvings but in the same warehouse row
+                //any other combination of racks but in the same warehouse row
                 deltaX = abs(startX - endX);
-                deltaY = calculateBestYDistanceInShelvingRow(start.getRow(), end.getRow());
+                deltaY = calculateBestYDistanceInWarehouseRow(start.bay(), end.bay());
             }
         } else {
-            //shelvings on different warehouse rows
+            //racks on different warehouse rows
             deltaX = abs(startX - endX);
             deltaY = abs(startY - endY);
         }
         return deltaX + deltaY;
     }
 
-    public static int calculateDistanceToTravel(Trolley trolley) {
+    /**
+     * Calculates the distance in meters a picking cart travels: from its location past every pick task in its list, and
+     * back to its location again. Only reads the list variable, so it is correct even before the shadow variables
+     * of the pick tasks have been computed.
+     */
+    public static int calculateDistanceToTravel(PickingCart pickingCart) {
         var distance = 0;
-        var previousLocation = trolley.getLocation();
-        for (var pick : trolley.getPickTasks()) {
-            distance += calculateDistance(previousLocation, pick.getLocation());
-            previousLocation = pick.getLocation();
+        var previousLocation = pickingCart.getLocation();
+        for (var pickTask : pickingCart.getPickTasks()) {
+            distance += calculateDistance(previousLocation, pickTask.getLocation());
+            previousLocation = pickTask.getLocation();
         }
-        distance += calculateDistance(previousLocation, trolley.getLocation());
+        distance += calculateDistance(previousLocation, pickingCart.getLocation());
         return distance;
     }
 
-    private static int calculateBestYDistanceInShelvingRow(int startY, int endY) {
+    private static Rack getRack(String rackId) {
+        var rack = RACK_MAP.get(rackId);
+        if (rack == null) {
+            throw new IllegalArgumentException(
+                    "Rack (%s) was not found in the warehouse structure.".formatted(rackId));
+        }
+        return rack;
+    }
+
+    private static int calculateBestYDistanceInWarehouseRow(int startY, int endY) {
         final var northDirectionDistance = startY + endY;
-        final var southDirectionDistance = (SHELVING_HEIGHT - startY) + (SHELVING_HEIGHT - endY);
+        final var southDirectionDistance = (RACK_LENGTH - startY) + (RACK_LENGTH - endY);
         return Math.min(northDirectionDistance, southDirectionDistance);
     }
 
     /**
-     * Calculates the absolute X position of a location considering the warehouse structure and the shelving where it's
+     * Calculates the absolute X position of a location considering the warehouse structure and the rack where it's
      * contained.
      */
-    private static int getAbsoluteX(Shelving shelving, WarehouseLocation location) {
-        if (location.getSide() == Shelving.Side.LEFT) {
-            return shelving.getX();
+    private static int getAbsoluteX(Rack rack, WarehouseLocation location) {
+        if (location.side() == RackSide.LEFT) {
+            return rack.x();
         } else {
-            return shelving.getX() + SHELVING_WIDTH;
+            return rack.x() + RACK_WIDTH;
         }
     }
 
     /**
-     * Calculates the absolute Y position of a location considering the warehouse structure and the shelving where it's
+     * Calculates the absolute Y position of a location considering the warehouse structure and the rack where it's
      * contained.
      */
-    private static int getAbsoluteY(Shelving shelving, WarehouseLocation location) {
-        return shelving.getY() + location.getRow();
+    private static int getAbsoluteY(Rack rack, WarehouseLocation location) {
+        return rack.y() + location.bay();
     }
 }

@@ -2,58 +2,18 @@ package org.acme.orderpicking.domain;
 
 /**
  * Represents a location in the warehouse where a product can be stored. In the context of the order picking problem
- * the warehouse is modeled as set of shelvings. For picking a particular product the employees walks to the indicated
- * shelving side and row.
- * 
+ * the warehouse is modeled as set of racks. For picking a particular product the employee walks to the indicated
+ * rack side and bay.
+ *
+ * @param rackId the id of the {@link Rack}, for example {@code A1}
+ * @param side the side of the rack
+ * @param bay the bay on that side of the rack, from 0 (top) to {@link Warehouse#RACK_BAYS} (bottom)
  * @see Warehouse
- * @see Shelving
  */
-public class WarehouseLocation {
-
-    private String shelvingId;
-    private Shelving.Side side;
-    private int row;
-
-    public WarehouseLocation() {
-        //marshalling constructor
-    }
-
-    public WarehouseLocation(String shelvingId, Shelving.Side side, int row) {
-        this.shelvingId = shelvingId;
-        this.side = side;
-        this.row = row;
-    }
-
-    public String getShelvingId() {
-        return shelvingId;
-    }
-
-    public void setShelvingId(String shelvingId) {
-        this.shelvingId = shelvingId;
-    }
-
-    public Shelving.Side getSide() {
-        return side;
-    }
-
-    public void setSide(Shelving.Side side) {
-        this.side = side;
-    }
-
-    public int getRow() {
-        return row;
-    }
-
-    public void setRow(int row) {
-        this.row = row;
-    }
+public record WarehouseLocation(String rackId, RackSide side, int bay) {
 
     @Override
     public String toString() {
-        return "WarehouseLocation{" +
-                "shelvingId='" + shelvingId + '\'' +
-                ", side=" + side +
-                ", row=" + row +
-                '}';
+        return rackId + " " + side + " " + bay;
     }
 }
