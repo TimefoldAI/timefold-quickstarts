@@ -185,7 +185,7 @@ const app = {
         dateBands.forEach(({dates, label, color}) => dates.forEach(rawDate => {
             const date = JSJoda.LocalDate.parse(rawDate);
             this.byEmployeeItemData.add({
-                id: `${employee.name}-${label}-${rawDate}`, group: employee.name,
+                group: employee.name,
                 content: $('<div/>').append($(`<h5 class="card-title mb-1"/>`).text(label)).html(),
                 start: date.atStartOfDay().toString(),
                 end: date.plusDays(1).atStartOfDay().toString(),
