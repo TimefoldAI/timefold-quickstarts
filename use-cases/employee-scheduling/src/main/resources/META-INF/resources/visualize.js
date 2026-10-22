@@ -16,13 +16,13 @@ function wallClock(offsetDateTime) {
     return JSJoda.OffsetDateTime.parse(offsetDateTime).toLocalDateTime();
 }
 
-// The dates a shift touches: the day it starts on, plus the day it ends on unless it ends at midnight.
+// All calendar days touched by the shift in its start offset; its end is exclusive.
 function shiftDates(shift) {
-    const start = wallClock(shift.start);
-    const end = wallClock(shift.end);
-    const dates = [start.toLocalDate().toString()];
-    if (end.isAfter(start.toLocalDate().plusDays(1).atStartOfDay())) {
-        dates.push(end.toLocalDate().toString());
+    const start = JSJoda.OffsetDateTime.parse(shift.start);
+    const end = JSJoda.OffsetDateTime.parse(shift.end).withOffsetSameInstant(start.offset()).toLocalDateTime();
+    const dates = [];
+    for (let date = start.toLocalDate(); date.atStartOfDay().isBefore(end); date = date.plusDays(1)) {
+        dates.push(date.toString());
     }
     return dates;
 }
