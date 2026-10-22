@@ -368,8 +368,9 @@ class QuickstartPage {
     getScoreComponents(score) {
         let components = {hard: 0, medium: 0, soft: 0};
 
-        $.each([...score.matchAll(/(-?[0-9]+)(hard|medium|soft)/g)], (i, parts) => {
-            components[parts[2]] = parseInt(parts[1], 10);
+        // Decimal-aware, so BigDecimal scores (e.g. 0hard/-1.414214soft) keep their sign and fraction.
+        $.each([...score.matchAll(/(-?[0-9]+(?:\.[0-9]+)?)(hard|medium|soft)/g)], (i, parts) => {
+            components[parts[2]] = parseFloat(parts[1]);
         });
 
         return components;
