@@ -199,9 +199,10 @@ const app = {
 
     // Show the first week of the schedule; the rest is a scroll away.
     setWindow(schedule) {
-        if (schedule.shifts.length === 0) {
+        if (schedule.shifts.length === 0 || this.windowSchedule === schedule) {
             return;
         }
+        this.windowSchedule = schedule;
         const firstDay = schedule.shifts.map(shift => wallClock(shift.start).toLocalDate().toString()).sort()[0];
         const lastDay = JSJoda.LocalDate.parse(firstDay).plusDays(7).toString();
         this.byEmployeeTimeline.setWindow(firstDay, lastDay);
