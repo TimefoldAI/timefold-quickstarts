@@ -41,7 +41,7 @@ function shiftColor(shift, employee) {
 }
 
 function skillBadge(skill, color) {
-    return $(`<span class="badge me-1 mt-1"/>`).css("background-color", color).text(skill);
+    return $(`<span class="badge me-1 mt-1"/>`).css({"background-color": color, color: "#000"}).text(skill);
 }
 
 function cardHtml(title, ...badges) {
