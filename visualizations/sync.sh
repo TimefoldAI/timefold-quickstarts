@@ -46,6 +46,7 @@ QUICKSTART_DIRS=(
     "project-job-scheduling"
     "school-timetabling"
     "order-picking"
+    "employee-scheduling"
 )
 
 # Metadata needed to render each quickstart's index.html from the shared
@@ -68,6 +69,7 @@ quickstart_name() {
         project-job-scheduling) echo "Project Job Scheduling" ;;
         school-timetabling) echo "School Timetabling" ;;
         order-picking) echo "Order Picking" ;;
+        employee-scheduling) echo "Employee Scheduling" ;;
         *) echo "quickstart_name: unknown quickstart '$1'" >&2; exit 1 ;;
     esac
 }
@@ -88,6 +90,7 @@ quickstart_utm_content() {
         project-job-scheduling) echo "project-job-scheduling-java" ;;
         school-timetabling) echo "school-timetabling-java" ;;
         order-picking) echo "order-picking-java" ;;
+        employee-scheduling) echo "employee-scheduling-java" ;;
         *) echo "quickstart_utm_content: unknown quickstart '$1'" >&2; exit 1 ;;
     esac
 }
@@ -109,6 +112,7 @@ quickstart_features() {
         project-job-scheduling) echo "vis-timeline color-picker" ;;
         school-timetabling) echo "color-picker" ;;
         order-picking) echo "color-picker custom-css" ;;
+        employee-scheduling) echo "vis-timeline" ;;
         *) echo "quickstart_features: unknown quickstart '$1'" >&2; exit 1 ;;
     esac
 }

@@ -72,6 +72,7 @@ class QuickstartPage {
 
         const solutionSummaryPanel = document.getElementById('solutionSummaryPanel');
         if (solutionSummaryPanel) {
+            $('#toggleSummaryDivider').show();
             $('#toggleSummaryButton').show().on('click', function () {
                 $(this).toggleClass('collapsed');
                 $(solutionSummaryPanel).toggleClass('hide');
@@ -127,7 +128,7 @@ class QuickstartPage {
                     .appendTo(dropdown);
             });
             // A single dataset leaves nothing to choose between, so the picker is just noise.
-            $("#dataDropdown, #dataDropdownDivider, #dataDropdownDividerAfter").toggle(demoDataList.length > 1);
+            $("#dataDropdown, #dataDropdownDivider").toggle(demoDataList.length > 1);
             if (demoDataList.length > 0) {
                 this.selectDemoData(demoDataList[0].id);
             }
@@ -368,8 +369,9 @@ class QuickstartPage {
     getScoreComponents(score) {
         let components = {hard: 0, medium: 0, soft: 0};
 
-        $.each([...score.matchAll(/(-?[0-9]+)(hard|medium|soft)/g)], (i, parts) => {
-            components[parts[2]] = parseInt(parts[1], 10);
+        // Decimal-aware, so BigDecimal scores (e.g. 0hard/-1.414214soft) keep their sign and fraction.
+        $.each([...score.matchAll(/(-?[0-9]+(?:\.[0-9]+)?)(hard|medium|soft)/g)], (i, parts) => {
+            components[parts[2]] = parseFloat(parts[1]);
         });
 
         return components;

@@ -29,6 +29,7 @@ const app = {
         this.byTeamItemData = new vis.DataSet();
         this.byTeamTimeline = new vis.Timeline(document.getElementById("byTeamPanel"), this.byTeamItemData,
             this.byTeamGroupData, TIMELINE_OPTIONS);
+        this.fittedWindow = null;
 
         this.quickstartPage = new QuickstartPage({
             modelPath: '/v1/schedules',
@@ -118,12 +119,32 @@ const app = {
             });
         });
 
+        this.fitWindow(schedule);
+
         if (unassignedMatches.children().length === 0) {
             unassignedMatches.append($(`<div class="col-12"/>`)
                 .append($(`<div class="alert alert-success d-flex align-items-center justify-content-center" role="alert"/>`)
                     .append($(`<i class="fas fa-check-circle me-2"/>`))
                     .append($(`<span/>`).text("All matches have been assigned!"))));
         }
+    },
+
+    // The timeline is created before any data arrives, so it would otherwise keep its default window around
+    // today and hide most of the tournament. Only re-framed when the dates change (a new dataset): doing it on
+    // every two-second refresh would undo whatever the user scrolled or zoomed to.
+    fitWindow(schedule) {
+        const dates = [...schedule.matches, ...schedule.unavailabilities].map((item) => item.date).sort();
+        if (dates.length === 0) {
+            return;
+        }
+        const start = dates[0];
+        const end = JSJoda.LocalDate.parse(dates[dates.length - 1]).plusDays(1).toString();
+        const windowKey = `${start}/${end}`;
+        if (this.fittedWindow === windowKey) {
+            return;
+        }
+        this.fittedWindow = windowKey;
+        this.byTeamTimeline.setWindow(start, end, {animation: false});
     },
 };
 
