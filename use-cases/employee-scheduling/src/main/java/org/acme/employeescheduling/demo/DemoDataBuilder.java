@@ -24,14 +24,18 @@ import org.acme.employeescheduling.dto.input.ShiftInputDTO;
  * on the upcoming Monday and every shift starts unassigned.
  */
 public final class DemoDataBuilder {
+    private static final int WEEK_DAYS = 7;
+    private static final int BASIC_EMPLOYEE_COUNT = 15;
+    private static final int LARGE_EMPLOYEE_COUNT = 15;
 
     public enum DemoDataSize {
+
         BASIC(new DemoDataParameters(
                 List.of("Ambulatory care", "Critical care", "Pediatric care"),
                 List.of("Doctor", "Nurse"),
                 List.of("Anaesthetics", "Cardiology"),
-                14,
-                15,
+                WEEK_DAYS * 2,
+                BASIC_EMPLOYEE_COUNT,
                 List.of(new CountDistribution(1, 3), new CountDistribution(2, 1)),
                 List.of(new CountDistribution(1, 0.9), new CountDistribution(2, 0.1)),
                 List.of(new CountDistribution(1, 4), new CountDistribution(2, 3), new CountDistribution(3, 2),
@@ -41,8 +45,8 @@ public final class DemoDataBuilder {
                         "Outpatient"),
                 List.of("Doctor", "Nurse"),
                 List.of("Anaesthetics", "Cardiology", "Radiology"),
-                28,
-                50,
+                WEEK_DAYS * 4,
+                LARGE_EMPLOYEE_COUNT,
                 List.of(new CountDistribution(1, 3), new CountDistribution(2, 1)),
                 List.of(new CountDistribution(1, 0.5), new CountDistribution(2, 0.3), new CountDistribution(3, 0.2)),
                 List.of(new CountDistribution(5, 4), new CountDistribution(10, 3), new CountDistribution(15, 2),
