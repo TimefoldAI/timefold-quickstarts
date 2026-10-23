@@ -26,7 +26,7 @@ import org.acme.employeescheduling.dto.input.ShiftInputDTO;
 public final class DemoDataBuilder {
     private static final int WEEK_DAYS = 7;
     private static final int BASIC_EMPLOYEE_COUNT = 15;
-    private static final int LARGE_EMPLOYEE_COUNT = 15;
+    private static final int LARGE_EMPLOYEE_COUNT = 50;
 
     public enum DemoDataSize {
 
