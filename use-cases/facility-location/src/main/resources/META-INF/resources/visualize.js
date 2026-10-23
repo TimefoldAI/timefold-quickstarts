@@ -42,7 +42,9 @@ const app = {
     </div>
 `);
 
-        this.map = L.map('map', {doubleClickZoom: false}).setView([51.505, -0.09], 12);
+        // A fractional zoomSnap lets fitBounds() zoom in as far as the data allows, instead of snapping down to the
+        // next whole zoom level and leaving up to half of the map empty.
+        this.map = L.map('map', {doubleClickZoom: false, zoomSnap: 0.25}).setView([51.505, -0.09], 12);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
@@ -52,7 +54,7 @@ const app = {
         // Markers are reused across renders (a solving plan re-renders every 2 seconds), so the map does not
         // flicker and popups stay open while the solver keeps improving.
         this.facilityMarkerById = new Map();
-        this.boundsFitted = false;
+        this.fittedBounds = null;
 
         this.quickstartPage = new QuickstartPage({
             modelPath: '/v1/plans',
@@ -107,17 +109,45 @@ const app = {
     renderPlan(plan) {
         const facilityById = new Map(plan.facilities.map((facility) => [facility.id, facility]));
 
-        if (!this.boundsFitted && (plan.facilities.length > 0 || plan.consumers.length > 0)) {
-            // The input carries no bounding box, so the viewport is derived from the data itself.
-            const allLatLngs = [...plan.facilities, ...plan.consumers].map((point) => this.latLngOf(point.location));
-            this.map.invalidateSize();
-            this.map.fitBounds(L.latLngBounds(allLatLngs).pad(0.05));
-            this.boundsFitted = true;
-        }
-
+        this.fitBounds(plan);
         this.renderFacilities(plan);
         this.renderConsumers(plan, facilityById);
         this.renderSummary(plan);
+    },
+
+    // Only when the locations change (a new dataset): re-framing on every two-second refresh would undo whatever
+    // the user panned or zoomed to. The input carries no bounding box, so the viewport is derived from the data.
+    fitBounds(plan) {
+        const latLngs = [...plan.facilities, ...plan.consumers].map((point) => this.latLngOf(point.location));
+        if (latLngs.length === 0) {
+            return;
+        }
+        const boundsKey = JSON.stringify(latLngs);
+        if (this.fittedBounds === boundsKey) {
+            return;
+        }
+        this.fittedBounds = boundsKey;
+        // The map is constructed while the page body is still hidden, so Leaflet caches a 0x0 size; re-measure it.
+        this.map.invalidateSize();
+        const margin = 20;
+        // A facility pin sticks out above its location, so the top needs room for the whole icon.
+        const pinHeight = L.Icon.Default.prototype.options.iconSize[1];
+        this.map.fitBounds(L.latLngBounds(latLngs), {
+            paddingTopLeft: [margin, margin + pinHeight],
+            paddingBottomRight: [margin + this.summaryPanelOverlap(), margin],
+        });
+    },
+
+    // The plan summary floats over the right side of the map, so keep the data out from under it. On a narrow
+    // screen the panel covers most of the map, so there the data is fitted to the full map instead.
+    summaryPanelOverlap() {
+        const panel = document.getElementById('solutionSummaryPanel');
+        if (panel.classList.contains('hide')) {
+            return 0;
+        }
+        const mapRect = document.getElementById('map').getBoundingClientRect();
+        const overlap = mapRect.right - panel.getBoundingClientRect().left;
+        return overlap < mapRect.width / 2 ? overlap : 0;
     },
 
     renderFacilities(plan) {
