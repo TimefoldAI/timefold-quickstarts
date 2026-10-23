@@ -143,7 +143,9 @@ const app = {
 
         schedule.shifts.forEach(shift => {
             const start = wallClock(shift.start).toString();
-            const end = wallClock(shift.end).toString();
+            const end = JSJoda.OffsetDateTime.parse(shift.end)
+                .withOffsetSameInstant(JSJoda.OffsetDateTime.parse(shift.start).offset())
+                .toLocalDateTime().toString();
             const employee = shift.employeeName == null ? null : employees.get(shift.employeeName);
             if (employee == null) {
                 this.byLocationItemData.add({
