@@ -33,37 +33,66 @@ WAREHOUSE_COLUMNS.forEach((column, columnIndex) => {
 const app = {
     start() {
         setVisualizationSlot(`
-    <div class="row g-3">
-        <div class="col-lg-8">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">Warehouse map</h5>
-                    <div id="warehouseCanvasContainer"><canvas id="warehouseCanvas"></canvas></div>
-                    <small class="text-muted">A rack is 2 meters wide and 10 meters long. The numbers on a path are the order in which the picking cart picks.</small>
+    <ul class="nav nav-pills viewTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="pickingPlanTab" data-bs-toggle="tab"
+                    data-bs-target="#pickingPlanPanel" type="button" role="tab" aria-controls="pickingPlanPanel"
+                    aria-selected="true">Picking plan
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="mapTab" data-bs-toggle="tab"
+                    data-bs-target="#mapPanel" type="button" role="tab" aria-controls="mapPanel"
+                    aria-selected="false">Map
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="unassignedTab" data-bs-toggle="tab"
+                    data-bs-target="#unassignedPanel" type="button" role="tab" aria-controls="unassignedPanel"
+                    aria-selected="false">Unassigned <span id="unassignedPickTaskCount" class="badge rounded-pill text-bg-secondary"></span>
+            </button>
+        </li>
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane fade show active" id="pickingPlanPanel" role="tabpanel" aria-labelledby="pickingPlanTab">
+            <div id="pickingPlan"></div>
+        </div>
+        <div class="tab-pane fade" id="mapPanel" role="tabpanel" aria-labelledby="mapTab">
+            <div class="row g-3">
+                <div class="col-lg-8">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">Warehouse map</h5>
+                            <div id="warehouseCanvasContainer"><canvas id="warehouseCanvas"></canvas></div>
+                            <small class="text-muted">A rack is 2 meters wide and 10 meters long. The numbers on a path are the order in which the picking cart picks.</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">Picking carts</h5>
+                            <table class="table table-sm align-middle mb-0">
+                                <thead><tr><th scope="col">Show</th><th scope="col">Picking cart</th><th scope="col" class="text-end">Items</th><th scope="col" class="text-end">Distance</th></tr></thead>
+                                <tbody id="pickingCartLegend"></tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-lg-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">PickingCarts</h5>
-                    <table class="table table-sm align-middle mb-0">
-                        <thead><tr><th scope="col">Show</th><th scope="col">Picking cart</th><th scope="col" class="text-end">Items</th><th scope="col" class="text-end">Distance</th></tr></thead>
-                        <tbody id="pickingCartLegend"></tbody>
-                    </table>
-                </div>
-            </div>
+        <div class="tab-pane fade" id="unassignedPanel" role="tabpanel" aria-labelledby="unassignedTab">
+            <div id="unassignedPickTasksContainer"></div>
         </div>
     </div>
-    <h5 class="mt-4">Picking plan</h5>
-    <div id="pickingPlan"></div>
-    <div id="unassignedPickTasksContainer"></div>
 `);
 
         // Picking carts whose path is hidden on the map; kept across renders, as a solving plan re-renders every 2 seconds.
         this.hiddenPickingCartIds = new Set();
         this.plan = null;
         window.addEventListener('resize', () => this.drawMap());
+        // The canvas has no width while its tab pane is hidden, so drawMap() skips it then and it needs a redraw once shown.
+        document.getElementById('mapTab').addEventListener('shown.bs.tab', () => this.drawMap());
 
         this.quickstartPage = new QuickstartPage({
             modelPath: '/v1/picking-plans',
@@ -141,10 +170,26 @@ const app = {
                 .append($('<td/>').append(checkbox))
                 .append($('<td/>')
                     .append($('<span class="picking-cart-swatch me-2"/>').css('background-color', color.bg))
-                    .append($('<a/>').attr('href', `#picking-cart-${pickingCart.id}`).text(`Picking cart ${pickingCart.id}`)))
+                    .append($('<a/>').attr('href', `#picking-cart-${pickingCart.id}`).text(`Picking cart ${pickingCart.id}`)
+                        .on('click', (event) => {
+                            event.preventDefault();
+                            this.showPickingCartCard(pickingCart.id);
+                        })))
                 .append($('<td class="text-end"/>').text(this.pickTaskIdsOf(pickingCart).length))
                 .append($('<td class="text-end"/>').text(this.formatDistance(pickingCart.travelDistance))));
         });
+    },
+
+    // The card lives in the other tab, so a plain anchor jump would land on a hidden element.
+    showPickingCartCard(pickingCartId) {
+        const pickingPlanTab = document.getElementById('pickingPlanTab');
+        const scrollToCard = () => document.getElementById(`picking-cart-${pickingCartId}`)?.scrollIntoView({behavior: 'smooth'});
+        if (pickingPlanTab.classList.contains('active')) {
+            scrollToCard();
+            return;
+        }
+        pickingPlanTab.addEventListener('shown.bs.tab', scrollToCard, {once: true});
+        bootstrap.Tab.getOrCreateInstance(pickingPlanTab).show();
     },
 
     formatDistance(distance) {
@@ -171,12 +216,8 @@ const app = {
             pickingCartsByOrderId.get(orderId).add(pickingCart.id);
         }));
 
-        const usedPickingCarts = plan.pickingCarts.filter((pickingCart) => this.pickTaskIdsOf(pickingCart).length > 0);
-        if (usedPickingCarts.length === 0) {
-            container.append($('<p class="text-muted"/>').text('No picking cart has a path yet. Click Solve to plan the picking.'));
-            return;
-        }
-        usedPickingCarts.forEach((pickingCart) => {
+        // Every picking cart gets a card, even an empty one, so an unsolved plan still shows the capacity there is to fill.
+        plan.pickingCarts.forEach((pickingCart) => {
             const pickTasks = this.pickTaskIdsOf(pickingCart).map((pickTaskId) => pickTaskById.get(pickTaskId))
                 .filter((pickTask) => pickTask != null);
             container.append(this.renderPickingCartCard(pickingCart, pickTasks, productById, pickingCartsByOrderId));
@@ -185,16 +226,20 @@ const app = {
 
     renderPickingCartCard(pickingCart, pickTasks, productById, pickingCartsByOrderId) {
         const color = this.pickingCartColor(pickingCart.id);
+        const usedVolume = pickTasks.reduce((sum, pickTask) => sum + (productById.get(pickTask.productId)?.volume ?? 0), 0);
+        const capacity = pickingCart.bucketCount * pickingCart.bucketCapacity;
         const card = $('<div class="card shadow-sm mb-3"/>').attr('id', `picking-cart-${pickingCart.id}`);
         card.append($('<div class="card-header d-flex align-items-center"/>')
             .append($('<span class="picking-cart-swatch me-2"/>').css('background-color', color.bg))
             .append($('<strong/>').text(`Picking cart ${pickingCart.id}`))
             .append($('<span class="ms-auto text-muted"/>')
-                .text(`${pickTasks.length} items · ${this.formatDistance(pickingCart.travelDistance)}`)));
+                .text(`${pickTasks.length} items · ${usedVolume} / ${capacity} cm³ · ${this.formatDistance(pickingCart.travelDistance)}`)));
 
         const body = $('<div class="card-body row g-3"/>').appendTo(card);
         body.append($('<div class="col-md-4"/>').append(this.renderBuckets(pickingCart, pickTasks, productById, pickingCartsByOrderId)));
-        body.append($('<div class="col-md-8 picking-table"/>').append(this.renderPickTaskTable(pickTasks, productById)));
+        body.append($('<div class="col-md-8 picking-table"/>').append(pickTasks.length === 0
+            ? $('<p class="text-muted mb-0"/>').text('No pick tasks on this picking cart yet.')
+            : this.renderPickTaskTable(pickTasks, productById)));
         return card;
     },
 
@@ -242,7 +287,9 @@ const app = {
             container.append($('<div class="alert alert-danger py-1 px-2"/>')
                 .text(`Needs ${usedBuckets} buckets, but only has ${pickingCart.bucketCount}.`));
         }
-        container.append(ordersTable);
+        if (volumeByOrderId.size > 0) {
+            container.append(ordersTable);
+        }
         container.append($('<small class="text-muted"/>')
             .text(`${pickingCart.bucketCount} buckets of ${pickingCart.bucketCapacity} cm³`));
         return container;
@@ -272,10 +319,11 @@ const app = {
         container.children().remove();
         const assignedPickTaskIds = new Set(plan.pickingCarts.flatMap((pickingCart) => this.pickTaskIdsOf(pickingCart)));
         const unassignedPickTasks = plan.pickTasks.filter((pickTask) => !assignedPickTaskIds.has(pickTask.id));
+        $('#unassignedPickTaskCount').text(unassignedPickTasks.length);
         if (unassignedPickTasks.length === 0) {
+            container.append($('<p class="text-muted"/>').text('Every pick task is on a picking cart.'));
             return;
         }
-        container.append($('<h5 class="mt-4"/>').text(`Unassigned pick tasks (${unassignedPickTasks.length})`));
         const table = $('<table class="table table-sm table-striped"/>')
             .append($('<thead><tr><th scope="col">Pick task</th><th scope="col">Order</th><th scope="col">Product</th><th scope="col">Location</th><th scope="col" class="text-end">Volume</th></tr></thead>'))
             .appendTo(container);

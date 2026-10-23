@@ -27,7 +27,7 @@ class App implements Runnable {
             description = "Folder containing your Quarkus app directories (each must be a Maven project).")
     Path javaFolder;
 
-    @Option(names = {"-u","--url"}, defaultValue = "http://localhost:8080",
+    @Option(names = {"-u","--url"}, defaultValue = "http://localhost:9090",
             description = "Base URL to open in the browser (default: ${DEFAULT-VALUE}).")
     String baseUrl;
 
@@ -213,7 +213,7 @@ class App implements Runnable {
     }
 
     private ProcessWrapper startQuarkusDev(Path dir) throws IOException {
-        List<String> command = new java.util.ArrayList<>(List.of("mvn", "-q", "quarkus:dev"));
+        List<String> command = new java.util.ArrayList<>(List.of("mvn", "-q", "quarkus:dev", "-Dquarkus.http.port=9090"));
         if (enterprise) command.add("-Denterprise");
         ProcessBuilder pb = new ProcessBuilder()
                 .directory(dir.toFile())

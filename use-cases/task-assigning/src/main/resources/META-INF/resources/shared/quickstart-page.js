@@ -72,6 +72,7 @@ class QuickstartPage {
 
         const solutionSummaryPanel = document.getElementById('solutionSummaryPanel');
         if (solutionSummaryPanel) {
+            $('#toggleSummaryDivider').show();
             $('#toggleSummaryButton').show().on('click', function () {
                 $(this).toggleClass('collapsed');
                 $(solutionSummaryPanel).toggleClass('hide');
@@ -127,7 +128,7 @@ class QuickstartPage {
                     .appendTo(dropdown);
             });
             // A single dataset leaves nothing to choose between, so the picker is just noise.
-            $("#dataDropdown, #dataDropdownDivider, #dataDropdownDividerAfter").toggle(demoDataList.length > 1);
+            $("#dataDropdown, #dataDropdownDivider").toggle(demoDataList.length > 1);
             if (demoDataList.length > 0) {
                 this.selectDemoData(demoDataList[0].id);
             }
