@@ -41,13 +41,6 @@ public interface LeagueScheduleJustification extends ModelConstraintJustificatio
      */
     String getDescription();
 
-    /**
-     * Exposes the description as the {@code description} property of {@link ModelConstraintJustification}.
-     */
-    default String description() {
-        return getDescription();
-    }
-
     @Schema(description = "Two matches on the same matchday share a team.",
             allOf = { LeagueScheduleJustification.class })
     record MatchesOnSameDayJustification(

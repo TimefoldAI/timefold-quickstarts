@@ -27,8 +27,7 @@ public class ConferenceSchedulingDemoDataGenerator implements DemoDataGenerator 
                     + "conflict rules. Once solved, talks are placed so speaker and room conflicts are avoided "
                     + "and tag-based preferences (required rooms, preferred timeslots, audience-level flow) are "
                     + "honored.",
-            List.of("talk tags", "speaker tags", "room tags", "theme tracks", "audience diversity"),
-            List.of());
+            List.of("talk tags", "speaker tags", "room tags", "theme tracks", "audience diversity"));
 
     @Override
     public List<DemoMetaData> demoMetaData() {

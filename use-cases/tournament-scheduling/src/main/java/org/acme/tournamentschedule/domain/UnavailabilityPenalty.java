@@ -1,32 +1,11 @@
 package org.acme.tournamentschedule.domain;
 
-public class UnavailabilityPenalty {
+import java.time.LocalDate;
 
-    private Team team;
-    private Day day;
-
-    public UnavailabilityPenalty() {
-    }
-
-    public UnavailabilityPenalty(Team team, Day day) {
-        this.team = team;
-        this.day = day;
-    }
-
-    public Team getTeam() {
-        return team;
-    }
-
-    public void setTeam(Team team) {
-        this.team = team;
-    }
-
-    public Day getDay() {
-        return day;
-    }
-
-    public void setDay(Day day) {
-        this.day = day;
-    }
-
+/**
+ * A day a {@link Team} is unavailable to play a match.
+ */
+public record UnavailabilityPenalty(
+        Team team,
+        LocalDate date) {
 }

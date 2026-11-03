@@ -39,13 +39,6 @@ public interface MaintenanceScheduleJustification extends ModelConstraintJustifi
      */
     String getDescription();
 
-    /**
-     * Exposes the description as the {@code description} property of {@link ModelConstraintJustification}.
-     */
-    default String description() {
-        return getDescription();
-    }
-
     @Schema(description = "One crew is working on two jobs whose workdays overlap.",
             allOf = { MaintenanceScheduleJustification.class })
     record CrewConflictJustification(
