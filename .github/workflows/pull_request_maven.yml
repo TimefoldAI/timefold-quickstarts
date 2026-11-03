@@ -23,9 +23,15 @@ jobs:
       cancel-in-progress: true
     runs-on: ${{matrix.os}}
     strategy:
+      fail-fast: false # A broken JDK must not cancel the others.
       matrix:
         os: [ubuntu-latest, ubuntu-24.04-arm, windows-latest, macOS-latest]
-        java-version: [ 21, 25 ] #Latest two LTS + latest non-LTS.
+        java-version: [ 25, 27 ] # Current LTS and latest JDK; replace 27 on each JDK release.
+        include: # Compile target and minimum runtime; Linux only.
+          - os: ubuntu-latest
+            java-version: 21
+          - os: ubuntu-24.04-arm
+            java-version: 21
     timeout-minutes: 120
     steps:
       - name: Support long paths

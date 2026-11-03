@@ -26,8 +26,7 @@ public class TaskAssigningDemoDataGenerator implements DemoDataGenerator {
                     + "affinities. Once solved, every employee is only assigned tasks they have the skills for, "
                     + "as few tasks as possible are left unassigned, the employee who finishes last finishes as "
                     + "early as possible, and higher priority tasks are finished earlier than lower priority ones.",
-            List.of("skills", "workload", "priority"),
-            List.of());
+            List.of("skills", "workload", "priority"));
 
     @Override
     public List<DemoMetaData> demoMetaData() {

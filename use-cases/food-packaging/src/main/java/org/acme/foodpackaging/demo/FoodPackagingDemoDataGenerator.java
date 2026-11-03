@@ -28,8 +28,7 @@ public class FoodPackagingDemoDataGenerator implements DemoDataGenerator {
                     + "instead of producing. Once solved, the jobs are sequenced so as many as possible finish "
                     + "before their ideal end time, no job finishes after its maximum end time, and no operator has "
                     + "to clean two of their lines at once.",
-            List.of("changeover cleaning", "job sequencing", "due dates", "operator conflicts"),
-            List.of());
+            List.of("changeover cleaning", "job sequencing", "due dates", "operator conflicts"));
 
     @Override
     public List<DemoMetaData> demoMetaData() {

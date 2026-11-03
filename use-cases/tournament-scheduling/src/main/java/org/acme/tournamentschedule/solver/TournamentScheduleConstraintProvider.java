@@ -1,17 +1,30 @@
 package org.acme.tournamentschedule.solver;
 
+import static ai.timefold.solver.core.api.score.stream.ConstraintCollectors.count;
+import static ai.timefold.solver.core.api.score.stream.ConstraintCollectors.countBi;
 import static ai.timefold.solver.core.api.score.stream.ConstraintCollectors.loadBalance;
 import static ai.timefold.solver.core.api.score.stream.Joiners.equal;
 import static ai.timefold.solver.core.api.score.stream.Joiners.lessThan;
 
-import ai.timefold.solver.core.api.score.HardMediumSoftBigDecimalScore;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
+import ai.timefold.solver.core.api.score.HardMediumSoftScore;
 import ai.timefold.solver.core.api.score.stream.Constraint;
 import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
 import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
 import ai.timefold.solver.core.api.score.stream.common.LoadBalance;
+import ai.timefold.solver.service.definition.api.description.ConstraintInfo;
 
+import org.acme.tournamentschedule.domain.Confrontation;
+import org.acme.tournamentschedule.domain.Team;
 import org.acme.tournamentschedule.domain.TeamAssignment;
+import org.acme.tournamentschedule.domain.TournamentScheduleConstraintProperties;
 import org.acme.tournamentschedule.domain.UnavailabilityPenalty;
+import org.acme.tournamentschedule.domain.justification.TournamentScheduleJustification.EvenConfrontationCountJustification;
+import org.acme.tournamentschedule.domain.justification.TournamentScheduleJustification.FairAssignmentCountJustification;
+import org.acme.tournamentschedule.domain.justification.TournamentScheduleJustification.OneAssignmentPerDatePerTeamJustification;
+import org.acme.tournamentschedule.domain.justification.TournamentScheduleJustification.UnavailabilityPenaltyJustification;
 
 public class TournamentScheduleConstraintProvider implements ConstraintProvider {
 
@@ -34,41 +47,80 @@ public class TournamentScheduleConstraintProvider implements ConstraintProvider 
         return constraintFactory.forEach(TeamAssignment.class)
                 .join(TeamAssignment.class,
                         equal(TeamAssignment::getTeam),
-                        equal(TeamAssignment::getDay),
+                        equal(TeamAssignment::getMatchDate),
                         lessThan(TeamAssignment::getId))
-                .penalize(HardMediumSoftBigDecimalScore.ONE_HARD)
-                .asConstraint("oneAssignmentPerDatePerTeam");
+                .penalize(HardMediumSoftScore.ONE_HARD)
+                .justifyWith((assignment, otherAssignment, score) -> OneAssignmentPerDatePerTeamJustification
+                        .of(assignment, otherAssignment))
+                .asConstraint(new ConstraintInfo(TournamentScheduleConstraintProperties.ONE_ASSIGNMENT_PER_DATE_PER_TEAM,
+                        TournamentScheduleConstraintProperties.ONE_ASSIGNMENT_PER_DATE_PER_TEAM,
+                        "A team can only have one assignment per date.",
+                        TournamentScheduleConstraintGroup.SCHEDULING_CONFLICTS));
     }
 
     Constraint unavailabilityPenalty(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(UnavailabilityPenalty.class)
                 .ifExists(TeamAssignment.class,
-                        equal(UnavailabilityPenalty::getTeam, TeamAssignment::getTeam),
-                        equal(UnavailabilityPenalty::getDay, TeamAssignment::getDay))
-                .penalize(HardMediumSoftBigDecimalScore.ONE_HARD)
-                .asConstraint("unavailabilityPenalty");
+                        equal(UnavailabilityPenalty::team, TeamAssignment::getTeam),
+                        equal(UnavailabilityPenalty::date, TeamAssignment::getMatchDate))
+                .penalize(HardMediumSoftScore.ONE_HARD)
+                .justifyWith((penalty, score) -> UnavailabilityPenaltyJustification.of(penalty))
+                .asConstraint(new ConstraintInfo(TournamentScheduleConstraintProperties.UNAVAILABILITY_PENALTY,
+                        TournamentScheduleConstraintProperties.UNAVAILABILITY_PENALTY,
+                        "A team cannot be assigned during their unavailability period.",
+                        TournamentScheduleConstraintGroup.SCHEDULING_CONFLICTS));
     }
 
     Constraint fairAssignmentCountPerTeam(ConstraintFactory constraintFactory) {
+        // A stream of assignments only knows the teams that actually got one. The complement adds back every team
+        // that is missing from it, with a count of zero; without them, a schedule that ignores a couple of teams
+        // entirely would look perfectly balanced.
         return constraintFactory.forEach(TeamAssignment.class)
-                .groupBy(loadBalance(TeamAssignment::getTeam))
-                .penalizeBigDecimal(HardMediumSoftBigDecimalScore.ONE_MEDIUM, LoadBalance::unfairness)
-                .asConstraint("fairAssignmentCountPerTeam");
+                .groupBy(TeamAssignment::getTeam, count())
+                .complement(Team.class, team -> 0L)
+                .groupBy(loadBalance((team, assignmentCount) -> team, (team, assignmentCount) -> assignmentCount))
+                .penalize(HardMediumSoftScore.ONE_MEDIUM, TournamentScheduleConstraintProvider::unfairnessWeight)
+                .justifyWith((loadBalance, score) -> FairAssignmentCountJustification.of(loadBalance))
+                .asConstraint(new ConstraintInfo(TournamentScheduleConstraintProperties.FAIR_ASSIGNMENT_COUNT_PER_TEAM,
+                        TournamentScheduleConstraintProperties.FAIR_ASSIGNMENT_COUNT_PER_TEAM,
+                        "Fairly distribute the number of assignments across all teams.",
+                        TournamentScheduleConstraintGroup.FAIRNESS));
     }
 
     Constraint evenlyConfrontationCount(ConstraintFactory constraintFactory) {
-        return constraintFactory.forEach(TeamAssignment.class)
+        var confrontationCounts = constraintFactory.forEach(TeamAssignment.class)
                 .join(TeamAssignment.class,
-                        equal(TeamAssignment::getDay),
-                        lessThan(assignment -> assignment.getTeam().getId()))
-                .groupBy(loadBalance(
-                        (assignment, otherAssignment) -> new Pair<>(assignment.getTeam(), otherAssignment.getTeam())))
-                .penalizeBigDecimal(HardMediumSoftBigDecimalScore.ONE_SOFT, LoadBalance::unfairness)
-                .asConstraint("evenlyConfrontationCount");
+                        equal(TeamAssignment::getMatchDate),
+                        lessThan(assignment -> assignment.getTeam().id()))
+                .groupBy((assignment, otherAssignment) -> new Confrontation(assignment.getTeam(),
+                        otherAssignment.getTeam()), countBi());
+        // A confrontation only exists once two teams actually meet, so, unlike a team, it cannot be complemented
+        // from a fact class. Every possible pairing is therefore built up front and the ones that never meet are
+        // concatenated back in with a count of zero; without them, a schedule that keeps replaying the same few
+        // pairings would look perfectly balanced. Matching the two sides up is left to Confrontation, which orders
+        // its own teams, rather than to the joiners of these two streams happening to agree.
+        return constraintFactory.forEachUniquePair(Team.class)
+                .map(Confrontation::new)
+                .ifNotExists(confrontationCounts.map((confrontation, confrontationCount) -> confrontation), equal())
+                .concat(confrontationCounts, confrontation -> 0L)
+                .groupBy(loadBalance((confrontation, confrontationCount) -> confrontation,
+                        (confrontation, confrontationCount) -> confrontationCount))
+                .penalize(HardMediumSoftScore.ONE_SOFT, TournamentScheduleConstraintProvider::unfairnessWeight)
+                .justifyWith((loadBalance, score) -> EvenConfrontationCountJustification.of(loadBalance))
+                .asConstraint(new ConstraintInfo(TournamentScheduleConstraintProperties.EVEN_CONFRONTATION_COUNT,
+                        TournamentScheduleConstraintProperties.EVEN_CONFRONTATION_COUNT,
+                        "Balance the number of confrontations between each pair of teams.",
+                        TournamentScheduleConstraintGroup.MATCH_BALANCE));
     }
 
-    public record Pair<A, B>(A key, B value) {
+    /**
+     * {@link HardMediumSoftScore} only impacts in whole (long) units, but {@link LoadBalance#unfairness()} is a
+     * {@link BigDecimal} with a fractional part. Scaling it up before rounding keeps three digits of that fraction
+     * significant, so two schedules with a different (if slight) imbalance still compare as different scores.
+     */
+    private static final BigDecimal UNFAIRNESS_SCALE = BigDecimal.valueOf(1000);
 
+    private static long unfairnessWeight(LoadBalance<?> loadBalance) {
+        return loadBalance.unfairness().multiply(UNFAIRNESS_SCALE).setScale(0, RoundingMode.HALF_UP).longValueExact();
     }
-
 }
