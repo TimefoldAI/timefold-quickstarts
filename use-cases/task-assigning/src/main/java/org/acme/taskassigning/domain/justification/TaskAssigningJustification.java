@@ -1,6 +1,6 @@
 package org.acme.taskassigning.domain.justification;
 
-import ai.timefold.solver.service.definition.api.ModelConstraintJustification;
+import ai.timefold.solver.service.definition.api.dto.scoreanalysis.ModelConstraintJustification;
 
 import org.acme.taskassigning.domain.Employee;
 import org.acme.taskassigning.domain.Priority;

@@ -4,18 +4,19 @@ import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
 
-import ai.timefold.solver.service.definition.api.data.DemoData;
-import ai.timefold.solver.service.definition.api.data.DemoMetaData;
-import ai.timefold.solver.service.definition.api.domain.Configuration;
-import ai.timefold.solver.service.definition.api.domain.ModelConfig;
-import ai.timefold.solver.service.definition.api.domain.ModelRequest;
-import ai.timefold.solver.service.definition.api.domain.RunConfiguration;
+import ai.timefold.solver.service.definition.api.dto.dataset.Configuration;
+import ai.timefold.solver.service.definition.api.dto.dataset.ModelConfig;
+import ai.timefold.solver.service.definition.api.dto.dataset.ModelRequest;
+import ai.timefold.solver.service.definition.api.dto.dataset.RunConfiguration;
+import ai.timefold.solver.service.definition.preview.api.demo.DemoData;
+import ai.timefold.solver.service.definition.preview.api.demo.DemoDataGenerator;
+import ai.timefold.solver.service.definition.preview.api.demo.DemoMetaData;
 
 import org.acme.facilitylocation.dto.input.FacilityPlanConfigOverrides;
 import org.acme.facilitylocation.dto.input.FacilityPlanInput;
 
 @ApplicationScoped
-public class FacilityLocationDemoDataGenerator implements ai.timefold.solver.service.definition.api.data.DemoDataGenerator {
+public class FacilityLocationDemoDataGenerator implements DemoDataGenerator {
 
     private static final String BASIC_DEMO_DATA_ID = "BASIC";
 

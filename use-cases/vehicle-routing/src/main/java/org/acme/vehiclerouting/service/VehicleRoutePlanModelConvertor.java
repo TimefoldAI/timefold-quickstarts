@@ -13,8 +13,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 
 import ai.timefold.solver.core.api.domain.solution.ConstraintWeightOverrides;
 import ai.timefold.solver.core.api.score.HardMediumSoftScore;
-import ai.timefold.solver.service.definition.api.ModelConvertor;
-import ai.timefold.solver.service.definition.api.domain.ModelConfig;
+import ai.timefold.solver.service.definition.api.conversion.ModelConvertor;
+import ai.timefold.solver.service.definition.api.dto.dataset.ModelConfig;
 import ai.timefold.solver.service.maps.api.model.Location;
 
 import org.acme.vehiclerouting.domain.Vehicle;

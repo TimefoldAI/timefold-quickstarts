@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.Map;
 
 import ai.timefold.solver.core.api.score.stream.common.LoadBalance;
-import ai.timefold.solver.service.definition.api.ModelConstraintJustification;
+import ai.timefold.solver.service.definition.api.dto.scoreanalysis.ModelConstraintJustification;
 
 import org.acme.employeescheduling.domain.Employee;
 import org.acme.employeescheduling.domain.Shift;

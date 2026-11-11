@@ -12,7 +12,7 @@ import ai.timefold.solver.core.api.score.analysis.ConstraintAnalysis;
 import ai.timefold.solver.core.api.score.analysis.MatchAnalysis;
 import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
 import ai.timefold.solver.core.api.solver.SolutionManager;
-import ai.timefold.solver.service.definition.api.domain.ModelConfig;
+import ai.timefold.solver.service.definition.api.dto.dataset.ModelConfig;
 import ai.timefold.solver.service.definition.api.enrichment.SolverModelEnricherService;
 
 import org.acme.vehiclerouting.domain.VehicleRoutePlan;

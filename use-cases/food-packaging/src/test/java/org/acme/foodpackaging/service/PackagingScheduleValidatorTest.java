@@ -20,11 +20,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Collection;
 import java.util.List;
 
-import ai.timefold.solver.service.definition.api.domain.ModelConfig;
-import ai.timefold.solver.service.definition.api.validation.Issue;
-import ai.timefold.solver.service.definition.api.validation.ValidationBuilder;
-import ai.timefold.solver.service.definition.api.validation.ValidationStatus;
-import ai.timefold.solver.service.definition.api.validation.dto.ValidationResult;
+import ai.timefold.solver.service.definition.api.dto.dataset.ModelConfig;
+import ai.timefold.solver.service.definition.api.dto.validation.ValidationResult;
+import ai.timefold.solver.service.definition.api.dto.validation.ValidationStatus;
+import ai.timefold.solver.service.definition.api.dto.validation.issue.Issue;
+import ai.timefold.solver.service.definition.api.validation.model.ValidationBuilder;
 
 import org.acme.foodpackaging.demo.DemoDataBuilder;
 import org.acme.foodpackaging.dto.input.PackagingScheduleInput;

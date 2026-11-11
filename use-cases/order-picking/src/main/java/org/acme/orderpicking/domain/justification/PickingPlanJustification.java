@@ -1,6 +1,6 @@
 package org.acme.orderpicking.domain.justification;
 
-import ai.timefold.solver.service.definition.api.ModelConstraintJustification;
+import ai.timefold.solver.service.definition.api.dto.scoreanalysis.ModelConstraintJustification;
 
 import org.acme.orderpicking.domain.PickTask;
 import org.acme.orderpicking.domain.PickingCart;

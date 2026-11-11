@@ -3,7 +3,7 @@ package org.acme.vehiclerouting.dto.input;
 import java.time.OffsetDateTime;
 import java.util.List;
 
-import ai.timefold.solver.service.definition.api.ModelInput;
+import ai.timefold.solver.service.definition.api.dto.dataset.ModelInput;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
