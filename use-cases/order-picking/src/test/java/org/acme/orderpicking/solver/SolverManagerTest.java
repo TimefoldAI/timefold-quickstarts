@@ -9,7 +9,7 @@ import java.util.concurrent.ExecutionException;
 import jakarta.inject.Inject;
 
 import ai.timefold.solver.core.api.solver.SolverManager;
-import ai.timefold.solver.service.definition.api.domain.ModelConfig;
+import ai.timefold.solver.service.definition.api.dto.dataset.ModelConfig;
 
 import org.acme.orderpicking.domain.PickTask;
 import org.acme.orderpicking.domain.PickingPlan;

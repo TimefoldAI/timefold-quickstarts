@@ -2,7 +2,7 @@ package org.acme.flightcrewscheduling.dto.output;
 
 import java.util.List;
 
-import ai.timefold.solver.service.definition.api.ModelOutput;
+import ai.timefold.solver.service.definition.api.dto.dataset.ModelOutput;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 

@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 import ai.timefold.solver.core.api.score.HardSoftBigDecimalScore;
-import ai.timefold.solver.service.definition.api.domain.ModelConfig;
+import ai.timefold.solver.service.definition.api.dto.dataset.ModelConfig;
 
 import org.acme.employeescheduling.domain.EmployeeSchedule;
 import org.acme.employeescheduling.domain.EmployeeScheduleConstraintProperties;

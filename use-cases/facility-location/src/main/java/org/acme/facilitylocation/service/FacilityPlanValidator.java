@@ -6,9 +6,9 @@ import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
 
-import ai.timefold.solver.service.definition.api.domain.ModelConfig;
+import ai.timefold.solver.service.definition.api.dto.dataset.ModelConfig;
 import ai.timefold.solver.service.definition.api.validation.ModelValidator;
-import ai.timefold.solver.service.definition.api.validation.ValidationBuilder;
+import ai.timefold.solver.service.definition.api.validation.model.ValidationBuilder;
 
 import org.acme.facilitylocation.dto.input.ConsumerInputDTO;
 import org.acme.facilitylocation.dto.input.FacilityInputDTO;

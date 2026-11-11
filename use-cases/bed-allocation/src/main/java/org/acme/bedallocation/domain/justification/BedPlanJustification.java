@@ -3,7 +3,7 @@ package org.acme.bedallocation.domain.justification;
 import java.util.Collection;
 import java.util.List;
 
-import ai.timefold.solver.service.definition.api.ModelConstraintJustification;
+import ai.timefold.solver.service.definition.api.dto.scoreanalysis.ModelConstraintJustification;
 
 import org.acme.bedallocation.domain.Department;
 import org.acme.bedallocation.domain.Stay;

@@ -1,7 +1,7 @@
 package org.acme.sportsleagueschedule.domain.justification;
 
 import ai.timefold.solver.core.api.score.stream.common.Sequence;
-import ai.timefold.solver.service.definition.api.ModelConstraintJustification;
+import ai.timefold.solver.service.definition.api.dto.scoreanalysis.ModelConstraintJustification;
 
 import org.acme.sportsleagueschedule.domain.Match;
 import org.acme.sportsleagueschedule.domain.Round;

@@ -12,8 +12,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 
 import ai.timefold.solver.core.api.domain.solution.ConstraintWeightOverrides;
 import ai.timefold.solver.core.api.score.HardSoftBigDecimalScore;
-import ai.timefold.solver.service.definition.api.ModelConvertor;
-import ai.timefold.solver.service.definition.api.domain.ModelConfig;
+import ai.timefold.solver.service.definition.api.conversion.ModelConvertor;
+import ai.timefold.solver.service.definition.api.dto.dataset.ModelConfig;
 
 import org.acme.employeescheduling.domain.Employee;
 import org.acme.employeescheduling.domain.EmployeeSchedule;

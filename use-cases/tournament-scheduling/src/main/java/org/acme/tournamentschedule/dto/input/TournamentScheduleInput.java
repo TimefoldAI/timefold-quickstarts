@@ -4,7 +4,7 @@ import static java.util.Collections.emptyList;
 
 import java.util.List;
 
-import ai.timefold.solver.service.definition.api.ModelInput;
+import ai.timefold.solver.service.definition.api.dto.dataset.ModelInput;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 

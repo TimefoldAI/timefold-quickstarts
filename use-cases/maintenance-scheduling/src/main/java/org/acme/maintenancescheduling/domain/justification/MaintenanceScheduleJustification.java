@@ -5,7 +5,7 @@ import static java.time.temporal.ChronoUnit.DAYS;
 import java.time.LocalDate;
 import java.util.List;
 
-import ai.timefold.solver.service.definition.api.ModelConstraintJustification;
+import ai.timefold.solver.service.definition.api.dto.scoreanalysis.ModelConstraintJustification;
 
 import org.acme.maintenancescheduling.domain.Job;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;

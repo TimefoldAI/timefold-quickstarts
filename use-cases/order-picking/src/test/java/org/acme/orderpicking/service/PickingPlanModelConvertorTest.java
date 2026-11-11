@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 import ai.timefold.solver.core.api.score.HardSoftScore;
-import ai.timefold.solver.service.definition.api.domain.ModelConfig;
+import ai.timefold.solver.service.definition.api.dto.dataset.ModelConfig;
 
 import org.acme.orderpicking.domain.PickTask;
 import org.acme.orderpicking.domain.PickingCart;

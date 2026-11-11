@@ -3,7 +3,7 @@ package org.acme.foodpackaging.domain.justification;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 
-import ai.timefold.solver.service.definition.api.ModelConstraintJustification;
+import ai.timefold.solver.service.definition.api.dto.scoreanalysis.ModelConstraintJustification;
 
 import org.acme.foodpackaging.domain.Job;
 import org.acme.foodpackaging.domain.Line;

@@ -1,6 +1,6 @@
 package org.acme.flightcrewscheduling.dto.output;
 
-import ai.timefold.solver.service.definition.api.domain.DataFormat;
+import ai.timefold.solver.service.definition.api.metrics.DataFormat;
 import ai.timefold.solver.service.definition.api.metrics.ModelOutputMetrics;
 
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;

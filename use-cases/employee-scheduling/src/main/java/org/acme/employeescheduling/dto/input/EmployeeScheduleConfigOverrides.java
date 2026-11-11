@@ -1,7 +1,7 @@
 package org.acme.employeescheduling.dto.input;
 
-import ai.timefold.solver.service.definition.api.ModelConfigOverrides;
-import ai.timefold.solver.service.definition.api.domain.ConstraintReference;
+import ai.timefold.solver.service.definition.api.description.ConstraintReference;
+import ai.timefold.solver.service.definition.api.dto.dataset.ModelConfigOverrides;
 
 import org.acme.employeescheduling.domain.EmployeeScheduleConstraintProperties;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;

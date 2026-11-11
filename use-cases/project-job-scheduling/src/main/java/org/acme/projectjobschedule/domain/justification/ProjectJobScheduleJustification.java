@@ -1,6 +1,6 @@
 package org.acme.projectjobschedule.domain.justification;
 
-import ai.timefold.solver.service.definition.api.ModelConstraintJustification;
+import ai.timefold.solver.service.definition.api.dto.scoreanalysis.ModelConstraintJustification;
 
 import org.acme.projectjobschedule.domain.Allocation;
 import org.acme.projectjobschedule.domain.Resource;
