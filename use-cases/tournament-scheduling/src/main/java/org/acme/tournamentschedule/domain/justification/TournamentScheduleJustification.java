@@ -3,7 +3,7 @@ package org.acme.tournamentschedule.domain.justification;
 import java.util.Map;
 
 import ai.timefold.solver.core.api.score.stream.common.LoadBalance;
-import ai.timefold.solver.service.definition.api.ModelConstraintJustification;
+import ai.timefold.solver.service.definition.api.dto.scoreanalysis.ModelConstraintJustification;
 
 import org.acme.tournamentschedule.domain.Confrontation;
 import org.acme.tournamentschedule.domain.Team;

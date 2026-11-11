@@ -1,6 +1,6 @@
 package org.acme.vehiclerouting.dto.output;
 
-import ai.timefold.solver.service.definition.api.ModelConstraintJustification;
+import ai.timefold.solver.service.definition.api.dto.scoreanalysis.ModelConstraintJustification;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 

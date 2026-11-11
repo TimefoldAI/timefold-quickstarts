@@ -1,6 +1,6 @@
 package org.acme.schooltimetabling.domain.justification;
 
-import ai.timefold.solver.service.definition.api.ModelConstraintJustification;
+import ai.timefold.solver.service.definition.api.dto.scoreanalysis.ModelConstraintJustification;
 
 import org.acme.schooltimetabling.domain.Lesson;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;

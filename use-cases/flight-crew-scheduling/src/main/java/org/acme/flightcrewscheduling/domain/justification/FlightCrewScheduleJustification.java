@@ -1,6 +1,6 @@
 package org.acme.flightcrewscheduling.domain.justification;
 
-import ai.timefold.solver.service.definition.api.ModelConstraintJustification;
+import ai.timefold.solver.service.definition.api.dto.scoreanalysis.ModelConstraintJustification;
 
 import org.acme.flightcrewscheduling.domain.Employee;
 import org.acme.flightcrewscheduling.domain.FlightAssignment;

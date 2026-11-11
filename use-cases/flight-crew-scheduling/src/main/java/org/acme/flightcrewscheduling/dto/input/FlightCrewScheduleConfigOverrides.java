@@ -1,7 +1,7 @@
 package org.acme.flightcrewscheduling.dto.input;
 
-import ai.timefold.solver.service.definition.api.ModelConfigOverrides;
-import ai.timefold.solver.service.definition.api.domain.ConstraintReference;
+import ai.timefold.solver.service.definition.api.description.ConstraintReference;
+import ai.timefold.solver.service.definition.api.dto.dataset.ModelConfigOverrides;
 
 import org.acme.flightcrewscheduling.domain.FlightCrewScheduleConstraintProperties;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;

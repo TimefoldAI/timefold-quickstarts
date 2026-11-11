@@ -14,10 +14,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
-import ai.timefold.solver.service.definition.api.domain.ModelConfig;
-import ai.timefold.solver.service.definition.api.validation.Issue;
-import ai.timefold.solver.service.definition.api.validation.ValidationBuilder;
-import ai.timefold.solver.service.definition.api.validation.dto.ValidationResult;
+import ai.timefold.solver.service.definition.api.dto.dataset.ModelConfig;
+import ai.timefold.solver.service.definition.api.dto.validation.ValidationResult;
+import ai.timefold.solver.service.definition.api.dto.validation.issue.Issue;
+import ai.timefold.solver.service.definition.api.validation.model.ValidationBuilder;
 
 import org.acme.projectjobschedule.demo.DemoDataBuilder;
 import org.acme.projectjobschedule.domain.JobType;

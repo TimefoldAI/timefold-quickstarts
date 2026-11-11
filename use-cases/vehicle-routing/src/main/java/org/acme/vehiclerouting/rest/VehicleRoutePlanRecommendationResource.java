@@ -11,7 +11,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import ai.timefold.solver.core.enterprise.TimefoldSolverEnterpriseService;
-import ai.timefold.solver.service.definition.api.error.ErrorInfo;
+import ai.timefold.solver.service.definition.api.dto.error.ErrorInfo;
 
 import org.acme.vehiclerouting.dto.input.RecommendationRequestInput;
 import org.acme.vehiclerouting.dto.output.VehicleRecommendationDTO;

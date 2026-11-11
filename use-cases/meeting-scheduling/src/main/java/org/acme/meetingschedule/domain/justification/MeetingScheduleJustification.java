@@ -1,6 +1,6 @@
 package org.acme.meetingschedule.domain.justification;
 
-import ai.timefold.solver.service.definition.api.ModelConstraintJustification;
+import ai.timefold.solver.service.definition.api.dto.scoreanalysis.ModelConstraintJustification;
 
 import org.acme.meetingschedule.domain.Attendance;
 import org.acme.meetingschedule.domain.MeetingAssignment;

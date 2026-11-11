@@ -2,11 +2,11 @@ package org.acme.orderpicking.service.validation;
 
 import java.util.List;
 
-import ai.timefold.solver.service.definition.api.validation.AbstractIssue;
-import ai.timefold.solver.service.definition.api.validation.IssueCode;
-import ai.timefold.solver.service.definition.api.validation.IssueMetadata;
-import ai.timefold.solver.service.definition.api.validation.IssueSeverity;
-import ai.timefold.solver.service.definition.api.validation.metadata.IssueMessage;
+import ai.timefold.solver.service.definition.api.dto.validation.issue.AbstractIssue;
+import ai.timefold.solver.service.definition.api.dto.validation.issue.IssueCode;
+import ai.timefold.solver.service.definition.api.dto.validation.issue.IssueSeverity;
+import ai.timefold.solver.service.definition.api.dto.validation.issue.metadata.IssueMessage;
+import ai.timefold.solver.service.definition.api.dto.validation.issue.metadata.IssueMetadata;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
